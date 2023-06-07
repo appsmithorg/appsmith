@@ -1,12 +1,13 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.services.ce.EncryptionServiceCE;
 import com.appsmith.server.configurations.EncryptionConfig;
+
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-
 
 public class EncryptionServiceCEImpl implements EncryptionServiceCE {
 

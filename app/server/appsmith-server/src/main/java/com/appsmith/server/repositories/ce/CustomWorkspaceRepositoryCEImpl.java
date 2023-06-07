@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QWorkspace;
@@ -6,20 +9,21 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.SessionUserService;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
@@ -27,8 +31,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     private final SessionUserService sessionUserService;
 
-    public CustomWorkspaceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-                                           SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomWorkspaceRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            SessionUserService sessionUserService,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
         this.sessionUserService = sessionUserService;
     }
@@ -41,7 +48,8 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
+    public Flux<Workspace> findByIdsIn(
+            Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
         Criteria workspaceIdCriteria = where(fieldName(QWorkspace.workspace.id)).in(workspaceIds);
         Criteria tenantIdCriteria = where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
 
@@ -54,8 +62,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .updateMulti(
                         Query.query(Criteria.where("userRoles.userId").is(userId)),
                         Update.update("userRoles.$.name", userName),
-                        Workspace.class
-                )
+                        Workspace.class)
                 .then();
     }
 
@@ -66,11 +73,14 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Workspace> findAll(AclPermission permission) {
-        return sessionUserService.getCurrentUser()
-                .flatMapMany(user -> {
-                    Criteria tenantIdCriteria = where(fieldName(QWorkspace.workspace.tenantId)).is(user.getTenantId());
-                    return queryAll(List.of(tenantIdCriteria), permission);
-                });
-
+        return sessionUserService
+                .getCurrentUser()
+                .flatMapMany(
+                        user -> {
+                            Criteria tenantIdCriteria =
+                                    where(fieldName(QWorkspace.workspace.tenantId))
+                                            .is(user.getTenantId());
+                            return queryAll(List.of(tenantIdCriteria), permission);
+                        });
     }
 }

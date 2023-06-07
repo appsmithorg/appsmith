@@ -1,16 +1,18 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
+
+import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Set;
-
-import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
 @Getter
 @Setter
@@ -43,7 +45,8 @@ public class ActionViewDTO {
     // and hence would return an action execution error.
     @JsonView(Views.Public.class)
     public Integer getTimeoutInMillisecond() {
-        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
-                DEFAULT_ACTION_EXECUTION_TIMEOUT_MS : timeoutInMillisecond;
+        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0)
+                ? DEFAULT_ACTION_EXECUTION_TIMEOUT_MS
+                : timeoutInMillisecond;
     }
 }

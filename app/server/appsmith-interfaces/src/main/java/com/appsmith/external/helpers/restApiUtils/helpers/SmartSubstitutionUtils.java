@@ -1,8 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.models.Property;
-import lombok.AccessLevel;
+
 import lombok.NoArgsConstructor;
+
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;

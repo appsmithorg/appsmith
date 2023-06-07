@@ -1,20 +1,22 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.testcaching.service;
+
+import com.appsmith.caching.annotations.Cache;
+import com.appsmith.caching.annotations.CacheEvict;
+import com.appsmith.testcaching.model.ArgumentModel;
+import com.appsmith.testcaching.model.TestModel;
+
+import org.springframework.stereotype.Service;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import uk.co.jemos.podam.api.PodamFactory;
+import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.stereotype.Service;
-
-import com.appsmith.caching.annotations.CacheEvict;
-import com.appsmith.testcaching.model.ArgumentModel;
-import com.appsmith.testcaching.model.TestModel;
-import com.appsmith.caching.annotations.Cache;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import uk.co.jemos.podam.api.PodamFactory;
-import uk.co.jemos.podam.api.PodamFactoryImpl;
 
 @Service
 public class CacheTestService {
@@ -23,6 +25,7 @@ public class CacheTestService {
 
     /**
      * This method is used to test the caching functionality for Mono<T>.
+     *
      * @param id The id
      * @return The Mono<TestModel> object, random every time
      */
@@ -35,6 +38,7 @@ public class CacheTestService {
 
     /**
      * This method is used to test the eviction functionality for Mono<T>.
+     *
      * @param id The id
      * @return Mono<Void> that completes after eviction
      */
@@ -45,6 +49,7 @@ public class CacheTestService {
 
     /**
      * This method is used to test eviction functionality for Mono<T>, complete cache.
+     *
      * @return Mono<Void> that completes after eviction
      */
     @CacheEvict(cacheName = "objectcache", all = true)
@@ -54,13 +59,14 @@ public class CacheTestService {
 
     /**
      * This method is used to test the caching functionality for Flux<T>.
+     *
      * @param id The id
      * @return The Flux<TestModel>, random every time
      */
     @Cache(cacheName = "listcache")
     public Flux<TestModel> getListFor(String id) {
         List<TestModel> testModels = new ArrayList<>();
-        for(int i = 0;i < 5;i++) {
+        for (int i = 0; i < 5; i++) {
             TestModel model = factory.manufacturePojo(TestModel.class);
             model.setId(id);
             testModels.add(model);
@@ -70,6 +76,7 @@ public class CacheTestService {
 
     /**
      * This method is used to test the eviction functionality for Flux<T>.
+     *
      * @param id The id
      * @return Mono<Void> that completes after eviction
      */
@@ -80,16 +87,17 @@ public class CacheTestService {
 
     /**
      * This method is used to test eviction functionality for Flux<T>, complete cache.
+     *
      * @return Mono<Void> that completes after eviction
      */
     @CacheEvict(cacheName = "listcache", all = true)
     public Mono<Void> evictAllLists() {
         return Mono.empty();
     }
-    
 
     /**
      * This method is used to test SPEL expression in the caching annotation.
+     *
      * @param ArgumentModel The argument model
      * @return The Mono<TestModel> object, random every time
      */
@@ -101,8 +109,9 @@ public class CacheTestService {
     }
 
     /**
-     * This method is used to test SPEL expression in the caching annotation.
-     * Key generated will be same as getObjectForWithKey but with different expression
+     * This method is used to test SPEL expression in the caching annotation. Key generated will be
+     * same as getObjectForWithKey but with different expression
+     *
      * @param id The id
      * @return The Mono<Boolean> that will complete after the item is removed.
      */

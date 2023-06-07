@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -12,9 +13,12 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
+
 import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -41,7 +45,8 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
     @Override
     public Mono<UsagePulse> createPulse(UsagePulseDTO usagePulseDTO) {
         if (null == usagePulseDTO.getViewMode()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.VIEW_MODE));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.VIEW_MODE));
         }
 
         // Remove usage pulse logging for appsmith-cloud until multi-tenancy is introduced
@@ -60,40 +65,47 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
         Mono<String> instanceIdMono = configService.getInstanceId();
 
         return Mono.zip(currentUserMono, tenantIdMono, instanceIdMono)
-                .flatMap(tuple -> {
-                    User user = tuple.getT1();
-                    String tenantId = tuple.getT2();
-                    String instanceId = tuple.getT3();
-                    usagePulse.setTenantId(tenantId);
-                    usagePulse.setInstanceId(instanceId);
+                .flatMap(
+                        tuple -> {
+                            User user = tuple.getT1();
+                            String tenantId = tuple.getT2();
+                            String instanceId = tuple.getT3();
+                            usagePulse.setTenantId(tenantId);
+                            usagePulse.setInstanceId(instanceId);
 
-                    if (user.isAnonymous()) {
-                        if (null == usagePulseDTO.getAnonymousUserId()) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
-                        }
-                        usagePulse.setIsAnonymousUser(true);
-                        usagePulse.setUser(usagePulseDTO.getAnonymousUserId());
-                    } else {
-                        usagePulse.setIsAnonymousUser(false);
-                        if (user.getHashedEmail() == null || StringUtils.isEmpty(user.getHashedEmail())) {
-                            String hashedEmail = DigestUtils.sha256Hex(user.getEmail());
-                            usagePulse.setUser(hashedEmail);
-                            // Hashed user email is stored to user for future mapping of user and pulses
-                            User updateUser = new User();
-                            updateUser.setHashedEmail(hashedEmail);
+                            if (user.isAnonymous()) {
+                                if (null == usagePulseDTO.getAnonymousUserId()) {
+                                    return Mono.error(
+                                            new AppsmithException(
+                                                    AppsmithError.INVALID_PARAMETER,
+                                                    FieldName.ANONYMOUS_USER_ID));
+                                }
+                                usagePulse.setIsAnonymousUser(true);
+                                usagePulse.setUser(usagePulseDTO.getAnonymousUserId());
+                            } else {
+                                usagePulse.setIsAnonymousUser(false);
+                                if (user.getHashedEmail() == null
+                                        || StringUtils.isEmpty(user.getHashedEmail())) {
+                                    String hashedEmail = DigestUtils.sha256Hex(user.getEmail());
+                                    usagePulse.setUser(hashedEmail);
+                                    // Hashed user email is stored to user for future mapping of
+                                    // user and pulses
+                                    User updateUser = new User();
+                                    updateUser.setHashedEmail(hashedEmail);
 
-                            // Avoid updating the ACL fields
-                            updateUser.setGroupIds(null);
-                            updateUser.setPolicies(null);
-                            updateUser.setPermissions(null);
+                                    // Avoid updating the ACL fields
+                                    updateUser.setGroupIds(null);
+                                    updateUser.setPolicies(null);
+                                    updateUser.setPermissions(null);
 
-                            return userService.updateWithoutPermission(user.getId(), updateUser)
-                                    .then(save(usagePulse));
-                        }
-                        usagePulse.setUser(user.getHashedEmail());
-                    }
-                    return save(usagePulse);
-                });
+                                    return userService
+                                            .updateWithoutPermission(user.getId(), updateUser)
+                                            .then(save(usagePulse));
+                                }
+                                usagePulse.setUser(user.getHashedEmail());
+                            }
+                            return save(usagePulse);
+                        });
     }
 
     /**
@@ -105,5 +117,4 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
     public Mono<UsagePulse> save(UsagePulse usagePulse) {
         return repository.save(usagePulse);
     }
-
 }

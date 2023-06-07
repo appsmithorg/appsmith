@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -15,8 +16,11 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import jakarta.validation.Valid;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -48,9 +53,11 @@ public class ActionControllerCE {
     private final ActionExecutionSolution actionExecutionSolution;
 
     @Autowired
-    public ActionControllerCE(LayoutActionService layoutActionService,
-                              NewActionService newActionService,
-                              RefactoringSolution refactoringSolution, ActionExecutionSolution actionExecutionSolution) {
+    public ActionControllerCE(
+            LayoutActionService layoutActionService,
+            NewActionService newActionService,
+            RefactoringSolution refactoringSolution,
+            ActionExecutionSolution actionExecutionSolution) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
         this.refactoringSolution = refactoringSolution;
@@ -60,95 +67,134 @@ public class ActionControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ActionDTO>> createAction(@Valid @RequestBody ActionDTO resource,
-                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                     @RequestHeader(name = "Origin", required = false) String originHeader,
-                                                     ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ActionDTO>> createAction(
+            @Valid @RequestBody ActionDTO resource,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestHeader(name = "Origin", required = false) String originHeader,
+            ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return layoutActionService.createSingleActionWithBranch(resource, branchName)
+        return layoutActionService
+                .createSingleActionWithBranch(resource, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/{defaultActionId}")
-    public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String defaultActionId,
-                                                     @Valid @RequestBody ActionDTO resource,
-                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to update resource with defaultActionId: {}, branch: {}", defaultActionId, branchName);
-        return layoutActionService.updateSingleActionWithBranchName(defaultActionId, resource, branchName)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    public Mono<ResponseDTO<ActionDTO>> updateAction(
+            @PathVariable String defaultActionId,
+            @Valid @RequestBody ActionDTO resource,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to update resource with defaultActionId: {}, branch: {}",
+                defaultActionId,
+                branchName);
+        return layoutActionService
+                .updateSingleActionWithBranchName(defaultActionId, resource, branchName)
+                .map(
+                        updatedResource ->
+                                new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
-                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
-        return actionExecutionSolution.executeAction(partFlux, branchName, environmentId)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(
+            @RequestBody Flux<Part> partFlux,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false)
+                    String environmentId) {
+        return actionExecutionSolution
+                .executeAction(partFlux, branchName, environmentId)
+                .map(
+                        updatedResource ->
+                                new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/move")
-    public Mono<ResponseDTO<ActionDTO>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO,
-                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to move action {} from page {} to page {} on branch {}", actionMoveDTO.getAction().getName(), actionMoveDTO.getAction().getPageId(), actionMoveDTO.getDestinationPageId(), branchName);
-        return layoutActionService.moveAction(actionMoveDTO, branchName)
+    public Mono<ResponseDTO<ActionDTO>> moveAction(
+            @RequestBody @Valid ActionMoveDTO actionMoveDTO,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to move action {} from page {} to page {} on branch {}",
+                actionMoveDTO.getAction().getName(),
+                actionMoveDTO.getAction().getPageId(),
+                actionMoveDTO.getDestinationPageId(),
+                branchName);
+        return layoutActionService
+                .moveAction(actionMoveDTO, branchName)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/refactor")
-    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO,
-                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return refactoringSolution.refactorActionName(refactorActionNameDTO, branchName)
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(
+            @RequestBody RefactorActionNameDTO refactorActionNameDTO,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return refactoringSolution
+                .refactorActionName(refactorActionNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/view")
-    public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(@RequestParam String applicationId,
-                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newActionService.getActionsForViewMode(applicationId, branchName).collectList()
+    public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(
+            @RequestParam String applicationId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newActionService
+                .getActionsForViewMode(applicationId, branchName)
+                .collectList()
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/executeOnLoad/{defaultActionId}")
-    public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(@PathVariable String defaultActionId,
-                                                         @RequestParam Boolean flag,
-                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to set execute on load for action id {} and branchName {} to {}", defaultActionId, branchName, flag);
-        return layoutActionService.setExecuteOnLoad(defaultActionId, branchName, flag)
+    public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(
+            @PathVariable String defaultActionId,
+            @RequestParam Boolean flag,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to set execute on load for action id {} and branchName {} to {}",
+                defaultActionId,
+                branchName,
+                flag);
+        return layoutActionService
+                .setExecuteOnLoad(defaultActionId, branchName, flag)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id,
-                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<ActionDTO>> deleteAction(
+            @PathVariable String id,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to delete unpublished action with id: {}, branchName: {}", id, branchName);
-        return layoutActionService.deleteUnpublishedAction(id, branchName)
-                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+        return layoutActionService
+                .deleteUnpublishedAction(id, branchName)
+                .map(
+                        deletedResource ->
+                                new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
     /**
-     * This function fetches all actions in edit mode.
-     * To fetch the actions in view mode, check the function `getActionsForViewMode`
-     * <p>
-     * The controller function is primarily used with param applicationId by the client to fetch the actions in edit
-     * mode.
+     * This function fetches all actions in edit mode. To fetch the actions in view mode, check the
+     * function `getActionsForViewMode`
+     *
+     * <p>The controller function is primarily used with param applicationId by the client to fetch
+     * the actions in edit mode.
      *
      * @param params
      * @return
      */
     @JsonView(Views.Public.class)
     @GetMapping("")
-    public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params,
-                                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(
+            @RequestParam MultiValueMap<String, String> params,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get all actions with params: {}, branch: {}", params, branchName);
-        // We handle JS actions as part of the collections request, so that all the contextual variables are also picked up
-        return newActionService.getUnpublishedActionsExceptJs(params, branchName)
+        // We handle JS actions as part of the collections request, so that all the contextual
+        // variables are also picked up
+        return newActionService
+                .getUnpublishedActionsExceptJs(params, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }

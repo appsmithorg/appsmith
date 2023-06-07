@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import org.apache.commons.validator.routines.EmailValidator;
@@ -11,9 +12,8 @@ public final class ValidationUtils {
     public static final int LOGIN_PASSWORD_MAX_LENGTH = 48;
     private static final String EMAIL_PATTERN = "[\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+";
 
-    private static final Pattern EMAIL_CSV_PATTERN = Pattern.compile(
-            "^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$"
-    );
+    private static final Pattern EMAIL_CSV_PATTERN =
+            Pattern.compile("^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$");
 
     public static boolean validateEmail(String emailStr) {
         return EmailValidator.getInstance().isValid(emailStr);
@@ -21,14 +21,17 @@ public final class ValidationUtils {
 
     public static boolean validateLoginPassword(String password) {
         int passwordLength = password.length();
-        return passwordLength >= LOGIN_PASSWORD_MIN_LENGTH && passwordLength <= LOGIN_PASSWORD_MAX_LENGTH;
+        return passwordLength >= LOGIN_PASSWORD_MIN_LENGTH
+                && passwordLength <= LOGIN_PASSWORD_MAX_LENGTH;
     }
 
     /**
-     * Validates whether the provided string is a valid csv of emails.
-     * It considers the following cases:<ul>
-     * <li>At least one email must be present. Empty string is not allowed.</li>
-     * <li>Space is allowed before and after comma</li>
+     * Validates whether the provided string is a valid csv of emails. It considers the following
+     * cases:
+     *
+     * <ul>
+     *   <li>At least one email must be present. Empty string is not allowed.
+     *   <li>Space is allowed before and after comma
      * </ul>
      *
      * @param inputString input source

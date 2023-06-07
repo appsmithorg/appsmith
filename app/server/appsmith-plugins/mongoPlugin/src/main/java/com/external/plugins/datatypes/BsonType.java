@@ -1,10 +1,13 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.datatypes;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.datatypes.AppsmithType;
+
 import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
+
 import java.util.regex.Matcher;
 
 public class BsonType implements AppsmithType {

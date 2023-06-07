@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations.mongo;
 
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -8,7 +9,8 @@ import org.springframework.data.repository.query.QueryMethodEvaluationContextPro
 import java.util.Optional;
 
 /**
- * This custom factory returns our custom QueryLookupStrategy so that we can filter out deleted records
+ * This custom factory returns our custom QueryLookupStrategy so that we can filter out deleted
+ * records
  */
 public class SoftDeleteMongoRepositoryFactory extends ReactiveMongoRepositoryFactory {
     private final ReactiveMongoOperations mongoOperations;
@@ -19,14 +21,16 @@ public class SoftDeleteMongoRepositoryFactory extends ReactiveMongoRepositoryFac
     }
 
     @Override
-    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key,
-                                                                   QueryMethodEvaluationContextProvider evaluationContextProvider) {
-        Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key,
-                evaluationContextProvider);
+    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(
+            QueryLookupStrategy.Key key,
+            QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        Optional<QueryLookupStrategy> optStrategy =
+                super.getQueryLookupStrategy(key, evaluationContextProvider);
         return optStrategy.map(this::createSoftDeleteQueryLookupStrategy);
     }
 
-    private SoftDeleteMongoQueryLookupStrategy createSoftDeleteQueryLookupStrategy(QueryLookupStrategy strategy) {
+    private SoftDeleteMongoQueryLookupStrategy createSoftDeleteQueryLookupStrategy(
+            QueryLookupStrategy strategy) {
         return new SoftDeleteMongoQueryLookupStrategy(strategy, mongoOperations);
     }
 }

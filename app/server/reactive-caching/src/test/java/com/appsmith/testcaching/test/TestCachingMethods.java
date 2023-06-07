@@ -1,16 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.testcaching.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-import java.util.List;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import com.appsmith.caching.components.CacheManager;
 import com.appsmith.testcaching.model.ArgumentModel;
@@ -19,20 +12,24 @@ import com.appsmith.testcaching.service.CacheTestService;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 public class TestCachingMethods {
 
-    @Autowired
-    private CacheTestService cacheTestService;
+    @Autowired private CacheTestService cacheTestService;
 
-    @Autowired
-    private CacheManager cacheManager;
+    @Autowired private CacheManager cacheManager;
 
-    /**
-     * This Test is used to test the caching of a method that returns a Mono<T>
-     */
+    /** This Test is used to test the caching of a method that returns a Mono<T> */
     @Test
     public void testCacheAndEvictMono() {
         TestModel model = cacheTestService.getObjectFor("test1").block();
@@ -46,9 +43,7 @@ public class TestCachingMethods {
         assertNotEquals(model, model2);
     }
 
-    /**
-     * This Test is used to test the caching of a method that returns a Flux<T>
-     */
+    /** This Test is used to test the caching of a method that returns a Flux<T> */
     @Test
     public void testCacheAndEvictFlux() {
         List<TestModel> model = cacheTestService.getListFor("test1").collectList().block();
@@ -59,14 +54,12 @@ public class TestCachingMethods {
 
         // If not evicted with above call, this will return the same object
         model2 = cacheTestService.getListFor("test1").collectList().block();
-        for(int i = model.size() - 1; i >= 0; i--) {
+        for (int i = model.size() - 1; i >= 0; i--) {
             assertNotEquals(model.get(i), model2.get(i));
         }
     }
 
-    /**
-     * This Test is used to test evict all
-     */
+    /** This Test is used to test evict all */
     @Test
     public void testEvictAll() {
         TestModel model1 = cacheTestService.getObjectFor("test1").block();
@@ -81,9 +74,7 @@ public class TestCachingMethods {
         assertNotEquals(model2, model2_2);
     }
 
-    /**
-     * This Test is used to test SPEL expression in key field.
-     */
+    /** This Test is used to test SPEL expression in key field. */
     @Test
     public void testExpression() {
         TestModel model = cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
@@ -97,16 +88,14 @@ public class TestCachingMethods {
         assertNotEquals(model, model2);
     }
 
-    /**
-     * Test to measure performance of caching
-     */
+    /** Test to measure performance of caching */
     @Test
     public void measurePerformance() {
         // Cache first
         TestModel model1 = cacheTestService.getObjectFor("test1").block();
         long initialTime = System.nanoTime();
         int count = 100;
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             cacheTestService.getObjectFor("test1").block();
         }
         long finalTime = System.nanoTime();
@@ -114,9 +103,7 @@ public class TestCachingMethods {
         log.info("Time taken for cache operation " + (timeTaken / count) + " nanos");
     }
 
-    /**
-     * Log stats in the end
-     */
+    /** Log stats in the end */
     @AfterAll
     public void tearDown() {
         cacheManager.logStats();

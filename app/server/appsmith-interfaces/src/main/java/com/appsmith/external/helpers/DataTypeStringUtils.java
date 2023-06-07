@@ -1,4 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers;
+
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
+
+import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
@@ -17,13 +22,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+
 import lombok.extern.slf4j.Slf4j;
+
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+
 import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
+
 import reactor.core.Exceptions;
 
 import java.io.IOException;
@@ -41,9 +50,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
-import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
-
 @Slf4j
 public class DataTypeStringUtils {
 
@@ -60,7 +66,10 @@ public class DataTypeStringUtils {
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
 
-    @Deprecated(since = "With the implementation of Data Type handling this function is marked as deprecated and is discouraged for further use")
+    @Deprecated(
+            since =
+                    "With the implementation of Data Type handling this function is marked as"
+                            + " deprecated and is discouraged for further use")
     public static DataType stringToKnownDataTypeConverter(String input) {
 
         if (input == null) {
@@ -72,7 +81,8 @@ public class DataTypeStringUtils {
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
             String trimmedInputBetweenBraces = betweenBraces.trim();
-            // In case of no values in the array, set this as null. Otherwise plugins like postgres and ms-sql
+            // In case of no values in the array, set this as null. Otherwise plugins like postgres
+            // and ms-sql
             // would break while creating a SQL array.
             if (trimmedInputBetweenBraces.isEmpty()) {
                 return DataType.NULL;
@@ -108,7 +118,8 @@ public class DataTypeStringUtils {
             // Not double
         }
 
-        // Creating a copy of the input in lower case form to do simple string equality to check for boolean/null types.
+        // Creating a copy of the input in lower case form to do simple string equality to check for
+        // boolean/null types.
         String copyInput = String.valueOf(input).toLowerCase().trim();
         if (copyInput.equals("true") || copyInput.equals("false")) {
             return DataType.BOOLEAN;
@@ -119,10 +130,12 @@ public class DataTypeStringUtils {
         }
 
         try {
-            final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-//                    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
-                    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                    .toFormatter();
+            final DateTimeFormatter dateTimeFormatter =
+                    new DateTimeFormatterBuilder()
+                            //
+                            // .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
+                            .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                            .toFormatter();
             LocalDateTime.parse(input, dateTimeFormatter);
             return DataType.TIMESTAMP;
         } catch (DateTimeParseException ex) {
@@ -130,9 +143,10 @@ public class DataTypeStringUtils {
         }
 
         try {
-            final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
-                    .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
-                    .toFormatter();
+            final DateTimeFormatter dateFormatter =
+                    new DateTimeFormatterBuilder()
+                            .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
+                            .toFormatter();
             LocalDate.parse(input, dateFormatter);
             return DataType.DATE;
         } catch (DateTimeParseException ex) {
@@ -140,15 +154,15 @@ public class DataTypeStringUtils {
         }
 
         try {
-            final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder()
-                    .appendOptional(DateTimeFormatter.ISO_LOCAL_TIME)
-                    .toFormatter();
+            final DateTimeFormatter timeFormatter =
+                    new DateTimeFormatterBuilder()
+                            .appendOptional(DateTimeFormatter.ISO_LOCAL_TIME)
+                            .toFormatter();
             LocalTime.parse(input, timeFormatter);
             return DataType.TIME;
         } catch (DateTimeParseException ex) {
             // Not time
         }
-
 
         try (JsonReader reader = new JsonReader(new StringReader(input))) {
             strictGsonObjectAdapter.read(reader);
@@ -165,53 +179,55 @@ public class DataTypeStringUtils {
             // Not BSON
         }
 
-        /**
-         * TODO : ASCII, Binary and Bytes Array
-         */
+        /** TODO : ASCII, Binary and Bytes Array */
 
-//        // Check if unicode stream also gets handled as part of this since the destination SQL type is the same.
-//        if(StandardCharsets.US_ASCII.newEncoder().canEncode(input)) {
-//            return Ascii.class;
-//        }
-//        if (isBinary(input)) {
-//            return Binary.class;
-//        }
+        //        // Check if unicode stream also gets handled as part of this since the destination
+        // SQL type is the same.
+        //        if(StandardCharsets.US_ASCII.newEncoder().canEncode(input)) {
+        //            return Ascii.class;
+        //        }
+        //        if (isBinary(input)) {
+        //            return Binary.class;
+        //        }
 
-//        try
-//        {
-//            input.getBytes("UTF-8");
-//            return Byte.class;
-//        } catch (UnsupportedEncodingException e) {
-//            // Not byte
-//        }
+        //        try
+        //        {
+        //            input.getBytes("UTF-8");
+        //            return Byte.class;
+        //        } catch (UnsupportedEncodingException e) {
+        //            // Not byte
+        //        }
 
         // default return type if none of the above matches.
         return DataType.STRING;
     }
 
     /**
-     *
-     * @param input input string which has a mustache expression that will be substituted by the replacement value
+     * @param input input string which has a mustache expression that will be substituted by the
+     *     replacement value
      * @param replacement value that needs to be substituted in place of mustache expression
-     * @param replacementDataType nullable DataType that is used to provide Plugin Specific types, by setting this
-     *                            you can override the 'DataTypeStringUtils.stringToKnownDataTypeConverter(replacement)'
-     *                            default behavior.
+     * @param replacementDataType nullable DataType that is used to provide Plugin Specific types,
+     *     by setting this you can override the
+     *     'DataTypeStringUtils.stringToKnownDataTypeConverter(replacement)' default behavior.
      * @param insertedParams keeps a list of tuple (replacement, data_type)
-     * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied to replacement
-     *                               value before the final substitution happens
-     * @param param the binding parameter having the clientDataType to be used in the data type identification process
+     * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied
+     *     to replacement value before the final substitution happens
+     * @param param the binding parameter having the clientDataType to be used in the data type
+     *     identification process
      * @return
      */
-    public static String jsonSmartReplacementPlaceholderWithValue(String input,
-                                                                  String replacement,
-                                                                  DataType replacementDataType,
-                                                                  List<Map.Entry<String, String>> insertedParams,
-                                                                  SmartSubstitutionInterface smartSubstitutionUtils,
-                                                                  Param param) {
+    public static String jsonSmartReplacementPlaceholderWithValue(
+            String input,
+            String replacement,
+            DataType replacementDataType,
+            List<Map.Entry<String, String>> insertedParams,
+            SmartSubstitutionInterface smartSubstitutionUtils,
+            Param param) {
 
         final DataType dataType;
         if (replacementDataType == null) {
-            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), replacement);
+            AppsmithType appsmithType =
+                    DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), replacement);
             dataType = appsmithType.type();
         } else {
             dataType = replacementDataType;
@@ -234,32 +250,30 @@ public class DataTypeStringUtils {
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
                     updatedReplacement = String.valueOf(objectMapper.writeValueAsString(jsonArray));
-                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
+                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped
+                    // during replacement
                     updatedReplacement = Matcher.quoteReplacement(updatedReplacement);
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                                     replacement,
-                                    e.getMessage()
-                            )
-                    );
+                                    e.getMessage()));
                 }
                 break;
             case JSON_OBJECT:
                 try {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
                     String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
-                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
+                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped
+                    // during replacement
                     updatedReplacement = Matcher.quoteReplacement(jsonString);
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                                     replacement,
-                                    e.getMessage()
-                            )
-                    );
+                                    e.getMessage()));
                 }
                 break;
             case BSON:
@@ -267,10 +281,10 @@ public class DataTypeStringUtils {
                 break;
             case BSON_SPECIAL_DATA_TYPES:
                 /**
-                 * For this data type the replacement logic is handled via `sanitizeReplacement(...)` method.
-                 * Usually usage of special Mongo data types like `ObjectId` or `ISODate` falls into this category
-                 * (if it does not get detected as BSON). For complete list please check out `MongoSpecialDataTypes
-                 * .java`.
+                 * For this data type the replacement logic is handled via
+                 * `sanitizeReplacement(...)` method. Usually usage of special Mongo data types like
+                 * `ObjectId` or `ISODate` falls into this category (if it does not get detected as
+                 * BSON). For complete list please check out `MongoSpecialDataTypes .java`.
                  */
                 updatedReplacement = replacement;
                 break;
@@ -289,14 +303,13 @@ public class DataTypeStringUtils {
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     replacement,
-                                    e.getMessage()
-                            )
-                    );
+                                    e.getMessage()));
                 }
         }
 
         if (smartSubstitutionUtils != null) {
-            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement, dataType);
+            updatedReplacement =
+                    smartSubstitutionUtils.sanitizeReplacement(updatedReplacement, dataType);
         }
 
         input = placeholderPattern.matcher(input).replaceFirst(updatedReplacement);
@@ -318,24 +331,20 @@ public class DataTypeStringUtils {
     private static boolean isDisplayTypeTable(Object data) {
         if (data instanceof List) {
             // Check if the data is a list of json objects
-            return ((List) data).stream()
-                    .allMatch(item -> item instanceof Map);
-        }
-        else if (data instanceof JsonNode) {
+            return ((List) data).stream().allMatch(item -> item instanceof Map);
+        } else if (data instanceof JsonNode) {
             // Check if the data is an array of json objects
             try {
-                objectMapper.convertValue(data, new TypeReference<List<Map<String, Object>>>() {
-                });
+                objectMapper.convertValue(data, new TypeReference<List<Map<String, Object>>>() {});
                 return true;
             } catch (IllegalArgumentException e) {
                 return false;
             }
-        }
-        else if (data instanceof String) {
+        } else if (data instanceof String) {
             // Check if the data is an array of json objects
             try {
-                objectMapper.readValue((String) data, new TypeReference<List<Map<String, Object>>>() {
-                });
+                objectMapper.readValue(
+                        (String) data, new TypeReference<List<Map<String, Object>>>() {});
                 return true;
             } catch (IOException e) {
                 return false;
@@ -344,7 +353,7 @@ public class DataTypeStringUtils {
 
         return false;
     }
-    
+
     private static boolean isDisplayTypeJson(Object data) {
         /*
          * - Any non string non primitive object is converted into a json when serializing.
@@ -352,10 +361,9 @@ public class DataTypeStringUtils {
          */
         if (!isPrimitiveOrWrapper(data.getClass()) && !(data instanceof String)) {
             return true;
-        }
-        else if (data instanceof String) {
+        } else if (data instanceof String) {
             try {
-                objectMapper.readTree((String)data);
+                objectMapper.readTree((String) data);
                 return true;
             } catch (IOException e) {
                 return false;

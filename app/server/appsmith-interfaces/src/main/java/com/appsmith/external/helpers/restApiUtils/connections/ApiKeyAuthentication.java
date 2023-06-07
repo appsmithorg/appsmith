@@ -1,19 +1,23 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.ApiKeyAuth.Type;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -36,8 +40,7 @@ public class ApiKeyAuthentication extends APIConnection {
                         .headerPrefix(apiKeyAuth.getHeaderPrefix())
                         .value(apiKeyAuth.getValue())
                         .addTo(apiKeyAuth.getAddTo())
-                        .build()
-        );
+                        .build());
     }
 
     @Override
@@ -54,10 +57,9 @@ public class ApiKeyAuthentication extends APIConnection {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has found an unsupported api key authentication type. Please reach " +
-                                        "out to Appsmith customer support to resolve this."
-                        )
-                );
+                                "Appsmith server has found an unsupported api key authentication"
+                                        + " type. Please reach out to Appsmith customer support to"
+                                        + " resolve this."));
         }
 
         return Mono.justOrEmpty(requestBuilder.build())
@@ -79,8 +81,7 @@ public class ApiKeyAuthentication extends APIConnection {
 
     private URI appendApiKeyParamToUrl(URI oldUrl) {
 
-        return UriComponentsBuilder
-                .newInstance()
+        return UriComponentsBuilder.newInstance()
                 .scheme(oldUrl.getScheme())
                 .host(oldUrl.getHost())
                 .port(oldUrl.getPort())

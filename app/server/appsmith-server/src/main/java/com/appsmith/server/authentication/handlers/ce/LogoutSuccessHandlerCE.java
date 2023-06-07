@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
@@ -6,7 +7,9 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.AnalyticsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.web.server.ServerWebExchange;
+
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -30,7 +34,8 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
     }
 
     @Override
-    public Mono<Void> onLogoutSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
+    public Mono<Void> onLogoutSuccess(
+            WebFilterExchange webFilterExchange, Authentication authentication) {
         log.debug("In the logout success handler");
 
         ServerWebExchange exchange = webFilterExchange.getExchange();
@@ -38,21 +43,28 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
         response.setStatusCode(HttpStatus.OK);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         try {
-            ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK.value(), true, null);
+            ResponseDTO<Boolean> responseBody =
+                    new ResponseDTO<>(HttpStatus.OK.value(), true, null);
             String responseStr = objectMapper.writeValueAsString(responseBody);
-            DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
-            return analyticsService.sendObjectEvent(
-                            AnalyticsEvents.LOGOUT,
-                            (User) authentication.getPrincipal()
-                    )
+            DataBuffer buffer =
+                    exchange.getResponse()
+                            .bufferFactory()
+                            .allocateBuffer()
+                            .write(responseStr.getBytes());
+            return analyticsService
+                    .sendObjectEvent(AnalyticsEvents.LOGOUT, (User) authentication.getPrincipal())
                     .then(response.writeWith(Mono.just(buffer)));
         } catch (JsonProcessingException e) {
             log.error("Unable to write to response json. Cause: ", e);
             // Returning a hard-coded failure json
-            String responseStr = "{\"responseMeta\":{\"status\":500,\"success\":false},\"data\":false}";
-            DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
+            String responseStr =
+                    "{\"responseMeta\":{\"status\":500,\"success\":false},\"data\":false}";
+            DataBuffer buffer =
+                    exchange.getResponse()
+                            .bufferFactory()
+                            .allocateBuffer()
+                            .write(responseStr.getBytes());
             return response.writeWith(Mono.just(buffer));
         }
     }
-
 }

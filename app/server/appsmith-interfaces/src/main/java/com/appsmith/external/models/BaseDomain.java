@@ -1,12 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -21,15 +24,15 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
- * TODO :
- * Move BaseDomain back to appsmith-server.domain. This is done temporarily to create templates and providers in the same database as the server
+ * TODO : Move BaseDomain back to appsmith-server.domain. This is done temporarily to create
+ * templates and providers in the same database as the server
  */
 @Getter
 @Setter
 @ToString
-public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
+public abstract class BaseDomain
+        implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;
 
@@ -80,7 +83,8 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
-    // This field will only be used for git related functionality to sync the action object across different instances.
+    // This field will only be used for git related functionality to sync the action object across
+    // different instances.
     // This field will be deprecated once we move to the new git sync implementation.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Internal.class)
@@ -98,7 +102,8 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     }
 
     public void makePristine() {
-        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
+        // Set the ID to null for this domain object so that it is saved a new document in the
+        // database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.
         this.setId(null);
         this.setUpdatedAt(null);

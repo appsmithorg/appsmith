@@ -1,25 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
-
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.Condition;
-import com.appsmith.external.models.TriggerRequestDTO;
-import com.external.constants.ErrorMessages;
-import com.external.constants.FieldName;
-import com.external.plugins.exceptions.GSheetsPluginError;
-import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.springframework.util.StringUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -30,6 +10,26 @@ import static com.appsmith.external.helpers.PluginUtils.validDataConfigurationPr
 import static com.external.constants.FieldName.SHEET_NAME;
 import static com.external.constants.FieldName.SHEET_URL;
 import static com.external.constants.FieldName.TABLE_HEADER_INDEX;
+
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.external.constants.ErrorMessages;
+import com.external.constants.FieldName;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -56,44 +56,53 @@ public class MethodConfig {
     List<String> projection;
     List<Map<String, String>> sortBy;
     Map<String, String> paginateBy;
-    Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
+    Pattern sheetRangePattern =
+            Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
 
     public MethodConfig(Map<String, Object> formData) {
 
         if (validDataConfigurationPresentInFormData(formData, SHEET_URL, STRING_TYPE)) {
-            this.spreadsheetUrl = getDataValueSafelyFromFormData(formData, SHEET_URL, STRING_TYPE, "");
+            this.spreadsheetUrl =
+                    getDataValueSafelyFromFormData(formData, SHEET_URL, STRING_TYPE, "");
             setSpreadsheetUrlFromSpreadsheetId();
         }
-        this.spreadsheetRange = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.RANGE);
-        this.spreadsheetName = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.SPREADSHEET_NAME);
-        this.tableHeaderIndex = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.TABLE_HEADER_INDEX);
-        this.queryFormat = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.QUERY_FORMAT);
+        this.spreadsheetRange =
+                getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.RANGE);
+        this.spreadsheetName =
+                getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.SPREADSHEET_NAME);
+        this.tableHeaderIndex =
+                getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.TABLE_HEADER_INDEX);
+        this.queryFormat =
+                getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.QUERY_FORMAT);
         this.rowIndex = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_INDEX);
         this.sheetName = getTrimmedStringDataValueSafelyFromFormData(formData, SHEET_NAME);
-        this.rowObjects = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
+        this.rowObjects =
+                getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
 
-        if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE,
-                new TypeReference<Map<String, Object>>() {
-                })) {
-            Map<String, Object> whereForm = getDataValueSafelyFromFormData(
-                    formData,
-                    FieldName.WHERE,
-                    new TypeReference<Map<String, Object>>() {
-                    },
-                    new HashMap<>());
+        if (validDataConfigurationPresentInFormData(
+                formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {})) {
+            Map<String, Object> whereForm =
+                    getDataValueSafelyFromFormData(
+                            formData,
+                            FieldName.WHERE,
+                            new TypeReference<Map<String, Object>>() {},
+                            new HashMap<>());
             this.whereConditions = parseWhereClause(whereForm);
         }
 
-        this.projection = getDataValueSafelyFromFormData(formData, FieldName.PROJECTION, new TypeReference<>() {
-        });
+        this.projection =
+                getDataValueSafelyFromFormData(
+                        formData, FieldName.PROJECTION, new TypeReference<>() {});
         // Always add rowIndex to a valid projection
         if (this.projection != null && !this.projection.isEmpty()) {
             this.projection.add("rowIndex");
         }
-        this.sortBy = getDataValueSafelyFromFormData(formData, FieldName.SORT_BY, new TypeReference<>() {
-        });
-        this.paginateBy = getDataValueSafelyFromFormData(formData, FieldName.PAGINATION, new TypeReference<>() {
-        });
+        this.sortBy =
+                getDataValueSafelyFromFormData(
+                        formData, FieldName.SORT_BY, new TypeReference<>() {});
+        this.paginateBy =
+                getDataValueSafelyFromFormData(
+                        formData, FieldName.PAGINATION, new TypeReference<>() {});
     }
 
     private void setSpreadsheetUrlFromSpreadsheetId() {
@@ -101,7 +110,9 @@ public class MethodConfig {
         if (matcher.find()) {
             this.spreadsheetId = matcher.group(1);
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.SPREADSHEET_ID_NOT_FOUND_IN_URL_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    ErrorMessages.SPREADSHEET_ID_NOT_FOUND_IN_URL_ERROR_MSG);
         }
     }
 
@@ -110,12 +121,12 @@ public class MethodConfig {
         switch (parameters.size()) {
             case 3:
             case 2:
-                this.tableHeaderIndex = getValueSafelyFromFormDataAsString(parameters, TABLE_HEADER_INDEX);
+                this.tableHeaderIndex =
+                        getValueSafelyFromFormDataAsString(parameters, TABLE_HEADER_INDEX);
                 this.sheetName = getValueSafelyFromFormDataAsString(parameters, SHEET_NAME);
             case 1:
                 this.spreadsheetUrl = getValueSafelyFromFormDataAsString(parameters, SHEET_URL);
                 setSpreadsheetUrlFromSpreadsheetId();
         }
     }
-
 }

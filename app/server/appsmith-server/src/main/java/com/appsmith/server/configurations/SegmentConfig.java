@@ -1,11 +1,14 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Log;
 import com.segment.analytics.messages.TrackMessage;
+
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -43,29 +46,40 @@ public class SegmentConfig {
 
         final String analyticsWriteKey = commonConfig.isCloudHosting() ? writeKey : ceKey;
         if (StringUtils.isEmpty(analyticsWriteKey)) {
-            // We don't have the Segment Key, returning `null` here will disable analytics calls from AnalyticsService.
+            // We don't have the Segment Key, returning `null` here will disable analytics calls
+            // from AnalyticsService.
             return null;
         }
 
         final LogProcessor logProcessor = new LogProcessor();
 
-        Analytics analyticsOnAnalytics = Analytics.builder(analyticsWriteKey).log(logProcessor).build();
+        Analytics analyticsOnAnalytics =
+                Analytics.builder(analyticsWriteKey).log(logProcessor).build();
 
-        // We use a different analytics instance for sending events about the analytics system itself so we don't end up
+        // We use a different analytics instance for sending events about the analytics system
+        // itself so we don't end up
         // in a recursive state.
         final LogProcessor logProcessorWithErrorHandler = new LogProcessor();
-        final Analytics analytics = Analytics.builder(analyticsWriteKey).log(logProcessorWithErrorHandler).build();
-        logProcessorWithErrorHandler.onError(logData -> {
-            final Throwable error = logData.getError();
-            analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error").userId("segmentError")
-                    .properties(Map.of(
-                            "message", logData.getMessage(),
-                            "error", error == null ? "" : error.getMessage(),
-                            "args", ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()),
-                            "stackTrace", ExceptionUtils.getStackTrace(error)
-                    ))
-            );
-        });
+        final Analytics analytics =
+                Analytics.builder(analyticsWriteKey).log(logProcessorWithErrorHandler).build();
+        logProcessorWithErrorHandler.onError(
+                logData -> {
+                    final Throwable error = logData.getError();
+                    analyticsOnAnalytics.enqueue(
+                            TrackMessage.builder("segment_error")
+                                    .userId("segmentError")
+                                    .properties(
+                                            Map.of(
+                                                    "message", logData.getMessage(),
+                                                    "error",
+                                                            error == null ? "" : error.getMessage(),
+                                                    "args",
+                                                            ObjectUtils.defaultIfNull(
+                                                                    logData.getArgs(),
+                                                                    Collections.emptyList()),
+                                                    "stackTrace",
+                                                            ExceptionUtils.getStackTrace(error))));
+                });
 
         return analytics;
     }
@@ -109,5 +123,4 @@ public class SegmentConfig {
         final String message;
         final Object[] args;
     }
-
 }

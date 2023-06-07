@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -8,9 +9,8 @@ import lombok.Setter;
 import java.util.Map;
 
 /**
- * This type conveys the action template and corresponding values to use
- * This would be evaluated at runtime and sent from the client as a result of
- * different conditions being met
+ * This type conveys the action template and corresponding values to use This would be evaluated at
+ * runtime and sent from the client as a result of different conditions being met
  */
 @NoArgsConstructor
 @AllArgsConstructor

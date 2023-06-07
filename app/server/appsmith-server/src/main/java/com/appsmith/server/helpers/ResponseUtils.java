@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionDTO;
@@ -17,8 +18,10 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -49,8 +52,7 @@ public class ResponseUtils {
         page.setApplicationId(defaultResourceIds.getApplicationId());
         page.setId(defaultResourceIds.getPageId());
 
-        page.getLayouts()
-                .stream()
+        page.getLayouts().stream()
                 .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
                 .forEach(layout -> this.updateLayoutWithDefaultResources(layout));
         return page;
@@ -60,13 +62,12 @@ public class ResponseUtils {
         DefaultResources defaultResourceIds = newPage.getDefaultResources();
         if (defaultResourceIds == null
                 || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
-                || StringUtils.isEmpty(defaultResourceIds.getPageId())
-        ) {
+                || StringUtils.isEmpty(defaultResourceIds.getPageId())) {
             log.error(
                     "Unable to find default ids for page: {}",
                     newPage.getId(),
-                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId())
-            );
+                    new AppsmithException(
+                            AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId()));
 
             if (defaultResourceIds == null) {
                 return newPage;
@@ -81,30 +82,36 @@ public class ResponseUtils {
         newPage.setId(defaultResourceIds.getPageId());
         newPage.setApplicationId(defaultResourceIds.getApplicationId());
         if (newPage.getUnpublishedPage() != null) {
-            newPage.setUnpublishedPage(this.updatePageDTOWithDefaultResources(newPage.getUnpublishedPage()));
+            newPage.setUnpublishedPage(
+                    this.updatePageDTOWithDefaultResources(newPage.getUnpublishedPage()));
         }
         if (newPage.getPublishedPage() != null) {
-            newPage.setPublishedPage(this.updatePageDTOWithDefaultResources(newPage.getPublishedPage()));
+            newPage.setPublishedPage(
+                    this.updatePageDTOWithDefaultResources(newPage.getPublishedPage()));
         }
         return newPage;
     }
 
-    public ApplicationPagesDTO updateApplicationPagesDTOWithDefaultResources(ApplicationPagesDTO applicationPages) {
+    public ApplicationPagesDTO updateApplicationPagesDTOWithDefaultResources(
+            ApplicationPagesDTO applicationPages) {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
         for (PageNameIdDTO page : pageNameIdList) {
             if (StringUtils.isEmpty(page.getDefaultPageId())) {
                 log.error(
                         "Unable to find default pageId for applicationPage: {}",
                         page.getId(),
-                        new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId())
-                );
+                        new AppsmithException(
+                                AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE,
+                                "applicationPage",
+                                page.getId()));
                 continue;
             }
             page.setId(page.getDefaultPageId());
         }
         // need to update the application also if it's present
         if (applicationPages.getApplication() != null) {
-            applicationPages.setApplication(updateApplicationWithDefaultResources(applicationPages.getApplication()));
+            applicationPages.setApplication(
+                    updateApplicationWithDefaultResources(applicationPages.getApplication()));
         }
         return applicationPages;
     }
@@ -141,34 +148,50 @@ public class ResponseUtils {
     public LayoutDTO updateLayoutDTOWithDefaultResources(LayoutDTO layout) {
         if (!CollectionUtils.isEmpty(layout.getActionUpdates())) {
             layout.getActionUpdates()
-                    .forEach(updateLayoutAction -> updateLayoutAction.setId(updateLayoutAction.getDefaultActionId()));
+                    .forEach(
+                            updateLayoutAction ->
+                                    updateLayoutAction.setId(
+                                            updateLayoutAction.getDefaultActionId()));
         }
         if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
-            layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
-                    layoutOnLoadAction.forEach(onLoadAction -> {
-                        if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
-                            onLoadAction.setId(onLoadAction.getDefaultActionId());
-                        }
-                        if (!StringUtils.isEmpty(onLoadAction.getDefaultCollectionId())) {
-                            onLoadAction.setCollectionId(onLoadAction.getDefaultCollectionId());
-                        }
-                    })
-            );
+            layout.getLayoutOnLoadActions()
+                    .forEach(
+                            layoutOnLoadAction ->
+                                    layoutOnLoadAction.forEach(
+                                            onLoadAction -> {
+                                                if (!StringUtils.isEmpty(
+                                                        onLoadAction.getDefaultActionId())) {
+                                                    onLoadAction.setId(
+                                                            onLoadAction.getDefaultActionId());
+                                                }
+                                                if (!StringUtils.isEmpty(
+                                                        onLoadAction.getDefaultCollectionId())) {
+                                                    onLoadAction.setCollectionId(
+                                                            onLoadAction.getDefaultCollectionId());
+                                                }
+                                            }));
         }
         return layout;
     }
 
     public Layout updateLayoutWithDefaultResources(Layout layout) {
         if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
-            layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
-                    layoutOnLoadAction.forEach(onLoadAction -> {
-                        if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
-                            onLoadAction.setId(onLoadAction.getDefaultActionId());
-                        }
-                        if (!StringUtils.isEmpty(onLoadAction.getDefaultCollectionId())) {
-                            onLoadAction.setCollectionId(onLoadAction.getDefaultCollectionId());
-                        }
-                    }));
+            layout.getLayoutOnLoadActions()
+                    .forEach(
+                            layoutOnLoadAction ->
+                                    layoutOnLoadAction.forEach(
+                                            onLoadAction -> {
+                                                if (!StringUtils.isEmpty(
+                                                        onLoadAction.getDefaultActionId())) {
+                                                    onLoadAction.setId(
+                                                            onLoadAction.getDefaultActionId());
+                                                }
+                                                if (!StringUtils.isEmpty(
+                                                        onLoadAction.getDefaultCollectionId())) {
+                                                    onLoadAction.setCollectionId(
+                                                            onLoadAction.getDefaultCollectionId());
+                                                }
+                                            }));
         }
         return layout;
     }
@@ -202,8 +225,10 @@ public class ResponseUtils {
             log.error(
                     "Unable to find default ids for newAction: {}",
                     newAction.getId(),
-                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "newAction", newAction.getId())
-            );
+                    new AppsmithException(
+                            AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE,
+                            "newAction",
+                            newAction.getId()));
 
             if (defaultResourceIds == null) {
                 return newAction;
@@ -219,15 +244,18 @@ public class ResponseUtils {
         newAction.setId(defaultResourceIds.getActionId());
         newAction.setApplicationId(defaultResourceIds.getApplicationId());
         if (newAction.getUnpublishedAction() != null) {
-            newAction.setUnpublishedAction(this.updateActionDTOWithDefaultResources(newAction.getUnpublishedAction()));
+            newAction.setUnpublishedAction(
+                    this.updateActionDTOWithDefaultResources(newAction.getUnpublishedAction()));
         }
         if (newAction.getPublishedAction() != null) {
-            newAction.setPublishedAction(this.updateActionDTOWithDefaultResources(newAction.getPublishedAction()));
+            newAction.setPublishedAction(
+                    this.updateActionDTOWithDefaultResources(newAction.getPublishedAction()));
         }
         return newAction;
     }
 
-    public ActionCollection updateActionCollectionWithDefaultResources(ActionCollection actionCollection) {
+    public ActionCollection updateActionCollectionWithDefaultResources(
+            ActionCollection actionCollection) {
         DefaultResources defaultResourceIds = actionCollection.getDefaultResources();
         if (defaultResourceIds == null
                 || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
@@ -235,8 +263,10 @@ public class ResponseUtils {
             log.error(
                     "Unable to find default ids for actionCollection: {}",
                     actionCollection.getId(),
-                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", actionCollection.getId())
-            );
+                    new AppsmithException(
+                            AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE,
+                            "actionCollection",
+                            actionCollection.getId()));
 
             if (defaultResourceIds == null) {
                 return actionCollection;
@@ -251,15 +281,20 @@ public class ResponseUtils {
         actionCollection.setId(defaultResourceIds.getCollectionId());
         actionCollection.setApplicationId(defaultResourceIds.getApplicationId());
         if (actionCollection.getUnpublishedCollection() != null) {
-            actionCollection.setUnpublishedCollection(this.updateCollectionDTOWithDefaultResources(actionCollection.getUnpublishedCollection()));
+            actionCollection.setUnpublishedCollection(
+                    this.updateCollectionDTOWithDefaultResources(
+                            actionCollection.getUnpublishedCollection()));
         }
         if (actionCollection.getPublishedCollection() != null) {
-            actionCollection.setPublishedCollection(this.updateCollectionDTOWithDefaultResources(actionCollection.getPublishedCollection()));
+            actionCollection.setPublishedCollection(
+                    this.updateCollectionDTOWithDefaultResources(
+                            actionCollection.getPublishedCollection()));
         }
         return actionCollection;
     }
 
-    public ActionCollectionDTO updateCollectionDTOWithDefaultResources(ActionCollectionDTO collection) {
+    public ActionCollectionDTO updateCollectionDTOWithDefaultResources(
+            ActionCollectionDTO collection) {
         DefaultResources defaultResourceIds = collection.getDefaultResources();
         if (defaultResourceIds == null
                 || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
@@ -290,7 +325,8 @@ public class ResponseUtils {
         return collection;
     }
 
-    public ActionCollectionViewDTO updateActionCollectionViewDTOWithDefaultResources(ActionCollectionViewDTO viewDTO) {
+    public ActionCollectionViewDTO updateActionCollectionViewDTOWithDefaultResources(
+            ActionCollectionViewDTO viewDTO) {
         DefaultResources defaultResourceIds = viewDTO.getDefaultResources();
         if (defaultResourceIds == null
                 || StringUtils.isEmpty(defaultResourceIds.getPageId())
@@ -319,36 +355,40 @@ public class ResponseUtils {
 
     public Application updateApplicationWithDefaultResources(Application application) {
         if (application.getGitApplicationMetadata() != null
-                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
+                && !StringUtils.isEmpty(
+                        application.getGitApplicationMetadata().getDefaultApplicationId())) {
             application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
         }
         if (!CollectionUtils.isEmpty(application.getPages())) {
             application
                     .getPages()
-                    .forEach(page -> {
-                        if (!StringUtils.isEmpty(page.getDefaultPageId())) {
-                            page.setId(page.getDefaultPageId());
-                        }
-                    });
+                    .forEach(
+                            page -> {
+                                if (!StringUtils.isEmpty(page.getDefaultPageId())) {
+                                    page.setId(page.getDefaultPageId());
+                                }
+                            });
         }
         if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
             application
                     .getPublishedPages()
-                    .forEach(page -> {
-                        if (!StringUtils.isEmpty(page.getDefaultPageId())) {
-                            page.setId(page.getDefaultPageId());
-                        }
-                    });
+                    .forEach(
+                            page -> {
+                                if (!StringUtils.isEmpty(page.getDefaultPageId())) {
+                                    page.setId(page.getDefaultPageId());
+                                }
+                            });
         }
 
-        if (application.getClientSchemaVersion() == null || application.getServerSchemaVersion() == null
+        if (application.getClientSchemaVersion() == null
+                || application.getServerSchemaVersion() == null
                 || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
-                && JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion()))) {
+                        && JsonSchemaVersions.serverVersion.equals(
+                                application.getServerSchemaVersion()))) {
             application.setIsAutoUpdate(false);
         } else {
             application.setIsAutoUpdate(true);
         }
         return application;
     }
-
 }

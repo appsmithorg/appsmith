@@ -1,16 +1,18 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains.ce;
 
+import static org.springframework.util.StringUtils.hasLength;
+
 import com.appsmith.server.domains.DatasourceContextIdentifier;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static org.springframework.util.StringUtils.hasLength;
-
 /**
- * This class is for generating keys for dsContext.
- * The object of this class will be used as keys for dsContext
+ * This class is for generating keys for dsContext. The object of this class will be used as keys
+ * for dsContext
  */
 @Getter
 @Setter
@@ -45,13 +47,14 @@ public class DatasourceContextIdentifierCE {
     public int hashCode() {
         int result = 0;
         result = hasLength(this.getDatasourceId()) ? this.getDatasourceId().hashCode() : result;
-        result = hasLength(this.getDatasourceId()) ? result * 31 + this.getDatasourceId().hashCode() : result;
+        result =
+                hasLength(this.getDatasourceId())
+                        ? result * 31 + this.getDatasourceId().hashCode()
+                        : result;
         return result;
     }
 
     public boolean isKeyValid() {
         return hasLength(this.getDatasourceId());
     }
-
-
 }

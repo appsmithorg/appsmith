@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
@@ -6,16 +7,27 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
+
 import net.minidev.json.JSONObject;
+
 import reactor.core.publisher.Mono;
 
 public interface LayoutActionServiceCE {
 
-    Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout);
+    Mono<LayoutDTO> updateLayout(
+            String pageId, String applicationId, String layoutId, Layout layout);
 
-    Mono<LayoutDTO> updateLayout(String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName);
+    Mono<LayoutDTO> updateLayout(
+            String defaultPageId,
+            String defaultApplicationId,
+            String layoutId,
+            Layout layout,
+            String branchName);
 
-    Mono<Integer> updateMultipleLayouts(String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
+    Mono<Integer> updateMultipleLayouts(
+            String defaultApplicationId,
+            String branchName,
+            UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
 
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
 
@@ -29,11 +41,13 @@ public interface LayoutActionServiceCE {
 
     Mono<String> updatePageLayoutsByPageId(String pageId);
 
-    Mono<ActionDTO> updateSingleActionWithBranchName(String id, ActionDTO action, String branchName);
+    Mono<ActionDTO> updateSingleActionWithBranchName(
+            String id, ActionDTO action, String branchName);
 
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 
-    Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad);
+    Mono<ActionDTO> setExecuteOnLoad(
+            String defaultActionId, String branchName, Boolean isExecuteOnLoad);
 
     JSONObject unescapeMongoSpecialCharacters(Layout layout);
 
@@ -43,10 +57,10 @@ public interface LayoutActionServiceCE {
 
     Mono<ActionDTO> createSingleAction(ActionDTO action, Boolean isJsAction);
 
-    Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction);
+    Mono<ActionDTO> createAction(
+            ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id, String branchName);
-
 }

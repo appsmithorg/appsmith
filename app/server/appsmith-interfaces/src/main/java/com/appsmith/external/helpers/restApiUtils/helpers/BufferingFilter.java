@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import org.reactivestreams.Publisher;
@@ -10,23 +11,25 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
+
 import reactor.core.publisher.Mono;
 
 /**
- * This filter loads the request body in memory and calculates the content length of the body
- * It then adds this content length as a header to the original request
+ * This filter loads the request body in memory and calculates the content length of the body It
+ * then adds this content length as a header to the original request
  */
 public class BufferingFilter implements ExchangeFilterFunction {
 
     @Override
-    @NonNull
-    public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
+    @NonNull public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
         return next.exchange(
-                ClientRequest
-                        .from(request)
-                        .body((message, context) -> request
-                                .body()
-                                .insert(new BufferingRequestDecorator(message), context))
+                ClientRequest.from(request)
+                        .body(
+                                (message, context) ->
+                                        request.body()
+                                                .insert(
+                                                        new BufferingRequestDecorator(message),
+                                                        context))
                         .build());
     }
 
@@ -37,15 +40,14 @@ public class BufferingFilter implements ExchangeFilterFunction {
         }
 
         @Override
-        @NonNull
-        public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
-            return DataBufferUtils
-                    .join(body)
-                    .flatMap(dataBuffer -> {
-                        int length = dataBuffer.readableByteCount();
-                        this.getDelegate().getHeaders().setContentLength(length);
-                        return super.writeWith(body);
-                    });
+        @NonNull public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
+            return DataBufferUtils.join(body)
+                    .flatMap(
+                            dataBuffer -> {
+                                int length = dataBuffer.readableByteCount();
+                                this.getDelegate().getHeaders().setContentLength(length);
+                                return super.writeWith(body);
+                            });
         }
     }
 }

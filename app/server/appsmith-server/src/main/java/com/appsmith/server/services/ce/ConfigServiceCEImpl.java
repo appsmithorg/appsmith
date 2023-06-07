@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
+
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
@@ -11,16 +14,17 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+
 import lombok.extern.slf4j.Slf4j;
+
 import net.minidev.json.JSONObject;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
@@ -31,12 +35,14 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     private final DatasourceRepository datasourceRepository;
     private final ConfigRepository repository;
 
-    // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
+    // This is permanently cached through the life of the JVM process as this is not intended to
+    // change at runtime ever.
     private String instanceId = null;
 
-    public ConfigServiceCEImpl(ConfigRepository repository,
-                               ApplicationRepository applicationRepository,
-                               DatasourceRepository datasourceRepository) {
+    public ConfigServiceCEImpl(
+            ConfigRepository repository,
+            ApplicationRepository applicationRepository,
+            DatasourceRepository datasourceRepository) {
 
         this.applicationRepository = applicationRepository;
         this.datasourceRepository = datasourceRepository;
@@ -45,29 +51,43 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Config> getByName(String name) {
-        return repository.findByName(name)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)));
+        return repository
+                .findByName(name)
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)));
     }
 
     @Override
     public Mono<Config> updateByName(Config config) {
         final String name = config.getName();
-        return repository.findByName(name)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
-                .flatMap(dbConfig -> {
-                    log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
-                    dbConfig.setConfig(config.getConfig());
-                    return repository.save(dbConfig);
-                });
+        return repository
+                .findByName(name)
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
+                .flatMap(
+                        dbConfig -> {
+                            log.debug(
+                                    "Found config with name: {} and id: {}",
+                                    name,
+                                    dbConfig.getId());
+                            dbConfig.setConfig(config.getConfig());
+                            return repository.save(dbConfig);
+                        });
     }
 
     @Override
     public Mono<Config> save(Config config) {
-        return repository.findByName(config.getName())
-                .flatMap(dbConfig -> {
-                    dbConfig.setConfig(config.getConfig());
-                    return repository.save(dbConfig);
-                })
+        return repository
+                .findByName(config.getName())
+                .flatMap(
+                        dbConfig -> {
+                            dbConfig.setConfig(config.getConfig());
+                            return repository.save(dbConfig);
+                        })
                 .switchIfEmpty(Mono.defer(() -> repository.save(config)));
     }
 
@@ -83,28 +103,35 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
         }
 
         return getByName("instance-id")
-                .map(config -> {
-                    instanceId = config.getConfig().getAsString("value");
-                    return instanceId;
-                });
+                .map(
+                        config -> {
+                            instanceId = config.getConfig().getAsString("value");
+                            return instanceId;
+                        });
     }
 
     @Override
     public Mono<String> getTemplateWorkspaceId() {
-        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
+        return repository
+                .findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
-                .flatMap(config -> Mono.justOrEmpty(config.getConfig().getAsString(FieldName.WORKSPACE_ID)))
+                .flatMap(
+                        config ->
+                                Mono.justOrEmpty(
+                                        config.getConfig().getAsString(FieldName.WORKSPACE_ID)))
                 .doOnError(error -> log.warn("Error getting template workspace ID", error));
     }
 
     @Override
     public Flux<Application> getTemplateApplications() {
-        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
+        return repository
+                .findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
-                .map(config -> defaultIfNull(
-                        config.getConfig().getOrDefault("applicationIds", null),
-                        Collections.emptyList()
-                ))
+                .map(
+                        config ->
+                                defaultIfNull(
+                                        config.getConfig().getOrDefault("applicationIds", null),
+                                        Collections.emptyList()))
                 .cast(List.class)
                 .onErrorReturn(Collections.emptyList())
                 .flatMapMany(applicationRepository::findByIdIn);
@@ -112,12 +139,14 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Flux<Datasource> getTemplateDatasources() {
-        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
+        return repository
+                .findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
-                .map(config -> defaultIfNull(
-                        config.getConfig().getOrDefault("datasourceIds", null),
-                        Collections.emptyList()
-                ))
+                .map(
+                        config ->
+                                defaultIfNull(
+                                        config.getConfig().getOrDefault("datasourceIds", null),
+                                        Collections.emptyList()))
                 .cast(List.class)
                 .onErrorReturn(Collections.emptyList())
                 .flatMapMany(datasourceRepository::findByIdIn);
@@ -125,8 +154,12 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Void> delete(String name) {
-        return repository.findByName(name)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
+        return repository
+                .findByName(name)
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
                 .flatMap(repository::delete);
     }
 
@@ -139,5 +172,4 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
         return repository.findByNameAsUser(name, user, permission);
     }
-
 }

@@ -1,7 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.annotations.encryption;
 
 import com.appsmith.external.services.EncryptionService;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
@@ -34,5 +37,4 @@ public class EncryptionMongoEventListener<E> extends AbstractMongoEventListener<
 
         encryptionHandler.convertEncryption(source, encryptionService::decryptString);
     }
-
 }

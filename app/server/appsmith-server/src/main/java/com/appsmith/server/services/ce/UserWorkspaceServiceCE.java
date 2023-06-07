@@ -1,9 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -14,7 +16,8 @@ public interface UserWorkspaceServiceCE {
 
     Mono<User> leaveWorkspace(String workspaceId);
 
-    Mono<MemberInfoDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader);
+    Mono<MemberInfoDTO> updatePermissionGroupForMember(
+            String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader);
 
     Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId);
 

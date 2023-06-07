@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -7,8 +8,10 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.services.CrudService;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,7 +19,8 @@ import java.util.List;
 
 public interface ActionCollectionServiceCE extends CrudService<ActionCollection, String> {
 
-    Flux<ActionCollection> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+    Flux<ActionCollection> findAllByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
 
     void generateAndSetPolicies(NewPage page, ActionCollection actionCollection);
 
@@ -24,15 +28,20 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Flux<ActionCollection> saveAll(List<ActionCollection> collections);
 
-    Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
+    Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
+            MultiValueMap<String, String> params, Boolean viewMode);
 
-    Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode, String branchName);
+    Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
+            MultiValueMap<String, String> params, Boolean viewMode, String branchName);
 
-    Mono<ActionCollectionDTO> populateActionCollectionByViewMode(ActionCollectionDTO actionCollectionDTO1, Boolean viewMode);
+    Mono<ActionCollectionDTO> populateActionCollectionByViewMode(
+            ActionCollectionDTO actionCollectionDTO1, Boolean viewMode);
 
-    Mono<ActionCollectionDTO> splitValidActionsByViewMode(ActionCollectionDTO actionCollectionDTO, List<ActionDTO> actionsList, Boolean viewMode);
+    Mono<ActionCollectionDTO> splitValidActionsByViewMode(
+            ActionCollectionDTO actionCollectionDTO, List<ActionDTO> actionsList, Boolean viewMode);
 
-    Flux<ActionCollectionDTO> getActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
+    Flux<ActionCollectionDTO> getActionCollectionsByViewMode(
+            MultiValueMap<String, String> params, Boolean viewMode);
 
     Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO);
 
@@ -42,18 +51,22 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName);
 
-    Mono<ActionCollectionDTO> generateActionCollectionByViewMode(ActionCollection actionCollection, Boolean viewMode);
+    Mono<ActionCollectionDTO> generateActionCollectionByViewMode(
+            ActionCollection actionCollection, Boolean viewMode);
 
     Mono<ActionCollection> findById(String id, AclPermission aclPermission);
 
-    Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
+    Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(
+            String id, Boolean viewMode, AclPermission permission);
 
-    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId, String branchName);
+    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(
+            String applicationId, String branchName);
 
     Flux<ActionCollection> findByPageId(String pageId);
 
-    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultCollectionId, AclPermission permission);
+    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
+            String branchName, String defaultCollectionId, AclPermission permission);
 
-    Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
-
+    Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
+            String applicationId, AclPermission permission);
 }

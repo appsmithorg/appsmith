@@ -1,34 +1,36 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.converters;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import lombok.Data;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class ISOStringToInstantConverterTest {
     private Gson gson;
 
     @BeforeEach
     public void setUp() {
-        gson = new GsonBuilder()
-                .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
-                .create();
+        gson =
+                new GsonBuilder()
+                        .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+                        .create();
     }
 
     @Test
     public void parse_WhenEmptyString_ParsesNull() {
         String data = "{\"instant\": \"\"}";
-        Type fileType = new TypeToken<SameDateDTO>() {
-        }.getType();
+        Type fileType = new TypeToken<SameDateDTO>() {}.getType();
         SameDateDTO sameDateDTO = gson.fromJson(data, fileType);
         assertThat(sameDateDTO.getInstant()).isNull();
     }
@@ -36,8 +38,7 @@ public class ISOStringToInstantConverterTest {
     @Test
     public void parse_WhenNull_ParsesNull() {
         String data = "{\"instant\": null}";
-        Type fileType = new TypeToken<SameDateDTO>() {
-        }.getType();
+        Type fileType = new TypeToken<SameDateDTO>() {}.getType();
         SameDateDTO sameDateDTO = gson.fromJson(data, fileType);
         assertThat(sameDateDTO.getInstant()).isNull();
     }
@@ -45,8 +46,7 @@ public class ISOStringToInstantConverterTest {
     @Test
     public void parse_WhenValidIsoDate_ParsesDate() {
         String data = "{\"instant\": \"2021-12-30T08:58:31Z\"}";
-        Type fileType = new TypeToken<SameDateDTO>() {
-        }.getType();
+        Type fileType = new TypeToken<SameDateDTO>() {}.getType();
         SameDateDTO sameDateDTO = gson.fromJson(data, fileType);
         assertThat(sameDateDTO.getInstant()).isNotNull();
         assertThat(sameDateDTO.getInstant().toString()).isEqualTo("2021-12-30T08:58:31Z");
@@ -55,8 +55,7 @@ public class ISOStringToInstantConverterTest {
     @Test
     public void parse_DateInDoublePrecisionTimestampFormat_ParsesDate() {
         String data = "{\"instant\": 1640854711.292000000}";
-        Type fileType = new TypeToken<SameDateDTO>() {
-        }.getType();
+        Type fileType = new TypeToken<SameDateDTO>() {}.getType();
         SameDateDTO sameDateDTO = gson.fromJson(data, fileType);
         assertThat(sameDateDTO.getInstant()).isNotNull();
         assertThat(sameDateDTO.getInstant().toString()).isEqualTo("2021-12-30T08:58:31Z");

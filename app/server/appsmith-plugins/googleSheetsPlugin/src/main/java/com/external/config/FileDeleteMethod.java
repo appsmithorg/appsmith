@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -7,17 +8,17 @@ import com.external.constants.ErrorMessages;
 import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Set;
 
-/**
- * API reference: https://developers.google.com/sheets/api/guides/migration#delete_a_sheet
- */
+/** API reference: https://developers.google.com/sheets/api/guides/migration#delete_a_sheet */
 public class FileDeleteMethod implements ExecutionMethod {
 
     ObjectMapper objectMapper;
@@ -29,7 +30,9 @@ public class FileDeleteMethod implements ExecutionMethod {
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
         return true;
     }
@@ -40,20 +43,21 @@ public class FileDeleteMethod implements ExecutionMethod {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(
+            WebClient webClient, MethodConfig methodConfig) {
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
-                methodConfig.getSpreadsheetId(), /* spreadsheet Id */
-                true
-        );
+        UriComponentsBuilder uriBuilder =
+                getBaseUriBuilder(
+                        this.BASE_DRIVE_API_URL,
+                        methodConfig.getSpreadsheetId(), /* spreadsheet Id */
+                        true);
 
-        return webClient.method(HttpMethod.DELETE)
-                .uri(uriBuilder.build(true).toUri());
-
+        return webClient.method(HttpMethod.DELETE).uri(uriBuilder.build(true).toUri());
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    public JsonNode transformExecutionResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -64,5 +68,4 @@ public class FileDeleteMethod implements ExecutionMethod {
 
         return this.objectMapper.valueToTree(Map.of("message", errorMessage));
     }
-
 }

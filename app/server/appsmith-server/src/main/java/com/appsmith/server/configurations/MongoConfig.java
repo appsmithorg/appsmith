@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.annotations.documenttype.DocumentTypeMapper;
@@ -9,10 +10,13 @@ import com.appsmith.server.converters.StringToInstantConverter;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.mongodb.ReadConcern;
 import com.mongodb.WriteConcern;
+
 import io.mongock.driver.mongodb.springdata.v4.SpringDataMongoV4Driver;
 import io.mongock.runner.springboot.MongockSpringboot;
 import io.mongock.runner.springboot.base.MongockInitializingBeanRunner;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.bson.conversions.Bson;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -41,19 +45,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This configures the JPA Mongo repositories. The default base implementation is defined in {@link BaseRepositoryImpl}.
- * This is required to add default clauses for default JPA queries defined by Spring Data.
- * <p>
- * The factoryBean class is also custom defined in order to add default clauses for soft delete for all custom JPA queries.
- * {@link SoftDeleteMongoRepositoryFactoryBean} for details.
+ * This configures the JPA Mongo repositories. The default base implementation is defined in {@link
+ * BaseRepositoryImpl}. This is required to add default clauses for default JPA queries defined by
+ * Spring Data.
+ *
+ * <p>The factoryBean class is also custom defined in order to add default clauses for soft delete
+ * for all custom JPA queries. {@link SoftDeleteMongoRepositoryFactoryBean} for details.
  */
 @Slf4j
 @Configuration
 @EnableReactiveMongoAuditing
-@EnableReactiveMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
+@EnableReactiveMongoRepositories(
+        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
         basePackages = "com.appsmith.server.repositories",
-        repositoryBaseClass = BaseRepositoryImpl.class
-)
+        repositoryBaseClass = BaseRepositoryImpl.class)
 public class MongoConfig {
 
     /*
@@ -63,8 +68,10 @@ public class MongoConfig {
         Link to documentation: https://docs.mongock.io/v5/runner/springboot/index.html
     */
     @Bean
-    public MongockInitializingBeanRunner mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-        SpringDataMongoV4Driver mongoDriver = SpringDataMongoV4Driver.withDefaultLock(mongoTemplate);
+    public MongockInitializingBeanRunner mongockInitializingBeanRunner(
+            ApplicationContext springContext, MongoTemplate mongoTemplate) {
+        SpringDataMongoV4Driver mongoDriver =
+                SpringDataMongoV4Driver.withDefaultLock(mongoTemplate);
         mongoDriver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
         mongoDriver.setReadConcern(ReadConcern.LOCAL);
 
@@ -78,8 +85,11 @@ public class MongoConfig {
     }
 
     @Bean
-    public ReactiveMongoTemplate reactiveMongoTemplate(ReactiveMongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
-        ReactiveMongoTemplate mongoTemplate = new ReactiveMongoTemplate(mongoDbFactory, mappingMongoConverter);
+    public ReactiveMongoTemplate reactiveMongoTemplate(
+            ReactiveMongoDatabaseFactory mongoDbFactory,
+            MappingMongoConverter mappingMongoConverter) {
+        ReactiveMongoTemplate mongoTemplate =
+                new ReactiveMongoTemplate(mongoDbFactory, mappingMongoConverter);
         MappingMongoConverter conv = (MappingMongoConverter) mongoTemplate.getConverter();
         // tell mongodb to use the custom converters
         conv.setCustomConversions(mongoCustomConversions());
@@ -88,7 +98,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
+    public MongoTemplate mongoTemplate(
+            MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
         MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory, mappingMongoConverter);
         MappingMongoConverter conv = (MappingMongoConverter) mongoTemplate.getConverter();
         // tell mongodb to use the custom converters
@@ -97,26 +108,33 @@ public class MongoConfig {
         return mongoTemplate;
     }
 
-    // Custom type mapper here includes our annotation based mapper that is meant to ensure correct mapping for sub-classes
+    // Custom type mapper here includes our annotation based mapper that is meant to ensure correct
+    // mapping for sub-classes
     // We have currently only included the package which contains the DTOs that need this mapping
     @Bean
     public DefaultTypeMapper<Bson> typeMapper() {
-        TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
-                .Builder()
-                .withBasePackages(new String[]{AuthenticationDTO.class.getPackageName()})
-                .build();
-        // This is a hack to include the default mapper as a fallback, because Spring seems to override its list instead of appending mappers
-        return new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
+        TypeInformationMapper typeInformationMapper =
+                new DocumentTypeMapper.Builder()
+                        .withBasePackages(new String[] {AuthenticationDTO.class.getPackageName()})
+                        .build();
+        // This is a hack to include the default mapper as a fallback, because Spring seems to
+        // override its list instead of appending mappers
+        return new DefaultMongoTypeMapper(
+                DefaultMongoTypeMapper.DEFAULT_TYPE_KEY,
+                Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
     }
 
     @Bean
     public MongoCustomConversions mongoCustomConversions() {
-        return new MongoCustomConversions(Collections.singletonList(new StringToInstantConverter()));
+        return new MongoCustomConversions(
+                Collections.singletonList(new StringToInstantConverter()));
     }
 
     @Bean
-    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper<Bson> typeMapper, MongoMappingContext context) {
-        MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
+    public MappingMongoConverter mappingMongoConverter(
+            DefaultTypeMapper<Bson> typeMapper, MongoMappingContext context) {
+        MappingMongoConverter converter =
+                new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
         converter.setCustomConversions(mongoCustomConversions());
         converter.setMapKeyDotReplacement("-APPSMITH-DOT-REPLACEMENT-");
@@ -124,17 +142,20 @@ public class MongoConfig {
     }
 
     @Bean
-    public EncryptionMongoEventListener encryptionMongoEventListener(EncryptionService encryptionService) {
+    public EncryptionMongoEventListener encryptionMongoEventListener(
+            EncryptionService encryptionService) {
         return new EncryptionMongoEventListener(encryptionService);
     }
 
     @Bean
-    public ReactiveTransactionManager reactiveTransactionManager(ReactiveMongoDatabaseFactory factory) {
+    public ReactiveTransactionManager reactiveTransactionManager(
+            ReactiveMongoDatabaseFactory factory) {
         return new ReactiveMongoTransactionManager(factory);
     }
 
     @Bean
-    public TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
+    public TransactionalOperator transactionalOperator(
+            ReactiveTransactionManager transactionManager) {
         return TransactionalOperator.create(transactionManager);
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
@@ -19,16 +20,21 @@ import java.util.Map;
 @JsonPropertyOrder({"value", "psParams", "types", "label", "configProperty"})
 public class RequestParamDTO {
     @JsonView(Views.Internal.class)
-    private String configProperty; // Only meant for internal use. It won't be returned back to the client.
+    private String
+            configProperty; // Only meant for internal use. It won't be returned back to the client.
 
     @JsonView(Views.Public.class)
     private Object value;
 
     @JsonView(Views.Internal.class)
-    private String label; // Only meant for internal use. It is returned as key for the RequestParamDTO object.
+    private String
+            label; // Only meant for internal use. It is returned as key for the RequestParamDTO
+
+    // object.
 
     @JsonView(Views.Internal.class)
-    private List<ParsedDataType> types; // Not getting used for now but still keeping it here for future use.
+    private List<ParsedDataType>
+            types; // Not getting used for now but still keeping it here for future use.
 
     @JsonView(Views.Public.class)
     private Map<String, Object> substitutedParams;

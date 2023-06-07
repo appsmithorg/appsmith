@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -8,7 +9,9 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.PluginService;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +20,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
 
 @RequestMapping(Url.PLUGIN_URL)
 public class PluginControllerCE extends BaseController<PluginService, Plugin, String> {

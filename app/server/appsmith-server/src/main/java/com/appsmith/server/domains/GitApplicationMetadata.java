@@ -1,23 +1,29 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Data;
+
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.Map;
 
-// This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
+// This class will be used for one-to-one mapping for the DB application and the application present
+// in the git repo.
 @Data
 public class GitApplicationMetadata implements AppsmithDomain {
-    // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
+    // Git branch corresponding to this application, we have one to one mapping for application in
+    // DB with git-branch
     @JsonView(Views.Public.class)
     String branchName;
 
-    // Git default branch corresponding to the remote git repo to which the application is connected to
+    // Git default branch corresponding to the remote git repo to which the application is connected
+    // to
     @JsonView(Views.Public.class)
     String defaultBranchName;
 
@@ -42,7 +48,8 @@ public class GitApplicationMetadata implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String defaultApplicationId;
 
-    // Git credentials used to push changes to remote repo and will be stored with default application only to optimise
+    // Git credentials used to push changes to remote repo and will be stored with default
+    // application only to optimise
     // space requirement and update operation
     @JsonView(Views.Internal.class)
     GitAuth gitAuth;
@@ -60,7 +67,10 @@ public class GitApplicationMetadata implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String docUrl;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ssX",
+            timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant lastCommittedAt;
 }

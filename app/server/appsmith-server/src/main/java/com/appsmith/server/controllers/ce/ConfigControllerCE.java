@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -6,12 +7,14 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConfigService;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import reactor.core.publisher.Mono;
 
 @RequestMapping(Url.CONFIG_URL)
@@ -32,7 +35,8 @@ public class ConfigControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/name/{name}")
-    public Mono<ResponseDTO<Config>> updateByName(@PathVariable String name, @RequestBody Config config) {
+    public Mono<ResponseDTO<Config>> updateByName(
+            @PathVariable String name, @RequestBody Config config) {
         return service.updateByName(config)
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }

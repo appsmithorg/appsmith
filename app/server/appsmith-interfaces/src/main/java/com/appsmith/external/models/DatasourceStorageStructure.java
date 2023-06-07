@@ -1,11 +1,14 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -22,5 +25,4 @@ public class DatasourceStorageStructure extends BaseDomain {
 
     @JsonView(Views.Internal.class)
     private DatasourceStructure structure;
-
 }

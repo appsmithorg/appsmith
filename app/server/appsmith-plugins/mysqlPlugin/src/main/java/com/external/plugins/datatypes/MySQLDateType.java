@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.datatypes;
 
 import com.appsmith.external.datatypes.DateType;
@@ -12,12 +13,13 @@ public class MySQLDateType extends DateType {
     @Override
     public boolean test(String s) {
         try {
-            final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
-                    .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
-                    .appendOptional(DateTimeFormatter.BASIC_ISO_DATE)
-                    .appendOptional(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
-                    .appendOptional(DateTimeFormatter.ofPattern("yyMMdd"))
-                    .toFormatter();
+            final DateTimeFormatter dateFormatter =
+                    new DateTimeFormatterBuilder()
+                            .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
+                            .appendOptional(DateTimeFormatter.BASIC_ISO_DATE)
+                            .appendOptional(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+                            .appendOptional(DateTimeFormatter.ofPattern("yyMMdd"))
+                            .toFormatter();
             LocalDate.parse(s, dateFormatter);
             return true;
         } catch (DateTimeParseException ex) {

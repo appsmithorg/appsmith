@@ -1,8 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
+
 import lombok.Getter;
 
 import java.text.MessageFormat;
@@ -17,8 +19,7 @@ public enum ArangoDBPluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     ;
     private final Integer httpErrorCode;
     private final String appErrorCode;
@@ -31,8 +32,15 @@ public enum ArangoDBPluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    ArangoDBPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                        String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    ArangoDBPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -47,7 +55,9 @@ public enum ArangoDBPluginError implements BasePluginError {
         return new MessageFormat(this.message).format(args);
     }
 
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 
     public String getDownstreamErrorMessage(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorMessage, args);

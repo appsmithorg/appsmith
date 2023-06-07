@@ -1,14 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AmazonS3ErrorUtilsTest {
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 
+import org.junit.jupiter.api.Test;
+
+public class AmazonS3ErrorUtilsTest {
 
     @Test
     public void getReadableErrorWithAmazonServiceException() throws InstantiationException {
@@ -19,8 +20,7 @@ public class AmazonS3ErrorUtilsTest {
         AmazonS3ErrorUtils errorUtil = AmazonS3ErrorUtils.getInstance();
         String returnedErrorMessage = errorUtil.getReadableError(amazonServiceException);
         assertNotNull(returnedErrorMessage);
-        assertEquals(returnedErrorMessage,errorCode+": "+errorMessage);
-
+        assertEquals(returnedErrorMessage, errorCode + ": " + errorMessage);
     }
 
     @Test
@@ -32,8 +32,6 @@ public class AmazonS3ErrorUtilsTest {
         AmazonS3ErrorUtils errorUtil = AmazonS3ErrorUtils.getInstance();
         String returnedErrorMessage = errorUtil.getReadableError(amazonS3Exception);
         assertNotNull(returnedErrorMessage);
-        assertEquals(returnedErrorMessage,errorCode+": "+errorMessage);
-
+        assertEquals(returnedErrorMessage, errorCode + ": " + errorMessage);
     }
-
 }

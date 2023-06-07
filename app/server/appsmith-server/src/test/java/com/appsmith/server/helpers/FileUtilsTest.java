@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,8 +17,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class FileUtilsTest {
 
     private FileUtils fileUtils;
@@ -28,15 +29,18 @@ class FileUtilsTest {
     @Test
     public void createZip_WhenFileExists_ValidZipCreated() throws IOException {
         // create a zip with sample two files from resources
-        InputStream file1 = new ClassPathResource("FileUtilsTest/sample-file1.txt").getInputStream();
-        InputStream file2 = new ClassPathResource("FileUtilsTest/sample-file2.txt").getInputStream();
+        InputStream file1 =
+                new ClassPathResource("FileUtilsTest/sample-file1.txt").getInputStream();
+        InputStream file2 =
+                new ClassPathResource("FileUtilsTest/sample-file2.txt").getInputStream();
 
-        byte[] zipBytes = fileUtils.createZip(
-                new FileUtils.ZipSourceFile(file1, "file_one.txt"),
-                new FileUtils.ZipSourceFile(file2, "file_two.txt")
-        );
+        byte[] zipBytes =
+                fileUtils.createZip(
+                        new FileUtils.ZipSourceFile(file1, "file_one.txt"),
+                        new FileUtils.ZipSourceFile(file2, "file_two.txt"));
 
-        // unzip and read the contents into a map. Key of the map is file name and value is file contents
+        // unzip and read the contents into a map. Key of the map is file name and value is file
+        // contents
         Map<String, String> fileNameAndContentMap = readZipFile(zipBytes);
         // check that map contains the expected values
         assertThat(fileNameAndContentMap.get("file_one.txt")).isEqualTo("Sample file one");

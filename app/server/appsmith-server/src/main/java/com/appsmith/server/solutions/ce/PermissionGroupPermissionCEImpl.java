@@ -1,8 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 
-public class PermissionGroupPermissionCEImpl implements PermissionGroupPermissionCE, DomainPermissionCE {
+public class PermissionGroupPermissionCEImpl
+        implements PermissionGroupPermissionCE, DomainPermissionCE {
     @Override
     public AclPermission getEditPermission() {
         return AclPermission.MANAGE_PERMISSION_GROUPS;

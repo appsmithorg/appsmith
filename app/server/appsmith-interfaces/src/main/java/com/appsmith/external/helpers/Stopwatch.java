@@ -1,7 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.concurrent.TimeUnit;
@@ -22,7 +24,10 @@ public class Stopwatch {
         if (!this.watch.isStopped()) {
             this.watch.stop();
         }
-        log.debug("Execute time: {}, Time elapsed: {}ms", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS));
+        log.debug(
+                "Execute time: {}, Time elapsed: {}ms",
+                this.flow,
+                this.watch.getTime(TimeUnit.MILLISECONDS));
     }
 
     public void stopTimer() {

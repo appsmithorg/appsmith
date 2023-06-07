@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.EqualsAndHashCode;
@@ -42,5 +43,4 @@ public class Property {
     String maxRange;
 
     String[] valueOptions; // This stores the values that are permitted by the api for the given key
-
 }

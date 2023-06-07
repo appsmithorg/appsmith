@@ -1,9 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,5 @@ import lombok.ToString;
 public class BearerTokenAuth extends AuthenticationDTO {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Encrypted
-    String bearerToken;
+    @Encrypted String bearerToken;
 }

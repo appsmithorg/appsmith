@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.domains;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -6,6 +7,7 @@ import com.external.constants.FieldName;
 import com.google.api.services.sheets.v4.model.CellData;
 import com.google.api.services.sheets.v4.model.ExtendedValue;
 import com.google.api.services.sheets.v4.model.RowData;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,12 +24,9 @@ public class RowObject {
 
     String rowIndex;
 
-    @Getter
-    @Setter
-    Map<String, String> valueMap;
+    @Getter @Setter Map<String, String> valueMap;
 
-    @Getter
-    int currentRowIndex;
+    @Getter int currentRowIndex;
 
     int startingColumnIndex = 0;
 
@@ -41,7 +40,8 @@ public class RowObject {
         this.currentRowIndex = currentRowIndex;
     }
 
-    public RowObject(LinkedHashMap<String, String> valueMap, int currentRowIndex, int startingColumnIndex) {
+    public RowObject(
+            LinkedHashMap<String, String> valueMap, int currentRowIndex, int startingColumnIndex) {
         this(valueMap, currentRowIndex);
         this.startingColumnIndex = startingColumnIndex;
     }
@@ -63,12 +63,16 @@ public class RowObject {
 
     public RowObject initialize() {
         if (this.rowIndex == null) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field row index.");
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Missing required field row index.");
         }
         try {
             this.currentRowIndex = Integer.parseInt(this.rowIndex);
         } catch (NumberFormatException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unable to parse row index: " + this.rowIndex);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Unable to parse row index: " + this.rowIndex);
         }
         return this;
     }
@@ -76,20 +80,23 @@ public class RowObject {
     public RowData getAsSheetRowData(String[] referenceKeys) {
         RowData rowData = new RowData();
         if (referenceKeys == null) {
-            rowData.setValues(this.valueMap.values()
-                    .stream()
-                    .map(value -> new CellData().setFormattedValue(value))
-                    .collect(Collectors.toList()));
+            rowData.setValues(
+                    this.valueMap.values().stream()
+                            .map(value -> new CellData().setFormattedValue(value))
+                            .collect(Collectors.toList()));
             return rowData;
         }
 
         List<CellData> cellDataList = new ArrayList<>();
 
         for (String referenceKey : referenceKeys) {
-            cellDataList
-                    .add(new CellData()
-                            .setUserEnteredValue(new ExtendedValue()
-                                    .setStringValue(this.valueMap.getOrDefault(referenceKey, null))));
+            cellDataList.add(
+                    new CellData()
+                            .setUserEnteredValue(
+                                    new ExtendedValue()
+                                            .setStringValue(
+                                                    this.valueMap.getOrDefault(
+                                                            referenceKey, null))));
         }
 
         return rowData.setValues(cellDataList);

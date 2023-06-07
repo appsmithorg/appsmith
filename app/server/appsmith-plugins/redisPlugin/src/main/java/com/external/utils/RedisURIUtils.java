@@ -1,8 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.util.StringUtils;
 
@@ -13,7 +15,8 @@ public class RedisURIUtils {
     private static final Long DEFAULT_PORT = 6379L;
     private static final String REDIS_SCHEME = "redis://";
 
-    public static URI getURI(DatasourceConfiguration datasourceConfiguration) throws URISyntaxException {
+    public static URI getURI(DatasourceConfiguration datasourceConfiguration)
+            throws URISyntaxException {
         StringBuilder builder = new StringBuilder();
         builder.append(REDIS_SCHEME);
 
@@ -39,7 +42,8 @@ public class RedisURIUtils {
         return builder.toString();
     }
 
-    // Skipping validation checks, since they are taken care of via 'validateDatasource(...)' method.
+    // Skipping validation checks, since they are taken care of via 'validateDatasource(...)'
+    // method.
     private static String getUriHostAndPort(DatasourceConfiguration datasourceConfiguration) {
         // Jedis does not have support for backup hosts.
         Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
@@ -51,7 +55,8 @@ public class RedisURIUtils {
         return builder.toString();
     }
 
-    // Skipping validation checks, since they are taken care of via 'validateDatasource(...)' method.
+    // Skipping validation checks, since they are taken care of via 'validateDatasource(...)'
+    // method.
     private static String getUriAuth(DatasourceConfiguration datasourceConfiguration) {
         StringBuilder builder = new StringBuilder();
         DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();

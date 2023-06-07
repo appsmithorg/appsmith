@@ -1,9 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class UserTest {
@@ -29,5 +31,4 @@ public class UserTest {
         one.setEmail("sherlock@gmail.com");
         assertThat(one.computeFirstName()).isEqualTo("Sherlock");
     }
-
 }

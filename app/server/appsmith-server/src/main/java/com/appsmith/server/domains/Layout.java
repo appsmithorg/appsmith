@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
+
+import static java.lang.Boolean.TRUE;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.BaseDomain;
@@ -8,17 +11,17 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import net.minidev.json.JSONObject;
 
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import static java.lang.Boolean.TRUE;
 
 @Getter
 @Setter
@@ -51,7 +54,8 @@ public class Layout extends BaseDomain {
         return super.getId();
     }
 
-    // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
+    // this attribute will be used to display errors caused white calculating allOnLoadAction
+    // PageLoadActionsUtilCEImpl.java
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView({Views.Public.class, Views.Export.class})
     List<ErrorDTO> layoutOnLoadActionErrors;
@@ -82,8 +86,8 @@ public class Layout extends BaseDomain {
     Boolean validOnPageLoadActions = TRUE;
 
     /**
-     * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
-     * the dsl returned should be JSONObject dsl
+     * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view
+     * mode = false) the dsl returned should be JSONObject dsl
      */
     @JsonView({Views.Public.class, Views.Export.class})
     public JSONObject getDsl() {
@@ -111,7 +115,9 @@ public class Layout extends BaseDomain {
         List<Set<DslActionDTO>> layoutOnLoadActions = this.getLayoutOnLoadActions();
         if (!CollectionUtils.isNullOrEmpty(layoutOnLoadActions)) {
             // Sort actions based on id to commit to git in ordered manner
-            for (int dslActionIndex = 0; dslActionIndex < layoutOnLoadActions.size(); dslActionIndex++) {
+            for (int dslActionIndex = 0;
+                    dslActionIndex < layoutOnLoadActions.size();
+                    dslActionIndex++) {
                 TreeSet<DslActionDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
                 sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
                 sortedActions.forEach(DslActionDTO::sanitiseForExport);

@@ -1,20 +1,23 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.git.converters;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class GsonDoubleToLongConverterTest {
     private Gson gson;
 
     @BeforeEach
     public void setUp() {
-        gson = new GsonBuilder()
-                .registerTypeAdapter(Double.class, new GsonDoubleToLongConverter())
-                .create();
+        gson =
+                new GsonBuilder()
+                        .registerTypeAdapter(Double.class, new GsonDoubleToLongConverter())
+                        .create();
     }
 
     @Test

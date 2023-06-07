@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -15,11 +16,13 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.PluginService;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.util.MultiValueMap;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 
 @Slf4j
 public class ItemServiceCEImpl implements ItemServiceCE {
@@ -31,11 +34,12 @@ public class ItemServiceCEImpl implements ItemServiceCE {
     private final LayoutActionService layoutActionService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
-    public ItemServiceCEImpl(ApiTemplateService apiTemplateService,
-                             PluginService pluginService,
-                             MarketplaceService marketplaceService,
-                             NewActionService newActionService,
-                             LayoutActionService layoutActionService) {
+    public ItemServiceCEImpl(
+            ApiTemplateService apiTemplateService,
+            PluginService pluginService,
+            MarketplaceService marketplaceService,
+            NewActionService newActionService,
+            LayoutActionService layoutActionService) {
         this.apiTemplateService = apiTemplateService;
         this.pluginService = pluginService;
         this.marketplaceService = marketplaceService;
@@ -46,8 +50,10 @@ public class ItemServiceCEImpl implements ItemServiceCE {
     @Override
     public Flux<ItemDTO> get(MultiValueMap<String, String> params) {
 
-        if ((params.getFirst(FieldName.APPLICATION_ID) != null) && (params.getFirst(FieldName.PROVIDER_ID) != null)) {
-            // Both application id is set and provider id is set. This implies that we are fetching items from both
+        if ((params.getFirst(FieldName.APPLICATION_ID) != null)
+                && (params.getFirst(FieldName.PROVIDER_ID) != null)) {
+            // Both application id is set and provider id is set. This implies that we are fetching
+            // items from both
             // templates and actions. That is not supported. Error out here.
             return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         } else if (params.getFirst(FieldName.APPLICATION_ID) != null) {
@@ -55,13 +61,14 @@ public class ItemServiceCEImpl implements ItemServiceCE {
         } else if (params.getFirst(FieldName.PROVIDER_ID) != null) {
             return apiTemplateService
                     .get(params)
-                    .map(apiTemplate -> {
-                        ItemDTO itemDTO = new ItemDTO();
-                        itemDTO.setItem(apiTemplate);
-                        itemDTO.setType(ItemType.TEMPLATE);
+                    .map(
+                            apiTemplate -> {
+                                ItemDTO itemDTO = new ItemDTO();
+                                itemDTO.setItem(apiTemplate);
+                                itemDTO.setType(ItemType.TEMPLATE);
 
-                        return itemDTO;
-                    });
+                                return itemDTO;
+                            });
         }
 
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -70,12 +77,15 @@ public class ItemServiceCEImpl implements ItemServiceCE {
     @Override
     public Mono<ActionDTO> addItemToPage(AddItemToPageDTO addItemToPageDTO) {
         if (!addItemToPageDTO.getMarketplaceElement().getType().equals(ItemType.TEMPLATE)) {
-            log.debug("Only templates can currently be added to the page. Any other type is unsupported.");
+            log.debug(
+                    "Only templates can currently be added to the page. Any other type is"
+                            + " unsupported.");
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
 
         if (addItemToPageDTO.getWorkspaceId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         ApiTemplate apiTemplate = addItemToPageDTO.getMarketplaceElement().getItem();
@@ -93,29 +103,41 @@ public class ItemServiceCEImpl implements ItemServiceCE {
 
         // Set Action Fields
         action.setActionConfiguration(apiTemplate.getActionConfiguration());
-        if (apiTemplate.getApiTemplateConfiguration().getSampleResponse() != null &&
-                apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody() != null) {
-            action.setCacheResponse(apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody().toString());
+        if (apiTemplate.getApiTemplateConfiguration().getSampleResponse() != null
+                && apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody()
+                        != null) {
+            action.setCacheResponse(
+                    apiTemplate
+                            .getApiTemplateConfiguration()
+                            .getSampleResponse()
+                            .getBody()
+                            .toString());
         }
 
-        log.debug("Going to subscribe marketplace provider : {} and then create action", apiTemplate.getProviderId());
+        log.debug(
+                "Going to subscribe marketplace provider : {} and then create action",
+                apiTemplate.getProviderId());
         return marketplaceService
-                // First hit the marketplace to update the statistics and to subscribe to the provider in case it hasn't
+                // First hit the marketplace to update the statistics and to subscribe to the
+                // provider in case it hasn't
                 .subscribeAndUpdateStatisticsOfProvider(apiTemplate.getProviderId())
 
-                // Assume that we are only adding rapid api templates right now. Set the package to rapid-api forcibly
+                // Assume that we are only adding rapid api templates right now. Set the package to
+                // rapid-api forcibly
                 .then(pluginService.findByPackageName(RAPID_API_PLUGIN))
-                .map(plugin -> {
-                    //Set Datasource
-                    Datasource datasource = new Datasource();
-                    datasource.setDatasourceConfiguration(apiTemplate.getDatasourceConfiguration());
-                    datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());
-                    datasource.setPluginId(plugin.getId());
-                    datasource.setWorkspaceId(addItemToPageDTO.getWorkspaceId());
-                    action.setDatasource(datasource);
-                    action.setPluginType(plugin.getType());
-                    return action;
-                })
+                .map(
+                        plugin -> {
+                            // Set Datasource
+                            Datasource datasource = new Datasource();
+                            datasource.setDatasourceConfiguration(
+                                    apiTemplate.getDatasourceConfiguration());
+                            datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());
+                            datasource.setPluginId(plugin.getId());
+                            datasource.setWorkspaceId(addItemToPageDTO.getWorkspaceId());
+                            action.setDatasource(datasource);
+                            action.setPluginType(plugin.getType());
+                            return action;
+                        })
                 .flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
     }
 }

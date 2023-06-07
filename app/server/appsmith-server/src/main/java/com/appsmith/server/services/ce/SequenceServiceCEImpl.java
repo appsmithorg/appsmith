@@ -1,16 +1,18 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
-
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.domains.Sequence;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Update;
-import reactor.core.publisher.Mono;
 
 import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.domains.Sequence;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Update;
+
+import reactor.core.publisher.Mono;
 
 public class SequenceServiceCEImpl implements SequenceServiceCE {
 
@@ -28,8 +30,7 @@ public class SequenceServiceCEImpl implements SequenceServiceCE {
                         query(where("name").is(name)),
                         new Update().inc("nextNumber", 1),
                         options().returnNew(true).upsert(true),
-                        Sequence.class
-                )
+                        Sequence.class)
                 .map(Sequence::getNextNumber);
     }
 
@@ -43,5 +44,4 @@ public class SequenceServiceCEImpl implements SequenceServiceCE {
         return getNext(mongoTemplate.getCollectionName(domainClass) + suffix)
                 .map(number -> number > 1 ? " " + number : "");
     }
-
 }

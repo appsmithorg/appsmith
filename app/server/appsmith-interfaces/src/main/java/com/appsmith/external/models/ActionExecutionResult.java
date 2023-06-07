@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
@@ -5,10 +6,12 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.ExceptionHelper;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 import com.fasterxml.jackson.databind.JsonNode;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -40,7 +43,6 @@ public class ActionExecutionResult {
 
     List<WidgetSuggestionDTO> suggestedWidgets;
 
-
     PluginErrorDetails pluginErrorDetails;
 
     public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {
@@ -53,7 +55,8 @@ public class ActionExecutionResult {
             this.title = pluginException.getTitle();
             this.errorType = pluginException.getErrorType();
 
-            if (((AppsmithPluginException) error).getExternalError() != null && pluginErrorUtils != null) {
+            if (((AppsmithPluginException) error).getExternalError() != null
+                    && pluginErrorUtils != null) {
                 this.readableError = pluginErrorUtils.getReadableError(error);
                 pluginErrorDetails.setDownstreamErrorMessage(this.readableError);
             }

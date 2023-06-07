@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -9,6 +10,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,16 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.APPLICATION_URL)
 public class ApplicationController extends ApplicationControllerCE {
 
-    public ApplicationController(ApplicationService service,
-                                 ApplicationPageService applicationPageService,
-                                 ApplicationFetcher applicationFetcher,
-                                 ApplicationForkingService applicationForkingService,
-                                 ImportExportApplicationService importExportApplicationService,
-                                 ThemeService themeService,
-                                 ApplicationSnapshotService applicationSnapshotService) {
+    public ApplicationController(
+            ApplicationService service,
+            ApplicationPageService applicationPageService,
+            ApplicationFetcher applicationFetcher,
+            ApplicationForkingService applicationForkingService,
+            ImportExportApplicationService importExportApplicationService,
+            ThemeService themeService,
+            ApplicationSnapshotService applicationSnapshotService) {
 
-        super(service, applicationPageService, applicationFetcher, applicationForkingService,
-                importExportApplicationService, themeService, applicationSnapshotService);
-
+        super(
+                service,
+                applicationPageService,
+                applicationFetcher,
+                applicationForkingService,
+                importExportApplicationService,
+                themeService,
+                applicationSnapshotService);
     }
 }

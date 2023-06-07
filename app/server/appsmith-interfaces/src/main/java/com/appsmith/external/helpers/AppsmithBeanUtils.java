@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers;
 
 import org.springframework.beans.BeanUtils;
@@ -14,7 +15,8 @@ import java.util.Set;
 public final class AppsmithBeanUtils {
 
     private static String[] getNullPropertyNames(Object source) {
-        // TODO: The `BeanWrapperImpl` class has been declared to be an internal class. Migrate to using
+        // TODO: The `BeanWrapperImpl` class has been declared to be an internal class. Migrate to
+        // using
         //  `PropertyAccessorFactory.forBeanPropertyAccess` instead.
         final BeanWrapper src = new BeanWrapperImpl(source);
         java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
@@ -30,7 +32,7 @@ public final class AppsmithBeanUtils {
         return emptyNames.toArray(result);
     }
 
-    //Use Spring BeanUtils to copy and ignore null
+    // Use Spring BeanUtils to copy and ignore null
     public static void copyNewFieldValuesIntoOldObject(Object src, Object target) {
         BeanUtils.copyProperties(src, target, getNullPropertyNames(src));
     }
@@ -62,14 +64,16 @@ public final class AppsmithBeanUtils {
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             String name = propertyDescriptor.getName();
 
-            // For properties like `class` that don't have a set method, we can't copy so we just ignore them.
+            // For properties like `class` that don't have a set method, we can't copy so we just
+            // ignore them.
             if (targetBeanWrapper.getPropertyDescriptor(name).getWriteMethod() == null) {
                 continue;
             }
 
             Object sourceValue = sourceBeanWrapper.getPropertyValue(name);
 
-            // If sourceValue is null, don't copy it over to target and just move on to the next property.
+            // If sourceValue is null, don't copy it over to target and just move on to the next
+            // property.
             if (sourceValue == null) {
                 continue;
             }
@@ -79,7 +83,8 @@ public final class AppsmithBeanUtils {
             if (targetValue != null
                     && sourceValue.getClass().isAssignableFrom(targetValue.getClass())
                     && isDomainModel(propertyDescriptor.getPropertyType())) {
-                // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target values
+                // Go deeper *only* if the property belongs to Appsmith's models, and both the
+                // source and target values
                 // are not null.
                 copyNestedNonNullProperties(sourceValue, targetValue);
             } else {
@@ -98,7 +103,6 @@ public final class AppsmithBeanUtils {
         BeanWrapper trgWrap = PropertyAccessorFactory.forBeanPropertyAccess(trg);
 
         props.forEach(p -> trgWrap.setPropertyValue(p, srcWrap.getPropertyValue(p)));
-
     }
 
     public static List<Object> getBeanPropertyValues(Object object) {

@@ -1,23 +1,28 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
+
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Document
 public class Notification extends BaseDomain {
 
-    // TODO: This class extends BaseDomain, so it has policies. Should we use information from policies instead of this field?
+    // TODO: This class extends BaseDomain, so it has policies. Should we use information from
+    // policies instead of this field?
     String forUsername;
 
     /**
-     * Read status for this notification. If it is `true`, then this notification is read. If `false` or `null`, it's unread.
+     * Read status for this notification. If it is `true`, then this notification is read. If
+     * `false` or `null`, it's unread.
      */
     Boolean isRead;
 
@@ -26,7 +31,8 @@ public class Notification extends BaseDomain {
     }
 
     /**
-     * This method has been added because the createdAt property in base domain has @JsonIgnore annotation
+     * This method has been added because the createdAt property in base domain has @JsonIgnore
+     * annotation
      *
      * @return created time as a string
      */

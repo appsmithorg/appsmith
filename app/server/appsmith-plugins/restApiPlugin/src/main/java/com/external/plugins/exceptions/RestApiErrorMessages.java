@@ -1,9 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.exceptions;
 
 public class RestApiErrorMessages {
     private RestApiErrorMessages() {
-        //Prevents instantiation
+        // Prevents instantiation
     }
+
     public static final String URI_SYNTAX_WRONG_ERROR_MSG = "Invalid value of URI.";
     public static final String INVALID_CONTENT_TYPE_ERROR_MSG = "Invalid value for Content-Type.";
     public static final String NO_HTTP_METHOD_ERROR_MSG = "HTTPMethod must be set.";

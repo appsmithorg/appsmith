@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -16,7 +17,9 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
@@ -24,25 +27,40 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
 
-    public EnvManagerImpl(SessionUserService sessionUserService,
-                          UserService userService,
-                          AnalyticsService analyticsService,
-                          UserRepository userRepository,
-                          PolicyUtils policyUtils,
-                          EmailSender emailSender,
-                          CommonConfig commonConfig,
-                          EmailConfig emailConfig,
-                          JavaMailSender javaMailSender,
-                          GoogleRecaptchaConfig googleRecaptchaConfig,
-                          FileUtils fileUtils,
-                          PermissionGroupService permissionGroupService,
-                          ConfigService configService,
-                          UserUtils userUtils,
-                          TenantService tenantService,
-                          ObjectMapper objectMapper) {
+    public EnvManagerImpl(
+            SessionUserService sessionUserService,
+            UserService userService,
+            AnalyticsService analyticsService,
+            UserRepository userRepository,
+            PolicyUtils policyUtils,
+            EmailSender emailSender,
+            CommonConfig commonConfig,
+            EmailConfig emailConfig,
+            JavaMailSender javaMailSender,
+            GoogleRecaptchaConfig googleRecaptchaConfig,
+            FileUtils fileUtils,
+            PermissionGroupService permissionGroupService,
+            ConfigService configService,
+            UserUtils userUtils,
+            TenantService tenantService,
+            ObjectMapper objectMapper) {
 
-        super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
-                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+        super(
+                sessionUserService,
+                userService,
+                analyticsService,
+                userRepository,
+                policyUtils,
+                emailSender,
+                commonConfig,
+                emailConfig,
+                javaMailSender,
+                googleRecaptchaConfig,
+                fileUtils,
+                permissionGroupService,
+                configService,
+                userUtils,
+                tenantService,
+                objectMapper);
     }
 }

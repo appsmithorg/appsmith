@@ -1,7 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
+
+import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+
 import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
@@ -9,8 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 
 public class ValidationUtils {
 
@@ -22,19 +24,20 @@ public class ValidationUtils {
     private static String SCHEMA_KEY = "SCHEMA";
 
     /**
-     * Run a query to get the current warehouse, database and schema name. If invalid names were provided when
-     * creating the connection object, then this query returns null / empty value against the corresponding
-     * column - i.e. warehouse / database / schema.
+     * Run a query to get the current warehouse, database and schema name. If invalid names were
+     * provided when creating the connection object, then this query returns null / empty value
+     * against the corresponding column - i.e. warehouse / database / schema.
      *
      * @param connection - Connection object to execute query
      * @return A set of error statements in case the query result contains any null / empty value.
      */
-    public static Set<String> validateWarehouseDatabaseSchema(Connection connection) throws StaleConnectionException,
-            AppsmithPluginException {
+    public static Set<String> validateWarehouseDatabaseSchema(Connection connection)
+            throws StaleConnectionException, AppsmithPluginException {
         Set<String> invalids = new HashSet<>();
 
         // Check database validity.
-        List<Map<String, Object>> rowsList = getRowsFromQueryResult(connection, CURRENT_DATABASE_QUERY);
+        List<Map<String, Object>> rowsList =
+                getRowsFromQueryResult(connection, CURRENT_DATABASE_QUERY);
         if (StringUtils.isEmpty(rowsList.get(0).get(DATABASE_KEY))) {
             invalids.add(getWarehouseDatabaseSchemaErrorMessage(DATABASE_KEY));
             return invalids;
@@ -60,8 +63,14 @@ public class ValidationUtils {
     // Construct error message string.
     private static String getWarehouseDatabaseSchemaErrorMessage(String key) {
         String fieldName = StringUtils.capitalize(key.toLowerCase());
-        return "Appsmith could not find any valid " + key.toLowerCase() + " configured for this datasource. " +
-                "Please provide a valid " + key.toLowerCase() + " by editing the " + fieldName + " field in the " +
-                "datasource configuration page.";
+        return "Appsmith could not find any valid "
+                + key.toLowerCase()
+                + " configured for this datasource. "
+                + "Please provide a valid "
+                + key.toLowerCase()
+                + " by editing the "
+                + fieldName
+                + " field in the "
+                + "datasource configuration page.";
     }
 }

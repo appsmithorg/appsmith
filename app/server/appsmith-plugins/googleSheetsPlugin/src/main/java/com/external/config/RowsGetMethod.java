@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -11,7 +12,9 @@ import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -39,46 +42,59 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
         this.filterDataService = FilterDataService.getInstance();
     }
 
-    public RowsGetMethod() {
-    }
+    public RowsGetMethod() {}
 
-    // Used to capture the range of columns in this request. The handling for this regex makes sure that
+    // Used to capture the range of columns in this request. The handling for this regex makes sure
+    // that
     // all possible combinations of A1 notation for a range map to a common format
     Pattern findAllRowsPattern = Pattern.compile("([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
-    // The starting row for a range is captured using this pattern to find its relative index from table heading
+    // The starting row for a range is captured using this pattern to find its relative index from
+    // table heading
     Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
 
-    // Since the value for this pattern is coming from an API response, it also contains the sheet name
+    // Since the value for this pattern is coming from an API response, it also contains the sheet
+    // name
     // We use this pattern to retrieve only range information
     Pattern sheetRangePattern = Pattern.compile(".*!([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
         }
-        if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
+        if (methodConfig.getTableHeaderIndex() != null
+                && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             ErrorMessages.INVALID_TABLE_HEADER_INDEX);
                 }
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         ErrorMessages.INVALID_TABLE_HEADER_INDEX,
                         e.getMessage());
             }
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     ErrorMessages.INVALID_TABLE_HEADER_INDEX);
         }
         if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_CELL_RANGE_ERROR_MSG);
+            if (methodConfig.getSpreadsheetRange() == null
+                    || methodConfig.getSpreadsheetRange().isBlank()) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        ErrorMessages.MISSING_CELL_RANGE_ERROR_MSG);
             }
         }
 
@@ -86,25 +102,28 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(
+            WebClient webClient, MethodConfig methodConfig) {
 
         final List<String> ranges = validateInputs(methodConfig);
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                methodConfig.getSpreadsheetId() /* spreadsheet Id */
-                        + "/values:batchGet"
-        );
+        UriComponentsBuilder uriBuilder =
+                getBaseUriBuilder(
+                        this.BASE_SHEETS_API_URL,
+                        methodConfig.getSpreadsheetId() /* spreadsheet Id */ + "/values:batchGet");
         uriBuilder.queryParam("majorDimension", "ROWS");
         uriBuilder.queryParam("ranges", ranges);
 
-        return webClient.method(HttpMethod.GET)
+        return webClient
+                .method(HttpMethod.GET)
                 .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.empty());
     }
 
     private List<String> validateInputs(MethodConfig methodConfig) {
         int tableHeaderIndex = 1;
-        if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
+        if (methodConfig.getTableHeaderIndex() != null
+                && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
                 if (tableHeaderIndex <= 0) {
@@ -116,20 +135,33 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
         }
         if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             return List.of(
-                    "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
+                    "'"
+                            + methodConfig.getSheetName()
+                            + "'!"
+                            + tableHeaderIndex
+                            + ":"
+                            + tableHeaderIndex,
                     "'" + methodConfig.getSheetName() + "'!A" + (tableHeaderIndex + 1) + ":ZZZ");
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
             matcher.find();
             return List.of(
-                    "'" + methodConfig.getSheetName() + "'!" + matcher.group(1) + tableHeaderIndex + ":" + matcher.group(2) + tableHeaderIndex,
+                    "'"
+                            + methodConfig.getSheetName()
+                            + "'!"
+                            + matcher.group(1)
+                            + tableHeaderIndex
+                            + ":"
+                            + matcher.group(2)
+                            + tableHeaderIndex,
                     "'" + methodConfig.getSheetName() + "'!" + methodConfig.getSpreadsheetRange());
         }
         return List.of();
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    public JsonNode transformExecutionResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -163,17 +195,19 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
         final int tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
         for (int i = 0; i < values.size(); i++) {
             ArrayNode row = (ArrayNode) values.get(i);
-            RowObject rowObject = new RowObject(
-                    headerArray,
-                    objectMapper.convertValue(row, String[].class),
-                    rowOffset - tableHeaderIndex + i - 1);
+            RowObject rowObject =
+                    new RowObject(
+                            headerArray,
+                            objectMapper.convertValue(row, String[].class),
+                            rowOffset - tableHeaderIndex + i - 1);
             collectedCells.add(rowObject.getValueMap());
         }
 
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterDataNew(preFilteringResponse,
+            return filterDataService.filterDataNew(
+                    preFilteringResponse,
                     new UQIDataFilterParams(
                             methodConfig.getWhereConditions(),
                             methodConfig.getProjection(),
@@ -219,6 +253,5 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
 
         // At least 1 condition exists
         return whereConditions != null;
-
     }
 }

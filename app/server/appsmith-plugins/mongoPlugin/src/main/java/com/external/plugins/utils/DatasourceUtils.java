@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.utils;
+
+import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -9,6 +12,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MongoPluginErrorMessages;
+
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -18,8 +22,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 
 public class DatasourceUtils {
 
@@ -31,7 +33,8 @@ public class DatasourceUtils {
      *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
      * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
+    private static final String MONGO_URI_REGEX =
+            "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
@@ -65,9 +68,13 @@ public class DatasourceUtils {
 
     public static boolean isUsingURI(DatasourceConfiguration datasourceConfiguration) {
         List<Property> properties = datasourceConfiguration.getProperties();
-        if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX
+        if (properties != null
+                && properties.size() > DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX
                 && properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX) != null
-                && YES.equals(properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX).getValue())) {
+                && YES.equals(
+                        properties
+                                .get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX)
+                                .getValue())) {
             return true;
         }
 
@@ -76,9 +83,11 @@ public class DatasourceUtils {
 
     public static boolean hasNonEmptyURI(DatasourceConfiguration datasourceConfiguration) {
         List<Property> properties = datasourceConfiguration.getProperties();
-        if (properties != null && properties.size() > DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX
+        if (properties != null
+                && properties.size() > DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX
                 && properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX) != null
-                && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue())) {
+                && !StringUtils.isEmpty(
+                        properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue())) {
             return true;
         }
 
@@ -114,9 +123,17 @@ public class DatasourceUtils {
             userInfo += "@";
         }
 
-        final String dbInfo = "/" + (extractedInfo.get(KEY_URI_DEFAULT_DBNAME) == null ? "" : extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
+        final String dbInfo =
+                "/"
+                        + (extractedInfo.get(KEY_URI_DEFAULT_DBNAME) == null
+                                ? ""
+                                : extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
 
-        String tailInfo = (String) (extractedInfo.get(KEY_URI_TAIL) == null ? "" : extractedInfo.get(KEY_URI_TAIL));
+        String tailInfo =
+                (String)
+                        (extractedInfo.get(KEY_URI_TAIL) == null
+                                ? ""
+                                : extractedInfo.get(KEY_URI_TAIL));
         tailInfo = "?" + buildURITail(tailInfo);
 
         return extractedInfo.get(KEY_URI_HEAD)
@@ -130,10 +147,10 @@ public class DatasourceUtils {
         Map<String, String> optionsMap = new HashMap<>();
 
         for (final String part : tailInfo.split("[&;]")) {
-            if (part.length() == 0) {
+            if (part.isEmpty()) {
                 continue;
             }
-            int idx = part.indexOf("=");
+            int idx = part.indexOf('=');
             if (idx >= 0) {
                 String key = part.substring(0, idx).toLowerCase();
                 String value = part.substring(idx + 1);
@@ -144,40 +161,43 @@ public class DatasourceUtils {
         }
         optionsMap.putIfAbsent("authsource", "admin");
         optionsMap.put("minpoolsize", "0");
-        return optionsMap
-                .entrySet()
-                .stream()
-                .map(entry -> {
-                    if (StringUtils.hasLength(entry.getValue())) {
-                        return entry.getKey() + "=" + entry.getValue();
-                    } else {
-                        return entry.getKey();
-                    }
-                })
+        return optionsMap.entrySet().stream()
+                .map(
+                        entry -> {
+                            if (StringUtils.hasLength(entry.getValue())) {
+                                return entry.getKey() + "=" + entry.getValue();
+                            } else {
+                                return entry.getKey();
+                            }
+                        })
                 .collect(Collectors.joining("&"));
     }
 
-    public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+    public static String buildClientURI(DatasourceConfiguration datasourceConfiguration)
+            throws AppsmithPluginException {
         List<Property> properties = datasourceConfiguration.getProperties();
         if (isUsingURI(datasourceConfiguration)) {
             if (hasNonEmptyURI(datasourceConfiguration)) {
                 String uriWithHiddenPassword =
-                        (String) properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
-                Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
+                        (String)
+                                properties
+                                        .get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX)
+                                        .getValue();
+                Map extractedInfo =
+                        extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
                 if (extractedInfo != null) {
-                    String password = ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
+                    String password =
+                            ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
                     return buildURIFromExtractedInfo(extractedInfo, password);
                 } else {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            MongoPluginErrorMessages.CONNECTION_STRING_PARSING_FAILED_ERROR_MSG
-                    );
+                            MongoPluginErrorMessages.CONNECTION_STRING_PARSING_FAILED_ERROR_MSG);
                 }
             } else {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        MongoPluginErrorMessages.NO_CONNECTION_STRING_URI_ERROR_MSG
-                );
+                        MongoPluginErrorMessages.NO_CONNECTION_STRING_URI_ERROR_MSG);
             }
         }
 
@@ -185,10 +205,13 @@ public class DatasourceUtils {
         final Connection connection = datasourceConfiguration.getConnection();
         final List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
 
-        // Use SRV mode if using REPLICA_SET, AND a port is not specified in the first endpoint. In SRV mode, the
-        // host and port details of individual shards will be obtained from the TXT records of the first endpoint.
-        boolean isSrv = Connection.Type.REPLICA_SET.equals(connection.getType())
-                && endpoints.get(0).getPort() == null;
+        // Use SRV mode if using REPLICA_SET, AND a port is not specified in the first endpoint. In
+        // SRV mode, the
+        // host and port details of individual shards will be obtained from the TXT records of the
+        // first endpoint.
+        boolean isSrv =
+                Connection.Type.REPLICA_SET.equals(connection.getType())
+                        && endpoints.get(0).getPort() == null;
 
         if (isSrv) {
             builder.append("mongodb+srv://");
@@ -226,7 +249,8 @@ public class DatasourceUtils {
         // Delete the trailing comma.
         builder.deleteCharAt(builder.length() - 1);
 
-        final String authenticationDatabaseName = authentication == null ? null : authentication.getDatabaseName();
+        final String authenticationDatabaseName =
+                authentication == null ? null : authentication.getDatabaseName();
         builder.append('/').append(authenticationDatabaseName);
 
         List<String> queryParams = new ArrayList<>();
@@ -239,14 +263,14 @@ public class DatasourceUtils {
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    MongoPluginErrorMessages.DS_SSL_CONFIGURATION_FETCHING_ERROR_MSG
-            );
+                    MongoPluginErrorMessages.DS_SSL_CONFIGURATION_FETCHING_ERROR_MSG);
         }
 
         /*
          * - By default, the driver configures SSL in the preferred mode.
          */
-        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        SSLDetails.AuthType sslAuthType =
+                datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
             case ENABLED:
                 queryParams.add("ssl=true");
@@ -263,12 +287,12 @@ public class DatasourceUtils {
             default:
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        MongoPluginErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG
-                );
+                        MongoPluginErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG);
         }
 
         if (hasUsername && authentication.getAuthType() != null) {
-            queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
+            queryParams.add(
+                    "authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
         }
 
         if (!queryParams.isEmpty()) {
@@ -284,7 +308,8 @@ public class DatasourceUtils {
     }
 
     private static boolean hostStringHasConnectionURIHead(String host) {
-        if (!StringUtils.isEmpty(host) && (host.contains("mongodb://") || host.contains("mongodb+srv"))) {
+        if (!StringUtils.isEmpty(host)
+                && (host.contains("mongodb://") || host.contains("mongodb+srv"))) {
             return true;
         }
 
@@ -300,8 +325,10 @@ public class DatasourceUtils {
     }
 
     public static boolean isAuthenticated(DBAuth authentication, String mongoUri) {
-        if (authentication != null && authentication.getUsername() != null
-                && authentication.getPassword() != null && mongoUri.contains("****")) {
+        if (authentication != null
+                && authentication.getUsername() != null
+                && authentication.getPassword() != null
+                && mongoUri.contains("****")) {
 
             return true;
         }

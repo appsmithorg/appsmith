@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ApiTemplate;
@@ -8,13 +9,16 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -44,14 +48,20 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
     private final Long timeoutInMillis = Long.valueOf(10000);
 
     @Autowired
-    public MarketplaceServiceCEImpl(WebClient.Builder webClientBuilder,
-                                    CloudServicesConfig cloudServicesConfig, ObjectMapper objectMapper) {
+    public MarketplaceServiceCEImpl(
+            WebClient.Builder webClientBuilder,
+            CloudServicesConfig cloudServicesConfig,
+            ObjectMapper objectMapper) {
         this.cloudServicesConfig = cloudServicesConfig;
-        this.webClient = webClientBuilder
-                .defaultHeaders(header -> header.setBasicAuth(cloudServicesConfig.getUsername(),
-                        cloudServicesConfig.getPassword()))
-                .baseUrl(cloudServicesConfig.getBaseUrl())
-                .build();
+        this.webClient =
+                webClientBuilder
+                        .defaultHeaders(
+                                header ->
+                                        header.setBasicAuth(
+                                                cloudServicesConfig.getUsername(),
+                                                cloudServicesConfig.getPassword()))
+                        .baseUrl(cloudServicesConfig.getBaseUrl())
+                        .build();
         this.objectMapper = objectMapper;
     }
 
@@ -68,17 +78,25 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(String.class)
-                .flatMap(stringBody -> {
-                    ProviderPaginatedDTO providersPaginated = null;
-                    try {
-                        providersPaginated = objectMapper.readValue(stringBody, ProviderPaginatedDTO.class);
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
-                    }
-                    return Mono.just(providersPaginated);
-                })
+                .flatMap(
+                        stringBody -> {
+                            ProviderPaginatedDTO providersPaginated = null;
+                            try {
+                                providersPaginated =
+                                        objectMapper.readValue(
+                                                stringBody, ProviderPaginatedDTO.class);
+                            } catch (JsonProcessingException e) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.JSON_PROCESSING_ERROR, e));
+                            }
+                            return Mono.just(providersPaginated);
+                        })
                 .timeout(Duration.ofMillis(timeoutInMillis))
-                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
+                .doOnError(
+                        error ->
+                                Mono.error(
+                                        new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
     @Override
@@ -94,17 +112,23 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(String.class)
-                .flatMap(stringBody -> {
-                    List<ApiTemplate> templates = null;
-                    try {
-                        templates = objectMapper.readValue(stringBody, ArrayList.class);
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
-                    }
-                    return Mono.just(templates);
-                })
+                .flatMap(
+                        stringBody -> {
+                            List<ApiTemplate> templates = null;
+                            try {
+                                templates = objectMapper.readValue(stringBody, ArrayList.class);
+                            } catch (JsonProcessingException e) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.JSON_PROCESSING_ERROR, e));
+                            }
+                            return Mono.just(templates);
+                        })
                 .timeout(Duration.ofMillis(timeoutInMillis))
-                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
+                .doOnError(
+                        error ->
+                                Mono.error(
+                                        new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
     @Override
@@ -120,17 +144,23 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(String.class)
-                .flatMap(stringBody -> {
-                    List<String> categories = null;
-                    try {
-                        categories = objectMapper.readValue(stringBody, ArrayList.class);
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
-                    }
-                    return Mono.just(categories);
-                })
+                .flatMap(
+                        stringBody -> {
+                            List<String> categories = null;
+                            try {
+                                categories = objectMapper.readValue(stringBody, ArrayList.class);
+                            } catch (JsonProcessingException e) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.JSON_PROCESSING_ERROR, e));
+                            }
+                            return Mono.just(categories);
+                        })
                 .timeout(Duration.ofMillis(timeoutInMillis))
-                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
+                .doOnError(
+                        error ->
+                                Mono.error(
+                                        new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
     @Override
@@ -143,11 +173,7 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
         }
 
-        return webClient
-                .put()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(Boolean.class);
+        return webClient.put().uri(uri).retrieve().bodyToMono(Boolean.class);
     }
 
     @Override
@@ -163,27 +189,36 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(String.class)
-                .flatMap(stringBody -> {
-                    Provider provider = null;
-                    try {
-                        provider = objectMapper.readValue(stringBody, Provider.class);
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
-                    }
-                    return Mono.just(provider);
-                })
+                .flatMap(
+                        stringBody -> {
+                            Provider provider = null;
+                            try {
+                                provider = objectMapper.readValue(stringBody, Provider.class);
+                            } catch (JsonProcessingException e) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.JSON_PROCESSING_ERROR, e));
+                            }
+                            return Mono.just(provider);
+                        })
                 .timeout(Duration.ofMillis(timeoutInMillis))
-                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
+                .doOnError(
+                        error ->
+                                Mono.error(
+                                        new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
     @Override
     /**
-     * This function searches for providers and returns the providers with exact match in name.
-     * In the future the search should support 'like' for providers and search could expand to include
+     * This function searches for providers and returns the providers with exact match in name. In
+     * the future the search should support 'like' for providers and search could expand to include
      * the actions used in the workspace (across all applications) and templates as well.
      */
     public Mono<List<Provider>> searchProviderByName(String name) {
-        URI uri = buildFullURI(null, PROVIDER_PATH + "/name/" + URLEncoder.encode(name, StandardCharsets.UTF_8));
+        URI uri =
+                buildFullURI(
+                        null,
+                        PROVIDER_PATH + "/name/" + URLEncoder.encode(name, StandardCharsets.UTF_8));
 
         if (uri == null) {
             return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
@@ -194,17 +229,23 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(String.class)
-                .flatMap(stringBody -> {
-                    List<Provider> providers = null;
-                    try {
-                        providers = objectMapper.readValue(stringBody, ArrayList.class);
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
-                    }
-                    return Mono.just(providers);
-                })
+                .flatMap(
+                        stringBody -> {
+                            List<Provider> providers = null;
+                            try {
+                                providers = objectMapper.readValue(stringBody, ArrayList.class);
+                            } catch (JsonProcessingException e) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.JSON_PROCESSING_ERROR, e));
+                            }
+                            return Mono.just(providers);
+                        })
                 .timeout(Duration.ofMillis(timeoutInMillis))
-                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
+                .doOnError(
+                        error ->
+                                Mono.error(
+                                        new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
     private URI buildFullURI(MultiValueMap<String, String> params, String path) {
@@ -223,7 +264,8 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
 
         if (params != null) {
             for (String key : params.keySet()) {
-                uriBuilder.queryParam(key, URLEncoder.encode(params.getFirst(key), StandardCharsets.UTF_8));
+                uriBuilder.queryParam(
+                        key, URLEncoder.encode(params.getFirst(key), StandardCharsets.UTF_8));
             }
         }
 

@@ -1,13 +1,16 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -77,13 +80,15 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Public.class)
     String actionComponent;
 
-    // Static metadata to indicate if the plugin is suitable for generating CRUD page from DB table if yes then page
+    // Static metadata to indicate if the plugin is suitable for generating CRUD page from DB table
+    // if yes then page
     // name will be specified by this field which will be referenced from template application
     // CRUD-DB-Table-Template-Application.json
     @JsonView(Views.Public.class)
     String generateCRUDPageComponent;
 
-    // Marking it as JsonIgnore because we don't want other users to be able to set this property. Only admins
+    // Marking it as JsonIgnore because we don't want other users to be able to set this property.
+    // Only admins
     // must be able to mark a plugin for defaultInstall on all workspace creations
     @JsonView(Views.Internal.class)
     Boolean defaultInstall;
@@ -106,8 +111,10 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Public.class)
     Map<String, String> templates;
 
-    // Field to distinguish if the plugin is supported in air-gap instance, by default all the plugins will be supported.
-    // One can opt out by adding this field in DB object. Generally SaaS plugins and DB which can't be self-hosted can
+    // Field to distinguish if the plugin is supported in air-gap instance, by default all the
+    // plugins will be supported.
+    // One can opt out by adding this field in DB object. Generally SaaS plugins and DB which can't
+    // be self-hosted can
     // be a candidate for opting out of air-gap
     @JsonView(Views.Internal.class)
     boolean isSupportedForAirGap = true;
@@ -115,5 +122,4 @@ public class Plugin extends BaseDomain {
     // Config to set if the plugin has any dependency on cloud-services
     @JsonView(Views.Internal.class)
     Boolean isDependentOnCS;
-
 }

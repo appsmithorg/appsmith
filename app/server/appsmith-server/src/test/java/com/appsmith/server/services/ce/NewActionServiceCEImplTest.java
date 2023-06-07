@@ -1,4 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -25,9 +29,13 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+
 import io.micrometer.observation.ObservationRegistry;
+
 import jakarta.validation.Validator;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,13 +44,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -50,83 +55,61 @@ public class NewActionServiceCEImplTest {
 
     NewActionServiceCEImpl newActionService;
 
-    @MockBean
-    Scheduler scheduler;
-    @MockBean
-    Validator validator;
-    @MockBean
-    MongoConverter mongoConverter;
-    @MockBean
-    ReactiveMongoTemplate reactiveMongoTemplate;
-    @MockBean
-    AnalyticsService analyticsService;
-    @MockBean
-    DatasourceService datasourceService;
-    @MockBean
-    PluginService pluginService;
-    @MockBean
-    DatasourceContextService datasourceContextService;
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
-    @MockBean
-    MarketplaceService marketplaceService;
-    @MockBean
-    PolicyGenerator policyGenerator;
-    @MockBean
-    NewPageService newPageService;
-    @MockBean
-    ApplicationService applicationService;
-    @MockBean
-    SessionUserService sessionUserService;
-    @MockBean
-    PolicyUtils policyUtils;
-    @MockBean
-    AuthenticationValidator authenticationValidator;
-    @MockBean
-    ConfigService configService;
-    @MockBean
-    ResponseUtils responseUtils;
-    @MockBean
-    PermissionGroupService permissionGroupService;
-    @MockBean
-    NewActionRepository newActionRepository;
-    @MockBean
-    DatasourcePermission datasourcePermission;
-    @MockBean
-    ApplicationPermission applicationPermission;
-    @MockBean
-    PagePermission pagePermission;
-    @MockBean
-    ActionPermission actionPermission;
-    @MockBean
-    ObservationRegistry observationRegistry;
+    @MockBean Scheduler scheduler;
+    @MockBean Validator validator;
+    @MockBean MongoConverter mongoConverter;
+    @MockBean ReactiveMongoTemplate reactiveMongoTemplate;
+    @MockBean AnalyticsService analyticsService;
+    @MockBean DatasourceService datasourceService;
+    @MockBean PluginService pluginService;
+    @MockBean DatasourceContextService datasourceContextService;
+    @MockBean PluginExecutorHelper pluginExecutorHelper;
+    @MockBean MarketplaceService marketplaceService;
+    @MockBean PolicyGenerator policyGenerator;
+    @MockBean NewPageService newPageService;
+    @MockBean ApplicationService applicationService;
+    @MockBean SessionUserService sessionUserService;
+    @MockBean PolicyUtils policyUtils;
+    @MockBean AuthenticationValidator authenticationValidator;
+    @MockBean ConfigService configService;
+    @MockBean ResponseUtils responseUtils;
+    @MockBean PermissionGroupService permissionGroupService;
+    @MockBean NewActionRepository newActionRepository;
+    @MockBean DatasourcePermission datasourcePermission;
+    @MockBean ApplicationPermission applicationPermission;
+    @MockBean PagePermission pagePermission;
+    @MockBean ActionPermission actionPermission;
+    @MockBean ObservationRegistry observationRegistry;
 
     @BeforeEach
     public void setup() {
-        newActionService = new NewActionServiceCEImpl(scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                newActionRepository,
-                analyticsService,
-                datasourceService,
-                pluginService,
-                pluginExecutorHelper,
-                marketplaceService,
-                policyGenerator,
-                newPageService,
-                applicationService,
-                policyUtils,
-                configService,
-                responseUtils,
-                permissionGroupService,
-                datasourcePermission,
-                applicationPermission,
-                pagePermission,
-                actionPermission,
-                observationRegistry);
+        newActionService =
+                new NewActionServiceCEImpl(
+                        scheduler,
+                        validator,
+                        mongoConverter,
+                        reactiveMongoTemplate,
+                        newActionRepository,
+                        analyticsService,
+                        datasourceService,
+                        pluginService,
+                        pluginExecutorHelper,
+                        marketplaceService,
+                        policyGenerator,
+                        newPageService,
+                        applicationService,
+                        policyUtils,
+                        configService,
+                        responseUtils,
+                        permissionGroupService,
+                        datasourcePermission,
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        observationRegistry);
 
-        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        ObservationRegistry.ObservationConfig mockObservationConfig =
+                Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
@@ -136,8 +119,7 @@ public class NewActionServiceCEImplTest {
         Plugin testPlugin = new Plugin();
         testPlugin.setId("testId");
         testPlugin.setType(PluginType.DB);
-        Mockito.when(pluginService.findById(anyString()))
-                .thenReturn(Mono.just(testPlugin));
+        Mockito.when(pluginService.findById(anyString())).thenReturn(Mono.just(testPlugin));
 
         NewAction action = new NewAction();
         action.setPluginId(null);
@@ -151,10 +133,11 @@ public class NewActionServiceCEImplTest {
 
         Mono<NewAction> updatedActionFlux = newActionService.sanitizeAction(action);
         StepVerifier.create(updatedActionFlux)
-                .assertNext(updatedAction -> {
-                    assertEquals("testId", updatedAction.getPluginId());
-                    assertEquals(PluginType.DB, updatedAction.getPluginType());
-                })
+                .assertNext(
+                        updatedAction -> {
+                            assertEquals("testId", updatedAction.getPluginId());
+                            assertEquals(PluginType.DB, updatedAction.getPluginType());
+                        })
                 .verifyComplete();
     }
 
@@ -177,11 +160,11 @@ public class NewActionServiceCEImplTest {
 
         Mono<NewAction> updatedActionFlux = newActionService.sanitizeAction(action);
         StepVerifier.create(updatedActionFlux)
-                .assertNext(updatedAction -> {
-                    assertEquals("testId", updatedAction.getPluginId());
-                    assertEquals(PluginType.JS, updatedAction.getPluginType());
-                })
+                .assertNext(
+                        updatedAction -> {
+                            assertEquals("testId", updatedAction.getPluginId());
+                            assertEquals(PluginType.JS, updatedAction.getPluginType());
+                        })
                 .verifyComplete();
     }
-
 }

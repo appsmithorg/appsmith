@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.DefaultResources;
@@ -6,10 +7,12 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.Layout;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -68,7 +71,8 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     Long lastUpdatedTime;
 
-    // This field will be used to store the default/root pageId and applicationId for actions generated for git
+    // This field will be used to store the default/root pageId and applicationId for actions
+    // generated for git
     // connected applications and will be used to connect actions across the branches
     @Transient
     @JsonView(Views.Public.class)

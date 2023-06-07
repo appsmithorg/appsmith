@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -11,14 +12,16 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 /**
- * This class represents a scheduled task that pings a data point indicating that this server installation is live.
- * This ping is only invoked if the Appsmith server is NOT running in Appsmith Clouud & the user has given Appsmith
- * permissions to collect anonymized data
+ * This class represents a scheduled task that pings a data point indicating that this server
+ * installation is live. This ping is only invoked if the Appsmith server is NOT running in Appsmith
+ * Clouud & the user has given Appsmith permissions to collect anonymized data
  */
 @ConditionalOnExpression("!${is.cloud-hosting:false}")
 @Slf4j
@@ -35,8 +38,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             NewActionRepository newActionRepository,
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
-            ProjectProperties projectProperties
-    ) {
+            ProjectProperties projectProperties) {
 
         super(
                 configService,
@@ -48,7 +50,6 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 newActionRepository,
                 datasourceRepository,
                 userRepository,
-                projectProperties
-        );
+                projectProperties);
     }
 }

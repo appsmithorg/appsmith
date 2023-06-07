@@ -1,4 +1,16 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -34,11 +46,14 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+
 import lombok.extern.slf4j.Slf4j;
+
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +66,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -61,16 +77,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
-import static com.appsmith.server.constants.FieldName.DEVELOPER;
-import static com.appsmith.server.constants.FieldName.VIEWER;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
@@ -80,36 +86,21 @@ public class PageServiceTest {
     static Application gitConnectedApplication = null;
     static String applicationId = null;
     static String workspaceId;
-    @Autowired
-    ApplicationPageService applicationPageService;
-    @Autowired
-    UserService userService;
-    @Autowired
-    LayoutService layoutService;
-    @Autowired
-    WorkspaceService workspaceService;
-    @Autowired
-    ApplicationService applicationService;
-    @Autowired
-    NewPageService newPageService;
-    @Autowired
-    NewActionService newActionService;
-    @Autowired
-    ActionCollectionService actionCollectionService;
-    @Autowired
-    PluginRepository pluginRepository;
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
-    @MockBean
-    PluginExecutor pluginExecutor;
-    @Autowired
-    LayoutActionService layoutActionService;
-    @Autowired
-    LayoutCollectionService layoutCollectionService;
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
-    @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    @Autowired ApplicationPageService applicationPageService;
+    @Autowired UserService userService;
+    @Autowired LayoutService layoutService;
+    @Autowired WorkspaceService workspaceService;
+    @Autowired ApplicationService applicationService;
+    @Autowired NewPageService newPageService;
+    @Autowired NewActionService newActionService;
+    @Autowired ActionCollectionService actionCollectionService;
+    @Autowired PluginRepository pluginRepository;
+    @MockBean PluginExecutorHelper pluginExecutorHelper;
+    @MockBean PluginExecutor pluginExecutor;
+    @Autowired LayoutActionService layoutActionService;
+    @Autowired LayoutCollectionService layoutCollectionService;
+    @Autowired ImportExportApplicationService importExportApplicationService;
+    @Autowired PermissionGroupRepository permissionGroupRepository;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -140,14 +131,30 @@ public class PageServiceTest {
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName(uniquePrefix + "_pageServiceTest");
         newApp.setGitApplicationMetadata(gitData);
-        return applicationPageService.createApplication(newApp, workspaceId)
-                .flatMap(application -> {
-                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
-                    return applicationService.save(application)
-                            .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
-                })
+        return applicationPageService
+                .createApplication(newApp, workspaceId)
+                .flatMap(
+                        application -> {
+                            application
+                                    .getGitApplicationMetadata()
+                                    .setDefaultApplicationId(application.getId());
+                            return applicationService
+                                    .save(application)
+                                    .zipWhen(
+                                            application1 ->
+                                                    importExportApplicationService
+                                                            .exportApplicationById(
+                                                                    application1.getId(),
+                                                                    gitData.getBranchName()));
+                        })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(
+                        tuple ->
+                                importExportApplicationService.importApplicationInWorkspace(
+                                        workspaceId,
+                                        tuple.getT2(),
+                                        tuple.getT1().getId(),
+                                        gitData.getBranchName()))
                 .block();
     }
 
@@ -155,12 +162,16 @@ public class PageServiceTest {
     @WithUserDetails(value = "api_user")
     public void createPageWithNullName() {
         PageDTO page = new PageDTO();
-        Mono<PageDTO> pageMono = Mono.just(page)
-                .flatMap(applicationPageService::createPage);
-        StepVerifier
-                .create(pageMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+        Mono<PageDTO> pageMono = Mono.just(page).flatMap(applicationPageService::createPage);
+        StepVerifier.create(pageMono)
+                .expectErrorMatches(
+                        throwable ->
+                                throwable instanceof AppsmithException
+                                        && throwable
+                                                .getMessage()
+                                                .equals(
+                                                        AppsmithError.INVALID_PARAMETER.getMessage(
+                                                                FieldName.NAME)))
                 .verify();
     }
 
@@ -169,12 +180,16 @@ public class PageServiceTest {
     public void createPageWithNullApplication() {
         PageDTO page = new PageDTO();
         page.setName("Page without application");
-        Mono<PageDTO> pageMono = Mono.just(page)
-                .flatMap(applicationPageService::createPage);
-        StepVerifier
-                .create(pageMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
+        Mono<PageDTO> pageMono = Mono.just(page).flatMap(applicationPageService::createPage);
+        StepVerifier.create(pageMono)
+                .expectErrorMatches(
+                        throwable ->
+                                throwable instanceof AppsmithException
+                                        && throwable
+                                                .getMessage()
+                                                .equals(
+                                                        AppsmithError.INVALID_PARAMETER.getMessage(
+                                                                FieldName.APPLICATION_ID)))
                 .verify();
     }
 
@@ -184,12 +199,16 @@ public class PageServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse
+                        .flatMapMany(
+                                savedWorkspace -> {
+                                    Set<String> defaultPermissionGroups =
+                                            savedWorkspace.getDefaultPermissionGroups();
+                                    return permissionGroupRepository.findAllById(
+                                            defaultPermissionGroups);
+                                })
+                        .collectList();
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
@@ -199,68 +218,117 @@ public class PageServiceTest {
 
         Mono<PageDTO> pageMono = applicationPageService.createPage(testPage).cache();
 
-        Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
-        StepVerifier
-                .create(Mono.zip(pageMono, defaultPermissionGroupsMono))
-                .assertNext(tuple -> {
-                    PageDTO page = tuple.getT1();
-                    assertThat(page).isNotNull();
-                    assertThat(page.getId()).isNotNull();
+        Object parsedJson =
+                new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
+        StepVerifier.create(Mono.zip(pageMono, defaultPermissionGroupsMono))
+                .assertNext(
+                        tuple -> {
+                            PageDTO page = tuple.getT1();
+                            assertThat(page).isNotNull();
+                            assertThat(page.getId()).isNotNull();
 
-                    assertThat(page.getName()).isEqualTo("PageServiceTest TestApp");
-                    assertThat(page.getIcon()).isEqualTo("flight");
-                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
+                            assertThat(page.getName()).isEqualTo("PageServiceTest TestApp");
+                            assertThat(page.getIcon()).isEqualTo("flight");
+                            assertThat(page.getSlug())
+                                    .isEqualTo(TextUtils.makeSlug(page.getName()));
 
-                    assertThat(page.getPolicies()).isNotEmpty();
-                    // assert permissions
-                    List<PermissionGroup> permissionGroups = tuple.getT2();
-                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            assertThat(page.getPolicies()).isNotEmpty();
+                            // assert permissions
+                            List<PermissionGroup> permissionGroups = tuple.getT2();
+                            PermissionGroup adminPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(ADMINISTRATOR))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            PermissionGroup developerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(DEVELOPER))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            PermissionGroup viewerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(VIEWER))
+                                            .findFirst()
+                                            .get();
 
-                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy managePagePolicy =
+                                    Policy.builder()
+                                            .permission(MANAGE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId()))
-                            .build();
+                            Policy readPagePolicy =
+                                    Policy.builder()
+                                            .permission(READ_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId(),
+                                                            viewerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy deletePagePolicy =
+                                    Policy.builder()
+                                            .permission(AclPermission.DELETE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy createPageActionsPolicy =
+                                    Policy.builder()
+                                            .permission(
+                                                    AclPermission.PAGE_CREATE_PAGE_ACTIONS
+                                                            .getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
-                            createPageActionsPolicy);
+                            assertThat(page.getPolicies())
+                                    .containsOnly(
+                                            managePagePolicy,
+                                            readPagePolicy,
+                                            deletePagePolicy,
+                                            createPageActionsPolicy);
 
-                    assertThat(page.getLayouts()).isNotEmpty();
-                    assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
-                    assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
-                })
+                            assertThat(page.getLayouts()).isNotEmpty();
+                            assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
+                            assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
+                        })
                 .verifyComplete();
 
         // Check if defaultResources
-        Mono<NewPage> newPageMono = pageMono.flatMap(pageDTO -> newPageService.getById(pageDTO.getId()));
-        StepVerifier
-                .create(newPageMono)
-                .assertNext(newPage -> {
-                    assertThat(newPage.getDefaultResources()).isNotNull();
-                    assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
-                    assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(newPage.getApplicationId());
-                })
+        Mono<NewPage> newPageMono =
+                pageMono.flatMap(pageDTO -> newPageService.getById(pageDTO.getId()));
+        StepVerifier.create(newPageMono)
+                .assertNext(
+                        newPage -> {
+                            assertThat(newPage.getDefaultResources()).isNotNull();
+                            assertThat(newPage.getDefaultResources().getPageId())
+                                    .isEqualTo(newPage.getId());
+                            assertThat(newPage.getDefaultResources().getApplicationId())
+                                    .isEqualTo(newPage.getApplicationId());
+                        })
                 .verifyComplete();
     }
 
@@ -270,12 +338,16 @@ public class PageServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse
+                        .flatMapMany(
+                                savedWorkspace -> {
+                                    Set<String> defaultPermissionGroups =
+                                            savedWorkspace.getDefaultPermissionGroups();
+                                    return permissionGroupRepository.findAllById(
+                                            defaultPermissionGroups);
+                                })
+                        .collectList();
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
@@ -290,54 +362,97 @@ public class PageServiceTest {
 
         Mono<PageDTO> pageMono = applicationPageService.createPage(testPage);
 
-        StepVerifier
-                .create(Mono.zip(pageMono, defaultPermissionGroupsMono))
-                .assertNext(tuple -> {
-                    PageDTO page = tuple.getT1();
-                    assertThat(page).isNotNull();
-                    assertThat(page.getId()).isNotNull();
-                    assertThat("PageServiceTest TestApp").isEqualTo(page.getName());
-                    assertThat("flight").isEqualTo(page.getIcon());
+        StepVerifier.create(Mono.zip(pageMono, defaultPermissionGroupsMono))
+                .assertNext(
+                        tuple -> {
+                            PageDTO page = tuple.getT1();
+                            assertThat(page).isNotNull();
+                            assertThat(page.getId()).isNotNull();
+                            assertThat("PageServiceTest TestApp").isEqualTo(page.getName());
+                            assertThat("flight").isEqualTo(page.getIcon());
 
-                    assertThat(page.getPolicies()).isNotEmpty();
+                            assertThat(page.getPolicies()).isNotEmpty();
 
-                    assertThat(page.getLayouts()).isNotEmpty();
-                    assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(dsl);
+                            assertThat(page.getLayouts()).isNotEmpty();
+                            assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(dsl);
 
-                    List<PermissionGroup> permissionGroups = tuple.getT2();
-                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            List<PermissionGroup> permissionGroups = tuple.getT2();
+                            PermissionGroup adminPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(ADMINISTRATOR))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            PermissionGroup developerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(DEVELOPER))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            PermissionGroup viewerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(VIEWER))
+                                            .findFirst()
+                                            .get();
 
-                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy managePagePolicy =
+                                    Policy.builder()
+                                            .permission(MANAGE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId()))
-                            .build();
+                            Policy readPagePolicy =
+                                    Policy.builder()
+                                            .permission(READ_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId(),
+                                                            viewerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy deletePagePolicy =
+                                    Policy.builder()
+                                            .permission(AclPermission.DELETE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy createPageActionsPolicy =
+                                    Policy.builder()
+                                            .permission(
+                                                    AclPermission.PAGE_CREATE_PAGE_ACTIONS
+                                                            .getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
-                            createPageActionsPolicy);
-
-                })
+                            assertThat(page.getPolicies())
+                                    .containsOnly(
+                                            managePagePolicy,
+                                            readPagePolicy,
+                                            deletePagePolicy,
+                                            createPageActionsPolicy);
+                        })
                 .verifyComplete();
     }
 
@@ -347,12 +462,16 @@ public class PageServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse
+                        .flatMapMany(
+                                savedWorkspace -> {
+                                    Set<String> defaultPermissionGroups =
+                                            savedWorkspace.getDefaultPermissionGroups();
+                                    return permissionGroupRepository.findAllById(
+                                            defaultPermissionGroups);
+                                })
+                        .collectList();
 
         PageDTO testPage = new PageDTO();
         testPage.setName("Before Page Name Change");
@@ -360,62 +479,109 @@ public class PageServiceTest {
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
-                .flatMap(page -> {
-                    PageDTO newPage = new PageDTO();
-                    newPage.setId(page.getId());
-                    newPage.setName("New Page Name");
-                    newPage.setIcon("flight");
-                    return newPageService.updatePage(page.getId(), newPage);
-                });
+        Mono<PageDTO> pageMono =
+                applicationPageService
+                        .createPage(testPage)
+                        .flatMap(
+                                page -> {
+                                    PageDTO newPage = new PageDTO();
+                                    newPage.setId(page.getId());
+                                    newPage.setName("New Page Name");
+                                    newPage.setIcon("flight");
+                                    return newPageService.updatePage(page.getId(), newPage);
+                                });
 
-        StepVerifier
-                .create(Mono.zip(pageMono, defaultPermissionGroupsMono))
-                .assertNext(tuple -> {
-                    PageDTO page = tuple.getT1();
-                    assertThat(page).isNotNull();
-                    assertThat(page.getId()).isNotNull();
-                    assertThat(page.getName()).isEqualTo("New Page Name");
-                    assertThat(page.getIcon()).isEqualTo("flight");
-                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
+        StepVerifier.create(Mono.zip(pageMono, defaultPermissionGroupsMono))
+                .assertNext(
+                        tuple -> {
+                            PageDTO page = tuple.getT1();
+                            assertThat(page).isNotNull();
+                            assertThat(page.getId()).isNotNull();
+                            assertThat(page.getName()).isEqualTo("New Page Name");
+                            assertThat(page.getIcon()).isEqualTo("flight");
+                            assertThat(page.getSlug())
+                                    .isEqualTo(TextUtils.makeSlug(page.getName()));
 
-                    // Check for the policy object not getting overwritten during update
-                    assertThat(page.getPolicies()).isNotEmpty();
-                    // assert permissions
-                    List<PermissionGroup> permissionGroups = tuple.getT2();
-                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            // Check for the policy object not getting overwritten during update
+                            assertThat(page.getPolicies()).isNotEmpty();
+                            // assert permissions
+                            List<PermissionGroup> permissionGroups = tuple.getT2();
+                            PermissionGroup adminPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(ADMINISTRATOR))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            PermissionGroup developerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(DEVELOPER))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            PermissionGroup viewerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(VIEWER))
+                                            .findFirst()
+                                            .get();
 
-                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy managePagePolicy =
+                                    Policy.builder()
+                                            .permission(MANAGE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId()))
-                            .build();
+                            Policy readPagePolicy =
+                                    Policy.builder()
+                                            .permission(READ_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId(),
+                                                            viewerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy deletePagePolicy =
+                                    Policy.builder()
+                                            .permission(AclPermission.DELETE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy createPageActionsPolicy =
+                                    Policy.builder()
+                                            .permission(
+                                                    AclPermission.PAGE_CREATE_PAGE_ACTIONS
+                                                            .getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
-                            createPageActionsPolicy);
-
-                })
+                            assertThat(page.getPolicies())
+                                    .containsOnly(
+                                            managePagePolicy,
+                                            readPagePolicy,
+                                            deletePagePolicy,
+                                            createPageActionsPolicy);
+                        })
                 .verifyComplete();
     }
 
@@ -425,12 +591,16 @@ public class PageServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse
+                        .flatMapMany(
+                                savedWorkspace -> {
+                                    Set<String> defaultPermissionGroups =
+                                            savedWorkspace.getDefaultPermissionGroups();
+                                    return permissionGroupRepository.findAllById(
+                                            defaultPermissionGroups);
+                                })
+                        .collectList();
 
         PageDTO testPage = new PageDTO();
         testPage.setName("Before Page Name Change");
@@ -438,77 +608,129 @@ public class PageServiceTest {
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
-                .flatMap(page -> {
-                    PageDTO newPage = new PageDTO();
-                    newPage.setId(page.getId());
-                    newPage.setName("New Page Name");
-                    return newPageService.updatePage(page.getId(), newPage);
-                });
+        Mono<PageDTO> pageMono =
+                applicationPageService
+                        .createPage(testPage)
+                        .flatMap(
+                                page -> {
+                                    PageDTO newPage = new PageDTO();
+                                    newPage.setId(page.getId());
+                                    newPage.setName("New Page Name");
+                                    return newPageService.updatePage(page.getId(), newPage);
+                                });
 
-        StepVerifier
-                .create(Mono.zip(pageMono, defaultPermissionGroupsMono))
-                .assertNext(tuple -> {
-                    PageDTO page = tuple.getT1();
-                    assertThat(page).isNotNull();
-                    assertThat(page.getId()).isNotNull();
-                    assertThat(page.getName()).isEqualTo("New Page Name");
-                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
-                    assertThat(page.getCustomSlug()).isEqualTo("my-custom-slug");
+        StepVerifier.create(Mono.zip(pageMono, defaultPermissionGroupsMono))
+                .assertNext(
+                        tuple -> {
+                            PageDTO page = tuple.getT1();
+                            assertThat(page).isNotNull();
+                            assertThat(page.getId()).isNotNull();
+                            assertThat(page.getName()).isEqualTo("New Page Name");
+                            assertThat(page.getSlug())
+                                    .isEqualTo(TextUtils.makeSlug(page.getName()));
+                            assertThat(page.getCustomSlug()).isEqualTo("my-custom-slug");
 
-                    // Check for the policy object not getting overwritten during update
-                    assertThat(page.getPolicies()).isNotEmpty();
-                    // assert permissions
-                    List<PermissionGroup> permissionGroups = tuple.getT2();
-                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            // Check for the policy object not getting overwritten during update
+                            assertThat(page.getPolicies()).isNotEmpty();
+                            // assert permissions
+                            List<PermissionGroup> permissionGroups = tuple.getT2();
+                            PermissionGroup adminPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(ADMINISTRATOR))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            PermissionGroup developerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(DEVELOPER))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            PermissionGroup viewerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(VIEWER))
+                                            .findFirst()
+                                            .get();
 
-                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy managePagePolicy =
+                                    Policy.builder()
+                                            .permission(MANAGE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId()))
-                            .build();
+                            Policy readPagePolicy =
+                                    Policy.builder()
+                                            .permission(READ_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId(),
+                                                            viewerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy deletePagePolicy =
+                                    Policy.builder()
+                                            .permission(AclPermission.DELETE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy createPageActionsPolicy =
+                                    Policy.builder()
+                                            .permission(
+                                                    AclPermission.PAGE_CREATE_PAGE_ACTIONS
+                                                            .getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
-                            createPageActionsPolicy);
-
-                })
+                            assertThat(page.getPolicies())
+                                    .containsOnly(
+                                            managePagePolicy,
+                                            readPagePolicy,
+                                            deletePagePolicy,
+                                            createPageActionsPolicy);
+                        })
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void clonePage() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse
+                        .flatMapMany(
+                                savedWorkspace -> {
+                                    Set<String> defaultPermissionGroups =
+                                            savedWorkspace.getDefaultPermissionGroups();
+                                    return permissionGroupRepository.findAllById(
+                                            defaultPermissionGroups);
+                                })
+                        .collectList();
 
         setupTestApplication();
         final String pageId = application.getPages().get(0).getId();
@@ -551,7 +773,10 @@ public class PageServiceTest {
 
         action.setPageId(page.getId());
 
-        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
+        final LayoutDTO layoutDTO =
+                layoutActionService
+                        .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
+                        .block();
 
         layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
@@ -578,121 +803,192 @@ public class PageServiceTest {
         final Mono<PageDTO> pageMono = applicationPageService.clonePage(page.getId()).cache();
 
         Mono<List<NewAction>> actionsMono =
-                pageMono
-                        .flatMapMany(
-                                page1 -> newActionService
-                                        .findByPageId(page1.getId(), READ_ACTIONS))
+                pageMono.flatMapMany(
+                                page1 -> newActionService.findByPageId(page1.getId(), READ_ACTIONS))
                         .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono =
-                pageMono
-                        .flatMapMany(
-                                page1 -> actionCollectionService
-                                        .findByPageId(page1.getId()))
+                pageMono.flatMapMany(page1 -> actionCollectionService.findByPageId(page1.getId()))
                         .collectList();
 
-        Mono<List<ActionCollection>> actionCollectionInParentPageMono = actionCollectionService
-                .findByPageId(page.getId())
-                .collectList();
+        Mono<List<ActionCollection>> actionCollectionInParentPageMono =
+                actionCollectionService.findByPageId(page.getId()).collectList();
 
+        StepVerifier.create(
+                        Mono.zip(
+                                pageMono,
+                                actionsMono,
+                                actionCollectionMono,
+                                actionCollectionInParentPageMono,
+                                defaultPermissionGroupsMono))
+                .assertNext(
+                        tuple -> {
+                            PageDTO clonedPage = tuple.getT1();
+                            assertThat(clonedPage).isNotNull();
+                            assertThat(clonedPage.getId()).isNotNull();
+                            assertEquals(page.getName() + " Copy", clonedPage.getName());
 
-        StepVerifier
-                .create(Mono.zip(pageMono, actionsMono, actionCollectionMono, actionCollectionInParentPageMono, defaultPermissionGroupsMono))
-                .assertNext(tuple -> {
-                    PageDTO clonedPage = tuple.getT1();
-                    assertThat(clonedPage).isNotNull();
-                    assertThat(clonedPage.getId()).isNotNull();
-                    assertEquals(page.getName() + " Copy", clonedPage.getName());
+                            assertThat(clonedPage.getPolicies()).isNotEmpty();
+                            // assert permissions
+                            List<PermissionGroup> permissionGroups = tuple.getT5();
+                            PermissionGroup adminPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(ADMINISTRATOR))
+                                            .findFirst()
+                                            .get();
 
-                    assertThat(clonedPage.getPolicies()).isNotEmpty();
-                    // assert permissions
-                    List<PermissionGroup> permissionGroups = tuple.getT5();
-                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            PermissionGroup developerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(DEVELOPER))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            PermissionGroup viewerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(VIEWER))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            Policy managePagePolicy =
+                                    Policy.builder()
+                                            .permission(MANAGE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy readPagePolicy =
+                                    Policy.builder()
+                                            .permission(READ_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId(),
+                                                            viewerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId()))
-                            .build();
+                            Policy deletePagePolicy =
+                                    Policy.builder()
+                                            .permission(AclPermission.DELETE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy createPageActionsPolicy =
+                                    Policy.builder()
+                                            .permission(
+                                                    AclPermission.PAGE_CREATE_PAGE_ACTIONS
+                                                            .getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            assertThat(clonedPage.getPolicies())
+                                    .containsOnly(
+                                            managePagePolicy,
+                                            readPagePolicy,
+                                            deletePagePolicy,
+                                            createPageActionsPolicy);
 
-                    assertThat(clonedPage.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
-                            createPageActionsPolicy);
+                            assertThat(clonedPage.getLayouts()).isNotEmpty();
+                            assertThat(clonedPage.getLayouts().get(0).getDsl().get("widgetName"))
+                                    .isEqualTo("firstWidget");
+                            assertThat(clonedPage.getLayouts().get(0).getWidgetNames())
+                                    .isNotEmpty();
+                            assertThat(clonedPage.getLayouts().get(0).getMongoEscapedWidgetNames())
+                                    .isNotEmpty();
+                            assertThat(clonedPage.getLayouts().get(0).getPublishedDsl())
+                                    .isNullOrEmpty();
 
-                    assertThat(clonedPage.getLayouts()).isNotEmpty();
-                    assertThat(clonedPage.getLayouts().get(0).getDsl().get("widgetName")).isEqualTo("firstWidget");
-                    assertThat(clonedPage.getLayouts().get(0).getWidgetNames()).isNotEmpty();
-                    assertThat(clonedPage.getLayouts().get(0).getMongoEscapedWidgetNames()).isNotEmpty();
-                    assertThat(clonedPage.getLayouts().get(0).getPublishedDsl()).isNullOrEmpty();
+                            // Confirm that the page action got copied as well
+                            List<NewAction> actions = tuple.getT2();
+                            assertThat(actions.size()).isEqualTo(2);
+                            NewAction actionWithoutCollection =
+                                    actions.stream()
+                                            .filter(
+                                                    newAction ->
+                                                            !StringUtils.hasLength(
+                                                                    newAction
+                                                                            .getUnpublishedAction()
+                                                                            .getCollectionId()))
+                                            .findFirst()
+                                            .orElse(null);
 
-                    // Confirm that the page action got copied as well
-                    List<NewAction> actions = tuple.getT2();
-                    assertThat(actions.size()).isEqualTo(2);
-                    NewAction actionWithoutCollection = actions
-                            .stream()
-                            .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
-                            .findFirst()
-                            .orElse(null);
+                            assertThat(actionWithoutCollection.getUnpublishedAction().getName())
+                                    .isEqualTo("PageAction");
 
-                    assertThat(actionWithoutCollection.getUnpublishedAction().getName()).isEqualTo("PageAction");
+                            // Confirm that executeOnLoad is cloned as well.
+                            assertThat(
+                                            actionWithoutCollection
+                                                    .getUnpublishedAction()
+                                                    .getExecuteOnLoad())
+                                    .isTrue();
 
-                    // Confirm that executeOnLoad is cloned as well.
-                    assertThat(actionWithoutCollection.getUnpublishedAction().getExecuteOnLoad()).isTrue();
+                            // Check if collections got copied too
+                            List<ActionCollection> collections = tuple.getT3();
+                            assertThat(collections).hasSize(1);
+                            assertThat(collections.get(0).getPublishedCollection()).isNull();
+                            assertThat(collections.get(0).getUnpublishedCollection()).isNotNull();
+                            assertThat(collections.get(0).getUnpublishedCollection().getPageId())
+                                    .isEqualTo(clonedPage.getId());
 
-                    // Check if collections got copied too
-                    List<ActionCollection> collections = tuple.getT3();
-                    assertThat(collections).hasSize(1);
-                    assertThat(collections.get(0).getPublishedCollection()).isNull();
-                    assertThat(collections.get(0).getUnpublishedCollection()).isNotNull();
-                    assertThat(collections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(clonedPage.getId());
-
-                    // Check if the parent page collections are not altered
-                    List<ActionCollection> parentPageCollections = tuple.getT4();
-                    assertThat(parentPageCollections).hasSize(1);
-                    assertThat(parentPageCollections.get(0).getPublishedCollection()).isNotNull();
-                    assertThat(parentPageCollections.get(0).getUnpublishedCollection()).isNotNull();
-                    assertThat(parentPageCollections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
-                })
+                            // Check if the parent page collections are not altered
+                            List<ActionCollection> parentPageCollections = tuple.getT4();
+                            assertThat(parentPageCollections).hasSize(1);
+                            assertThat(parentPageCollections.get(0).getPublishedCollection())
+                                    .isNotNull();
+                            assertThat(parentPageCollections.get(0).getUnpublishedCollection())
+                                    .isNotNull();
+                            assertThat(
+                                            parentPageCollections
+                                                    .get(0)
+                                                    .getUnpublishedCollection()
+                                                    .getPageId())
+                                    .isEqualTo(page.getId());
+                        })
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void clonePage_whenPageCloned_defaultIdsRetained() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse
+                        .flatMapMany(
+                                savedWorkspace -> {
+                                    Set<String> defaultPermissionGroups =
+                                            savedWorkspace.getDefaultPermissionGroups();
+                                    return permissionGroupRepository.findAllById(
+                                            defaultPermissionGroups);
+                                })
+                        .collectList();
 
         gitConnectedApplication = setupGitConnectedTestApplication("clonePage");
         final String pageId = gitConnectedApplication.getPages().get(0).getId();
-        final String branchName = gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+        final String branchName =
+                gitConnectedApplication.getGitApplicationMetadata().getBranchName();
 
         final PageDTO page = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
@@ -738,7 +1034,10 @@ public class PageServiceTest {
 
         layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
+        final LayoutDTO layoutDTO =
+                layoutActionService
+                        .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
+                        .block();
 
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -758,128 +1057,239 @@ public class PageServiceTest {
 
         layoutCollectionService.createCollection(actionCollectionDTO).block();
 
-        final Mono<NewPage> pageMono = applicationPageService.clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
-                .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), MANAGE_PAGES))
-                .cache();
+        final Mono<NewPage> pageMono =
+                applicationPageService
+                        .clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
+                        .flatMap(
+                                pageDTO ->
+                                        newPageService.findByBranchNameAndDefaultPageId(
+                                                branchName, pageDTO.getId(), MANAGE_PAGES))
+                        .cache();
 
         Mono<List<NewAction>> actionsMono =
-                pageMono
-                        .flatMapMany(
-                                page1 -> newActionService
-                                        .findByPageId(page1.getId(), READ_ACTIONS))
+                pageMono.flatMapMany(
+                                page1 -> newActionService.findByPageId(page1.getId(), READ_ACTIONS))
                         .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono =
-                pageMono
-                        .flatMapMany(
-                                page1 -> actionCollectionService
-                                        .findByPageId(page1.getId()))
+                pageMono.flatMapMany(page1 -> actionCollectionService.findByPageId(page1.getId()))
                         .collectList();
 
-        Mono<List<ActionCollection>> actionCollectionInParentPageMono = actionCollectionService
-                .findByPageId(page.getId())
-                .collectList();
+        Mono<List<ActionCollection>> actionCollectionInParentPageMono =
+                actionCollectionService.findByPageId(page.getId()).collectList();
 
-        StepVerifier
-                .create(Mono.zip(pageMono, actionsMono, actionCollectionMono, actionCollectionInParentPageMono, defaultPermissionGroupsMono))
-                .assertNext(tuple -> {
-                    NewPage clonedPage = tuple.getT1();
-                    PageDTO unpublishedPage = clonedPage.getUnpublishedPage();
-                    assertThat(clonedPage).isNotNull();
-                    assertThat(clonedPage.getId()).isNotNull();
-                    assertEquals(page.getName() + " Copy", clonedPage.getUnpublishedPage().getName());
+        StepVerifier.create(
+                        Mono.zip(
+                                pageMono,
+                                actionsMono,
+                                actionCollectionMono,
+                                actionCollectionInParentPageMono,
+                                defaultPermissionGroupsMono))
+                .assertNext(
+                        tuple -> {
+                            NewPage clonedPage = tuple.getT1();
+                            PageDTO unpublishedPage = clonedPage.getUnpublishedPage();
+                            assertThat(clonedPage).isNotNull();
+                            assertThat(clonedPage.getId()).isNotNull();
+                            assertEquals(
+                                    page.getName() + " Copy",
+                                    clonedPage.getUnpublishedPage().getName());
 
-                    assertThat(clonedPage.getPolicies()).isNotEmpty();
+                            assertThat(clonedPage.getPolicies()).isNotEmpty();
 
-                    // assert permissions
-                    List<PermissionGroup> permissionGroups = tuple.getT5();
-                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            // assert permissions
+                            List<PermissionGroup> permissionGroups = tuple.getT5();
+                            PermissionGroup adminPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(ADMINISTRATOR))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            PermissionGroup developerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(DEVELOPER))
+                                            .findFirst()
+                                            .get();
 
-                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            PermissionGroup viewerPermissionGroup =
+                                    permissionGroups.stream()
+                                            .filter(
+                                                    permissionGroup ->
+                                                            permissionGroup
+                                                                    .getName()
+                                                                    .startsWith(VIEWER))
+                                            .findFirst()
+                                            .get();
 
-                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy managePagePolicy =
+                                    Policy.builder()
+                                            .permission(MANAGE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId()))
-                            .build();
+                            Policy readPagePolicy =
+                                    Policy.builder()
+                                            .permission(READ_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId(),
+                                                            viewerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy deletePagePolicy =
+                                    Policy.builder()
+                                            .permission(AclPermission.DELETE_PAGES.getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-                            .build();
+                            Policy createPageActionsPolicy =
+                                    Policy.builder()
+                                            .permission(
+                                                    AclPermission.PAGE_CREATE_PAGE_ACTIONS
+                                                            .getValue())
+                                            .permissionGroups(
+                                                    Set.of(
+                                                            adminPermissionGroup.getId(),
+                                                            developerPermissionGroup.getId()))
+                                            .build();
 
-                    assertThat(clonedPage.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
-                            createPageActionsPolicy);
+                            assertThat(clonedPage.getPolicies())
+                                    .containsOnly(
+                                            managePagePolicy,
+                                            readPagePolicy,
+                                            deletePagePolicy,
+                                            createPageActionsPolicy);
 
-                    assertThat(unpublishedPage.getLayouts()).isNotEmpty();
-                    assertThat(unpublishedPage.getLayouts().get(0).getDsl().get("widgetName")).isEqualTo("firstWidget");
-                    assertThat(unpublishedPage.getLayouts().get(0).getWidgetNames()).isNotEmpty();
-                    assertThat(unpublishedPage.getLayouts().get(0).getMongoEscapedWidgetNames()).isNotEmpty();
-                    assertThat(unpublishedPage.getLayouts().get(0).getPublishedDsl()).isNullOrEmpty();
-                    DefaultResources clonedPageDefaultRes = clonedPage.getDefaultResources();
-                    assertThat(clonedPageDefaultRes).isNotNull();
-                    assertThat(clonedPageDefaultRes.getPageId()).isNotEqualTo(page.getDefaultResources().getPageId());
-                    assertThat(clonedPageDefaultRes.getApplicationId()).isEqualTo(page.getDefaultResources().getApplicationId());
-                    assertThat(clonedPageDefaultRes.getBranchName()).isEqualTo(branchName);
+                            assertThat(unpublishedPage.getLayouts()).isNotEmpty();
+                            assertThat(
+                                            unpublishedPage
+                                                    .getLayouts()
+                                                    .get(0)
+                                                    .getDsl()
+                                                    .get("widgetName"))
+                                    .isEqualTo("firstWidget");
+                            assertThat(unpublishedPage.getLayouts().get(0).getWidgetNames())
+                                    .isNotEmpty();
+                            assertThat(
+                                            unpublishedPage
+                                                    .getLayouts()
+                                                    .get(0)
+                                                    .getMongoEscapedWidgetNames())
+                                    .isNotEmpty();
+                            assertThat(unpublishedPage.getLayouts().get(0).getPublishedDsl())
+                                    .isNullOrEmpty();
+                            DefaultResources clonedPageDefaultRes =
+                                    clonedPage.getDefaultResources();
+                            assertThat(clonedPageDefaultRes).isNotNull();
+                            assertThat(clonedPageDefaultRes.getPageId())
+                                    .isNotEqualTo(page.getDefaultResources().getPageId());
+                            assertThat(clonedPageDefaultRes.getApplicationId())
+                                    .isEqualTo(page.getDefaultResources().getApplicationId());
+                            assertThat(clonedPageDefaultRes.getBranchName()).isEqualTo(branchName);
 
-                    // Confirm that the page action got copied as well
-                    List<NewAction> actions = tuple.getT2();
-                    assertThat(actions).hasSize(2);
-                    NewAction actionWithoutCollection = actions
-                            .stream()
-                            .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
-                            .findFirst()
-                            .orElse(null);
+                            // Confirm that the page action got copied as well
+                            List<NewAction> actions = tuple.getT2();
+                            assertThat(actions).hasSize(2);
+                            NewAction actionWithoutCollection =
+                                    actions.stream()
+                                            .filter(
+                                                    newAction ->
+                                                            !StringUtils.hasLength(
+                                                                    newAction
+                                                                            .getUnpublishedAction()
+                                                                            .getCollectionId()))
+                                            .findFirst()
+                                            .orElse(null);
 
-                    DefaultResources clonedActionDefaultRes = actionWithoutCollection.getDefaultResources();
-                    assertThat(actionWithoutCollection.getUnpublishedAction().getName()).isEqualTo("PageAction");
-                    assertThat(clonedActionDefaultRes).isNotNull();
-                    assertThat(clonedActionDefaultRes.getActionId()).isEqualTo(actionWithoutCollection.getId());
-                    assertThat(clonedActionDefaultRes.getApplicationId()).isEqualTo(actionWithoutCollection.getApplicationId());
-                    assertThat(clonedActionDefaultRes.getPageId()).isNull();
-                    assertThat(clonedActionDefaultRes.getBranchName()).isEqualTo(branchName);
-                    assertThat(actionWithoutCollection.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
+                            DefaultResources clonedActionDefaultRes =
+                                    actionWithoutCollection.getDefaultResources();
+                            assertThat(actionWithoutCollection.getUnpublishedAction().getName())
+                                    .isEqualTo("PageAction");
+                            assertThat(clonedActionDefaultRes).isNotNull();
+                            assertThat(clonedActionDefaultRes.getActionId())
+                                    .isEqualTo(actionWithoutCollection.getId());
+                            assertThat(clonedActionDefaultRes.getApplicationId())
+                                    .isEqualTo(actionWithoutCollection.getApplicationId());
+                            assertThat(clonedActionDefaultRes.getPageId()).isNull();
+                            assertThat(clonedActionDefaultRes.getBranchName())
+                                    .isEqualTo(branchName);
+                            assertThat(
+                                            actionWithoutCollection
+                                                    .getUnpublishedAction()
+                                                    .getDefaultResources()
+                                                    .getPageId())
+                                    .isEqualTo(clonedPage.getDefaultResources().getPageId());
 
-                    // Confirm that executeOnLoad is cloned as well.
-                    assertThat(actions.stream().filter(clonedAction -> "PageAction".equals(clonedAction.getUnpublishedAction().getName())).findFirst().get().getUnpublishedAction().getExecuteOnLoad()).isTrue();
+                            // Confirm that executeOnLoad is cloned as well.
+                            assertThat(
+                                            actions.stream()
+                                                    .filter(
+                                                            clonedAction ->
+                                                                    "PageAction"
+                                                                            .equals(
+                                                                                    clonedAction
+                                                                                            .getUnpublishedAction()
+                                                                                            .getName()))
+                                                    .findFirst()
+                                                    .get()
+                                                    .getUnpublishedAction()
+                                                    .getExecuteOnLoad())
+                                    .isTrue();
 
-                    // Check if collections got copied too
-                    List<ActionCollection> collections = tuple.getT3();
-                    assertThat(collections).hasSize(1);
-                    ActionCollection collection = collections.get(0);
-                    assertThat(collection.getPublishedCollection()).isNull();
-                    assertThat(collection.getUnpublishedCollection()).isNotNull();
-                    assertThat(collection.getUnpublishedCollection().getPageId()).isEqualTo(clonedPage.getId());
-                    DefaultResources collectionDefaultResource = collection.getDefaultResources();
-                    assertThat(collectionDefaultResource.getPageId()).isNull();
-                    assertThat(collectionDefaultResource.getApplicationId()).isEqualTo(collection.getApplicationId());
-                    assertThat(collectionDefaultResource.getBranchName()).isEqualTo(branchName);
-                    assertThat(collection.getUnpublishedCollection().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
+                            // Check if collections got copied too
+                            List<ActionCollection> collections = tuple.getT3();
+                            assertThat(collections).hasSize(1);
+                            ActionCollection collection = collections.get(0);
+                            assertThat(collection.getPublishedCollection()).isNull();
+                            assertThat(collection.getUnpublishedCollection()).isNotNull();
+                            assertThat(collection.getUnpublishedCollection().getPageId())
+                                    .isEqualTo(clonedPage.getId());
+                            DefaultResources collectionDefaultResource =
+                                    collection.getDefaultResources();
+                            assertThat(collectionDefaultResource.getPageId()).isNull();
+                            assertThat(collectionDefaultResource.getApplicationId())
+                                    .isEqualTo(collection.getApplicationId());
+                            assertThat(collectionDefaultResource.getBranchName())
+                                    .isEqualTo(branchName);
+                            assertThat(
+                                            collection
+                                                    .getUnpublishedCollection()
+                                                    .getDefaultResources()
+                                                    .getPageId())
+                                    .isEqualTo(clonedPage.getDefaultResources().getPageId());
 
-                    // Check if the parent page collections are not altered
-                    List<ActionCollection> parentPageCollections = tuple.getT4();
-                    assertThat(parentPageCollections).hasSize(1);
-                    assertThat(parentPageCollections.get(0).getUnpublishedCollection()).isNotNull();
-                    assertThat(parentPageCollections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
+                            // Check if the parent page collections are not altered
+                            List<ActionCollection> parentPageCollections = tuple.getT4();
+                            assertThat(parentPageCollections).hasSize(1);
+                            assertThat(parentPageCollections.get(0).getUnpublishedCollection())
+                                    .isNotNull();
+                            assertThat(
+                                            parentPageCollections
+                                                    .get(0)
+                                                    .getUnpublishedCollection()
+                                                    .getPageId())
+                                    .isEqualTo(page.getId());
 
-                    assertThat(parentPageCollections.get(0).getGitSyncId()).isNotEmpty();
-                    assertThat(collection.getGitSyncId()).isNotEmpty();
-                    assertThat(collection.getGitSyncId()).isNotEqualTo(parentPageCollections.get(0).getGitSyncId());
-                })
+                            assertThat(parentPageCollections.get(0).getGitSyncId()).isNotEmpty();
+                            assertThat(collection.getGitSyncId()).isNotEmpty();
+                            assertThat(collection.getGitSyncId())
+                                    .isNotEqualTo(parentPageCollections.get(0).getGitSyncId());
+                        })
                 .verifyComplete();
     }
 
@@ -898,7 +1308,7 @@ public class PageServiceTest {
         // Publish the application
         applicationPageService.publish(application.getId(), true);
 
-        //Delete Page in edit mode
+        // Delete Page in edit mode
         applicationPageService.deleteUnpublishedPage(firstPage.getId()).block();
 
         testPage.setId(null);
@@ -906,20 +1316,19 @@ public class PageServiceTest {
         // Create Second Page
         PageDTO secondPage = applicationPageService.createPage(testPage).block();
 
-        //Update the name of the new page
+        // Update the name of the new page
         PageDTO newPage = new PageDTO();
         newPage.setId(secondPage.getId());
         newPage.setName("reuseDeletedPageName");
         Mono<PageDTO> updatePageNameMono = newPageService.updatePage(secondPage.getId(), newPage);
 
-        StepVerifier
-                .create(updatePageNameMono)
-                .assertNext(page -> {
-                    assertThat(page).isNotNull();
-                    assertThat(page.getId()).isNotNull();
-                    assertThat("reuseDeletedPageName").isEqualTo(page.getName());
-
-                })
+        StepVerifier.create(updatePageNameMono)
+                .assertNext(
+                        page -> {
+                            assertThat(page).isNotNull();
+                            assertThat(page.getId()).isNotNull();
+                            assertThat("reuseDeletedPageName").isEqualTo(page.getName());
+                        })
                 .verifyComplete();
     }
 
@@ -937,38 +1346,47 @@ public class PageServiceTest {
         PageDTO testPage1 = new PageDTO();
         testPage1.setName("Page2");
         testPage1.setApplicationId(applicationId);
-        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPage(testPage1)
-                .flatMap(pageDTO -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page3");
-                    testPage.setApplicationId(applicationId);
-                    return applicationPageService.createPage(testPage);
-                })
-                .flatMap(pageDTO -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page4");
-                    testPage.setApplicationId(applicationId);
-                    return applicationPageService.createPage(testPage);
-                })
-                .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
-                .flatMap(application -> {
-                    pageIds[0] = application.getPages().get(0).getId();
-                    pageIds[1] = application.getPages().get(1).getId();
-                    pageIds[2] = application.getPages().get(2).getId();
-                    pageIds[3] = application.getPages().get(3).getId();
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 1, null);
-                });
+        Mono<ApplicationPagesDTO> applicationPageReOrdered =
+                applicationPageService
+                        .createPage(testPage1)
+                        .flatMap(
+                                pageDTO -> {
+                                    PageDTO testPage = new PageDTO();
+                                    testPage.setName("Page3");
+                                    testPage.setApplicationId(applicationId);
+                                    return applicationPageService.createPage(testPage);
+                                })
+                        .flatMap(
+                                pageDTO -> {
+                                    PageDTO testPage = new PageDTO();
+                                    testPage.setName("Page4");
+                                    testPage.setApplicationId(applicationId);
+                                    return applicationPageService.createPage(testPage);
+                                })
+                        .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
+                        .flatMap(
+                                application -> {
+                                    pageIds[0] = application.getPages().get(0).getId();
+                                    pageIds[1] = application.getPages().get(1).getId();
+                                    pageIds[2] = application.getPages().get(2).getId();
+                                    pageIds[3] = application.getPages().get(3).getId();
+                                    return applicationPageService.reorderPage(
+                                            application.getId(),
+                                            application.getPages().get(3).getId(),
+                                            1,
+                                            null);
+                                });
 
-        StepVerifier
-                .create(applicationPageReOrdered)
-                .assertNext(application -> {
-                    final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
-                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[0]);
-                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[3]);
-                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[1]);
-                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[2]);
-                })
+        StepVerifier.create(applicationPageReOrdered)
+                .assertNext(
+                        application -> {
+                            final List<PageNameIdDTO> pages = application.getPages();
+                            assertThat(pages.size()).isEqualTo(4);
+                            assertThat(pages.get(0).getId()).isEqualTo(pageIds[0]);
+                            assertThat(pages.get(1).getId()).isEqualTo(pageIds[3]);
+                            assertThat(pages.get(2).getId()).isEqualTo(pageIds[1]);
+                            assertThat(pages.get(3).getId()).isEqualTo(pageIds[2]);
+                        })
                 .verifyComplete();
     }
 
@@ -986,38 +1404,47 @@ public class PageServiceTest {
         PageDTO testPage1 = new PageDTO();
         testPage1.setName("Page2");
         testPage1.setApplicationId(applicationId);
-        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPage(testPage1)
-                .flatMap(pageDTO -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page3");
-                    testPage.setApplicationId(applicationId);
-                    return applicationPageService.createPage(testPage);
-                })
-                .flatMap(pageDTO -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page4");
-                    testPage.setApplicationId(applicationId);
-                    return applicationPageService.createPage(testPage);
-                })
-                .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
-                .flatMap(application -> {
-                    pageIds[0] = application.getPages().get(0).getId();
-                    pageIds[1] = application.getPages().get(1).getId();
-                    pageIds[2] = application.getPages().get(2).getId();
-                    pageIds[3] = application.getPages().get(3).getId();
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3, null);
-                });
+        Mono<ApplicationPagesDTO> applicationPageReOrdered =
+                applicationPageService
+                        .createPage(testPage1)
+                        .flatMap(
+                                pageDTO -> {
+                                    PageDTO testPage = new PageDTO();
+                                    testPage.setName("Page3");
+                                    testPage.setApplicationId(applicationId);
+                                    return applicationPageService.createPage(testPage);
+                                })
+                        .flatMap(
+                                pageDTO -> {
+                                    PageDTO testPage = new PageDTO();
+                                    testPage.setName("Page4");
+                                    testPage.setApplicationId(applicationId);
+                                    return applicationPageService.createPage(testPage);
+                                })
+                        .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
+                        .flatMap(
+                                application -> {
+                                    pageIds[0] = application.getPages().get(0).getId();
+                                    pageIds[1] = application.getPages().get(1).getId();
+                                    pageIds[2] = application.getPages().get(2).getId();
+                                    pageIds[3] = application.getPages().get(3).getId();
+                                    return applicationPageService.reorderPage(
+                                            application.getId(),
+                                            application.getPages().get(0).getId(),
+                                            3,
+                                            null);
+                                });
 
-        StepVerifier
-                .create(applicationPageReOrdered)
-                .assertNext(application -> {
-                    final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
-                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[0]);
-                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[1]);
-                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[2]);
-                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[3]);
-                })
+        StepVerifier.create(applicationPageReOrdered)
+                .assertNext(
+                        application -> {
+                            final List<PageNameIdDTO> pages = application.getPages();
+                            assertThat(pages.size()).isEqualTo(4);
+                            assertThat(pages.get(3).getId()).isEqualTo(pageIds[0]);
+                            assertThat(pages.get(0).getId()).isEqualTo(pageIds[1]);
+                            assertThat(pages.get(1).getId()).isEqualTo(pageIds[2]);
+                            assertThat(pages.get(2).getId()).isEqualTo(pageIds[3]);
+                        })
                 .verifyComplete();
     }
 
@@ -1026,47 +1453,60 @@ public class PageServiceTest {
     public void reorderPage_pageReordered_success() {
 
         gitConnectedApplication = setupGitConnectedTestApplication("reorderPage");
-        final String branchName = gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+        final String branchName =
+                gitConnectedApplication.getGitApplicationMetadata().getBranchName();
         final ApplicationPage[] pageIds = new ApplicationPage[4];
 
         PageDTO testPage1 = new PageDTO();
         testPage1.setName("Page2");
         testPage1.setApplicationId(gitConnectedApplication.getId());
-        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPageWithBranchName(testPage1, branchName)
-                .flatMap(pageDTO -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page3");
-                    testPage.setApplicationId(gitConnectedApplication.getId());
-                    return applicationPageService.createPageWithBranchName(testPage, branchName);
-                })
-                .flatMap(pageDTO -> {
-                    PageDTO testPage = new PageDTO();
-                    testPage.setName("Page4");
-                    testPage.setApplicationId(gitConnectedApplication.getId());
-                    return applicationPageService.createPageWithBranchName(testPage, branchName);
-                })
-                .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
-                .flatMap(application -> {
-                    pageIds[0] = application.getPages().get(0);
-                    pageIds[1] = application.getPages().get(1);
-                    pageIds[2] = application.getPages().get(2);
-                    pageIds[3] = application.getPages().get(3);
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3, null);
-                });
+        Mono<ApplicationPagesDTO> applicationPageReOrdered =
+                applicationPageService
+                        .createPageWithBranchName(testPage1, branchName)
+                        .flatMap(
+                                pageDTO -> {
+                                    PageDTO testPage = new PageDTO();
+                                    testPage.setName("Page3");
+                                    testPage.setApplicationId(gitConnectedApplication.getId());
+                                    return applicationPageService.createPageWithBranchName(
+                                            testPage, branchName);
+                                })
+                        .flatMap(
+                                pageDTO -> {
+                                    PageDTO testPage = new PageDTO();
+                                    testPage.setName("Page4");
+                                    testPage.setApplicationId(gitConnectedApplication.getId());
+                                    return applicationPageService.createPageWithBranchName(
+                                            testPage, branchName);
+                                })
+                        .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
+                        .flatMap(
+                                application -> {
+                                    pageIds[0] = application.getPages().get(0);
+                                    pageIds[1] = application.getPages().get(1);
+                                    pageIds[2] = application.getPages().get(2);
+                                    pageIds[3] = application.getPages().get(3);
+                                    return applicationPageService.reorderPage(
+                                            application.getId(),
+                                            application.getPages().get(0).getId(),
+                                            3,
+                                            null);
+                                });
 
-        StepVerifier
-                .create(applicationPageReOrdered)
-                .assertNext(application -> {
-                    final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
-                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[0].getId());
-                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[1].getId());
-                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[2].getId());
-                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[3].getId());
+        StepVerifier.create(applicationPageReOrdered)
+                .assertNext(
+                        application -> {
+                            final List<PageNameIdDTO> pages = application.getPages();
+                            assertThat(pages.size()).isEqualTo(4);
+                            assertThat(pages.get(3).getId()).isEqualTo(pageIds[0].getId());
+                            assertThat(pages.get(0).getId()).isEqualTo(pageIds[1].getId());
+                            assertThat(pages.get(1).getId()).isEqualTo(pageIds[2].getId());
+                            assertThat(pages.get(2).getId()).isEqualTo(pageIds[3].getId());
 
-                    // Check if the defaultIds are intact
-                    assertThat(pages.get(3).getDefaultPageId()).isEqualTo(pageIds[0].getDefaultPageId());
-                })
+                            // Check if the defaultIds are intact
+                            assertThat(pages.get(3).getDefaultPageId())
+                                    .isEqualTo(pageIds[0].getDefaultPageId());
+                        })
                 .verifyComplete();
     }
 
@@ -1079,24 +1519,24 @@ public class PageServiceTest {
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
-                .flatMap(pageDTO -> {
-                    PageDTO testPage1 = new PageDTO();
-                    testPage1.setName("Page3");
-                    testPage1.setApplicationId(applicationId);
-                    testPage1.setId(pageDTO.getId());
-                    return applicationPageService.createPage(testPage1);
-                });
-        StepVerifier
-                .create(pageMono)
+        Mono<PageDTO> pageMono =
+                applicationPageService
+                        .createPage(testPage)
+                        .flatMap(
+                                pageDTO -> {
+                                    PageDTO testPage1 = new PageDTO();
+                                    testPage1.setName("Page3");
+                                    testPage1.setApplicationId(applicationId);
+                                    testPage1.setId(pageDTO.getId());
+                                    return applicationPageService.createPage(testPage1);
+                                });
+        StepVerifier.create(pageMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
                 .verify();
     }
-
 
     @AfterEach
     public void purgeAllPages() {
         newPageService.deleteAll();
     }
-
 }

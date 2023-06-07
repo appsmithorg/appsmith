@@ -1,9 +1,12 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,11 +28,16 @@ public interface AppsmithRepository<T> {
 
     Flux<T> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort);
 
-    Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
+    Flux<T> queryAll(
+            List<Criteria> criterias,
+            List<String> includeFields,
+            AclPermission permission,
+            Sort sort);
 
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
     Mono<T> setUserPermissionsInObject(T obj);
 
-    Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username);
+    Mono<Boolean> isPermissionPresentForUser(
+            Set<Policy> policies, String permission, String username);
 }

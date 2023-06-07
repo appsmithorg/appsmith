@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.RedisTestContainerConfig;
@@ -5,6 +6,7 @@ import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.WorkspaceService;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,28 +25,34 @@ import org.springframework.web.reactive.function.BodyInserters;
 @AutoConfigureWebTestClient
 @Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class WorkspaceControllerTest {
-    @MockBean
-    WorkspaceService workspaceService;
-    @Autowired
-    private WebTestClient webTestClient;
+    @MockBean WorkspaceService workspaceService;
+    @Autowired private WebTestClient webTestClient;
 
     @Test
     @WithMockUser
     public void getWorkspaceNoName() {
-        webTestClient.post().uri("/api/v1/workspaces").
-                contentType(MediaType.APPLICATION_JSON).
-                body(BodyInserters.fromValue("{}")).
-                exchange().
-                expectStatus().isEqualTo(400).
-                expectBody().json("{\n" +
-                        "    \"responseMeta\": {\n" +
-                        "        \"status\": 400,\n" +
-                        "        \"success\": false,\n" +
-                        "        \"error\": {\n" +
-                        "            \"code\": " + AppsmithErrorCode.VALIDATION_FAILURE.getCode() + ",\n" +
-                        "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}");
+        webTestClient
+                .post()
+                .uri("/api/v1/workspaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue("{}"))
+                .exchange()
+                .expectStatus()
+                .isEqualTo(400)
+                .expectBody()
+                .json(
+                        "{\n"
+                                + "    \"responseMeta\": {\n"
+                                + "        \"status\": 400,\n"
+                                + "        \"success\": false,\n"
+                                + "        \"error\": {\n"
+                                + "            \"code\": "
+                                + AppsmithErrorCode.VALIDATION_FAILURE.getCode()
+                                + ",\n"
+                                + "            \"message\": \"Validation Failure(s): {name=Name is"
+                                + " mandatory}\"\n"
+                                + "        }\n"
+                                + "    }\n"
+                                + "}");
     }
 }

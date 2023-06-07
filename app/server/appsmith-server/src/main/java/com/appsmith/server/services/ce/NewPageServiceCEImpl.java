@@ -1,4 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
@@ -24,17 +28,22 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
+
 import jakarta.validation.Validator;
+
 import lombok.extern.slf4j.Slf4j;
+
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -49,12 +58,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
-
-
 @Slf4j
-public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageServiceCE {
+public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage, String>
+        implements NewPageServiceCE {
 
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
@@ -63,21 +69,27 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     private final PagePermission pagePermission;
     private final ApplicationSnapshotRepository applicationSnapshotRepository;
 
-
     @Autowired
-    public NewPageServiceCEImpl(Scheduler scheduler,
-                                Validator validator,
-                                MongoConverter mongoConverter,
-                                ReactiveMongoTemplate reactiveMongoTemplate,
-                                NewPageRepository repository,
-                                AnalyticsService analyticsService,
-                                ApplicationService applicationService,
-                                UserDataService userDataService,
-                                ResponseUtils responseUtils,
-                                ApplicationPermission applicationPermission,
-                                PagePermission pagePermission,
-                                ApplicationSnapshotRepository applicationSnapshotRepository) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+    public NewPageServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            NewPageRepository repository,
+            AnalyticsService analyticsService,
+            ApplicationService applicationService,
+            UserDataService userDataService,
+            ResponseUtils responseUtils,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ApplicationSnapshotRepository applicationSnapshotRepository) {
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.responseUtils = responseUtils;
@@ -95,8 +107,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 page = newPage.getPublishedPage();
                 page.setName(newPage.getPublishedPage().getName());
             } else {
-                // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
-                return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, newPage.getId()));
+                // We are trying to fetch published page but it doesnt exist because the page hasn't
+                // been published yet
+                return Mono.error(
+                        new AppsmithException(
+                                AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                FieldName.PAGE,
+                                newPage.getId()));
             }
         } else {
             if (newPage.getUnpublishedPage() != null) {
@@ -118,7 +135,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
         // We shouldn't reach here.
         return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-
     }
 
     @Override
@@ -128,8 +144,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> findPageById(String pageId, AclPermission aclPermission, Boolean view) {
-        return this.findById(pageId, aclPermission)
-                .flatMap(page -> getPageByViewMode(page, view));
+        return this.findById(pageId, aclPermission).flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
@@ -138,14 +153,16 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
+    public Flux<PageDTO> findByApplicationId(
+            String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Mono<NewPage> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultPageId(branchName, id, pagePermission.getReadPermission())
+        return this.findByBranchNameAndDefaultPageId(
+                        branchName, id, pagePermission.getReadPermission())
                 .map(responseUtils::updateNewPageWithDefaultResources);
     }
 
@@ -153,14 +170,16 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
 
         return findById(page.getId(), pagePermission.getEditPermission())
-                .flatMap(newPage -> {
-                    newPage.setUnpublishedPage(page);
-                    // gitSyncId will be used to sync resource across instances
-                    if (newPage.getGitSyncId() == null) {
-                        newPage.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
-                    }
-                    return repository.save(newPage);
-                })
+                .flatMap(
+                        newPage -> {
+                            newPage.setUnpublishedPage(page);
+                            // gitSyncId will be used to sync resource across instances
+                            if (newPage.getGitSyncId() == null) {
+                                newPage.setGitSyncId(
+                                        page.getApplicationId() + "_" + new ObjectId());
+                            }
+                            return repository.save(newPage);
+                        })
                 .flatMap(savedPage -> getPageByViewMode(savedPage, false));
     }
 
@@ -179,31 +198,40 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         newPage.setDefaultResources(defaultResources);
         // Save page and update the defaultPageId after insertion
         return super.create(newPage)
-                .flatMap(savedPage -> {
-                    if (defaultResources == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", savedPage.getId()));
-                    }
-                    if (StringUtils.isEmpty(defaultResources.getPageId())) {
-                        NewPage updatePage = new NewPage();
-                        defaultResources.setPageId(savedPage.getId());
-                        updatePage.setDefaultResources(defaultResources);
-                        return super.update(savedPage.getId(), updatePage);
-                    }
-                    return Mono.just(savedPage);
-                })
+                .flatMap(
+                        savedPage -> {
+                            if (defaultResources == null) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE,
+                                                "page",
+                                                savedPage.getId()));
+                            }
+                            if (StringUtils.isEmpty(defaultResources.getPageId())) {
+                                NewPage updatePage = new NewPage();
+                                defaultResources.setPageId(savedPage.getId());
+                                updatePage.setDefaultResources(defaultResources);
+                                return super.update(savedPage.getId(), updatePage);
+                            }
+                            return Mono.just(savedPage);
+                        })
                 .flatMap(repository::setUserPermissionsInObject)
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
     @Override
-    public Mono<PageDTO> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
-        return repository.findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
+    public Mono<PageDTO> findByIdAndLayoutsId(
+            String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
+        return repository
+                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
-    public Mono<PageDTO> findByNameAndViewMode(String name, AclPermission permission, Boolean view) {
-        return repository.findByNameAndViewMode(name, permission, view)
+    public Mono<PageDTO> findByNameAndViewMode(
+            String name, AclPermission permission, Boolean view) {
+        return repository
+                .findByNameAndViewMode(name, permission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
@@ -213,7 +241,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         String id = new ObjectId().toString();
         layout.setId(id);
         try {
-            layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
+            layout.setDsl(
+                    (JSONObject)
+                            new JSONParser(JSONParser.MODE_PERMISSIVE)
+                                    .parse(FieldName.DEFAULT_PAGE_LAYOUT));
             layout.setWidgetNames(Set.of(FieldName.DEFAULT_WIDGET_NAME));
         } catch (ParseException e) {
             log.error("Unable to set the default page layout for generated id: {}", id);
@@ -227,7 +258,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed) {
+    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(
+            String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed) {
 
         AclPermission permission;
         if (view) {
@@ -236,166 +268,222 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = applicationPermission.getEditPermission();
         }
 
-        Mono<ApplicationSnapshot> applicationSnapshotMono = applicationSnapshotRepository.findWithoutData(applicationId)
-                .defaultIfEmpty(new ApplicationSnapshot());
+        Mono<ApplicationSnapshot> applicationSnapshotMono =
+                applicationSnapshotRepository
+                        .findWithoutData(applicationId)
+                        .defaultIfEmpty(new ApplicationSnapshot());
 
-        Mono<Application> applicationMono = applicationService.findById(applicationId, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                // Throw a 404 error if the application has never been published
-                .flatMap(application -> {
-                    if (Boolean.TRUE.equals(view)) {
-                        if (application.getPublishedPages() == null || application.getPublishedPages().isEmpty()) {
-                            // We are trying to fetch published pages but they don't exist because the application
-                            // hasn't been published yet
-                            return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                    FieldName.PUBLISHED_APPLICATION, application.getId()));
-                        }
-                    }
-                    return Mono.just(application);
-                })
-                .flatMap(application -> {
-                    log.debug("Fetched application data for id: {}", applicationId);
-                    if (markApplicationAsRecentlyAccessed) {
-                        // add this application and workspace id to the recently used list in UserData
-                        return userDataService.updateLastUsedAppAndWorkspaceList(application)
-                                .thenReturn(application);
-                    } else {
-                        return Mono.just(application);
-                    }
-                })
-                .cache();
+        Mono<Application> applicationMono =
+                applicationService
+                        .findById(applicationId, permission)
+                        .switchIfEmpty(
+                                Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                FieldName.APPLICATION,
+                                                applicationId)))
+                        // Throw a 404 error if the application has never been published
+                        .flatMap(
+                                application -> {
+                                    if (Boolean.TRUE.equals(view)) {
+                                        if (application.getPublishedPages() == null
+                                                || application.getPublishedPages().isEmpty()) {
+                                            // We are trying to fetch published pages but they don't
+                                            // exist because the application
+                                            // hasn't been published yet
+                                            return Mono.error(
+                                                    new AppsmithException(
+                                                            AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                            FieldName.PUBLISHED_APPLICATION,
+                                                            application.getId()));
+                                        }
+                                    }
+                                    return Mono.just(application);
+                                })
+                        .flatMap(
+                                application -> {
+                                    log.debug("Fetched application data for id: {}", applicationId);
+                                    if (markApplicationAsRecentlyAccessed) {
+                                        // add this application and workspace id to the recently
+                                        // used list in UserData
+                                        return userDataService
+                                                .updateLastUsedAppAndWorkspaceList(application)
+                                                .thenReturn(application);
+                                    } else {
+                                        return Mono.just(application);
+                                    }
+                                })
+                        .cache();
 
-        Mono<String> defaultPageIdMono = applicationMono
-                .map(application -> {
-                    String defaultPageId = null;
-                    List<ApplicationPage> applicationPages;
-                    if (Boolean.TRUE.equals(view)) {
-                        applicationPages = application.getPublishedPages();
-                    } else {
-                        applicationPages = application.getPages();
-                    }
-
-                    for (ApplicationPage applicationPage : applicationPages) {
-                        if (Boolean.TRUE.equals(applicationPage.getIsDefault())) {
-                            defaultPageId = applicationPage.getId();
-                        }
-                    }
-                    if (!StringUtils.hasLength(defaultPageId) && !CollectionUtils.isEmpty(applicationPages)) {
-                        log.error("application {} has no default page, returning first page as default", application.getId());
-                        defaultPageId = applicationPages.get(0).getId();
-                    }
-                    return defaultPageId;
-                });
-
-        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
-                .map(application -> {
-                    List<ApplicationPage> pages;
-                    if (Boolean.TRUE.equals(view)) {
-                        pages = application.getPublishedPages();
-                    } else {
-                        pages = application.getPages();
-                    }
-                    return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
-                })
-                .flatMapMany(pageIds -> repository.findAllPageDTOsByIds(pageIds, pagePermission.getReadPermission()))
-                .collectList()
-                .flatMap(pagesFromDb -> Mono.zip(
-                        Mono.just(pagesFromDb),
-                        defaultPageIdMono,
-                        applicationMono
-                ))
-                .flatMap(tuple -> {
-                    log.debug("Retrieved Page DTOs from DB ...");
-                    List<NewPage> pagesFromDb = tuple.getT1();
-                    String defaultPageId = tuple.getT2();
-
-                    List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
-                    List<ApplicationPage> pages = tuple.getT3().getPages();
-                    List<ApplicationPage> publishedPages = tuple.getT3().getPublishedPages();
-                    Map<String, Integer> pagesOrder = new HashMap<>();
-                    Map<String, Integer> publishedPagesOrder = new HashMap<>();
-
-                    if (Boolean.TRUE.equals(view)) {
-                        for (int i = 0; i < publishedPages.size(); i++) {
-                            publishedPagesOrder.put(publishedPages.get(i).getId(), i);
-                        }
-                    } else {
-                        for (int i = 0; i < pages.size(); i++) {
-                            pagesOrder.put(pages.get(i).getId(), i);
-                        }
-                    }
-
-                    for (NewPage pageFromDb : pagesFromDb) {
-
-                        PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
-
-                        pageNameIdDTO.setId(pageFromDb.getId());
-
-                        if (pageFromDb.getDefaultResources() == null) {
-                            return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", pageFromDb.getId()));
-                        }
-                        pageNameIdDTO.setDefaultPageId(pageFromDb.getDefaultResources().getPageId());
-                        PageDTO pageDTO;
-                        if (Boolean.TRUE.equals(view)) {
-                            if (pageFromDb.getPublishedPage() == null) {
-                                // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
-                                return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                        FieldName.PAGE, pageFromDb.getId()));
+        Mono<String> defaultPageIdMono =
+                applicationMono.map(
+                        application -> {
+                            String defaultPageId = null;
+                            List<ApplicationPage> applicationPages;
+                            if (Boolean.TRUE.equals(view)) {
+                                applicationPages = application.getPublishedPages();
+                            } else {
+                                applicationPages = application.getPages();
                             }
-                            pageDTO = pageFromDb.getPublishedPage();
-                        } else {
-                            pageDTO = pageFromDb.getUnpublishedPage();
-                        }
-                        pageNameIdDTO.setName(pageDTO.getName());
-                        pageNameIdDTO.setIsHidden(pageDTO.getIsHidden());
-                        pageNameIdDTO.setSlug(pageDTO.getSlug());
-                        pageNameIdDTO.setIcon(pageDTO.getIcon());
-                        pageNameIdDTO.setCustomSlug(pageDTO.getCustomSlug());
-                        pageNameIdDTO.setUserPermissions(pageFromDb.getUserPermissions());
 
-                        if (pageNameIdDTO.getId().equals(defaultPageId)) {
-                            pageNameIdDTO.setIsDefault(true);
-                        } else {
-                            pageNameIdDTO.setIsDefault(false);
-                        }
-                        pageNameIdDTOList.add(pageNameIdDTO);
-                    }
-                    if (Boolean.TRUE.equals(view)) {
-                        Collections.sort(pageNameIdDTOList,
-                                Comparator.comparing(item -> publishedPagesOrder.get(item.getId())));
-                    } else {
-                        Collections.sort(pageNameIdDTOList,
-                                Comparator.comparing(item -> pagesOrder.get(item.getId())));
-                    }
-                    return Mono.just(pageNameIdDTOList);
-                });
+                            for (ApplicationPage applicationPage : applicationPages) {
+                                if (Boolean.TRUE.equals(applicationPage.getIsDefault())) {
+                                    defaultPageId = applicationPage.getId();
+                                }
+                            }
+                            if (!StringUtils.hasLength(defaultPageId)
+                                    && !CollectionUtils.isEmpty(applicationPages)) {
+                                log.error(
+                                        "application {} has no default page, returning first page"
+                                                + " as default",
+                                        application.getId());
+                                defaultPageId = applicationPages.get(0).getId();
+                            }
+                            return defaultPageId;
+                        });
+
+        Mono<List<PageNameIdDTO>> pagesListMono =
+                applicationMono
+                        .map(
+                                application -> {
+                                    List<ApplicationPage> pages;
+                                    if (Boolean.TRUE.equals(view)) {
+                                        pages = application.getPublishedPages();
+                                    } else {
+                                        pages = application.getPages();
+                                    }
+                                    return pages.stream()
+                                            .map(page -> page.getId())
+                                            .collect(Collectors.toList());
+                                })
+                        .flatMapMany(
+                                pageIds ->
+                                        repository.findAllPageDTOsByIds(
+                                                pageIds, pagePermission.getReadPermission()))
+                        .collectList()
+                        .flatMap(
+                                pagesFromDb ->
+                                        Mono.zip(
+                                                Mono.just(pagesFromDb),
+                                                defaultPageIdMono,
+                                                applicationMono))
+                        .flatMap(
+                                tuple -> {
+                                    log.debug("Retrieved Page DTOs from DB ...");
+                                    List<NewPage> pagesFromDb = tuple.getT1();
+                                    String defaultPageId = tuple.getT2();
+
+                                    List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
+                                    List<ApplicationPage> pages = tuple.getT3().getPages();
+                                    List<ApplicationPage> publishedPages =
+                                            tuple.getT3().getPublishedPages();
+                                    Map<String, Integer> pagesOrder = new HashMap<>();
+                                    Map<String, Integer> publishedPagesOrder = new HashMap<>();
+
+                                    if (Boolean.TRUE.equals(view)) {
+                                        for (int i = 0; i < publishedPages.size(); i++) {
+                                            publishedPagesOrder.put(
+                                                    publishedPages.get(i).getId(), i);
+                                        }
+                                    } else {
+                                        for (int i = 0; i < pages.size(); i++) {
+                                            pagesOrder.put(pages.get(i).getId(), i);
+                                        }
+                                    }
+
+                                    for (NewPage pageFromDb : pagesFromDb) {
+
+                                        PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
+
+                                        pageNameIdDTO.setId(pageFromDb.getId());
+
+                                        if (pageFromDb.getDefaultResources() == null) {
+                                            return Mono.error(
+                                                    new AppsmithException(
+                                                            AppsmithError
+                                                                    .DEFAULT_RESOURCES_UNAVAILABLE,
+                                                            "page",
+                                                            pageFromDb.getId()));
+                                        }
+                                        pageNameIdDTO.setDefaultPageId(
+                                                pageFromDb.getDefaultResources().getPageId());
+                                        PageDTO pageDTO;
+                                        if (Boolean.TRUE.equals(view)) {
+                                            if (pageFromDb.getPublishedPage() == null) {
+                                                // We are trying to fetch published page but it
+                                                // doesnt exist because the page hasn't been
+                                                // published yet
+                                                return Mono.error(
+                                                        new AppsmithException(
+                                                                AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                                FieldName.PAGE,
+                                                                pageFromDb.getId()));
+                                            }
+                                            pageDTO = pageFromDb.getPublishedPage();
+                                        } else {
+                                            pageDTO = pageFromDb.getUnpublishedPage();
+                                        }
+                                        pageNameIdDTO.setName(pageDTO.getName());
+                                        pageNameIdDTO.setIsHidden(pageDTO.getIsHidden());
+                                        pageNameIdDTO.setSlug(pageDTO.getSlug());
+                                        pageNameIdDTO.setIcon(pageDTO.getIcon());
+                                        pageNameIdDTO.setCustomSlug(pageDTO.getCustomSlug());
+                                        pageNameIdDTO.setUserPermissions(
+                                                pageFromDb.getUserPermissions());
+
+                                        if (pageNameIdDTO.getId().equals(defaultPageId)) {
+                                            pageNameIdDTO.setIsDefault(true);
+                                        } else {
+                                            pageNameIdDTO.setIsDefault(false);
+                                        }
+                                        pageNameIdDTOList.add(pageNameIdDTO);
+                                    }
+                                    if (Boolean.TRUE.equals(view)) {
+                                        Collections.sort(
+                                                pageNameIdDTOList,
+                                                Comparator.comparing(
+                                                        item ->
+                                                                publishedPagesOrder.get(
+                                                                        item.getId())));
+                                    } else {
+                                        Collections.sort(
+                                                pageNameIdDTOList,
+                                                Comparator.comparing(
+                                                        item -> pagesOrder.get(item.getId())));
+                                    }
+                                    return Mono.just(pageNameIdDTOList);
+                                });
 
         return Mono.zip(applicationMono, pagesListMono, applicationSnapshotMono)
-                .map(tuple -> {
-                    log.debug("Populating applicationPagesDTO ...");
-                    Application application = tuple.getT1();
-                    application.setPages(null);
-                    application.setPublishedPages(null);
-                    application.setViewMode(view);
-                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
-                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
-                    applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
-                    applicationPagesDTO.setPages(nameIdDTOList);
-                    applicationPagesDTO.setApplication(application);
+                .map(
+                        tuple -> {
+                            log.debug("Populating applicationPagesDTO ...");
+                            Application application = tuple.getT1();
+                            application.setPages(null);
+                            application.setPublishedPages(null);
+                            application.setViewMode(view);
+                            List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                            ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                            applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
+                            applicationPagesDTO.setPages(nameIdDTOList);
+                            applicationPagesDTO.setApplication(application);
 
-                    // set the latest snapshot time if there is a snapshot for this application for edit mode
-                    ApplicationSnapshot applicationSnapshot = tuple.getT3();
-                    if(!view && StringUtils.hasLength(applicationSnapshot.getId())) {
-                        applicationPagesDTO.setLatestSnapshotTime(applicationSnapshot.getUpdatedTime());
-                    }
-                    return applicationPagesDTO;
-                });
+                            // set the latest snapshot time if there is a snapshot for this
+                            // application for edit mode
+                            ApplicationSnapshot applicationSnapshot = tuple.getT3();
+                            if (!view && StringUtils.hasLength(applicationSnapshot.getId())) {
+                                applicationPagesDTO.setLatestSnapshotTime(
+                                        applicationSnapshot.getUpdatedTime());
+                            }
+                            return applicationPagesDTO;
+                        });
     }
 
-    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(String defaultApplicationId,
-                                                                                          String branchName,
-                                                                                          Boolean view,
-                                                                                          boolean markApplicationAsRecentlyAccessed) {
+    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(
+            String defaultApplicationId,
+            String branchName,
+            Boolean view,
+            boolean markApplicationAsRecentlyAccessed) {
         AclPermission permission;
         if (view) {
             permission = applicationPermission.getReadPermission();
@@ -403,19 +491,32 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = applicationPermission.getEditPermission();
         }
 
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                        FieldName.APPLICATION, defaultApplicationId)))
-                .flatMap(childApplicationId ->
-                        findApplicationPagesByApplicationIdViewMode(childApplicationId, view, markApplicationAsRecentlyAccessed)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                        FieldName.APPLICATION, childApplicationId)))
-                )
+        return applicationService
+                .findBranchedApplicationId(branchName, defaultApplicationId, permission)
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.APPLICATION,
+                                        defaultApplicationId)))
+                .flatMap(
+                        childApplicationId ->
+                                findApplicationPagesByApplicationIdViewMode(
+                                                childApplicationId,
+                                                view,
+                                                markApplicationAsRecentlyAccessed)
+                                        .switchIfEmpty(
+                                                Mono.error(
+                                                        new AppsmithException(
+                                                                AppsmithError.NO_RESOURCE_FOUND,
+                                                                FieldName.APPLICATION,
+                                                                childApplicationId))))
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 
     @Override
-    public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
+    public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(
+            String applicationName, Boolean view) {
 
         AclPermission permission;
         if (view) {
@@ -424,23 +525,32 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = applicationPermission.getEditPermission();
         }
 
-        Mono<Application> applicationMono = applicationService.findByName(applicationName, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
-                .cache();
+        Mono<Application> applicationMono =
+                applicationService
+                        .findByName(applicationName, permission)
+                        .switchIfEmpty(
+                                Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.NO_RESOURCE_FOUND,
+                                                FieldName.NAME,
+                                                applicationName)))
+                        .cache();
 
-        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
-                .flatMapMany(application -> findNamesByApplication(application, view))
-                .collectList();
+        Mono<List<PageNameIdDTO>> pagesListMono =
+                applicationMono
+                        .flatMapMany(application -> findNamesByApplication(application, view))
+                        .collectList();
 
         return Mono.zip(applicationMono, pagesListMono)
-                .map(tuple -> {
-                    Application application = tuple.getT1();
-                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
-                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
-                    applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
-                    applicationPagesDTO.setPages(nameIdDTOList);
-                    return applicationPagesDTO;
-                });
+                .map(
+                        tuple -> {
+                            Application application = tuple.getT1();
+                            List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                            ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                            applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
+                            applicationPagesDTO.setPages(nameIdDTOList);
+                            return applicationPagesDTO;
+                        });
     }
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application, Boolean viewMode) {
@@ -452,81 +562,108 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             pages = application.getPages();
         }
 
-        return findByApplicationId(application.getId(), pagePermission.getReadPermission(), viewMode)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application id", application.getId())))
-                .map(page -> {
-                    PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
-                    pageNameIdDTO.setId(page.getId());
-                    pageNameIdDTO.setName(page.getName());
-                    for (ApplicationPage applicationPage : pages) {
-                        if (applicationPage.getId().equals(page.getId())) {
-                            pageNameIdDTO.setIsDefault(applicationPage.getIsDefault());
-                        }
-                    }
-                    return pageNameIdDTO;
-                });
+        return findByApplicationId(
+                        application.getId(), pagePermission.getReadPermission(), viewMode)
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                        FieldName.PAGE + " by application id",
+                                        application.getId())))
+                .map(
+                        page -> {
+                            PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
+                            pageNameIdDTO.setId(page.getId());
+                            pageNameIdDTO.setName(page.getName());
+                            for (ApplicationPage applicationPage : pages) {
+                                if (applicationPage.getId().equals(page.getId())) {
+                                    pageNameIdDTO.setIsDefault(applicationPage.getIsDefault());
+                                }
+                            }
+                            return pageNameIdDTO;
+                        });
     }
 
     @Override
-    public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission permission, Boolean view) {
-        return repository.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
+    public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
+            String name, String applicationId, AclPermission permission, Boolean view) {
+        return repository
+                .findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
-    public Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission) {
+    public Flux<NewPage> findNewPagesByApplicationId(
+            String applicationId, AclPermission permission) {
         return repository.findByApplicationId(applicationId, permission);
     }
 
     @Override
-    public Flux<NewPage> findNewPagesByApplicationId(String applicationId, Optional<AclPermission> permission) {
+    public Flux<NewPage> findNewPagesByApplicationId(
+            String applicationId, Optional<AclPermission> permission) {
         return repository.findByApplicationId(applicationId, permission);
     }
 
     @Override
-    public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
+    public Mono<List<NewPage>> archivePagesByApplicationId(
+            String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap(repository::archive)
                 .collectList();
     }
 
     @Override
-    public Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission aclPermission, Boolean view) {
+    public Mono<List<String>> findAllPageIdsInApplication(
+            String applicationId, AclPermission aclPermission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, aclPermission)
-                .flatMap(newPage -> {
-                    if (Boolean.TRUE.equals(view)) {
-                        if (newPage.getPublishedPage().getDeletedAt() != null) {
-                            return Mono.just(newPage.getId());
-                        }
-                    } else {
-                        if (newPage.getUnpublishedPage().getDeletedAt() != null) {
-                            return Mono.just(newPage.getId());
-                        }
-                    }
-                    // Looks like the page has been deleted in the `view` mode. Don't return the id for this page.
-                    return Mono.empty();
-                })
+                .flatMap(
+                        newPage -> {
+                            if (Boolean.TRUE.equals(view)) {
+                                if (newPage.getPublishedPage().getDeletedAt() != null) {
+                                    return Mono.just(newPage.getId());
+                                }
+                            } else {
+                                if (newPage.getUnpublishedPage().getDeletedAt() != null) {
+                                    return Mono.just(newPage.getId());
+                                }
+                            }
+                            // Looks like the page has been deleted in the `view` mode. Don't return
+                            // the id for this page.
+                            return Mono.empty();
+                        })
                 .collectList();
     }
 
     @Override
     public Mono<PageDTO> updatePage(String pageId, PageDTO page) {
-        return repository.findById(pageId, pagePermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
-                .flatMap(dbPage -> {
-                    copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
-                    if (!StringUtils.isEmpty(page.getName())) {
-                        dbPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(page.getName()));
-                    }
-                    return this.update(pageId, dbPage);
-                })
-                .flatMap(savedPage -> applicationService.saveLastEditInformation(savedPage.getApplicationId())
-                        .then(getPageByViewMode(savedPage, false)));
+        return repository
+                .findById(pageId, pagePermission.getEditPermission())
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
+                .flatMap(
+                        dbPage -> {
+                            copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
+                            if (!StringUtils.isEmpty(page.getName())) {
+                                dbPage.getUnpublishedPage()
+                                        .setSlug(TextUtils.makeSlug(page.getName()));
+                            }
+                            return this.update(pageId, dbPage);
+                        })
+                .flatMap(
+                        savedPage ->
+                                applicationService
+                                        .saveLastEditInformation(savedPage.getApplicationId())
+                                        .then(getPageByViewMode(savedPage, false)));
     }
 
     @Override
-    public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+    public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(
+            String defaultPageId, PageDTO page, String branchName) {
+        return repository
+                .findPageByBranchNameAndDefaultPageId(
+                        branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -556,13 +693,17 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
-        Mono<NewPage> pageMono = this.findById(id, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
-                .cache();
+        Mono<NewPage> pageMono =
+                this.findById(id, permission)
+                        .switchIfEmpty(
+                                Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.NO_RESOURCE_FOUND,
+                                                FieldName.PAGE_ID,
+                                                id)))
+                        .cache();
 
-        return pageMono
-                .flatMap(newPage -> repository.archiveById(id))
-                .then(pageMono);
+        return pageMono.flatMap(newPage -> repository.archiveById(id)).then(pageMono);
     }
 
     @Override
@@ -579,34 +720,50 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
+    public Mono<NewPage> findByBranchNameAndDefaultPageId(
+            String branchName, String defaultPageId, AclPermission permission) {
 
         if (!StringUtils.hasText(defaultPageId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (!StringUtils.hasText(branchName)) {
             return this.findById(defaultPageId, permission)
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
-                    );
+                    .switchIfEmpty(
+                            Mono.error(
+                                    new AppsmithException(
+                                            AppsmithError.NO_RESOURCE_FOUND,
+                                            FieldName.PAGE,
+                                            defaultPageId)));
         }
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId + ", " + branchName))
-                );
+        return repository
+                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.PAGE,
+                                        defaultPageId + ", " + branchName)));
     }
 
     @Override
-    public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
+    public Mono<String> findBranchedPageId(
+            String branchName, String defaultPageId, AclPermission permission) {
         if (!StringUtils.hasText(branchName)) {
             if (!StringUtils.hasText(defaultPageId)) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
+                return Mono.error(
+                        new AppsmithException(
+                                AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
             return Mono.just(defaultPageId);
         }
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
-                )
+        return repository
+                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.PAGE_ID,
+                                        defaultPageId + ", " + branchName)))
                 .map(NewPage::getId);
     }
 
@@ -615,66 +772,89 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         Mono<NewPage> getPageMono;
         if (!StringUtils.hasLength(branchName)) {
             if (!StringUtils.hasLength(defaultPageId)) {
-                return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
+                return Mono.error(
+                        new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findById(
-                    defaultPageId,
-                    List.of(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES),
-                    pagePermission.getReadPermission());
+            getPageMono =
+                    repository.findById(
+                            defaultPageId,
+                            List.of(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES),
+                            pagePermission.getReadPermission());
         } else {
-            getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission());
+            getPageMono =
+                    repository.findPageByBranchNameAndDefaultPageId(
+                            branchName, defaultPageId, pagePermission.getReadPermission());
         }
         return getPageMono
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
-                )
-                .map(newPage -> {
-                    log.debug("Retrieved possible application ids for page, picking the appropriate one now");
-                    if (newPage.getDefaultResources() != null) {
-                        return newPage.getDefaultResources().getApplicationId();
-                    } else {
-                        return newPage.getApplicationId();
-                    }
-                });
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.PAGE_ID,
+                                        defaultPageId + ", " + branchName)))
+                .map(
+                        newPage -> {
+                            log.debug(
+                                    "Retrieved possible application ids for page, picking the"
+                                            + " appropriate one now");
+                            if (newPage.getDefaultResources() != null) {
+                                return newPage.getDefaultResources().getApplicationId();
+                            } else {
+                                return newPage.getApplicationId();
+                            }
+                        });
     }
 
     @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
+            String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return repository.findByGitSyncIdAndDefaultApplicationId(
+                defaultApplicationId, gitSyncId, permission);
     }
 
     @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
+            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        return repository.findByGitSyncIdAndDefaultApplicationId(
+                defaultApplicationId, gitSyncId, permission);
     }
 
     @Override
-    public Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+    public Flux<NewPage> findPageSlugsByApplicationIds(
+            List<String> applicationIds, AclPermission aclPermission) {
         return repository.findSlugsByApplicationIds(applicationIds, aclPermission);
     }
 
     /**
-     * Returns a list of pages of an Application.
-     * If Application ID is present, it'll fetch all pages of that application in the provided mode.
-     * if Page ID is present, it'll fetch all pages of the corresponding Application.
-     * If both IDs are present, it'll use the Application ID only and ignore the Page ID
+     * Returns a list of pages of an Application. If Application ID is present, it'll fetch all
+     * pages of that application in the provided mode. if Page ID is present, it'll fetch all pages
+     * of the corresponding Application. If both IDs are present, it'll use the Application ID only
+     * and ignore the Page ID
      *
      * @param applicationId Id of the application
-     * @param pageId        id of a page
-     * @param branchName    name of the current branch
-     * @param mode          In which mode it's in
+     * @param pageId id of a page
+     * @param branchName name of the current branch
+     * @param mode In which mode it's in
      * @return List of ApplicationPagesDTO
      */
     @Override
-    public Mono<ApplicationPagesDTO> findApplicationPages(String applicationId, String pageId, String branchName, ApplicationMode mode) {
+    public Mono<ApplicationPagesDTO> findApplicationPages(
+            String applicationId, String pageId, String branchName, ApplicationMode mode) {
         boolean isViewMode = (mode == ApplicationMode.PUBLISHED);
         if (StringUtils.hasLength(applicationId)) {
-            return findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, isViewMode, true);
+            return findApplicationPagesByApplicationIdViewModeAndBranch(
+                    applicationId, branchName, isViewMode, true);
         } else if (StringUtils.hasLength(pageId)) {
             return findRootApplicationIdFromNewPage(branchName, pageId)
-                    .flatMap(rootApplicationId -> findApplicationPagesByApplicationIdViewModeAndBranch(rootApplicationId, branchName, isViewMode, true));
+                    .flatMap(
+                            rootApplicationId ->
+                                    findApplicationPagesByApplicationIdViewModeAndBranch(
+                                            rootApplicationId, branchName, isViewMode, true));
         } else {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
+            return Mono.error(
+                    new AppsmithException(
+                            AppsmithError.INVALID_PARAMETER,
+                            FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }
     }
 }

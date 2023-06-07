@@ -1,10 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.constants.ce;
 
 public class FieldNameCE {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
-    @Deprecated
-    public static final String ORGANIZATION_ID = "organizationId";
+    @Deprecated public static final String ORGANIZATION_ID = "organizationId";
     public static final String WORKSPACE_ID = "workspaceId";
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
@@ -43,28 +43,29 @@ public class FieldNameCE {
     public static String SIZE = "size";
     public static String ROLE = "role";
     public static String DEFAULT_WIDGET_NAME = "MainContainer";
-    public static String DEFAULT_PAGE_LAYOUT = "{\n" +
-            "        \"widgetName\": \"MainContainer\",\n" +
-            "        \"backgroundColor\": \"none\",\n" +
-            "        \"rightColumn\": 1224,\n" +
-            "        \"snapColumns\": 16,\n" +
-            "        \"detachFromLayout\": true,\n" +
-            "        \"widgetId\": \"0\",\n" +
-            "        \"topRow\": 0,\n" +
-            "        \"bottomRow\": 1250,\n" +
-            "        \"containerStyle\": \"none\",\n" +
-            "        \"snapRows\": 33,\n" +
-            "        \"parentRowSpace\": 1,\n" +
-            "        \"type\": \"CANVAS_WIDGET\",\n" +
-            "        \"canExtend\": true,\n" +
-            "        \"dynamicBindingPathList\": [],\n" +
-            "        \"dynamicTriggerPathList\": [],\n" +
-            "        \"version\": 4,\n" +
-            "        \"minHeight\": 1292,\n" +
-            "        \"parentColumnSpace\": 1,\n" +
-            "        \"leftColumn\": 0,\n" +
-            "        \"children\": []\n" +
-            "}";
+    public static String DEFAULT_PAGE_LAYOUT =
+            "{\n"
+                    + "        \"widgetName\": \"MainContainer\",\n"
+                    + "        \"backgroundColor\": \"none\",\n"
+                    + "        \"rightColumn\": 1224,\n"
+                    + "        \"snapColumns\": 16,\n"
+                    + "        \"detachFromLayout\": true,\n"
+                    + "        \"widgetId\": \"0\",\n"
+                    + "        \"topRow\": 0,\n"
+                    + "        \"bottomRow\": 1250,\n"
+                    + "        \"containerStyle\": \"none\",\n"
+                    + "        \"snapRows\": 33,\n"
+                    + "        \"parentRowSpace\": 1,\n"
+                    + "        \"type\": \"CANVAS_WIDGET\",\n"
+                    + "        \"canExtend\": true,\n"
+                    + "        \"dynamicBindingPathList\": [],\n"
+                    + "        \"dynamicTriggerPathList\": [],\n"
+                    + "        \"version\": 4,\n"
+                    + "        \"minHeight\": 1292,\n"
+                    + "        \"parentColumnSpace\": 1,\n"
+                    + "        \"leftColumn\": 0,\n"
+                    + "        \"children\": []\n"
+                    + "}";
     public static String ANONYMOUS_USER = "anonymousUser";
     public static String USERNAMES = "usernames";
     public static String ACTION = "action";
@@ -119,15 +120,15 @@ public class FieldNameCE {
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
     public static final String ADMINISTRATOR = "Administrator";
-    public static final String WORKSPACE_ADMINISTRATOR_DESCRIPTION = "Can modify all workspace settings including " +
-            "editing applications, inviting other users to the workspace and exporting applications " +
-            "from the workspace";
+    public static final String WORKSPACE_ADMINISTRATOR_DESCRIPTION =
+            "Can modify all workspace settings including editing applications, inviting other users"
+                    + " to the workspace and exporting applications from the workspace";
     public static final String DEVELOPER = "Developer";
-    public static String WORKSPACE_DEVELOPER_DESCRIPTION = "Can edit and view applications along with inviting other " +
-            "users to the workspace";
+    public static String WORKSPACE_DEVELOPER_DESCRIPTION =
+            "Can edit and view applications along with inviting other " + "users to the workspace";
     public static final String VIEWER = "App Viewer";
-    public static final String WORKSPACE_VIEWER_DESCRIPTION = "Can view applications and invite other users to view " +
-            "applications";
+    public static final String WORKSPACE_VIEWER_DESCRIPTION =
+            "Can view applications and invite other users to view " + "applications";
     public static final String USER_GROUP = "userGroup";
     public static final Object GROUP_ID = "groupId";
     public static final Object USERNAME = "username";
@@ -145,7 +146,8 @@ public class FieldNameCE {
     public static final String PAGE_ORDER = "order";
     public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
     public static final String ACTION_EXECUTION_REQUEST_PARAMS_SIZE = "totalReadableBytesCount";
-    public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT = "actionExecutionRequestParamsCount";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT =
+            "actionExecutionRequestParamsCount";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
@@ -153,15 +155,18 @@ public class FieldNameCE {
     public static final String IS_SUPPORTED_FOR_AIR_GAP = "isSupportedForAirGap";
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
-    public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
+    public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY =
+            "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
     public static final String ENVIRONMENT_ID = "environmentId";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
     public static final String IS_FORCE_REMOVE = "forceRemove";
-    public static final String UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "unpublishedCustomJSLibs";
-    public static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "publishedCustomJSLibs";
+    public static final String UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS =
+            "unpublishedCustomJSLibs";
+    public static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS =
+            "publishedCustomJSLibs";
     public static final String ANONYMOUS_USER_ID = "anonymousUserId";
     public static final String VIEW_MODE = "viewMode";
     public static final String USER_EMAILS = "userEmails";

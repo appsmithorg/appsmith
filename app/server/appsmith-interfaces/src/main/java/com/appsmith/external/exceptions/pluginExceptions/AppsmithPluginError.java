@@ -1,14 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.exceptions.pluginExceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.models.ErrorType;
+
 import lombok.Getter;
 
 import java.text.MessageFormat;
 
 @Getter
-public enum AppsmithPluginError implements BasePluginError{
-
+public enum AppsmithPluginError implements BasePluginError {
     PLUGIN_ERROR(
             500,
             AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode(),
@@ -17,8 +18,7 @@ public enum AppsmithPluginError implements BasePluginError{
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_GET_STRUCTURE_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_GET_STRUCTURE_ERROR.getCode(),
@@ -27,18 +27,17 @@ public enum AppsmithPluginError implements BasePluginError{
             "Failed to get datasource structure",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_QUERY_TIMEOUT_ERROR(
             504,
             AppsmithPluginErrorCode.PLUGIN_QUERY_TIMEOUT_ERROR.getCode(),
-            "{0} timed out in {1} milliseconds. Please increase timeout. This can be found in Settings tab of {0}.",
+            "{0} timed out in {1} milliseconds. Please increase timeout. This can be found in"
+                    + " Settings tab of {0}.",
             AppsmithErrorAction.DEFAULT,
             "Timed out on query execution",
             ErrorType.CONNECTIVITY_ERROR,
             "{2}",
-            "{3}"
-    ),
+            "{3}"),
     PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(
             504,
             AppsmithPluginErrorCode.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR.getCode(),
@@ -47,8 +46,7 @@ public enum AppsmithPluginError implements BasePluginError{
             "Timed out when fetching datasource structure",
             ErrorType.CONNECTIVITY_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_DATASOURCE_ARGUMENT_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_DATASOURCE_ARGUMENT_ERROR.getCode(),
@@ -57,8 +55,7 @@ public enum AppsmithPluginError implements BasePluginError{
             "Datasource configuration is invalid",
             ErrorType.DATASOURCE_CONFIGURATION_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_EXECUTE_ARGUMENT_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_EXECUTE_ARGUMENT_ERROR.getCode(),
@@ -67,8 +64,7 @@ public enum AppsmithPluginError implements BasePluginError{
             "Query configuration is invalid",
             ErrorType.ACTION_CONFIGURATION_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_JSON_PARSE_ERROR(
             500,
             AppsmithPluginErrorCode.JSON_PROCESSING_ERROR.getCode(),
@@ -77,18 +73,17 @@ public enum AppsmithPluginError implements BasePluginError{
             "Invalid JSON found",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getCode(),
-            "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
+            "Plugin failed to test with the given configuration. Please reach out to Appsmith"
+                    + " customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Datasource configuration is invalid",
             ErrorType.INTERNAL_ERROR,
             "{0}",
-            "{1}"
-    ),
+            "{1}"),
     PLUGIN_DATASOURCE_TIMEOUT_ERROR(
             504,
             AppsmithPluginErrorCode.PLUGIN_DATASOURCE_TIMEOUT_ERROR.getCode(),
@@ -97,8 +92,7 @@ public enum AppsmithPluginError implements BasePluginError{
             "Timed out when connecting to datasource",
             ErrorType.CONNECTIVITY_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_AUTHENTICATION_ERROR(
             401,
             AppsmithPluginErrorCode.PLUGIN_AUTHENTICATION_ERROR.getCode(),
@@ -107,8 +101,7 @@ public enum AppsmithPluginError implements BasePluginError{
             "Datasource authentication error",
             ErrorType.AUTHENTICATION_ERROR,
             "{0}",
-            "{1}"
-    ),
+            "{1}"),
     PLUGIN_IN_MEMORY_FILTERING_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_IN_MEMORY_FILTERING_ERROR.getCode(),
@@ -117,28 +110,27 @@ public enum AppsmithPluginError implements BasePluginError{
             "Appsmith In Memory Filtering Failed",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN(
             500,
             AppsmithPluginErrorCode.PLUGIN_UQI_WHERE_CONDITION_UNKNOWN.getCode(),
-            "{0} is not a known conditional operator. Please reach out to Appsmith customer support to report this",
+            "{0} is not a known conditional operator. Please reach out to Appsmith customer support"
+                    + " to report this",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Where condition could not be parsed",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     INCOMPATIBLE_FILE_FORMAT(
             400,
             AppsmithPluginErrorCode.INCOMPATIBLE_FILE_FORMAT.getCode(),
-            "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
+            "Provided file format is incompatible, please upgrade your instance to resolve this"
+                    + " conflict.",
             AppsmithErrorAction.DEFAULT,
             AppsmithPluginErrorCode.INCOMPATIBLE_FILE_FORMAT.getDescription(),
             ErrorType.INTERNAL_ERROR,
             "{0}",
-            "{1}"
-    ),
+            "{1}"),
 
     STALE_CONNECTION_ERROR(
             500,
@@ -148,21 +140,20 @@ public enum AppsmithPluginError implements BasePluginError{
             "Connection is stale",
             ErrorType.CONNECTIVITY_ERROR,
             "{0}",
-            "{1}"
-    ),
+            "{1}"),
 
     SMART_SUBSTITUTION_VALUE_MISSING(
             500,
             AppsmithPluginErrorCode.SMART_SUBSTITUTION_VALUE_MISSING.getCode(),
-            "Uh oh! This is unexpected. " +
-                    "Did not receive any information for the binding "
-                    + "{0}" + ". Please contact customer support at Appsmith.",
+            "Uh oh! This is unexpected. "
+                    + "Did not receive any information for the binding "
+                    + "{0}"
+                    + ". Please contact customer support at Appsmith.",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Smart substitution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     ;
 
     private final Integer httpErrorCode;
@@ -176,8 +167,15 @@ public enum AppsmithPluginError implements BasePluginError{
 
     private final String downstreamErrorCode;
 
-    AppsmithPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                        String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    AppsmithPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -192,7 +190,9 @@ public enum AppsmithPluginError implements BasePluginError{
         return new MessageFormat(this.message).format(args);
     }
 
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 
     public String getDownstreamErrorMessage(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorMessage, args);
@@ -201,5 +201,4 @@ public enum AppsmithPluginError implements BasePluginError{
     public String getDownstreamErrorCode(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorCode, args);
     }
-
 }

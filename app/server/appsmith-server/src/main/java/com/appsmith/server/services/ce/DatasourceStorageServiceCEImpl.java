@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -18,11 +21,14 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.mongodb.MongoServerException;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,8 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
@@ -43,12 +47,13 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private final PluginExecutorHelper pluginExecutorHelper;
     private final AnalyticsService analyticsService;
 
-    public DatasourceStorageServiceCEImpl(DatasourceStorageRepository repository,
-                                          DatasourceStorageTransferSolution datasourceStorageTransferSolution,
-                                          DatasourcePermission datasourcePermission,
-                                          PluginService pluginService,
-                                          PluginExecutorHelper pluginExecutorHelper,
-                                          AnalyticsService analyticsService) {
+    public DatasourceStorageServiceCEImpl(
+            DatasourceStorageRepository repository,
+            DatasourceStorageTransferSolution datasourceStorageTransferSolution,
+            DatasourcePermission datasourcePermission,
+            PluginService pluginService,
+            PluginExecutorHelper pluginExecutorHelper,
+            AnalyticsService analyticsService) {
         this.repository = repository;
         this.datasourceStorageTransferSolution = datasourceStorageTransferSolution;
         this.datasourcePermission = datasourcePermission;
@@ -60,12 +65,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage) {
         return this.validateAndSaveDatasourceStorageToRepository(datasourceStorage)
-                .flatMap(this::populateHintMessages)  // For REST API datasource create flow.
-                .flatMap(savedDatasourceStorage ->
-                        analyticsService.sendCreateEvent(
-                                savedDatasourceStorage,
-                                getAnalyticsProperties(savedDatasourceStorage))
-                );
+                .flatMap(this::populateHintMessages) // For REST API datasource create flow.
+                .flatMap(
+                        savedDatasourceStorage ->
+                                analyticsService.sendCreateEvent(
+                                        savedDatasourceStorage,
+                                        getAnalyticsProperties(savedDatasourceStorage)));
     }
 
     @Override
@@ -79,22 +84,31 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource,
-                                                                    String environmentId) {
+    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(
+            Datasource datasource, String environmentId) {
         return this.findByDatasourceIdAndEnvironmentId(datasource.getId(), environmentId)
-                .map(datasourceStorage -> {
-                    datasourceStorage.prepareTransientFields(datasource);
-                    return datasourceStorage;
-                })
-                // TODO: This is a temporary call being made till storage transfer migrations are done
-                .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
-                        .transferAndGetDatasourceStorage(datasource, environmentId)))
-                .onErrorResume(e -> e instanceof DuplicateKeyException
-                                || e instanceof MongoServerException
-                                || e instanceof UncategorizedMongoDbException,
+                .map(
+                        datasourceStorage -> {
+                            datasourceStorage.prepareTransientFields(datasource);
+                            return datasourceStorage;
+                        })
+                // TODO: This is a temporary call being made till storage transfer migrations are
+                // done
+                .switchIfEmpty(
+                        Mono.defer(
+                                () ->
+                                        datasourceStorageTransferSolution
+                                                .transferAndGetDatasourceStorage(
+                                                        datasource, environmentId)))
+                .onErrorResume(
+                        e ->
+                                e instanceof DuplicateKeyException
+                                        || e instanceof MongoServerException
+                                        || e instanceof UncategorizedMongoDbException,
                         error -> {
                             if (error.getMessage() != null
-                                    && error.getMessage().contains("datasource_storage_compound_index")) {
+                                    && error.getMessage()
+                                            .contains("datasource_storage_compound_index")) {
                                 // The duplicate key error is because of the `name` field.
                                 return findByDatasourceAndEnvironmentId(datasource, environmentId);
                             }
@@ -103,23 +117,31 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(Datasource datasource,
-                                                                                String environmentId) {
+    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(
+            Datasource datasource, String environmentId) {
         return this.findByDatasourceAndEnvironmentId(datasource, environmentId);
     }
 
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
         return this.findByDatasourceId(datasource.getId())
-                // TODO: This is a temporary call being made till storage transfer migrations are done
-                .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
-                        .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource)))
-                .onErrorResume(e -> e instanceof DuplicateKeyException
-                                || e instanceof MongoServerException
-                                || e instanceof UncategorizedMongoDbException,
+                // TODO: This is a temporary call being made till storage transfer migrations are
+                // done
+                .switchIfEmpty(
+                        Mono.defer(
+                                () ->
+                                        datasourceStorageTransferSolution
+                                                .transferToFallbackEnvironmentAndGetDatasourceStorage(
+                                                        datasource)))
+                .onErrorResume(
+                        e ->
+                                e instanceof DuplicateKeyException
+                                        || e instanceof MongoServerException
+                                        || e instanceof UncategorizedMongoDbException,
                         error -> {
                             if (error.getMessage() != null
-                                    && error.getMessage().contains("datasource_storage_compound_index")) {
+                                    && error.getMessage()
+                                            .contains("datasource_storage_compound_index")) {
                                 // The duplicate key error is because of the `name` field.
                                 return findByDatasource(datasource);
                             }
@@ -127,8 +149,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                         });
     }
 
-    protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
-        return repository.findByDatasourceIdAndEnvironmentId(datasourceId, FieldName.UNUSED_ENVIRONMENT_ID);
+    protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(
+            String datasourceId, String environmentId) {
+        return repository.findByDatasourceIdAndEnvironmentId(
+                datasourceId, FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
     protected Flux<DatasourceStorage> findByDatasourceId(String datasourceId) {
@@ -141,54 +165,73 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+    public Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(
+            String datasourceId, String environmentId) {
         return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
     }
 
     @Override
-    public Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource,
-                                                                      String environmentId,
-                                                                      Boolean isUserRefreshedUpdate) {
+    public Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(
+            Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate) {
         return this.findByDatasourceAndEnvironmentId(datasource, environmentId)
-                .map(dbStorage -> {
-                    DatasourceStorageDTO datasourceStorageDTO = getDatasourceStorageDTOFromDatasource(datasource, environmentId);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
-                    datasourceStorage.prepareTransientFields(datasource);
-                    copyNestedNonNullProperties(datasourceStorage, dbStorage);
-                    if (datasourceStorage.getDatasourceConfiguration() != null
-                            && datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
-                        if (dbStorage.getDatasourceConfiguration() != null) {
-                            dbStorage.getDatasourceConfiguration().setAuthentication(null);
-                        }
-                    }
-                    return dbStorage;
-                })
+                .map(
+                        dbStorage -> {
+                            DatasourceStorageDTO datasourceStorageDTO =
+                                    getDatasourceStorageDTOFromDatasource(
+                                            datasource, environmentId);
+                            DatasourceStorage datasourceStorage =
+                                    new DatasourceStorage(datasourceStorageDTO);
+                            datasourceStorage.prepareTransientFields(datasource);
+                            copyNestedNonNullProperties(datasourceStorage, dbStorage);
+                            if (datasourceStorage.getDatasourceConfiguration() != null
+                                    && datasourceStorage
+                                                    .getDatasourceConfiguration()
+                                                    .getAuthentication()
+                                            == null) {
+                                if (dbStorage.getDatasourceConfiguration() != null) {
+                                    dbStorage.getDatasourceConfiguration().setAuthentication(null);
+                                }
+                            }
+                            return dbStorage;
+                        })
                 .flatMap(this::validateAndSaveDatasourceStorageToRepository)
-                .flatMap(datasourceStorage -> {
-                    Map<String, Object> analyticsProperties = getAnalyticsProperties(datasourceStorage);
-                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
-                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
-                    } else {
-                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
-                    }
-                    return analyticsService.sendUpdateEvent(datasourceStorage, analyticsProperties);
-                })
+                .flatMap(
+                        datasourceStorage -> {
+                            Map<String, Object> analyticsProperties =
+                                    getAnalyticsProperties(datasourceStorage);
+                            if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
+                                analyticsProperties.put(
+                                        FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY,
+                                        Boolean.TRUE);
+                            } else {
+                                analyticsProperties.put(
+                                        FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY,
+                                        Boolean.FALSE);
+                            }
+                            return analyticsService.sendUpdateEvent(
+                                    datasourceStorage, analyticsProperties);
+                        })
                 .flatMap(this::populateHintMessages);
     }
 
     @Override
-    public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration) {
+    public Mono<DatasourceStorage> validateDatasourceStorage(
+            DatasourceStorage datasourceStorage, Boolean onlyConfiguration) {
         Set<String> invalids = new HashSet<>();
         datasourceStorage.setInvalids(invalids);
 
         // TODO: Get rid of this condition once client starts to have this information
         if (!Boolean.TRUE.equals(onlyConfiguration)) {
             if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
+                return Mono.error(
+                        new AppsmithException(
+                                AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
             }
 
             if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
+                return Mono.error(
+                        new AppsmithException(
+                                AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
             }
         }
 
@@ -197,44 +240,64 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         }
 
         final Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                        FieldName.PLUGIN, datasourceStorage.getPluginId())));
+        Mono<PluginExecutor> pluginExecutorMono =
+                pluginExecutorHelper
+                        .getPluginExecutor(pluginMono)
+                        .switchIfEmpty(
+                                Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.NO_RESOURCE_FOUND,
+                                                FieldName.PLUGIN,
+                                                datasourceStorage.getPluginId())));
 
         return pluginExecutorMono
-                .map(pluginExecutor -> {
-                    DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
-                    if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
-                        invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
-                    }
+                .map(
+                        pluginExecutor -> {
+                            DatasourceConfiguration datasourceConfiguration =
+                                    datasourceStorage.getDatasourceConfiguration();
+                            if (datasourceConfiguration != null
+                                    && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
+                                invalids.addAll(
+                                        pluginExecutor.validateDatasource(datasourceConfiguration));
+                            }
 
-                    return datasourceStorage;
-                })
-                .onErrorResume(e -> {
-                    invalids.add("Unable to validate datasource.");
-                    return Mono.just(datasourceStorage);
-                });
+                            return datasourceStorage;
+                        })
+                .onErrorResume(
+                        e -> {
+                            invalids.add("Unable to validate datasource.");
+                            return Mono.just(datasourceStorage);
+                        });
     }
 
     @Override
-    public Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage) {
+    public Mono<DatasourceStorage> validateDatasourceConfiguration(
+            DatasourceStorage datasourceStorage) {
         return this.validateDatasourceStorage(datasourceStorage, true);
     }
 
-    private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(DatasourceStorage datasourceStorage) {
+    private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(
+            DatasourceStorage datasourceStorage) {
 
         return Mono.just(datasourceStorage)
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
-                .flatMap(unsavedDatasourceStorage -> {
-                    return repository.save(unsavedDatasourceStorage)
-                            .map(datasourceStorage1 -> {
-                                // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
-                                // object from db will have pluginName=null so set it manually from the unsaved datasourceStorage obj
-                                datasourceStorage1.setPluginName(unsavedDatasourceStorage.getPluginName());
-                                return datasourceStorage1;
-                            });
-                });
+                .flatMap(
+                        unsavedDatasourceStorage -> {
+                            return repository
+                                    .save(unsavedDatasourceStorage)
+                                    .map(
+                                            datasourceStorage1 -> {
+                                                // datasourceStorage.pluginName is a transient
+                                                // field. It was set by validateDatasource method
+                                                // object from db will have pluginName=null so set
+                                                // it manually from the unsaved datasourceStorage
+                                                // obj
+                                                datasourceStorage1.setPluginName(
+                                                        unsavedDatasourceStorage.getPluginName());
+                                                return datasourceStorage1;
+                                            });
+                        });
     }
 
     @Override
@@ -245,8 +308,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     private DatasourceStorage sanitizeDatasourceStorage(DatasourceStorage datasourceStorage) {
         if (datasourceStorage.getDatasourceConfiguration() != null
-                && !CollectionUtils.isEmpty(datasourceStorage.getDatasourceConfiguration().getEndpoints())) {
-            for (final Endpoint endpoint : datasourceStorage.getDatasourceConfiguration().getEndpoints()) {
+                && !CollectionUtils.isEmpty(
+                        datasourceStorage.getDatasourceConfiguration().getEndpoints())) {
+            for (final Endpoint endpoint :
+                    datasourceStorage.getDatasourceConfiguration().getEndpoints()) {
                 if (endpoint != null && endpoint.getHost() != null) {
                     endpoint.setHost(endpoint.getHost().trim());
                 }
@@ -276,22 +341,33 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         }
 
         final Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN,
-                        datasourceStorage.getPluginId())));
+        Mono<PluginExecutor> pluginExecutorMono =
+                pluginExecutorHelper
+                        .getPluginExecutor(pluginMono)
+                        .switchIfEmpty(
+                                Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.NO_RESOURCE_FOUND,
+                                                FieldName.PLUGIN,
+                                                datasourceStorage.getPluginId())));
 
         /**
          * Delegate the task of generating hint messages to the concerned plugin, since only the
          * concerned plugin can correctly interpret their configuration.
          */
         return pluginExecutorMono
-                .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                        .getHintMessages(null, datasourceStorage.getDatasourceConfiguration()))
-                .flatMap(tuple -> {
-                    Set<String> datasourceHintMessages = tuple.getT1();
-                    datasourceStorage.getMessages().addAll(datasourceHintMessages);
-                    return Mono.just(datasourceStorage);
-                });
+                .flatMap(
+                        pluginExecutor ->
+                                ((PluginExecutor<Object>) pluginExecutor)
+                                        .getHintMessages(
+                                                null,
+                                                datasourceStorage.getDatasourceConfiguration()))
+                .flatMap(
+                        tuple -> {
+                            Set<String> datasourceHintMessages = tuple.getT1();
+                            datasourceStorage.getMessages().addAll(datasourceHintMessages);
+                            return Mono.just(datasourceStorage);
+                        });
     }
 
     @Override
@@ -302,14 +378,18 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         analyticsProperties.put("dsId", datasourceStorage.getDatasourceId());
         analyticsProperties.put("envId", datasourceStorage.getEnvironmentId());
         DatasourceConfiguration dsConfig = datasourceStorage.getDatasourceConfiguration();
-        if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
-            analyticsProperties.put("oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
+        if (dsConfig != null
+                && dsConfig.getAuthentication() != null
+                && dsConfig.getAuthentication() instanceof OAuth2) {
+            analyticsProperties.put(
+                    "oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
         }
         return analyticsProperties;
     }
 
     @Override
-    public DatasourceStorageDTO getDatasourceStorageDTOFromDatasource(Datasource datasource, String environmentId) {
+    public DatasourceStorageDTO getDatasourceStorageDTOFromDatasource(
+            Datasource datasource, String environmentId) {
         if (datasource == null || datasource.getDatasourceStorages() == null) {
             return null;
         }
@@ -317,15 +397,16 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public DatasourceStorage getDatasourceStorageFromDatasource(Datasource datasource, String environmentId) {
+    public DatasourceStorage getDatasourceStorageFromDatasource(
+            Datasource datasource, String environmentId) {
         if (datasource == null || datasource.getDatasourceStorages() == null) {
             return null;
         }
-        DatasourceStorageDTO datasourceStorageDTO = this.getDatasourceStorageDTOFromDatasource(datasource, environmentId);
+        DatasourceStorageDTO datasourceStorageDTO =
+                this.getDatasourceStorageDTOFromDatasource(datasource, environmentId);
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
         datasourceStorage.prepareTransientFields(datasource);
 
         return datasourceStorage;
     }
-
 }

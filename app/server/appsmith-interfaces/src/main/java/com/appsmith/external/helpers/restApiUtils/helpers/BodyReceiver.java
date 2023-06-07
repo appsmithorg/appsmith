@@ -1,7 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -18,6 +20,7 @@ import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
+
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -31,12 +34,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * This receiver essentially instantiates a custom ClientHttpRequest that stores the request body via a subscriber
- * The BodyInserter instance from our original request inserts into this subscriber that we can then retrieve
- * using receiveValue.
+ * This receiver essentially instantiates a custom ClientHttpRequest that stores the request body
+ * via a subscriber The BodyInserter instance from our original request inserts into this subscriber
+ * that we can then retrieve using receiveValue.
  *
- * We do this so that the received value that we display to the user is exactly the same as
- * the body tht is sent over the wire
+ * <p>We do this so that the received value that we display to the user is exactly the same as the
+ * body tht is sent over the wire
  */
 public class BodyReceiver {
     private static final Object DUMMY = new Object();
@@ -49,14 +52,14 @@ public class BodyReceiver {
         return receivedValue();
     }
 
-    private void demandValueFrom(BodyInserter<?, ? extends ReactiveHttpOutputMessage> bodyInserter) {
+    private void demandValueFrom(
+            BodyInserter<?, ? extends ReactiveHttpOutputMessage> bodyInserter) {
         final BodyInserter<Object, MinimalHttpOutputMessage> inserter =
                 (BodyInserter<Object, MinimalHttpOutputMessage>) bodyInserter;
 
         inserter.insert(
                 MinimalHttpOutputMessage.INSTANCE,
-                new SingleWriterContext(new WriteToConsumer<>(reference::set))
-        );
+                new SingleWriterContext(new WriteToConsumer<>(reference::set)));
     }
 
     private Object receivedValue() {
@@ -102,8 +105,7 @@ public class BodyReceiver {
                 ResolvableType elementType,
                 MediaType mediaType,
                 ReactiveHttpOutputMessage message,
-                Map<String, Object> hints
-        ) {
+                Map<String, Object> hints) {
             inputStream.subscribe(new OneValueConsumption<>(consumer));
             return Mono.empty();
         }
@@ -113,8 +115,7 @@ public class BodyReceiver {
 
         public static final MinimalHttpOutputMessage INSTANCE = new MinimalHttpOutputMessage();
 
-        private MinimalHttpOutputMessage() {
-        }
+        private MinimalHttpOutputMessage() {}
 
         @Override
         public HttpHeaders getHeaders() {
@@ -127,8 +128,7 @@ public class BodyReceiver {
         }
 
         @Override
-        public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-        }
+        public void beforeCommit(Supplier<? extends Mono<Void>> action) {}
 
         @Override
         public boolean isCommitted() {
@@ -141,7 +141,8 @@ public class BodyReceiver {
         }
 
         @Override
-        public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+        public Mono<Void> writeAndFlushWith(
+                Publisher<? extends Publisher<? extends DataBuffer>> body) {
             return null;
         }
 
@@ -192,13 +193,15 @@ public class BodyReceiver {
                 consumer.accept(o);
                 remainedAccepts -= 1;
             } else {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No more values can be consumed");
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR, "No more values can be consumed");
             }
         }
 
         @Override
         public void onError(Throwable t) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Single value was not consumed", t);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR, "Single value was not consumed", t);
         }
 
         @Override

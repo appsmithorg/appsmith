@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.BaseDomain;
+
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,21 +1,25 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.caching.components;
 
 import com.appsmith.caching.model.CacheStats;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
+
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * RedisCacheManagerImpl is a class that implements the CacheManager interface.
- * Used Redis as the cache backend.
+ * RedisCacheManagerImpl is a class that implements the CacheManager interface. Used Redis as the
+ * cache backend.
  */
 @Component
 @ConditionalOnClass({ReactiveRedisTemplate.class})
@@ -29,6 +33,7 @@ public class RedisCacheManagerImpl implements CacheManager {
 
     /**
      * Ensures that the key for cacheName is present in statsMap.
+     *
      * @param cacheName The name of the cache.
      */
     private void ensureStats(String cacheName) {
@@ -39,21 +44,29 @@ public class RedisCacheManagerImpl implements CacheManager {
 
     @Override
     public void logStats() {
-        statsMap.keySet().forEach(key -> {
-            CacheStats stats = statsMap.get(key);
-            log.debug("Cache {} stats: hits = {}, misses = {}, singleEvictions = {}, completeEvictions = {}", key, stats.getHits(), stats.getMisses(), stats.getSingleEvictions(), stats.getCompleteEvictions());
-        });
+        statsMap.keySet()
+                .forEach(
+                        key -> {
+                            CacheStats stats = statsMap.get(key);
+                            log.debug(
+                                    "Cache {} stats: hits = {}, misses = {}, singleEvictions = {},"
+                                            + " completeEvictions = {}",
+                                    key,
+                                    stats.getHits(),
+                                    stats.getMisses(),
+                                    stats.getSingleEvictions(),
+                                    stats.getCompleteEvictions());
+                        });
     }
 
-    /**
-     * Resets the stats.
-     */
+    /** Resets the stats. */
     public void resetStats() {
         statsMap.clear();
     }
 
     @Autowired
-    public RedisCacheManagerImpl(ReactiveRedisTemplate<String, Object> reactiveRedisTemplate,
+    public RedisCacheManagerImpl(
+            ReactiveRedisTemplate<String, Object> reactiveRedisTemplate,
             ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         this.reactiveRedisTemplate = reactiveRedisTemplate;
         this.reactiveRedisOperations = reactiveRedisOperations;
@@ -63,18 +76,23 @@ public class RedisCacheManagerImpl implements CacheManager {
     public Mono<Object> get(String cacheName, String key) {
         ensureStats(cacheName);
         String path = cacheName + ":" + key;
-        return reactiveRedisTemplate.opsForValue().get(path)
-            .map(value -> {
-                //This is a cache hit, update stats and return value
-                statsMap.get(cacheName).getHits().incrementAndGet();
-                return value;
-            })
-            .switchIfEmpty(Mono.defer(() -> {
-                //This is a cache miss, update stats and return empty
-                statsMap.get(cacheName).getMisses().incrementAndGet();
-                log.debug("Cache miss for key {}", path);
-                return Mono.empty();
-            }));
+        return reactiveRedisTemplate
+                .opsForValue()
+                .get(path)
+                .map(
+                        value -> {
+                            // This is a cache hit, update stats and return value
+                            statsMap.get(cacheName).getHits().incrementAndGet();
+                            return value;
+                        })
+                .switchIfEmpty(
+                        Mono.defer(
+                                () -> {
+                                    // This is a cache miss, update stats and return empty
+                                    statsMap.get(cacheName).getMisses().incrementAndGet();
+                                    log.debug("Cache miss for key {}", path);
+                                    return Mono.empty();
+                                }));
     }
 
     @Override
@@ -99,12 +117,13 @@ public class RedisCacheManagerImpl implements CacheManager {
         ensureStats(cacheName);
         statsMap.get(cacheName).getCompleteEvictions().incrementAndGet();
         String path = cacheName;
-        //Remove all matching keys with wildcard
+        // Remove all matching keys with wildcard
         final String script =
-            "for _,k in ipairs(redis.call('keys','" + path + ":*'))" +
-                    " do redis.call('del',k) " +
-                    "end";
+                "for _,k in ipairs(redis.call('keys','"
+                        + path
+                        + ":*'))"
+                        + " do redis.call('del',k) "
+                        + "end";
         return reactiveRedisOperations.execute(RedisScript.of(script)).then();
     }
-    
 }

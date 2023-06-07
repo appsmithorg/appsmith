@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.CustomJSLib;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +10,8 @@ import lombok.Setter;
 @Setter
 public class CustomJSLibApplicationDTO {
     /**
-     * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
-     * JS library
+     * This string is used to uniquely identify a given library. We expect this to be universally
+     * unique for a given JS library
      */
     String uidString;
 
@@ -20,7 +22,8 @@ public class CustomJSLibApplicationDTO {
         }
 
         /**
-         * We check the equality using the uidString since this is supposed to be unique for a given library.
+         * We check the equality using the uidString since this is supposed to be unique for a given
+         * library.
          */
         return ((CustomJSLibApplicationDTO) o).getUidString().equals(this.uidString);
     }

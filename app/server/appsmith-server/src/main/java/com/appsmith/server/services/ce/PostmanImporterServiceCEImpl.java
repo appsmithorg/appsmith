@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
@@ -11,30 +12,36 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.solutions.PagePermission;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpMethod;
+
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class PostmanImporterServiceCEImpl extends BaseApiImporter implements PostmanImporterServiceCE {
+public class PostmanImporterServiceCEImpl extends BaseApiImporter
+        implements PostmanImporterServiceCE {
 
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
     private final PagePermission pagePermission;
 
-    public PostmanImporterServiceCEImpl(NewPageService newPageService,
-                                        ResponseUtils responseUtils,
-                                        PagePermission pagePermission) {
+    public PostmanImporterServiceCEImpl(
+            NewPageService newPageService,
+            ResponseUtils responseUtils,
+            PagePermission pagePermission) {
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
         this.pagePermission = pagePermission;
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
+    public Mono<ActionDTO> importAction(
+            Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();
@@ -44,21 +51,26 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(pageId);
         action.setName(name);
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
-                .map(branchedPage -> {
-                    action.setDefaultResources(branchedPage.getDefaultResources());
-                    return action;
-                })
+        return newPageService
+                .findByBranchNameAndDefaultPageId(
+                        branchName, pageId, pagePermission.getActionCreatePermission())
+                .map(
+                        branchedPage -> {
+                            action.setDefaultResources(branchedPage.getDefaultResources());
+                            return action;
+                        })
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     public TemplateCollection importPostmanCollection(Object input) {
-        TemplateCollection templateCollection = createTemplateCollection("RandomCollectionIdAfterStoring");
+        TemplateCollection templateCollection =
+                createTemplateCollection("RandomCollectionIdAfterStoring");
         return templateCollection;
     }
 
     public List<TemplateCollection> fetchPostmanCollections() {
-        TemplateCollection templateCollection = createTemplateCollection("RandomCollectionIdAfterStoring");
+        TemplateCollection templateCollection =
+                createTemplateCollection("RandomCollectionIdAfterStoring");
 
         List<TemplateCollection> templateCollectionList = new ArrayList<>();
         templateCollectionList.add(templateCollection);
@@ -114,5 +126,4 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
 
         return templateCollection;
     }
-
 }

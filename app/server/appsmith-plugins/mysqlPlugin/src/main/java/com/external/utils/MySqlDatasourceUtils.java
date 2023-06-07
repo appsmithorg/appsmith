@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
+
+import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -8,11 +11,12 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MySQLErrorMessages;
-import com.external.plugins.exceptions.MySQLPluginError;
+
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
@@ -25,16 +29,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static io.r2dbc.pool.PoolingConnectionFactoryProvider.MAX_SIZE;
-import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
-
 public class MySqlDatasourceUtils {
 
     public static int MAX_CONNECTION_POOL_SIZE = 5;
 
     private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10);
 
-    public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
+    public static ConnectionFactoryOptions.Builder getBuilder(
+            DatasourceConfiguration datasourceConfiguration) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
         StringBuilder urlBuilder = new StringBuilder();
@@ -45,7 +47,10 @@ public class MySqlDatasourceUtils {
             final List<String> hosts = new ArrayList<>();
 
             for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+                hosts.add(
+                        endpoint.getHost()
+                                + ":"
+                                + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
             }
 
             urlBuilder.append(String.join(",", hosts)).append("/");
@@ -53,7 +58,6 @@ public class MySqlDatasourceUtils {
             if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
                 urlBuilder.append(authentication.getDatabaseName());
             }
-
         }
 
         urlBuilder.append("?zeroDateTimeBehavior=convertToNull&allowMultiQueries=true");
@@ -61,23 +65,28 @@ public class MySqlDatasourceUtils {
 
         if (dsProperties != null) {
             for (Property property : dsProperties) {
-                if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
+                if ("serverTimezone".equals(property.getKey())
+                        && !StringUtils.isEmpty(property.getValue())) {
                     urlBuilder.append("&serverTimezone=").append(property.getValue());
                     break;
                 }
             }
         }
 
-        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
-        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions)
-                .option(ConnectionFactoryOptions.USER, authentication.getUsername())
-                .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
+        ConnectionFactoryOptions baseOptions =
+                ConnectionFactoryOptions.parse(urlBuilder.toString());
+        ConnectionFactoryOptions.Builder ob =
+                ConnectionFactoryOptions.builder()
+                        .from(baseOptions)
+                        .option(ConnectionFactoryOptions.USER, authentication.getUsername())
+                        .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
         return ob;
     }
 
-    public static ConnectionFactoryOptions.Builder addSslOptionsToBuilder(DatasourceConfiguration datasourceConfiguration,
-                                                                          ConnectionFactoryOptions.Builder ob) throws AppsmithPluginException {
+    public static ConnectionFactoryOptions.Builder addSslOptionsToBuilder(
+            DatasourceConfiguration datasourceConfiguration, ConnectionFactoryOptions.Builder ob)
+            throws AppsmithPluginException {
         /*
          * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
          */
@@ -85,20 +94,22 @@ public class MySqlDatasourceUtils {
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            MySQLErrorMessages.SSL_CONFIGURATION_FETCHING_ERROR_MSG
-                            );
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    MySQLErrorMessages.SSL_CONFIGURATION_FETCHING_ERROR_MSG);
         }
 
         /*
          * - By default, the driver configures SSL in the preferred mode.
          */
-        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        SSLDetails.AuthType sslAuthType =
+                datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
             case REQUIRED:
-                ob = ob
-                        .option(SSL, true)
-                        .option(Option.valueOf("sslMode"), sslAuthType.toString().toLowerCase());
+                ob =
+                        ob.option(SSL, true)
+                                .option(
+                                        Option.valueOf("sslMode"),
+                                        sslAuthType.toString().toLowerCase());
 
                 break;
             case DISABLED:
@@ -112,8 +123,8 @@ public class MySqlDatasourceUtils {
             default:
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        String.format(MySQLErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG, sslAuthType)
-                        );
+                        String.format(
+                                MySQLErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG, sslAuthType));
         }
 
         return ob;
@@ -127,15 +138,18 @@ public class MySqlDatasourceUtils {
             invalids.add(MySQLErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
         }
 
-        if (StringUtils.isEmpty(datasourceConfiguration.getUrl()) &&
-                CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+        if (StringUtils.isEmpty(datasourceConfiguration.getUrl())
+                && CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
             invalids.add(MySQLErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
         } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
             for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                 if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
                     invalids.add(MySQLErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                 } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
-                    invalids.add(String.format(MySQLErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
+                    invalids.add(
+                            String.format(
+                                    MySQLErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG,
+                                    endpoint.getHost()));
                 }
             }
         }
@@ -148,7 +162,8 @@ public class MySqlDatasourceUtils {
                 invalids.add(MySQLErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
             }
 
-            if (StringUtils.isEmpty(authentication.getPassword()) && StringUtils.isEmpty(authentication.getUsername())) {
+            if (StringUtils.isEmpty(authentication.getPassword())
+                    && StringUtils.isEmpty(authentication.getUsername())) {
                 invalids.add(MySQLErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
             } else if (StringUtils.isEmpty(authentication.getPassword())) {
                 // it is valid if it has the username but not the password
@@ -172,23 +187,25 @@ public class MySqlDatasourceUtils {
         return invalids;
     }
 
-    public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+    public static ConnectionPool getNewConnectionPool(
+            DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
         MariadbConnectionFactory connectionFactory =
                 MariadbConnectionFactory.from(
                         MariadbConnectionConfiguration.fromOptions(ob.build())
-                                .allowPublicKeyRetrieval(true).build()
-                );
+                                .allowPublicKeyRetrieval(true)
+                                .build());
 
         /**
-         * The pool configuration object does not seem to have any option to set the minimum pool size, hence could
-         * not configure the minimum pool size.
+         * The pool configuration object does not seem to have any option to set the minimum pool
+         * size, hence could not configure the minimum pool size.
          */
-        ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
-                .maxIdleTime(MAX_IDLE_TIME)
-                .maxSize(MAX_CONNECTION_POOL_SIZE)
-                .build();
+        ConnectionPoolConfiguration configuration =
+                ConnectionPoolConfiguration.builder(connectionFactory)
+                        .maxIdleTime(MAX_IDLE_TIME)
+                        .maxSize(MAX_CONNECTION_POOL_SIZE)
+                        .build();
         return new ConnectionPool(configuration);
     }
 }

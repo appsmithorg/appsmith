@@ -1,4 +1,12 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins;
+
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
@@ -12,7 +20,9 @@ import com.external.plugins.exceptions.RedisErrorMessages;
 import com.external.plugins.exceptions.RedisPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,25 +30,23 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
 import redis.clients.jedis.JedisPool;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @Slf4j
 @Testcontainers
 public class RedisPluginTest {
     @Container
-    public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:6.2.0-alpine"))
-            .withExposedPorts(6379);
+    public static final GenericContainer redis =
+            new GenericContainer(DockerImageName.parse("redis:6.2.0-alpine"))
+                    .withExposedPorts(6379);
+
     private static String host;
     private static Integer port;
 
@@ -66,9 +74,7 @@ public class RedisPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
-        StepVerifier.create(jedisPoolMono)
-                .assertNext(Assertions::assertNotNull)
-                .verifyComplete();
+        StepVerifier.create(jedisPoolMono).assertNext(Assertions::assertNotNull).verifyComplete();
 
         pluginExecutor.datasourceDestroy(jedisPoolMono.block());
     }
@@ -77,7 +83,8 @@ public class RedisPluginTest {
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
 
-        assertEquals(Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
+        assertEquals(
+                Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -88,7 +95,8 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
+        assertEquals(
+                Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -118,9 +126,9 @@ public class RedisPluginTest {
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG),
-                pluginExecutor.validateDatasource(invalidDatasourceConfiguration)
-        );
+                pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
+
     @Test
     public void itShouldValidateDatasource() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -142,13 +150,15 @@ public class RedisPluginTest {
     @Test
     public void itShouldTestDatasource() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(datasourceConfiguration);
+        Mono<DatasourceTestResult> datasourceTestResultMono =
+                pluginExecutor.testDatasource(datasourceConfiguration);
 
         StepVerifier.create(datasourceTestResultMono)
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertTrue(datasourceTestResult.isSuccess());
-                })
+                .assertNext(
+                        datasourceTestResult -> {
+                            assertNotNull(datasourceTestResult);
+                            assertTrue(datasourceTestResult.isSuccess());
+                        })
                 .verifyComplete();
     }
 
@@ -164,16 +174,19 @@ public class RedisPluginTest {
         endpoint.setPort(Long.valueOf(port));
 
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-        Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(datasourceConfiguration);
+        Mono<DatasourceTestResult> datasourceTestResultMono =
+                pluginExecutor.testDatasource(datasourceConfiguration);
 
         StepVerifier.create(datasourceTestResultMono)
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertFalse(datasourceTestResult.isSuccess());
-                    assertTrue(datasourceTestResult.getInvalids().contains(errorMessage));
-                })
+                .assertNext(
+                        datasourceTestResult -> {
+                            assertNotNull(datasourceTestResult);
+                            assertFalse(datasourceTestResult.isSuccess());
+                            assertTrue(datasourceTestResult.getInvalids().contains(errorMessage));
+                        })
                 .verifyComplete();
     }
+
     @Test
     public void itShouldThrowErrorIfEmptyBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
@@ -181,15 +194,21 @@ public class RedisPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertEquals(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(),
+                                    result.getTitle());
+                        })
                 .verifyComplete();
     }
 
@@ -201,15 +220,21 @@ public class RedisPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("LOL");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertEquals(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(),
+                                    result.getTitle());
+                        })
                 .verifyComplete();
     }
 
@@ -221,16 +246,22 @@ public class RedisPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("PING");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertEquals("PONG", node.get("result").asText());
-                }).verifyComplete();
+                .assertNext(
+                        actionExecutionResult -> {
+                            assertNotNull(actionExecutionResult);
+                            assertNotNull(actionExecutionResult.getBody());
+                            final JsonNode node =
+                                    ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                            assertEquals("PONG", node.get("result").asText());
+                        })
+                .verifyComplete();
     }
 
     @Test
@@ -241,62 +272,91 @@ public class RedisPluginTest {
         // Getting a non-existent key
         ActionConfiguration getActionConfiguration = new ActionConfiguration();
         getActionConfiguration.setBody("GET key");
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
-                        getActionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool,
+                                        datasourceConfiguration,
+                                        getActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertEquals("null", node.get("result").asText());
+                .assertNext(
+                        actionExecutionResult -> {
+                            assertNotNull(actionExecutionResult);
+                            assertNotNull(actionExecutionResult.getBody());
+                            final JsonNode node =
+                                    ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                            assertEquals("null", node.get("result").asText());
 
-
-                    /* - Adding only in this test as the query editor form for Redis plugin is exactly same for each
-                     *  query type. Hence, checking with only one query should suffice.
-                     * - RequestParamDTO object only have attributes configProperty and value at this point.
-                     * - The other two RequestParamDTO attributes - label and type are null at this point.
-                     */
-                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getActionConfiguration.getBody(), null, null, null));
-                    assertEquals(actionExecutionResult.getRequest().getRequestParams().toString(),
-                            expectedRequestParams.toString());
-                }).verifyComplete();
+                            /* - Adding only in this test as the query editor form for Redis plugin is exactly same for each
+                             *  query type. Hence, checking with only one query should suffice.
+                             * - RequestParamDTO object only have attributes configProperty and value at this point.
+                             * - The other two RequestParamDTO attributes - label and type are null at this point.
+                             */
+                            List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                            expectedRequestParams.add(
+                                    new RequestParamDTO(
+                                            ACTION_CONFIGURATION_BODY,
+                                            getActionConfiguration.getBody(),
+                                            null,
+                                            null,
+                                            null));
+                            assertEquals(
+                                    actionExecutionResult
+                                            .getRequest()
+                                            .getRequestParams()
+                                            .toString(),
+                                    expectedRequestParams.toString());
+                        })
+                .verifyComplete();
 
         // Set keys
         ActionConfiguration setActionConfigurationManyKeys = new ActionConfiguration();
-        setActionConfigurationManyKeys.setBody("mset key1 value key2 \"value\" key3 \"my value\" key4 'value' key5 'my " +
-                "value' key6 '{\"a\":\"b\"}'");
-        actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
-                        setActionConfigurationManyKeys));
+        setActionConfigurationManyKeys.setBody(
+                "mset key1 value key2 \"value\" key3 \"my value\" key4 'value' key5 'my "
+                        + "value' key6 '{\"a\":\"b\"}'");
+        actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool,
+                                        datasourceConfiguration,
+                                        setActionConfigurationManyKeys));
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertEquals("OK", node.get("result").asText());
-                }).verifyComplete();
+                .assertNext(
+                        actionExecutionResult -> {
+                            assertNotNull(actionExecutionResult);
+                            assertNotNull(actionExecutionResult.getBody());
+                            final JsonNode node =
+                                    ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                            assertEquals("OK", node.get("result").asText());
+                        })
+                .verifyComplete();
 
         // Verify the keys
         ActionConfiguration getActionConfigurationManyKeys = new ActionConfiguration();
         getActionConfigurationManyKeys.setBody("mget key1 key2 key3 key4 key5 key6");
-        actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
-                        getActionConfigurationManyKeys));
+        actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool,
+                                        datasourceConfiguration,
+                                        getActionConfigurationManyKeys));
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody());
-                    assertEquals("value", node.get(0).get("result").asText());
-                    assertEquals("value", node.get(1).get("result").asText());
-                    assertEquals("my value", node.get(2).get("result").asText());
-                    assertEquals("value", node.get(3).get("result").asText());
-                    assertEquals("my value", node.get(4).get("result").asText());
-                    assertEquals("{\"a\":\"b\"}", node.get(5).get("result").asText());
-                }).verifyComplete();
+                .assertNext(
+                        actionExecutionResult -> {
+                            assertNotNull(actionExecutionResult);
+                            assertNotNull(actionExecutionResult.getBody());
+                            final JsonNode node = ((ArrayNode) actionExecutionResult.getBody());
+                            assertEquals("value", node.get(0).get("result").asText());
+                            assertEquals("value", node.get(1).get("result").asText());
+                            assertEquals("my value", node.get(2).get("result").asText());
+                            assertEquals("value", node.get(3).get("result").asText());
+                            assertEquals("my value", node.get(4).get("result").asText());
+                            assertEquals("{\"a\":\"b\"}", node.get(5).get("result").asText());
+                        })
+                .verifyComplete();
     }
 
     @Test
@@ -310,16 +370,22 @@ public class RedisPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("CLIENT INFO");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertTrue(node.get("result").asText().contains("db=7"));
-                }).verifyComplete();
+                .assertNext(
+                        actionExecutionResult -> {
+                            assertNotNull(actionExecutionResult);
+                            assertNotNull(actionExecutionResult.getBody());
+                            final JsonNode node =
+                                    ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                            assertTrue(node.get("result").asText().contains("db=7"));
+                        })
+                .verifyComplete();
     }
 
     @Test
@@ -332,25 +398,40 @@ public class RedisPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("CLIENT INFO");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisPoolMono
-                .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                jedisPoolMono.flatMap(
+                        jedisPool ->
+                                pluginExecutor.execute(
+                                        jedisPool, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    assertTrue(node.get("result").asText().contains("db=0"));
-                }).verifyComplete();
+                .assertNext(
+                        actionExecutionResult -> {
+                            assertNotNull(actionExecutionResult);
+                            assertNotNull(actionExecutionResult.getBody());
+                            final JsonNode node =
+                                    ((ArrayNode) actionExecutionResult.getBody()).get(0);
+                            assertTrue(node.get("result").asText().contains("db=0"));
+                        })
+                .verifyComplete();
     }
 
     @Test
     public void verifyUniquenessOfRedisPluginErrorCode() {
-        assert (Arrays.stream(RedisPluginError.values()).map(RedisPluginError::getAppErrorCode).distinct().count() == RedisPluginError.values().length);
+        assert (Arrays.stream(RedisPluginError.values())
+                        .map(RedisPluginError::getAppErrorCode)
+                        .distinct()
+                        .count()
+                == RedisPluginError.values().length);
 
-        assert (Arrays.stream(RedisPluginError.values()).map(RedisPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RDS"))
-                .collect(Collectors.toList()).size() == 0);
-
+        assert (Arrays.stream(RedisPluginError.values())
+                        .map(RedisPluginError::getAppErrorCode)
+                        .filter(
+                                appErrorCode ->
+                                        appErrorCode.length() != 11
+                                                || !appErrorCode.startsWith("PE-RDS"))
+                        .collect(Collectors.toList())
+                        .size()
+                == 0);
     }
 }

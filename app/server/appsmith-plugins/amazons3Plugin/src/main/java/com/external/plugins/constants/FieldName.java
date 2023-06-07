@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.constants;
 
 public class FieldName {
@@ -37,4 +38,3 @@ public class FieldName {
     public static final String LIST_PAGINATE = LIST + "." + PAGINATE;
     public static final String SMART_SUBSTITUTION = "smartSubstitution";
 }
-

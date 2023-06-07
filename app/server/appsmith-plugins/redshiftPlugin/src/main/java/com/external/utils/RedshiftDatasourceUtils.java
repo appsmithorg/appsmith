@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
+
+import static com.external.plugins.RedshiftPlugin.JDBC_DRIVER;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -9,6 +12,7 @@ import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -17,8 +21,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.external.plugins.RedshiftPlugin.JDBC_DRIVER;
-
 public class RedshiftDatasourceUtils {
 
     private static final int MINIMUM_POOL_SIZE = 1;
@@ -26,8 +28,8 @@ public class RedshiftDatasourceUtils {
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
     private static final String JDBC_PROTOCOL = "jdbc:redshift://";
 
-
-    public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+    public static HikariDataSource createConnectionPool(
+            DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
@@ -46,11 +48,15 @@ public class RedshiftDatasourceUtils {
         // Set up the connection URL
         StringBuilder urlBuilder = new StringBuilder(JDBC_PROTOCOL);
 
-        List<String> hosts = datasourceConfiguration
-                .getEndpoints()
-                .stream()
-                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5439L))
-                .collect(Collectors.toList());
+        List<String> hosts =
+                datasourceConfiguration.getEndpoints().stream()
+                        .map(
+                                endpoint ->
+                                        endpoint.getHost()
+                                                + ":"
+                                                + ObjectUtils.defaultIfNull(
+                                                        endpoint.getPort(), 5439L))
+                        .collect(Collectors.toList());
 
         urlBuilder.append(String.join(",", hosts)).append("/");
 
@@ -61,23 +67,27 @@ public class RedshiftDatasourceUtils {
         String url = urlBuilder.toString();
         config.setJdbcUrl(url);
 
-        // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
+        // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been
+        // released in 60 seconds
         // should get tracked (may be falsely for long running queries) as leaked connection
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
         config.setConnectionTimeout(60 * 1000);
 
         // Set read only mode if applicable
-        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+        com.appsmith.external.models.Connection configurationConnection =
+                datasourceConfiguration.getConnection();
         switch (configurationConnection.getMode()) {
-            case READ_WRITE: {
-                config.setReadOnly(false);
-                break;
-            }
-            case READ_ONLY: {
-                config.setReadOnly(true);
-                config.addDataSourceProperty("readOnlyMode", "always");
-                break;
-            }
+            case READ_WRITE:
+                {
+                    config.setReadOnly(false);
+                    break;
+                }
+            case READ_ONLY:
+                {
+                    config.setReadOnly(true);
+                    config.addDataSourceProperty("readOnlyMode", "always");
+                    break;
+                }
         }
 
         // Now create the connection pool from the configuration
@@ -88,18 +98,20 @@ public class RedshiftDatasourceUtils {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                     RedshiftErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                    e.getMessage()
-            );
+                    e.getMessage());
         }
 
         return datasource;
     }
 
-    public static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
+    public static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool)
+            throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            System.out.println(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in Redshift plugin. Reporting back.");
+            System.out.println(
+                    Thread.currentThread().getName()
+                            + ": Encountered stale connection pool in Redshift plugin. Reporting"
+                            + " back.");
             throw new StaleConnectionException();
         }
 

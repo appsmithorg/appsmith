@@ -1,11 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.Permission;
+
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
@@ -23,16 +27,15 @@ public class PermissionGroup extends BaseDomain {
 
     String description;
 
-    //TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for 
-    //which we are auto creating this permission group.
-    @Deprecated
-    String defaultWorkspaceId;
+    // TODO: refactor this to defaultDocumentId, as we can use this to store associated document id
+    // for
+    // which we are auto creating this permission group.
+    @Deprecated String defaultWorkspaceId;
 
     String defaultDomainId;
     String defaultDomainType;
 
-    @Deprecated
-    Set<Permission> permissions = new HashSet<>();
+    @Deprecated Set<Permission> permissions = new HashSet<>();
 
     Set<String> assignedToUserIds = new HashSet<>();
 

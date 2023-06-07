@@ -1,7 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;

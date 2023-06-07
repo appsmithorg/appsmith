@@ -1,11 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.repositories.DatasourceStructureRepository;
 import com.mongodb.client.result.UpdateResult;
+
 import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -15,12 +19,14 @@ public class DatasourceStructureServiceCEImpl implements DatasourceStructureServ
     protected final DatasourceStructureRepository repository;
 
     @Override
-    public Mono<DatasourceStorageStructure> getByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+    public Mono<DatasourceStorageStructure> getByDatasourceIdAndEnvironmentId(
+            String datasourceId, String environmentId) {
         return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
     }
 
     @Override
-    public Mono<DatasourceStorageStructure> save(DatasourceStorageStructure datasourceStorageStructure) {
+    public Mono<DatasourceStorageStructure> save(
+            DatasourceStorageStructure datasourceStorageStructure) {
         return repository.save(datasourceStorageStructure);
     }
 

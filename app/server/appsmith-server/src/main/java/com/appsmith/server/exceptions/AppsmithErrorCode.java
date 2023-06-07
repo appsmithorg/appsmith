@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.exceptions;
 
 import lombok.Getter;
@@ -38,7 +39,8 @@ public enum AppsmithErrorCode {
     DUPLICATE_KEY_OBJECT_CREATION("AE-APP-4092", "Duplicate key during object creation"),
     INTERNAL_SERVER_ERROR("AE-APP-5000", "Internal server error"),
     REPOSITORY_SAVE_FAILED("AE-APP-5001", "Repository save failed"),
-    PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR("AE-APP-5002", "Plugin installation failed download error"),
+    PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(
+            "AE-APP-5002", "Plugin installation failed download error"),
     IO_ERROR("AE-APP-5003", "Io error"),
     PLUGIN_LOAD_FORM_JSON_FAIL("AE-APP-5004", "Plugin load form json fail"),
     PLUGIN_LOAD_TEMPLATES_FAIL("AE-APP-5005", "Plugin load templates fail"),
@@ -83,7 +85,8 @@ public enum AppsmithErrorCode {
     INVALID_GIT_REPO("AE-GIT-4033", "Invalid git repo"),
     GIT_MERGE_FAILED_REMOTE_CHANGES("AE-GIT-4036", "Git merge failed remote changes"),
     GIT_MERGE_FAILED_LOCAL_CHANGES("AE-GIT-4037", "Git merge failed local changes"),
-    UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH("AE-GIT-4040", "Unsupported operation for remote branch"),
+    UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH(
+            "AE-GIT-4040", "Unsupported operation for remote branch"),
     GIT_APPLICATION_LIMIT_ERROR("AE-GIT-4043", "Git application limit error"),
     GIT_ACTION_FAILED("AE-GIT-4044", "Git action failed"),
     GIT_MERGE_CONFLICTS("AE-GIT-4046", "Git merge conflicts"),
@@ -111,7 +114,8 @@ public enum AppsmithErrorCode {
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
-    UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
+    UNSUPPORTED_IMPORT_OPERATION(
+            "AE-APP-4040", "Unsupported operation for import application via file"),
     ;
     private final String code;
     private final String description;

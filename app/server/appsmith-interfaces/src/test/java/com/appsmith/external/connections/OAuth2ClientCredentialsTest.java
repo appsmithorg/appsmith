@@ -1,4 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.connections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
@@ -6,10 +12,13 @@ import com.appsmith.external.helpers.restApiUtils.connections.OAuth2ClientCreden
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
+
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
+
 import okio.Buffer;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,6 +26,7 @@ import org.mockito.Mockito;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -25,11 +35,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class OAuth2ClientCredentialsTest {
 
@@ -48,7 +53,8 @@ public class OAuth2ClientCredentialsTest {
 
     @Test
     public void testNullConnection() {
-        APIConnection connection = OAuth2ClientCredentials.create(null).block(Duration.ofMillis(100));
+        APIConnection connection =
+                OAuth2ClientCredentials.create(null).block(Duration.ofMillis(100));
         assertThat(connection).isNull();
     }
 
@@ -62,7 +68,9 @@ public class OAuth2ClientCredentialsTest {
         authenticationResponse.setToken("SomeToken");
         authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
         oAuth2.setAuthenticationResponse(authenticationResponse);
-        OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(datasourceConfiguration).block(Duration.ofMillis(100));
+        OAuth2ClientCredentials connection =
+                OAuth2ClientCredentials.create(datasourceConfiguration)
+                        .block(Duration.ofMillis(100));
         assertThat(connection).isNotNull();
         assertThat(connection.getExpiresAt()).isEqualTo(authenticationResponse.getExpiresAt());
         assertThat(connection.getToken()).isEqualTo("SomeToken");
@@ -78,18 +86,23 @@ public class OAuth2ClientCredentialsTest {
         authenticationResponse.setToken("SomeToken");
         authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
         oAuth2.setAuthenticationResponse(authenticationResponse);
-        OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(datasourceConfiguration).block(Duration.ofMillis(100));
+        OAuth2ClientCredentials connection =
+                OAuth2ClientCredentials.create(datasourceConfiguration)
+                        .block(Duration.ofMillis(100));
         connection.setExpiresAt(Instant.now());
 
-        Mono<ClientResponse> response = connection.filter(Mockito.mock(ClientRequest.class), Mockito.mock(ExchangeFunction.class));
+        Mono<ClientResponse> response =
+                connection.filter(
+                        Mockito.mock(ClientRequest.class), Mockito.mock(ExchangeFunction.class));
 
-        StepVerifier.create(response)
-                .expectError(StaleConnectionException.class);
+        StepVerifier.create(response).expectError(StaleConnectionException.class);
     }
 
     @Test
-    public void testCreate_withIsAuthorizationHeaderTrue_sendsCredentialsInHeader() throws InterruptedException {
-        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+    public void testCreate_withIsAuthorizationHeaderTrue_sendsCredentialsInHeader()
+            throws InterruptedException {
+        String baseUrl =
+                String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
 
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         OAuth2 oAuth2 = new OAuth2();
@@ -100,12 +113,11 @@ public class OAuth2ClientCredentialsTest {
         oAuth2.setClientId("testId");
         oAuth2.setClientSecret("testSecret");
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(
+                new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
-        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(datasourceConfiguration).block();
+        final OAuth2ClientCredentials response =
+                OAuth2ClientCredentials.create(datasourceConfiguration).block();
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");
@@ -114,8 +126,10 @@ public class OAuth2ClientCredentialsTest {
     }
 
     @Test
-    public void testCreate_withIsAuthorizationHeaderFalse_sendsCredentialsInBody() throws InterruptedException, EOFException {
-        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+    public void testCreate_withIsAuthorizationHeaderFalse_sendsCredentialsInBody()
+            throws InterruptedException, EOFException {
+        String baseUrl =
+                String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
 
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         OAuth2 oAuth2 = new OAuth2();
@@ -125,12 +139,11 @@ public class OAuth2ClientCredentialsTest {
         oAuth2.setClientId("testId");
         oAuth2.setClientSecret("testSecret");
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(
+                new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
-        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(datasourceConfiguration).block();
+        final OAuth2ClientCredentials response =
+                OAuth2ClientCredentials.create(datasourceConfiguration).block();
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");
@@ -140,6 +153,8 @@ public class OAuth2ClientCredentialsTest {
         byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
         recordedRequestBody.readFully(bodyBytes);
         recordedRequestBody.close();
-        assertEquals("grant_type=client_credentials&client_id=testId&client_secret=testSecret", new String(bodyBytes));
+        assertEquals(
+                "grant_type=client_credentials&client_id=testId&client_secret=testSecret",
+                new String(bodyBytes));
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import org.pf4j.PropertiesPluginDescriptorFinder;
@@ -16,10 +17,11 @@ public class PluginConfiguration {
     private static class CustomPluginManager extends SpringPluginManager {
         public CustomPluginManager() {
             super();
-            pluginDescriptorFinder = "development".equals(System.getProperty("pf4j.mode"))
-                    ? new PropertiesPluginDescriptorFinder("target/classes/plugin.properties")
-                    : new PropertiesPluginDescriptorFinder();
+            pluginDescriptorFinder =
+                    "development".equals(System.getProperty("pf4j.mode"))
+                            ? new PropertiesPluginDescriptorFinder(
+                                    "target/classes/plugin.properties")
+                            : new PropertiesPluginDescriptorFinder();
         }
     }
-
 }

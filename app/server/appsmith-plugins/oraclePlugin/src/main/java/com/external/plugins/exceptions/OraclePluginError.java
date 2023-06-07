@@ -1,8 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
+
 import lombok.Getter;
 
 import java.text.MessageFormat;
@@ -17,8 +19,7 @@ public enum OraclePluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     ORACLE_PLUGIN_ERROR(
             500,
             "PE-ORC-5001",
@@ -27,18 +28,17 @@ public enum OraclePluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     RESPONSE_SIZE_TOO_LARGE(
             504,
             "PE-ORC-5009",
-            "Response size exceeded the maximum supported size of {0} MB. Please use LIMIT to reduce the amount of data fetched.",
+            "Response size exceeded the maximum supported size of {0} MB. Please use LIMIT to"
+                    + " reduce the amount of data fetched.",
             AppsmithErrorAction.DEFAULT,
             "Large Result Set Not Supported",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     ;
     private final Integer httpErrorCode;
     private final String appErrorCode;
@@ -51,8 +51,15 @@ public enum OraclePluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    OraclePluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                      String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    OraclePluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -67,7 +74,9 @@ public enum OraclePluginError implements BasePluginError {
         return new MessageFormat(this.message).format(args);
     }
 
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 
     public String getDownstreamErrorMessage(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorMessage, args);

@@ -1,23 +1,25 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.utils;
-
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.DatasourceConfiguration;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.DatasourceConfiguration;
+
+import org.junit.jupiter.api.Test;
+
 public class MongoPluginUtilsTest {
 
     @Test
     void testGetDatabaseName_withoutDatabaseName_throwsDatasourceError() {
-        final AppsmithPluginException exception = assertThrows(
-                AppsmithPluginException.class,
-                () -> MongoPluginUtils.getDatabaseName(new DatasourceConfiguration()));
+        final AppsmithPluginException exception =
+                assertThrows(
+                        AppsmithPluginException.class,
+                        () -> MongoPluginUtils.getDatabaseName(new DatasourceConfiguration()));
 
         assertEquals("Missing default database name.", exception.getMessage());
-
     }
 
     @Test
@@ -27,25 +29,35 @@ public class MongoPluginUtilsTest {
 
     @Test
     void testParseSafely_FailureOnArrayValues() {
-        assertThrows(AppsmithPluginException.class,
-                () -> MongoPluginUtils.parseSafely("field", "[{\"$set\":{name: \"Ram singh\"}},{\"$set\":{age: 40}}]"));
+        assertThrows(
+                AppsmithPluginException.class,
+                () ->
+                        MongoPluginUtils.parseSafely(
+                                "field",
+                                "[{\"$set\":{name: \"Ram singh\"}},{\"$set\":{age: 40}}]"));
     }
 
     @Test
     void testParseSafelyDocumentAndArrayOfDocuments_Success() {
-        assertNotNull(MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field", "{\"$set\":{name: \"Ram singh\"}}"));
+        assertNotNull(
+                MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments(
+                        "field", "{\"$set\":{name: \"Ram singh\"}}"));
     }
 
     @Test
     void testParseSafelyDocumentAndArrayOfDocumentst_FailureOnNonJsonValue() {
-        assertThrows(AppsmithPluginException.class,
-                () -> MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field", "{abc, pqr}"));
+        assertThrows(
+                AppsmithPluginException.class,
+                () ->
+                        MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments(
+                                "field", "{abc, pqr}"));
     }
 
     @Test
     void testParseSafelyDocumentAndArrayOfDocuments_OnArrayValues_Success() {
-        assertNotNull(MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field",
-                "[{\"$set\":{name: \"Ram singh\"}},{\"$set\":{age: 40}}]"));
+        assertNotNull(
+                MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments(
+                        "field", "[{\"$set\":{name: \"Ram singh\"}},{\"$set\":{age: 40}}]"));
     }
 
     @Test
@@ -55,8 +67,10 @@ public class MongoPluginUtilsTest {
 
     @Test
     void testParseSafelyDocumentAndArrayOfDocuments_onArrayValues_FailureOnNonJsonValue() {
-        assertThrows(AppsmithPluginException.class,
-                () -> MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field", "[abc, pqr]"));
+        assertThrows(
+                AppsmithPluginException.class,
+                () ->
+                        MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments(
+                                "field", "[abc, pqr]"));
     }
-
 }

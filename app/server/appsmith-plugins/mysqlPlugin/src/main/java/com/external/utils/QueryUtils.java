@@ -1,10 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
 public class QueryUtils {
 
     /**
-     * Parse through the input string to discard all comments from the query string.
-     * This method will retain a substring if it is enclosed by quotes
+     * Parse through the input string to discard all comments from the query string. This method
+     * will retain a substring if it is enclosed by quotes
      *
      * @param query
      * @return

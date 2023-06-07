@@ -1,12 +1,14 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.util.Set;
-
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Data
 @NoArgsConstructor
@@ -40,9 +42,9 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
     }
 
     /**
-     * Intended to function like `.equals`, but only semantically significant fields, except for the ID. Semantically
-     * significant just means that if two datasource have same values for these fields, actions against them will behave
-     * exactly the same.
+     * Intended to function like `.equals`, but only semantically significant fields, except for the
+     * ID. Semantically significant just means that if two datasource have same values for these
+     * fields, actions against them will behave exactly the same.
      *
      * @return true if equal, false otherwise.
      */
@@ -72,30 +74,38 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
             DatasourceConfiguration dsConfig = new DatasourceConfiguration();
             dsConfig.setAuthentication(null);
             if (newDatasourceStorageDTO.getDatasourceConfiguration() != null) {
-                dsConfig.setConnection(newDatasourceStorageDTO.getDatasourceConfiguration().getConnection());
+                dsConfig.setConnection(
+                        newDatasourceStorageDTO.getDatasourceConfiguration().getConnection());
             }
             newDatasourceStorageDTO.setDatasourceConfiguration(dsConfig);
         }
 
         /*
-         updating the datasource "isConfigured" field, which will be used to return if the forking is a partialImport or not
-         post forking any application, datasource reconnection modal will appear based on isConfigured property
-         Ref: getApplicationImportDTO()
-         */
+        updating the datasource "isConfigured" field, which will be used to return if the forking is a partialImport or not
+        post forking any application, datasource reconnection modal will appear based on isConfigured property
+        Ref: getApplicationImportDTO()
+        */
 
-        boolean isConfigured = forkWithConfiguration &&
-                (newDatasourceStorageDTO.getDatasourceConfiguration() != null
-                        && newDatasourceStorageDTO.getDatasourceConfiguration().getAuthentication() != null);
+        boolean isConfigured =
+                forkWithConfiguration
+                        && (newDatasourceStorageDTO.getDatasourceConfiguration() != null
+                                && newDatasourceStorageDTO
+                                                .getDatasourceConfiguration()
+                                                .getAuthentication()
+                                        != null);
 
         if (initialAuth instanceof OAuth2) {
             /*
-             This is the case for OAuth2 datasources, for example Google sheets, we don't want to copy the token to the
-             new workspace as it is user's personal token. Hence, in case of forking to a new workspace the datasource
-             needs to be re-authorised.
-             */
+            This is the case for OAuth2 datasources, for example Google sheets, we don't want to copy the token to the
+            new workspace as it is user's personal token. Hence, in case of forking to a new workspace the datasource
+            needs to be re-authorised.
+            */
             newDatasourceStorageDTO.setIsConfigured(false);
             if (isConfigured) {
-                newDatasourceStorageDTO.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+                newDatasourceStorageDTO
+                        .getDatasourceConfiguration()
+                        .getAuthentication()
+                        .setAuthenticationResponse(null);
             }
         } else {
             newDatasourceStorageDTO.setIsConfigured(isConfigured);

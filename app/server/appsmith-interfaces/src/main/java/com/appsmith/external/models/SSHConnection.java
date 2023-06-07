@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -14,7 +15,8 @@ import lombok.ToString;
 public class SSHConnection implements AppsmithDomain {
 
     public enum AuthType {
-        IDENTITY_FILE, PASSWORD
+        IDENTITY_FILE,
+        PASSWORD
     }
 
     String host;
@@ -26,5 +28,4 @@ public class SSHConnection implements AppsmithDomain {
     AuthType authType;
 
     SSHPrivateKey privateKey;
-
 }

@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import com.appsmith.external.models.DatasourceConfiguration;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

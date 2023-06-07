@@ -1,9 +1,12 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+
 import lombok.NoArgsConstructor;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -17,18 +20,18 @@ public class DatasourceUtils {
 
     public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
         /**
-         * We don't verify whether the URL is in valid format because it can contain mustache template keys, and so
-         * look invalid at this point, but become valid after mustache rendering. So we just check if URL field has
-         * a non-empty value.
+         * We don't verify whether the URL is in valid format because it can contain mustache
+         * template keys, and so look invalid at this point, but become valid after mustache
+         * rendering. So we just check if URL field has a non-empty value.
          */
-
         Set<String> invalids = new HashSet<>();
 
         if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
             invalids.add("Missing URL.");
         }
 
-        final String contentTypeError = headerUtils.verifyContentType(datasourceConfiguration.getHeaders());
+        final String contentTypeError =
+                headerUtils.verifyContentType(datasourceConfiguration.getHeaders());
         if (contentTypeError != null) {
             invalids.add("Invalid Content-Type: " + contentTypeError);
         }
@@ -45,9 +48,11 @@ public class DatasourceUtils {
                 }
             }
 
-            if (isSendSessionEnabled && (StringUtils.isEmpty(secretKey) || secretKey.length() < 32)) {
-                invalids.add("Secret key is required when sending session is switched on" +
-                        ", and should be at least 32 characters long.");
+            if (isSendSessionEnabled
+                    && (StringUtils.isEmpty(secretKey) || secretKey.length() < 32)) {
+                invalids.add(
+                        "Secret key is required when sending session is switched on"
+                                + ", and should be at least 32 characters long.");
             }
         }
 
@@ -58,7 +63,9 @@ public class DatasourceUtils {
         }
 
         if (datasourceConfiguration.getAuthentication() != null) {
-            invalids.addAll(DatasourceValidator.validateAuthentication(datasourceConfiguration.getAuthentication()));
+            invalids.addAll(
+                    DatasourceValidator.validateAuthentication(
+                            datasourceConfiguration.getAuthentication()));
         }
 
         return invalids;

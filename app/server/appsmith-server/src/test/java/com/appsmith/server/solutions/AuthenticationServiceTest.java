@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -24,6 +27,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -35,6 +39,7 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -43,54 +48,45 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class AuthenticationServiceTest {
 
-    @Autowired
-    AuthenticationService authenticationService;
+    @Autowired AuthenticationService authenticationService;
 
-    @Autowired
-    DatasourceService datasourceService;
+    @Autowired DatasourceService datasourceService;
 
-    @Autowired
-    PluginService pluginService;
+    @Autowired PluginService pluginService;
 
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
+    @MockBean PluginExecutorHelper pluginExecutorHelper;
 
-    @Autowired
-    WorkspaceRepository workspaceRepository;
+    @Autowired WorkspaceRepository workspaceRepository;
 
-    @Autowired
-    UserService userService;
+    @Autowired UserService userService;
 
-    @Autowired
-    ApplicationPageService applicationPageService;
+    @Autowired ApplicationPageService applicationPageService;
 
-    @Autowired
-    WorkspaceService workspaceService;
+    @Autowired WorkspaceService workspaceService;
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
-        Mono<String> authorizationCodeUrlMono = authenticationService
-                .getAuthorizationCodeURLForGenericOAuth2(
-                        "invalidId",
-                        FieldName.UNUSED_ENVIRONMENT_ID,
-                        "irrelevantPageId",
-                        null);
+        Mono<String> authorizationCodeUrlMono =
+                authenticationService.getAuthorizationCodeURLForGenericOAuth2(
+                        "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null);
 
-        StepVerifier
-                .create(authorizationCodeUrlMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                ((AppsmithException) throwable).getError().equals(AppsmithError.NO_RESOURCE_FOUND) &&
-                                throwable.getMessage().equalsIgnoreCase("Unable to find datasource invalidId"))
+        StepVerifier.create(authorizationCodeUrlMono)
+                .expectErrorMatches(
+                        throwable ->
+                                throwable instanceof AppsmithException
+                                        && ((AppsmithException) throwable)
+                                                .getError()
+                                                .equals(AppsmithError.NO_RESOURCE_FOUND)
+                                        && throwable
+                                                .getMessage()
+                                                .equalsIgnoreCase(
+                                                        "Unable to find datasource invalidId"))
                 .verify();
-
     }
 
     @Test
@@ -104,7 +100,8 @@ public class AuthenticationServiceTest {
 
         String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
@@ -115,32 +112,45 @@ public class AuthenticationServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+        DatasourceStorage datasourceStorage =
+                new DatasourceStorage(datasource, defaultEnvironmentId);
         storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
-        Mono<Datasource> datasourceMono = pluginMono
-                .map(plugin -> {
-                    datasource.setPluginId(plugin.getId());
-                    return datasource;
-                })
-                .flatMap(datasourceService::create)
-                .cache();
+        Mono<Datasource> datasourceMono =
+                pluginMono
+                        .map(
+                                plugin -> {
+                                    datasource.setPluginId(plugin.getId());
+                                    return datasource;
+                                })
+                        .flatMap(datasourceService::create)
+                        .cache();
 
-        Mono<String> authorizationCodeUrlMono = datasourceMono.map(BaseDomain::getId)
-                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId,
-                        defaultEnvironmentId,
-                        "irrelevantPageId",
-                        null));
+        Mono<String> authorizationCodeUrlMono =
+                datasourceMono
+                        .map(BaseDomain::getId)
+                        .flatMap(
+                                datasourceId ->
+                                        authenticationService
+                                                .getAuthorizationCodeURLForGenericOAuth2(
+                                                        datasourceId,
+                                                        defaultEnvironmentId,
+                                                        "irrelevantPageId",
+                                                        null));
 
-        StepVerifier
-                .create(authorizationCodeUrlMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER) &&
-                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter authentication."))
+        StepVerifier.create(authorizationCodeUrlMono)
+                .expectErrorMatches(
+                        throwable ->
+                                throwable instanceof AppsmithException
+                                        && ((AppsmithException) throwable)
+                                                .getError()
+                                                .equals(AppsmithError.INVALID_PARAMETER)
+                                        && throwable
+                                                .getMessage()
+                                                .equalsIgnoreCase(
+                                                        "Please enter a valid parameter"
+                                                                + " authentication."))
                 .verify();
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -148,7 +158,8 @@ public class AuthenticationServiceTest {
         LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(1);
         mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
 
-        MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").headers(mockHeaders).build();
+        MockServerHttpRequest httpRequest =
+                MockServerHttpRequest.get("").headers(mockHeaders).build();
 
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Another Test Workspace");
@@ -157,14 +168,16 @@ public class AuthenticationServiceTest {
         String workspaceId = testWorkspace.getId();
         String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        Application application = applicationPageService.createApplication(newApp, workspaceId).block();
+        Application application =
+                applicationPageService.createApplication(newApp, workspaceId).block();
 
         testPage.setApplicationId(application.getId());
 
@@ -172,9 +185,17 @@ public class AuthenticationServiceTest {
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         // install plugin
-        pluginMono.flatMap(plugin -> {
-            return pluginService.installPlugin(PluginWorkspaceDTO.builder().pluginId(plugin.getId()).workspaceId(workspaceId).status(WorkspacePluginStatus.FREE).build());
-        }).block();
+        pluginMono
+                .flatMap(
+                        plugin -> {
+                            return pluginService.installPlugin(
+                                    PluginWorkspaceDTO.builder()
+                                            .pluginId(plugin.getId())
+                                            .workspaceId(workspaceId)
+                                            .status(WorkspacePluginStatus.FREE)
+                                            .build());
+                        })
+                .block();
         Datasource datasource = new Datasource();
         datasource.setName("Valid datasource for OAuth2");
         datasource.setWorkspaceId(workspaceId);
@@ -191,35 +212,44 @@ public class AuthenticationServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+        DatasourceStorage datasourceStorage =
+                new DatasourceStorage(datasource, defaultEnvironmentId);
         storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
-        Mono<Datasource> datasourceMono = pluginMono
-                .map(plugin -> {
-                    datasource.setPluginId(plugin.getId());
-                    return datasource;
-                })
-                .flatMap(datasourceService::create)
-                .cache();
+        Mono<Datasource> datasourceMono =
+                pluginMono
+                        .map(
+                                plugin -> {
+                                    datasource.setPluginId(plugin.getId());
+                                    return datasource;
+                                })
+                        .flatMap(datasourceService::create)
+                        .cache();
 
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
-        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId1,
-                defaultEnvironmentId,
-                pageDto.getId(),
-                httpRequest);
+        Mono<String> authorizationCodeUrlMono =
+                authenticationService.getAuthorizationCodeURLForGenericOAuth2(
+                        datasourceId1, defaultEnvironmentId, pageDto.getId(), httpRequest);
 
-        StepVerifier
-                .create(authorizationCodeUrlMono)
-                .assertNext(url -> {
-                    assertThat(url).matches(Pattern.compile("AuthorizationURL" +
-                            "\\?client_id=ClientId" +
-                            "&response_type=code" +
-                            "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize" +
-                            "&state=" + String.join(",", pageDto.getId(), datasourceId1, defaultEnvironmentId, "https://mock.origin.com") +
-                            "&scope=Scope\\d%20Scope\\d" +
-                            "&key=value"));
-                })
+        StepVerifier.create(authorizationCodeUrlMono)
+                .assertNext(
+                        url -> {
+                            assertThat(url)
+                                    .matches(
+                                            Pattern.compile(
+                                                    "AuthorizationURL\\?client_id=ClientId"
+                                                        + "&response_type=code"
+                                                        + "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize"
+                                                        + "&state="
+                                                            + String.join(
+                                                                    ",",
+                                                                    pageDto.getId(),
+                                                                    datasourceId1,
+                                                                    defaultEnvironmentId,
+                                                                    "https://mock.origin.com")
+                                                            + "&scope=Scope\\d%20Scope\\d"
+                                                            + "&key=value"));
+                        })
                 .verifyComplete();
     }
 }

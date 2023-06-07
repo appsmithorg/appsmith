@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionDTO;
@@ -12,10 +15,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -23,8 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
 @Getter
 @Setter
@@ -54,7 +57,7 @@ public class ActionCollectionDTO {
     @JsonView(Views.Public.class)
     String pluginId;
 
-    //this attribute carries error messages while processing the actionCollection
+    // this attribute carries error messages while processing the actionCollection
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -69,7 +72,7 @@ public class ActionCollectionDTO {
 
     // TODO can be used as template for new actions in collection,
     //  or as default configuration for all actions in the collection
-//    ActionDTO defaultAction;
+    //    ActionDTO defaultAction;
 
     // This property is not shared with the client since the reference is only useful to server
     // Map<defaultActionId, branchedActionId>
@@ -81,7 +84,8 @@ public class ActionCollectionDTO {
     Set<String> actionIds = Set.of();
 
     // This property is not shared with the client since the reference is only useful to server
-    // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the user
+    // Archived actions represent actions that have been removed from a js object but may be subject
+    // to re-use by the user
     // Map<defaultActionId, branchedActionId>
     @JsonView(Views.Internal.class)
     Map<String, String> defaultToBranchedArchivedActionIdsMap = Map.of();
@@ -90,12 +94,14 @@ public class ActionCollectionDTO {
     @JsonView(Views.Public.class)
     Set<String> archivedActionIds = Set.of();
 
-    // Instead of storing the entire action object, we only populate this field while interacting with the client side
+    // Instead of storing the entire action object, we only populate this field while interacting
+    // with the client side
     @Transient
     @JsonView(Views.Public.class)
     List<ActionDTO> actions = List.of();
 
-    // Instead of storing the entire action object, we only populate this field while interacting with the client side
+    // Instead of storing the entire action object, we only populate this field while interacting
+    // with the client side
     @Transient
     @JsonView(Views.Public.class)
     List<ActionDTO> archivedActions = List.of();
@@ -109,11 +115,13 @@ public class ActionCollectionDTO {
     @JsonView(Views.Public.class)
     List<JSValue> variables;
 
-    // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as transient
+    // This will be used to store the defaultPageId but other fields like branchName, applicationId
+    // will act as transient
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
-    // Instead of storing the entire action object, we only populate this field while interacting with the client side
+    // Instead of storing the entire action object, we only populate this field while interacting
+    // with the client side
     @Transient
     @JsonView(Views.Public.class)
     Set<String> userPermissions = Set.of();
@@ -121,10 +129,12 @@ public class ActionCollectionDTO {
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
         if (this.workspaceId == null) {
-            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID));
+            validationErrors.add(
+                    AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID));
         }
         if (this.applicationId == null) {
-            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID));
+            validationErrors.add(
+                    AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID));
         }
         if (this.pageId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID));
@@ -143,7 +153,8 @@ public class ActionCollectionDTO {
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
         this.setUserPermissions(actionCollection.userPermissions);
-        copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
+        copyNewFieldValuesIntoOldObject(
+                actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 
     public void sanitiseForExport() {

@@ -1,10 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
-import lombok.Getter;
 
+import lombok.Getter;
 
 @Getter
 public enum S3PluginError implements BasePluginError {
@@ -16,8 +17,7 @@ public enum S3PluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     ;
 
     private final Integer httpErrorCode;
@@ -31,8 +31,15 @@ public enum S3PluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    S3PluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                        String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    S3PluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -59,5 +66,7 @@ public enum S3PluginError implements BasePluginError {
     }
 
     @Override
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 }

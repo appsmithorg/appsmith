@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -8,8 +9,10 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,9 +37,11 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
-    Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
+    Mono<ActionDTO> findByUnpublishedNameAndPageId(
+            String name, String pageId, AclPermission permission);
 
-    Mono<ActionDTO> findActionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
+    Mono<ActionDTO> findActionDTObyIdAndViewMode(
+            String id, Boolean viewMode, AclPermission permission);
 
     Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId);
 
@@ -50,11 +55,17 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission);
 
-    Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
+    Flux<NewAction> findByPageIdAndViewMode(
+            String pageId, Boolean viewMode, AclPermission permission);
 
-    Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+    Flux<NewAction> findAllByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
 
-    Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
+    Flux<NewAction> findAllByApplicationIdAndViewMode(
+            String applicationId,
+            Boolean viewMode,
+            Optional<AclPermission> permission,
+            Optional<Sort> sort);
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
@@ -62,9 +73,11 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
-    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
+    Flux<ActionDTO> getUnpublishedActions(
+            MultiValueMap<String, String> params, Boolean includeJsActions);
 
-    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
+    Flux<ActionDTO> getUnpublishedActions(
+            MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
@@ -82,21 +95,29 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<NewAction> archiveById(String id);
 
-    Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
+    Mono<List<NewAction>> archiveActionsByApplicationId(
+            String applicationId, AclPermission permission);
 
     List<MustacheBindingToken> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
 
-    Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
+    Mono<Boolean> updateActionsExecuteOnLoad(
+            List<ActionDTO> actions,
+            String pageId,
+            List<LayoutActionUpdateDTO> actionUpdates,
+            List<String> messages);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
-    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName);
+    Flux<ActionDTO> getUnpublishedActionsExceptJs(
+            MultiValueMap<String, String> params, String branchName);
 
-    Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+    Mono<NewAction> findByBranchNameAndDefaultActionId(
+            String branchName, String defaultActionId, AclPermission permission);
 
-    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(
+            String branchName, String defaultActionId, AclPermission permission);
 
     Mono<NewAction> sanitizeAction(NewAction action);
 

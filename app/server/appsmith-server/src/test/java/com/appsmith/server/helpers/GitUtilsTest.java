@@ -1,15 +1,19 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
-import org.junit.jupiter.api.Test;
-import reactor.test.StepVerifier;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+
+import reactor.test.StepVerifier;
 
 public class GitUtilsTest {
 
     @Test
     public void convertSshUrlToBrowserSupportedUrl() {
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.test.net:user/test/tests/testRepo.git"))
+        assertThat(
+                        GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                "git@example.test.net:user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:test/testRepo.git"))
                 .isEqualTo("https://example.com/test/testRepo");
@@ -17,15 +21,25 @@ public class GitUtilsTest {
                 .isEqualTo("https://example.org/test/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.in:test/testRepo.git"))
                 .isEqualTo("https://example.in/test/testRepo");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@example.test.net:user/test/tests/testRepo.git"))
+        assertThat(
+                        GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                "ssh://git@example.test.net:user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+        assertThat(
+                        GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                "git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+        assertThat(
+                        GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                "git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+        assertThat(
+                        GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                "ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+        assertThat(
+                        GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                "ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@127.0.0.1:test/newRepo.git"))
                 .isEqualTo("https://127.0.0.1/test/newRepo");
@@ -34,21 +48,26 @@ public class GitUtilsTest {
     @Test
     public void isRepoPrivate() {
 
-        StepVerifier
-                .create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:test/testRepo.git")))
+        StepVerifier.create(
+                        GitUtils.isRepoPrivate(
+                                GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                        "git@github.com:test/testRepo.git")))
                 .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
                 .verifyComplete();
 
-        StepVerifier
-                .create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@example.test.net:user/test/tests/testRepo.git")))
+        StepVerifier.create(
+                        GitUtils.isRepoPrivate(
+                                GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                        "ssh://git@example.test.net:user/test/tests/testRepo.git")))
                 .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
                 .verifyComplete();
 
-        StepVerifier
-                .create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:appsmithorg/appsmith.git")))
+        StepVerifier.create(
+                        GitUtils.isRepoPrivate(
+                                GitUtils.convertSshUrlToBrowserSupportedUrl(
+                                        "git@github.com:appsmithorg/appsmith.git")))
                 .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.FALSE))
                 .verifyComplete();
-
     }
 
     @Test

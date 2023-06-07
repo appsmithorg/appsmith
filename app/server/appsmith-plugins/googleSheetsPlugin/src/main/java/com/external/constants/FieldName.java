@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.constants;
 
 public class FieldName {
@@ -27,5 +28,4 @@ public class FieldName {
     public static final String SORT_BY = "sortBy";
     public static final String EMAIL_ADDRESS = "emailAddress";
     public static final String GOOGLE_API_BASE_URL = "https://www.googleapis.com";
-
 }

@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import jakarta.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,12 +10,9 @@ import lombok.Setter;
 @Setter
 public class ActionCollectionMoveDTO {
 
-    @NotNull
-    String name;
+    @NotNull String name;
 
-    @NotNull
-    String collectionId;
+    @NotNull String collectionId;
 
-    @NotNull
-    String destinationPageId;
+    @NotNull String destinationPageId;
 }

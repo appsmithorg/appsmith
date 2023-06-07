@@ -1,8 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class NumberUtilsTest {
     @Test

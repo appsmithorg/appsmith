@@ -1,20 +1,22 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileListMethodTest {
 
@@ -23,13 +25,16 @@ public class FileListMethodTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
-        assertThrows(AppsmithPluginException.class, () -> {
-            fileListMethod.transformExecutionResponse(null, null, null);
-        });
+        assertThrows(
+                AppsmithPluginException.class,
+                () -> {
+                    fileListMethod.transformExecutionResponse(null, null, null);
+                });
     }
 
     @Test
-    public void testTransformExecutionResponse_missingFiles_returnsEmpty() throws JsonProcessingException {
+    public void testTransformExecutionResponse_missingFiles_returnsEmpty()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
@@ -47,7 +52,8 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformExecutionResponse_emptyFiles_returnsEmpty() throws JsonProcessingException {
+    public void testTransformExecutionResponse_emptyFiles_returnsEmpty()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"key1\":\"value1\",\"files\":[]}";
@@ -65,10 +71,12 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformExecutionResponse_validFiles_toListOfFiles() throws JsonProcessingException {
+    public void testTransformExecutionResponse_validFiles_toListOfFiles()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"key1\":\"value1\",\"files\":[{\"id\":\"1\", \"name\":\"test\"}]}";
+        final String jsonString =
+                "{\"key1\":\"value1\",\"files\":[{\"id\":\"1\", \"name\":\"test\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
@@ -83,7 +91,8 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformTriggerResponse_withoutFiles_returnsEmpty() throws JsonProcessingException {
+    public void testTransformTriggerResponse_withoutFiles_returnsEmpty()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"key\":\"value\"}";
@@ -102,7 +111,8 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformTriggerResponse_withSheets_returnsDropdownOptions() throws JsonProcessingException {
+    public void testTransformTriggerResponse_withSheets_returnsDropdownOptions()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"files\":[{\"id\": \"testId\", \"name\": \"testName\"}]}";
@@ -124,10 +134,12 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformTriggerResponse_withAllSheetsAccess_returnsAllSheets() throws JsonProcessingException {
+    public void testTransformTriggerResponse_withAllSheetsAccess_returnsAllSheets()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         assertNotNull(jsonNode);
@@ -154,10 +166,12 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformTriggerResponse_withSpecificSheets_returnsSpecificSheets() throws JsonProcessingException {
+    public void testTransformTriggerResponse_withSpecificSheets_returnsSpecificSheets()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Set<String> userAuthorizedSheetIds = new HashSet<String>();
@@ -167,7 +181,9 @@ public class FileListMethodTest {
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileListMethod = new FileListMethod(objectMapper);
-        JsonNode result = fileListMethod.transformTriggerResponse(jsonNode, methodConfig, userAuthorizedSheetIds);
+        JsonNode result =
+                fileListMethod.transformTriggerResponse(
+                        jsonNode, methodConfig, userAuthorizedSheetIds);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -180,10 +196,12 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformExecutionResponse_withAllSheetsAccess_returnsAllSheets() throws JsonProcessingException {
+    public void testTransformExecutionResponse_withAllSheetsAccess_returnsAllSheets()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         assertNotNull(jsonNode);
@@ -212,10 +230,12 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformExecutionResponse_withSpecificSheets_returnsSpecificSheets() throws JsonProcessingException {
+    public void testTransformExecutionResponse_withSpecificSheets_returnsSpecificSheets()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Set<String> userAuthorizedSheetIds = new HashSet<String>();
@@ -225,7 +245,9 @@ public class FileListMethodTest {
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         ExecutionMethod fileListMethod = new FileListMethod(objectMapper);
-        JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, methodConfig, userAuthorizedSheetIds);
+        JsonNode result =
+                fileListMethod.transformExecutionResponse(
+                        jsonNode, methodConfig, userAuthorizedSheetIds);
 
         assertNotNull(result);
         assertTrue(result.isArray());

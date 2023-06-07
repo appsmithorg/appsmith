@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -12,4 +13,3 @@ public class CommandParams {
 
     List<Param> headerParams;
 }
-

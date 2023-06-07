@@ -1,8 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class QueryUtilsTest {
 
@@ -20,7 +21,8 @@ public class QueryUtilsTest {
     }
 
     @Test
-    public void testRemoveQueryComments_multilineWithCommentOnSeparateLine_returnsStringWithoutThatLine() {
+    public void
+            testRemoveQueryComments_multilineWithCommentOnSeparateLine_returnsStringWithoutThatLine() {
         final String query = "SELECT * \n FROM table; \n -- comment";
         final String expected = "SELECT * \n FROM table;";
         final String s = QueryUtils.removeQueryComments(query);
@@ -28,7 +30,8 @@ public class QueryUtilsTest {
     }
 
     @Test
-    public void testRemoveQueryComments_multilineWithCommentOnSameLine_returnsStringWithoutComment() {
+    public void
+            testRemoveQueryComments_multilineWithCommentOnSameLine_returnsStringWithoutComment() {
         final String query = "SELECT * --comment \n FROM table; -- comment \n";
         final String expected = "SELECT * \n FROM table;";
         final String s = QueryUtils.removeQueryComments(query);

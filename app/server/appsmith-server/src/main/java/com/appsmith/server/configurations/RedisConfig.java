@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.domains.LoginSource;
@@ -5,7 +6,9 @@ import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -36,8 +39,8 @@ import java.util.Map;
 public class RedisConfig {
 
     /**
-     * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
-     * that we wish to broadcast. Starting with a single one for now.
+     * This is the topic to which we will publish & subscribe to. We can have multiple topics based
+     * on the messages that we wish to broadcast. Starting with a single one for now.
      *
      * @return
      */
@@ -53,8 +56,10 @@ public class RedisConfig {
 
     @Primary
     @Bean
-    ReactiveRedisOperations<String, String> reactiveRedisOperations(ReactiveRedisConnectionFactory factory) {
-        Jackson2JsonRedisSerializer<String> serializer = new Jackson2JsonRedisSerializer<>(String.class);
+    ReactiveRedisOperations<String, String> reactiveRedisOperations(
+            ReactiveRedisConnectionFactory factory) {
+        Jackson2JsonRedisSerializer<String> serializer =
+                new Jackson2JsonRedisSerializer<>(String.class);
 
         RedisSerializationContext.RedisSerializationContextBuilder<String, String> builder =
                 RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
@@ -67,12 +72,14 @@ public class RedisConfig {
     // Lifted from below and turned it into a bean. Wish Spring provided it as a bean.
     // RedisWebSessionConfiguration.createReactiveRedisTemplate
     @Bean
-    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory,
-                                                                RedisSerializer<Object> serializer) {
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(
+            ReactiveRedisConnectionFactory factory, RedisSerializer<Object> serializer) {
         RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-                .<String, Object>newSerializationContext(serializer).key(keySerializer).hashKey(keySerializer)
-                .build();
+        RedisSerializationContext<String, Object> serializationContext =
+                RedisSerializationContext.<String, Object>newSerializationContext(serializer)
+                        .key(keySerializer)
+                        .hashKey(keySerializer)
+                        .build();
         return new ReactiveRedisTemplate<>(factory, serializationContext);
     }
 
@@ -82,14 +89,17 @@ public class RedisConfig {
 
         private static final byte[] OAUTH_CLIENT_PREFIX = "appsmith-oauth-client:".getBytes();
 
-        private final JdkSerializationRedisSerializer fallback = new JdkSerializationRedisSerializer();
+        private final JdkSerializationRedisSerializer fallback =
+                new JdkSerializationRedisSerializer();
 
-        private final GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(new JsonMapper());
+        private final GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer(new JsonMapper());
 
         @Override
         public byte[] serialize(Object t) {
             if (t instanceof SecurityContext) {
-                final UserSessionDTO session = UserSessionDTO.fromToken(((SecurityContext) t).getAuthentication());
+                final UserSessionDTO session =
+                        UserSessionDTO.fromToken(((SecurityContext) t).getAuthentication());
                 final byte[] bytes = jsonSerializer.serialize(session);
                 return bytes == null ? null : ByteUtils.concat(SESSION_DATA_PREFIX, bytes);
 
@@ -107,7 +117,6 @@ public class RedisConfig {
                     final byte[] bytes = serializeOAuthClientMap(data);
                     return bytes == null ? null : ByteUtils.concat(OAUTH_CLIENT_PREFIX, bytes);
                 }
-
             }
 
             return fallback.serialize(t);
@@ -128,7 +137,10 @@ public class RedisConfig {
                     }
                     dataMap.put(key, dto);
                 } else {
-                    log.warn("Unknown data type found in session data. Key: {}, Value: {}", entry.getKey(), entry.getValue());
+                    log.warn(
+                            "Unknown data type found in session data. Key: {}, Value: {}",
+                            entry.getKey(),
+                            entry.getValue());
                 }
             }
             return jsonSerializer.serialize(dataMap);
@@ -137,36 +149,42 @@ public class RedisConfig {
         @Override
         public Object deserialize(byte[] bytes) {
             if (ByteUtils.startsWith(bytes, SESSION_DATA_PREFIX)) {
-                final byte[] data = Arrays.copyOfRange(bytes, SESSION_DATA_PREFIX.length, bytes.length);
-                final UserSessionDTO session = jsonSerializer.deserialize(data, UserSessionDTO.class);
+                final byte[] data =
+                        Arrays.copyOfRange(bytes, SESSION_DATA_PREFIX.length, bytes.length);
+                final UserSessionDTO session =
+                        jsonSerializer.deserialize(data, UserSessionDTO.class);
 
                 if (session == null) {
-                    throw new IllegalArgumentException("Could not deserialize user session, got null");
+                    throw new IllegalArgumentException(
+                            "Could not deserialize user session, got null");
                 }
 
                 return new SecurityContextImpl(session.makeToken());
 
             } else if (ByteUtils.startsWith(bytes, OAUTH_CLIENT_PREFIX)) {
-                final byte[] data = Arrays.copyOfRange(bytes, OAUTH_CLIENT_PREFIX.length, bytes.length);
+                final byte[] data =
+                        Arrays.copyOfRange(bytes, OAUTH_CLIENT_PREFIX.length, bytes.length);
 
-                final HashMap<String, Map<?, ?>> clientData = jsonSerializer.deserialize(data, HashMap.class);
+                final HashMap<String, Map<?, ?>> clientData =
+                        jsonSerializer.deserialize(data, HashMap.class);
                 if (clientData == null) {
-                    throw new IllegalArgumentException("Could not deserialize OAuth2 client, got null");
+                    throw new IllegalArgumentException(
+                            "Could not deserialize OAuth2 client, got null");
                 }
 
                 final Map<String, OAuth2AuthorizedClient> sessionData = new HashMap<>();
                 for (final Map.Entry<String, Map<?, ?>> entry : clientData.entrySet()) {
-                    final OAuth2AuthorizedClientDTO dto = new ObjectMapper()
-                            .convertValue(entry.getValue(), OAuth2AuthorizedClientDTO.class);
+                    final OAuth2AuthorizedClientDTO dto =
+                            new ObjectMapper()
+                                    .convertValue(
+                                            entry.getValue(), OAuth2AuthorizedClientDTO.class);
                     sessionData.put(entry.getKey(), dto.makeOAuth2AuthorizedClient());
                 }
 
                 return sessionData;
-
             }
 
             return fallback.deserialize(bytes);
         }
     }
-
 }

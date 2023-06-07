@@ -1,6 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.appsmith.server.dtos.ReleaseNode;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,23 +14,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class ReleaseNotesServiceTest {
 
-    @Autowired
-    private ReleaseNotesService releaseNotesService;
+    @Autowired private ReleaseNotesService releaseNotesService;
 
     @Test
     public void testComputeNewReleases() {
         List<ReleaseNode> releaseNodes = new ArrayList<>();
-        releaseNodes.addAll(List.of(
-                new ReleaseNode("v3"),
-                new ReleaseNode("v2"),
-                new ReleaseNode("v1")
-        ));
+        releaseNodes.addAll(
+                List.of(new ReleaseNode("v3"), new ReleaseNode("v2"), new ReleaseNode("v1")));
 
         releaseNotesService.setReleaseNodesCache(releaseNodes);
 
@@ -35,5 +33,4 @@ public class ReleaseNotesServiceTest {
         assertThat(releaseNotesService.computeNewFrom("v1")).isEqualTo("2");
         assertThat(releaseNotesService.computeNewFrom("v0")).isEqualTo("2+");
     }
-
 }

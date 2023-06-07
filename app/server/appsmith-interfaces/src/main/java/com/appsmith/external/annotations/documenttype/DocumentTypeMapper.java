@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.annotations.documenttype;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -16,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This {@link TypeInformationMapper} implementation makes use of the {@link DocumentType} annotation to register all
- * such entities as possible candidates for domain mapping.
+ * This {@link TypeInformationMapper} implementation makes use of the {@link DocumentType}
+ * annotation to register all such entities as possible candidates for domain mapping.
  */
 public class DocumentTypeMapper implements TypeInformationMapper {
 
@@ -33,7 +34,8 @@ public class DocumentTypeMapper implements TypeInformationMapper {
     }
 
     private void populateTypeMap(List<String> basePackagesToScan) {
-        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(false);
 
         scanner.addIncludeFilter(new AnnotationTypeFilter(DocumentType.class));
 
@@ -50,7 +52,9 @@ public class DocumentTypeMapper implements TypeInformationMapper {
                     typeToAliasMap.put(type, alias);
 
                 } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException(String.format("Class [%s] could not be loaded.", bd.getBeanClassName()), e);
+                    throw new IllegalStateException(
+                            String.format("Class [%s] could not be loaded.", bd.getBeanClassName()),
+                            e);
                 }
             }
         }
@@ -90,7 +94,7 @@ public class DocumentTypeMapper implements TypeInformationMapper {
             return this;
         }
 
-        public Builder withBasePackages(Collection< ? extends String> basePackages) {
+        public Builder withBasePackages(Collection<? extends String> basePackages) {
             basePackagesToScan.addAll(basePackages);
             return this;
         }

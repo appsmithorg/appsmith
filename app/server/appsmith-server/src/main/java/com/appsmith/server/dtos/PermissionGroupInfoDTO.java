@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.dtos.ce.PermissionGroupInfoCE_DTO;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +16,13 @@ public class PermissionGroupInfoDTO extends PermissionGroupInfoCE_DTO {
         super(id, name, description);
     }
 
-    public PermissionGroupInfoDTO(String id, String name, String description, String entityId, String entityType, String entityName) {
+    public PermissionGroupInfoDTO(
+            String id,
+            String name,
+            String description,
+            String entityId,
+            String entityType,
+            String entityName) {
         super(id, name, description, entityId, entityType, entityName);
     }
 }

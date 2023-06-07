@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -16,5 +17,4 @@ public interface CurlImporterServiceCE extends ApiImporterCE {
     List<String> normalize(List<String> tokens);
 
     ActionDTO parse(List<String> tokens) throws AppsmithException;
-
 }

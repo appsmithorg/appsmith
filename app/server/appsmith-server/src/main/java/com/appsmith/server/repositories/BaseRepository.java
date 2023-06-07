@@ -1,8 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import com.mongodb.client.result.UpdateResult;
+
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
+
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
@@ -21,7 +24,8 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
     Mono<T> archive(T entity);
 
     /**
-     * This function directly updates the document by setting the deleted flag to true for the entity with the given id
+     * This function directly updates the document by setting the deleted flag to true for the
+     * entity with the given id
      *
      * @param id The id of the document that needs to be archived
      * @return
@@ -29,8 +33,8 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
     Mono<Boolean> archiveById(ID id);
 
     /**
-     * This function directly updates the DB by setting the deleted flag to true for all the documents in the collection
-     * with the given list of ids.
+     * This function directly updates the DB by setting the deleted flag to true for all the
+     * documents in the collection with the given list of ids.
      *
      * @param ids The list of ids of the document that needs to be archived.
      * @return
@@ -40,13 +44,14 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
     Mono<T> findByIdAndBranchName(ID id, String branchName);
 
     /**
-     * When `fieldNames` is blank, this method will return the entire object. Otherwise, it will return only the values
-     * against the `fieldNames` property in the matching object.
+     * When `fieldNames` is blank, this method will return the entire object. Otherwise, it will
+     * return only the values against the `fieldNames` property in the matching object.
      */
     Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
 
     /**
-     * This method is supposed to update the given list of fields in an object as opposed to replacing the entire object.
+     * This method is supposed to update the given list of fields in an object as opposed to
+     * replacing the entire object.
      */
     Mono<UpdateResult> updateByIdAndFieldNames(ID id, Map<String, Object> fieldNameValueMap);
 }

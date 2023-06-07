@@ -1,7 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations.utils;
 
 import com.appsmith.external.models.BaseDomain;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -14,13 +17,14 @@ public class CompatibilityUtils {
      * MongoDB, and returns the correct query accordingly.
      *
      * @param mongoTemplate Meant to share the bean with this utility
-     * @param originalQuery The original idempotent query to be run without optimization, idempotency is a must
-     * @param clazz         The collection this query will be run on
-     * @param <T>           The BaseDomain type this collection maps to
+     * @param originalQuery The original idempotent query to be run without optimization,
+     *     idempotency is a must
+     * @param clazz The collection this query will be run on
+     * @param <T> The BaseDomain type this collection maps to
      * @return A query that is guaranteed to run on this instance, with or without optimization
      */
-    public static <T extends BaseDomain> Query optimizeQueryForNoCursorTimeout
-    (MongoTemplate mongoTemplate, Query originalQuery, Class<T> clazz) {
+    public static <T extends BaseDomain> Query optimizeQueryForNoCursorTimeout(
+            MongoTemplate mongoTemplate, Query originalQuery, Class<T> clazz) {
         try {
             log.debug("Check if performant query can be used.");
             Query queryBatchedPerformant = Query.of(originalQuery).noCursorTimeout();

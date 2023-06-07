@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import org.modelmapper.ModelMapper;
@@ -11,5 +12,4 @@ public class ModelMapperConfig {
     ModelMapper modelMapper() {
         return new ModelMapper();
     }
-
 }

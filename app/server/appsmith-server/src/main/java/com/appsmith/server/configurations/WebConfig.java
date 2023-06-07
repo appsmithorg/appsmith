@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import org.springframework.context.annotation.Configuration;
@@ -15,14 +16,17 @@ public class WebConfig implements WebFluxConfigurer {
     public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
         configurer
                 .defaultCodecs()
-                .configureDefaultCodec(codec -> {
-                    if (codec instanceof MultipartHttpMessageReader) {
-                        HttpMessageReader<Part> partReader = ((MultipartHttpMessageReader) codec).getPartReader();
-                        if (partReader instanceof DefaultPartHttpMessageReader) {
-                            // Set max file part header size to 128kB
-                            ((DefaultPartHttpMessageReader) partReader).setMaxHeadersSize(128 * 1024);
-                        }
-                    }
-                });
+                .configureDefaultCodec(
+                        codec -> {
+                            if (codec instanceof MultipartHttpMessageReader) {
+                                HttpMessageReader<Part> partReader =
+                                        ((MultipartHttpMessageReader) codec).getPartReader();
+                                if (partReader instanceof DefaultPartHttpMessageReader) {
+                                    // Set max file part header size to 128kB
+                                    ((DefaultPartHttpMessageReader) partReader)
+                                            .setMaxHeadersSize(128 * 1024);
+                                }
+                            }
+                        });
     }
 }

@@ -1,8 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
+
 import reactor.core.publisher.Mono;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
@@ -14,5 +16,4 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
     Mono<Long> countByDeletedAtNull();
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
-
 }

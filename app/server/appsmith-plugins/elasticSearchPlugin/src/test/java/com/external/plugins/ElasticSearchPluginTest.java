@@ -1,4 +1,13 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins;
+
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.models.ActionConfiguration;
@@ -8,9 +17,12 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import com.external.plugins.exceptions.ElasticSearchPluginError;
+
 import lombok.extern.slf4j.Slf4j;
+
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -26,6 +38,7 @@ import org.springframework.http.HttpMethod;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -33,50 +46,47 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @Slf4j
 @Testcontainers
 public class ElasticSearchPluginTest {
-    ElasticSearchPlugin.ElasticSearchPluginExecutor pluginExecutor = new ElasticSearchPlugin.ElasticSearchPluginExecutor();
+    ElasticSearchPlugin.ElasticSearchPluginExecutor pluginExecutor =
+            new ElasticSearchPlugin.ElasticSearchPluginExecutor();
 
     @Container
-    public static final ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
-            .withEnv("discovery.type", "single-node")
-            .withPassword("esPassword");
+    public static final ElasticsearchContainer container =
+            new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
+                    .withEnv("discovery.type", "single-node")
+                    .withPassword("esPassword");
+
     private static String username = "elastic";
     private static String password = "esPassword";
     private static final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-    private static DBAuth elasticInstanceCredentials = new DBAuth(DBAuth.Type.USERNAME_PASSWORD, username, password, null);
+    private static DBAuth elasticInstanceCredentials =
+            new DBAuth(DBAuth.Type.USERNAME_PASSWORD, username, password, null);
     private static String host;
     private static Integer port;
-
 
     @BeforeAll
     public static void setUp() throws IOException {
         port = container.getMappedPort(9200);
         host = "http://" + container.getContainerIpAddress();
 
-        final CredentialsProvider credentialsProvider =
-                new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(username, password));
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(
+                AuthScope.ANY, new UsernamePasswordCredentials(username, password));
 
-        RestClient client = RestClient.builder(
-                        new HttpHost(container.getContainerIpAddress(), port, "http"))
-                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                    @Override
-                    public HttpAsyncClientBuilder customizeHttpClient(
-                            HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder
-                                .setDefaultCredentialsProvider(credentialsProvider);
-                    }
-                }).build();
+        RestClient client =
+                RestClient.builder(new HttpHost(container.getContainerIpAddress(), port, "http"))
+                        .setHttpClientConfigCallback(
+                                new RestClientBuilder.HttpClientConfigCallback() {
+                                    @Override
+                                    public HttpAsyncClientBuilder customizeHttpClient(
+                                            HttpAsyncClientBuilder httpClientBuilder) {
+                                        return httpClientBuilder.setDefaultCredentialsProvider(
+                                                credentialsProvider);
+                                    }
+                                })
+                        .build();
 
         Request request;
 
@@ -119,58 +129,83 @@ public class ElasticSearchPluginTest {
 
         Long defaultPort = pluginExecutor.getPort(endpoint);
 
-        assertEquals(9200L,defaultPort);
+        assertEquals(9200L, defaultPort);
     }
 
     @Test
     public void testGet() {
         StepVerifier.create(execute(HttpMethod.GET, "/planets/doc/id1", null))
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
-                    assertEquals("Mercury", ((Map<String, String>) resultBody.get("_source")).get("name"));
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            final Map<String, Object> resultBody = (Map) result.getBody();
+                            assertEquals(
+                                    "Mercury",
+                                    ((Map<String, String>) resultBody.get("_source")).get("name"));
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void testMultiGet() {
-        final String contentJson = "{\n" +
-                "  \"docs\": [\n" +
-                "    {\n" +
-                "      \"_index\": \"planets\",\n" +
-                "      \"_id\": \"id1\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"_index\": \"planets\",\n" +
-                "      \"_id\": \"id2\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+        final String contentJson =
+                "{\n"
+                        + "  \"docs\": [\n"
+                        + "    {\n"
+                        + "      \"_index\": \"planets\",\n"
+                        + "      \"_id\": \"id1\"\n"
+                        + "    },\n"
+                        + "    {\n"
+                        + "      \"_index\": \"planets\",\n"
+                        + "      \"_id\": \"id2\"\n"
+                        + "    }\n"
+                        + "  ]\n"
+                        + "}";
         StepVerifier.create(execute(HttpMethod.GET, "/planets/_mget", contentJson))
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final List<Map> docs = ((Map<String, List<Map>>) result.getBody()).get("docs");
-                    assertEquals(2, docs.size());
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            final List<Map> docs =
+                                    ((Map<String, List<Map>>) result.getBody()).get("docs");
+                            assertEquals(2, docs.size());
 
-                    /*
-                     * - Adding only in this test as the query editor form for Elastic plugin is exactly same for each
-                     *  query type. Hence, checking with only one query should suffice. Also, changing the query type
-                     *  does not change the execution flow w.r.t request params.
-                     * - RequestParamDTO object only have attributes configProperty and value at this point.
-                     * - The other two RequestParamDTO attributes - label and type are null at this point.
-                     */
-                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", HttpMethod.GET.toString(),
-                            null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, "/planets/_mget", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, contentJson, null, null, null));
-                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
-                })
+                            /*
+                             * - Adding only in this test as the query editor form for Elastic plugin is exactly same for each
+                             *  query type. Hence, checking with only one query should suffice. Also, changing the query type
+                             *  does not change the execution flow w.r.t request params.
+                             * - RequestParamDTO object only have attributes configProperty and value at this point.
+                             * - The other two RequestParamDTO attributes - label and type are null at this point.
+                             */
+                            List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                            expectedRequestParams.add(
+                                    new RequestParamDTO(
+                                            "actionConfiguration.httpMethod",
+                                            HttpMethod.GET.toString(),
+                                            null,
+                                            null,
+                                            null));
+                            expectedRequestParams.add(
+                                    new RequestParamDTO(
+                                            ACTION_CONFIGURATION_PATH,
+                                            "/planets/_mget",
+                                            null,
+                                            null,
+                                            null));
+                            expectedRequestParams.add(
+                                    new RequestParamDTO(
+                                            ACTION_CONFIGURATION_BODY,
+                                            contentJson,
+                                            null,
+                                            null,
+                                            null));
+                            assertEquals(
+                                    result.getRequest().getRequestParams().toString(),
+                                    expectedRequestParams.toString());
+                        })
                 .verifyComplete();
     }
 
@@ -178,14 +213,15 @@ public class ElasticSearchPluginTest {
     public void testPutCreate() {
         final String contentJson = "{\"name\": \"Pluto\"}";
         StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id9", contentJson))
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
-                    assertEquals("created", resultBody.get("result"));
-                    assertEquals("id9", resultBody.get("_id"));
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            final Map<String, Object> resultBody = (Map) result.getBody();
+                            assertEquals("created", resultBody.get("result"));
+                            assertEquals("id9", resultBody.get("_id"));
+                        })
                 .verifyComplete();
     }
 
@@ -193,75 +229,87 @@ public class ElasticSearchPluginTest {
     public void testPutUpdate() {
         final String contentJson = "{\"name\": \"New Venus\"}";
         StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id2", contentJson))
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
-                    assertEquals("updated", resultBody.get("result"));
-                    assertEquals("id2", resultBody.get("_id"));
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            final Map<String, Object> resultBody = (Map) result.getBody();
+                            assertEquals("updated", resultBody.get("result"));
+                            assertEquals("id2", resultBody.get("_id"));
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void testDelete() {
         StepVerifier.create(execute(HttpMethod.DELETE, "/planets/doc/id3", null))
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
-                    assertEquals("deleted", resultBody.get("result"));
-                    assertEquals("id3", resultBody.get("_id"));
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            final Map<String, Object> resultBody = (Map) result.getBody();
+                            assertEquals("deleted", resultBody.get("result"));
+                            assertEquals("id3", resultBody.get("_id"));
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void testBulkWithArrayBody() {
-        final String contentJson = "[\n" +
-                "  { \"index\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" : \"1\" } },\n" +
-                "  { \"field1\" : \"value1\" },\n" +
-                "  { \"delete\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" : \"2\" } },\n" +
-                "  { \"create\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" : \"3\" } },\n" +
-                "  { \"field1\" : \"value3\" },\n" +
-                "  { \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test1\"} },\n" +
-                "  { \"doc\" : {\"field2\" : \"value2\"} }\n" +
-                "]";
+        final String contentJson =
+                "[\n"
+                        + "  { \"index\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" :"
+                        + " \"1\" } },\n"
+                        + "  { \"field1\" : \"value1\" },\n"
+                        + "  { \"delete\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" :"
+                        + " \"2\" } },\n"
+                        + "  { \"create\" : { \"_index\" : \"test1\", \"_type\": \"doc\", \"_id\" :"
+                        + " \"3\" } },\n"
+                        + "  { \"field1\" : \"value3\" },\n"
+                        + "  { \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" :"
+                        + " \"test1\"} },\n"
+                        + "  { \"doc\" : {\"field2\" : \"value2\"} }\n"
+                        + "]";
 
         StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
-                    assertFalse((Boolean) resultBody.get("errors"));
-                    assertEquals(4, ((List) resultBody.get("items")).size());
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            final Map<String, Object> resultBody = (Map) result.getBody();
+                            assertFalse((Boolean) resultBody.get("errors"));
+                            assertEquals(4, ((List) resultBody.get("items")).size());
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void testBulkWithDirectBody() {
         final String contentJson =
-                "{ \"index\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"1\" } }\n" +
-                        "{ \"field1\" : \"value1\" }\n" +
-                        "{ \"delete\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"2\" } }\n" +
-                        "{ \"create\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"3\" } }\n" +
-                        "{ \"field1\" : \"value3\" }\n" +
-                        "{ \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test2\"} }\n" +
-                        "{ \"doc\" : {\"field2\" : \"value2\"} }\n";
+                "{ \"index\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"1\" } }\n"
+                    + "{ \"field1\" : \"value1\" }\n"
+                    + "{ \"delete\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"2\""
+                    + " } }\n"
+                    + "{ \"create\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"3\""
+                    + " } }\n"
+                    + "{ \"field1\" : \"value3\" }\n"
+                    + "{ \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test2\"}"
+                    + " }\n"
+                    + "{ \"doc\" : {\"field2\" : \"value2\"} }\n";
 
         StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
-                    assertFalse((Boolean) resultBody.get("errors"));
-                    assertEquals(4, ((List) resultBody.get("items")).size());
-                })
+                .assertNext(
+                        result -> {
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            final Map<String, Object> resultBody = (Map) result.getBody();
+                            assertFalse((Boolean) resultBody.get("errors"));
+                            assertEquals(4, ((List) resultBody.get("items")).size());
+                        })
                 .verifyComplete();
     }
 
@@ -270,7 +318,10 @@ public class ElasticSearchPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
         invalidDatasourceConfiguration.setAuthentication(elasticInstanceCredentials);
 
-        assertEquals(Set.of("No endpoint provided. Please provide a host:port where ElasticSearch is reachable."),
+        assertEquals(
+                Set.of(
+                        "No endpoint provided. Please provide a host:port where ElasticSearch is"
+                                + " reachable."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -282,8 +333,7 @@ public class ElasticSearchPluginTest {
         endpoint.setHost(host);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of(),
-                pluginExecutor.validateDatasource(datasourceConfiguration));
+        assertEquals(Set.of(), pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 
     @Test
@@ -294,7 +344,8 @@ public class ElasticSearchPluginTest {
         endpoint.setPort(Long.valueOf(port));
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of("Missing host for endpoint"),
+        assertEquals(
+                Set.of("Missing host for endpoint"),
                 pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 
@@ -305,7 +356,8 @@ public class ElasticSearchPluginTest {
         Endpoint endpoint = new Endpoint();
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of("Missing host for endpoint"),
+        assertEquals(
+                Set.of("Missing host for endpoint"),
                 pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 
@@ -318,9 +370,9 @@ public class ElasticSearchPluginTest {
         endpoint.setPort(Long.valueOf(port));
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of("Invalid host provided. It should be of the form http(s)://your-es-url.com"),
-                pluginExecutor.validateDatasource(datasourceConfiguration)
-        );
+        assertEquals(
+                Set.of("Invalid host provided. It should be of the form http(s)://your-es-url.com"),
+                pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 
     @Test
@@ -333,18 +385,20 @@ public class ElasticSearchPluginTest {
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
-                .assertNext(result -> {
-                    assertFalse(result.getInvalids().isEmpty());
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getInvalids().isEmpty());
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void itShouldTestDatasource() {
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .assertNext(result -> {
-                    assertTrue(result.getInvalids().isEmpty());
-                })
+                .assertNext(
+                        result -> {
+                            assertTrue(result.getInvalids().isEmpty());
+                        })
                 .verifyComplete();
     }
 
@@ -356,16 +410,16 @@ public class ElasticSearchPluginTest {
         Endpoint endpoint = new Endpoint(secureHostEndpoint, Long.valueOf(secureHostPort));
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-
-        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration)
-                        .map(result -> {
-                            return (Set<String>) result.getInvalids();
-                        }))
+        StepVerifier.create(
+                        pluginExecutor
+                                .testDatasource(datasourceConfiguration)
+                                .map(
+                                        result -> {
+                                            return (Set<String>) result.getInvalids();
+                                        }))
                 .expectNext(Set.of("Your username or password is not correct"))
                 .verifyComplete();
-
     }
-
 
     @Test
     public void shouldVerifyNotFound() {
@@ -375,13 +429,18 @@ public class ElasticSearchPluginTest {
         Endpoint endpoint = new Endpoint(secureHostEndpoint, Long.valueOf(secureHostPort));
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration)
-                        .map(result -> {
-                            return (Set<String>) result.getInvalids();
-                        }))
-                .expectNext(Set.of("Either your host URL is invalid or the page you are trying to access does not exist"))
+        StepVerifier.create(
+                        pluginExecutor
+                                .testDatasource(datasourceConfiguration)
+                                .map(
+                                        result -> {
+                                            return (Set<String>) result.getInvalids();
+                                        }))
+                .expectNext(
+                        Set.of(
+                                "Either your host URL is invalid or the page you are trying to"
+                                        + " access does not exist"))
                 .verifyComplete();
-
     }
 
     @Test
@@ -394,10 +453,15 @@ public class ElasticSearchPluginTest {
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
-                .assertNext(result -> {
-                    assertFalse(result.getInvalids().isEmpty());
-                    assertTrue(result.getInvalids().contains("Error running HEAD request: Host 169.254.169.254 is not allowed"));
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getInvalids().isEmpty());
+                            assertTrue(
+                                    result.getInvalids()
+                                            .contains(
+                                                    "Error running HEAD request: Host"
+                                                            + " 169.254.169.254 is not allowed"));
+                        })
                 .verifyComplete();
     }
 
@@ -411,10 +475,16 @@ public class ElasticSearchPluginTest {
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
-                .assertNext(result -> {
-                    assertFalse(result.getInvalids().isEmpty());
-                    assertTrue(result.getInvalids().contains("Error running HEAD request: Host 169.254.169.254.nip.io is not allowed"));
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getInvalids().isEmpty());
+                            assertTrue(
+                                    result.getInvalids()
+                                            .contains(
+                                                    "Error running HEAD request: Host"
+                                                            + " 169.254.169.254.nip.io is not"
+                                                            + " allowed"));
+                        })
                 .verifyComplete();
     }
 
@@ -428,10 +498,16 @@ public class ElasticSearchPluginTest {
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
-                .assertNext(result -> {
-                    assertFalse(result.getInvalids().isEmpty());
-                    assertTrue(result.getInvalids().contains("Error running HEAD request: Host metadata.google.internal is not allowed"));
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getInvalids().isEmpty());
+                            assertTrue(
+                                    result.getInvalids()
+                                            .contains(
+                                                    "Error running HEAD request: Host"
+                                                            + " metadata.google.internal is not"
+                                                            + " allowed"));
+                        })
                 .verifyComplete();
     }
 
@@ -448,15 +524,22 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setPath("/");
 
-        final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(datasourceConfiguration)
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        final Mono<ActionExecutionResult> resultMono =
+                pluginExecutor
+                        .datasourceCreate(datasourceConfiguration)
+                        .flatMap(
+                                conn ->
+                                        pluginExecutor.execute(
+                                                conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host 169.254.169.254 is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertEquals(
+                                    "Host 169.254.169.254 is not allowed",
+                                    result.getPluginErrorDetails().getDownstreamErrorMessage());
+                        })
                 .verifyComplete();
     }
 
@@ -473,24 +556,32 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setPath("/");
 
-        final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(datasourceConfiguration)
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        final Mono<ActionExecutionResult> resultMono =
+                pluginExecutor
+                        .datasourceCreate(datasourceConfiguration)
+                        .flatMap(
+                                conn ->
+                                        pluginExecutor.execute(
+                                                conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host 169.254.169.254.nip.io is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertEquals(
+                                    "Host 169.254.169.254.nip.io is not allowed",
+                                    result.getPluginErrorDetails().getDownstreamErrorMessage());
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void itShouldRejectGetToMetadataAwsWithDnsResolutionAndRedirect() throws IOException {
         MockWebServer mockWebServer = new MockWebServer();
-        MockResponse mockRedirectResponse = new MockResponse()
-                .setResponseCode(301)
-                .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
+        MockResponse mockRedirectResponse =
+                new MockResponse()
+                        .setResponseCode(301)
+                        .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
         mockWebServer.enqueue(mockRedirectResponse);
         mockWebServer.start();
 
@@ -505,15 +596,22 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setPath("/");
 
-        final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(datasourceConfiguration)
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        final Mono<ActionExecutionResult> resultMono =
+                pluginExecutor
+                        .datasourceCreate(datasourceConfiguration)
+                        .flatMap(
+                                conn ->
+                                        pluginExecutor.execute(
+                                                conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host 169.254.169.254.nip.io is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertEquals(
+                                    "Host 169.254.169.254.nip.io is not allowed",
+                                    result.getPluginErrorDetails().getDownstreamErrorMessage());
+                        })
                 .verifyComplete();
     }
 
@@ -530,24 +628,32 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setPath("/");
 
-        final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(datasourceConfiguration)
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        final Mono<ActionExecutionResult> resultMono =
+                pluginExecutor
+                        .datasourceCreate(datasourceConfiguration)
+                        .flatMap(
+                                conn ->
+                                        pluginExecutor.execute(
+                                                conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host metadata.google.internal is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertEquals(
+                                    "Host metadata.google.internal is not allowed",
+                                    result.getPluginErrorDetails().getDownstreamErrorMessage());
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void itShouldRejectGetToMetadataGcpAndRedirect() throws IOException {
         MockWebServer mockWebServer = new MockWebServer();
-        MockResponse mockRedirectResponse = new MockResponse()
-                .setResponseCode(301)
-                .addHeader("Location", "http://metadata.google.internal");
+        MockResponse mockRedirectResponse =
+                new MockResponse()
+                        .setResponseCode(301)
+                        .addHeader("Location", "http://metadata.google.internal");
         mockWebServer.enqueue(mockRedirectResponse);
         mockWebServer.start();
 
@@ -562,26 +668,41 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionConfiguration.setPath("/");
 
-        final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(datasourceConfiguration)
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        final Mono<ActionExecutionResult> resultMono =
+                pluginExecutor
+                        .datasourceCreate(datasourceConfiguration)
+                        .flatMap(
+                                conn ->
+                                        pluginExecutor.execute(
+                                                conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Host metadata.google.internal is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
-                })
+                .assertNext(
+                        result -> {
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertEquals(
+                                    "Host metadata.google.internal is not allowed",
+                                    result.getPluginErrorDetails().getDownstreamErrorMessage());
+                        })
                 .verifyComplete();
     }
 
     @Test
     public void verifyUniquenessOfElasticSearchPluginErrorCode() {
-        assert (Arrays.stream(ElasticSearchPluginError.values()).map(ElasticSearchPluginError::getAppErrorCode).distinct().count() == ElasticSearchPluginError.values().length);
+        assert (Arrays.stream(ElasticSearchPluginError.values())
+                        .map(ElasticSearchPluginError::getAppErrorCode)
+                        .distinct()
+                        .count()
+                == ElasticSearchPluginError.values().length);
 
-        assert (Arrays.stream(ElasticSearchPluginError.values()).map(ElasticSearchPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ELS"))
-                .collect(Collectors.toList()).size() == 0);
-
+        assert (Arrays.stream(ElasticSearchPluginError.values())
+                        .map(ElasticSearchPluginError::getAppErrorCode)
+                        .filter(
+                                appErrorCode ->
+                                        appErrorCode.length() != 11
+                                                || !appErrorCode.startsWith("PE-ELS"))
+                        .collect(Collectors.toList())
+                        .size()
+                == 0);
     }
-
 }

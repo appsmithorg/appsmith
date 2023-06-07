@@ -1,7 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.UserState;
+
 import lombok.Data;
 
 @Data
@@ -26,5 +28,4 @@ public class UserSignupRequestDTO {
     private boolean allowCollectingAnonymousData;
 
     private boolean signupForNewsletter;
-
 }

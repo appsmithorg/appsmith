@@ -1,8 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
 
-public class IntegerType implements AppsmithType{
+public class IntegerType implements AppsmithType {
     @Override
     public String performSmartSubstitution(String s) {
         return s;

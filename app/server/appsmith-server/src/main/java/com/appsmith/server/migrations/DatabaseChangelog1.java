@@ -1,4 +1,25 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
+import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
+import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
@@ -58,18 +79,20 @@ import com.appsmith.server.helpers.TextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
-import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mysema.commons.lang.Pair;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import net.minidev.json.JSONObject;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
@@ -90,6 +113,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
+
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
@@ -108,24 +132,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
-import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-import static org.springframework.data.mongodb.core.query.Update.update;
 
 @Slf4j
 @ChangeLog(order = "001")
@@ -156,13 +162,14 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * A public, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
-     * Note: The order of the fields here is important. An index with the fields `"name", "organizationId"` is different
-     * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering, and we try
-     * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
-     * WILL happen.
-     * <p>
-     * Also, please check out the following blog on how to best create indexes :
+     * A public, pure utility function to create instances of Index objects to pass to
+     * `IndexOps.ensureIndex` method. Note: The order of the fields here is important. An index with
+     * the fields `"name", "organizationId"` is different from an index with the fields
+     * `"organizationId", "name"`. If an index exists with the first ordering, and we try to
+     * **ensure** an index with the same name but the second ordering of fields, errors will show up
+     * and bad things WILL happen.
+     *
+     * <p>Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
     public static Index makeIndex(String... fields) {
@@ -178,23 +185,24 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * Given a mongoTemplate, a domain class and a bunch of Index definitions, this pure utility function will ensure
-     * those indexes on the database behind the mongoTemplate instance.
+     * Given a mongoTemplate, a domain class and a bunch of Index definitions, this pure utility
+     * function will ensure those indexes on the database behind the mongoTemplate instance.
      */
-    public static void ensureIndexes(MongoTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
-        final int dbNameLength = mongoTemplate.getMongoDatabaseFactory().getMongoDatabase().getName().length();
+    public static void ensureIndexes(
+            MongoTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
+        final int dbNameLength =
+                mongoTemplate.getMongoDatabaseFactory().getMongoDatabase().getName().length();
         for (Index index : indexes) {
             final String indexName = (String) index.getIndexOptions().get("name");
             if (indexName == null) {
                 throw new RuntimeException("Index name cannot be null");
             }
-            // Index name length limitations on DocumentDB, at https://docs.aws.amazon.com/documentdb/latest/developerguide/limits.html.
+            // Index name length limitations on DocumentDB, at
+            // https://docs.aws.amazon.com/documentdb/latest/developerguide/limits.html.
             final int indexNameLength = indexName.length();
             final int collectionNameLength = entityClass.getSimpleName().length();
-            if (
-                dbNameLength + indexNameLength + collectionNameLength + 3 > 127
-                    || indexNameLength + collectionNameLength + 1 > 63
-            ) {
+            if (dbNameLength + indexNameLength + collectionNameLength + 3 > 127
+                    || indexNameLength + collectionNameLength + 1 > 63) {
                 throw new RuntimeException("Index name is too long. Please give a shorter name.");
             }
         }
@@ -205,11 +213,13 @@ public class DatabaseChangelog1 {
         }
     }
 
-    public static boolean dropIndexIfExists(MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
+    public static boolean dropIndexIfExists(
+            MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
         } catch (UncategorizedMongoDbException ignored) {
-            // The index probably doesn't exist. This happens if the database is created after the @Indexed annotation
+            // The index probably doesn't exist. This happens if the database is created after the
+            // @Indexed annotation
             // has been removed.
             return false;
         }
@@ -310,85 +320,91 @@ public class DatabaseChangelog1 {
      */
 
     /**
-     * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
-     * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
-     * the `Action.datasource` field.
+     * We are creating indexes manually because Spring's index resolver creates indexes on fields as
+     * well. See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We
+     * have that problem with the `Action.datasource` field.
      */
     @ChangeSet(order = "004", id = "initial-indexes", author = "")
     public void addInitialIndexes(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
-        ensureIndexes(mongoTemplate, Action.class,
+        ensureIndexes(
+                mongoTemplate,
+                Action.class,
                 createdAtIndex,
-                makeIndex("pageId", "name").unique().named("action_page_compound_index")
-        );
+                makeIndex("pageId", "name").unique().named("action_page_compound_index"));
 
-        ensureIndexes(mongoTemplate, Application.class,
+        ensureIndexes(
+                mongoTemplate,
+                Application.class,
                 createdAtIndex,
-                makeIndex("organizationId", "name").unique().named("organization_application_compound_index")
-        );
+                makeIndex("organizationId", "name")
+                        .unique()
+                        .named("organization_application_compound_index"));
 
-        ensureIndexes(mongoTemplate, Collection.class,
-                createdAtIndex
-        );
+        ensureIndexes(mongoTemplate, Collection.class, createdAtIndex);
 
-        ensureIndexes(mongoTemplate, Config.class,
+        ensureIndexes(mongoTemplate, Config.class, createdAtIndex, makeIndex("name").unique());
+
+        ensureIndexes(
+                mongoTemplate,
+                Datasource.class,
                 createdAtIndex,
-                makeIndex("name").unique()
-        );
+                makeIndex("organizationId", "name")
+                        .unique()
+                        .named("organization_datasource_compound_index"));
 
-        ensureIndexes(mongoTemplate, Datasource.class,
-                createdAtIndex,
-                makeIndex("organizationId", "name").unique().named("organization_datasource_compound_index")
-        );
-
-        ensureIndexes(mongoTemplate, InviteUser.class,
+        ensureIndexes(
+                mongoTemplate,
+                InviteUser.class,
                 createdAtIndex,
                 makeIndex("token").unique().expire(3600, TimeUnit.SECONDS),
-                makeIndex("email").unique()
-        );
+                makeIndex("email").unique());
 
-        ensureIndexes(mongoTemplate, Page.class,
+        ensureIndexes(
+                mongoTemplate,
+                Page.class,
                 createdAtIndex,
-                makeIndex("applicationId", "name").unique().named("application_page_compound_index")
-        );
+                makeIndex("applicationId", "name")
+                        .unique()
+                        .named("application_page_compound_index"));
 
-        ensureIndexes(mongoTemplate, PasswordResetToken.class,
+        ensureIndexes(
+                mongoTemplate,
+                PasswordResetToken.class,
                 createdAtIndex,
-                makeIndex("email").unique().expire(3600, TimeUnit.SECONDS)
-        );
+                makeIndex("email").unique().expire(3600, TimeUnit.SECONDS));
 
         /*
         Removing the code for ensuring index for a class which has never been used and now being removed.
          */
-//        ensureIndexes(mongoTemplate, Permission.class,
-//                createdAtIndex
-//        );
+        //        ensureIndexes(mongoTemplate, Permission.class,
+        //                createdAtIndex
+        //        );
 
-        ensureIndexes(mongoTemplate, Plugin.class,
+        ensureIndexes(
+                mongoTemplate,
+                Plugin.class,
                 createdAtIndex,
                 makeIndex("type"),
-                makeIndex("packageName").unique()
-        );
+                makeIndex("packageName").unique());
 
-        ensureIndexes(mongoTemplate, Role.class,
-                createdAtIndex
-        );
+        ensureIndexes(mongoTemplate, Role.class, createdAtIndex);
 
-        ensureIndexes(mongoTemplate, User.class,
-                createdAtIndex,
-                makeIndex("email").unique()
-        );
+        ensureIndexes(mongoTemplate, User.class, createdAtIndex, makeIndex("email").unique());
     }
 
     @ChangeSet(order = "005", id = "application-deleted-at", author = "")
     public void addApplicationDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(
+                mongoTemplate, Application.class, "organization_application_compound_index");
 
-        ensureIndexes(mongoTemplate, Application.class,
+        ensureIndexes(
+                mongoTemplate,
+                Application.class,
                 makeIndex("organizationId", "name", "deletedAt")
-                        .unique().named("organization_application_deleted_compound_index")
-        );
+                        .unique()
+                        .named("organization_application_deleted_compound_index"));
 
         for (Application application : mongoTemplate.findAll(Application.class)) {
             if (application.isDeleted()) {
@@ -400,29 +416,31 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "006", id = "hide-rapidapi-plugin", author = "")
     public void hideRapidApiPluginFromCreateDatasource(MongoTemplate mongoTemplate) {
-        final Plugin rapidApiPlugin = mongoTemplate.findOne(
-                query(where("packageName").is("rapidapi-plugin")),
-                Plugin.class
-        );
+        final Plugin rapidApiPlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("rapidapi-plugin")), Plugin.class);
 
         if (rapidApiPlugin == null) {
-            log.error("Couldn't find rapidapi-plugin, to set it's `allowUserDatasources` to false.");
+            log.error(
+                    "Couldn't find rapidapi-plugin, to set it's `allowUserDatasources` to false.");
 
         } else {
             rapidApiPlugin.setAllowUserDatasources(false);
             mongoTemplate.save(rapidApiPlugin);
-
         }
     }
 
     @ChangeSet(order = "007", id = "datasource-deleted-at", author = "")
     public void addDatasourceDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_compound_index");
+        dropIndexIfExists(
+                mongoTemplate, Datasource.class, "organization_datasource_compound_index");
 
-        ensureIndexes(mongoTemplate, Datasource.class,
+        ensureIndexes(
+                mongoTemplate,
+                Datasource.class,
                 makeIndex(FieldName.ORGANIZATION_ID, FieldName.NAME, FieldName.DELETED_AT)
-                        .unique().named("organization_datasource_deleted_compound_index")
-        );
+                        .unique()
+                        .named("organization_datasource_deleted_compound_index"));
 
         for (Datasource datasource : mongoTemplate.findAll(Datasource.class)) {
             if (datasource.isDeleted()) {
@@ -436,10 +454,12 @@ public class DatabaseChangelog1 {
     public void addPageDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Page.class, "application_page_compound_index");
 
-        ensureIndexes(mongoTemplate, Page.class,
+        ensureIndexes(
+                mongoTemplate,
+                Page.class,
                 makeIndex(FieldName.APPLICATION_ID, FieldName.NAME, FieldName.DELETED_AT)
-                        .unique().named("application_page_deleted_compound_index")
-        );
+                        .unique()
+                        .named("application_page_deleted_compound_index"));
 
         for (Page page : mongoTemplate.findAll(Page.class)) {
             if (page.isDeleted()) {
@@ -478,10 +498,8 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "011", id = "install-default-plugins-to-all-organizations", author = "")
     public void installDefaultPluginsToAllOrganizations(MongoTemplate mongoTemplate) {
-        final List<Plugin> defaultPlugins = mongoTemplate.find(
-                query(where("defaultInstall").is(true)),
-                Plugin.class
-        );
+        final List<Plugin> defaultPlugins =
+                mongoTemplate.find(query(where("defaultInstall").is(true)), Plugin.class);
 
         mongoTemplate.findAll(Plugin.class);
 
@@ -490,13 +508,18 @@ public class DatabaseChangelog1 {
                 organization.setPlugins(new HashSet<>());
             }
 
-            final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
+            final Set<String> installedPlugins =
+                    organization.getPlugins().stream()
+                            .map(WorkspacePlugin::getPluginId)
+                            .collect(Collectors.toSet());
 
             for (Plugin defaultPlugin : defaultPlugins) {
                 if (!installedPlugins.contains(defaultPlugin.getId())) {
-                    organization.getPlugins()
-                            .add(new WorkspacePlugin(defaultPlugin.getId(), WorkspacePluginStatus.FREE));
+                    organization
+                            .getPlugins()
+                            .add(
+                                    new WorkspacePlugin(
+                                            defaultPlugin.getId(), WorkspacePluginStatus.FREE));
                 }
             }
 
@@ -506,20 +529,16 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "012", id = "ensure-datasource-created-and-updated-at-fields", author = "")
     public void ensureDatasourceCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
-        final List<Datasource> missingCreatedAt = mongoTemplate.find(
-                query(where("createdAt").exists(false)),
-                Datasource.class
-        );
+        final List<Datasource> missingCreatedAt =
+                mongoTemplate.find(query(where("createdAt").exists(false)), Datasource.class);
 
         for (Datasource datasource : missingCreatedAt) {
             datasource.setCreatedAt(Instant.now());
             mongoTemplate.save(datasource);
         }
 
-        final List<Datasource> missingUpdatedAt = mongoTemplate.find(
-                query(where("updatedAt").exists(false)),
-                Datasource.class
-        );
+        final List<Datasource> missingUpdatedAt =
+                mongoTemplate.find(query(where("updatedAt").exists(false)), Datasource.class);
 
         for (Datasource datasource : missingUpdatedAt) {
             datasource.setUpdatedAt(Instant.now());
@@ -529,48 +548,54 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "013", id = "add-index-for-sequence-name", author = "")
     public void addIndexForSequenceName(MongoTemplate mongoTemplate) {
-        ensureIndexes(mongoTemplate, Sequence.class,
-                makeIndex(FieldName.NAME).unique()
-        );
+        ensureIndexes(mongoTemplate, Sequence.class, makeIndex(FieldName.NAME).unique());
     }
 
     @ChangeSet(order = "014", id = "set-initial-sequence-for-datasource", author = "")
     public void setInitialSequenceForDatasource(MongoTemplate mongoTemplate) {
-        final Long maxUntitledDatasourceNumber = mongoTemplate.find(
-                        query(where(FieldName.NAME).regex("^" + Datasource.DEFAULT_NAME_PREFIX + " \\d+$")),
-                        Datasource.class
-                )
-                .stream()
-                .map(datasource -> Long.parseLong(datasource.getName().split(" ")[2]))
-                .max(Long::compareTo)
-                .orElse(0L);
+        final Long maxUntitledDatasourceNumber =
+                mongoTemplate
+                        .find(
+                                query(
+                                        where(FieldName.NAME)
+                                                .regex(
+                                                        "^"
+                                                                + Datasource.DEFAULT_NAME_PREFIX
+                                                                + " \\d+$")),
+                                Datasource.class)
+                        .stream()
+                        .map(datasource -> Long.parseLong(datasource.getName().split(" ")[2]))
+                        .max(Long::compareTo)
+                        .orElse(0L);
 
         mongoTemplate.upsert(
                 query(where(FieldName.NAME).is(mongoTemplate.getCollectionName(Datasource.class))),
                 update("nextNumber", maxUntitledDatasourceNumber + 1),
-                Sequence.class
-        );
+                Sequence.class);
     }
 
     @ChangeSet(order = "015", id = "set-plugin-image-and-docs-link", author = "")
     public void setPluginImageAndDocsLink(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Postgress.png");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Postgress.png");
                 plugin.setDocumentationLink("https://www.postgresql.org/docs/12/index.html");
                 plugin.setResponseType(Plugin.ResponseType.TABLE);
 
             } else if ("restapi-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/RestAPI.png");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/RestAPI.png");
 
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MongoDB.png");
-                plugin.setDocumentationLink("https://docs.mongodb.com/manual/reference/command/nav-crud/");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MongoDB.png");
+                plugin.setDocumentationLink(
+                        "https://docs.mongodb.com/manual/reference/command/nav-crud/");
                 plugin.setResponseType(Plugin.ResponseType.JSON);
 
             } else {
                 continue;
-
             }
 
             mongoTemplate.save(plugin);
@@ -579,10 +604,8 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "016", id = "fix-double-escapes", author = "")
     public void fixDoubleEscapes(MongoTemplate mongoTemplate) {
-        final List<Action> actions = mongoTemplate.find(
-                query(where("jsonPathKeys").exists(true)),
-                Action.class
-        );
+        final List<Action> actions =
+                mongoTemplate.find(query(where("jsonPathKeys").exists(true)), Action.class);
 
         for (final Action action : actions) {
             final Set<String> keys = action.getJsonPathKeys();
@@ -593,10 +616,10 @@ public class DatabaseChangelog1 {
             final Set<String> fixedKeys = new HashSet<>();
             boolean hasFixes = false;
             for (final String key : keys) {
-                final String fixed = key
-                        .replaceAll("\\\\n", "\n")
-                        .replaceAll("\\\\r", "\r")
-                        .replaceAll("\\\\t", "\t");
+                final String fixed =
+                        key.replaceAll("\\\\n", "\n")
+                                .replaceAll("\\\\r", "\r")
+                                .replaceAll("\\\\t", "\t");
                 fixedKeys.add(fixed);
                 if (!hasFixes && !fixed.equals(key)) {
                     hasFixes = true;
@@ -612,14 +635,18 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "017", id = "encrypt-password", author = "")
     public void encryptPassword(MongoTemplate mongoTemplate, EncryptionService encryptionService) {
-        final List<Datasource> datasources = mongoTemplate.find(
-                query(where("datasourceConfiguration.authentication.password").exists(true)),
-                Datasource.class
-        );
+        final List<Datasource> datasources =
+                mongoTemplate.find(
+                        query(
+                                where("datasourceConfiguration.authentication.password")
+                                        .exists(true)),
+                        Datasource.class);
 
         for (final Datasource datasource : datasources) {
-            DBAuth authentication = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
-            authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+            DBAuth authentication =
+                    (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
+            authentication.setPassword(
+                    encryptionService.encryptString(authentication.getPassword()));
             mongoTemplate.save(datasource);
         }
     }
@@ -647,8 +674,7 @@ public class DatabaseChangelog1 {
     public void updateDatabaseDocumentationLinks(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
-                plugin.setDocumentationLink(
-                        "");
+                plugin.setDocumentationLink("");
 
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
@@ -656,7 +682,6 @@ public class DatabaseChangelog1 {
 
             } else {
                 continue;
-
             }
 
             mongoTemplate.save(plugin);
@@ -665,26 +690,39 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "020", id = "execute-action-for-read-action", author = "")
     public void giveExecutePermissionToReadActionUsers(MongoTemplate mongoTemplate) {
-        final List<Action> actions = mongoTemplate.find(
-                query(where("policies").exists(true)),
-                Action.class
-        );
+        final List<Action> actions =
+                mongoTemplate.find(query(where("policies").exists(true)), Action.class);
 
         for (final Action action : actions) {
             Set<Policy> policies = action.getPolicies();
             if (policies.size() > 0) {
-                Optional<Policy> readActionsOptional = policies.stream().filter(policy -> policy.getPermission().equals(READ_ACTIONS.getValue())).findFirst();
+                Optional<Policy> readActionsOptional =
+                        policies.stream()
+                                .filter(
+                                        policy ->
+                                                policy.getPermission()
+                                                        .equals(READ_ACTIONS.getValue()))
+                                .findFirst();
                 if (readActionsOptional.isPresent()) {
                     Policy readActionPolicy = readActionsOptional.get();
 
-                    Optional<Policy> executeActionsOptional = policies.stream().filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue())).findFirst();
+                    Optional<Policy> executeActionsOptional =
+                            policies.stream()
+                                    .filter(
+                                            policy ->
+                                                    policy.getPermission()
+                                                            .equals(EXECUTE_ACTIONS.getValue()))
+                                    .findFirst();
                     if (executeActionsOptional.isPresent()) {
                         Policy executeActionPolicy = executeActionsOptional.get();
                         executeActionPolicy.getUsers().addAll(readActionPolicy.getUsers());
                     } else {
                         // this policy doesnt exist. create and add this to the policy set
-                        Policy newExecuteActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                                .users(readActionPolicy.getUsers()).build();
+                        Policy newExecuteActionPolicy =
+                                Policy.builder()
+                                        .permission(EXECUTE_ACTIONS.getValue())
+                                        .users(readActionPolicy.getUsers())
+                                        .build();
                         action.getPolicies().add(newExecuteActionPolicy);
                     }
                     mongoTemplate.save(action);
@@ -694,26 +732,32 @@ public class DatabaseChangelog1 {
     }
 
     @ChangeSet(order = "021", id = "invite-and-public-permissions", author = "")
-    public void giveInvitePermissionToOrganizationsAndPublicPermissionsToApplications(MongoTemplate mongoTemplate) {
-        final List<Organization> organizations = mongoTemplate.find(
-                query(where("userRoles").exists(true)),
-                Organization.class
-        );
+    public void giveInvitePermissionToOrganizationsAndPublicPermissionsToApplications(
+            MongoTemplate mongoTemplate) {
+        final List<Organization> organizations =
+                mongoTemplate.find(query(where("userRoles").exists(true)), Organization.class);
 
         for (final Organization organization : organizations) {
-            Set<String> adminUsernames = organization.getUserRoles()
-                    .stream()
-                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
-                    .map(role -> role.getUsername())
-                    .collect(Collectors.toSet());
+            Set<String> adminUsernames =
+                    organization.getUserRoles().stream()
+                            .filter(
+                                    role ->
+                                            (role.getRole()
+                                                    .equals(AppsmithRole.ORGANIZATION_ADMIN)))
+                            .map(role -> role.getUsername())
+                            .collect(Collectors.toSet());
 
-            Set<String> developerUsernames = organization.getUserRoles()
-                    .stream()
-                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_DEVELOPER)))
-                    .map(role -> role.getUsername())
-                    .collect(Collectors.toSet());
+            Set<String> developerUsernames =
+                    organization.getUserRoles().stream()
+                            .filter(
+                                    role ->
+                                            (role.getRole()
+                                                    .equals(AppsmithRole.ORGANIZATION_DEVELOPER)))
+                            .map(role -> role.getUsername())
+                            .collect(Collectors.toSet());
 
-            // All the developers and administrators of the organization should be allowed to get invite permissions
+            // All the developers and administrators of the organization should be allowed to get
+            // invite permissions
             Set<String> invitePermissionUsernames = new HashSet<>();
             invitePermissionUsernames.addAll(developerUsernames);
             invitePermissionUsernames.addAll(adminUsernames);
@@ -723,24 +767,36 @@ public class DatabaseChangelog1 {
                 policies = new HashSet<>();
             }
 
-            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(WORKSPACE_INVITE_USERS.getValue())).findFirst();
+            Optional<Policy> inviteUsersOptional =
+                    policies.stream()
+                            .filter(
+                                    policy ->
+                                            policy.getPermission()
+                                                    .equals(WORKSPACE_INVITE_USERS.getValue()))
+                            .findFirst();
             if (inviteUsersOptional.isPresent()) {
                 Policy inviteUserPolicy = inviteUsersOptional.get();
                 inviteUserPolicy.getUsers().addAll(invitePermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
-                        .users(invitePermissionUsernames).build();
+                Policy inviteUserPolicy =
+                        Policy.builder()
+                                .permission(WORKSPACE_INVITE_USERS.getValue())
+                                .users(invitePermissionUsernames)
+                                .build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
 
             mongoTemplate.save(organization);
 
-            // Update the applications with public view policy for all administrators of the organization
-            List<Application> orgApplications = mongoTemplate.find(
-                    query(where(fieldName(QApplication.application.organizationId)).is(organization.getId())),
-                    Application.class
-            );
+            // Update the applications with public view policy for all administrators of the
+            // organization
+            List<Application> orgApplications =
+                    mongoTemplate.find(
+                            query(
+                                    where(fieldName(QApplication.application.organizationId))
+                                            .is(organization.getId())),
+                            Application.class);
 
             for (final Application application : orgApplications) {
                 Set<Policy> applicationPolicies = application.getPolicies();
@@ -748,14 +804,25 @@ public class DatabaseChangelog1 {
                     applicationPolicies = new HashSet<>();
                 }
 
-                Optional<Policy> makePublicAppOptional = applicationPolicies.stream().filter(policy -> policy.getPermission().equals(MAKE_PUBLIC_APPLICATIONS.getValue())).findFirst();
+                Optional<Policy> makePublicAppOptional =
+                        applicationPolicies.stream()
+                                .filter(
+                                        policy ->
+                                                policy.getPermission()
+                                                        .equals(
+                                                                MAKE_PUBLIC_APPLICATIONS
+                                                                        .getValue()))
+                                .findFirst();
                 if (makePublicAppOptional.isPresent()) {
                     Policy makePublicPolicy = makePublicAppOptional.get();
                     makePublicPolicy.getUsers().addAll(adminUsernames);
                 } else {
                     // this policy doesnt exist. create and add this to the policy set
-                    Policy newPublicAppPolicy = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
-                            .users(adminUsernames).build();
+                    Policy newPublicAppPolicy =
+                            Policy.builder()
+                                    .permission(MAKE_PUBLIC_APPLICATIONS.getValue())
+                                    .users(adminUsernames)
+                                    .build();
                     application.getPolicies().add(newPublicAppPolicy);
                 }
 
@@ -764,264 +831,297 @@ public class DatabaseChangelog1 {
         }
     }
 
-    // Examples organization is no longer getting used. Commenting out the migrations which add/update the same.
+    // Examples organization is no longer getting used. Commenting out the migrations which
+    // add/update the same.
     // @SuppressWarnings({"unchecked", "rawtypes"})
-//    @ChangeSet(order = "022", id = "examples-organization", author = "")
-//    public void examplesOrganization(MongoTemplate mongoTemplate, EncryptionService encryptionService) throws IOException {
-//
-//        final Map<String, String> plugins = new HashMap<>();
-//
-//        final List<Map<String, Object>> organizationPlugins = mongoTemplate
-//                .find(query(where("defaultInstall").is(true)), Plugin.class)
-//                .stream()
-//                .map(plugin -> {
-//                    assert plugin.getId() != null;
-//                    plugins.put(plugin.getPackageName(), plugin.getId());
-//                    return Map.of(
-//                            "pluginId", plugin.getId(),
-//                            "status", "FREE",
-//                            FieldName.DELETED, false,
-//                            "policies", Collections.emptyList()
-//                    );
-//                })
-//                .collect(Collectors.toList());
-//        final String jsonContent = StreamUtils.copyToString(
-//                new DefaultResourceLoader().getResource("examples-organization.json").getInputStream(),
-//                Charset.defaultCharset()
-//        );
-//
-//        final Map<String, Object> organization = new Gson().fromJson(jsonContent, HashMap.class);
-//
-//        final List<Map<String, Object>> datasources = (List) organization.remove("$datasources");
-//        final List<Map<String, Object>> applications = (List) organization.remove("$applications");
-//
-//        organization.put("plugins", organizationPlugins);
-//        organization.put(FieldName.CREATED_AT, Instant.now());
-//        final Map<String, Object> insertedOrganization = mongoTemplate.insert(organization, mongoTemplate.getCollectionName(Organization.class));
-//        final String organizationId = ((ObjectId) insertedOrganization.get("_id")).toHexString();
-//
-//        final Map<String, String> datasourceIdsByName = new HashMap<>();
-//
-//        for (final Map<String, Object> datasource : datasources) {
-//            datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
-//            final Map authentication = (Map) ((Map) datasource.get("datasourceConfiguration")).get("authentication");
-//            if (authentication != null) {
-//                final String plainPassword = (String) authentication.get("password");
-//                authentication.put("password", encryptionService.encryptString(plainPassword));
-//            }
-//            datasource.put(FieldName.ORGANIZATION_ID, organizationId);
-//            datasource.put(FieldName.CREATED_AT, Instant.now());
-//            final Map<String, Object> insertedDatasource = mongoTemplate.insert(datasource, mongoTemplate.getCollectionName(Datasource.class));
-//            datasourceIdsByName.put((String) datasource.get("name"), ((ObjectId) insertedDatasource.get("_id")).toHexString());
-//        }
-//
-//        for (final Map<String, Object> application : applications) {
-//            final List<Map<String, Object>> fullPages = (List) application.remove("$pages");
-//            final List<Map<String, Object>> embeddedPages = new ArrayList<>();
-//
-//            application.put(FieldName.ORGANIZATION_ID, organizationId);
-//            mongoTemplate.insert(application, mongoTemplate.getCollectionName(Application.class));
-//            final String applicationId = ((ObjectId) application.get("_id")).toHexString();
-//
-//            for (final Map<String, Object> fullPage : fullPages) {
-//                final boolean isDefault = (boolean) fullPage.remove("$isDefault");
-//
-//                final List<Map<String, Object>> actions = (List) ObjectUtils.defaultIfNull(
-//                        fullPage.remove("$actions"), Collections.emptyList());
-//
-//                final List<Map<String, Object>> layouts = (List) fullPage.getOrDefault("layouts", Collections.emptyList());
-//                for (final Map<String, Object> layout : layouts) {
-//                    layout.put("_id", new ObjectId());
-//                }
-//
-//                fullPage.put("applicationId", applicationId);
-//                fullPage.put(FieldName.CREATED_AT, Instant.now());
-//                final Map<String, Object> insertedPage = mongoTemplate.insert(fullPage, mongoTemplate.getCollectionName(Page.class));
-//                final String pageId = ((ObjectId) insertedPage.get("_id")).toHexString();
-//                embeddedPages.add(Map.of(
-//                        "_id", pageId,
-//                        "isDefault", isDefault
-//                ));
-//
-//                final Map<String, String> actionIdsByName = new HashMap<>();
-//                for (final Map<String, Object> action : actions) {
-//                    final Map<String, Object> datasource = (Map) action.get("datasource");
-//                    datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
-//                    datasource.put(FieldName.ORGANIZATION_ID, organizationId);
-//                    if (FALSE.equals(datasource.remove("$isEmbedded"))) {
-//                        datasource.put("_id", new ObjectId(datasourceIdsByName.get(datasource.get("name"))));
-//                    }
-//                    action.put(FieldName.ORGANIZATION_ID, organizationId);
-//                    action.put("pageId", pageId);
-//                    action.put("pluginId", plugins.get(action.remove("$pluginPackageName")));
-//                    action.put(FieldName.CREATED_AT, Instant.now());
-//                    final Map<String, Object> insertedAction = mongoTemplate.insert(action, mongoTemplate.getCollectionName(Action.class));
-//                    actionIdsByName.put((String) action.get("name"), ((ObjectId) insertedAction.get("_id")).toHexString());
-//                }
-//
-//                final List<Map<String, Object>> layouts1 = (List) insertedPage.get("layouts");
-//                for (Map<String, Object> layout : layouts1) {
-//                    final List<List<Map<String, Object>>> onLoadActions = (List) layout.getOrDefault("layoutOnLoadActions", Collections.emptyList());
-//                    for (final List<Map<String, Object>> actionSet : onLoadActions) {
-//                        for (final Map<String, Object> action : actionSet) {
-//                            action.put("_id", new ObjectId(actionIdsByName.get(action.get("name"))));
-//                        }
-//                    }
-//                    final List<List<Map<String, Object>>> onLoadActions2 = (List) layout.getOrDefault("publishedLayoutOnLoadActions", Collections.emptyList());
-//                    for (final List<Map<String, Object>> actionSet : onLoadActions2) {
-//                        for (final Map<String, Object> action : actionSet) {
-//                            action.put("_id", new ObjectId(actionIdsByName.get(action.get("name"))));
-//                        }
-//                    }
-//                }
-//                mongoTemplate.updateFirst(
-//                        query(where("_id").is(pageId)),
-//                        update("layouts", layouts1),
-//                        Page.class
-//                );
-//            }
-//
-//            application.put("pages", embeddedPages);
-//            mongoTemplate.updateFirst(
-//                    query(where("_id").is(applicationId)),
-//                    update("pages", embeddedPages),
-//                    Application.class
-//            );
-//        }
-//
-//        Config config = new Config();
-//        config.setName("template-organization");
-//        config.setConfig(new JSONObject(Map.of("organizationId", organizationId)));
-//        mongoTemplate.insert(config);
-//    }
-//
-//    @ChangeSet(order = "023", id = "set-example-apps-in-config", author = "")
-//    public void setExampleAppsInConfig(MongoTemplate mongoTemplate) {
-//
-//
-//        final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
-//
-//        final Config config = mongoTemplate.findOne(
-//                configQuery,
-//                Config.class
-//        );
-//
-//        if (config == null) {
-//            // No template organization configured. Nothing to migrate.
-//            return;
-//        }
-//
-//        final String organizationId = config.getConfig().getAsString("organizationId");
-//
-//        final List<Application> applications = mongoTemplate.find(
-//                query(where(fieldName(QApplication.application.organizationId)).is(organizationId)),
-//                Application.class
-//        );
-//
-//        final List<String> applicationIds = new ArrayList<>();
-//        for (final Application application : applications) {
-//            applicationIds.add(application.getId());
-//        }
-//
-//        mongoTemplate.updateFirst(
-//                configQuery,
-//                update("config.applicationIds", applicationIds),
-//                Config.class
-//        );
-//    }
-//
-//    @ChangeSet(order = "024", id = "update-erroneous-action-ids", author = "")
-//    public void updateErroneousActionIdsInPage(MongoTemplate mongoTemplate) {
-//        final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
-//
-//        final Config config = mongoTemplate.findOne(
-//                configQuery,
-//                Config.class
-//        );
-//
-//        if (config == null) {
-//            // No template organization configured. Nothing to migrate.
-//            return;
-//        }
-//
-//        final String organizationId = config.getConfig().getAsString("organizationId");
-//
-//        final org.springframework.data.mongodb.core.query.Query query = query(where(FieldName.ORGANIZATION_ID).is(organizationId));
-//        query.fields().include("_id");
-//
-//        // Get IDs of applications in the template org.
-//        final List<String> applicationIds = mongoTemplate
-//                .find(query, Application.class)
-//                .stream()
-//                .map(BaseDomain::getId)
-//                .collect(Collectors.toList());
-//
-//        // Get IDs of actions in the template org.
-//        final List<String> actionIds = mongoTemplate
-//                .find(query, Action.class)
-//                .stream()
-//                .map(BaseDomain::getId)
-//                .collect(Collectors.toList());
-//
-//        // Get pages that are not in applications in the template org, and have template org's action IDs in their
-//        // layoutOnload lists.
-//        final Criteria incorrectActionIdCriteria = new Criteria().orOperator(
-//                where("layouts.layoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds))),
-//                where("layouts.publishedLayoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds)))
-//        );
-//        final List<Page> pagesToFix = mongoTemplate.find(
-//                query(where(FieldName.APPLICATION_ID).not().in(applicationIds))
-//                        .addCriteria(incorrectActionIdCriteria),
-//                Page.class
-//        );
-//
-//
-//        for (Page page : pagesToFix) {
-//            for (Layout layout : page.getLayouts()) {
-//                final ArrayList<Set<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
-//                if (layout.getLayoutOnLoadActions() != null) {
-//                    layoutOnLoadActions.addAll(layout.getLayoutOnLoadActions());
-//                }
-//                if (layout.getPublishedLayoutOnLoadActions() != null) {
-//                    layoutOnLoadActions.addAll(layout.getPublishedLayoutOnLoadActions());
-//                }
-//                for (Set<DslActionDTO> actionSet : layoutOnLoadActions) {
-//                    for (DslActionDTO actionDTO : actionSet) {
-//                        final String actionName = actionDTO.getName();
-//                        final Action action = mongoTemplate.findOne(
-//                                query(where(FieldName.PAGE_ID).is(page.getId()))
-//                                        .addCriteria(where(FieldName.NAME).is(actionName)),
-//                                Action.class
-//                        );
-//                        if (action != null) {
-//                            // Update the erroneous action id (template action id) to the cloned action id
-//                            actionDTO.setId(action.getId());
-//                        }
-//                    }
-//                }
-//            }
-//
-//            mongoTemplate.save(page);
-//        }
-//
-//        final long unfixablePagesCount = mongoTemplate.count(
-//                query(where(FieldName.APPLICATION_ID).not().in(applicationIds))
-//                        .addCriteria(where("layouts.layoutOnLoadActions").elemMatch(new Criteria().elemMatch(where("_id").in(actionIds)))),
-//                Page.class
-//        );
-//
-//        if (unfixablePagesCount > 0) {
-//            log.info("Not all pages' onLoad actions could be fixed. Some old applications might not auto-run actions.");
-//
-//        }
-//    }
+    //    @ChangeSet(order = "022", id = "examples-organization", author = "")
+    //    public void examplesOrganization(MongoTemplate mongoTemplate, EncryptionService
+    // encryptionService) throws IOException {
+    //
+    //        final Map<String, String> plugins = new HashMap<>();
+    //
+    //        final List<Map<String, Object>> organizationPlugins = mongoTemplate
+    //                .find(query(where("defaultInstall").is(true)), Plugin.class)
+    //                .stream()
+    //                .map(plugin -> {
+    //                    assert plugin.getId() != null;
+    //                    plugins.put(plugin.getPackageName(), plugin.getId());
+    //                    return Map.of(
+    //                            "pluginId", plugin.getId(),
+    //                            "status", "FREE",
+    //                            FieldName.DELETED, false,
+    //                            "policies", Collections.emptyList()
+    //                    );
+    //                })
+    //                .collect(Collectors.toList());
+    //        final String jsonContent = StreamUtils.copyToString(
+    //                new
+    // DefaultResourceLoader().getResource("examples-organization.json").getInputStream(),
+    //                Charset.defaultCharset()
+    //        );
+    //
+    //        final Map<String, Object> organization = new Gson().fromJson(jsonContent,
+    // HashMap.class);
+    //
+    //        final List<Map<String, Object>> datasources = (List)
+    // organization.remove("$datasources");
+    //        final List<Map<String, Object>> applications = (List)
+    // organization.remove("$applications");
+    //
+    //        organization.put("plugins", organizationPlugins);
+    //        organization.put(FieldName.CREATED_AT, Instant.now());
+    //        final Map<String, Object> insertedOrganization = mongoTemplate.insert(organization,
+    // mongoTemplate.getCollectionName(Organization.class));
+    //        final String organizationId = ((ObjectId)
+    // insertedOrganization.get("_id")).toHexString();
+    //
+    //        final Map<String, String> datasourceIdsByName = new HashMap<>();
+    //
+    //        for (final Map<String, Object> datasource : datasources) {
+    //            datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
+    //            final Map authentication = (Map) ((Map)
+    // datasource.get("datasourceConfiguration")).get("authentication");
+    //            if (authentication != null) {
+    //                final String plainPassword = (String) authentication.get("password");
+    //                authentication.put("password",
+    // encryptionService.encryptString(plainPassword));
+    //            }
+    //            datasource.put(FieldName.ORGANIZATION_ID, organizationId);
+    //            datasource.put(FieldName.CREATED_AT, Instant.now());
+    //            final Map<String, Object> insertedDatasource = mongoTemplate.insert(datasource,
+    // mongoTemplate.getCollectionName(Datasource.class));
+    //            datasourceIdsByName.put((String) datasource.get("name"), ((ObjectId)
+    // insertedDatasource.get("_id")).toHexString());
+    //        }
+    //
+    //        for (final Map<String, Object> application : applications) {
+    //            final List<Map<String, Object>> fullPages = (List) application.remove("$pages");
+    //            final List<Map<String, Object>> embeddedPages = new ArrayList<>();
+    //
+    //            application.put(FieldName.ORGANIZATION_ID, organizationId);
+    //            mongoTemplate.insert(application,
+    // mongoTemplate.getCollectionName(Application.class));
+    //            final String applicationId = ((ObjectId) application.get("_id")).toHexString();
+    //
+    //            for (final Map<String, Object> fullPage : fullPages) {
+    //                final boolean isDefault = (boolean) fullPage.remove("$isDefault");
+    //
+    //                final List<Map<String, Object>> actions = (List) ObjectUtils.defaultIfNull(
+    //                        fullPage.remove("$actions"), Collections.emptyList());
+    //
+    //                final List<Map<String, Object>> layouts = (List)
+    // fullPage.getOrDefault("layouts", Collections.emptyList());
+    //                for (final Map<String, Object> layout : layouts) {
+    //                    layout.put("_id", new ObjectId());
+    //                }
+    //
+    //                fullPage.put("applicationId", applicationId);
+    //                fullPage.put(FieldName.CREATED_AT, Instant.now());
+    //                final Map<String, Object> insertedPage = mongoTemplate.insert(fullPage,
+    // mongoTemplate.getCollectionName(Page.class));
+    //                final String pageId = ((ObjectId) insertedPage.get("_id")).toHexString();
+    //                embeddedPages.add(Map.of(
+    //                        "_id", pageId,
+    //                        "isDefault", isDefault
+    //                ));
+    //
+    //                final Map<String, String> actionIdsByName = new HashMap<>();
+    //                for (final Map<String, Object> action : actions) {
+    //                    final Map<String, Object> datasource = (Map) action.get("datasource");
+    //                    datasource.put("pluginId",
+    // plugins.get(datasource.remove("$pluginPackageName")));
+    //                    datasource.put(FieldName.ORGANIZATION_ID, organizationId);
+    //                    if (FALSE.equals(datasource.remove("$isEmbedded"))) {
+    //                        datasource.put("_id", new
+    // ObjectId(datasourceIdsByName.get(datasource.get("name"))));
+    //                    }
+    //                    action.put(FieldName.ORGANIZATION_ID, organizationId);
+    //                    action.put("pageId", pageId);
+    //                    action.put("pluginId", plugins.get(action.remove("$pluginPackageName")));
+    //                    action.put(FieldName.CREATED_AT, Instant.now());
+    //                    final Map<String, Object> insertedAction = mongoTemplate.insert(action,
+    // mongoTemplate.getCollectionName(Action.class));
+    //                    actionIdsByName.put((String) action.get("name"), ((ObjectId)
+    // insertedAction.get("_id")).toHexString());
+    //                }
+    //
+    //                final List<Map<String, Object>> layouts1 = (List) insertedPage.get("layouts");
+    //                for (Map<String, Object> layout : layouts1) {
+    //                    final List<List<Map<String, Object>>> onLoadActions = (List)
+    // layout.getOrDefault("layoutOnLoadActions", Collections.emptyList());
+    //                    for (final List<Map<String, Object>> actionSet : onLoadActions) {
+    //                        for (final Map<String, Object> action : actionSet) {
+    //                            action.put("_id", new
+    // ObjectId(actionIdsByName.get(action.get("name"))));
+    //                        }
+    //                    }
+    //                    final List<List<Map<String, Object>>> onLoadActions2 = (List)
+    // layout.getOrDefault("publishedLayoutOnLoadActions", Collections.emptyList());
+    //                    for (final List<Map<String, Object>> actionSet : onLoadActions2) {
+    //                        for (final Map<String, Object> action : actionSet) {
+    //                            action.put("_id", new
+    // ObjectId(actionIdsByName.get(action.get("name"))));
+    //                        }
+    //                    }
+    //                }
+    //                mongoTemplate.updateFirst(
+    //                        query(where("_id").is(pageId)),
+    //                        update("layouts", layouts1),
+    //                        Page.class
+    //                );
+    //            }
+    //
+    //            application.put("pages", embeddedPages);
+    //            mongoTemplate.updateFirst(
+    //                    query(where("_id").is(applicationId)),
+    //                    update("pages", embeddedPages),
+    //                    Application.class
+    //            );
+    //        }
+    //
+    //        Config config = new Config();
+    //        config.setName("template-organization");
+    //        config.setConfig(new JSONObject(Map.of("organizationId", organizationId)));
+    //        mongoTemplate.insert(config);
+    //    }
+    //
+    //    @ChangeSet(order = "023", id = "set-example-apps-in-config", author = "")
+    //    public void setExampleAppsInConfig(MongoTemplate mongoTemplate) {
+    //
+    //
+    //        final org.springframework.data.mongodb.core.query.Query configQuery =
+    // query(where("name").is("template-organization"));
+    //
+    //        final Config config = mongoTemplate.findOne(
+    //                configQuery,
+    //                Config.class
+    //        );
+    //
+    //        if (config == null) {
+    //            // No template organization configured. Nothing to migrate.
+    //            return;
+    //        }
+    //
+    //        final String organizationId = config.getConfig().getAsString("organizationId");
+    //
+    //        final List<Application> applications = mongoTemplate.find(
+    //
+    // query(where(fieldName(QApplication.application.organizationId)).is(organizationId)),
+    //                Application.class
+    //        );
+    //
+    //        final List<String> applicationIds = new ArrayList<>();
+    //        for (final Application application : applications) {
+    //            applicationIds.add(application.getId());
+    //        }
+    //
+    //        mongoTemplate.updateFirst(
+    //                configQuery,
+    //                update("config.applicationIds", applicationIds),
+    //                Config.class
+    //        );
+    //    }
+    //
+    //    @ChangeSet(order = "024", id = "update-erroneous-action-ids", author = "")
+    //    public void updateErroneousActionIdsInPage(MongoTemplate mongoTemplate) {
+    //        final org.springframework.data.mongodb.core.query.Query configQuery =
+    // query(where("name").is("template-organization"));
+    //
+    //        final Config config = mongoTemplate.findOne(
+    //                configQuery,
+    //                Config.class
+    //        );
+    //
+    //        if (config == null) {
+    //            // No template organization configured. Nothing to migrate.
+    //            return;
+    //        }
+    //
+    //        final String organizationId = config.getConfig().getAsString("organizationId");
+    //
+    //        final org.springframework.data.mongodb.core.query.Query query =
+    // query(where(FieldName.ORGANIZATION_ID).is(organizationId));
+    //        query.fields().include("_id");
+    //
+    //        // Get IDs of applications in the template org.
+    //        final List<String> applicationIds = mongoTemplate
+    //                .find(query, Application.class)
+    //                .stream()
+    //                .map(BaseDomain::getId)
+    //                .collect(Collectors.toList());
+    //
+    //        // Get IDs of actions in the template org.
+    //        final List<String> actionIds = mongoTemplate
+    //                .find(query, Action.class)
+    //                .stream()
+    //                .map(BaseDomain::getId)
+    //                .collect(Collectors.toList());
+    //
+    //        // Get pages that are not in applications in the template org, and have template org's
+    // action IDs in their
+    //        // layoutOnload lists.
+    //        final Criteria incorrectActionIdCriteria = new Criteria().orOperator(
+    //                where("layouts.layoutOnLoadActions").elemMatch(new
+    // Criteria().elemMatch(where("_id").in(actionIds))),
+    //                where("layouts.publishedLayoutOnLoadActions").elemMatch(new
+    // Criteria().elemMatch(where("_id").in(actionIds)))
+    //        );
+    //        final List<Page> pagesToFix = mongoTemplate.find(
+    //                query(where(FieldName.APPLICATION_ID).not().in(applicationIds))
+    //                        .addCriteria(incorrectActionIdCriteria),
+    //                Page.class
+    //        );
+    //
+    //
+    //        for (Page page : pagesToFix) {
+    //            for (Layout layout : page.getLayouts()) {
+    //                final ArrayList<Set<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
+    //                if (layout.getLayoutOnLoadActions() != null) {
+    //                    layoutOnLoadActions.addAll(layout.getLayoutOnLoadActions());
+    //                }
+    //                if (layout.getPublishedLayoutOnLoadActions() != null) {
+    //                    layoutOnLoadActions.addAll(layout.getPublishedLayoutOnLoadActions());
+    //                }
+    //                for (Set<DslActionDTO> actionSet : layoutOnLoadActions) {
+    //                    for (DslActionDTO actionDTO : actionSet) {
+    //                        final String actionName = actionDTO.getName();
+    //                        final Action action = mongoTemplate.findOne(
+    //                                query(where(FieldName.PAGE_ID).is(page.getId()))
+    //                                        .addCriteria(where(FieldName.NAME).is(actionName)),
+    //                                Action.class
+    //                        );
+    //                        if (action != null) {
+    //                            // Update the erroneous action id (template action id) to the
+    // cloned action id
+    //                            actionDTO.setId(action.getId());
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //
+    //            mongoTemplate.save(page);
+    //        }
+    //
+    //        final long unfixablePagesCount = mongoTemplate.count(
+    //                query(where(FieldName.APPLICATION_ID).not().in(applicationIds))
+    //                        .addCriteria(where("layouts.layoutOnLoadActions").elemMatch(new
+    // Criteria().elemMatch(where("_id").in(actionIds)))),
+    //                Page.class
+    //        );
+    //
+    //        if (unfixablePagesCount > 0) {
+    //            log.info("Not all pages' onLoad actions could be fixed. Some old applications
+    // might not auto-run actions.");
+    //
+    //        }
+    //    }
 
     @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "")
     public void generateUniqueIdForInstance(MongoTemplate mongoTemplate) {
-        mongoTemplate.insert(new Config(
-                new JSONObject(Map.of("value", new ObjectId().toHexString())),
-                "instance-id"
-        ));
+        mongoTemplate.insert(
+                new Config(
+                        new JSONObject(Map.of("value", new ObjectId().toHexString())),
+                        "instance-id"));
     }
 
     @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
@@ -1029,11 +1129,11 @@ public class DatabaseChangelog1 {
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
 
-        ensureIndexes(mongoTemplate, PasswordResetToken.class,
-                makeIndex(FieldName.CREATED_AT)
-                        .expire(2, TimeUnit.DAYS),
-                makeIndex(FieldName.EMAIL).unique()
-        );
+        ensureIndexes(
+                mongoTemplate,
+                PasswordResetToken.class,
+                makeIndex(FieldName.CREATED_AT).expire(2, TimeUnit.DAYS),
+                makeIndex(FieldName.EMAIL).unique());
     }
 
     @ChangeSet(order = "027", id = "add-elastic-search-plugin", author = "")
@@ -1044,8 +1144,10 @@ public class DatabaseChangelog1 {
         plugin1.setPackageName("elasticsearch-plugin");
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
-        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
+        plugin1.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
+        plugin1.setDocumentationLink(
+                "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1064,8 +1166,10 @@ public class DatabaseChangelog1 {
         plugin1.setPackageName("dynamo-plugin");
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
-        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
+        plugin1.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
+        plugin1.setDocumentationLink(
+                "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1080,10 +1184,10 @@ public class DatabaseChangelog1 {
     public void usePngLogos(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
-                update(fieldName(QPlugin.plugin.iconLocation),
+                update(
+                        fieldName(QPlugin.plugin.iconLocation),
                         "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
-                Plugin.class
-        );
+                Plugin.class);
     }
 
     @ChangeSet(order = "030", id = "add-redis-plugin", author = "")
@@ -1095,7 +1199,8 @@ public class DatabaseChangelog1 {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
+        plugin1.setDocumentationLink(
+                "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1115,7 +1220,8 @@ public class DatabaseChangelog1 {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
+        plugin1.setDocumentationLink(
+                "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1134,9 +1240,7 @@ public class DatabaseChangelog1 {
         mongoTemplate.dropCollection(NewPage.class);
 
         // Now add an index
-        ensureIndexes(mongoTemplate, NewPage.class,
-                createdAtIndex
-        );
+        ensureIndexes(mongoTemplate, NewPage.class, createdAtIndex);
     }
 
     @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "")
@@ -1147,17 +1251,12 @@ public class DatabaseChangelog1 {
         mongoTemplate.dropCollection(NewAction.class);
 
         // Now add an index
-        ensureIndexes(mongoTemplate, NewAction.class,
-                createdAtIndex
-        );
+        ensureIndexes(mongoTemplate, NewAction.class, createdAtIndex);
     }
 
     @ChangeSet(order = "039", id = "migrate-page-and-actions", author = "")
     public void migratePage(MongoTemplate mongoTemplate) {
-        final List<Page> pages = mongoTemplate.find(
-                query(where("deletedAt").is(null)),
-                Page.class
-        );
+        final List<Page> pages = mongoTemplate.find(query(where("deletedAt").is(null)), Page.class);
 
         List<NewPage> toBeInsertedPages = new ArrayList<>();
 
@@ -1185,7 +1284,8 @@ public class DatabaseChangelog1 {
                     publishedLayout.setViewMode(true);
                     copyNewFieldValuesIntoOldObject(layout, publishedLayout);
                     publishedLayout.setDsl(publishedLayout.getDsl());
-                    publishedLayout.setLayoutOnLoadActions(publishedLayout.getPublishedLayoutOnLoadActions());
+                    publishedLayout.setLayoutOnLoadActions(
+                            publishedLayout.getPublishedLayoutOnLoadActions());
                     publishedLayout.setPublishedDsl(null);
                     publishedLayout.setPublishedLayoutOnLoadActions(null);
                     publishedPage.getLayouts().add(publishedLayout);
@@ -1197,7 +1297,7 @@ public class DatabaseChangelog1 {
             newPage.setPublishedPage(publishedPage);
             newPage.setUnpublishedPage(unpublishedPage);
 
-            //Set the base domain fields
+            // Set the base domain fields
             newPage.setId(oldPage.getId());
             newPage.setCreatedAt(oldPage.getCreatedAt());
             newPage.setUpdatedAt(oldPage.getUpdatedAt());
@@ -1209,14 +1309,11 @@ public class DatabaseChangelog1 {
 
         // Migrate Actions now
 
-        Map<String, String> pageIdApplicationIdMap = pages
-                .stream()
-                .collect(Collectors.toMap(Page::getId, Page::getApplicationId));
+        Map<String, String> pageIdApplicationIdMap =
+                pages.stream().collect(Collectors.toMap(Page::getId, Page::getApplicationId));
 
-        final List<Action> actions = mongoTemplate.find(
-                query(where("deletedAt").is(null)),
-                Action.class
-        );
+        final List<Action> actions =
+                mongoTemplate.find(query(where("deletedAt").is(null)), Action.class);
 
         List<NewAction> toBeInsertedActions = new ArrayList<>();
 
@@ -1233,8 +1330,10 @@ public class DatabaseChangelog1 {
             newAction.setProviderId(oldAction.getProviderId());
             newAction.setDocumentation(oldAction.getDocumentation());
 
-            // During the first migration, both the published and the unpublished action dtos would match the existing
-            // action because before this action only had a single instance (whether in edit/view mode)
+            // During the first migration, both the published and the unpublished action dtos would
+            // match the existing
+            // action because before this action only had a single instance (whether in edit/view
+            // mode)
             newAction.setUnpublishedAction(unpublishedAction);
             newAction.setPublishedAction(publishedAction);
 
@@ -1250,7 +1349,7 @@ public class DatabaseChangelog1 {
                 newAction.setPluginId(oldAction.getDatasource().getPluginId());
             }
 
-            //Set the base domain fields
+            // Set the base domain fields
             newAction.setId(oldAction.getId());
             newAction.setCreatedAt(oldAction.getCreatedAt());
             newAction.setUpdatedAt(oldAction.getUpdatedAt());
@@ -1260,7 +1359,6 @@ public class DatabaseChangelog1 {
         }
 
         mongoTemplate.insertAll(toBeInsertedActions);
-
     }
 
     @ChangeSet(order = "040", id = "new-page-new-action-add-indexes", author = "")
@@ -1268,44 +1366,40 @@ public class DatabaseChangelog1 {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "createdAt");
 
-        ensureIndexes(mongoTemplate, NewAction.class,
+        ensureIndexes(
+                mongoTemplate,
+                NewAction.class,
                 makeIndex("applicationId", "deleted", "createdAt")
-                        .named("applicationId_deleted_createdAt_compound_index")
-        );
+                        .named("applicationId_deleted_createdAt_compound_index"));
 
         dropIndexIfExists(mongoTemplate, NewPage.class, "createdAt");
 
-        ensureIndexes(mongoTemplate, NewPage.class,
+        ensureIndexes(
+                mongoTemplate,
+                NewPage.class,
                 makeIndex("applicationId", "deleted")
-                        .named("applicationId_deleted_compound_index")
-        );
-
+                        .named("applicationId_deleted_compound_index"));
     }
 
     @ChangeSet(order = "041", id = "new-action-add-index-pageId", author = "")
     public void addNewActionIndexForPageId(MongoTemplate mongoTemplate) {
 
-        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_createdAt_compound_index");
-
+        dropIndexIfExists(
+                mongoTemplate, NewAction.class, "applicationId_deleted_createdAt_compound_index");
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
     public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
 
-        ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex("applicationId")
-                        .named("applicationId")
-        );
+        ensureIndexes(
+                mongoTemplate, NewAction.class, makeIndex("applicationId").named("applicationId"));
 
-        ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex("unpublishedAction.pageId")
-                        .named("unpublishedAction_pageId")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                NewAction.class,
+                makeIndex("unpublishedAction.pageId").named("unpublishedAction_pageId"));
 
-        ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex("deleted")
-                        .named("deleted")
-        );
+        ensureIndexes(mongoTemplate, NewAction.class, makeIndex("deleted").named("deleted"));
     }
 
     @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
@@ -1316,8 +1410,10 @@ public class DatabaseChangelog1 {
         plugin.setPackageName("firestore-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
+        plugin.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
+        plugin.setDocumentationLink(
+                "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1333,115 +1429,105 @@ public class DatabaseChangelog1 {
         final String iconFieldName = fieldName(QApplication.application.icon);
         final String colorFieldName = fieldName(QApplication.application.color);
 
-        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().orOperator(
-                where(iconFieldName).exists(false),
-                where(colorFieldName).exists(false)
-        ));
+        final org.springframework.data.mongodb.core.query.Query query =
+                query(
+                        new Criteria()
+                                .orOperator(
+                                        where(iconFieldName).exists(false),
+                                        where(colorFieldName).exists(false)));
 
-        // We are only getting the icon and color fields, rest will be null (or default values) in the
+        // We are only getting the icon and color fields, rest will be null (or default values) in
+        // the
         // resulting Application objects.
         query.fields().include("_id").include(iconFieldName).include(colorFieldName);
 
-        final List<String> iconPool = List.of(
-                "bag",
-                "product",
-                "book",
-                "camera",
-                "file",
-                "chat",
-                "calender",
-                "flight",
-                "frame",
-                "globe",
-                "shopper",
-                "heart",
-                "alien",
-                "bar-graph",
-                "basketball",
-                "bicycle",
-                "bird",
-                "bitcoin",
-                "burger",
-                "bus",
-                "call",
-                "car",
-                "card",
-                "cat",
-                "chinese-remnibi",
-                "cloud",
-                "coding",
-                "couples",
-                "cricket",
-                "diamond",
-                "dog",
-                "dollar",
-                "earth",
-                "email",
-                "euros",
-                "family",
-                "flag",
-                "football",
-                "hat",
-                "headphones",
-                "hospital",
-                "joystick",
-                "laptop",
-                "line-chart",
-                "location",
-                "lotus",
-                "love",
-                "medal",
-                "medical",
-                "money",
-                "moon",
-                "mug",
-                "music",
-                "pants",
-                "pie-chart",
-                "pizza",
-                "plant",
-                "rainy-weather",
-                "restaurant",
-                "rocket",
-                "rose",
-                "rupee",
-                "saturn",
-                "server",
-                "shake-hands",
-                "shirt",
-                "shop",
-                "single-person",
-                "smartphone",
-                "snowy-weather",
-                "stars",
-                "steam-bowl",
-                "sunflower",
-                "system",
-                "team",
-                "tree",
-                "uk-pounds",
-                "website",
-                "yen",
-                "airplane"
-        );
-        final List<String> colorPool = List.of(
-                "#6C4CF1",
-                "#4F70FD",
-                "#F56AF4",
-                "#B94CF1",
-                "#54A9FB",
-                "#5ED3DA",
-                "#5EDA82",
-                "#A8D76C",
-                "#E9C951",
-                "#FE9F44",
-                "#ED86A1",
-                "#EA6179",
-                "#C03C3C",
-                "#BC6DB2",
-                "#6C9DD0",
-                "#6CD0CF"
-        );
+        final List<String> iconPool =
+                List.of(
+                        "bag",
+                        "product",
+                        "book",
+                        "camera",
+                        "file",
+                        "chat",
+                        "calender",
+                        "flight",
+                        "frame",
+                        "globe",
+                        "shopper",
+                        "heart",
+                        "alien",
+                        "bar-graph",
+                        "basketball",
+                        "bicycle",
+                        "bird",
+                        "bitcoin",
+                        "burger",
+                        "bus",
+                        "call",
+                        "car",
+                        "card",
+                        "cat",
+                        "chinese-remnibi",
+                        "cloud",
+                        "coding",
+                        "couples",
+                        "cricket",
+                        "diamond",
+                        "dog",
+                        "dollar",
+                        "earth",
+                        "email",
+                        "euros",
+                        "family",
+                        "flag",
+                        "football",
+                        "hat",
+                        "headphones",
+                        "hospital",
+                        "joystick",
+                        "laptop",
+                        "line-chart",
+                        "location",
+                        "lotus",
+                        "love",
+                        "medal",
+                        "medical",
+                        "money",
+                        "moon",
+                        "mug",
+                        "music",
+                        "pants",
+                        "pie-chart",
+                        "pizza",
+                        "plant",
+                        "rainy-weather",
+                        "restaurant",
+                        "rocket",
+                        "rose",
+                        "rupee",
+                        "saturn",
+                        "server",
+                        "shake-hands",
+                        "shirt",
+                        "shop",
+                        "single-person",
+                        "smartphone",
+                        "snowy-weather",
+                        "stars",
+                        "steam-bowl",
+                        "sunflower",
+                        "system",
+                        "team",
+                        "tree",
+                        "uk-pounds",
+                        "website",
+                        "yen",
+                        "airplane");
+        final List<String> colorPool =
+                List.of(
+                        "#6C4CF1", "#4F70FD", "#F56AF4", "#B94CF1", "#54A9FB", "#5ED3DA", "#5EDA82",
+                        "#A8D76C", "#E9C951", "#FE9F44", "#ED86A1", "#EA6179", "#C03C3C", "#BC6DB2",
+                        "#6C9DD0", "#6CD0CF");
 
         final Random iconRands = new Random();
         final Random colorRands = new Random();
@@ -1454,99 +1540,144 @@ public class DatabaseChangelog1 {
                 mongoTemplate.updateFirst(
                         query(where(fieldName(QApplication.application.id)).is(app.getId())),
                         update(iconFieldName, iconPool.get(iconRands.nextInt(iconPoolSize))),
-                        Application.class
-                );
+                        Application.class);
             }
 
             if (app.getColor() == null) {
                 mongoTemplate.updateFirst(
                         query(where(fieldName(QApplication.application.id)).is(app.getId())),
                         update(colorFieldName, colorPool.get(colorRands.nextInt(colorPoolSize))),
-                        Application.class
-                );
+                        Application.class);
             }
         }
     }
 
     @ChangeSet(order = "045", id = "update-authentication-type", author = "")
     public void updateAuthenticationTypes(MongoTemplate mongoTemplate) {
-        mongoTemplate.execute("datasource", new CollectionCallback<String>() {
-            @Override
-            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
-                // Only update _class for authentication objects that exist
-                MongoCursor cursor = collection.find(Filters.exists("datasourceConfiguration.authentication")).cursor();
-                while (cursor.hasNext()) {
-                    Document current = (Document) cursor.next();
-                    Document old = Document.parse(current.toJson());
+        mongoTemplate.execute(
+                "datasource",
+                new CollectionCallback<String>() {
+                    @Override
+                    public String doInCollection(MongoCollection<Document> collection)
+                            throws MongoException, DataAccessException {
+                        // Only update _class for authentication objects that exist
+                        MongoCursor cursor =
+                                collection
+                                        .find(
+                                                Filters.exists(
+                                                        "datasourceConfiguration.authentication"))
+                                        .cursor();
+                        while (cursor.hasNext()) {
+                            Document current = (Document) cursor.next();
+                            Document old = Document.parse(current.toJson());
 
-                    // Extra precaution to only update _class for authentication objects that don't already have this
-                    // Is this condition required? What does production datasource look like?
-                    ((Document) ((Document) current.get("datasourceConfiguration"))
-                            .get("authentication"))
-                            .putIfAbsent("_class", "dbAuth");
+                            // Extra precaution to only update _class for authentication objects
+                            // that don't already have this
+                            // Is this condition required? What does production datasource look
+                            // like?
+                            ((Document)
+                                            ((Document) current.get("datasourceConfiguration"))
+                                                    .get("authentication"))
+                                    .putIfAbsent("_class", "dbAuth");
 
-                    // Replace old document with the new one
-                    collection.findOneAndReplace(old, current);
-                }
-                return null;
-            }
-        });
+                            // Replace old document with the new one
+                            collection.findOneAndReplace(old, current);
+                        }
+                        return null;
+                    }
+                });
 
-        mongoTemplate.execute("newAction", new CollectionCallback<String>() {
-            @Override
-            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
-                // Only update _class for authentication objects that exist
-                MongoCursor cursor = collection
-                        .find(Filters.and(
-                                Filters.exists("unpublishedAction.datasource"),
-                                Filters.exists("unpublishedAction.datasource.datasourceConfiguration"),
-                                Filters.exists("unpublishedAction.datasource.datasourceConfiguration.authentication"))).cursor();
-                while (cursor.hasNext()) {
-                    Document current = (Document) cursor.next();
-                    Document old = Document.parse(current.toJson());
+        mongoTemplate.execute(
+                "newAction",
+                new CollectionCallback<String>() {
+                    @Override
+                    public String doInCollection(MongoCollection<Document> collection)
+                            throws MongoException, DataAccessException {
+                        // Only update _class for authentication objects that exist
+                        MongoCursor cursor =
+                                collection
+                                        .find(
+                                                Filters.and(
+                                                        Filters.exists(
+                                                                "unpublishedAction.datasource"),
+                                                        Filters.exists(
+                                                                "unpublishedAction.datasource.datasourceConfiguration"),
+                                                        Filters.exists(
+                                                                "unpublishedAction.datasource.datasourceConfiguration.authentication")))
+                                        .cursor();
+                        while (cursor.hasNext()) {
+                            Document current = (Document) cursor.next();
+                            Document old = Document.parse(current.toJson());
 
-                    // Extra precaution to only update _class for authentication objects that don't already have this
-                    // Is this condition required? What does production datasource look like?
-                    ((Document) ((Document) ((Document) ((Document) current.get("unpublishedAction"))
-                            .get("datasource"))
-                            .get("datasourceConfiguration"))
-                            .get("authentication"))
-                            .putIfAbsent("_class", "dbAuth");
+                            // Extra precaution to only update _class for authentication objects
+                            // that don't already have this
+                            // Is this condition required? What does production datasource look
+                            // like?
+                            ((Document)
+                                            ((Document)
+                                                            ((Document)
+                                                                            ((Document)
+                                                                                            current
+                                                                                                    .get(
+                                                                                                            "unpublishedAction"))
+                                                                                    .get(
+                                                                                            "datasource"))
+                                                                    .get("datasourceConfiguration"))
+                                                    .get("authentication"))
+                                    .putIfAbsent("_class", "dbAuth");
 
-                    // Replace old document with the new one
-                    collection.findOneAndReplace(old, current);
-                }
-                return null;
-            }
-        });
+                            // Replace old document with the new one
+                            collection.findOneAndReplace(old, current);
+                        }
+                        return null;
+                    }
+                });
 
-        mongoTemplate.execute("newAction", new CollectionCallback<String>() {
-            @Override
-            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
-                // Only update _class for authentication objects that exist
-                MongoCursor cursor = collection
-                        .find(Filters.and(
-                                Filters.exists("publishedAction.datasource"),
-                                Filters.exists("publishedAction.datasource.datasourceConfiguration"),
-                                Filters.exists("publishedAction.datasource.datasourceConfiguration.authentication"))).cursor();
-                while (cursor.hasNext()) {
-                    Document current = (Document) cursor.next();
-                    Document old = Document.parse(current.toJson());
+        mongoTemplate.execute(
+                "newAction",
+                new CollectionCallback<String>() {
+                    @Override
+                    public String doInCollection(MongoCollection<Document> collection)
+                            throws MongoException, DataAccessException {
+                        // Only update _class for authentication objects that exist
+                        MongoCursor cursor =
+                                collection
+                                        .find(
+                                                Filters.and(
+                                                        Filters.exists(
+                                                                "publishedAction.datasource"),
+                                                        Filters.exists(
+                                                                "publishedAction.datasource.datasourceConfiguration"),
+                                                        Filters.exists(
+                                                                "publishedAction.datasource.datasourceConfiguration.authentication")))
+                                        .cursor();
+                        while (cursor.hasNext()) {
+                            Document current = (Document) cursor.next();
+                            Document old = Document.parse(current.toJson());
 
-                    // Extra precaution to only update _class for authentication objects that don't already have this
-                    // Is this condition required? What does production datasource look like?
-                    ((Document) ((Document) ((Document) ((Document) current.get("publishedAction"))
-                            .get("datasource"))
-                            .get("datasourceConfiguration"))
-                            .get("authentication"))
-                            .putIfAbsent("_class", "dbAuth");
+                            // Extra precaution to only update _class for authentication objects
+                            // that don't already have this
+                            // Is this condition required? What does production datasource look
+                            // like?
+                            ((Document)
+                                            ((Document)
+                                                            ((Document)
+                                                                            ((Document)
+                                                                                            current
+                                                                                                    .get(
+                                                                                                            "publishedAction"))
+                                                                                    .get(
+                                                                                            "datasource"))
+                                                                    .get("datasourceConfiguration"))
+                                                    .get("authentication"))
+                                    .putIfAbsent("_class", "dbAuth");
 
-                    // Replace old document with the new one
-                    collection.findOneAndReplace(old, current);
-                }
-                return null;
-            }
-        });
+                            // Replace old document with the new one
+                            collection.findOneAndReplace(old, current);
+                        }
+                        return null;
+                    }
+                });
     }
 
     @ChangeSet(order = "047", id = "add-isSendSessionEnabled-key-for-datasources", author = "")
@@ -1554,12 +1685,12 @@ public class DatabaseChangelog1 {
 
         String keyName = "isSendSessionEnabled";
 
-        Plugin restApiPlugin = mongoTemplate.findOne(
-                query(where("packageName").is("restapi-plugin")),
-                Plugin.class
-        );
+        Plugin restApiPlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("restapi-plugin")), Plugin.class);
 
-        final org.springframework.data.mongodb.core.query.Query query = query(where("pluginId").is(restApiPlugin.getId()));
+        final org.springframework.data.mongodb.core.query.Query query =
+                query(where("pluginId").is(restApiPlugin.getId()));
 
         for (Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
             // Find if the datasource should be updated with the new key
@@ -1573,10 +1704,10 @@ public class DatabaseChangelog1 {
                 datasource.getDatasourceConfiguration().setProperties(new ArrayList<>());
             } else {
                 List<Property> properties = datasource.getDatasourceConfiguration().getProperties();
-                Optional<Property> isSendSessionEnabledOptional = properties
-                        .stream()
-                        .filter(property -> keyName.equals(property.getKey()))
-                        .findFirst();
+                Optional<Property> isSendSessionEnabledOptional =
+                        properties.stream()
+                                .filter(property -> keyName.equals(property.getKey()))
+                                .findFirst();
 
                 if (!isSendSessionEnabledOptional.isPresent()) {
                     updateRequired = true;
@@ -1591,7 +1722,6 @@ public class DatabaseChangelog1 {
                 datasource.getDatasourceConfiguration().getProperties().add(newProperty);
                 mongoTemplate.save(datasource);
             }
-
         }
     }
 
@@ -1603,8 +1733,10 @@ public class DatabaseChangelog1 {
         plugin.setPackageName("redshift-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+        plugin.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
+        plugin.setDocumentationLink(
+                "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1625,31 +1757,40 @@ public class DatabaseChangelog1 {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             switch (plugin.getPackageName()) {
                 case "postgres-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres");
                     break;
                 case "mongo-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
                     break;
                 case "elasticsearch-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
                     break;
                 case "dynamo-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
                     break;
                 case "redis-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
                     break;
                 case "mssql-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
                     break;
                 case "firestore-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
                     break;
                 case "redshift-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
                     break;
                 case "mysql-plugin":
-                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mysql");
+                    plugin.setDocumentationLink(
+                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mysql");
                     break;
                 default:
                     continue;
@@ -1667,8 +1808,10 @@ public class DatabaseChangelog1 {
         plugin.setPackageName("amazons3-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
+        plugin.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
+        plugin.setDocumentationLink(
+                "https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1681,28 +1824,44 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
     public void addAppViewerInvitePolicy(MongoTemplate mongoTemplate) {
-        final List<Organization> organizations = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.ORGANIZATION_VIEWER.name())
-                )),
-                Organization.class
-        );
+        final List<Organization> organizations =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(
+                                                                fieldName(
+                                                                                QOrganization
+                                                                                        .organization
+                                                                                        .userRoles)
+                                                                        + ".role")
+                                                        .is(
+                                                                AppsmithRole.ORGANIZATION_VIEWER
+                                                                        .name()))),
+                        Organization.class);
 
         for (final Organization org : organizations) {
-            final Set<String> viewers = org.getUserRoles().stream()
-                    .filter(role -> AppsmithRole.ORGANIZATION_VIEWER == role.getRole())
-                    .map(UserRole::getUsername)
-                    .collect(Collectors.toSet());
+            final Set<String> viewers =
+                    org.getUserRoles().stream()
+                            .filter(role -> AppsmithRole.ORGANIZATION_VIEWER == role.getRole())
+                            .map(UserRole::getUsername)
+                            .collect(Collectors.toSet());
             mongoTemplate.updateFirst(
-                    query(new Criteria().andOperator(
-                            where(fieldName(QOrganization.organization.id)).is(org.getId()),
-                            where(fieldName(QOrganization.organization.policies) + ".permission").is(WORKSPACE_INVITE_USERS.getValue())
-                    )),
+                    query(
+                            new Criteria()
+                                    .andOperator(
+                                            where(fieldName(QOrganization.organization.id))
+                                                    .is(org.getId()),
+                                            where(
+                                                            fieldName(
+                                                                            QOrganization
+                                                                                    .organization
+                                                                                    .policies)
+                                                                    + ".permission")
+                                                    .is(WORKSPACE_INVITE_USERS.getValue()))),
                     new Update().addToSet("policies.$.users").each(viewers.toArray()),
-                    Organization.class
-            );
+                    Organization.class);
         }
-
     }
 
     @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
@@ -1739,12 +1898,16 @@ public class DatabaseChangelog1 {
             if (action.getPluginType() != null && action.getPluginType().equals("API")) {
                 if (action.getUnpublishedAction() != null
                         && action.getUnpublishedAction().getActionConfiguration() != null) {
-                    action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                    action.getUnpublishedAction()
+                            .getActionConfiguration()
+                            .setEncodeParamsToggle(true);
                 }
 
                 if (action.getPublishedAction() != null
                         && action.getPublishedAction().getActionConfiguration() != null) {
-                    action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                    action.getPublishedAction()
+                            .getActionConfiguration()
+                            .setEncodeParamsToggle(true);
                 }
                 mongoTemplate.save(action);
             }
@@ -1752,13 +1915,17 @@ public class DatabaseChangelog1 {
     }
 
     @ChangeSet(order = "055", id = "update-postgres-plugin-preparedStatement-config", author = "")
-    public void updatePostgresActionsSetPreparedStatementConfiguration(MongoTemplate mongoTemplate) {
+    public void updatePostgresActionsSetPreparedStatementConfiguration(
+            MongoTemplate mongoTemplate) {
 
-        List<Plugin> plugins = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QPlugin.plugin.packageName)).is("postgres-plugin")
-                )),
-                Plugin.class);
+        List<Plugin> plugins =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QPlugin.plugin.packageName))
+                                                        .is("postgres-plugin"))),
+                        Plugin.class);
 
         if (plugins.size() < 1) {
             return;
@@ -1767,12 +1934,14 @@ public class DatabaseChangelog1 {
         Plugin postgresPlugin = plugins.get(0);
 
         // Fetch all the actions built on top of a postgres database
-        List<NewAction> postgresActions = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(postgresPlugin.getId())
-                )),
-                NewAction.class
-        );
+        List<NewAction> postgresActions =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QNewAction.newAction.pluginId))
+                                                        .is(postgresPlugin.getId()))),
+                        NewAction.class);
 
         for (NewAction action : postgresActions) {
             List<Property> pluginSpecifiedTemplates = new ArrayList<>();
@@ -1780,11 +1949,16 @@ public class DatabaseChangelog1 {
 
             // We have found an action of postgres plugin type
             if (action.getUnpublishedAction().getActionConfiguration() != null) {
-                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+                action.getUnpublishedAction()
+                        .getActionConfiguration()
+                        .setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
             }
 
-            if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
-                action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            if (action.getPublishedAction() != null
+                    && action.getPublishedAction().getActionConfiguration() != null) {
+                action.getPublishedAction()
+                        .getActionConfiguration()
+                        .setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
             }
 
             mongoTemplate.save(action);
@@ -1796,51 +1970,58 @@ public class DatabaseChangelog1 {
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
 
             // We have found an action with dynamic binding path list set by the client.
-            List<Property> dynamicBindingPaths = action.getUnpublishedAction().getDynamicBindingPathList();
+            List<Property> dynamicBindingPaths =
+                    action.getUnpublishedAction().getDynamicBindingPathList();
 
             // Only investigate actions which have atleast one dynamic binding path list
-            if (action.getUnpublishedAction().getActionConfiguration() != null && !isNullOrEmpty(dynamicBindingPaths)) {
+            if (action.getUnpublishedAction().getActionConfiguration() != null
+                    && !isNullOrEmpty(dynamicBindingPaths)) {
 
-                List<String> dynamicBindingPathNames = dynamicBindingPaths
-                        .stream()
-                        .map(property -> property.getKey())
-                        .collect(Collectors.toList());
+                List<String> dynamicBindingPathNames =
+                        dynamicBindingPaths.stream()
+                                .map(property -> property.getKey())
+                                .collect(Collectors.toList());
 
                 // Initialize the final updated binding path list with the existing path names.
                 List<String> finalDynamicBindingPathList = new ArrayList<>();
                 finalDynamicBindingPathList.addAll(dynamicBindingPathNames);
 
-                Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
+                Set<String> pathsToRemove =
+                        getInvalidDynamicBindingPathsInAction(
+                                objectMapper, action, dynamicBindingPathNames);
 
                 Boolean actionEdited = pathsToRemove.size() > 0 ? TRUE : FALSE;
 
                 // Only update the action if required
                 if (actionEdited) {
-                    // We have walked all the dynamic binding paths which either dont exist or they exist but don't contain any mustache bindings
+                    // We have walked all the dynamic binding paths which either dont exist or they
+                    // exist but don't contain any mustache bindings
                     for (String path : dynamicBindingPathNames) {
                         if (pathsToRemove.contains(path)) {
                             finalDynamicBindingPathList.remove(path);
                         }
                     }
 
-                    List<Property> updatedDynamicBindingPathList = finalDynamicBindingPathList
-                            .stream()
-                            .map(path -> {
-                                Property property = new Property();
-                                property.setKey(path);
-                                return property;
-                            })
-                            .collect(Collectors.toList());
+                    List<Property> updatedDynamicBindingPathList =
+                            finalDynamicBindingPathList.stream()
+                                    .map(
+                                            path -> {
+                                                Property property = new Property();
+                                                property.setKey(path);
+                                                return property;
+                                            })
+                                    .collect(Collectors.toList());
 
-                    action.getUnpublishedAction().setDynamicBindingPathList(updatedDynamicBindingPathList);
+                    action.getUnpublishedAction()
+                            .setDynamicBindingPathList(updatedDynamicBindingPathList);
                     mongoTemplate.save(action);
                 }
             }
-
         }
     }
 
-    private static Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+    private static Set<String> getInvalidDynamicBindingPathsInAction(
+            ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
         Set<String> pathsToRemove = new HashSet<>();
         for (String path : dynamicBindingPathNames) {
 
@@ -1848,10 +2029,16 @@ public class DatabaseChangelog1 {
 
                 String[] fields = path.split("[].\\[]");
 
-                // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
-                Map<String, Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
+                // Convert actionConfiguration into JSON Object and then walk till we reach the path
+                // specified.
+                Map<String, Object> actionConfigurationMap =
+                        mapper.convertValue(
+                                action.getUnpublishedAction().getActionConfiguration(), Map.class);
                 Object parent = new JSONObject(actionConfigurationMap);
-                Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                Iterator<String> fieldsIterator =
+                        Arrays.stream(fields)
+                                .filter(fieldToken -> !fieldToken.isBlank())
+                                .iterator();
                 Boolean isLeafNode = false;
 
                 while (fieldsIterator.hasNext()) {
@@ -1865,11 +2052,13 @@ public class DatabaseChangelog1 {
                             try {
                                 parent = ((List) parent).get(Integer.parseInt(nextKey));
                             } catch (IndexOutOfBoundsException e) {
-                                // The index being referred does not exist. Hence the path would not exist.
+                                // The index being referred does not exist. Hence the path would not
+                                // exist.
                                 pathsToRemove.add(path);
                             }
                         } else {
-                            // Parent is a list but does not match the pattern. Hence the path would not exist.
+                            // Parent is a list but does not match the pattern. Hence the path would
+                            // not exist.
                             pathsToRemove.add(path);
                             break;
                         }
@@ -1886,15 +2075,18 @@ public class DatabaseChangelog1 {
                 }
                 // Only extract mustache keys from leaf nodes
                 if (parent != null && isLeafNode) {
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
+                    Set<String> mustacheKeysFromFields =
+                            MustacheHelper.extractMustacheKeysFromFields(parent).stream()
+                                    .map(token -> token.getValue())
+                                    .collect(Collectors.toSet());
 
-                    // We found the path. But if the path does not have any mustache bindings, remove it from the path list
+                    // We found the path. But if the path does not have any mustache bindings,
+                    // remove it from the path list
                     if (mustacheKeysFromFields.isEmpty()) {
                         pathsToRemove.add(path);
                     }
                 }
             }
-
         }
         return pathsToRemove;
     }
@@ -1907,17 +2099,33 @@ public class DatabaseChangelog1 {
 
             if (action.getUnpublishedAction() != null
                     && action.getUnpublishedAction().getActionConfiguration() != null
-                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
-                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
-                action.getUnpublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                    && action.getUnpublishedAction()
+                                    .getActionConfiguration()
+                                    .getTimeoutInMillisecond()
+                            != null
+                    && action.getUnpublishedAction()
+                                    .getActionConfiguration()
+                                    .getTimeoutInMillisecond()
+                            > 60000) {
+                action.getUnpublishedAction()
+                        .getActionConfiguration()
+                        .setTimeoutInMillisecond("60000");
                 updateTimeout = true;
             }
 
             if (action.getPublishedAction() != null
                     && action.getPublishedAction().getActionConfiguration() != null
-                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
-                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
-                action.getPublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                    && action.getPublishedAction()
+                                    .getActionConfiguration()
+                                    .getTimeoutInMillisecond()
+                            != null
+                    && action.getPublishedAction()
+                                    .getActionConfiguration()
+                                    .getTimeoutInMillisecond()
+                            > 60000) {
+                action.getPublishedAction()
+                        .getActionConfiguration()
+                        .setTimeoutInMillisecond("60000");
                 updateTimeout = true;
             }
 
@@ -1929,24 +2137,24 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
     public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
-        Plugin s3Plugin = mongoTemplate
-                .find(query(where("name").is("Amazon S3")), Plugin.class).get(0);
+        Plugin s3Plugin =
+                mongoTemplate.find(query(where("name").is("Amazon S3")), Plugin.class).get(0);
         s3Plugin.setName("S3");
         mongoTemplate.save(s3Plugin);
 
-        List<Datasource> s3Datasources = mongoTemplate
-                .find(query(where("pluginId").is(s3Plugin.getId())), Datasource.class);
+        List<Datasource> s3Datasources =
+                mongoTemplate.find(query(where("pluginId").is(s3Plugin.getId())), Datasource.class);
 
-        s3Datasources
-                .stream()
-                .forEach(datasource -> {
-                    datasource
-                            .getDatasourceConfiguration()
-                            .getProperties()
-                            .add(new Property("s3Provider", "amazon-s3"));
+        s3Datasources.stream()
+                .forEach(
+                        datasource -> {
+                            datasource
+                                    .getDatasourceConfiguration()
+                                    .getProperties()
+                                    .add(new Property("s3Provider", "amazon-s3"));
 
-                    mongoTemplate.save(datasource);
-                });
+                            mongoTemplate.save(datasource);
+                        });
     }
 
     @ChangeSet(order = "059", id = "change-applayout-type-definition", author = "")
@@ -1955,19 +2163,22 @@ public class DatabaseChangelog1 {
         mongoOperations.updateMulti(
                 query(where("appLayout").exists(true)),
                 new Update().unset("appLayout"),
-                Application.class
-        );
+                Application.class);
 
-        // For the published and unpublished app layouts, migrate the old way of specifying the device width to the new
+        // For the published and unpublished app layouts, migrate the old way of specifying the
+        // device width to the new
         // way of doing it. Table of migrations:
         //     Desktop: Old - 1224, New 1160 - 1280
         //     Tablet L: Old - NA, New 960 - 1080
         //     Tablet: Old - 1024, New 650 - 800
         //     Mobile: Old - 720, New 350 - 450
-        final Criteria criteria = new Criteria().orOperator(
-                where(fieldName(QApplication.application.unpublishedAppLayout)).exists(true),
-                where(fieldName(QApplication.application.publishedAppLayout)).exists(true)
-        );
+        final Criteria criteria =
+                new Criteria()
+                        .orOperator(
+                                where(fieldName(QApplication.application.unpublishedAppLayout))
+                                        .exists(true),
+                                where(fieldName(QApplication.application.publishedAppLayout))
+                                        .exists(true));
 
         final Query query = query(criteria);
         query.fields()
@@ -1977,9 +2188,18 @@ public class DatabaseChangelog1 {
         List<Application> apps = mongoOperations.find(query, Application.class);
 
         for (final Application app : apps) {
-            final Integer unpublishedWidth = app.getUnpublishedAppLayout() == null ? null : app.getUnpublishedAppLayout().getWidth();
-            final Integer publishedWidth = app.getPublishedAppLayout() == null ? null : app.getPublishedAppLayout().getWidth();
-            final Update update = new Update().unset("unpublishedAppLayout.width").unset("publishedAppLayout.width");
+            final Integer unpublishedWidth =
+                    app.getUnpublishedAppLayout() == null
+                            ? null
+                            : app.getUnpublishedAppLayout().getWidth();
+            final Integer publishedWidth =
+                    app.getPublishedAppLayout() == null
+                            ? null
+                            : app.getPublishedAppLayout().getWidth();
+            final Update update =
+                    new Update()
+                            .unset("unpublishedAppLayout.width")
+                            .unset("publishedAppLayout.width");
 
             if (unpublishedWidth != null) {
                 final String typeField = "unpublishedAppLayout.type";
@@ -2016,95 +2236,123 @@ public class DatabaseChangelog1 {
             mongoOperations.updateFirst(
                     query(where(fieldName(QApplication.application.id)).is(app.getId())),
                     update,
-                    Application.class
-            );
-
+                    Application.class);
         }
     }
 
-    // Commenting out Example workspace related migrations since example workspaces are not used anymore
-//    @ChangeSet(order = "060", id = "clear-example-apps", author = "")
-//    public void clearExampleApps(MongoTemplate mongoTemplate) {
-//        mongoTemplate.updateFirst(
-//                query(where(fieldName(QConfig.config1.name)).is("template-organization")),
-//                update("config.applicationIds", Collections.emptyList()).set("config.organizationId", null),
-//                Config.class
-//        );
-//    }
+    // Commenting out Example workspace related migrations since example workspaces are not used
+    // anymore
+    //    @ChangeSet(order = "060", id = "clear-example-apps", author = "")
+    //    public void clearExampleApps(MongoTemplate mongoTemplate) {
+    //        mongoTemplate.updateFirst(
+    //                query(where(fieldName(QConfig.config1.name)).is("template-organization")),
+    //                update("config.applicationIds",
+    // Collections.emptyList()).set("config.organizationId", null),
+    //                Config.class
+    //        );
+    //    }
 
     @ChangeSet(order = "061", id = "update-mysql-postgres-mongo-ssl-mode", author = "")
     public void updateMysqlPostgresMongoSslMode(MongoTemplate mongoTemplate) {
-        Plugin mysqlPlugin = mongoTemplate
-                .findOne(query(where("packageName").is("mysql-plugin")), Plugin.class);
+        Plugin mysqlPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mysql-plugin")), Plugin.class);
 
-        Plugin mongoPlugin = mongoTemplate
-                .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
-        List<Datasource> mysqlAndMongoDatasources = mongoTemplate
-                .find(
-                        query(new Criteria()
-                                .orOperator(
-                                        where("pluginId").is(mysqlPlugin.getId()),
-                                        where("pluginId").is(mongoPlugin.getId())
-                                )
-                        ),
+        List<Datasource> mysqlAndMongoDatasources =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .orOperator(
+                                                where("pluginId").is(mysqlPlugin.getId()),
+                                                where("pluginId").is(mongoPlugin.getId()))),
                         Datasource.class);
 
         /*
          * - Set SSL mode to DEFAULT for all mysql and mongodb datasources.
          */
-        mysqlAndMongoDatasources
-                .stream()
-                .forEach(datasource -> {
-                    if (datasource.getDatasourceConfiguration() != null) {
-                        if (datasource.getDatasourceConfiguration().getConnection() == null) {
-                            datasource.getDatasourceConfiguration().setConnection(new Connection());
-                        }
+        mysqlAndMongoDatasources.stream()
+                .forEach(
+                        datasource -> {
+                            if (datasource.getDatasourceConfiguration() != null) {
+                                if (datasource.getDatasourceConfiguration().getConnection()
+                                        == null) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .setConnection(new Connection());
+                                }
 
-                        if (datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
-                            datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
-                        }
+                                if (datasource.getDatasourceConfiguration().getConnection().getSsl()
+                                        == null) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .getConnection()
+                                            .setSsl(new SSLDetails());
+                                }
 
-                        datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-                        mongoTemplate.save(datasource);
-                    }
-                });
+                                datasource
+                                        .getDatasourceConfiguration()
+                                        .getConnection()
+                                        .getSsl()
+                                        .setAuthType(SSLDetails.AuthType.DEFAULT);
+                                mongoTemplate.save(datasource);
+                            }
+                        });
 
-        Plugin postgresPlugin = mongoTemplate
-                .findOne(query(where("packageName").is("postgres-plugin")), Plugin.class);
+        Plugin postgresPlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("postgres-plugin")), Plugin.class);
 
-        List<Datasource> postgresDatasources = mongoTemplate
-                .find(query(where("pluginId").is(postgresPlugin.getId())), Datasource.class);
+        List<Datasource> postgresDatasources =
+                mongoTemplate.find(
+                        query(where("pluginId").is(postgresPlugin.getId())), Datasource.class);
 
         /*
          * - Set SSL mode to DEFAULT only for those postgres datasources where:
          *   - SSL mode config doesn't exist.
          *   - SSL mode config cannot be supported - NO_SSL, VERIFY_CA, VERIFY_FULL
          */
-        postgresDatasources
-                .stream()
-                .forEach(datasource -> {
-                    if (datasource.getDatasourceConfiguration() != null) {
-                        if (datasource.getDatasourceConfiguration().getConnection() == null) {
-                            datasource.getDatasourceConfiguration().setConnection(new Connection());
-                        }
+        postgresDatasources.stream()
+                .forEach(
+                        datasource -> {
+                            if (datasource.getDatasourceConfiguration() != null) {
+                                if (datasource.getDatasourceConfiguration().getConnection()
+                                        == null) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .setConnection(new Connection());
+                                }
 
-                        if (datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
-                            datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
-                        }
+                                if (datasource.getDatasourceConfiguration().getConnection().getSsl()
+                                        == null) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .getConnection()
+                                            .setSsl(new SSLDetails());
+                                }
 
-                        SSLDetails.AuthType authType = datasource.getDatasourceConfiguration().getConnection().getSsl().getAuthType();
-                        if (authType == null
-                                || (!SSLDetails.AuthType.ALLOW.equals(authType)
-                                && !SSLDetails.AuthType.PREFER.equals(authType)
-                                && !SSLDetails.AuthType.REQUIRE.equals(authType)
-                                && !SSLDetails.AuthType.DISABLE.equals(authType))) {
-                            datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-                        }
+                                SSLDetails.AuthType authType =
+                                        datasource
+                                                .getDatasourceConfiguration()
+                                                .getConnection()
+                                                .getSsl()
+                                                .getAuthType();
+                                if (authType == null
+                                        || (!SSLDetails.AuthType.ALLOW.equals(authType)
+                                                && !SSLDetails.AuthType.PREFER.equals(authType)
+                                                && !SSLDetails.AuthType.REQUIRE.equals(authType)
+                                                && !SSLDetails.AuthType.DISABLE.equals(authType))) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .getConnection()
+                                            .getSsl()
+                                            .setAuthType(SSLDetails.AuthType.DEFAULT);
+                                }
 
-                        mongoTemplate.save(datasource);
-                    }
-                });
+                                mongoTemplate.save(datasource);
+                            }
+                        });
     }
 
     @ChangeSet(order = "062", id = "add-commenting-permissions", author = "")
@@ -2112,22 +2360,34 @@ public class DatabaseChangelog1 {
         final List<Application> applications = mongoTemplate.findAll(Application.class);
 
         for (final Application application : applications) {
-            application.getPolicies()
-                    .stream()
-                    .filter(policy -> AclPermission.READ_APPLICATIONS.getValue().equals(policy.getPermission()))
+            application.getPolicies().stream()
+                    .filter(
+                            policy ->
+                                    AclPermission.READ_APPLICATIONS
+                                            .getValue()
+                                            .equals(policy.getPermission()))
                     .findFirst()
-                    .ifPresent(readAppPolicy -> {
-                        final Policy newPolicy = Policy.builder()
-                                .permission(AclPermission.COMMENT_ON_APPLICATIONS.getValue())
-                                .users(readAppPolicy.getUsers())
-                                .groups(readAppPolicy.getGroups())
-                                .build();
-                        mongoTemplate.updateFirst(
-                                query(where(fieldName(QApplication.application.id)).is(application.getId())),
-                                new Update().push(fieldName(QApplication.application.policies), newPolicy),
-                                Application.class
-                        );
-                    });
+                    .ifPresent(
+                            readAppPolicy -> {
+                                final Policy newPolicy =
+                                        Policy.builder()
+                                                .permission(
+                                                        AclPermission.COMMENT_ON_APPLICATIONS
+                                                                .getValue())
+                                                .users(readAppPolicy.getUsers())
+                                                .groups(readAppPolicy.getGroups())
+                                                .build();
+                                mongoTemplate.updateFirst(
+                                        query(
+                                                where(fieldName(QApplication.application.id))
+                                                        .is(application.getId())),
+                                        new Update()
+                                                .push(
+                                                        fieldName(
+                                                                QApplication.application.policies),
+                                                        newPolicy),
+                                        Application.class);
+                            });
         }
     }
 
@@ -2140,8 +2400,10 @@ public class DatabaseChangelog1 {
         plugin.setUiComponent("SaaSEditorForm");
         plugin.setDatasourceComponent("OAuth2DatasourceForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-google-sheets");
+        plugin.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
+        plugin.setDocumentationLink(
+                "https://docs.appsmith.com/datasource-reference/querying-google-sheets");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -2154,41 +2416,51 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "063", id = "mark-instance-unregistered", author = "")
     public void markInstanceAsUnregistered(MongoTemplate mongoTemplate) {
-        mongoTemplate.insert(new Config(
-                new JSONObject(Map.of("value", false)),
-                Appsmith.APPSMITH_REGISTERED
-        ));
+        mongoTemplate.insert(
+                new Config(new JSONObject(Map.of("value", false)), Appsmith.APPSMITH_REGISTERED));
     }
 
-    @ChangeSet(order = "065", id = "create-entry-in-sequence-per-organization-for-datasource", author = "")
+    @ChangeSet(
+            order = "065",
+            id = "create-entry-in-sequence-per-organization-for-datasource",
+            author = "")
     public void createEntryInSequencePerOrganizationForDatasource(MongoTemplate mongoTemplate) {
 
         Map<String, Long> maxDatasourceCount = new HashMap<>();
         mongoTemplate
                 .find(query(where("name").regex("^Untitled datasource \\d+$")), Datasource.class)
-                .forEach(datasource -> {
-                    long count = 1;
-                    String datasourceCnt = datasource.getName().substring("Untitled datasource ".length()).trim();
-                    if (!datasourceCnt.isEmpty()) {
-                        count = Long.parseLong(datasourceCnt);
-                    }
+                .forEach(
+                        datasource -> {
+                            long count = 1;
+                            String datasourceCnt =
+                                    datasource
+                                            .getName()
+                                            .substring("Untitled datasource ".length())
+                                            .trim();
+                            if (!datasourceCnt.isEmpty()) {
+                                count = Long.parseLong(datasourceCnt);
+                            }
 
-                    if (maxDatasourceCount.containsKey(datasource.getOrganizationId())
-                            && (count < maxDatasourceCount.get(datasource.getOrganizationId()))) {
-                        return;
-                    }
-                    maxDatasourceCount.put(datasource.getOrganizationId(), count);
+                            if (maxDatasourceCount.containsKey(datasource.getOrganizationId())
+                                    && (count
+                                            < maxDatasourceCount.get(
+                                                    datasource.getOrganizationId()))) {
+                                return;
+                            }
+                            maxDatasourceCount.put(datasource.getOrganizationId(), count);
+                        });
+        maxDatasourceCount.forEach(
+                (key, val) -> {
+                    Sequence sequence = new Sequence();
+                    sequence.setName("datasource for organization with _id : " + key);
+                    sequence.setNextNumber(val + 1);
+                    mongoTemplate.save(sequence);
                 });
-        maxDatasourceCount.forEach((key, val) -> {
-            Sequence sequence = new Sequence();
-            sequence.setName("datasource for organization with _id : " + key);
-            sequence.setNextNumber(val + 1);
-            mongoTemplate.save(sequence);
-        });
     }
 
     @ChangeSet(order = "066", id = "migrate-smartSubstitution-dataType", author = "")
-    public void migrateSmartSubstitutionDataTypeBoolean(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+    public void migrateSmartSubstitutionDataTypeBoolean(
+            MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
         Set<String> smartSubTurnedOn = new HashSet<>();
         Set<String> smartSubTurnedOff = new HashSet<>();
         Set<String> noSmartSubConfig = new HashSet<>();
@@ -2200,14 +2472,15 @@ public class DatabaseChangelog1 {
         pluginPackages.add("mongo-plugin");
         pluginPackages.add("mssql-plugin");
 
-        Set<String> smartSubPlugins = mongoTemplate
-                .find(query(where("packageName").in(pluginPackages)), Plugin.class)
-                .stream()
-                .map(plugin -> plugin.getId())
-                .collect(Collectors.toSet());
+        Set<String> smartSubPlugins =
+                mongoTemplate
+                        .find(query(where("packageName").in(pluginPackages)), Plugin.class)
+                        .stream()
+                        .map(plugin -> plugin.getId())
+                        .collect(Collectors.toSet());
 
-        List<NewAction> actions = mongoTemplate
-                .find(query(where("pluginId").in(smartSubPlugins)), NewAction.class);
+        List<NewAction> actions =
+                mongoTemplate.find(query(where("pluginId").in(smartSubPlugins)), NewAction.class);
 
         // Find all the action ids where the data migration needs to happen.
         for (NewAction action : actions) {
@@ -2215,9 +2488,11 @@ public class DatabaseChangelog1 {
             if (unpublishedAction != null) {
                 Datasource datasource = unpublishedAction.getDatasource();
                 if (datasource != null) {
-                    ActionConfiguration actionConfiguration = unpublishedAction.getActionConfiguration();
+                    ActionConfiguration actionConfiguration =
+                            unpublishedAction.getActionConfiguration();
                     if (actionConfiguration != null) {
-                        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+                        List<Property> pluginSpecifiedTemplates =
+                                actionConfiguration.getPluginSpecifiedTemplates();
                         if (!isNullOrEmpty(pluginSpecifiedTemplates)) {
                             Property smartSubstitutionProperty = pluginSpecifiedTemplates.get(0);
                             if (smartSubstitutionProperty != null) {
@@ -2234,7 +2509,8 @@ public class DatabaseChangelog1 {
                                 }
                             }
                         } else if (pluginSpecifiedTemplates == null) {
-                            // No pluginSpecifiedTemplates array exists. This is possible when an action was created before
+                            // No pluginSpecifiedTemplates array exists. This is possible when an
+                            // action was created before
                             // the smart substitution feature was available
                             noSmartSubConfig.add(action.getId());
                         }
@@ -2246,55 +2522,76 @@ public class DatabaseChangelog1 {
         // Migrate actions where smart substitution is turned on
         mongoOperations.updateMulti(
                 query(where("_id").in(smartSubTurnedOn)),
-                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", true),
-                NewAction.class
-        );
+                new Update()
+                        .set(
+                                "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value",
+                                true),
+                NewAction.class);
 
         // Migrate actions where smart substitution is turned off
         mongoOperations.updateMulti(
                 query(where("_id").in(smartSubTurnedOff)),
-                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", false),
-                NewAction.class
-        );
+                new Update()
+                        .set(
+                                "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value",
+                                false),
+                NewAction.class);
 
         Property property = new Property();
         property.setValue(false);
-        // Migrate actions where there is no configuration for smart substitution, aka add the array.
+        // Migrate actions where there is no configuration for smart substitution, aka add the
+        // array.
         mongoOperations.updateMulti(
                 query(where("_id").in(noSmartSubConfig)),
-                new Update().addToSet("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates", property),
-                NewAction.class
-        );
+                new Update()
+                        .addToSet(
+                                "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates",
+                                property),
+                NewAction.class);
     }
 
     @ChangeSet(order = "067", id = "update-mongo-import-from-srv-field", author = "")
     public void updateMongoImportFromSrvField(MongoTemplate mongoTemplate) {
-        Plugin mongoPlugin = mongoTemplate
-                .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
-        List<Datasource> mongoDatasources = mongoTemplate
-                .find(query(where("pluginId").is(mongoPlugin.getId())), Datasource.class);
+        List<Datasource> mongoDatasources =
+                mongoTemplate.find(
+                        query(where("pluginId").is(mongoPlugin.getId())), Datasource.class);
 
         mongoDatasources.stream()
-                .forEach(datasource -> {
-                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Use Mongo Connection " +
-                            "String URI", "No")));
-                    mongoTemplate.save(datasource);
-                });
+                .forEach(
+                        datasource -> {
+                            datasource
+                                    .getDatasourceConfiguration()
+                                    .setProperties(
+                                            List.of(
+                                                    new Property(
+                                                            "Use Mongo Connection " + "String URI",
+                                                            "No")));
+                            mongoTemplate.save(datasource);
+                        });
     }
 
     @ChangeSet(order = "068", id = "delete-mongo-datasource-structures", author = "")
-    public void deleteMongoDatasourceStructures(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+    public void deleteMongoDatasourceStructures(
+            MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
 
-        // Mongo Form requires the query templates to change as well. To ensure this, mongo datasources
-        // must re-compute the structure. The following deletes all such structures. Whenever getStructure API call is
+        // Mongo Form requires the query templates to change as well. To ensure this, mongo
+        // datasources
+        // must re-compute the structure. The following deletes all such structures. Whenever
+        // getStructure API call is
         // made for these datasources, the server would re-compute the structure.
-        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
-        Query query = query(new Criteria().andOperator(
-                where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
-                where("structure").exists(true)
-        ));
+        Query query =
+                query(
+                        new Criteria()
+                                .andOperator(
+                                        where(fieldName(QDatasource.datasource.pluginId))
+                                                .is(mongoPlugin.getId()),
+                                        where("structure").exists(true)));
 
         Update update = new Update().set("structure", null);
 
@@ -2302,34 +2599,57 @@ public class DatabaseChangelog1 {
         mongoOperations.updateMulti(query, update, Datasource.class);
     }
 
-
     @ChangeSet(order = "069", id = "set-mongo-actions-type-to-raw", author = "")
     public void setMongoActionInputToRaw(MongoTemplate mongoTemplate) {
 
         // All the existing mongo actions at this point will only have ever been in the raw format
-        // For these actions to be readily available to users, we need to set their input type to raw manually
-        // This is required because since the mongo form, the default input type on the UI has been set to FORM
-        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        // For these actions to be readily available to users, we need to set their input type to
+        // raw manually
+        // This is required because since the mongo form, the default input type on the UI has been
+        // set to FORM
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
-        // Fetch all the actions built on top of a mongo database, not having any value set for input type
+        // Fetch all the actions built on top of a mongo database, not having any value set for
+        // input type
         assert mongoPlugin != null;
-        List<NewAction> rawMongoActions = mongoTemplate.find(
-                        query(new Criteria().andOperator(
-                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                        NewAction.class
-                )
-                .stream()
-                .filter(mongoAction -> {
-                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
-                        return false;
-                    }
-                    final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                    return pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 1;
-                })
-                .collect(Collectors.toList());
+        List<NewAction> rawMongoActions =
+                mongoTemplate
+                        .find(
+                                query(
+                                        new Criteria()
+                                                .andOperator(
+                                                        where(
+                                                                        fieldName(
+                                                                                QNewAction.newAction
+                                                                                        .pluginId))
+                                                                .is(mongoPlugin.getId()))),
+                                NewAction.class)
+                        .stream()
+                        .filter(
+                                mongoAction -> {
+                                    if (mongoAction.getUnpublishedAction() == null
+                                            || mongoAction
+                                                            .getUnpublishedAction()
+                                                            .getActionConfiguration()
+                                                    == null) {
+                                        return false;
+                                    }
+                                    final List<Property> pluginSpecifiedTemplates =
+                                            mongoAction
+                                                    .getUnpublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getPluginSpecifiedTemplates();
+                                    return pluginSpecifiedTemplates != null
+                                            && pluginSpecifiedTemplates.size() == 1;
+                                })
+                        .collect(Collectors.toList());
 
         for (NewAction action : rawMongoActions) {
-            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            List<Property> pluginSpecifiedTemplates =
+                    action.getUnpublishedAction()
+                            .getActionConfiguration()
+                            .getPluginSpecifiedTemplates();
             pluginSpecifiedTemplates.add(new Property(null, "RAW"));
 
             mongoTemplate.save(action);
@@ -2337,118 +2657,173 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * - Older firestore action form had support for only on where condition, which mapped path, operator and value to
-     * three different indexes on the pluginSpecifiedTemplates list.
-     * - In the newer form, the three properties are treated as a tuple, and a list of tuples is mapped to only one
-     * index in pluginSpecifiedTemplates list.
-     * - [... path, operator, value, ...] --> [... [ {"path":path, "operator":operator, "value":value} ] ...]
+     * - Older firestore action form had support for only on where condition, which mapped path,
+     * operator and value to three different indexes on the pluginSpecifiedTemplates list. - In the
+     * newer form, the three properties are treated as a tuple, and a list of tuples is mapped to
+     * only one index in pluginSpecifiedTemplates list. - [... path, operator, value, ...] --> [...
+     * [ {"path":path, "operator":operator, "value":value} ] ...]
      */
     @ChangeSet(order = "070", id = "update-firestore-where-conditions-data", author = "")
     public void updateFirestoreWhereConditionsData(MongoTemplate mongoTemplate) {
-        Plugin firestorePlugin = mongoTemplate
-                .findOne(query(where("packageName").is("firestore-plugin")), Plugin.class);
+        Plugin firestorePlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("firestore-plugin")), Plugin.class);
 
-        Query query = query(new Criteria().andOperator(
-                where("pluginId").is(firestorePlugin.getId()),
-                new Criteria().orOperator(
-                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.3").exists(true),
-                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.4").exists(true),
-                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.5").exists(true),
-                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.3").exists(true),
-                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.4").exists(true),
-                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.5").exists(true)
-                )));
+        Query query =
+                query(
+                        new Criteria()
+                                .andOperator(
+                                        where("pluginId").is(firestorePlugin.getId()),
+                                        new Criteria()
+                                                .orOperator(
+                                                        where(
+                                                                        "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.3")
+                                                                .exists(true),
+                                                        where(
+                                                                        "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.4")
+                                                                .exists(true),
+                                                        where(
+                                                                        "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.5")
+                                                                .exists(true),
+                                                        where(
+                                                                        "publishedAction.actionConfiguration.pluginSpecifiedTemplates.3")
+                                                                .exists(true),
+                                                        where(
+                                                                        "publishedAction.actionConfiguration.pluginSpecifiedTemplates.4")
+                                                                .exists(true),
+                                                        where(
+                                                                        "publishedAction.actionConfiguration.pluginSpecifiedTemplates.5")
+                                                                .exists(true))));
 
         List<NewAction> firestoreActionQueries = mongoTemplate.find(query, NewAction.class);
 
         firestoreActionQueries.stream()
-                .forEach(action -> {
-                    // For unpublished action
-                    if (action.getUnpublishedAction() != null
-                            && action.getUnpublishedAction().getActionConfiguration() != null
-                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null
-                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().size() > 3) {
+                .forEach(
+                        action -> {
+                            // For unpublished action
+                            if (action.getUnpublishedAction() != null
+                                    && action.getUnpublishedAction().getActionConfiguration()
+                                            != null
+                                    && action.getUnpublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getPluginSpecifiedTemplates()
+                                            != null
+                                    && action.getUnpublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getPluginSpecifiedTemplates()
+                                                    .size()
+                                            > 3) {
 
-                        String path = null;
-                        String op = null;
-                        String value = null;
-                        List<Property> properties = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                        if (properties.size() > 3 && properties.get(3) != null) {
-                            path = (String) properties.get(3).getValue();
-                        }
-                        if (properties.size() > 4 && properties.get(4) != null) {
-                            op = (String) properties.get(4).getValue();
-                            properties.set(4, null); // Index 4 does not map to any value in the new query format
-                        }
-                        if (properties.size() > 5 && properties.get(5) != null) {
-                            value = (String) properties.get(5).getValue();
-                            properties.set(5, null); // Index 5 does not map to any value in the new query format
-                        }
+                                String path = null;
+                                String op = null;
+                                String value = null;
+                                List<Property> properties =
+                                        action.getUnpublishedAction()
+                                                .getActionConfiguration()
+                                                .getPluginSpecifiedTemplates();
+                                if (properties.size() > 3 && properties.get(3) != null) {
+                                    path = (String) properties.get(3).getValue();
+                                }
+                                if (properties.size() > 4 && properties.get(4) != null) {
+                                    op = (String) properties.get(4).getValue();
+                                    properties.set(
+                                            4,
+                                            null); // Index 4 does not map to any value in the new
+                                    // query format
+                                }
+                                if (properties.size() > 5 && properties.get(5) != null) {
+                                    value = (String) properties.get(5).getValue();
+                                    properties.set(
+                                            5,
+                                            null); // Index 5 does not map to any value in the new
+                                    // query format
+                                }
 
-                        Map newFormat = new HashMap();
-                        newFormat.put("path", path);
-                        newFormat.put("operator", op);
-                        newFormat.put("value", value);
-                        properties.set(3, new Property("whereConditionTuples", List.of(newFormat)));
-                    }
+                                Map newFormat = new HashMap();
+                                newFormat.put("path", path);
+                                newFormat.put("operator", op);
+                                newFormat.put("value", value);
+                                properties.set(
+                                        3,
+                                        new Property("whereConditionTuples", List.of(newFormat)));
+                            }
 
-                    // For published action
-                    if (action.getPublishedAction() != null
-                            && action.getPublishedAction().getActionConfiguration() != null
-                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null
-                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().size() > 3) {
+                            // For published action
+                            if (action.getPublishedAction() != null
+                                    && action.getPublishedAction().getActionConfiguration() != null
+                                    && action.getPublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getPluginSpecifiedTemplates()
+                                            != null
+                                    && action.getPublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getPluginSpecifiedTemplates()
+                                                    .size()
+                                            > 3) {
 
-                        String path = null;
-                        String op = null;
-                        String value = null;
-                        List<Property> properties = action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                        if (properties.size() > 3 && properties.get(3) != null) {
-                            path = (String) properties.get(3).getValue();
-                        }
-                        if (properties.size() > 4 && properties.get(4) != null) {
-                            op = (String) properties.get(4).getValue();
-                            properties.set(4, null); // Index 4 does not map to any value in the new query format
-                        }
-                        if (properties.size() > 5 && properties.get(5) != null) {
-                            value = (String) properties.get(5).getValue();
-                            properties.set(5, null); // Index 5 does not map to any value in the new query format
-                        }
+                                String path = null;
+                                String op = null;
+                                String value = null;
+                                List<Property> properties =
+                                        action.getPublishedAction()
+                                                .getActionConfiguration()
+                                                .getPluginSpecifiedTemplates();
+                                if (properties.size() > 3 && properties.get(3) != null) {
+                                    path = (String) properties.get(3).getValue();
+                                }
+                                if (properties.size() > 4 && properties.get(4) != null) {
+                                    op = (String) properties.get(4).getValue();
+                                    properties.set(
+                                            4,
+                                            null); // Index 4 does not map to any value in the new
+                                    // query format
+                                }
+                                if (properties.size() > 5 && properties.get(5) != null) {
+                                    value = (String) properties.get(5).getValue();
+                                    properties.set(
+                                            5,
+                                            null); // Index 5 does not map to any value in the new
+                                    // query format
+                                }
 
-                        HashMap newFormat = new HashMap();
-                        newFormat.put("path", path);
-                        newFormat.put("operator", op);
-                        newFormat.put("value", value);
-                        properties.set(3, new Property("whereConditionTuples", List.of(newFormat)));
-                    }
-                });
+                                HashMap newFormat = new HashMap();
+                                newFormat.put("path", path);
+                                newFormat.put("operator", op);
+                                newFormat.put("value", value);
+                                properties.set(
+                                        3,
+                                        new Property("whereConditionTuples", List.of(newFormat)));
+                            }
+                        });
 
         /**
-         * - Save changes only after all the processing is done so that in case any data manipulation fails, no data
-         * write occurs.
-         * - Write data back to db only if all data manipulations done above have succeeded.
+         * - Save changes only after all the processing is done so that in case any data
+         * manipulation fails, no data write occurs. - Write data back to db only if all data
+         * manipulations done above have succeeded.
          */
-        firestoreActionQueries.stream()
-                .forEach(action -> mongoTemplate.save(action));
+        firestoreActionQueries.stream().forEach(action -> mongoTemplate.save(action));
     }
 
     @ChangeSet(order = "071", id = "add-application-export-permissions", author = "")
     public void addApplicationExportPermissions(MongoTemplate mongoTemplate) {
-        final List<Organization> organizations = mongoTemplate.find(
-                query(where("userRoles").exists(true)),
-                Organization.class
-        );
+        final List<Organization> organizations =
+                mongoTemplate.find(query(where("userRoles").exists(true)), Organization.class);
 
         for (final Organization organization : organizations) {
-            Set<String> adminUsernames = organization.getUserRoles()
-                    .stream()
-                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
-                    .map(role -> role.getUsername())
-                    .collect(Collectors.toSet());
+            Set<String> adminUsernames =
+                    organization.getUserRoles().stream()
+                            .filter(
+                                    role ->
+                                            (role.getRole()
+                                                    .equals(AppsmithRole.ORGANIZATION_ADMIN)))
+                            .map(role -> role.getUsername())
+                            .collect(Collectors.toSet());
 
             if (adminUsernames.isEmpty()) {
                 continue;
             }
-            // All the administrators of the organization should be allowed to export applications permission
+            // All the administrators of the organization should be allowed to export applications
+            // permission
             Set<String> exportApplicationPermissionUsernames = new HashSet<>();
             exportApplicationPermissionUsernames.addAll(adminUsernames);
 
@@ -2457,26 +2832,39 @@ public class DatabaseChangelog1 {
                 policies = new HashSet<>();
             }
 
-            Optional<Policy> exportAppOrgLevelOptional = policies.stream()
-                    .filter(policy -> policy.getPermission().equals(WORKSPACE_EXPORT_APPLICATIONS.getValue())).findFirst();
+            Optional<Policy> exportAppOrgLevelOptional =
+                    policies.stream()
+                            .filter(
+                                    policy ->
+                                            policy.getPermission()
+                                                    .equals(
+                                                            WORKSPACE_EXPORT_APPLICATIONS
+                                                                    .getValue()))
+                            .findFirst();
 
             if (exportAppOrgLevelOptional.isPresent()) {
                 Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
                 exportApplicationPolicy.getUsers().addAll(exportApplicationPermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
-                        .users(exportApplicationPermissionUsernames).build();
+                Policy inviteUserPolicy =
+                        Policy.builder()
+                                .permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
+                                .users(exportApplicationPermissionUsernames)
+                                .build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
 
             mongoTemplate.save(organization);
 
-            // Update the applications with export applications policy for all administrators of the organization
-            List<Application> orgApplications = mongoTemplate.find(
-                    query(where(fieldName(QApplication.application.organizationId)).is(organization.getId())),
-                    Application.class
-            );
+            // Update the applications with export applications policy for all administrators of the
+            // organization
+            List<Application> orgApplications =
+                    mongoTemplate.find(
+                            query(
+                                    where(fieldName(QApplication.application.organizationId))
+                                            .is(organization.getId())),
+                            Application.class);
 
             for (final Application application : orgApplications) {
                 Set<Policy> applicationPolicies = application.getPolicies();
@@ -2484,16 +2872,24 @@ public class DatabaseChangelog1 {
                     applicationPolicies = new HashSet<>();
                 }
 
-                Optional<Policy> exportAppOptional = applicationPolicies.stream()
-                        .filter(policy -> policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())).findFirst();
+                Optional<Policy> exportAppOptional =
+                        applicationPolicies.stream()
+                                .filter(
+                                        policy ->
+                                                policy.getPermission()
+                                                        .equals(EXPORT_APPLICATIONS.getValue()))
+                                .findFirst();
 
                 if (exportAppOptional.isPresent()) {
                     Policy exportAppPolicy = exportAppOptional.get();
                     exportAppPolicy.getUsers().addAll(adminUsernames);
                 } else {
                     // this policy doesn't exist, create and add this to the policy set
-                    Policy newExportAppPolicy = Policy.builder().permission(EXPORT_APPLICATIONS.getValue())
-                            .users(adminUsernames).build();
+                    Policy newExportAppPolicy =
+                            Policy.builder()
+                                    .permission(EXPORT_APPLICATIONS.getValue())
+                                    .users(adminUsernames)
+                                    .build();
                     application.getPolicies().add(newExportAppPolicy);
                 }
 
@@ -2523,8 +2919,10 @@ public class DatabaseChangelog1 {
         plugin.setUiComponent("DbEditorForm");
         plugin.setDatasourceComponent("AutoForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+        plugin.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
+        plugin.setDocumentationLink(
+                "https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
 
         plugin.setDefaultInstall(true);
         try {
@@ -2539,39 +2937,64 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
     public void migrateUpdateOneToUpdateManyMongoFormCommand(MongoTemplate mongoTemplate) {
 
-        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
-        // Fetch all the actions built on top of a mongo database with command type update_one or update_many
+        // Fetch all the actions built on top of a mongo database with command type update_one or
+        // update_many
         assert mongoPlugin != null;
-        List<NewAction> updateMongoActions = mongoTemplate.find(
-                        query(new Criteria().andOperator(
-                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                        NewAction.class
-                )
-                .stream()
-                .filter(mongoAction -> {
-                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
-                        return false;
-                    }
-                    final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+        List<NewAction> updateMongoActions =
+                mongoTemplate
+                        .find(
+                                query(
+                                        new Criteria()
+                                                .andOperator(
+                                                        where(
+                                                                        fieldName(
+                                                                                QNewAction.newAction
+                                                                                        .pluginId))
+                                                                .is(mongoPlugin.getId()))),
+                                NewAction.class)
+                        .stream()
+                        .filter(
+                                mongoAction -> {
+                                    if (mongoAction.getUnpublishedAction() == null
+                                            || mongoAction
+                                                            .getUnpublishedAction()
+                                                            .getActionConfiguration()
+                                                    == null) {
+                                        return false;
+                                    }
+                                    final List<Property> pluginSpecifiedTemplates =
+                                            mongoAction
+                                                    .getUnpublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getPluginSpecifiedTemplates();
 
-                    // Filter out all the actions which are of either of the two update command type
-                    if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 21) {
-                        Property commandProperty = pluginSpecifiedTemplates.get(2);
-                        if (commandProperty != null && commandProperty.getValue() != null) {
-                            String command = (String) commandProperty.getValue();
-                            if (command.equals("UPDATE_ONE") || command.equals("UPDATE_MANY")) {
-                                return true;
-                            }
-                        }
-                    }
-                    // Not an action of interest for migration.
-                    return false;
-                })
-                .collect(Collectors.toList());
+                                    // Filter out all the actions which are of either of the two
+                                    // update command type
+                                    if (pluginSpecifiedTemplates != null
+                                            && pluginSpecifiedTemplates.size() == 21) {
+                                        Property commandProperty = pluginSpecifiedTemplates.get(2);
+                                        if (commandProperty != null
+                                                && commandProperty.getValue() != null) {
+                                            String command = (String) commandProperty.getValue();
+                                            if (command.equals("UPDATE_ONE")
+                                                    || command.equals("UPDATE_MANY")) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                    // Not an action of interest for migration.
+                                    return false;
+                                })
+                        .collect(Collectors.toList());
 
         for (NewAction action : updateMongoActions) {
-            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            List<Property> pluginSpecifiedTemplates =
+                    action.getUnpublishedAction()
+                            .getActionConfiguration()
+                            .getPluginSpecifiedTemplates();
             String command = (String) pluginSpecifiedTemplates.get(2).getValue();
 
             // In case of update one, migrate the query and update configurations.
@@ -2608,8 +3031,9 @@ public class DatabaseChangelog1 {
                 configMap.put(21, "SINGLE");
 
                 List<Property> updatedTemplates = generateMongoFormConfigTemplates(configMap);
-                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
-
+                action.getUnpublishedAction()
+                        .getActionConfiguration()
+                        .setPluginSpecifiedTemplates(updatedTemplates);
             }
         }
 
@@ -2619,23 +3043,18 @@ public class DatabaseChangelog1 {
         }
     }
 
-
     @ChangeSet(order = "074", id = "ensure-user-created-and-updated-at-fields", author = "")
     public void ensureUserCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
-        final List<User> missingCreatedAt = mongoTemplate.find(
-                query(where("createdAt").exists(false)),
-                User.class
-        );
+        final List<User> missingCreatedAt =
+                mongoTemplate.find(query(where("createdAt").exists(false)), User.class);
 
         for (User user : missingCreatedAt) {
             user.setCreatedAt(Instant.parse("2019-01-07T00:00:00.00Z"));
             mongoTemplate.save(user);
         }
 
-        final List<User> missingUpdatedAt = mongoTemplate.find(
-                query(where("updatedAt").exists(false)),
-                User.class
-        );
+        final List<User> missingUpdatedAt =
+                mongoTemplate.find(query(where("updatedAt").exists(false)), User.class);
 
         for (User user : missingUpdatedAt) {
             user.setUpdatedAt(Instant.now());
@@ -2644,17 +3063,17 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * - Older order file where not present for the pages created within the application because page reordering with in
-     * the application was not supported.
-     * - New Form order field will be added to the Page object and is used to order the pages with in the application
-     * Since the previously created pages doesnt have the order, we will be updating/adding order to all the previously
-     * created pages of all the application present.
-     * - []
+     * - Older order file where not present for the pages created within the application because
+     * page reordering with in the application was not supported. - New Form order field will be
+     * added to the Page object and is used to order the pages with in the application Since the
+     * previously created pages doesnt have the order, we will be updating/adding order to all the
+     * previously created pages of all the application present. - []
      */
     @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
     public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
         for (Application application : mongoTemplate.findAll(Application.class)) {
-            //Commenting out this piece code as we have decided to remove the order field from ApplicationPages
+            // Commenting out this piece code as we have decided to remove the order field from
+            // ApplicationPages
             /*if(application.getPages() != null) {
                 int i = 0;
                 for (ApplicationPage page : application.getPages()) {
@@ -2676,53 +3095,84 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "076", id = "mongo-form-migrate-raw", author = "")
     public void migrateRawInputTypeToRawCommand(MongoTemplate mongoTemplate) {
 
-        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
         // Fetch all the actions built on top of a mongo database with input type set to raw.
         assert mongoPlugin != null;
-        List<NewAction> rawMongoQueryActions = mongoTemplate.find(
-                        query(new Criteria().andOperator(
-                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                        NewAction.class
-                )
-                .stream()
-                .filter(mongoAction -> {
-                    boolean result = false;
-                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
-                        return false;
-                    }
+        List<NewAction> rawMongoQueryActions =
+                mongoTemplate
+                        .find(
+                                query(
+                                        new Criteria()
+                                                .andOperator(
+                                                        where(
+                                                                        fieldName(
+                                                                                QNewAction.newAction
+                                                                                        .pluginId))
+                                                                .is(mongoPlugin.getId()))),
+                                NewAction.class)
+                        .stream()
+                        .filter(
+                                mongoAction -> {
+                                    boolean result = false;
+                                    if (mongoAction.getUnpublishedAction() == null
+                                            || mongoAction
+                                                            .getUnpublishedAction()
+                                                            .getActionConfiguration()
+                                                    == null) {
+                                        return false;
+                                    }
 
-                    List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                                    List<Property> pluginSpecifiedTemplates =
+                                            mongoAction
+                                                    .getUnpublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getPluginSpecifiedTemplates();
 
-                    // Filter out all the unpublished actions which have the input type raw configured.
-                    if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
-                        Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
-                        if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
-                            String inputType = (String) inputTypeProperty.getValue();
-                            if (inputType.equals("RAW")) {
-                                result = true;
-                            }
-                        }
-                    }
+                                    // Filter out all the unpublished actions which have the input
+                                    // type raw configured.
+                                    if (pluginSpecifiedTemplates != null
+                                            && pluginSpecifiedTemplates.size() >= 2) {
+                                        Property inputTypeProperty =
+                                                pluginSpecifiedTemplates.get(1);
+                                        if (inputTypeProperty != null
+                                                && inputTypeProperty.getValue() != null) {
+                                            String inputType =
+                                                    (String) inputTypeProperty.getValue();
+                                            if (inputType.equals("RAW")) {
+                                                result = true;
+                                            }
+                                        }
+                                    }
 
-                    ActionDTO publishedAction = mongoAction.getPublishedAction();
-                    if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
-                        pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                                    ActionDTO publishedAction = mongoAction.getPublishedAction();
+                                    if (publishedAction != null
+                                            && publishedAction.getActionConfiguration() != null) {
+                                        pluginSpecifiedTemplates =
+                                                publishedAction
+                                                        .getActionConfiguration()
+                                                        .getPluginSpecifiedTemplates();
 
-                        // Filter out all the published actions which have the input type raw configured.
-                        if (pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() >= 2) {
-                            Property inputTypeProperty = pluginSpecifiedTemplates.get(1);
-                            if (inputTypeProperty != null && inputTypeProperty.getValue() != null) {
-                                String inputType = (String) inputTypeProperty.getValue();
-                                if (inputType.equals("RAW")) {
-                                    result = true;
-                                }
-                            }
-                        }
-                    }
-                    return result;
-                })
-                .collect(Collectors.toList());
+                                        // Filter out all the published actions which have the input
+                                        // type raw configured.
+                                        if (pluginSpecifiedTemplates != null
+                                                && pluginSpecifiedTemplates.size() >= 2) {
+                                            Property inputTypeProperty =
+                                                    pluginSpecifiedTemplates.get(1);
+                                            if (inputTypeProperty != null
+                                                    && inputTypeProperty.getValue() != null) {
+                                                String inputType =
+                                                        (String) inputTypeProperty.getValue();
+                                                if (inputType.equals("RAW")) {
+                                                    result = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    return result;
+                                })
+                        .collect(Collectors.toList());
 
         for (NewAction action : rawMongoQueryActions) {
 
@@ -2732,7 +3182,10 @@ public class DatabaseChangelog1 {
             List<Property> updatedTemplates;
 
             // Migrate the unpublished actions
-            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            List<Property> pluginSpecifiedTemplates =
+                    action.getUnpublishedAction()
+                            .getActionConfiguration()
+                            .getPluginSpecifiedTemplates();
             if (pluginSpecifiedTemplates != null) {
                 smartSubProperty = pluginSpecifiedTemplates.get(0);
                 if (smartSubProperty != null) {
@@ -2749,14 +3202,16 @@ public class DatabaseChangelog1 {
                 configMap.put(2, "RAW");
 
                 updatedTemplates = generateMongoFormConfigTemplates(configMap);
-                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
+                action.getUnpublishedAction()
+                        .getActionConfiguration()
+                        .setPluginSpecifiedTemplates(updatedTemplates);
             }
-
 
             // Now migrate the published actions
             ActionDTO publishedAction = action.getPublishedAction();
             if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
-                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                pluginSpecifiedTemplates =
+                        publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
 
                 if (pluginSpecifiedTemplates != null) {
                     smartSub = true;
@@ -2775,7 +3230,9 @@ public class DatabaseChangelog1 {
                     configMap.put(2, "RAW");
 
                     updatedTemplates = generateMongoFormConfigTemplates(configMap);
-                    action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(updatedTemplates);
+                    action.getPublishedAction()
+                            .getActionConfiguration()
+                            .setPluginSpecifiedTemplates(updatedTemplates);
                 }
             }
         }
@@ -2795,8 +3252,10 @@ public class DatabaseChangelog1 {
         plugin.setUiComponent("DbEditorForm");
         plugin.setDatasourceComponent("AutoForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ArangoDB.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-arango-db");
+        plugin.setIconLocation(
+                "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ArangoDB.png");
+        plugin.setDocumentationLink(
+                "https://docs.appsmith.com/datasource-reference/querying-arango-db");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -2811,29 +3270,41 @@ public class DatabaseChangelog1 {
     public void setSvgLogoToPluginIcons(MongoTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/postgresql.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/postgresql.svg");
             } else if ("dynamo-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-dynamodb.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-dynamodb.svg");
             } else if ("firestore-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/firestore.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/firestore.svg");
             } else if ("redshift-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-redshift.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-redshift.svg");
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mongodb.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mongodb.svg");
             } else if ("redis-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/redis.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/redis.svg");
             } else if ("amazons3-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-s3.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/aws-s3.svg");
             } else if ("mssql-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mssql.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mssql.svg");
             } else if ("snowflake-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/snowflake.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/snowflake.svg");
             } else if ("elasticsearch-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/elastic.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/elastic.svg");
             } else if ("mysql-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mysql.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mysql.svg");
             } else if ("arangodb-plugin".equals(plugin.getPackageName())) {
-                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/arangodb.svg");
+                plugin.setIconLocation(
+                        "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/arangodb.svg");
             } else {
                 continue;
             }
@@ -2852,14 +3323,16 @@ public class DatabaseChangelog1 {
         mongoTemplate.updateMulti(query(where("pages").exists(TRUE)), update, Application.class);
 
         update.unset("publishedPages.$[].order");
-        mongoTemplate.updateMulti(query(where("publishedPages").exists(TRUE)), update, Application.class);
+        mongoTemplate.updateMulti(
+                query(where("publishedPages").exists(TRUE)), update, Application.class);
     }
 
     @ChangeSet(order = "080", id = "create-plugin-reference-for-genarate-CRUD-page", author = "")
     public void createPluginReferenceForGenerateCRUDPage(MongoTemplate mongoTemplate) {
 
         final String templatePageNameForSQLDatasource = "SQL";
-        final Set<String> sqlPackageNames = Set.of("mysql-plugin", "mssql-plugin", "redshift-plugin", "snowflake-plugin");
+        final Set<String> sqlPackageNames =
+                Set.of("mysql-plugin", "mssql-plugin", "redshift-plugin", "snowflake-plugin");
         Set<String> validPackageNames = new HashSet<>(sqlPackageNames);
         validPackageNames.add("mongo-plugin");
         validPackageNames.add("postgres-plugin");
@@ -2882,9 +3355,8 @@ public class DatabaseChangelog1 {
         Document documentPtr = document;
 
         /**
-         * - Traverse document one key at a time.
-         * - Forced to traverse document one key at a time for the lack of a better API that allows traversal for
-         * chained keys or key list.
+         * - Traverse document one key at a time. - Forced to traverse document one key at a time
+         * for the lack of a better API that allows traversal for chained keys or key list.
          */
         for (int i = 0; i < pathKeys.length; i++) {
             if (documentPtr.containsKey(pathKeys[i])) {
@@ -2903,40 +3375,44 @@ public class DatabaseChangelog1 {
         return documentPtr;
     }
 
-    private void encryptPathValueIfExists(Document document, String path, EncryptionService encryptionService) {
+    private void encryptPathValueIfExists(
+            Document document, String path, EncryptionService encryptionService) {
         String[] pathKeys = path.split("\\.");
         /**
-         * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content", first get the parent
-         * document that contains the attribute 'base64Content' i.e. fetch the document corresponding to path
-         * "datasourceConfiguration.connection.ssl.keyFile"
+         * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content",
+         * first get the parent document that contains the attribute 'base64Content' i.e. fetch the
+         * document corresponding to path "datasourceConfiguration.connection.ssl.keyFile"
          */
-        String parentDocumentPath = StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
+        String parentDocumentPath =
+                StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
         Document parentDocument = getDocumentFromPath(document, parentDocumentPath);
 
         if (parentDocument != null) {
             /**
-             * - Replace old value with new encrypted value if the key exists and is non-null.
-             * - Use the last element in pathKeys since it the key that names the attribute that needs to be encrypted
-             * e.g. 'base64Content' in "datasourceConfiguration.connection.ssl.keyFile.base64Content"
+             * - Replace old value with new encrypted value if the key exists and is non-null. - Use
+             * the last element in pathKeys since it the key that names the attribute that needs to
+             * be encrypted e.g. 'base64Content' in
+             * "datasourceConfiguration.connection.ssl.keyFile.base64Content"
              */
             parentDocument.computeIfPresent(
                     pathKeys[pathKeys.length - 1],
-                    (k, v) -> encryptionService.encryptString((String) v)
-            );
+                    (k, v) -> encryptionService.encryptString((String) v));
         }
     }
 
-    private void encryptRawValues(Document document, List<String> pathList, EncryptionService encryptionService) {
+    private void encryptRawValues(
+            Document document, List<String> pathList, EncryptionService encryptionService) {
         pathList.stream()
                 .forEach(path -> encryptPathValueIfExists(document, path, encryptionService));
     }
 
     @ChangeSet(order = "081", id = "encrypt-certificate", author = "")
-    public void encryptCertificateAndPassword(MongoTemplate mongoTemplate, EncryptionService encryptionService) {
+    public void encryptCertificateAndPassword(
+            MongoTemplate mongoTemplate, EncryptionService encryptionService) {
 
         /**
-         * - List of attributes that need to be encoded.
-         * - Each path represents where the attribute exists in mongo db document.
+         * - List of attributes that need to be encoded. - Each path represents where the attribute
+         * exists in mongo db document.
          */
         List<String> pathList = new ArrayList<>();
         pathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
@@ -2947,45 +3423,55 @@ public class DatabaseChangelog1 {
         pathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
         pathList.add("datasourceConfiguration.sshProxy.privateKey.password");
 
-        mongoTemplate.execute("datasource", new CollectionCallback<String>() {
-            @Override
-            public String doInCollection(MongoCollection<Document> collection) {
-                MongoCursor cursor = collection.find(
-                        Filters.or(
-                                Filters.exists(pathList.get(0)),
-                                Filters.exists(pathList.get(1)),
-                                Filters.exists(pathList.get(2)),
-                                Filters.exists(pathList.get(3)),
-                                Filters.exists(pathList.get(4)),
-                                Filters.exists(pathList.get(5)),
-                                Filters.exists(pathList.get(6))
-                        )
-                ).cursor();
+        mongoTemplate.execute(
+                "datasource",
+                new CollectionCallback<String>() {
+                    @Override
+                    public String doInCollection(MongoCollection<Document> collection) {
+                        MongoCursor cursor =
+                                collection
+                                        .find(
+                                                Filters.or(
+                                                        Filters.exists(pathList.get(0)),
+                                                        Filters.exists(pathList.get(1)),
+                                                        Filters.exists(pathList.get(2)),
+                                                        Filters.exists(pathList.get(3)),
+                                                        Filters.exists(pathList.get(4)),
+                                                        Filters.exists(pathList.get(5)),
+                                                        Filters.exists(pathList.get(6))))
+                                        .cursor();
 
-                List<Pair<Document, Document>> documentPairList = new ArrayList<>();
-                while (cursor.hasNext()) {
-                    Document old = (Document) cursor.next();
-                    // This document will have the encrypted values.
-                    Document updated = Document.parse(old.toJson());
-                    // Encrypt attributes
-                    encryptRawValues(updated, pathList, encryptionService);
-                    documentPairList.add(new Pair(old, updated));
-                }
+                        List<Pair<Document, Document>> documentPairList = new ArrayList<>();
+                        while (cursor.hasNext()) {
+                            Document old = (Document) cursor.next();
+                            // This document will have the encrypted values.
+                            Document updated = Document.parse(old.toJson());
+                            // Encrypt attributes
+                            encryptRawValues(updated, pathList, encryptionService);
+                            documentPairList.add(new Pair(old, updated));
+                        }
 
-                /**
-                 * - Replace old document with the updated document that has encrypted values.
-                 * - Replacing here instead of the while loop above makes sure that we attempt replacement only if
-                 * the encryption step succeeded without error for each selected document.
-                 */
-                documentPairList.stream()
-                        .forEach(docPair -> collection.findOneAndReplace(docPair.getFirst(), docPair.getSecond()));
+                        /**
+                         * - Replace old document with the updated document that has encrypted
+                         * values. - Replacing here instead of the while loop above makes sure that
+                         * we attempt replacement only if the encryption step succeeded without
+                         * error for each selected document.
+                         */
+                        documentPairList.stream()
+                                .forEach(
+                                        docPair ->
+                                                collection.findOneAndReplace(
+                                                        docPair.getFirst(), docPair.getSecond()));
 
-                return null;
-            }
-        });
+                        return null;
+                    }
+                });
     }
 
-    @ChangeSet(order = "082", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "")
+    @ChangeSet(
+            order = "082",
+            id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page",
+            author = "")
     public void createPluginReferenceForS3AndGSheetGenerateCRUDPage(MongoTemplate mongoTemplate) {
 
         Set<String> validPackageNames = Set.of("amazons3-plugin", "google-sheets-plugin");
@@ -3001,9 +3487,12 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "083", id = "application-git-metadata", author = "")
     public void addApplicationGitMetadataFieldAndIndex(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
-
+        dropIndexIfExists(
+                mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(
+                mongoTemplate,
+                Application.class,
+                "organization_application_deleted_compound_index");
     }
 
     @ChangeSet(order = "084", id = "add-js-plugin", author = "")
@@ -3026,26 +3515,35 @@ public class DatabaseChangelog1 {
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "085", id = "update-google-sheet-plugin-smartSubstitution-config", author = "")
-    public void updateGoogleSheetActionsSetSmartSubstitutionConfiguration(MongoTemplate mongoTemplate) {
+    @ChangeSet(
+            order = "085",
+            id = "update-google-sheet-plugin-smartSubstitution-config",
+            author = "")
+    public void updateGoogleSheetActionsSetSmartSubstitutionConfiguration(
+            MongoTemplate mongoTemplate) {
 
-        Plugin googleSheetPlugin = mongoTemplate.findOne(
-                query(new Criteria().andOperator(
-                        where(fieldName(QPlugin.plugin.packageName)).is("google-sheets-plugin")
-                )),
-                Plugin.class);
+        Plugin googleSheetPlugin =
+                mongoTemplate.findOne(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QPlugin.plugin.packageName))
+                                                        .is("google-sheets-plugin"))),
+                        Plugin.class);
 
         if (googleSheetPlugin == null) {
             return;
         }
 
         // Fetch all the actions built on top of a google sheet plugin
-        List<NewAction> googleSheetActions = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(googleSheetPlugin.getId())
-                )),
-                NewAction.class
-        );
+        List<NewAction> googleSheetActions =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QNewAction.newAction.pluginId))
+                                                        .is(googleSheetPlugin.getId()))),
+                        NewAction.class);
 
         Set<String> toMigrateUnPublishedActions = new HashSet<>();
         Set<String> toMigratePublishedActions = new HashSet<>();
@@ -3055,7 +3553,8 @@ public class DatabaseChangelog1 {
                 toMigrateUnPublishedActions.add(action.getId());
             }
 
-            if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
+            if (action.getPublishedAction() != null
+                    && action.getPublishedAction().getActionConfiguration() != null) {
                 toMigratePublishedActions.add(action.getId());
             }
         }
@@ -3065,25 +3564,28 @@ public class DatabaseChangelog1 {
         // Migrate unpublished actions
         mongoTemplate.updateMulti(
                 query(where("_id").in(toMigrateUnPublishedActions)),
-                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.13", smartSubProperty),
-                NewAction.class
-        );
+                new Update()
+                        .set(
+                                "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.13",
+                                smartSubProperty),
+                NewAction.class);
 
         // Migrate published actions
         mongoTemplate.updateMulti(
                 query(where("_id").in(toMigratePublishedActions)),
-                new Update().set("publishedAction.actionConfiguration.pluginSpecifiedTemplates.13", smartSubProperty),
-                NewAction.class
-        );
+                new Update()
+                        .set(
+                                "publishedAction.actionConfiguration.pluginSpecifiedTemplates.13",
+                                smartSubProperty),
+                NewAction.class);
     }
 
     @ChangeSet(order = "086", id = "uninstall-mongo-uqi-plugin", author = "")
     public void uninstallMongoUqiPluginAndRemoveAllActions(MongoTemplate mongoTemplate) {
 
-        Plugin mongoUqiPlugin = mongoTemplate.findAndRemove(
-                query(where("packageName").is("mongo-uqi-plugin")),
-                Plugin.class
-        );
+        Plugin mongoUqiPlugin =
+                mongoTemplate.findAndRemove(
+                        query(where("packageName").is("mongo-uqi-plugin")), Plugin.class);
 
         if (mongoUqiPlugin == null) {
             // If there's no installed plugin for the same, don't go any further.
@@ -3096,18 +3598,21 @@ public class DatabaseChangelog1 {
                 // do nothing
             }
 
-            final Set<String> installedPlugins = organization
-                    .getPlugins()
-                    .stream()
-                    .map(WorkspacePlugin::getPluginId)
-                    .collect(Collectors.toSet());
+            final Set<String> installedPlugins =
+                    organization.getPlugins().stream()
+                            .map(WorkspacePlugin::getPluginId)
+                            .collect(Collectors.toSet());
 
             if (installedPlugins.contains(mongoUqiPlugin.getId())) {
-                WorkspacePlugin mongoUqiOrganizationPlugin = organization.getPlugins()
-                        .stream()
-                        .filter(organizationPlugin -> organizationPlugin.getPluginId().equals(mongoUqiPlugin.getId()))
-                        .findFirst()
-                        .get();
+                WorkspacePlugin mongoUqiOrganizationPlugin =
+                        organization.getPlugins().stream()
+                                .filter(
+                                        organizationPlugin ->
+                                                organizationPlugin
+                                                        .getPluginId()
+                                                        .equals(mongoUqiPlugin.getId()))
+                                .findFirst()
+                                .get();
 
                 installedPlugins.remove(mongoUqiOrganizationPlugin);
                 mongoTemplate.save(organization);
@@ -3115,49 +3620,50 @@ public class DatabaseChangelog1 {
         }
 
         // Delete all mongo uqi datasources
-        List<Datasource> removedDatasources = mongoTemplate.findAllAndRemove(
-                query(where("pluginId").is(mongoUqiPlugin.getId())),
-                Datasource.class
-        );
+        List<Datasource> removedDatasources =
+                mongoTemplate.findAllAndRemove(
+                        query(where("pluginId").is(mongoUqiPlugin.getId())), Datasource.class);
 
         // Now delete all the actions created on top of mongo uqi datasources
         for (Datasource deletedDatasource : removedDatasources) {
             mongoTemplate.findAllAndRemove(
                     query(where("unpublishedAction.datasource.id").is(deletedDatasource.getId())),
-                    NewAction.class
-            );
+                    NewAction.class);
         }
     }
 
-    public final static Map<Integer, String> mongoMigrationMap = Map.ofEntries(
-            Map.entry(0, "smartSubstitution"), //SMART_BSON_SUBSTITUTION
-            Map.entry(2, "command"), // COMMAND
-            Map.entry(19, "collection"), // COLLECTION
-            Map.entry(3, "find.query"), // FIND_QUERY
-            Map.entry(4, "find.sort"), // FIND_SORT
-            Map.entry(5, "find.projection"), // FIND_PROJECTION
-            Map.entry(6, "find.limit"), // FIND_LIMIT
-            Map.entry(7, "find.skip"), // FIND_SKIP
-            Map.entry(11, "updateMany.query"), // UPDATE_QUERY
-            Map.entry(12, "updateMany.update"), // UPDATE_UPDATE
-            Map.entry(21, "updateMany.limit"), // UPDATE_LIMIT
-            Map.entry(13, "delete.query"), // DELETE_QUERY
-            Map.entry(20, "delete.limit"), // DELETE_LIMIT
-            Map.entry(14, "count.query"), // COUNT_QUERY
-            Map.entry(15, "distinct.query"), // DISTINCT_QUERY
-            Map.entry(16, "distinct.key"), // DISTINCT_KEY
-            Map.entry(17, "aggregate.arrayPipelines"), // AGGREGATE_PIPELINE
-            Map.entry(18, "insert.documents") // INSERT_DOCUMENT
-    );
+    public static final Map<Integer, String> mongoMigrationMap =
+            Map.ofEntries(
+                    Map.entry(0, "smartSubstitution"), // SMART_BSON_SUBSTITUTION
+                    Map.entry(2, "command"), // COMMAND
+                    Map.entry(19, "collection"), // COLLECTION
+                    Map.entry(3, "find.query"), // FIND_QUERY
+                    Map.entry(4, "find.sort"), // FIND_SORT
+                    Map.entry(5, "find.projection"), // FIND_PROJECTION
+                    Map.entry(6, "find.limit"), // FIND_LIMIT
+                    Map.entry(7, "find.skip"), // FIND_SKIP
+                    Map.entry(11, "updateMany.query"), // UPDATE_QUERY
+                    Map.entry(12, "updateMany.update"), // UPDATE_UPDATE
+                    Map.entry(21, "updateMany.limit"), // UPDATE_LIMIT
+                    Map.entry(13, "delete.query"), // DELETE_QUERY
+                    Map.entry(20, "delete.limit"), // DELETE_LIMIT
+                    Map.entry(14, "count.query"), // COUNT_QUERY
+                    Map.entry(15, "distinct.query"), // DISTINCT_QUERY
+                    Map.entry(16, "distinct.key"), // DISTINCT_KEY
+                    Map.entry(17, "aggregate.arrayPipelines"), // AGGREGATE_PIPELINE
+                    Map.entry(18, "insert.documents") // INSERT_DOCUMENT
+                    );
 
-    private void updateFormData(int index, Object value, Map formData, Map<Integer, String> migrationMap) {
+    private void updateFormData(
+            int index, Object value, Map formData, Map<Integer, String> migrationMap) {
         if (migrationMap.containsKey(index)) {
             String path = migrationMap.get(index);
             setValueSafelyInFormData(formData, path, value);
         }
     }
 
-    public Map iteratePluginSpecifiedTemplatesAndCreateFormData(List<Property> pluginSpecifiedTemplates, Map<Integer, String> migrationMap) {
+    public Map iteratePluginSpecifiedTemplatesAndCreateFormData(
+            List<Property> pluginSpecifiedTemplates, Map<Integer, String> migrationMap) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
@@ -3177,41 +3683,57 @@ public class DatabaseChangelog1 {
     public void migrateMongoPluginToUqi(MongoTemplate mongoTemplate) {
 
         // First update the UI component for the mongo plugin to UQI
-        Plugin mongoPlugin = mongoTemplate.findOne(
-                query(where("packageName").is("mongo-plugin")),
-                Plugin.class
-        );
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
         mongoPlugin.setUiComponent("UQIDbEditorForm");
         mongoTemplate.save(mongoPlugin);
 
         // Now migrate all the existing actions to the new UQI structure.
 
-        List<NewAction> mongoActions = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                NewAction.class
-        );
+        List<NewAction> mongoActions =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QNewAction.newAction.pluginId))
+                                                        .is(mongoPlugin.getId()))),
+                        NewAction.class);
 
         for (NewAction mongoAction : mongoActions) {
-            if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+            if (mongoAction.getUnpublishedAction() == null
+                    || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
                 // No migrations required
                 continue;
             }
 
-            List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            List<Property> pluginSpecifiedTemplates =
+                    mongoAction
+                            .getUnpublishedAction()
+                            .getActionConfiguration()
+                            .getPluginSpecifiedTemplates();
 
-            mongoAction.getUnpublishedAction().getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates, mongoMigrationMap)
-            );
-            mongoAction.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(null);
+            mongoAction
+                    .getUnpublishedAction()
+                    .getActionConfiguration()
+                    .setFormData(
+                            iteratePluginSpecifiedTemplatesAndCreateFormData(
+                                    pluginSpecifiedTemplates, mongoMigrationMap));
+            mongoAction
+                    .getUnpublishedAction()
+                    .getActionConfiguration()
+                    .setPluginSpecifiedTemplates(null);
 
             ActionDTO publishedAction = mongoAction.getPublishedAction();
-            if (publishedAction.getActionConfiguration() != null &&
-                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
-                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
-                publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates, mongoMigrationMap)
-                );
+            if (publishedAction.getActionConfiguration() != null
+                    && publishedAction.getActionConfiguration().getPluginSpecifiedTemplates()
+                            != null) {
+                pluginSpecifiedTemplates =
+                        publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                publishedAction
+                        .getActionConfiguration()
+                        .setFormData(
+                                iteratePluginSpecifiedTemplatesAndCreateFormData(
+                                        pluginSpecifiedTemplates, mongoMigrationMap));
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
@@ -3222,28 +3744,29 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "088", id = "migrate-mongo-uqi-dynamicBindingPathList", author = "")
     public void migrateMongoPluginDynamicBindingListUqi(MongoTemplate mongoTemplate) {
 
-        Plugin mongoPlugin = mongoTemplate.findOne(
-                query(where("packageName").is("mongo-plugin")),
-                Plugin.class
-        );
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
         // Now migrate all the existing actions dynamicBindingList to the new UQI structure.
-        List<NewAction> mongoActions = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId())
-                )),
-                NewAction.class
-        );
+        List<NewAction> mongoActions =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QNewAction.newAction.pluginId))
+                                                        .is(mongoPlugin.getId()))),
+                        NewAction.class);
 
         for (NewAction mongoAction : mongoActions) {
-            if (mongoAction.getUnpublishedAction() == null ||
-                    mongoAction.getUnpublishedAction().getDynamicBindingPathList() == null ||
-                    mongoAction.getUnpublishedAction().getDynamicBindingPathList().isEmpty()) {
+            if (mongoAction.getUnpublishedAction() == null
+                    || mongoAction.getUnpublishedAction().getDynamicBindingPathList() == null
+                    || mongoAction.getUnpublishedAction().getDynamicBindingPathList().isEmpty()) {
                 // No migrations required
                 continue;
             }
 
-            List<Property> dynamicBindingPathList = mongoAction.getUnpublishedAction().getDynamicBindingPathList();
+            List<Property> dynamicBindingPathList =
+                    mongoAction.getUnpublishedAction().getDynamicBindingPathList();
             List<Property> newDynamicBindingPathList = new ArrayList<>();
 
             for (Property path : dynamicBindingPathList) {
@@ -3273,14 +3796,17 @@ public class DatabaseChangelog1 {
     }
 
     @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
-    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongoTemplate mongoTemplate) {
-//        MongoTemplate mongoTemplate = mongoTemplate.getImpl();
+    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(
+            MongoTemplate mongoTemplate) {
+        //        MongoTemplate mongoTemplate = mongoTemplate.getImpl();
         dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
 
-        ensureIndexes(mongoTemplate, Plugin.class,
+        ensureIndexes(
+                mongoTemplate,
+                Plugin.class,
                 makeIndex("pluginName", "packageName", "version")
-                        .unique().named("plugin_name_package_name_version_index")
-        );
+                        .unique()
+                        .named("plugin_name_package_name_version_index"));
     }
 
     @ChangeSet(order = "090", id = "delete-orphan-actions", author = "")
@@ -3297,20 +3823,24 @@ public class DatabaseChangelog1 {
         for (final NewAction action : actions) {
             final String applicationId = action.getApplicationId();
 
-            final boolean shouldDelete = StringUtils.isEmpty(applicationId) || mongoTemplate.exists(
-                    query(
-                            where(fieldName(QApplication.application.id)).is(applicationId)
-                                    .and(fieldName(QApplication.application.deleted)).is(true)
-                    ),
-                    Application.class
-            );
+            final boolean shouldDelete =
+                    StringUtils.isEmpty(applicationId)
+                            || mongoTemplate.exists(
+                                    query(
+                                            where(fieldName(QApplication.application.id))
+                                                    .is(applicationId)
+                                                    .and(
+                                                            fieldName(
+                                                                    QApplication.application
+                                                                            .deleted))
+                                                    .is(true)),
+                                    Application.class);
 
             if (shouldDelete) {
                 mongoTemplate.updateFirst(
                         query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
                         deletionUpdates,
-                        NewAction.class
-                );
+                        NewAction.class);
             }
         }
     }
@@ -3318,16 +3848,16 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "091", id = "migrate-old-app-color-to-new-colors", author = "")
     public void migrateOldAppColorsToNewColors(MongoTemplate mongoTemplate) {
         String[] oldColors = {
-                "#FF6786", "#FFAD5E", "#FCD43E", "#B0E968", "#5CE7EF", "#69B5FF", "#9177FF", "#FF76FE",
-                "#61DF48", "#FF597B", "#6698FF", "#F8C356", "#6C4CF1", "#C5CD90", "#6272C8", "#4F70FD",
-                "#6CD0CF", "#A8D76C", "#5EDA82", "#6C9DD0", "#F56AF4", "#5ED3DA", "#B94CF1", "#BC6DB2",
-                "#EA6179", "#FE9F44", "#E9C951", "#ED86A1", "#54A9FB", "#F36380", "#C03C3C"
+            "#FF6786", "#FFAD5E", "#FCD43E", "#B0E968", "#5CE7EF", "#69B5FF", "#9177FF", "#FF76FE",
+            "#61DF48", "#FF597B", "#6698FF", "#F8C356", "#6C4CF1", "#C5CD90", "#6272C8", "#4F70FD",
+            "#6CD0CF", "#A8D76C", "#5EDA82", "#6C9DD0", "#F56AF4", "#5ED3DA", "#B94CF1", "#BC6DB2",
+            "#EA6179", "#FE9F44", "#E9C951", "#ED86A1", "#54A9FB", "#F36380", "#C03C3C"
         };
         String[] newColors = {
-                "#FFDEDE", "#FFEFDB", "#F3F1C7", "#F4FFDE", "#C7F3F0", "#D9E7FF", "#E3DEFF", "#F1DEFF",
-                "#C7F3E3", "#F5D1D1", "#ECECEC", "#FBF4ED", "#D6D1F2", "#FFEBFB", "#EAEDFB", "#D6D1F2",
-                "#C7F3F0", "#F4FFDE", "#C7F3E3", "#D9E7FF", "#F1DEFF", "#C7F3F0", "#D6D1F2", "#F1DEFF",
-                "#F5D1D1", "#FFEFDB", "#F3F1C7", "#FFEBFB", "#D9E7FF", "#FFDEDE", "#F5D1D1"
+            "#FFDEDE", "#FFEFDB", "#F3F1C7", "#F4FFDE", "#C7F3F0", "#D9E7FF", "#E3DEFF", "#F1DEFF",
+            "#C7F3E3", "#F5D1D1", "#ECECEC", "#FBF4ED", "#D6D1F2", "#FFEBFB", "#EAEDFB", "#D6D1F2",
+            "#C7F3F0", "#F4FFDE", "#C7F3E3", "#D9E7FF", "#F1DEFF", "#C7F3F0", "#D6D1F2", "#F1DEFF",
+            "#F5D1D1", "#FFEFDB", "#F3F1C7", "#FFEBFB", "#D9E7FF", "#FFDEDE", "#F5D1D1"
         };
 
         for (int i = 0; i < oldColors.length; i++) {
@@ -3336,72 +3866,92 @@ public class DatabaseChangelog1 {
             // Migrate old color to new color
             String colorFieldName = fieldName(QApplication.application.color);
             mongoTemplate.updateMulti(
-                    query(where(colorFieldName).is(oldColor).and(fieldName(QApplication.application.deleted)).is(false)),
+                    query(
+                            where(colorFieldName)
+                                    .is(oldColor)
+                                    .and(fieldName(QApplication.application.deleted))
+                                    .is(false)),
                     new Update().set(colorFieldName, newColor),
-                    Application.class
-            );
+                    Application.class);
         }
     }
 
     /**
-     * Recently a change was introduced to modify the default value of s3 plugin's permanent URL toggle from NO to YES.
-     * This created an issue with the older actions where the toggle didn't exist and hence no value was saved against its
-     * property. Hence, since the default is now ON and the older actions don't have any value saved, the action
-     * editor shows the toggle value as ON but behaves like the value is OFF. To fix this issue, this method adds
-     * URL toggle as `NO` where no toggle value exists.
+     * Recently a change was introduced to modify the default value of s3 plugin's permanent URL
+     * toggle from NO to YES. This created an issue with the older actions where the toggle didn't
+     * exist and hence no value was saved against its property. Hence, since the default is now ON
+     * and the older actions don't have any value saved, the action editor shows the toggle value as
+     * ON but behaves like the value is OFF. To fix this issue, this method adds URL toggle as `NO`
+     * where no toggle value exists.
      *
      * @param mongoTemplate : Mongo client
      */
     @ChangeSet(order = "092", id = "update-s3-permanent-url-toggle-default-value", author = "")
     public void updateS3PermanentUrlToggleDefaultValue(MongoTemplate mongoTemplate) {
-        Plugin s3Plugin = mongoTemplate.findOne(
-                query(where("packageName").is("amazons3-plugin")),
-                Plugin.class
-        );
+        Plugin s3Plugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("amazons3-plugin")), Plugin.class);
 
         /**
-         * Query to find all S3 actions such that:
-         *   o action type is LIST
-         *   o permanent url property either does not exist or the property is null or the property's value is null -
-         *   indicating that the property has not been set.
+         * Query to find all S3 actions such that: o action type is LIST o permanent url property
+         * either does not exist or the property is null or the property's value is null -
+         * indicating that the property has not been set.
          */
-        Query missingToggleQuery = query(new Criteria().andOperator(
-                where("pluginId").is(s3Plugin.getId()),
-                where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value").is("LIST"),
-                new Criteria().orOperator(
-                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").exists(false),
-                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").is(null),
-                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8.value").is(null)
-                )
-        ));
-        List<NewAction> s3ListActionObjectsWithNoToggleValue = mongoTemplate.find(missingToggleQuery, NewAction.class);
+        Query missingToggleQuery =
+                query(
+                        new Criteria()
+                                .andOperator(
+                                        where("pluginId").is(s3Plugin.getId()),
+                                        where(
+                                                        "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value")
+                                                .is("LIST"),
+                                        new Criteria()
+                                                .orOperator(
+                                                        where(
+                                                                        "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8")
+                                                                .exists(false),
+                                                        where(
+                                                                        "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8")
+                                                                .is(null),
+                                                        where(
+                                                                        "unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8.value")
+                                                                .is(null))));
+        List<NewAction> s3ListActionObjectsWithNoToggleValue =
+                mongoTemplate.find(missingToggleQuery, NewAction.class);
 
         // Replace old pluginSpecifiedTemplates with updated pluginSpecifiedTemplates.
         s3ListActionObjectsWithNoToggleValue.stream()
-                .forEach(action -> {
-                    List<Property> oldPluginSpecifiedTemplates =
-                            action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                    List<Property> newPluginSpecifiedTemplates = setS3ListActionDefaults(oldPluginSpecifiedTemplates);
-                    action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(newPluginSpecifiedTemplates);
-                });
+                .forEach(
+                        action -> {
+                            List<Property> oldPluginSpecifiedTemplates =
+                                    action.getUnpublishedAction()
+                                            .getActionConfiguration()
+                                            .getPluginSpecifiedTemplates();
+                            List<Property> newPluginSpecifiedTemplates =
+                                    setS3ListActionDefaults(oldPluginSpecifiedTemplates);
+                            action.getUnpublishedAction()
+                                    .getActionConfiguration()
+                                    .setPluginSpecifiedTemplates(newPluginSpecifiedTemplates);
+                        });
 
         /**
-         * Save changes only after all the processing is done so that in case any data manipulation fails, no data
-         * write occurs.
-         * Write data back to db only if all data manipulations done above have succeeded.
+         * Save changes only after all the processing is done so that in case any data manipulation
+         * fails, no data write occurs. Write data back to db only if all data manipulations done
+         * above have succeeded.
          */
-        s3ListActionObjectsWithNoToggleValue.stream()
-                .forEach(action -> mongoTemplate.save(action));
+        s3ListActionObjectsWithNoToggleValue.stream().forEach(action -> mongoTemplate.save(action));
     }
 
     /**
-     * This method fills `pluginSpecifiedTemplates` list with default values until the 7th index (i.e size = 8) for
-     * LIST action type. The 8th index is mapped against the toggle for generating a permanent url for s3 resource.
-     * However, a value cannot be set against this toggle if the value for previous keys in the list are missing.
-     * Hence, this method populates the values for all the keys that appear before the permanent url toggle key. To
-     * check out the indexes for each key / property please look into the `editor.json` file for s3 plugin.
-     * <p>
-     * The keys are saved as `null` for properties where editor.json does not define any value for the property keys.
+     * This method fills `pluginSpecifiedTemplates` list with default values until the 7th index
+     * (i.e size = 8) for LIST action type. The 8th index is mapped against the toggle for
+     * generating a permanent url for s3 resource. However, a value cannot be set against this
+     * toggle if the value for previous keys in the list are missing. Hence, this method populates
+     * the values for all the keys that appear before the permanent url toggle key. To check out the
+     * indexes for each key / property please look into the `editor.json` file for s3 plugin.
+     *
+     * <p>The keys are saved as `null` for properties where editor.json does not define any value
+     * for the property keys.
      *
      * @param oldPluginSpecifiedTemplates : current config saved in db.
      * @return newPluginSpecifiedTemplates : new config with default values against missing keys.
@@ -3411,8 +3961,8 @@ public class DatabaseChangelog1 {
         switch (newPluginSpecifiedTemplates.size()) {
             case 0:
                 /**
-                 * This case is never expected to be hit. However, I am still adding the handling here for the sake
-                 * of completeness and comprehension.
+                 * This case is never expected to be hit. However, I am still adding the handling
+                 * here for the sake of completeness and comprehension.
                  */
                 newPluginSpecifiedTemplates.add(new Property(null, "LIST")); // action type
             case 1:
@@ -3428,9 +3978,11 @@ public class DatabaseChangelog1 {
             case 6:
                 newPluginSpecifiedTemplates.add(new Property(null, "YES")); // base64 data
             case 7:
-                newPluginSpecifiedTemplates.add(new Property(null, "5")); // expiry duration for url with upload
+                newPluginSpecifiedTemplates.add(
+                        new Property(null, "5")); // expiry duration for url with upload
             case 8:
-                newPluginSpecifiedTemplates.add(new Property("generateUnsignedUrl", "NO")); // generate unsigned url
+                newPluginSpecifiedTemplates.add(
+                        new Property("generateUnsignedUrl", "NO")); // generate unsigned url
             default:
                 if (newPluginSpecifiedTemplates.get(8) == null
                         || newPluginSpecifiedTemplates.get(8).getValue() == null) {
@@ -3444,41 +3996,54 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "093", id = "application-git-metadata-index", author = "")
     public void updateGitApplicationMetadataIndex(MongoTemplate mongoTemplate) {
         // MongoTemplate mongoTemplate = mongoTemplate.getImpl();
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
+        dropIndexIfExists(
+                mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(
+                mongoTemplate,
+                Application.class,
+                "organization_application_deleted_compound_index");
 
-        ensureIndexes(mongoTemplate, Application.class,
-                makeIndex("organizationId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
-                        .unique().named("organization_name_deleted_gitApplicationMetadata")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                Application.class,
+                makeIndex(
+                                "organizationId",
+                                "name",
+                                "deletedAt",
+                                "gitApplicationMetadata.remoteUrl",
+                                "gitApplicationMetadata.branchName")
+                        .unique()
+                        .named("organization_name_deleted_gitApplicationMetadata"));
     }
 
-    public final static Map<Integer, List<String>> s3MigrationMap = Map.ofEntries(
-            Map.entry(0, List.of("command")),
-            Map.entry(1, List.of("bucket")),
-            Map.entry(2, List.of("list.signedUrl")),
-            Map.entry(3, List.of("list.expiry")),
-            Map.entry(4, List.of("list.prefix")),
-            Map.entry(5, List.of("read.usingBase64Encoding")),
-            Map.entry(6, List.of("create.dataType", "read.dataType")),
-            Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
-            Map.entry(8, List.of("list.unSignedUrl"))
-    );
+    public static final Map<Integer, List<String>> s3MigrationMap =
+            Map.ofEntries(
+                    Map.entry(0, List.of("command")),
+                    Map.entry(1, List.of("bucket")),
+                    Map.entry(2, List.of("list.signedUrl")),
+                    Map.entry(3, List.of("list.expiry")),
+                    Map.entry(4, List.of("list.prefix")),
+                    Map.entry(5, List.of("read.usingBase64Encoding")),
+                    Map.entry(6, List.of("create.dataType", "read.dataType")),
+                    Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
+                    Map.entry(8, List.of("list.unSignedUrl")));
 
     /**
-     * This class is meant to hold any method that is required to transform data before migrating the data to UQI
-     * schema. Usage of a class makes the data transformation process modular e.g. someone could create
-     * another class extending this class and override the `transformData` method.
+     * This class is meant to hold any method that is required to transform data before migrating
+     * the data to UQI schema. Usage of a class makes the data transformation process modular e.g.
+     * someone could create another class extending this class and override the `transformData`
+     * method.
      */
     public class UQIMigrationDataTransformer {
 
         /**
-         * This method holds the steps to transform data before it is migrated to UQI schema.
-         * Each transformation is uniquely identified by the combination of plugin name and the transformation name.
+         * This method holds the steps to transform data before it is migrated to UQI schema. Each
+         * transformation is uniquely identified by the combination of plugin name and the
+         * transformation name.
          *
-         * @param pluginName         - name of the plugin for which the transformation is intended
+         * @param pluginName - name of the plugin for which the transformation is intended
          * @param transformationName - name of the transformation relative to the plugin
-         * @param value              - value that needs to be transformed
+         * @param value - value that needs to be transformed
          * @return - transformed value
          */
         public Object transformData(String pluginName, String transformationName, Object value) {
@@ -3488,11 +4053,11 @@ public class DatabaseChangelog1 {
             }
 
             switch (pluginName) {
-                /* Data transformations for Firestore plugin are defined in this case. */
+                    /* Data transformations for Firestore plugin are defined in this case. */
                 case FIRESTORE_PLUGIN_NAME:
                     /**
-                     * This case takes care of transforming Firestore's where clause data to UQI's where
-                     * clause schema.
+                     * This case takes care of transforming Firestore's where clause data to UQI's
+                     * where clause schema.
                      */
                     if ("where-clause-migration".equals(transformationName)) {
                         /* This map will hold the transformed data as per UQI's where clause schema */
@@ -3509,51 +4074,67 @@ public class DatabaseChangelog1 {
                         }
 
                         oldListOfConditions.stream()
-                                .forEachOrdered(oldCondition -> {
-                                    /* Map old values to keys in the new UQI format. */
-                                    Map<String, Object> uqiCondition = new HashMap<>();
-                                    uqiCondition.put(CONDITION_KEY, oldCondition.get(OPERATOR_KEY));
-                                    uqiCondition.put(KEY, oldCondition.get(PATH_KEY));
-                                    uqiCondition.put(VALUE_KEY, oldCondition.get(VALUE_KEY));
+                                .forEachOrdered(
+                                        oldCondition -> {
+                                            /* Map old values to keys in the new UQI format. */
+                                            Map<String, Object> uqiCondition = new HashMap<>();
+                                            uqiCondition.put(
+                                                    CONDITION_KEY, oldCondition.get(OPERATOR_KEY));
+                                            uqiCondition.put(KEY, oldCondition.get(PATH_KEY));
+                                            uqiCondition.put(
+                                                    VALUE_KEY, oldCondition.get(VALUE_KEY));
 
-                                    /* Add condition to the UQI where clause. */
-                                    ((List) uqiWhereMap.get(CHILDREN_KEY)).add(uqiCondition);
-                                });
+                                            /* Add condition to the UQI where clause. */
+                                            ((List) uqiWhereMap.get(CHILDREN_KEY))
+                                                    .add(uqiCondition);
+                                        });
 
                         return uqiWhereMap;
                     }
 
                     /**
-                     * Throw error since no handler could be found for the pluginName and transformationName
-                     * combination.
+                     * Throw error since no handler could be found for the pluginName and
+                     * transformationName combination.
                      */
-                    String transformationKeyNotFoundErrorMessage = "Data transformer failed to find any " +
-                            "matching case for plugin: " + pluginName + " and key: " + transformationName + ". Please " +
-                            "contact Appsmith customer support to resolve this.";
+                    String transformationKeyNotFoundErrorMessage =
+                            "Data transformer failed to find any "
+                                    + "matching case for plugin: "
+                                    + pluginName
+                                    + " and key: "
+                                    + transformationName
+                                    + ". Please "
+                                    + "contact Appsmith customer support to resolve this.";
                     assert false : transformationKeyNotFoundErrorMessage;
 
                     break;
                 default:
                     /* Throw error since no handler could be found for the plugin matching pluginName */
-                    String noPluginHandlerFoundErrorMessage = "Data transformer failed to find any matching case for " +
-                            "plugin: " + pluginName + ". Please contact Appsmith customer support to resolve this.";
+                    String noPluginHandlerFoundErrorMessage =
+                            "Data transformer failed to find any matching case for "
+                                    + "plugin: "
+                                    + pluginName
+                                    + ". Please contact Appsmith customer support to resolve this.";
                     assert false : noPluginHandlerFoundErrorMessage;
             }
 
             /* Execution flow is never expected to reach here. */
-            String badExecutionFlowErrorMessage = "Execution flow is never supposed to reach here. Please contact " +
-                    "Appsmith customer support to resolve this.";
+            String badExecutionFlowErrorMessage =
+                    "Execution flow is never supposed to reach here. Please contact "
+                            + "Appsmith customer support to resolve this.";
             assert false : badExecutionFlowErrorMessage;
 
             return value;
         }
     }
 
-    private void updateFormDataMultipleOptions(int index, Object value, Map formData,
-                                               Map<Integer, List<String>> migrationMap,
-                                               Map<Integer, String> uqiDataTransformationMap,
-                                               UQIMigrationDataTransformer dataTransformer,
-                                               String pluginName) {
+    private void updateFormDataMultipleOptions(
+            int index,
+            Object value,
+            Map formData,
+            Map<Integer, List<String>> migrationMap,
+            Map<Integer, String> uqiDataTransformationMap,
+            UQIMigrationDataTransformer dataTransformer,
+            String pluginName) {
         if (migrationMap.containsKey(index)) {
             if (dataTransformer != null && uqiDataTransformationMap.containsKey(index)) {
                 String transformationKey = uqiDataTransformationMap.get(index);
@@ -3566,17 +4147,26 @@ public class DatabaseChangelog1 {
         }
     }
 
-    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates,
-                                                                               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
-                                                                               UQIMigrationDataTransformer dataTransformer, String pluginName) {
+    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(
+            List<Property> pluginSpecifiedTemplates,
+            Map<Integer, List<String>> migrationMap,
+            Map<Integer, String> uqiDataTransformationMap,
+            UQIMigrationDataTransformer dataTransformer,
+            String pluginName) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
             for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
                 Property template = pluginSpecifiedTemplates.get(i);
                 if (template != null) {
-                    updateFormDataMultipleOptions(i, template.getValue(), formData, migrationMap,
-                            uqiDataTransformationMap, dataTransformer, pluginName);
+                    updateFormDataMultipleOptions(
+                            i,
+                            template.getValue(),
+                            formData,
+                            migrationMap,
+                            uqiDataTransformationMap,
+                            dataTransformer,
+                            pluginName);
                 }
             }
 
@@ -3589,20 +4179,21 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "094", id = "migrate-s3-to-uqi", author = "")
     public void migrateS3PluginToUqi(MongoTemplate mongoTemplate) {
         // First update the UI component for the s3 plugin to UQI
-        Plugin s3Plugin = mongoTemplate.findOne(
-                query(where("packageName").is("amazons3-plugin")),
-                Plugin.class
-        );
+        Plugin s3Plugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("amazons3-plugin")), Plugin.class);
         s3Plugin.setUiComponent("UQIDbEditorForm");
-
 
         // Now migrate all the existing actions to the new UQI structure.
 
-        List<NewAction> s3Actions = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
-                NewAction.class
-        );
+        List<NewAction> s3Actions =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QNewAction.newAction.pluginId))
+                                                        .is(s3Plugin.getId()))),
+                        NewAction.class);
 
         List<NewAction> actionsToSave = new ArrayList<>();
 
@@ -3615,29 +4206,40 @@ public class DatabaseChangelog1 {
                 continue;
             }
 
-            List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+            List<Property> pluginSpecifiedTemplates =
+                    unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
 
-            unpublishedAction.getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
-                            s3MigrationMap, null, null, null)
-            );
+            unpublishedAction
+                    .getActionConfiguration()
+                    .setFormData(
+                            iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(
+                                    pluginSpecifiedTemplates, s3MigrationMap, null, null, null));
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
             ActionDTO publishedAction = s3Action.getPublishedAction();
-            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
-                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
-                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
-                publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
-                                s3MigrationMap, null, null, null)
-                );
+            if (publishedAction != null
+                    && publishedAction.getActionConfiguration() != null
+                    && publishedAction.getActionConfiguration().getPluginSpecifiedTemplates()
+                            != null) {
+                pluginSpecifiedTemplates =
+                        publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                publishedAction
+                        .getActionConfiguration()
+                        .setFormData(
+                                iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(
+                                        pluginSpecifiedTemplates,
+                                        s3MigrationMap,
+                                        null,
+                                        null,
+                                        null));
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
             // Migrate the dynamic binding path list for unpublished action
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-            List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
-                    objectMapper, s3Action, s3MigrationMap);
+            List<Property> newDynamicBindingPathList =
+                    getUpdatedDynamicBindingPathList(
+                            dynamicBindingPathList, objectMapper, s3Action, s3MigrationMap);
             unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
             actionsToSave.add(s3Action);
@@ -3647,7 +4249,8 @@ public class DatabaseChangelog1 {
         for (NewAction s3Action : actionsToSave) {
             mongoTemplate.save(s3Action);
         }
-        // Now that the actions have completed the migrations, update the plugin to use the new UI form.
+        // Now that the actions have completed the migrations, update the plugin to use the new UI
+        // form.
         mongoTemplate.save(s3Plugin);
     }
 
@@ -3657,13 +4260,15 @@ public class DatabaseChangelog1 {
      * @param dynamicBindingPathList : old dynamicBindingPathList
      * @param objectMapper
      * @param action
-     * @param migrationMap           : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
-     *                               reference, please check out the `s3MigrationMap` defined above.
+     * @param migrationMap : A mapping from `pluginSpecifiedTemplates` index to attribute path in
+     *     UQI model. For reference, please check out the `s3MigrationMap` defined above.
      * @return : updated dynamicBindingPathList - ported to UQI model.
      */
-    static List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
-                                                           ObjectMapper objectMapper, NewAction action,
-                                                           Map<Integer, List<String>> migrationMap) {
+    static List<Property> getUpdatedDynamicBindingPathList(
+            List<Property> dynamicBindingPathList,
+            ObjectMapper objectMapper,
+            NewAction action,
+            Map<Integer, List<String>> migrationMap) {
         // Return if empty.
         if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
             return dynamicBindingPathList;
@@ -3692,12 +4297,14 @@ public class DatabaseChangelog1 {
             }
 
             // We may have an invalid dynamic binding. Trim the same
-            List<String> dynamicBindingPathNames = newDynamicBindingPathList
-                    .stream()
-                    .map(property -> property.getKey())
-                    .collect(Collectors.toList());
+            List<String> dynamicBindingPathNames =
+                    newDynamicBindingPathList.stream()
+                            .map(property -> property.getKey())
+                            .collect(Collectors.toList());
 
-            Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
+            Set<String> pathsToRemove =
+                    getInvalidDynamicBindingPathsInAction(
+                            objectMapper, action, dynamicBindingPathNames);
 
             // We have found atleast 1 invalid dynamic binding path.
             if (!pathsToRemove.isEmpty()) {
@@ -3705,14 +4312,15 @@ public class DatabaseChangelog1 {
                 dynamicBindingPathNames.removeAll(pathsToRemove);
 
                 // Transform the set of paths to Property as it is stored in the db.
-                List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
-                        .stream()
-                        .map(dynamicBindingPath -> {
-                            Property property = new Property();
-                            property.setKey(dynamicBindingPath);
-                            return property;
-                        })
-                        .collect(Collectors.toList());
+                List<Property> updatedDynamicBindingPathList =
+                        dynamicBindingPathNames.stream()
+                                .map(
+                                        dynamicBindingPath -> {
+                                            Property property = new Property();
+                                            property.setKey(dynamicBindingPath);
+                                            return property;
+                                        })
+                                .collect(Collectors.toList());
 
                 // Reset the path list to only contain valid binding paths.
                 newDynamicBindingPathList = updatedDynamicBindingPathList;
@@ -3726,50 +4334,63 @@ public class DatabaseChangelog1 {
     public void setSlugToApplicationAndPage(MongoTemplate mongoTemplate) {
         // update applications
         final Query applicationQuery = query(where("deletedAt").is(null));
-        applicationQuery.fields()
-                .include(fieldName(QApplication.application.name));
+        applicationQuery.fields().include(fieldName(QApplication.application.name));
 
         List<Application> applications = mongoTemplate.find(applicationQuery, Application.class);
 
         for (Application application : applications) {
             mongoTemplate.updateFirst(
                     query(where(fieldName(QApplication.application.id)).is(application.getId())),
-                    new Update().set(fieldName(QApplication.application.slug), TextUtils.makeSlug(application.getName())),
-                    Application.class
-            );
+                    new Update()
+                            .set(
+                                    fieldName(QApplication.application.slug),
+                                    TextUtils.makeSlug(application.getName())),
+                    Application.class);
         }
 
         // update pages
         final Query pageQuery = query(where("deletedAt").is(null));
-        pageQuery.fields()
-                .include(String.format("%s.%s",
-                        fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.name)
-                ))
-                .include(String.format("%s.%s",
-                        fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.name)
-                ));
+        pageQuery
+                .fields()
+                .include(
+                        String.format(
+                                "%s.%s",
+                                fieldName(QNewPage.newPage.unpublishedPage),
+                                fieldName(QNewPage.newPage.unpublishedPage.name)))
+                .include(
+                        String.format(
+                                "%s.%s",
+                                fieldName(QNewPage.newPage.publishedPage),
+                                fieldName(QNewPage.newPage.publishedPage.name)));
 
         List<NewPage> pages = mongoTemplate.find(pageQuery, NewPage.class);
 
         for (NewPage page : pages) {
             Update update = new Update();
             if (page.getUnpublishedPage() != null) {
-                String fieldName = String.format("%s.%s",
-                        fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug)
-                );
-                update = update.set(fieldName, TextUtils.makeSlug(page.getUnpublishedPage().getName()));
+                String fieldName =
+                        String.format(
+                                "%s.%s",
+                                fieldName(QNewPage.newPage.unpublishedPage),
+                                fieldName(QNewPage.newPage.unpublishedPage.slug));
+                update =
+                        update.set(
+                                fieldName, TextUtils.makeSlug(page.getUnpublishedPage().getName()));
             }
             if (page.getPublishedPage() != null) {
-                String fieldName = String.format("%s.%s",
-                        fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug)
-                );
-                update = update.set(fieldName, TextUtils.makeSlug(page.getPublishedPage().getName()));
+                String fieldName =
+                        String.format(
+                                "%s.%s",
+                                fieldName(QNewPage.newPage.publishedPage),
+                                fieldName(QNewPage.newPage.publishedPage.slug));
+                update =
+                        update.set(
+                                fieldName, TextUtils.makeSlug(page.getPublishedPage().getName()));
             }
             mongoTemplate.updateFirst(
                     query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
                     update,
-                    NewPage.class
-            );
+                    NewPage.class);
         }
     }
 
@@ -3786,22 +4407,30 @@ public class DatabaseChangelog1 {
         if ("LIST_WIDGET".equals(widgetType)) {
             // Only List Widget would go through the following processing
 
-            // Start by picking all fields where we expect to find dynamic triggers for this particular widget
-            List<Object> dynamicTriggerPaths = (ArrayList<Object>) dsl.get(DYNAMIC_TRIGGER_PATH_LIST);
+            // Start by picking all fields where we expect to find dynamic triggers for this
+            // particular widget
+            List<Object> dynamicTriggerPaths =
+                    (ArrayList<Object>) dsl.get(DYNAMIC_TRIGGER_PATH_LIST);
 
             Set<String> newTriggerPaths = new HashSet<>();
 
             if (dynamicTriggerPaths != null) {
-                // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+                // Each of these might have nested structures, so we iterate through them to find
+                // the leaf node for each
                 for (Object x : dynamicTriggerPaths) {
                     Boolean validPath = true;
                     final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
                     String[] fields = fieldPath.split("[].\\[]");
-                    // For nested fields, the parent dsl to search in would shift by one level every iteration
+                    // For nested fields, the parent dsl to search in would shift by one level every
+                    // iteration
                     Object parent = dsl;
-                    Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                    Iterator<String> fieldsIterator =
+                            Arrays.stream(fields)
+                                    .filter(fieldToken -> !fieldToken.isBlank())
+                                    .iterator();
                     boolean isLeafNode = false;
-                    // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+                    // This loop will end at either a leaf node, or the last identified JSON field
+                    // (by throwing an exception)
                     // Valid forms of the fieldPath for this search could be:
                     // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
                     while (fieldsIterator.hasNext()) {
@@ -3815,7 +4444,8 @@ public class DatabaseChangelog1 {
                                 try {
                                     parent = ((List) parent).get(Integer.parseInt(nextKey));
                                 } catch (IndexOutOfBoundsException e) {
-                                    // The index being referred does not exist. Hence the path would not exist.
+                                    // The index being referred does not exist. Hence the path would
+                                    // not exist.
                                     validPath = false;
                                 }
                             } else {
@@ -3844,8 +4474,10 @@ public class DatabaseChangelog1 {
                     }
                 }
 
-                // Check if the newly computed trigger paths are different from the existing ones and if true, set it in the dsl
-                if (dynamicTriggerPaths.size() != newTriggerPaths.size() || !newTriggerPaths.containsAll(dynamicTriggerPaths)) {
+                // Check if the newly computed trigger paths are different from the existing ones
+                // and if true, set it in the dsl
+                if (dynamicTriggerPaths.size() != newTriggerPaths.size()
+                        || !newTriggerPaths.containsAll(dynamicTriggerPaths)) {
                     updated = Boolean.TRUE;
                     List<Object> finalTriggerPaths = new ArrayList<>();
                     for (String triggerPath : newTriggerPaths) {
@@ -3858,7 +4490,8 @@ public class DatabaseChangelog1 {
             }
         }
 
-        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        // Fetch the children of the current node in the DSL and recursively iterate over them to
+        // extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {
@@ -3868,7 +4501,8 @@ public class DatabaseChangelog1 {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    DslUpdateDto childUpdated = updateListWidgetTriggerPaths(new DslUpdateDto(object, updated));
+                    DslUpdateDto childUpdated =
+                            updateListWidgetTriggerPaths(new DslUpdateDto(object, updated));
                     updated = childUpdated.getUpdated();
                     newChildren.add(childUpdated.getDsl());
                 }
@@ -3882,36 +4516,33 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "095", id = "update-list-widget-trigger-paths", author = "")
     public void removeUnusedTriggerPathsListWidget(MongoTemplate mongoTemplate) {
 
-
         // Find all the pages which haven't been deleted
 
-        final Criteria possibleCandidatePagesCriteria = new Criteria().andOperator(
-                where("deletedAt").is(null),
-                where("unpublishedPage.layouts.0.dsl").exists(true)
-        );
+        final Criteria possibleCandidatePagesCriteria =
+                new Criteria()
+                        .andOperator(
+                                where("deletedAt").is(null),
+                                where("unpublishedPage.layouts.0.dsl").exists(true));
 
         Query pageQuery = query(possibleCandidatePagesCriteria);
-        pageQuery.fields()
-                .include(fieldName(QNewPage.newPage.id));
+        pageQuery.fields().include(fieldName(QNewPage.newPage.id));
 
-        final List<NewPage> pages = mongoTemplate.find(
-                pageQuery,
-                NewPage.class
-        );
+        final List<NewPage> pages = mongoTemplate.find(pageQuery, NewPage.class);
 
         for (NewPage onlyIdPage : pages) {
 
             // Fetch one action at a time to avoid OOM.
-            NewPage page = mongoTemplate.findOne(
-                    query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
-                    NewPage.class
-            );
+            NewPage page =
+                    mongoTemplate.findOne(
+                            query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
+                            NewPage.class);
 
             List<Layout> layouts = page.getUnpublishedPage().getLayouts();
 
             Layout layout = layouts.get(0);
             // update the dsl
-            DslUpdateDto dslUpdateDto = updateListWidgetTriggerPaths(new DslUpdateDto(layout.getDsl(), FALSE));
+            DslUpdateDto dslUpdateDto =
+                    updateListWidgetTriggerPaths(new DslUpdateDto(layout.getDsl(), FALSE));
             layout.setDsl(dslUpdateDto.getDsl());
 
             if (page.getPublishedPage() != null) {
@@ -3919,7 +4550,9 @@ public class DatabaseChangelog1 {
                 if (!CollectionUtils.isEmpty(layouts)) {
                     layout = layouts.get(0);
                     // update the dsl
-                    dslUpdateDto = updateListWidgetTriggerPaths(new DslUpdateDto(layout.getDsl(), dslUpdateDto.getUpdated()));
+                    dslUpdateDto =
+                            updateListWidgetTriggerPaths(
+                                    new DslUpdateDto(layout.getDsl(), dslUpdateDto.getUpdated()));
                     layout.setDsl(dslUpdateDto.getDsl());
                 }
             }
@@ -3931,26 +4564,27 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * Updates all existing S3 actions to modify the body parameter.
-     * Earlier, the body used to be a base64 encoded or a blob of file data.
-     * With this migration, the structure is expected to follow the
-     * {@link com.appsmith.external.dtos.MultipartFormDataDTO} format
+     * Updates all existing S3 actions to modify the body parameter. Earlier, the body used to be a
+     * base64 encoded or a blob of file data. With this migration, the structure is expected to
+     * follow the {@link com.appsmith.external.dtos.MultipartFormDataDTO} format
      *
      * @param mongoTemplate
      */
     @ChangeSet(order = "096", id = "update-s3-action-configuration-for-type", author = "")
     public void updateS3ActionConfigurationBodyForContentTypeSupport(MongoTemplate mongoTemplate) {
-        Plugin s3Plugin = mongoTemplate.findOne(
-                query(where("packageName").is("amazons3-plugin")),
-                Plugin.class
-        );
+        Plugin s3Plugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("amazons3-plugin")), Plugin.class);
 
         // Find all S3 actions
-        List<NewAction> s3Actions = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
-                NewAction.class
-        );
+        List<NewAction> s3Actions =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QNewAction.newAction.pluginId))
+                                                        .is(s3Plugin.getId()))),
+                        NewAction.class);
 
         List<NewAction> actionsToSave = new ArrayList<>();
 
@@ -3982,39 +4616,45 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * This migration fixes the data due to issue #8999 Due to this bug, public applications have isPublic=false
-     * when they are edited but in policies anonymousUser still have read application permission.
-     * This migration will set isPublic=true to those applications which have isPublic=false but anonymousUser has
-     * read:applications permission in policies
+     * This migration fixes the data due to issue #8999 Due to this bug, public applications have
+     * isPublic=false when they are edited but in policies anonymousUser still have read application
+     * permission. This migration will set isPublic=true to those applications which have
+     * isPublic=false but anonymousUser has read:applications permission in policies
      *
      * @param mongoTemplate
      */
     @ChangeSet(order = "097", id = "fix-ispublic-is-false-for-public-apps", author = "")
     public void fixIsPublicIsSetFalseWhenAppIsPublic(MongoTemplate mongoTemplate) {
-        Query query = query(
-                where("isPublic").is(false)
-                        .and("deleted").is(false)
-                        .and("policies").elemMatch(
-                                where("permission").is("read:applications").and("users").is("anonymousUser")
-                        )
-        );
+        Query query =
+                query(
+                        where("isPublic")
+                                .is(false)
+                                .and("deleted")
+                                .is(false)
+                                .and("policies")
+                                .elemMatch(
+                                        where("permission")
+                                                .is("read:applications")
+                                                .and("users")
+                                                .is("anonymousUser")));
         Update update = new Update().set("isPublic", true);
         mongoTemplate.updateMulti(query, update, Application.class);
     }
 
     @ChangeSet(order = "098", id = "update-js-action-client-side-execution", author = "")
     public void updateJsActionsClientSideExecution(MongoTemplate mongoTemplate) {
-        Plugin jsPlugin = mongoTemplate.findOne(
-                query(where("packageName").is("js-plugin")),
-                Plugin.class
-        );
+        Plugin jsPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("js-plugin")), Plugin.class);
 
         // Find all JS actions
-        List<NewAction> jsActions = mongoTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(jsPlugin.getId()))),
-                NewAction.class
-        );
+        List<NewAction> jsActions =
+                mongoTemplate.find(
+                        query(
+                                new Criteria()
+                                        .andOperator(
+                                                where(fieldName(QNewAction.newAction.pluginId))
+                                                        .is(jsPlugin.getId()))),
+                        NewAction.class);
 
         List<NewAction> actionsToSave = new ArrayList<>();
 
@@ -4051,7 +4691,8 @@ public class DatabaseChangelog1 {
         plugin.setDatasourceComponent("AutoForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://assets.appsmith.com/smtp-icon.svg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-smtp-plugin");
+        plugin.setDocumentationLink(
+                "https://docs.appsmith.com/datasource-reference/querying-smtp-plugin");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -4064,18 +4705,18 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "100", id = "update-mockdb-endpoint", author = "")
     public void updateMockdbEndpoint(MongoTemplate mongoTemplate) {
         mongoTemplate.updateMulti(
-                query(where("datasourceConfiguration.endpoints.host").is("fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com")),
+                query(
+                        where("datasourceConfiguration.endpoints.host")
+                                .is("fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com")),
                 update("datasourceConfiguration.endpoints.$.host", "mockdb.internal.appsmith.com"),
-                Datasource.class
-        );
+                Datasource.class);
     }
 
     @ChangeSet(order = "101", id = "add-google-sheets-plugin-name", author = "")
     public void addPluginNameForGoogleSheets(MongoTemplate mongoTemplate) {
-        Plugin googleSheetsPlugin = mongoTemplate.findOne(
-                query(where("packageName").is("google-sheets-plugin")),
-                Plugin.class
-        );
+        Plugin googleSheetsPlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("google-sheets-plugin")), Plugin.class);
 
         assert googleSheetsPlugin != null;
         googleSheetsPlugin.setPluginName("google-sheets-plugin");
@@ -4087,9 +4728,11 @@ public class DatabaseChangelog1 {
     public void insertDefaultResources(MongoTemplate mongoTemplate) {
 
         // Update datasources
-        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true));
+        final Query datasourceQuery =
+                query(where(fieldName(QDatasource.datasource.deleted)).ne(true));
 
-        datasourceQuery.fields()
+        datasourceQuery
+                .fields()
                 .include(fieldName(QDatasource.datasource.id))
                 .include(fieldName(QDatasource.datasource.organizationId));
 
@@ -4101,42 +4744,48 @@ public class DatabaseChangelog1 {
             mongoTemplate.updateFirst(
                     query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
                     update,
-                    Datasource.class
-            );
+                    Datasource.class);
         }
 
         // Update default page Ids in pages and publishedPages for all existing applications
-        final Query applicationQuery = query(where(fieldName(QApplication.application.deleted)).ne(true))
-                .addCriteria(where(fieldName(QApplication.application.pages)).exists(true));
+        final Query applicationQuery =
+                query(where(fieldName(QApplication.application.deleted)).ne(true))
+                        .addCriteria(where(fieldName(QApplication.application.pages)).exists(true));
         List<Application> applications = mongoTemplate.find(applicationQuery, Application.class);
 
         for (Application application : applications) {
-            application.getPages().forEach(page -> {
-                page.setDefaultPageId(page.getId());
-            });
+            application
+                    .getPages()
+                    .forEach(
+                            page -> {
+                                page.setDefaultPageId(page.getId());
+                            });
 
             if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
-                application.getPublishedPages().forEach(page -> {
-                    page.setDefaultPageId(page.getId());
-                });
+                application
+                        .getPublishedPages()
+                        .forEach(
+                                page -> {
+                                    page.setDefaultPageId(page.getId());
+                                });
             }
             mongoTemplate.save(application);
         }
 
-        // Update pages for defaultIds (applicationId, pageId) along-with the defaultActionIds for onPageLoadActions
+        // Update pages for defaultIds (applicationId, pageId) along-with the defaultActionIds for
+        // onPageLoadActions
         final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
-        pageQuery.fields()
-                .include(fieldName(QNewPage.newPage.id));
+        pageQuery.fields().include(fieldName(QNewPage.newPage.id));
 
         List<NewPage> pages = mongoTemplate.find(pageQuery, NewPage.class);
 
         for (NewPage onlyIdPage : pages) {
 
             // Fetch one page at a time to avoid OOM.
-            NewPage page = mongoTemplate.findOne(
-                    query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
-                    NewPage.class
-            );
+            NewPage page =
+                    mongoTemplate.findOne(
+                            query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
+                            NewPage.class);
 
             String applicationId = page.getApplicationId();
             final Update defaultResourceUpdates = new Update();
@@ -4151,51 +4800,72 @@ public class DatabaseChangelog1 {
             defaultResourceUpdates.set(fieldName(QNewPage.newPage.gitSyncId), gitSyncId);
 
             if (!CollectionUtils.isEmpty(page.getUnpublishedPage().getLayouts())) {
-                page.getUnpublishedPage()
-                        .getLayouts()
-                        .stream()
+                page.getUnpublishedPage().getLayouts().stream()
                         .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
-                        .forEach(layout -> layout.getLayoutOnLoadActions()
-                                .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+                        .forEach(
+                                layout ->
+                                        layout.getLayoutOnLoadActions()
+                                                .forEach(
+                                                        dslActionDTOS ->
+                                                                dslActionDTOS.forEach(
+                                                                        actionDTO ->
+                                                                                actionDTO
+                                                                                        .setDefaultActionId(
+                                                                                                actionDTO
+                                                                                                        .getId()))));
             }
 
-            defaultResourceUpdates.set(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts", page.getUnpublishedPage().getLayouts());
+            defaultResourceUpdates.set(
+                    fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts",
+                    page.getUnpublishedPage().getLayouts());
 
-            if (page.getPublishedPage() != null && !CollectionUtils.isEmpty(page.getPublishedPage().getLayouts())) {
-                page.getPublishedPage()
-                        .getLayouts()
-                        .stream()
+            if (page.getPublishedPage() != null
+                    && !CollectionUtils.isEmpty(page.getPublishedPage().getLayouts())) {
+                page.getPublishedPage().getLayouts().stream()
                         .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
-                        .forEach(layout -> layout.getLayoutOnLoadActions()
-                                .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+                        .forEach(
+                                layout ->
+                                        layout.getLayoutOnLoadActions()
+                                                .forEach(
+                                                        dslActionDTOS ->
+                                                                dslActionDTOS.forEach(
+                                                                        actionDTO ->
+                                                                                actionDTO
+                                                                                        .setDefaultActionId(
+                                                                                                actionDTO
+                                                                                                        .getId()))));
 
-                defaultResourceUpdates.set(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts", page.getPublishedPage().getLayouts());
+                defaultResourceUpdates.set(
+                        fieldName(QNewPage.newPage.publishedPage) + "." + "layouts",
+                        page.getPublishedPage().getLayouts());
             }
 
             if (!StringUtils.isEmpty(applicationId)) {
                 mongoTemplate.updateFirst(
                         query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
                         defaultResourceUpdates,
-                        NewPage.class
-                );
+                        NewPage.class);
             }
         }
 
         // Update actions
-        final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true))
-                .addCriteria(where(fieldName(QNewAction.newAction.applicationId)).exists(true));
+        final Query actionQuery =
+                query(where(fieldName(QNewAction.newAction.deleted)).ne(true))
+                        .addCriteria(
+                                where(fieldName(QNewAction.newAction.applicationId)).exists(true));
 
-        actionQuery.fields()
-                .include(fieldName(QNewAction.newAction.id));
+        actionQuery.fields().include(fieldName(QNewAction.newAction.id));
 
         List<NewAction> actions = mongoTemplate.find(actionQuery, NewAction.class);
 
         for (NewAction actionIdOnly : actions) {
             // Fetch one action at a time to avoid OOM.
-            final NewAction action = mongoTemplate.findOne(
-                    query(where(fieldName(QNewAction.newAction.id)).is(actionIdOnly.getId())),
-                    NewAction.class
-            );
+            final NewAction action =
+                    mongoTemplate.findOne(
+                            query(
+                                    where(fieldName(QNewAction.newAction.id))
+                                            .is(actionIdOnly.getId())),
+                            NewAction.class);
 
             String applicationId = action.getApplicationId();
             if (StringUtils.isEmpty(applicationId)) {
@@ -4214,9 +4884,11 @@ public class DatabaseChangelog1 {
                 unpublishedActionDTODefaults.setPageId(unpublishedAction.getPageId());
                 unpublishedActionDTODefaults.setCollectionId(unpublishedAction.getCollectionId());
                 defaultResourceUpdates.set(
-                        fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
-                        unpublishedActionDTODefaults
-                );
+                        fieldName(QNewAction.newAction.unpublishedAction)
+                                + "."
+                                + fieldName(
+                                        QNewAction.newAction.unpublishedAction.defaultResources),
+                        unpublishedActionDTODefaults);
             }
 
             ActionDTO publishedAction = action.getPublishedAction();
@@ -4225,38 +4897,77 @@ public class DatabaseChangelog1 {
                 publishedActionDTODefaults.setPageId(publishedAction.getPageId());
                 publishedActionDTODefaults.setCollectionId(publishedAction.getCollectionId());
                 defaultResourceUpdates.set(
-                        fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.defaultResources),
-                        publishedActionDTODefaults
-                );
+                        fieldName(QNewAction.newAction.publishedAction)
+                                + "."
+                                + fieldName(QNewAction.newAction.publishedAction.defaultResources),
+                        publishedActionDTODefaults);
             }
 
             // Update gitSyncId
             final String gitSyncId = applicationId + "_" + new ObjectId();
             defaultResourceUpdates.set(fieldName(QNewAction.newAction.gitSyncId), gitSyncId);
 
-
             mongoTemplate.updateFirst(
                     query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
                     defaultResourceUpdates,
-                    NewAction.class
-            );
+                    NewAction.class);
         }
 
         // Update JS collection
-        final Query actionCollectionQuery = query(where(fieldName(QActionCollection.actionCollection.deleted)).ne(true))
-                .addCriteria(where(fieldName(QActionCollection.actionCollection.applicationId)).exists(true));
+        final Query actionCollectionQuery =
+                query(where(fieldName(QActionCollection.actionCollection.deleted)).ne(true))
+                        .addCriteria(
+                                where(fieldName(QActionCollection.actionCollection.applicationId))
+                                        .exists(true));
 
-        actionCollectionQuery.fields()
+        actionCollectionQuery
+                .fields()
                 .include(fieldName(QActionCollection.actionCollection.applicationId))
-                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
-                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId))
-                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.actionIds))
-                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.archivedActionIds))
-                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.actionIds))
-                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.archivedActionIds));
+                .include(
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                + "."
+                                + fieldName(
+                                        QActionCollection.actionCollection
+                                                .unpublishedCollection
+                                                .pageId))
+                .include(
+                        fieldName(QActionCollection.actionCollection.publishedCollection)
+                                + "."
+                                + fieldName(
+                                        QActionCollection.actionCollection
+                                                .publishedCollection
+                                                .pageId))
+                .include(
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                + "."
+                                + fieldName(
+                                        QActionCollection.actionCollection
+                                                .unpublishedCollection
+                                                .actionIds))
+                .include(
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                + "."
+                                + fieldName(
+                                        QActionCollection.actionCollection
+                                                .unpublishedCollection
+                                                .archivedActionIds))
+                .include(
+                        fieldName(QActionCollection.actionCollection.publishedCollection)
+                                + "."
+                                + fieldName(
+                                        QActionCollection.actionCollection
+                                                .publishedCollection
+                                                .actionIds))
+                .include(
+                        fieldName(QActionCollection.actionCollection.publishedCollection)
+                                + "."
+                                + fieldName(
+                                        QActionCollection.actionCollection
+                                                .publishedCollection
+                                                .archivedActionIds));
 
-
-        List<ActionCollection> collections = mongoTemplate.find(actionCollectionQuery, ActionCollection.class);
+        List<ActionCollection> collections =
+                mongoTemplate.find(actionCollectionQuery, ActionCollection.class);
 
         for (ActionCollection collection : collections) {
 
@@ -4267,93 +4978,139 @@ public class DatabaseChangelog1 {
             defaults.setCollectionId(collection.getId());
             defaults.setApplicationId(applicationId);
 
-            defaultResourceUpdates.set(fieldName(QActionCollection.actionCollection.defaultResources), defaults);
+            defaultResourceUpdates.set(
+                    fieldName(QActionCollection.actionCollection.defaultResources), defaults);
 
             ActionCollectionDTO unpublishedCollection = collection.getUnpublishedCollection();
             if (unpublishedCollection != null) {
                 if (!CollectionUtils.isEmpty(unpublishedCollection.getActionIds())) {
                     Map<String, String> defaultIdMap = new HashMap<>();
-                    unpublishedCollection.getActionIds().forEach(actionId -> defaultIdMap.put(actionId, actionId));
+                    unpublishedCollection
+                            .getActionIds()
+                            .forEach(actionId -> defaultIdMap.put(actionId, actionId));
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultToBranchedActionIdsMap),
-                            defaultIdMap
-                    );
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .unpublishedCollection
+                                                    .defaultToBranchedActionIdsMap),
+                            defaultIdMap);
                     // Remove actionIds from set as this will now be deprecated
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.actionIds),
-                            null
-                    );
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .unpublishedCollection
+                                                    .actionIds),
+                            null);
                 }
                 if (!CollectionUtils.isEmpty(unpublishedCollection.getArchivedActionIds())) {
                     Map<String, String> defaultArchiveIdMap = new HashMap<>();
-                    unpublishedCollection.getArchivedActionIds().forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
+                    unpublishedCollection
+                            .getArchivedActionIds()
+                            .forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultToBranchedArchivedActionIdsMap),
-                            defaultArchiveIdMap
-                    );
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .unpublishedCollection
+                                                    .defaultToBranchedArchivedActionIdsMap),
+                            defaultArchiveIdMap);
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.archivedActionIds),
-                            null
-                    );
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .unpublishedCollection
+                                                    .archivedActionIds),
+                            null);
                 }
 
                 DefaultResources unpubDefaults = new DefaultResources();
                 unpubDefaults.setPageId(unpublishedCollection.getPageId());
                 defaultResourceUpdates.set(
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.DEFAULT_RESOURCES,
-                        unpubDefaults
-                );
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                + "."
+                                + FieldName.DEFAULT_RESOURCES,
+                        unpubDefaults);
             }
 
             ActionCollectionDTO publishedCollection = collection.getPublishedCollection();
             if (publishedCollection != null) {
                 if (!CollectionUtils.isEmpty(publishedCollection.getActionIds())) {
                     Map<String, String> defaultIdMap = new HashMap<>();
-                    publishedCollection.getActionIds().forEach(actionId -> defaultIdMap.put(actionId, actionId));
+                    publishedCollection
+                            .getActionIds()
+                            .forEach(actionId -> defaultIdMap.put(actionId, actionId));
                     publishedCollection.setDefaultToBranchedActionIdsMap(defaultIdMap);
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.defaultToBranchedActionIdsMap),
-                            defaultIdMap
-                    );
+                            fieldName(QActionCollection.actionCollection.publishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .publishedCollection
+                                                    .defaultToBranchedActionIdsMap),
+                            defaultIdMap);
 
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.actionIds),
-                            null
-                    );
+                            fieldName(QActionCollection.actionCollection.publishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .publishedCollection
+                                                    .actionIds),
+                            null);
                 }
                 if (!CollectionUtils.isEmpty(publishedCollection.getArchivedActions())) {
                     Map<String, String> defaultArchiveIdMap = new HashMap<>();
-                    publishedCollection.getArchivedActionIds().forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
-                    publishedCollection.setDefaultToBranchedArchivedActionIdsMap(defaultArchiveIdMap);
+                    publishedCollection
+                            .getArchivedActionIds()
+                            .forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
+                    publishedCollection.setDefaultToBranchedArchivedActionIdsMap(
+                            defaultArchiveIdMap);
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.defaultToBranchedArchivedActionIdsMap),
-                            defaultArchiveIdMap
-                    );
+                            fieldName(QActionCollection.actionCollection.publishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .publishedCollection
+                                                    .defaultToBranchedArchivedActionIdsMap),
+                            defaultArchiveIdMap);
 
                     defaultResourceUpdates.set(
-                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.archivedActionIds),
-                            null
-                    );
+                            fieldName(QActionCollection.actionCollection.publishedCollection)
+                                    + "."
+                                    + fieldName(
+                                            QActionCollection.actionCollection
+                                                    .publishedCollection
+                                                    .archivedActionIds),
+                            null);
                 }
 
                 DefaultResources pubDefaults = new DefaultResources();
                 pubDefaults.setPageId(publishedCollection.getPageId());
                 defaultResourceUpdates.set(
-                        fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.DEFAULT_RESOURCES,
-                        pubDefaults
-                );
+                        fieldName(QActionCollection.actionCollection.publishedCollection)
+                                + "."
+                                + FieldName.DEFAULT_RESOURCES,
+                        pubDefaults);
             }
 
             // Update gitSyncId
             final String gitSyncId = applicationId + "_" + new ObjectId();
-            defaultResourceUpdates.set(fieldName(QActionCollection.actionCollection.gitSyncId), gitSyncId);
+            defaultResourceUpdates.set(
+                    fieldName(QActionCollection.actionCollection.gitSyncId), gitSyncId);
 
             if (!StringUtils.isEmpty(applicationId)) {
                 mongoTemplate.updateFirst(
-                        query(where(fieldName(QActionCollection.actionCollection.id)).is(collection.getId())),
+                        query(
+                                where(fieldName(QActionCollection.actionCollection.id))
+                                        .is(collection.getId())),
                         defaultResourceUpdates,
-                        ActionCollection.class
-                );
+                        ActionCollection.class);
             }
         }
     }
@@ -4363,64 +5120,63 @@ public class DatabaseChangelog1 {
         doClearRedisKeys(reactiveRedisOperations);
     }
 
-    protected static void doClearRedisKeys(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+    protected static void doClearRedisKeys(
+            ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         final String script =
-                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
-                        " do redis.call('del',k) " +
-                        "end";
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))"
+                        + " do redis.call('del',k) "
+                        + "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
         flushdb.blockLast();
     }
 
     /* Map values from pluginSpecifiedTemplates to formData (UQI) */
-    public final static Map<Integer, List<String>> firestoreMigrationMap = Map.ofEntries(
-            Map.entry(0, List.of("command")),
-            Map.entry(1, List.of("orderBy")),
-            Map.entry(2, List.of("limitDocuments")),
-            Map.entry(3, List.of("where")),
-            Map.entry(4, List.of("")), // index 4 is not used in pluginSpecifiedTemplates
-            Map.entry(5, List.of("")), // index 5 is not used in pluginSpecifiedTemplates
-            Map.entry(6, List.of("startAfter")),
-            Map.entry(7, List.of("endBefore")),
-            Map.entry(8, List.of("timestampValuePath")),
-            Map.entry(9, List.of("deleteKeyPath"))
-    );
+    public static final Map<Integer, List<String>> firestoreMigrationMap =
+            Map.ofEntries(
+                    Map.entry(0, List.of("command")),
+                    Map.entry(1, List.of("orderBy")),
+                    Map.entry(2, List.of("limitDocuments")),
+                    Map.entry(3, List.of("where")),
+                    Map.entry(4, List.of("")), // index 4 is not used in pluginSpecifiedTemplates
+                    Map.entry(5, List.of("")), // index 5 is not used in pluginSpecifiedTemplates
+                    Map.entry(6, List.of("startAfter")),
+                    Map.entry(7, List.of("endBefore")),
+                    Map.entry(8, List.of("timestampValuePath")),
+                    Map.entry(9, List.of("deleteKeyPath")));
 
     /**
-     * This map indicates which fields in pluginSpecifiedTemplates require a transformation before their data can be
-     * migrated to the UQI schema.
-     * The key contains the index of the data that needs transformation and the value indicates the which kind of
-     * transformation is required. e.g. (3, "where-clause-migration") indicates that the value against index 3 in
-     * pluginSpecifiedTemplates needs to be migrated by the rules identified by the string "where-clause-migration".
-     * The rules are defined in the class UQIMigrationDataTransformer.
+     * This map indicates which fields in pluginSpecifiedTemplates require a transformation before
+     * their data can be migrated to the UQI schema. The key contains the index of the data that
+     * needs transformation and the value indicates the which kind of transformation is required.
+     * e.g. (3, "where-clause-migration") indicates that the value against index 3 in
+     * pluginSpecifiedTemplates needs to be migrated by the rules identified by the string
+     * "where-clause-migration". The rules are defined in the class UQIMigrationDataTransformer.
      */
-    public static final Map<Integer, String> firestoreUQIDataTransformationMap = Map.ofEntries(
-            Map.entry(3, "where-clause-migration")
-    );
+    public static final Map<Integer, String> firestoreUQIDataTransformationMap =
+            Map.ofEntries(Map.entry(3, "where-clause-migration"));
 
     @ChangeSet(order = "103", id = "migrate-firestore-to-uqi", author = "")
     public void migrateFirestorePluginToUqi(MongoTemplate mongoTemplate) {
 
         // Update Firestore plugin to indicate use of UQI schema
-        Plugin firestorePlugin = mongoTemplate.findOne(
-                query(where("packageName").is("firestore-plugin")),
-                Plugin.class
-        );
+        Plugin firestorePlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("firestore-plugin")), Plugin.class);
         firestorePlugin.setUiComponent("UQIDbEditorForm");
 
         // Find all Firestore actions
-        final Query firestoreActionQuery = query(
-                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
-                        .and(fieldName(QNewAction.newAction.deleted)).is(true) // Update: Should have been .ne(true)
-        );
-        firestoreActionQuery.fields()
-                .include(fieldName(QNewAction.newAction.id));
+        final Query firestoreActionQuery =
+                query(
+                        where(fieldName(QNewAction.newAction.pluginId))
+                                .is(firestorePlugin.getId())
+                                .and(fieldName(QNewAction.newAction.deleted))
+                                .is(true) // Update: Should have been .ne(true)
+                        );
+        firestoreActionQuery.fields().include(fieldName(QNewAction.newAction.id));
 
-        List<NewAction> firestoreActions = mongoTemplate.find(
-                firestoreActionQuery,
-                NewAction.class
-        );
+        List<NewAction> firestoreActions =
+                mongoTemplate.find(firestoreActionQuery, NewAction.class);
 
         migrateFirestoreToUQI(mongoTemplate, firestoreActions);
 
@@ -4428,14 +5184,17 @@ public class DatabaseChangelog1 {
         mongoTemplate.save(firestorePlugin);
     }
 
-    private void migrateFirestoreToUQI(MongoTemplate mongoTemplate, List<NewAction> firestoreActions) {
+    private void migrateFirestoreToUQI(
+            MongoTemplate mongoTemplate, List<NewAction> firestoreActions) {
         for (NewAction firestoreActionId : firestoreActions) {
 
             // Fetch one page at a time to avoid OOM.
-            final NewAction firestoreAction = mongoTemplate.findOne(
-                    query(where(fieldName(QNewAction.newAction.id)).is(firestoreActionId.getId())),
-                    NewAction.class
-            );
+            final NewAction firestoreAction =
+                    mongoTemplate.findOne(
+                            query(
+                                    where(fieldName(QNewAction.newAction.id))
+                                            .is(firestoreActionId.getId())),
+                            NewAction.class);
 
             ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
 
@@ -4445,53 +5204,71 @@ public class DatabaseChangelog1 {
             }
 
             /* It means that earlier migration had succeeded on this action, hence current migration can be skipped. */
-            if (!CollectionUtils.isEmpty(unpublishedAction.getActionConfiguration().getFormData())) {
+            if (!CollectionUtils.isEmpty(
+                    unpublishedAction.getActionConfiguration().getFormData())) {
                 continue;
             }
 
-            List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
-            UQIMigrationDataTransformer uqiMigrationDataTransformer = new UQIMigrationDataTransformer();
+            List<Property> pluginSpecifiedTemplates =
+                    unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+            UQIMigrationDataTransformer uqiMigrationDataTransformer =
+                    new UQIMigrationDataTransformer();
 
             /**
-             * Migrate unpublished action configuration data.
-             * Create `formData` used in UQI schema from the `pluginSpecifiedTemplates` used earlier.
+             * Migrate unpublished action configuration data. Create `formData` used in UQI schema
+             * from the `pluginSpecifiedTemplates` used earlier.
              */
-            unpublishedAction.getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
-                            firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer,
-                            "firestore-plugin")
-            );
+            unpublishedAction
+                    .getActionConfiguration()
+                    .setFormData(
+                            iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(
+                                    pluginSpecifiedTemplates,
+                                    firestoreMigrationMap,
+                                    firestoreUQIDataTransformationMap,
+                                    uqiMigrationDataTransformer,
+                                    "firestore-plugin"));
 
             /* `pluginSpecifiedTemplates` is no longer required since `formData` will be used in UQI schema. */
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
             /**
-             * Migrate published action configuration data.
-             * Create `formData` used in UQI schema from the `pluginSpecifiedTemplates` used earlier.
+             * Migrate published action configuration data. Create `formData` used in UQI schema
+             * from the `pluginSpecifiedTemplates` used earlier.
              */
             ActionDTO publishedAction = firestoreAction.getPublishedAction();
-            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
-                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
-                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
-                publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
-                                firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer
-                                , "firestore-plugin")
-                );
+            if (publishedAction != null
+                    && publishedAction.getActionConfiguration() != null
+                    && publishedAction.getActionConfiguration().getPluginSpecifiedTemplates()
+                            != null) {
+                pluginSpecifiedTemplates =
+                        publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                publishedAction
+                        .getActionConfiguration()
+                        .setFormData(
+                                iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(
+                                        pluginSpecifiedTemplates,
+                                        firestoreMigrationMap,
+                                        firestoreUQIDataTransformationMap,
+                                        uqiMigrationDataTransformer,
+                                        "firestore-plugin"));
 
                 /* `pluginSpecifiedTemplates` is no longer required since `formData` will be used in UQI schema. */
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
             /**
-             * Migrate the dynamic binding path list for unpublished action.
-             * Please note that there is no requirement to migrate the dynamic binding path list for published actions
-             * since the `on page load` actions do not get computed on published actions data. They are only computed
-             * on unpublished actions data and copied over for the view mode.
+             * Migrate the dynamic binding path list for unpublished action. Please note that there
+             * is no requirement to migrate the dynamic binding path list for published actions
+             * since the `on page load` actions do not get computed on published actions data. They
+             * are only computed on unpublished actions data and copied over for the view mode.
              */
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-            List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
-                    objectMapper, firestoreAction, firestoreMigrationMap);
+            List<Property> newDynamicBindingPathList =
+                    getUpdatedDynamicBindingPathList(
+                            dynamicBindingPathList,
+                            objectMapper,
+                            firestoreAction,
+                            firestoreMigrationMap);
             unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
             mongoTemplate.save(firestoreAction);
@@ -4499,62 +5276,61 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * This migration was required because migration numbered 103 had an error - it fetched all actions which had
-     * `deleted` set to true instead of the other way around.
+     * This migration was required because migration numbered 103 had an error - it fetched all
+     * actions which had `deleted` set to true instead of the other way around.
      */
     @ChangeSet(order = "104", id = "migrate-firestore-to-uqi-2", author = "")
     public void migrateFirestorePluginToUqi2(MongoTemplate mongoTemplate) {
 
         // Update Firestore plugin to indicate use of UQI schema
-        Plugin firestorePlugin = mongoTemplate.findOne(
-                query(where("packageName").is("firestore-plugin")),
-                Plugin.class
-        );
+        Plugin firestorePlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("firestore-plugin")), Plugin.class);
 
         // Find all Firestore actions
-        final Query firestoreActionQuery = query(
-                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
-                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
-        firestoreActionQuery.fields()
-                .include(fieldName(QNewAction.newAction.id));
+        final Query firestoreActionQuery =
+                query(
+                        where(fieldName(QNewAction.newAction.pluginId))
+                                .is(firestorePlugin.getId())
+                                .and(fieldName(QNewAction.newAction.deleted))
+                                .ne(true)); // setting `deleted` != `true`
+        firestoreActionQuery.fields().include(fieldName(QNewAction.newAction.id));
 
-        List<NewAction> firestoreActions = mongoTemplate.find(
-                firestoreActionQuery,
-                NewAction.class
-        );
+        List<NewAction> firestoreActions =
+                mongoTemplate.find(firestoreActionQuery, NewAction.class);
 
         migrateFirestoreToUQI(mongoTemplate, firestoreActions);
     }
 
     @ChangeSet(order = "105", id = "migrate-firestore-pagination-data", author = "")
     public void migrateFirestorePaginationData(MongoTemplate mongoTemplate) {
-        Plugin firestorePlugin = mongoTemplate.findOne(
-                query(where("packageName").is("firestore-plugin")),
-                Plugin.class
-        );
+        Plugin firestorePlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("firestore-plugin")), Plugin.class);
 
         // Query to get action id from all Firestore actions
-        Query queryToGetActionIds = query(
-                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
-                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)
-        );
-        queryToGetActionIds.fields()
-                .include(fieldName(QNewAction.newAction.id));
+        Query queryToGetActionIds =
+                query(
+                        where(fieldName(QNewAction.newAction.pluginId))
+                                .is(firestorePlugin.getId())
+                                .and(fieldName(QNewAction.newAction.deleted))
+                                .ne(true));
+        queryToGetActionIds.fields().include(fieldName(QNewAction.newAction.id));
 
         // Get list of Firestore action ids
-        List<NewAction> firestoreActionIds = mongoTemplate.find(
-                queryToGetActionIds,
-                NewAction.class
-        );
+        List<NewAction> firestoreActionIds =
+                mongoTemplate.find(queryToGetActionIds, NewAction.class);
 
         // Iterate over each action id and operate on each action one by one.
         for (NewAction firestoreActionId : firestoreActionIds) {
 
             // Fetch one action at a time to avoid OOM.
-            final NewAction firestoreAction = mongoTemplate.findOne(
-                    query(where(fieldName(QNewAction.newAction.id)).is(firestoreActionId.getId())),
-                    NewAction.class
-            );
+            final NewAction firestoreAction =
+                    mongoTemplate.findOne(
+                            query(
+                                    where(fieldName(QNewAction.newAction.id))
+                                            .is(firestoreActionId.getId())),
+                            NewAction.class);
 
             ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
 
@@ -4565,7 +5341,8 @@ public class DatabaseChangelog1 {
 
             // Migrate unpublished action config data
             if (unpublishedAction.getActionConfiguration().getFormData() != null) {
-                Map<String, Object> formData = unpublishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData =
+                        unpublishedAction.getActionConfiguration().getFormData();
 
                 Object startAfter = PluginUtils.getValueSafelyFromFormData(formData, START_AFTER);
                 if (startAfter == null) {
@@ -4582,14 +5359,20 @@ public class DatabaseChangelog1 {
 
             // Migrate published action config data.
             ActionDTO publishedAction = firestoreAction.getPublishedAction();
-            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
-                    publishedAction.getActionConfiguration().getFormData() != null) {
-                Map<String, Object> formData = publishedAction.getActionConfiguration().getFormData();
+            if (publishedAction != null
+                    && publishedAction.getActionConfiguration() != null
+                    && publishedAction.getActionConfiguration().getFormData() != null) {
+                Map<String, Object> formData =
+                        publishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, STRING_TYPE, "{}");
+                String startAfter =
+                        PluginUtils.getDataValueSafelyFromFormData(
+                                formData, START_AFTER, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setNext(startAfter);
 
-                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, STRING_TYPE, "{}");
+                String endBefore =
+                        PluginUtils.getDataValueSafelyFromFormData(
+                                formData, END_BEFORE, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setPrev(endBefore);
             }
 
@@ -4600,41 +5383,45 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "106", id = "update-mongodb-mockdb-endpoint", author = "")
     public void updateMongoMockdbEndpoint(MongoTemplate mongoTemplate) {
         mongoTemplate.updateMulti(
-                query(where("datasourceConfiguration.endpoints.host").is("mockdb.swrsq.mongodb.net")),
+                query(
+                        where("datasourceConfiguration.endpoints.host")
+                                .is("mockdb.swrsq.mongodb.net")),
                 update("datasourceConfiguration.endpoints.$.host", "mockdb.kce5o.mongodb.net"),
-                Datasource.class
-        );
+                Datasource.class);
         mongoTemplate.updateMulti(
-                query(where("datasourceConfiguration.properties.value").is("mongodb+srv://mockdb_super:****@mockdb.swrsq.mongodb.net/movies")),
-                update("datasourceConfiguration.properties.$.value", "mongodb+srv://mockdb_super:****@mockdb.kce5o.mongodb.net/movies"),
-                Datasource.class
-        );
+                query(
+                        where("datasourceConfiguration.properties.value")
+                                .is(
+                                        "mongodb+srv://mockdb_super:****@mockdb.swrsq.mongodb.net/movies")),
+                update(
+                        "datasourceConfiguration.properties.$.value",
+                        "mongodb+srv://mockdb_super:****@mockdb.kce5o.mongodb.net/movies"),
+                Datasource.class);
     }
 
     /**
-     * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
-     * unexpected / bad older data.
+     * This migration was required because migration numbered 104 failed on prod due to
+     * ClassCastException on some unexpected / bad older data.
      */
     @ChangeSet(order = "107", id = "migrate-firestore-to-uqi-3", author = "")
     public void migrateFirestorePluginToUqi3(MongoTemplate mongoTemplate) {
         // Update Firestore plugin to indicate use of UQI schema
-        Plugin firestorePlugin = mongoTemplate.findOne(
-                query(where("packageName").is("firestore-plugin")),
-                Plugin.class
-        );
+        Plugin firestorePlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("firestore-plugin")), Plugin.class);
         firestorePlugin.setUiComponent("UQIDbEditorForm");
 
         // Find all Firestore actions
-        final Query firestoreActionQuery = query(
-                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
-                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
-        firestoreActionQuery.fields()
-                .include(fieldName(QNewAction.newAction.id));
+        final Query firestoreActionQuery =
+                query(
+                        where(fieldName(QNewAction.newAction.pluginId))
+                                .is(firestorePlugin.getId())
+                                .and(fieldName(QNewAction.newAction.deleted))
+                                .ne(true)); // setting `deleted` != `true`
+        firestoreActionQuery.fields().include(fieldName(QNewAction.newAction.id));
 
-        List<NewAction> firestoreActions = mongoTemplate.find(
-                firestoreActionQuery,
-                NewAction.class
-        );
+        List<NewAction> firestoreActions =
+                mongoTemplate.find(firestoreActionQuery, NewAction.class);
 
         migrateFirestoreToUQI(mongoTemplate, firestoreActions);
 
@@ -4643,32 +5430,45 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * This method sets the key formData.aggregate.limit to 101 for all Mongo plugin actions.
-     * It iterates over each action id one by one to avoid out of memory error.
+     * This method sets the key formData.aggregate.limit to 101 for all Mongo plugin actions. It
+     * iterates over each action id one by one to avoid out of memory error.
      *
      * @param mongoActions
      * @param mongoTemplate
      */
-    private void updateLimitFieldForEachAction(List<NewAction> mongoActions, MongoTemplate mongoTemplate) {
+    private void updateLimitFieldForEachAction(
+            List<NewAction> mongoActions, MongoTemplate mongoTemplate) {
         mongoActions.stream()
                 .map(NewAction::getId) // iterate over one action id at a time
-                .map(actionId -> fetchActionUsingId(actionId, mongoTemplate)) // fetch action using id
+                .map(
+                        actionId ->
+                                fetchActionUsingId(
+                                        actionId, mongoTemplate)) // fetch action using id
                 .filter(this::hasUnpublishedActionConfiguration)
-                .forEachOrdered(mongoAction -> {
-                    /* set key for unpublished action */
-                    Map<String, Object> unpublishedFormData =
-                            mongoAction.getUnpublishedAction().getActionConfiguration().getFormData();
-                    setValueSafelyInFormData(unpublishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
+                .forEachOrdered(
+                        mongoAction -> {
+                            /* set key for unpublished action */
+                            Map<String, Object> unpublishedFormData =
+                                    mongoAction
+                                            .getUnpublishedAction()
+                                            .getActionConfiguration()
+                                            .getFormData();
+                            setValueSafelyInFormData(
+                                    unpublishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
 
-                    /* set key for published action */
-                    if (hasPublishedActionConfiguration(mongoAction)) {
-                        Map<String, Object> publishedFormData =
-                                mongoAction.getPublishedAction().getActionConfiguration().getFormData();
-                        setValueSafelyInFormData(publishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
-                    }
+                            /* set key for published action */
+                            if (hasPublishedActionConfiguration(mongoAction)) {
+                                Map<String, Object> publishedFormData =
+                                        mongoAction
+                                                .getPublishedAction()
+                                                .getActionConfiguration()
+                                                .getFormData();
+                                setValueSafelyInFormData(
+                                        publishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
+                            }
 
-                    mongoTemplate.save(mongoAction);
-                });
+                            mongoTemplate.save(mongoAction);
+                        });
     }
 
     /**
@@ -4692,17 +5492,19 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * This migration adds a new field to Mongo aggregate command to set batchSize: formData.aggregate.limit. Its value
-     * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
-     * Mongo database - this is the same value that would have been applied to the aggregate cmd so far by the
-     * database. However, for any new action, this field's initial value is 10.
-     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
+     * This migration adds a new field to Mongo aggregate command to set batchSize:
+     * formData.aggregate.limit. Its value is set by this migration to 101 for all existing actions
+     * since this is the default `batchSize` used by Mongo database - this is the same value that
+     * would have been applied to the aggregate cmd so far by the database. However, for any new
+     * action, this field's initial value is 10. Ref:
+     * https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
      *
      * @param mongoTemplate
      */
     @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
     public void addLimitFieldDataToMongoAggregateCommand(MongoTemplate mongoTemplate) {
-        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        Plugin mongoPlugin =
+                mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
         /* Query to get all Mongo actions which are not deleted */
         Query queryToGetActions = getQueryToFetchAllPluginActionsWhichAreNotDeleted(mongoPlugin);
@@ -4741,7 +5543,9 @@ public class DatabaseChangelog1 {
      */
     public static NewAction fetchActionUsingId(String actionId, MongoTemplate mongoTemplate) {
         final NewAction action =
-                mongoTemplate.findOne(query(where(fieldName(QNewAction.newAction.id)).is(actionId)), NewAction.class);
+                mongoTemplate.findOne(
+                        query(where(fieldName(QNewAction.newAction.id)).is(actionId)),
+                        NewAction.class);
         return action;
     }
 
@@ -4758,44 +5562,58 @@ public class DatabaseChangelog1 {
     }
 
     /**
-     * This migration introduces indexes on newAction, actionCollection, newPage and application collection to take
-     * branchName param into consideration for optimising the find query for git connected applications
+     * This migration introduces indexes on newAction, actionCollection, newPage and application
+     * collection to take branchName param into consideration for optimising the find query for git
+     * connected applications
      */
     @ChangeSet(order = "110", id = "update-index-for-git", author = "")
     public void updateGitIndexes(MongoTemplate mongoTemplate) {
 
-        // We can't set unique indexes for following as these requires the _id of the resource to be filled in for
-        // defaultResourceId if the app is not connected to git. This results in handling the _id creation for resources
+        // We can't set unique indexes for following as these requires the _id of the resource to be
+        // filled in for
+        // defaultResourceId if the app is not connected to git. This results in handling the _id
+        // creation for resources
         // on our end instead of asking mongo driver to perform this operation
-        ensureIndexes(mongoTemplate, NewAction.class,
+        ensureIndexes(
+                mongoTemplate,
+                NewAction.class,
                 makeIndex("defaultResources.actionId", "defaultResources.branchName", "deleted")
-                        .named("defaultActionId_branchName_deleted_compound_index")
-        );
+                        .named("defaultActionId_branchName_deleted_compound_index"));
 
-        ensureIndexes(mongoTemplate, ActionCollection.class,
+        ensureIndexes(
+                mongoTemplate,
+                ActionCollection.class,
                 makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
-                        .named("defaultCollectionId_branchName_deleted")
-        );
+                        .named("defaultCollectionId_branchName_deleted"));
 
-        ensureIndexes(mongoTemplate, NewPage.class,
+        ensureIndexes(
+                mongoTemplate,
+                NewPage.class,
                 makeIndex("defaultResources.pageId", "defaultResources.branchName", "deleted")
-                        .named("defaultPageId_branchName_deleted_compound_index")
-        );
+                        .named("defaultPageId_branchName_deleted_compound_index"));
 
-        ensureIndexes(mongoTemplate, Application.class,
-                makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
-                        .named("defaultApplicationId_branchName_deleted")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                Application.class,
+                makeIndex(
+                                "gitApplicationMetadata.defaultApplicationId",
+                                "gitApplicationMetadata.branchName",
+                                "deleted")
+                        .named("defaultApplicationId_branchName_deleted"));
     }
 
     @ChangeSet(order = "111", id = "update-mockdb-endpoint-2", author = "")
     public void updateMockdbEndpoint2(MongoTemplate mongoTemplate) {
-        // Doing this again as another migration since it appears some new datasource were created with the old
+        // Doing this again as another migration since it appears some new datasource were created
+        // with the old
         // endpoint around 14-Dec-2021 to 16-Dec-2021.
         updateMockdbEndpoint(mongoTemplate);
     }
 
-    @ChangeSet(order = "112", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
+    @ChangeSet(
+            order = "112",
+            id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation",
+            author = "")
     public void migrateFromRSASha1ToECDSASha2Protocol(MongoTemplate mongoTemplate) {
         Query query = new Query();
         query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
@@ -4804,7 +5622,8 @@ public class DatabaseChangelog1 {
         for (Application application : mongoTemplate.find(query, Application.class)) {
             if (!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
                 GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
-                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                GitApplicationMetadata gitApplicationMetadata =
+                        application.getGitApplicationMetadata();
                 gitApplicationMetadata.setGitAuth(gitAuth);
                 application.setGitApplicationMetadata(gitApplicationMetadata);
                 mongoTemplate.save(application);
@@ -4818,94 +5637,126 @@ public class DatabaseChangelog1 {
         query.fields().include(fieldName(QPlugin.plugin.iconLocation));
         List<Plugin> plugins = mongoTemplate.find(query, Plugin.class);
         for (final Plugin plugin : plugins) {
-            if (plugin.getIconLocation() != null && plugin.getIconLocation().startsWith("https://s3.us-east-2.amazonaws.com/assets.appsmith.com")) {
-                final String cdnUrl = plugin.getIconLocation().replace("s3.us-east-2.amazonaws.com/", "");
+            if (plugin.getIconLocation() != null
+                    && plugin.getIconLocation()
+                            .startsWith("https://s3.us-east-2.amazonaws.com/assets.appsmith.com")) {
+                final String cdnUrl =
+                        plugin.getIconLocation().replace("s3.us-east-2.amazonaws.com/", "");
                 mongoTemplate.updateFirst(
                         query(where(fieldName(QPlugin.plugin.id)).is(plugin.getId())),
                         update(fieldName(QPlugin.plugin.iconLocation), cdnUrl),
-                        Plugin.class
-                );
+                        Plugin.class);
             }
         }
     }
 
     /**
-     * This migration introduces indexes on newAction, actionCollection and userData to improve the query performance
+     * This migration introduces indexes on newAction, actionCollection and userData to improve the
+     * query performance
      */
-    @ChangeSet(order = "114", id = "update-index-for-newAction-actionCollection-userData", author = "")
+    @ChangeSet(
+            order = "114",
+            id = "update-index-for-newAction-actionCollection-userData",
+            author = "")
     public void updateNewActionActionCollectionAndUserDataIndexes(MongoTemplate mongoTemplate) {
 
-        ensureIndexes(mongoTemplate, ActionCollection.class,
-                makeIndex(FieldName.APPLICATION_ID)
-                        .named("applicationId")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                ActionCollection.class,
+                makeIndex(FieldName.APPLICATION_ID).named("applicationId"));
 
-        ensureIndexes(mongoTemplate, ActionCollection.class,
-                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID)
-                        .named("unpublishedCollection_pageId")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                ActionCollection.class,
+                makeIndex(
+                                fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                        + "."
+                                        + FieldName.PAGE_ID)
+                        .named("unpublishedCollection_pageId"));
 
         String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
-        ensureIndexes(mongoTemplate, ActionCollection.class,
+        ensureIndexes(
+                mongoTemplate,
+                ActionCollection.class,
                 makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
-                        .named("defaultApplicationId_gitSyncId_compound_index")
-        );
+                        .named("defaultApplicationId_gitSyncId_compound_index"));
 
-        ensureIndexes(mongoTemplate, NewAction.class,
+        ensureIndexes(
+                mongoTemplate,
+                NewAction.class,
                 makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
-                        .named("defaultApplicationId_gitSyncId_compound_index")
-        );
+                        .named("defaultApplicationId_gitSyncId_compound_index"));
 
-        ensureIndexes(mongoTemplate, UserData.class,
-                makeIndex(fieldName(QUserData.userData.userId))
-                        .unique()
-                        .named("userId")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                UserData.class,
+                makeIndex(fieldName(QUserData.userData.userId)).unique().named("userId"));
     }
 
     @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "")
     public void markMSSQLCrudUnavailable(MongoTemplate mongoTemplate) {
-        Plugin plugin = mongoTemplate.findOne(query(where("packageName").is("mssql-plugin")), Plugin.class);
+        Plugin plugin =
+                mongoTemplate.findOne(query(where("packageName").is("mssql-plugin")), Plugin.class);
         assert plugin != null;
         plugin.setGenerateCRUDPageComponent(null);
         mongoTemplate.save(plugin);
     }
 
     /**
-     * This migration introduces indexes on newAction, actionCollection to improve the query performance for queries like
-     * getResourceByPageId which excludes the deleted entries
+     * This migration introduces indexes on newAction, actionCollection to improve the query
+     * performance for queries like getResourceByPageId which excludes the deleted entries
      */
     @ChangeSet(order = "116", id = "update-index-for-newAction-actionCollection", author = "")
     public void updateNewActionActionCollectionIndexes(MongoTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "unpublishedAction_pageId");
 
-        ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex(fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                        .named("unpublishedActionPageId_deleted_compound_index")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                NewAction.class,
+                makeIndex(
+                                fieldName(QNewAction.newAction.unpublishedAction)
+                                        + "."
+                                        + FieldName.PAGE_ID,
+                                FieldName.DELETED)
+                        .named("unpublishedActionPageId_deleted_compound_index"));
 
-        ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex(fieldName(QNewAction.newAction.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                        .named("publishedActionPageId_deleted_compound_index")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                NewAction.class,
+                makeIndex(
+                                fieldName(QNewAction.newAction.publishedAction)
+                                        + "."
+                                        + FieldName.PAGE_ID,
+                                FieldName.DELETED)
+                        .named("publishedActionPageId_deleted_compound_index"));
 
         dropIndexIfExists(mongoTemplate, ActionCollection.class, "unpublishedCollection_pageId");
 
-        ensureIndexes(mongoTemplate, ActionCollection.class,
-                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                        .named("unpublishedCollectionPageId_deleted")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                ActionCollection.class,
+                makeIndex(
+                                fieldName(QActionCollection.actionCollection.unpublishedCollection)
+                                        + "."
+                                        + FieldName.PAGE_ID,
+                                FieldName.DELETED)
+                        .named("unpublishedCollectionPageId_deleted"));
 
-        ensureIndexes(mongoTemplate, ActionCollection.class,
-                makeIndex(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                        .named("publishedCollectionPageId_deleted")
-        );
+        ensureIndexes(
+                mongoTemplate,
+                ActionCollection.class,
+                makeIndex(
+                                fieldName(QActionCollection.actionCollection.publishedCollection)
+                                        + "."
+                                        + FieldName.PAGE_ID,
+                                FieldName.DELETED)
+                        .named("publishedCollectionPageId_deleted"));
     }
 
     /**
-     * Adding this migration again because we've added permission to themes.
-     * Also there are couple of changes in the system theme properties.
+     * Adding this migration again because we've added permission to themes. Also there are couple
+     * of changes in the system theme properties.
      *
      * @param mongoTemplate
      * @throws IOException
@@ -4913,81 +5764,95 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "117", id = "create-system-themes-v2", author = "", runAlways = false)
     public void createSystemThemes2(MongoTemplate mongoTemplate) throws IOException {
 
-//       Commenting this out to ensure that system themes get added only once the baseline object creations are complete
-//       This runs as part of `createSystemThemes3`
+        //       Commenting this out to ensure that system themes get added only once the baseline
+        // object creations are complete
+        //       This runs as part of `createSystemThemes3`
 
-//        Index systemThemeIndex = new Index()
-//                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
-//                .named("system_theme_index")
-//                .background();
-//
-//        Index applicationIdIndex = new Index()
-//                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
-//                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
-//                .named("application_id_index")
-//                .background();
-//
-//        dropIndexIfExists(mongoTemplate, Theme.class, "system_theme_index");
-//        dropIndexIfExists(mongoTemplate, Theme.class, "application_id_index");
-//        ensureIndexes(mongoTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
-//
-//        final String themesJson = StreamUtils.copyToString(
-//                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
-//                Charset.defaultCharset()
-//        );
-//        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
-//
-//        Theme legacyTheme = null;
-//        boolean themeExists = false;
-//
-//        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEMES.getValue())
-//                .users(Set.of(FieldName.ANONYMOUS_USER)).build();
-//
-//        for (Theme theme : themes) {
-//            theme.setSystemTheme(true);
-//            theme.setCreatedAt(Instant.now());
-//            theme.setPolicies(Set.of(policyWithCurrentPermission));
-//            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
-//                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
-//
-//            Theme savedTheme = mongoTemplate.findOne(query, Theme.class);
-//            if(savedTheme == null) {  // this theme does not exist, create it
-//                savedTheme = mongoTemplate.save(theme);
-//            } else { // theme already found, update
-//                themeExists = true;
-//                savedTheme.setDisplayName(theme.getDisplayName());
-//                savedTheme.setPolicies(theme.getPolicies());
-//                savedTheme.setConfig(theme.getConfig());
-//                savedTheme.setProperties(theme.getProperties());
-//                savedTheme.setStylesheet(theme.getStylesheet());
-//                if(savedTheme.getCreatedAt() == null) {
-//                    savedTheme.setCreatedAt(Instant.now());
-//                }
-//                mongoTemplate.save(savedTheme);
-//            }
-//
-//            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
-//                legacyTheme = savedTheme;
-//            }
-//        }
-//
-//        if(!themeExists) { // this is the first time we're running the migration
-//            // migrate all applications and set legacy theme to them in both mode
-//            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
-//                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
-//            mongoTemplate.updateMulti(
-//                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
-//            );
-//        }
+        //        Index systemThemeIndex = new Index()
+        //                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+        //                .named("system_theme_index")
+        //                .background();
+        //
+        //        Index applicationIdIndex = new Index()
+        //                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+        //                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
+        //                .named("application_id_index")
+        //                .background();
+        //
+        //        dropIndexIfExists(mongoTemplate, Theme.class, "system_theme_index");
+        //        dropIndexIfExists(mongoTemplate, Theme.class, "application_id_index");
+        //        ensureIndexes(mongoTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
+        //
+        //        final String themesJson = StreamUtils.copyToString(
+        //                new
+        // DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+        //                Charset.defaultCharset()
+        //        );
+        //        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+        //
+        //        Theme legacyTheme = null;
+        //        boolean themeExists = false;
+        //
+        //        Policy policyWithCurrentPermission =
+        // Policy.builder().permission(READ_THEMES.getValue())
+        //                .users(Set.of(FieldName.ANONYMOUS_USER)).build();
+        //
+        //        for (Theme theme : themes) {
+        //            theme.setSystemTheme(true);
+        //            theme.setCreatedAt(Instant.now());
+        //            theme.setPolicies(Set.of(policyWithCurrentPermission));
+        //            Query query = new
+        // Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
+        //                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
+        //
+        //            Theme savedTheme = mongoTemplate.findOne(query, Theme.class);
+        //            if(savedTheme == null) {  // this theme does not exist, create it
+        //                savedTheme = mongoTemplate.save(theme);
+        //            } else { // theme already found, update
+        //                themeExists = true;
+        //                savedTheme.setDisplayName(theme.getDisplayName());
+        //                savedTheme.setPolicies(theme.getPolicies());
+        //                savedTheme.setConfig(theme.getConfig());
+        //                savedTheme.setProperties(theme.getProperties());
+        //                savedTheme.setStylesheet(theme.getStylesheet());
+        //                if(savedTheme.getCreatedAt() == null) {
+        //                    savedTheme.setCreatedAt(Instant.now());
+        //                }
+        //                mongoTemplate.save(savedTheme);
+        //            }
+        //
+        //            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+        //                legacyTheme = savedTheme;
+        //            }
+        //        }
+        //
+        //        if(!themeExists) { // this is the first time we're running the migration
+        //            // migrate all applications and set legacy theme to them in both mode
+        //            Update update = new
+        // Update().set(fieldName(QApplication.application.publishedModeThemeId),
+        // legacyTheme.getId())
+        //                    .set(fieldName(QApplication.application.editModeThemeId),
+        // legacyTheme.getId());
+        //            mongoTemplate.updateMulti(
+        //                    new
+        // Query(where(fieldName(QApplication.application.deleted)).is(false)), update,
+        // Application.class
+        //            );
+        //        }
     }
 
-    @ChangeSet(order = "118", id = "set-firestore-smart-substitution-to-false-for-old-cmds", author = "")
+    @ChangeSet(
+            order = "118",
+            id = "set-firestore-smart-substitution-to-false-for-old-cmds",
+            author = "")
     public void setFirestoreSmartSubstitutionToFalseForOldCommands(MongoTemplate mongoTemplate) {
-        Plugin firestorePlugin = mongoTemplate.findOne(query(where("packageName").is("firestore-plugin")),
-                Plugin.class);
+        Plugin firestorePlugin =
+                mongoTemplate.findOne(
+                        query(where("packageName").is("firestore-plugin")), Plugin.class);
 
         /* Query to get all Mongo actions which are not deleted */
-        Query queryToGetActions = getQueryToFetchAllPluginActionsWhichAreNotDeleted(firestorePlugin);
+        Query queryToGetActions =
+                getQueryToFetchAllPluginActionsWhichAreNotDeleted(firestorePlugin);
 
         /* Update the previous query to only include id field */
         queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
@@ -4999,26 +5864,38 @@ public class DatabaseChangelog1 {
         setSmartSubstitutionFieldForEachAction(firestoreActions, mongoTemplate);
     }
 
-    private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
-                                                        MongoTemplate mongoTemplate) {
+    private void setSmartSubstitutionFieldForEachAction(
+            List<NewAction> firestoreActions, MongoTemplate mongoTemplate) {
         firestoreActions.stream()
                 .map(NewAction::getId) /* iterate over one action id at a time */
-                .map(actionId -> fetchActionUsingId(actionId, mongoTemplate)) /* fetch action using id */
+                .map(
+                        actionId ->
+                                fetchActionUsingId(
+                                        actionId, mongoTemplate)) /* fetch action using id */
                 .filter(this::hasUnpublishedActionConfiguration)
-                .forEachOrdered(firestoreAction -> {
-                    /* set key for unpublished action */
-                    Map<String, Object> unpublishedFormData =
-                            firestoreAction.getUnpublishedAction().getActionConfiguration().getFormData();
-                    setValueSafelyInFormData(unpublishedFormData, SMART_SUBSTITUTION, FALSE.toString());
+                .forEachOrdered(
+                        firestoreAction -> {
+                            /* set key for unpublished action */
+                            Map<String, Object> unpublishedFormData =
+                                    firestoreAction
+                                            .getUnpublishedAction()
+                                            .getActionConfiguration()
+                                            .getFormData();
+                            setValueSafelyInFormData(
+                                    unpublishedFormData, SMART_SUBSTITUTION, FALSE.toString());
 
-                    /* set key for published action */
-                    if (hasPublishedActionConfiguration(firestoreAction)) {
-                        Map<String, Object> publishedFormData =
-                                firestoreAction.getPublishedAction().getActionConfiguration().getFormData();
-                        setValueSafelyInFormData(publishedFormData, SMART_SUBSTITUTION, FALSE.toString());
-                    }
+                            /* set key for published action */
+                            if (hasPublishedActionConfiguration(firestoreAction)) {
+                                Map<String, Object> publishedFormData =
+                                        firestoreAction
+                                                .getPublishedAction()
+                                                .getActionConfiguration()
+                                                .getFormData();
+                                setValueSafelyInFormData(
+                                        publishedFormData, SMART_SUBSTITUTION, FALSE.toString());
+                            }
 
-                    mongoTemplate.save(firestoreAction);
-                });
+                            mongoTemplate.save(firestoreAction);
+                        });
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
@@ -5,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import reactor.core.Exceptions;
 
 import java.time.LocalTime;
@@ -20,10 +22,11 @@ public class TimeType implements AppsmithType {
     @Override
     public boolean test(String s) {
         try {
-            final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder()
-                    .appendOptional(DateTimeFormatter.ISO_LOCAL_TIME)
-                    .appendOptional(DateTimeFormatter.ISO_TIME)
-                    .toFormatter();
+            final DateTimeFormatter timeFormatter =
+                    new DateTimeFormatterBuilder()
+                            .appendOptional(DateTimeFormatter.ISO_LOCAL_TIME)
+                            .appendOptional(DateTimeFormatter.ISO_TIME)
+                            .toFormatter();
             LocalTime.parse(s, timeFormatter);
             return true;
         } catch (DateTimeParseException ex) {
@@ -41,11 +44,7 @@ public class TimeType implements AppsmithType {
         } catch (JsonProcessingException e) {
             throw Exceptions.propagate(
                     new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            s,
-                            e.getMessage()
-                    )
-            );
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, s, e.getMessage()));
         }
     }
 

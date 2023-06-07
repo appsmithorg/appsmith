@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
@@ -5,10 +6,11 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.minidev.json.JSONArray;
 import net.minidev.json.parser.JSONParser;
-import reactor.core.Exceptions;
 
+import reactor.core.Exceptions;
 
 public class ArrayType implements AppsmithType {
 
@@ -30,11 +32,7 @@ public class ArrayType implements AppsmithType {
         } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
             throw Exceptions.propagate(
                     new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                            s,
-                            e.getMessage()
-                    )
-            );
+                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, s, e.getMessage()));
         }
     }
 

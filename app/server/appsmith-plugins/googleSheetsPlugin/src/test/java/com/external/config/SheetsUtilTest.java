@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
@@ -6,18 +9,17 @@ import com.appsmith.external.models.Property;
 import com.external.utils.SheetsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.Test;
-
 public class SheetsUtilTest {
 
     @Test
-    public void testGetUserAuthorizedSheetIds_allsheets_returnsNull() throws JsonProcessingException {
+    public void testGetUserAuthorizedSheetIds_allsheets_returnsNull()
+            throws JsonProcessingException {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         List<Property> propList = new ArrayList<Property>();
         Property prop = new Property();
@@ -30,7 +32,8 @@ public class SheetsUtilTest {
     }
 
     @Test
-    public void testGetUserAuthorizedSheetIds_specificSheets_returnsSetOfFileIds() throws JsonProcessingException {
+    public void testGetUserAuthorizedSheetIds_specificSheets_returnsSetOfFileIds()
+            throws JsonProcessingException {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         List<Property> propList = new ArrayList<Property>();
         OAuth2 oAuth2 = new OAuth2();

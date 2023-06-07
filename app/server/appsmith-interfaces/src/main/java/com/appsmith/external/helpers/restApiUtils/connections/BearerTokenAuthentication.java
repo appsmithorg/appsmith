@@ -1,19 +1,23 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.connections;
 
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
+
 import com.appsmith.external.models.BearerTokenAuth;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
-import reactor.core.publisher.Mono;
 
-import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
-import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
+import reactor.core.publisher.Mono;
 
 @Setter
 @Getter
@@ -27,15 +31,17 @@ public class BearerTokenAuthentication extends APIConnection {
         return Mono.just(
                 BearerTokenAuthentication.builder()
                         .bearerToken(bearerTokenAuth.getBearerToken())
-                        .build()
-        );
+                        .build());
     }
 
     @Override
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-        return Mono.justOrEmpty(ClientRequest.from(request)
-                .headers(header -> header.set(AUTHORIZATION_HEADER, getHeaderValue()))
-                .build())
+        return Mono.justOrEmpty(
+                        ClientRequest.from(request)
+                                .headers(
+                                        header ->
+                                                header.set(AUTHORIZATION_HEADER, getHeaderValue()))
+                                .build())
                 // Carry on to next exchange function
                 .flatMap(next::exchange)
                 // Default to next exchange function if something went wrong

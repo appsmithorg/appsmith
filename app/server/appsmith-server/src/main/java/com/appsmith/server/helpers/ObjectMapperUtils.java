@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,21 +14,17 @@ public class ObjectMapperUtils {
         this.objectMapper = objectMapper;
     }
 
-    public <T> T readFromString(String src, Class viewsClass, Class<T> resultClass) throws IOException {
-        return objectMapper
-                .readerWithView(viewsClass)
-                .readValue(src, resultClass);
+    public <T> T readFromString(String src, Class viewsClass, Class<T> resultClass)
+            throws IOException {
+        return objectMapper.readerWithView(viewsClass).readValue(src, resultClass);
     }
 
-    public <T> T readFromFile(File file, Class viewsClass, Class<T> resultClass) throws IOException {
-        return objectMapper
-                .readerWithView(viewsClass)
-                .readValue(file, resultClass);
+    public <T> T readFromFile(File file, Class viewsClass, Class<T> resultClass)
+            throws IOException {
+        return objectMapper.readerWithView(viewsClass).readValue(file, resultClass);
     }
 
     public String writeAsString(Object src, Class viewsClass) throws JsonProcessingException {
-        return objectMapper
-                .writerWithView(viewsClass)
-                .writeValueAsString(src);
+        return objectMapper.writerWithView(viewsClass).writeValueAsString(src);
     }
 }

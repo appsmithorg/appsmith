@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -22,15 +24,17 @@ import java.util.Set;
         property = "authenticationType",
         defaultImpl = DBAuth.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = DBAuth.class, name = Authentication.DB_AUTH),
-        @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2),
-        @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BASIC),
-        @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
-        @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
+    @JsonSubTypes.Type(value = DBAuth.class, name = Authentication.DB_AUTH),
+    @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2),
+    @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BASIC),
+    @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
+    @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
 })
 public class AuthenticationDTO implements AppsmithDomain {
-    // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
-    // routines choke on identifying the correct class to instantiate and ends up trying to instantiate this abstract
+    // In principle, this class should've been abstract. However, when this class is abstract,
+    // Spring's deserialization
+    // routines choke on identifying the correct class to instantiate and ends up trying to
+    // instantiate this abstract
     // class and fails.
 
     public enum AuthenticationStatus {
@@ -62,5 +66,4 @@ public class AuthenticationDTO implements AppsmithDomain {
     public Mono<Boolean> hasExpired() {
         return Mono.just(Boolean.FALSE);
     }
-
 }

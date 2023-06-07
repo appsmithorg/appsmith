@@ -1,4 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
+
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.LoginSource;
@@ -8,7 +13,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,37 +23,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Set;
 
-import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
-import static org.assertj.core.api.Assertions.assertThat;
-
 @Slf4j
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = {"signup.disabled = true", "admin.emails = dummy_admin@appsmith.com,dummy2@appsmith.com"})
+@SpringBootTest(
+        properties = {
+            "signup.disabled = true",
+            "admin.emails = dummy_admin@appsmith.com,dummy2@appsmith.com"
+        })
 @DirtiesContext
 public class UserServiceWithDisabledSignupTest {
 
-    @Autowired
-    UserService userService;
+    @Autowired UserService userService;
 
-    @Autowired
-    ApplicationService applicationService;
+    @Autowired ApplicationService applicationService;
 
-    @Autowired
-    UserRepository userRepository;
+    @Autowired UserRepository userRepository;
 
-    @Autowired
-    WorkspaceService workspaceService;
+    @Autowired WorkspaceService workspaceService;
 
-    @Autowired
-    WorkspaceRepository workspaceRepository;
+    @Autowired WorkspaceRepository workspaceRepository;
 
-    @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    @Autowired PermissionGroupRepository permissionGroupRepository;
 
     Mono<User> userMono;
 
@@ -65,11 +68,13 @@ public class UserServiceWithDisabledSignupTest {
         Mono<User> userMono = userService.create(newUser);
 
         StepVerifier.create(userMono)
-                .expectErrorMatches(error -> {
-                    assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.SIGNUP_DISABLED);
-                    return true;
-                })
+                .expectErrorMatches(
+                        error -> {
+                            assertThat(error).isInstanceOf(AppsmithException.class);
+                            assertThat(((AppsmithException) error).getError())
+                                    .isEqualTo(AppsmithError.SIGNUP_DISABLED);
+                            return true;
+                        })
                 .verify();
     }
 
@@ -82,27 +87,34 @@ public class UserServiceWithDisabledSignupTest {
 
         Mono<User> userMono = userService.create(newUser).cache();
 
-        Mono<Set<String>> assignedToUsersMono = userMono
-                .flatMap(user -> {
-                    String workspaceName = user.computeFirstName() + "'s apps";
-                    return workspaceRepository.findByName(workspaceName);
-                })
-                .flatMapMany(workspace -> permissionGroupRepository.findAllById(workspace.getDefaultPermissionGroups()))
-                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .single()
-                .map(permissionGroup -> permissionGroup.getAssignedToUserIds());
+        Mono<Set<String>> assignedToUsersMono =
+                userMono.flatMap(
+                                user -> {
+                                    String workspaceName = user.computeFirstName() + "'s apps";
+                                    return workspaceRepository.findByName(workspaceName);
+                                })
+                        .flatMapMany(
+                                workspace ->
+                                        permissionGroupRepository.findAllById(
+                                                workspace.getDefaultPermissionGroups()))
+                        .filter(
+                                permissionGroup ->
+                                        permissionGroup.getName().startsWith(ADMINISTRATOR))
+                        .single()
+                        .map(permissionGroup -> permissionGroup.getAssignedToUserIds());
 
         StepVerifier.create(Mono.zip(userMono, assignedToUsersMono))
-                .assertNext(tuple -> {
-                    User user = tuple.getT1();
-                    Set<String> workspaceAssignedToUsers = tuple.getT2();
-                    assertThat(user).isNotNull();
-                    assertThat(user.getId()).isNotNull();
-                    assertThat(user.getEmail()).isEqualTo("dummy_admin@appsmith.com");
-                    assertThat(user.getName()).isNullOrEmpty();
-                    assertThat(user.getPolicies()).isNotEmpty();
-                    assertThat(workspaceAssignedToUsers).contains(user.getId());
-                })
+                .assertNext(
+                        tuple -> {
+                            User user = tuple.getT1();
+                            Set<String> workspaceAssignedToUsers = tuple.getT2();
+                            assertThat(user).isNotNull();
+                            assertThat(user.getId()).isNotNull();
+                            assertThat(user.getEmail()).isEqualTo("dummy_admin@appsmith.com");
+                            assertThat(user.getName()).isNullOrEmpty();
+                            assertThat(user.getPolicies()).isNotEmpty();
+                            assertThat(workspaceAssignedToUsers).contains(user.getId());
+                        })
                 .verifyComplete();
     }
 
@@ -115,29 +127,35 @@ public class UserServiceWithDisabledSignupTest {
 
         Mono<User> userMono = userService.create(newUser).cache();
 
-        Mono<Set<String>> assignedToUsersMono = userMono
-                .flatMap(user -> {
-                    String workspaceName = user.computeFirstName() + "'s apps";
-                    return workspaceRepository.findByName(workspaceName);
-                })
-                .flatMapMany(workspace -> permissionGroupRepository.findAllById(workspace.getDefaultPermissionGroups()))
-                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .single()
-                .map(permissionGroup -> permissionGroup.getAssignedToUserIds());
+        Mono<Set<String>> assignedToUsersMono =
+                userMono.flatMap(
+                                user -> {
+                                    String workspaceName = user.computeFirstName() + "'s apps";
+                                    return workspaceRepository.findByName(workspaceName);
+                                })
+                        .flatMapMany(
+                                workspace ->
+                                        permissionGroupRepository.findAllById(
+                                                workspace.getDefaultPermissionGroups()))
+                        .filter(
+                                permissionGroup ->
+                                        permissionGroup.getName().startsWith(ADMINISTRATOR))
+                        .single()
+                        .map(permissionGroup -> permissionGroup.getAssignedToUserIds());
 
         StepVerifier.create(Mono.zip(userMono, assignedToUsersMono))
-                .assertNext(tuple -> {
-                    User user = tuple.getT1();
-                    Set<String> workspaceAssignedToUsers = tuple.getT2();
-                    assertThat(user).isNotNull();
-                    assertThat(user.getId()).isNotNull();
-                    assertThat(user.getEmail()).isEqualTo("dummy2@appsmith.com");
-                    assertThat(user.getName()).isNullOrEmpty();
-                    assertThat(user.getPolicies()).isNotEmpty();
+                .assertNext(
+                        tuple -> {
+                            User user = tuple.getT1();
+                            Set<String> workspaceAssignedToUsers = tuple.getT2();
+                            assertThat(user).isNotNull();
+                            assertThat(user.getId()).isNotNull();
+                            assertThat(user.getEmail()).isEqualTo("dummy2@appsmith.com");
+                            assertThat(user.getName()).isNullOrEmpty();
+                            assertThat(user.getPolicies()).isNotEmpty();
 
-                    assertThat(workspaceAssignedToUsers).contains(user.getId());
-
-                })
+                            assertThat(workspaceAssignedToUsers).contains(user.getId());
+                        })
                 .verifyComplete();
     }
 
@@ -158,11 +176,12 @@ public class UserServiceWithDisabledSignupTest {
         Mono<User> userMono = userService.create(signupUser);
 
         StepVerifier.create(userMono)
-                .assertNext(user -> {
-                    assertThat(user.getEmail()).isEqualTo(newUser.getEmail());
-                    assertThat(user.getSource()).isEqualTo(LoginSource.FORM);
-                    assertThat(user.getIsEnabled()).isTrue();
-                })
+                .assertNext(
+                        user -> {
+                            assertThat(user.getEmail()).isEqualTo(newUser.getEmail());
+                            assertThat(user.getSource()).isEqualTo(LoginSource.FORM);
+                            assertThat(user.getIsEnabled()).isTrue();
+                        })
                 .verifyComplete();
     }
 }

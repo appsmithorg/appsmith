@@ -1,9 +1,12 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.EntityDependencyNode;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -32,13 +35,20 @@ public class ActionDependencyEdge {
         if (obj instanceof ActionDependencyEdge) {
             final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
 
-            if (sourceNode == null || targetNode == null || actionDependencyEdge.sourceNode == null || actionDependencyEdge.targetNode == null) {
+            if (sourceNode == null
+                    || targetNode == null
+                    || actionDependencyEdge.sourceNode == null
+                    || actionDependencyEdge.targetNode == null) {
                 return false;
             }
 
             return new EqualsBuilder()
-                    .append(sourceNode.getReferenceString(), actionDependencyEdge.sourceNode.getReferenceString())
-                    .append(targetNode.getReferenceString(), actionDependencyEdge.targetNode.getReferenceString())
+                    .append(
+                            sourceNode.getReferenceString(),
+                            actionDependencyEdge.sourceNode.getReferenceString())
+                    .append(
+                            targetNode.getReferenceString(),
+                            actionDependencyEdge.targetNode.getReferenceString())
                     .isEquals();
         } else {
             return false;

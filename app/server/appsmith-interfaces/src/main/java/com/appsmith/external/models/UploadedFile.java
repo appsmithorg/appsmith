@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
@@ -27,8 +28,7 @@ public class UploadedFile implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String name;
 
-    @Encrypted
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonView(Views.Public.class)
     String base64Content;
 
@@ -44,5 +44,4 @@ public class UploadedFile implements AppsmithDomain {
 
         return Base64.getDecoder().decode(base64Content);
     }
-
 }

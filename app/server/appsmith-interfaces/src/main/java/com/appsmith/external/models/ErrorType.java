@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -18,4 +19,3 @@ public enum ErrorType {
     REPOSITORY_NOT_FOUND,
     EE_FEATURE_ERROR
 }
-

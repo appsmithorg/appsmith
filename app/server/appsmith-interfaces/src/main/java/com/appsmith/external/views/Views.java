@@ -1,7 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.views;
 
 /**
- * This interface is used to define the different views that can be used with the JsonView annotation.
+ * This interface is used to define the different views that can be used with the JsonView
+ * annotation.
  */
 public interface Views {
     /**
@@ -9,13 +11,12 @@ public interface Views {
      */
     interface Internal extends Public, ExportUnpublished, ExportPublished {}
 
-    /**
-     * Used with JsonView annotation to denote that a field should be visible to the client.
-     */
+    /** Used with JsonView annotation to denote that a field should be visible to the client. */
     interface Public {}
 
     /**
-     * Used with JsonView annotation to denote that a field should be exported when exporting the Domain/DTOs.
+     * Used with JsonView annotation to denote that a field should be exported when exporting the
+     * Domain/DTOs.
      */
     interface Export {}
 

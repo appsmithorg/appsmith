@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.server.dtos.ReleaseNode;
+
 import lombok.Data;
 
 import java.util.List;

@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
+
+import static org.reflections.Reflections.log;
 
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.constants.Assets;
@@ -9,13 +12,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.reflections.Reflections.log;
 
 public class GitDeployKeyGenerator {
     public enum supportedProtocols {
@@ -38,7 +40,6 @@ public class GitDeployKeyGenerator {
             gitDeployKeyDTO.setPlatFormSupported(this.supportedPlatforms);
             return gitDeployKeyDTO;
         }
-
     }
 
     public static GitAuth generateSSHKey(String keyType) {

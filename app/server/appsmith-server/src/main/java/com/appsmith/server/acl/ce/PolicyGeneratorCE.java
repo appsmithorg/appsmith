@@ -1,27 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.acl.ce;
-
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
-import com.google.common.collect.Sets;
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedAcyclicGraph;
-import org.jgrapht.traverse.DepthFirstIterator;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
@@ -64,22 +42,48 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIO
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
+import com.google.common.collect.Sets;
+
+import jakarta.annotation.PostConstruct;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.traverse.DepthFirstIterator;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @Slf4j
 public class PolicyGeneratorCE {
 
-    /**
-     * This graph defines the hierarchy of permissions from parent objects
-     */
-    protected Graph<AclPermission, DefaultEdge> hierarchyGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
+    /** This graph defines the hierarchy of permissions from parent objects */
+    protected Graph<AclPermission, DefaultEdge> hierarchyGraph =
+            new DirectedAcyclicGraph<>(DefaultEdge.class);
 
     /**
-     * This graph defines the permissions that must be given to a user given that they have another permission
-     * Eg: If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION permission
+     * This graph defines the permissions that must be given to a user given that they have another
+     * permission Eg: If the user is being given MANAGE_APPLICATION permission, they must also be
+     * given READ_APPLICATION permission
      */
-    protected Graph<AclPermission, DefaultEdge> lateralGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
+    protected Graph<AclPermission, DefaultEdge> lateralGraph =
+            new DirectedAcyclicGraph<>(DefaultEdge.class);
 
     @PostConstruct
     public void createPolicyGraph() {
@@ -90,16 +94,16 @@ public class PolicyGeneratorCE {
         createPolicyGraphForEachType();
 
         addLateralEdgesForAllIndirectRelationships();
-
     }
 
     protected void addVertices() {
         // Initialization of the hierarchical and lateral graphs by adding all the vertices
         EnumSet.allOf(AclPermission.class)
-                .forEach(permission -> {
-                    hierarchyGraph.addVertex(permission);
-                    lateralGraph.addVertex(permission);
-                });
+                .forEach(
+                        permission -> {
+                            hierarchyGraph.addVertex(permission);
+                            lateralGraph.addVertex(permission);
+                        });
     }
 
     protected void createPolicyGraphForEachType() {
@@ -125,7 +129,8 @@ public class PolicyGeneratorCE {
         }
     }
 
-    private Set<AclPermission> getAllDescendants(AclPermission vertex, Graph<AclPermission, DefaultEdge> graph) {
+    private Set<AclPermission> getAllDescendants(
+            AclPermission vertex, Graph<AclPermission, DefaultEdge> graph) {
         Iterator<AclPermission> iterator = new DepthFirstIterator<>(graph, vertex);
         Set<AclPermission> descendants = new HashSet<>();
 
@@ -144,7 +149,8 @@ public class PolicyGeneratorCE {
     }
 
     /**
-     * In this, we add permissions for a user to interact with workspaces and other users inside the said workspaces
+     * In this, we add permissions for a user to interact with workspaces and other users inside the
+     * said workspaces
      */
     protected void createUserPolicyGraph() {
         lateralGraph.addEdge(MANAGE_USERS, READ_USERS);
@@ -202,7 +208,8 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_CREATE_APPLICATION, APPLICATION_CREATE_PAGES);
         hierarchyGraph.addEdge(WORKSPACE_DELETE_APPLICATIONS, DELETE_APPLICATIONS);
 
-        // If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION perm
+        // If the user is being given MANAGE_APPLICATION permission, they must also be given
+        // READ_APPLICATION perm
         lateralGraph.addEdge(MANAGE_APPLICATIONS, READ_APPLICATIONS);
 
         // If the user can read an application, the should be able to comment on it.
@@ -235,41 +242,59 @@ public class PolicyGeneratorCE {
     }
 
     protected void createPermissionGroupPolicyGraph() {
-        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.ASSIGN_PERMISSION_GROUPS);
-        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.UNASSIGN_PERMISSION_GROUPS);
-        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUP_MEMBERS);
-        lateralGraph.addEdge(AclPermission.ASSIGN_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUP_MEMBERS);
+        lateralGraph.addEdge(
+                AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.ASSIGN_PERMISSION_GROUPS);
+        lateralGraph.addEdge(
+                AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.UNASSIGN_PERMISSION_GROUPS);
+        lateralGraph.addEdge(
+                AclPermission.MANAGE_PERMISSION_GROUPS,
+                AclPermission.READ_PERMISSION_GROUP_MEMBERS);
+        lateralGraph.addEdge(
+                AclPermission.ASSIGN_PERMISSION_GROUPS,
+                AclPermission.READ_PERMISSION_GROUP_MEMBERS);
     }
 
-    public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> permissionGroups, Class<? extends BaseDomain> destinationEntity) {
+    public Set<Policy> getLateralPolicies(
+            AclPermission permission,
+            Set<String> permissionGroups,
+            Class<? extends BaseDomain> destinationEntity) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
         return lateralEdges.stream()
                 .map(edge -> lateralGraph.getEdgeTarget(edge))
-                .filter(lateralPermission -> {
-                    if (destinationEntity == null ||
-                            lateralPermission.getEntity().equals(destinationEntity)) {
-                        return true;
-                    }
-                    return false;
-                })
-                .map(lateralPermission -> Policy.builder().permission(lateralPermission.getValue())
-                        .permissionGroups(permissionGroups).build())
+                .filter(
+                        lateralPermission -> {
+                            if (destinationEntity == null
+                                    || lateralPermission.getEntity().equals(destinationEntity)) {
+                                return true;
+                            }
+                            return false;
+                        })
+                .map(
+                        lateralPermission ->
+                                Policy.builder()
+                                        .permission(lateralPermission.getValue())
+                                        .permissionGroups(permissionGroups)
+                                        .build())
                 .collect(Collectors.toSet());
     }
 
     /**
-     * This function returns derives all the hierarchical and lateral policies for a given policy, aclPermission and user
-     * Should be used in places where we are creating a document to ensure that the correct permissions are assigned
-     * to the new document.
+     * This function returns derives all the hierarchical and lateral policies for a given policy,
+     * aclPermission and user Should be used in places where we are creating a document to ensure
+     * that the correct permissions are assigned to the new document.
      *
      * @param policy
      * @param aclPermission
      * @param destinationEntity
      * @return
      */
-    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+    public Set<Policy> getChildPolicies(
+            Policy policy,
+            AclPermission aclPermission,
+            Class<? extends BaseDomain> destinationEntity) {
 
-        // In case the calling function could not translate the string value to AclPermission, return an empty set to handle
+        // In case the calling function could not translate the string value to AclPermission,
+        // return an empty set to handle
         // erroneous cases
         if (aclPermission == null) {
             return Collections.emptySet();
@@ -286,26 +311,41 @@ public class PolicyGeneratorCE {
             AclPermission childPermission = hierarchyGraph.getEdgeTarget(edge);
 
             if (childPermission.getEntity().equals(destinationEntity)) {
-                childPolicySet.add(Policy.builder().permission(childPermission.getValue())
-                        .permissionGroups(policy.getPermissionGroups()).build());
+                childPolicySet.add(
+                        Policy.builder()
+                                .permission(childPermission.getValue())
+                                .permissionGroups(policy.getPermissionGroups())
+                                .build());
             }
 
-            // Check the lateral graph to derive the child permissions that must be given to this document
-            childPolicySet.addAll(getLateralPolicies(childPermission, policy.getPermissionGroups(), destinationEntity));
+            // Check the lateral graph to derive the child permissions that must be given to this
+            // document
+            childPolicySet.addAll(
+                    getLateralPolicies(
+                            childPermission, policy.getPermissionGroups(), destinationEntity));
         }
 
         return childPolicySet;
     }
 
-    public Set<Policy> getAllChildPolicies(Set<Policy> policySet, Class<? extends BaseDomain> sourceEntity, Class<? extends BaseDomain> destinationEntity) {
-        Set<Policy> policies = policySet.stream()
-                .map(policy -> {
-                    AclPermission aclPermission = AclPermission
-                            .getPermissionByValue(policy.getPermission(), sourceEntity);
-                    // Get all the child policies for the given policy and aclPermission
-                    return getChildPolicies(policy, aclPermission, destinationEntity);
-                }).flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+    public Set<Policy> getAllChildPolicies(
+            Set<Policy> policySet,
+            Class<? extends BaseDomain> sourceEntity,
+            Class<? extends BaseDomain> destinationEntity) {
+        Set<Policy> policies =
+                policySet.stream()
+                        .map(
+                                policy -> {
+                                    AclPermission aclPermission =
+                                            AclPermission.getPermissionByValue(
+                                                    policy.getPermission(), sourceEntity);
+                                    // Get all the child policies for the given policy and
+                                    // aclPermission
+                                    return getChildPolicies(
+                                            policy, aclPermission, destinationEntity);
+                                })
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet());
 
         Map<String, Policy> policyMap = new LinkedHashMap<>();
 
@@ -313,7 +353,9 @@ public class PolicyGeneratorCE {
             if (policyMap.containsKey(policy.getPermission())) {
                 Policy mergedPolicy = policyMap.get(policy.getPermission());
 
-                mergedPolicy.setPermissionGroups(Sets.union(mergedPolicy.getPermissionGroups(), policy.getPermissionGroups()));
+                mergedPolicy.setPermissionGroups(
+                        Sets.union(
+                                mergedPolicy.getPermissionGroups(), policy.getPermissionGroups()));
 
                 policyMap.put(policy.getPermission(), mergedPolicy);
             } else {
@@ -324,23 +366,35 @@ public class PolicyGeneratorCE {
         return new HashSet<>(policyMap.values());
     }
 
-    public Set<AclPermission> getChildPermissions(AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+    public Set<AclPermission> getChildPermissions(
+            AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
         Set<AclPermission> childPermissionSet = new HashSet<>();
-        Set<AclPermission> lateralPermissions = lateralGraph.outgoingEdgesOf(aclPermission)
-                .stream().map(defaultEdge -> lateralGraph.getEdgeTarget(defaultEdge))
-                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
-                .collect(Collectors.toSet());
+        Set<AclPermission> lateralPermissions =
+                lateralGraph.outgoingEdgesOf(aclPermission).stream()
+                        .map(defaultEdge -> lateralGraph.getEdgeTarget(defaultEdge))
+                        .filter(
+                                permission ->
+                                        destinationEntity == null
+                                                || permission.getEntity().equals(destinationEntity))
+                        .collect(Collectors.toSet());
         childPermissionSet.addAll(lateralPermissions);
-        Set<AclPermission> directChildPermissions = hierarchyGraph.outgoingEdgesOf(aclPermission)
-                .stream().map(defaultEdge -> hierarchyGraph.getEdgeTarget(defaultEdge))
-                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
-                .collect(Collectors.toSet());
+        Set<AclPermission> directChildPermissions =
+                hierarchyGraph.outgoingEdgesOf(aclPermission).stream()
+                        .map(defaultEdge -> hierarchyGraph.getEdgeTarget(defaultEdge))
+                        .filter(
+                                permission ->
+                                        destinationEntity == null
+                                                || permission.getEntity().equals(destinationEntity))
+                        .collect(Collectors.toSet());
         childPermissionSet.addAll(directChildPermissions);
-        childPermissionSet.addAll(getAllChildPermissions(directChildPermissions, destinationEntity));
+        childPermissionSet.addAll(
+                getAllChildPermissions(directChildPermissions, destinationEntity));
         return childPermissionSet;
     }
 
-    public Set<AclPermission> getAllChildPermissions(Collection<AclPermission> aclPermissions, Class<? extends BaseDomain> destinationEntity) {
+    public Set<AclPermission> getAllChildPermissions(
+            Collection<AclPermission> aclPermissions,
+            Class<? extends BaseDomain> destinationEntity) {
         return aclPermissions.stream()
                 .map(permission -> getChildPermissions(permission, destinationEntity))
                 .flatMap(Set::stream)

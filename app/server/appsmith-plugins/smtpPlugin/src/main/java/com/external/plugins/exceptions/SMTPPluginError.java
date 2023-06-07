@@ -1,10 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
-import lombok.Getter;
 
+import lombok.Getter;
 
 @Getter
 public enum SMTPPluginError implements BasePluginError {
@@ -16,9 +17,7 @@ public enum SMTPPluginError implements BasePluginError {
             "Mail sending error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    )
-    ;
+            "{2}");
 
     private final Integer httpErrorCode;
     private final String appErrorCode;
@@ -31,8 +30,15 @@ public enum SMTPPluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    SMTPPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                    String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    SMTPPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -59,5 +65,7 @@ public enum SMTPPluginError implements BasePluginError {
     }
 
     @Override
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 }

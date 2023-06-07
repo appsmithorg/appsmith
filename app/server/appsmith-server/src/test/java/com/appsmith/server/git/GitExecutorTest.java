@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.git;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.appsmith.external.constants.Assets;
 import com.appsmith.external.dtos.GitBranchDTO;
@@ -8,7 +11,9 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -23,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -32,22 +38,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @Slf4j
 @Import({GitExecutorImpl.class})
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class GitExecutorTest {
 
-    @Autowired
-    private GitExecutor gitExecutor;
+    @Autowired private GitExecutor gitExecutor;
 
-    @Autowired
-    private GitServiceConfig gitServiceConfig;
+    @Autowired private GitServiceConfig gitServiceConfig;
 
-    @TempDir
-    private File tempFolder = new File("./");
+    @TempDir private File tempFolder = new File("./");
 
     private Git git;
 
@@ -71,27 +72,31 @@ public class GitExecutorTest {
     }
 
     private void commitToRepo() {
-        gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false, false).block();
+        gitExecutor
+                .commitApplication(path, "Test commit", "test", "test@test.com", false, false)
+                .block();
     }
 
     @Test
     public void commit_validChange_Success() throws IOException {
         createFileInThePath("TestFIle2");
-        String commitStatus = gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false, false).block();
+        String commitStatus =
+                gitExecutor
+                        .commitApplication(
+                                path, "Test commit", "test", "test@test.com", false, false)
+                        .block();
         Mono<List<GitLogDTO>> commitList = gitExecutor.getCommitHistory(path);
 
-        StepVerifier
-                .create(commitList)
-                .assertNext(list -> {
-                    assertThat(commitStatus).isEqualTo("Committed successfully!");
-                    assertThat(list).isNotEmpty();
-                    assertThat(list.get(0).getCommitMessage()).isNotEmpty();
-                    assertThat(list.get(0).getCommitMessage()).isEqualTo("Test commit");
-                    assertThat(list.get(0).getAuthorEmail()).isEqualTo("test@test.com");
-                    assertThat(list.get(0).getAuthorName()).isEqualTo("test");
-
-                });
-
+        StepVerifier.create(commitList)
+                .assertNext(
+                        list -> {
+                            assertThat(commitStatus).isEqualTo("Committed successfully!");
+                            assertThat(list).isNotEmpty();
+                            assertThat(list.get(0).getCommitMessage()).isNotEmpty();
+                            assertThat(list.get(0).getCommitMessage()).isEqualTo("Test commit");
+                            assertThat(list.get(0).getAuthorEmail()).isEqualTo("test@test.com");
+                            assertThat(list.get(0).getAuthorName()).isEqualTo("test");
+                        });
     }
 
     @Test
@@ -100,11 +105,11 @@ public class GitExecutorTest {
         commitToRepo();
         Mono<String> branchStatus = gitExecutor.createAndCheckoutToBranch(path, "branch/f1");
 
-        StepVerifier
-                .create(branchStatus)
-                .assertNext(status -> {
-                    assertThat(status).isEqualTo("branch/f1");
-                })
+        StepVerifier.create(branchStatus)
+                .assertNext(
+                        status -> {
+                            assertThat(status).isEqualTo("branch/f1");
+                        })
                 .verifyComplete();
     }
 
@@ -114,12 +119,12 @@ public class GitExecutorTest {
         commitToRepo();
         Mono<String> branchStatus = gitExecutor.createAndCheckoutToBranch(path, "main");
 
-        StepVerifier
-                .create(branchStatus)
-                .assertNext(status -> {
-                    assertThat(status).isNotEmpty();
-                    assertThat(status).isEqualTo("main");
-                })
+        StepVerifier.create(branchStatus)
+                .assertNext(
+                        status -> {
+                            assertThat(status).isNotEmpty();
+                            assertThat(status).isEqualTo("main");
+                        })
                 .verifyComplete();
     }
 
@@ -128,45 +133,44 @@ public class GitExecutorTest {
         createFileInThePath("isMergeBranch_NoChanges_CanBeMerged");
         commitToRepo();
 
-        //create branch f1
+        // create branch f1
         gitExecutor.createAndCheckoutToBranch(path, "f1").block();
-        //Create branch f2 from f1
+        // Create branch f2 from f1
         gitExecutor.createAndCheckoutToBranch(path, "f2").block();
 
         Mono<MergeStatusDTO> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
 
-        StepVerifier
-                .create(mergeableStatus)
-                .assertNext(s -> {
-                    assertThat(s.isMergeAble()).isTrue();
-                })
+        StepVerifier.create(mergeableStatus)
+                .assertNext(
+                        s -> {
+                            assertThat(s.isMergeAble()).isTrue();
+                        })
                 .verifyComplete();
-
     }
 
     @Test
-    public void isMergeBranch_NonConflictingChanges_CanBeMerged() throws IOException, GitAPIException {
+    public void isMergeBranch_NonConflictingChanges_CanBeMerged()
+            throws IOException, GitAPIException {
         createFileInThePath("isMergeBranch_NonConflictingChanges_CanBeMerged");
         commitToRepo();
 
-        //create branch f1 and commit changes
+        // create branch f1 and commit changes
         String branch = gitExecutor.createAndCheckoutToBranch(path, "f1").block();
         createFileInThePath("isMergeBranch_NonConflictingChanges_f1");
 
-        //Create branch f2 from f1
+        // Create branch f2 from f1
         gitExecutor.checkoutToBranch(path, "main");
         gitExecutor.createAndCheckoutToBranch(path, "f2").block();
         createFileInThePath("isMergeBranch_NonConflictingChanges_f2");
 
         Mono<MergeStatusDTO> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
 
-        StepVerifier
-                .create(mergeableStatus)
-                .assertNext(s -> {
-                    assertThat(s.isMergeAble()).isTrue();
-                })
+        StepVerifier.create(mergeableStatus)
+                .assertNext(
+                        s -> {
+                            assertThat(s.isMergeAble()).isTrue();
+                        })
                 .verifyComplete();
-
     }
 
     @Test
@@ -177,10 +181,13 @@ public class GitExecutorTest {
         gitExecutor.createAndCheckoutToBranch(path, "main").block();
         Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "main1");
 
-        StepVerifier
-                .create(branchStatus)
-                .expectErrorMatches(throwable -> throwable instanceof RefNotFoundException
-                        && throwable.getMessage().contains("Ref main1 cannot be resolved"));
+        StepVerifier.create(branchStatus)
+                .expectErrorMatches(
+                        throwable ->
+                                throwable instanceof RefNotFoundException
+                                        && throwable
+                                                .getMessage()
+                                                .contains("Ref main1 cannot be resolved"));
     }
 
     @Test
@@ -191,11 +198,11 @@ public class GitExecutorTest {
         gitExecutor.createAndCheckoutToBranch(path, "main").block();
         Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "main");
 
-        StepVerifier
-                .create(branchStatus)
-                .assertNext(status -> {
-                    assertThat(status).isEqualTo(Boolean.TRUE);
-                })
+        StepVerifier.create(branchStatus)
+                .assertNext(
+                        status -> {
+                            assertThat(status).isEqualTo(Boolean.TRUE);
+                        })
                 .verifyComplete();
     }
 
@@ -207,16 +214,16 @@ public class GitExecutorTest {
         gitExecutor.createAndCheckoutToBranch(path, "main").block();
         Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "master");
 
-        StepVerifier
-                .create(branchStatus)
-                .assertNext(status -> {
-                    assertThat(status).isEqualTo(Boolean.TRUE);
-                    try {
-                        assertThat("master").isEqualTo(git.getRepository().getBranch());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                })
+        StepVerifier.create(branchStatus)
+                .assertNext(
+                        status -> {
+                            assertThat(status).isEqualTo(Boolean.TRUE);
+                            try {
+                                assertThat("master").isEqualTo(git.getRepository().getBranch());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        })
                 .verifyComplete();
     }
 
@@ -230,16 +237,16 @@ public class GitExecutorTest {
         createFileInThePath("TestFile6");
         Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "master");
 
-        StepVerifier
-                .create(branchStatus)
-                .assertNext(status -> {
-                    assertThat(status).isEqualTo(Boolean.TRUE);
-                    try {
-                        assertThat("master").isEqualTo(git.getRepository().getBranch());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                })
+        StepVerifier.create(branchStatus)
+                .assertNext(
+                        status -> {
+                            assertThat(status).isEqualTo(Boolean.TRUE);
+                            try {
+                                assertThat("master").isEqualTo(git.getRepository().getBranch());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        })
                 .verifyComplete();
     }
 
@@ -254,16 +261,16 @@ public class GitExecutorTest {
 
         Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "master");
 
-        StepVerifier
-                .create(branchStatus)
-                .assertNext(status -> {
-                    assertThat(status).isEqualTo(Boolean.TRUE);
-                    try {
-                        assertThat("master").isEqualTo(git.getRepository().getBranch());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                })
+        StepVerifier.create(branchStatus)
+                .assertNext(
+                        status -> {
+                            assertThat(status).isEqualTo(Boolean.TRUE);
+                            try {
+                                assertThat("master").isEqualTo(git.getRepository().getBranch());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        })
                 .verifyComplete();
     }
 
@@ -271,17 +278,20 @@ public class GitExecutorTest {
     public void listBranches_LocalMode_Success() throws IOException {
         createFileInThePath("listBranch");
         commitToRepo();
-        Mono<String> branchMono = gitExecutor.createAndCheckoutToBranch(path, "test1")
-                .flatMap(s -> gitExecutor.createAndCheckoutToBranch(path, "test2"));
-        Mono<List<GitBranchDTO>> gitBranchDTOMono = branchMono
-                .then(gitExecutor.listBranches(path, "remoteUrl", "publicKey", "privateKey", false));
+        Mono<String> branchMono =
+                gitExecutor
+                        .createAndCheckoutToBranch(path, "test1")
+                        .flatMap(s -> gitExecutor.createAndCheckoutToBranch(path, "test2"));
+        Mono<List<GitBranchDTO>> gitBranchDTOMono =
+                branchMono.then(
+                        gitExecutor.listBranches(
+                                path, "remoteUrl", "publicKey", "privateKey", false));
 
-        StepVerifier
-                .create(gitBranchDTOMono)
-                .assertNext(gitBranchDTOS -> {
-                    assertThat(gitBranchDTOS.stream().count()).isEqualTo(3);
-
-                });
+        StepVerifier.create(gitBranchDTOMono)
+                .assertNext(
+                        gitBranchDTOS -> {
+                            assertThat(gitBranchDTOS.stream().count()).isEqualTo(3);
+                        });
     }
 
     @Test
@@ -296,11 +306,11 @@ public class GitExecutorTest {
 
         Mono<String> mergeStatusDTOMono = gitExecutor.mergeBranch(path, defaultBranch, "master");
 
-        StepVerifier
-                .create(mergeStatusDTOMono)
-                .assertNext(s -> {
-                    assertThat(s).isEqualTo("FAST_FORWARD");
-                })
+        StepVerifier.create(mergeStatusDTOMono)
+                .assertNext(
+                        s -> {
+                            assertThat(s).isEqualTo("FAST_FORWARD");
+                        })
                 .verifyComplete();
     }
 
@@ -314,7 +324,7 @@ public class GitExecutorTest {
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", true);
         commitToRepo();
 
-        //Create a 2nd branch
+        // Create a 2nd branch
         gitExecutor.checkoutToBranch(path, "master").block();
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
         filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
@@ -325,11 +335,9 @@ public class GitExecutorTest {
 
         Mono<String> mergeStatusDTOMono = gitExecutor.mergeBranch(path, "test1", "test2");
 
-        StepVerifier
-                .create(mergeStatusDTOMono)
+        StepVerifier.create(mergeStatusDTOMono)
                 .assertNext(s -> assertThat(s).isEqualTo("CONFLICTING"))
                 .verifyComplete();
-
     }
 
     @Test
@@ -341,7 +349,7 @@ public class GitExecutorTest {
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
         commitToRepo();
 
-        //Create a 2nd branch
+        // Create a 2nd branch
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
         filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", false);
@@ -351,11 +359,9 @@ public class GitExecutorTest {
 
         Mono<String> mergeStatusDTOMono = gitExecutor.mergeBranch(path, "test1", "test2");
 
-        StepVerifier
-                .create(mergeStatusDTOMono)
+        StepVerifier.create(mergeStatusDTOMono)
                 .assertNext(s -> assertThat(s).isEqualTo("ALREADY_UP_TO_DATE"))
                 .verifyComplete();
-
     }
 
     @Test
@@ -368,13 +374,14 @@ public class GitExecutorTest {
         commitToRepo();
         String defaultBranch = git.getRepository().getBranch();
 
-        Mono<MergeStatusDTO> mergeStatusDTOMono = gitExecutor.isMergeBranch(path, defaultBranch, "master");
+        Mono<MergeStatusDTO> mergeStatusDTOMono =
+                gitExecutor.isMergeBranch(path, defaultBranch, "master");
 
-        StepVerifier
-                .create(mergeStatusDTOMono)
-                .assertNext(mergeStatusDTO -> {
-                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
-                })
+        StepVerifier.create(mergeStatusDTOMono)
+                .assertNext(
+                        mergeStatusDTO -> {
+                            assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
+                        })
                 .verifyComplete();
     }
 
@@ -387,7 +394,7 @@ public class GitExecutorTest {
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
         commitToRepo();
 
-        //Create a 2nd branch
+        // Create a 2nd branch
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
         filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", false);
@@ -395,11 +402,11 @@ public class GitExecutorTest {
 
         Mono<MergeStatusDTO> mergeStatusDTOMono = gitExecutor.isMergeBranch(path, "test1", "test2");
 
-        StepVerifier
-                .create(mergeStatusDTOMono)
-                .assertNext(mergeStatusDTO -> {
-                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
-                })
+        StepVerifier.create(mergeStatusDTOMono)
+                .assertNext(
+                        mergeStatusDTO -> {
+                            assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
+                        })
                 .verifyComplete();
     }
 
@@ -413,7 +420,7 @@ public class GitExecutorTest {
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", true);
         commitToRepo();
 
-        //Create a 2nd branch
+        // Create a 2nd branch
         gitExecutor.checkoutToBranch(path, "master").block();
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
         filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
@@ -424,23 +431,22 @@ public class GitExecutorTest {
 
         Mono<MergeStatusDTO> mergeStatusDTOMono = gitExecutor.isMergeBranch(path, "test1", "test2");
 
-        StepVerifier
-                .create(mergeStatusDTOMono)
-                .assertNext(mergeStatusDTO -> {
-                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.FALSE);
-                    assertThat(mergeStatusDTO.getConflictingFiles().size()).isEqualTo(1);
-                    assertThat(mergeStatusDTO.getConflictingFiles().get(0)).isEqualTo("TestFIle4");
-                })
+        StepVerifier.create(mergeStatusDTOMono)
+                .assertNext(
+                        mergeStatusDTO -> {
+                            assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.FALSE);
+                            assertThat(mergeStatusDTO.getConflictingFiles().size()).isEqualTo(1);
+                            assertThat(mergeStatusDTO.getConflictingFiles().get(0))
+                                    .isEqualTo("TestFIle4");
+                        })
                 .verifyComplete();
-
     }
 
     @Test
     public void getCommitHistory_EmptyRepo_Error() {
         Mono<List<GitLogDTO>> status = gitExecutor.getCommitHistory(path);
 
-        StepVerifier
-                .create(status)
+        StepVerifier.create(status)
                 .expectErrorMatches(throwable -> throwable instanceof NoHeadException)
                 .verify();
     }
@@ -451,14 +457,16 @@ public class GitExecutorTest {
         commitToRepo();
         Mono<List<GitLogDTO>> status = gitExecutor.getCommitHistory(path);
 
-        StepVerifier
-                .create(status)
-                .assertNext(gitLogDTOS -> {
-                    assertThat(gitLogDTOS.size()).isEqualTo(1);
-                    assertThat(gitLogDTOS.get(0).getCommitMessage()).isEqualTo("Test commit");
-                    assertThat(gitLogDTOS.get(0).getAuthorName()).isEqualTo("test");
-                    assertThat(gitLogDTOS.get(0).getAuthorEmail()).isEqualTo("test@test.com");
-                })
+        StepVerifier.create(status)
+                .assertNext(
+                        gitLogDTOS -> {
+                            assertThat(gitLogDTOS.size()).isEqualTo(1);
+                            assertThat(gitLogDTOS.get(0).getCommitMessage())
+                                    .isEqualTo("Test commit");
+                            assertThat(gitLogDTOS.get(0).getAuthorName()).isEqualTo("test");
+                            assertThat(gitLogDTOS.get(0).getAuthorEmail())
+                                    .isEqualTo("test@test.com");
+                        })
                 .verifyComplete();
     }
 
@@ -470,8 +478,7 @@ public class GitExecutorTest {
         gitExecutor.checkoutToBranch(path, "master").block();
         Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "test");
 
-        StepVerifier
-                .create(deleteBranchMono)
+        StepVerifier.create(deleteBranchMono)
                 .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.TRUE))
                 .verifyComplete();
     }
@@ -481,8 +488,7 @@ public class GitExecutorTest {
 
         Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "master");
 
-        StepVerifier
-                .create(deleteBranchMono)
+        StepVerifier.create(deleteBranchMono)
                 .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.FALSE))
                 .verifyComplete();
     }
@@ -495,8 +501,7 @@ public class GitExecutorTest {
         gitExecutor.checkoutToBranch(path, "master").block();
         Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "**impossibleBranchName**");
 
-        StepVerifier
-                .create(deleteBranchMono)
+        StepVerifier.create(deleteBranchMono)
                 .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.FALSE))
                 .verifyComplete();
     }
@@ -507,14 +512,15 @@ public class GitExecutorTest {
         commitToRepo();
         Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master");
 
-        StepVerifier
-                .create(gitStatusDTOMono)
-                .assertNext(gitStatusDTO -> {
-                    assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.TRUE);
-                    assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
-                    assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
-                    assertThat(gitStatusDTO.getDiscardDocUrl()).isEqualTo(Assets.GIT_DISCARD_DOC_URL);
-                })
+        StepVerifier.create(gitStatusDTOMono)
+                .assertNext(
+                        gitStatusDTO -> {
+                            assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.TRUE);
+                            assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
+                            assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
+                            assertThat(gitStatusDTO.getDiscardDocUrl())
+                                    .isEqualTo(Assets.GIT_DISCARD_DOC_URL);
+                        })
                 .verifyComplete();
     }
 
@@ -525,31 +531,31 @@ public class GitExecutorTest {
         createFileInThePath("testFile2");
         Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master");
 
-        StepVerifier
-                .create(gitStatusDTOMono)
-                .assertNext(gitStatusDTO -> {
-                    assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.FALSE);
-                    assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
-                    assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
-                    assertThat(gitStatusDTO.getModified().size()).isEqualTo(1);
-                })
+        StepVerifier.create(gitStatusDTOMono)
+                .assertNext(
+                        gitStatusDTO -> {
+                            assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.FALSE);
+                            assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
+                            assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
+                            assertThat(gitStatusDTO.getModified().size()).isEqualTo(1);
+                        })
                 .verifyComplete();
     }
 
     @Test
-    public void resetToLastCommit_WithOutStaged_CleanStateForRepo() throws IOException, GitAPIException {
+    public void resetToLastCommit_WithOutStaged_CleanStateForRepo()
+            throws IOException, GitAPIException {
         createFileInThePath("testFile");
         commitToRepo();
         Mono<Boolean> resetStatus = gitExecutor.resetToLastCommit(path, "master");
 
-        StepVerifier
-                .create(resetStatus)
-                .assertNext(status -> {
-                    assertThat(status).isEqualTo(Boolean.TRUE);
-                })
+        StepVerifier.create(resetStatus)
+                .assertNext(
+                        status -> {
+                            assertThat(status).isEqualTo(Boolean.TRUE);
+                        })
                 .verifyComplete();
     }
-
 
     // TODO cover the below mentioned test cases
     /*

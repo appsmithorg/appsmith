@@ -1,10 +1,13 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,8 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Tenant extends BaseDomain {
 
-    @Unique
-    String slug;
+    @Unique String slug;
 
     String displayName;
 
@@ -26,5 +28,6 @@ public class Tenant extends BaseDomain {
 
     TenantConfiguration tenantConfiguration;
 
-    // TODO add SSO and other configurations here after migrating from environment variables to database configuration
+    // TODO add SSO and other configurations here after migrating from environment variables to
+    // database configuration
 }

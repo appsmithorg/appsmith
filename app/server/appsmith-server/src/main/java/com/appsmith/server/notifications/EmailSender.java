@@ -1,16 +1,23 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.notifications;
+
+import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
 
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.TemplateUtils;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -18,8 +25,6 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
-
-import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
 
 @Component
 @Slf4j
@@ -38,29 +43,40 @@ public class EmailSender {
         REPLY_TO = makeReplyTo();
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
+    public Mono<Boolean> sendMail(
+            String to, String subject, String text, Map<String, ? extends Object> params) {
         return sendMail(to, subject, text, params, null);
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params, String replyTo) {
+    public Mono<Boolean> sendMail(
+            String to,
+            String subject,
+            String text,
+            Map<String, ? extends Object> params,
+            String replyTo) {
 
         /**
-         * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded elastic
-         * scheduler and then subscribing to it so that the publisher starts emitting immediately. We do not
-         * wait for the blocking call of `sendMailSync` to finish. BoundedElastic scheduler would ensure that
-         * when the number of tasks go beyond the number of available threads, the tasks would be deferred till
-         * a thread becomes available without overloading the server.
+         * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded
+         * elastic scheduler and then subscribing to it so that the publisher starts emitting
+         * immediately. We do not wait for the blocking call of `sendMailSync` to finish.
+         * BoundedElastic scheduler would ensure that when the number of tasks go beyond the number
+         * of available threads, the tasks would be deferred till a thread becomes available without
+         * overloading the server.
          */
-        Mono.fromCallable(() -> {
-                    try {
-                        return params == null ? text : TemplateUtils.parseTemplate(text, params);
-                    } catch (IOException e) {
-                        throw Exceptions.propagate(e);
-                    }
-                })
-                .doOnNext(emailBody -> {
-                    sendMailSync(to, subject, emailBody, replyTo);
-                })
+        Mono.fromCallable(
+                        () -> {
+                            try {
+                                return params == null
+                                        ? text
+                                        : TemplateUtils.parseTemplate(text, params);
+                            } catch (IOException e) {
+                                throw Exceptions.propagate(e);
+                            }
+                        })
+                .doOnNext(
+                        emailBody -> {
+                            sendMailSync(to, subject, emailBody, replyTo);
+                        })
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
 
@@ -71,9 +87,9 @@ public class EmailSender {
     /**
      * [Synchronous]This function sends an HTML email to the user from the default email address
      *
-     * @param to      Single valid string email address to send to. Multiple addresses doesn't work.
+     * @param to Single valid string email address to send to. Multiple addresses doesn't work.
      * @param subject Subject string.
-     * @param text    HTML Body of the message. This method assumes UTF-8.
+     * @param text HTML Body of the message. This method assumes UTF-8.
      */
     private void sendMailSync(String to, String subject, String text, String replyTo) {
         log.debug("Got request to send email to: {} with subject: {}", to, subject);
@@ -82,7 +98,8 @@ public class EmailSender {
             return;
         }
 
-        // Check if the email address is valid. It's possible for certain OAuth2 providers to not return the email ID
+        // Check if the email address is valid. It's possible for certain OAuth2 providers to not
+        // return the email ID
         if (to == null || !validateEmail(to)) {
             log.error("The email ID: {} is not valid. Not sending an email", to);
             return;
@@ -108,7 +125,12 @@ public class EmailSender {
 
             log.debug("Email sent successfully to {} with subject {}", to, subject);
         } catch (MessagingException e) {
-            log.error("Unable to create the mime message while sending an email to {} with subject: {}. Cause: ", to, subject, e);
+            log.error(
+                    "Unable to create the mime message while sending an email to {} with subject:"
+                            + " {}. Cause: ",
+                    to,
+                    subject,
+                    e);
         } catch (MailException e) {
             log.error("Unable to send email. Cause: ", e);
         }

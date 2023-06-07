@@ -1,9 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 public class NumberUtils {
     /**
-     * Parses an integer from a string. If the provided string is not an integer, it'll return the default value instead.
-     * If the parsed integer is less than minValue, it'll return the default value
+     * Parses an integer from a string. If the provided string is not an integer, it'll return the
+     * default value instead. If the parsed integer is less than minValue, it'll return the default
+     * value
      *
      * @param str
      * @param minValue

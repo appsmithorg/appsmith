@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
@@ -13,14 +14,18 @@ import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
+
 import jakarta.validation.Validator;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.MultiValueMap;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -46,7 +51,13 @@ public class NotificationServiceCEImpl
             SessionUserService sessionUserService,
             ResponseUtils responseUtils) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService);
         this.sessionUserService = sessionUserService;
         this.responseUtils = responseUtils;
     }
@@ -55,23 +66,28 @@ public class NotificationServiceCEImpl
     public Mono<Notification> create(Notification notification) {
         Mono<Notification> notificationWithUsernameMono;
         if (StringUtils.isEmpty(notification.getForUsername())) {
-            notificationWithUsernameMono = sessionUserService.getCurrentUser()
-                    .map(user -> {
-                        notification.setForUsername(user.getUsername());
-                        return notification;
-                    });
+            notificationWithUsernameMono =
+                    sessionUserService
+                            .getCurrentUser()
+                            .map(
+                                    user -> {
+                                        notification.setForUsername(user.getUsername());
+                                        return notification;
+                                    });
         } else {
             notificationWithUsernameMono = Mono.just(notification);
         }
 
-        return notificationWithUsernameMono
-                .flatMap(super::create);
+        return notificationWithUsernameMono.flatMap(super::create);
     }
 
     @Override
     public Flux<Notification> get(MultiValueMap<String, String> params) {
         // results will be sorted in descending order of createdAt
-        Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
+        Sort sort =
+                Sort.by(
+                        Sort.Direction.DESC,
+                        QNotification.notification.createdAt.getMetadata().getName());
         // Remove branch name as notifications are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         // get page size from query params, default is 10 if param not present
@@ -90,54 +106,66 @@ public class NotificationServiceCEImpl
             try {
                 instant = Instant.parse(beforeParam);
             } catch (DateTimeParseException e) {
-                return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "as " + paramKey));
+                return Flux.error(
+                        new AppsmithException(AppsmithError.INVALID_PARAMETER, "as " + paramKey));
             }
         } else {
             instant = Instant.now(); // param not present, use current time
         }
 
-        return sessionUserService.getCurrentUser()
+        return sessionUserService
+                .getCurrentUser()
                 .flatMapMany(
-                        user -> repository.findByForUsernameAndCreatedAtBefore(
-                                user.getUsername(), instant, pageRequest
-                        )
-                )
-                .map(notification -> {
-                    return notification;
-                });
+                        user ->
+                                repository.findByForUsernameAndCreatedAtBefore(
+                                        user.getUsername(), instant, pageRequest))
+                .map(
+                        notification -> {
+                            return notification;
+                        });
     }
 
     @Override
     public Mono<Notification> findByIdAndBranchName(String id, String branchName) {
         // Ignore branch name as notifications are independent of branchNames
-        return repository.findById(id)
-                .map(notification -> {
-                    return notification;
-                });
+        return repository
+                .findById(id)
+                .map(
+                        notification -> {
+                            return notification;
+                        });
     }
 
     @Override
     public Mono<UpdateIsReadNotificationByIdDTO> updateIsRead(UpdateIsReadNotificationByIdDTO dto) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user ->
-                        repository.updateIsReadByForUsernameAndIdList(
-                                user.getUsername(), dto.getIdList(), dto.getIsRead()
-                        ).thenReturn(dto)
-                );
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(
+                        user ->
+                                repository
+                                        .updateIsReadByForUsernameAndIdList(
+                                                user.getUsername(),
+                                                dto.getIdList(),
+                                                dto.getIsRead())
+                                        .thenReturn(dto));
     }
 
     @Override
     public Mono<UpdateIsReadNotificationDTO> updateIsRead(UpdateIsReadNotificationDTO dto) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> repository.updateIsReadByForUsername(user.getUsername(), dto.getIsRead())
-                        .thenReturn(dto)
-                );
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(
+                        user ->
+                                repository
+                                        .updateIsReadByForUsername(
+                                                user.getUsername(), dto.getIsRead())
+                                        .thenReturn(dto));
     }
 
     @Override
     public Mono<Long> getUnreadCount() {
-        return sessionUserService.getCurrentUser().flatMap(user ->
-                repository.countByForUsernameAndIsReadIsFalse(user.getUsername())
-        );
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> repository.countByForUsernameAndIsReadIsFalse(user.getUsername()));
     }
 }

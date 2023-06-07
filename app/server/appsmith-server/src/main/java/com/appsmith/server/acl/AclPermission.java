@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
@@ -14,14 +15,14 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+
 import lombok.Getter;
 
 @Getter
 public enum AclPermission {
     /**
-     * Notes :
-     * 1. Composite permissions are more often than not used in the generation of the hierarchical graphs.
-     * For example, USER_MANAGE_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, etc.
+     * Notes : 1. Composite permissions are more often than not used in the generation of the
+     * hierarchical graphs. For example, USER_MANAGE_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, etc.
      */
 
     // Instance level permissions
@@ -32,7 +33,7 @@ public enum AclPermission {
     // Does the user have manage workspace permission
     @Deprecated
     USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
-    //Does the user have read workspace permissions
+    // Does the user have read workspace permissions
     @Deprecated
     USER_READ_WORKSPACES("read:userWorkspace", User.class),
 
@@ -68,7 +69,8 @@ public enum AclPermission {
     WORKSPACE_DELETE_DATASOURCES("delete:workspaceDatasources", Workspace.class),
     WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
 
-    // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
+    // Invitation related permissions : TODO : Delete this since invitation would be led by user
+    // groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
 
@@ -120,7 +122,6 @@ public enum AclPermission {
     MANAGE_TENANT("manage:tenants", Tenant.class),
     ;
 
-
     private final String value;
     private final Class<? extends BaseDomain> entity;
 
@@ -129,7 +130,8 @@ public enum AclPermission {
         this.entity = entity;
     }
 
-    public static AclPermission getPermissionByValue(String value, Class<? extends BaseDomain> entity) {
+    public static AclPermission getPermissionByValue(
+            String value, Class<? extends BaseDomain> entity) {
         for (AclPermission permission : values()) {
             if (permission.getValue().equals(value) && permission.getEntity().equals(entity)) {
                 return permission;

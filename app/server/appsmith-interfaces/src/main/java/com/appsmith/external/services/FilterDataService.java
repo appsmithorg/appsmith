@@ -1,7 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.services;
 
 import com.appsmith.external.services.ce.FilterDataServiceCE;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,6 +25,4 @@ public class FilterDataService extends FilterDataServiceCE implements IFilterDat
 
         return instance;
     }
-
 }
-

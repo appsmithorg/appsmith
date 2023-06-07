@@ -1,12 +1,16 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+
 import org.reactivestreams.Subscription;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Configuration;
+
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Operators;
@@ -21,7 +25,9 @@ public class MDCConfig {
 
     @PostConstruct
     void contextOperatorHook() {
-        Hooks.onEachOperator(MDC_CONTEXT_REACTOR_KEY, Operators.lift((sc, subscriber) -> new MdcContextLifter<>(subscriber)));
+        Hooks.onEachOperator(
+                MDC_CONTEXT_REACTOR_KEY,
+                Operators.lift((sc, subscriber) -> new MdcContextLifter<>(subscriber)));
     }
 
     @PreDestroy
@@ -29,10 +35,7 @@ public class MDCConfig {
         Hooks.resetOnEachOperator(MDC_CONTEXT_REACTOR_KEY);
     }
 
-
-    /**
-     * Helper that copies the state of Reactor [Context] to MDC on the #onNext function.
-     */
+    /** Helper that copies the state of Reactor [Context] to MDC on the #onNext function. */
     static class MdcContextLifter<T> implements CoreSubscriber<T> {
 
         private final CoreSubscriber<T> coreSubscriber;
@@ -69,9 +72,9 @@ public class MDCConfig {
         }
 
         /**
-         * Extension function for the Reactor [Context]. Copies the current context to the MDC, if context is empty clears the MDC.
-         * State of the MDC after calling this method should be same as Reactor [Context] state.
-         * One thread-local access only.
+         * Extension function for the Reactor [Context]. Copies the current context to the MDC, if
+         * context is empty clears the MDC. State of the MDC after calling this method should be
+         * same as Reactor [Context] state. One thread-local access only.
          */
         private void copyToMdc(Context context) {
             if (!context.isEmpty() && context.hasKey(LogHelper.CONTEXT_MAP)) {

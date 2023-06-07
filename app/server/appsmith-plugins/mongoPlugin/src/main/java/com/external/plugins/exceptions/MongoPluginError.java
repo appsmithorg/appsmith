@@ -1,8 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
+
 import lombok.Getter;
 
 import java.text.MessageFormat;
@@ -17,8 +19,7 @@ public enum MongoPluginError implements BasePluginError {
             "Unsupported operation",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     QUERY_EXECUTION_FAILED(
             500,
             "PE-MNG-5000",
@@ -27,8 +28,7 @@ public enum MongoPluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     FORM_TO_NATIVE_TRANSLATION_ERROR(
             500,
             "PE-MNG-5001",
@@ -37,8 +37,7 @@ public enum MongoPluginError implements BasePluginError {
             "Query configuration error",
             ErrorType.INTERNAL_ERROR,
             "{0}",
-            "{1}"
-    ),
+            "{1}"),
     ;
 
     private final Integer httpErrorCode;
@@ -52,8 +51,15 @@ public enum MongoPluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    MongoPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                        String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    MongoPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -68,7 +74,9 @@ public enum MongoPluginError implements BasePluginError {
         return new MessageFormat(this.message).format(args);
     }
 
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 
     public String getDownstreamErrorMessage(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorMessage, args);

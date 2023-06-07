@@ -1,18 +1,20 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.SessionUserService;
+
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.util.Map;
-
 
 public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
@@ -21,8 +23,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final FF4j ff4j;
 
     @Autowired
-    public FeatureFlagServiceCEImpl(SessionUserService sessionUserService,
-                                    FF4j ff4j) {
+    public FeatureFlagServiceCEImpl(SessionUserService sessionUserService, FF4j ff4j) {
         this.sessionUserService = sessionUserService;
         this.ff4j = ff4j;
     }
@@ -37,8 +38,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     @Override
     public Mono<Boolean> check(FeatureFlagEnum featureEnum) {
-        return sessionUserService.getCurrentUser()
-                .map(user -> check(featureEnum, user));
+        return sessionUserService.getCurrentUser().map(user -> check(featureEnum, user));
     }
 
     private Boolean check(String featureName, User user) {
@@ -48,14 +48,12 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Map<String, Boolean>> getAllFeatureFlagsForUser() {
         Mono<User> currentUser = sessionUserService.getCurrentUser().cache();
-        Flux<Tuple2<String, User>> featureUserTuple = Flux.fromIterable(ff4j.getFeatures().keySet())
-                .flatMap(featureName -> Mono.just(featureName).zipWith(currentUser));
+        Flux<Tuple2<String, User>> featureUserTuple =
+                Flux.fromIterable(ff4j.getFeatures().keySet())
+                        .flatMap(featureName -> Mono.just(featureName).zipWith(currentUser));
 
         return featureUserTuple
                 .filter(objects -> !objects.getT2().isAnonymous())
-                .collectMap(
-                        Tuple2::getT1,
-                        tuple -> check(tuple.getT1(), tuple.getT2())
-                );
+                .collectMap(Tuple2::getT1, tuple -> check(tuple.getT1(), tuple.getT2()));
     }
 }

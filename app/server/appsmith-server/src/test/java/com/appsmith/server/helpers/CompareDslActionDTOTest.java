@@ -1,14 +1,16 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.appsmith.server.dtos.DslActionDTO;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CompareDslActionDTOTest {
 
@@ -51,6 +53,7 @@ public class CompareDslActionDTOTest {
             sortedActionIds.add(dslActionDTO.getName());
         }
         // Two lists are defined to be equal if they contain the same elements in the same order.
-        assertThat(sortedActionIds).isEqualTo(List.of("0abc", "1abc", "abc", "abc0", "abc1", "abcd"));
+        assertThat(sortedActionIds)
+                .isEqualTo(List.of("0abc", "1abc", "abc", "abc0", "abc1", "abcd"));
     }
 }

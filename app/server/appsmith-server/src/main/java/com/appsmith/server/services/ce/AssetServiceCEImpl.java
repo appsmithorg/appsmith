@@ -1,12 +1,17 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
+
+import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION;
 
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.services.AnalyticsService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -16,10 +21,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +34,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION;
+import javax.imageio.ImageIO;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,34 +44,33 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     private final AnalyticsService analyticsService;
 
-    private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(
-            MediaType.IMAGE_JPEG,
-            MediaType.IMAGE_PNG,
-            MediaType.valueOf("image/x-icon"),
-            MediaType.valueOf("image/vnd.microsoft.icon")
-    );
+    private static final Set<MediaType> ALLOWED_CONTENT_TYPES =
+            Set.of(
+                    MediaType.IMAGE_JPEG,
+                    MediaType.IMAGE_PNG,
+                    MediaType.valueOf("image/x-icon"),
+                    MediaType.valueOf("image/vnd.microsoft.icon"));
 
-    private static final Set<String> ALLOWED_CONTENT_TYPES_STR = Set.of(
-            MediaType.IMAGE_JPEG_VALUE,
-            MediaType.IMAGE_PNG_VALUE
-    );
+    private static final Set<String> ALLOWED_CONTENT_TYPES_STR =
+            Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE);
 
     @Override
     public Mono<Asset> getById(String id) {
         return repository.findById(id);
     }
 
-    private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType) throws IOException {
+    private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType)
+            throws IOException {
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
         // Resetting the position of the cursor
         dataBuffer.readPosition(0);
         if (bufferedImage == null) {
             /*
-                This is true for SVG and ICO images.
-                If ImageIO.read returns bufferedImage as null and the contentType file extension is .png or .jpeg which
-                means the file is not an image type file rather any other corrupted file but the extension has been
-                changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
-             */
+               This is true for SVG and ICO images.
+               If ImageIO.read returns bufferedImage as null and the contentType file extension is .png or .jpeg which
+               means the file is not an image type file rather any other corrupted file but the extension has been
+               changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
+            */
             if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())) {
                 return false;
             }
@@ -79,47 +83,60 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         fileParts = fileParts.stream().filter(Objects::nonNull).collect(Collectors.toList());
 
         if (fileParts.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
+            return Mono.error(
+                    new AppsmithException(
+                            AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
 
         final Part firstPart = fileParts.get(0);
 
-        // The reason we restrict file types here is to avoid having to deal with dangerous image types such as SVG,
+        // The reason we restrict file types here is to avoid having to deal with dangerous image
+        // types such as SVG,
         // which can have arbitrary HTML/JS inside them.
         final MediaType contentType = firstPart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.VALIDATION_FAILURE,
-                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed."
-            ));
+            return Mono.error(
+                    new AppsmithException(
+                            AppsmithError.VALIDATION_FAILURE,
+                            "Please upload a valid image. Only JPEG, PNG, SVG and ICO are"
+                                    + " allowed."));
         }
 
-        final Flux<DataBuffer> contentCache = Flux.fromIterable(fileParts).flatMap(Part::content).cache();
+        final Flux<DataBuffer> contentCache =
+                Flux.fromIterable(fileParts).flatMap(Part::content).cache();
 
         return contentCache
                 .map(DataBuffer::readableByteCount)
                 .reduce(Integer::sum)
-                .flatMap(size -> {
-                    if (size > maxFileSizeKB * 1024) {
-                        return Mono.error(new AppsmithException(AppsmithError.PAYLOAD_TOO_LARGE, maxFileSizeKB));
-                    }
-                    return DataBufferUtils.join(contentCache);
-                })
-                .flatMap(dataBuffer -> {
-                    try {
-                        return repository.save(createAsset(dataBuffer, contentType, isThumbnail));
-                    } catch (IOException e) {
-                        log.error("failed to upload image", e);
-                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Upload image"));
-                    }
-                })
+                .flatMap(
+                        size -> {
+                            if (size > maxFileSizeKB * 1024) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.PAYLOAD_TOO_LARGE, maxFileSizeKB));
+                            }
+                            return DataBufferUtils.join(contentCache);
+                        })
+                .flatMap(
+                        dataBuffer -> {
+                            try {
+                                return repository.save(
+                                        createAsset(dataBuffer, contentType, isThumbnail));
+                            } catch (IOException e) {
+                                log.error("failed to upload image", e);
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.GENERIC_BAD_REQUEST, "Upload image"));
+                            }
+                        })
                 .flatMap(analyticsService::sendCreateEvent);
     }
 
     /**
-     * This function hard-deletes (read: not archive) the asset given by the ID. It is intended to be used to delete an
-     * old asset when a user uploads a new one. For example, when a new profile photo or a workspace logo is,
-     * uploaded, this method is used to completely delete the old one, if any.
+     * This function hard-deletes (read: not archive) the asset given by the ID. It is intended to
+     * be used to delete an old asset when a user uploads a new one. For example, when a new profile
+     * photo or a workspace logo is, uploaded, this method is used to completely delete the old one,
+     * if any.
      *
      * @param assetId The ID string of the asset to delete.
      * @return empty Mono
@@ -128,16 +145,21 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     public Mono<Void> remove(String assetId) {
         final Asset tempAsset = new Asset();
         tempAsset.setId(assetId);
-        return repository.deleteById(assetId)
+        return repository
+                .deleteById(assetId)
                 .then(analyticsService.sendDeleteEvent(tempAsset))
                 .then();
     }
 
-    private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail) throws IOException {
+    private Asset createAsset(
+            DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail)
+            throws IOException {
         MediaType contentType = srcContentType;
         Boolean isValidImage = checkImageTypeValidation(dataBuffer, contentType);
         if (isValidImage != true) {
-            throw new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
+            throw new AppsmithException(
+                    AppsmithError.VALIDATION_FAILURE,
+                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
         }
 
         byte[] imageData = null;
@@ -146,8 +168,10 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             try {
                 imageData = resizeImage(dataBuffer);
             } finally {
-                // The `resizeImage` function, calls `ImageIO.read` which changes the read position of this `dataBuffer`.
-                // This becomes a problem for us, since we attempt to read it ourselves, if the image is not resized.
+                // The `resizeImage` function, calls `ImageIO.read` which changes the read position
+                // of this `dataBuffer`.
+                // This becomes a problem for us, since we attempt to read it ourselves, if the
+                // image is not resized.
                 dataBuffer.readPosition(0);
             }
         }
@@ -171,8 +195,10 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             // This is true for SVG and ICO images.
             return null;
         }
-        Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
-        BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
+        Image scaledImage =
+                bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
+        BufferedImage imageBuff =
+                new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
         imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0, 0, 0), null);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ImageIO.write(imageBuff, "jpg", buffer);
@@ -185,18 +211,20 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     @Override
     public Mono<Void> makeImageResponse(ServerWebExchange exchange, String assetId) {
         return getById(assetId)
-                .flatMap(asset -> {
-                    final String contentType = asset.getContentType();
-                    final ServerHttpResponse response = exchange.getResponse();
+                .flatMap(
+                        asset -> {
+                            final String contentType = asset.getContentType();
+                            final ServerHttpResponse response = exchange.getResponse();
 
-                    response.setStatusCode(HttpStatus.OK);
+                            response.setStatusCode(HttpStatus.OK);
 
-                    if (contentType != null) {
-                        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
-                    }
+                            if (contentType != null) {
+                                response.getHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
+                            }
 
-                    return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(asset.getData())));
-                });
+                            return response.writeWith(
+                                    Mono.just(
+                                            new DefaultDataBufferFactory().wrap(asset.getData())));
+                        });
     }
-
 }

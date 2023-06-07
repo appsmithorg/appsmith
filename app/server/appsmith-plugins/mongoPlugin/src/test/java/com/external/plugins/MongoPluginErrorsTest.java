@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins;
 
 import static com.appsmith.external.constants.DisplayDataType.JSON;
@@ -14,6 +15,7 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,17 +25,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import com.external.plugins.exceptions.MongoPluginError;
-import com.external.plugins.exceptions.MongoPluginErrorMessages;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -47,6 +38,8 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MongoPluginError;
+import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.MongoCommandException;
@@ -55,13 +48,19 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-/**
- * Unit tests for MongoPlugin
- */
+import java.util.*;
+import java.util.stream.Collectors;
 
+/** Unit tests for MongoPlugin */
 @Testcontainers
 public class MongoPluginErrorsTest {
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
@@ -81,7 +80,6 @@ public class MongoPluginErrorsTest {
         port = mongoContainer.getFirstMappedPort();
         String uri = "mongodb://" + address + ":" + port;
         mongoClient = MongoClients.create(uri);
-
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -103,9 +101,6 @@ public class MongoPluginErrorsTest {
         return dsConfig;
     }
 
-    
-
-
     @Test
     public void testErrorMessageOnSrvUriWithFormInterface() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -114,16 +109,34 @@ public class MongoPluginErrorsTest {
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
-                                    " string URI. Please extract relevant fields and fill the form with extracted " +
-                                    "values. For details, please check out the Appsmith's documentation for Mongo " +
-                                    "database. Alternatively, you may use 'Import from connection string URI' option " +
-                                    "from the dropdown labelled 'Use mongo connection string URI' to use the URI " +
-                                    "connection string directly.")));
-                })
+                .assertNext(
+                        invalids -> {
+                            assertTrue(
+                                    invalids.stream()
+                                            .anyMatch(
+                                                    error ->
+                                                            error.contains(
+                                                                    "It seems that you are trying"
+                                                                        + " to use a mongo"
+                                                                        + " connection string URI."
+                                                                        + " Please extract relevant"
+                                                                        + " fields and fill the"
+                                                                        + " form with extracted"
+                                                                        + " values. For details,"
+                                                                        + " please check out the"
+                                                                        + " Appsmith's"
+                                                                        + " documentation for Mongo"
+                                                                        + " database."
+                                                                        + " Alternatively, you may"
+                                                                        + " use 'Import from"
+                                                                        + " connection string URI'"
+                                                                        + " option from the"
+                                                                        + " dropdown labelled 'Use"
+                                                                        + " mongo connection string"
+                                                                        + " URI' to use the URI"
+                                                                        + " connection string"
+                                                                        + " directly.")));
+                        })
                 .verifyComplete();
     }
 
@@ -140,16 +153,34 @@ public class MongoPluginErrorsTest {
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
-                                    " string URI. Please extract relevant fields and fill the form with extracted " +
-                                    "values. For details, please check out the Appsmith's documentation for Mongo " +
-                                    "database. Alternatively, you may use 'Import from connection string URI' option " +
-                                    "from the dropdown labelled 'Use mongo connection string URI' to use the URI " +
-                                    "connection string directly.")));
-                })
+                .assertNext(
+                        invalids -> {
+                            assertTrue(
+                                    invalids.stream()
+                                            .anyMatch(
+                                                    error ->
+                                                            error.contains(
+                                                                    "It seems that you are trying"
+                                                                        + " to use a mongo"
+                                                                        + " connection string URI."
+                                                                        + " Please extract relevant"
+                                                                        + " fields and fill the"
+                                                                        + " form with extracted"
+                                                                        + " values. For details,"
+                                                                        + " please check out the"
+                                                                        + " Appsmith's"
+                                                                        + " documentation for Mongo"
+                                                                        + " database."
+                                                                        + " Alternatively, you may"
+                                                                        + " use 'Import from"
+                                                                        + " connection string URI'"
+                                                                        + " option from the"
+                                                                        + " dropdown labelled 'Use"
+                                                                        + " mongo connection string"
+                                                                        + " URI' to use the URI"
+                                                                        + " connection string"
+                                                                        + " directly.")));
+                        })
                 .verifyComplete();
     }
 
@@ -160,12 +191,21 @@ public class MongoPluginErrorsTest {
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> error.contains("'Mongo Connection string URI' field is empty. Please " +
-                                    "edit the 'Mongo Connection URI' field to provide a connection uri to connect with.")));
-                })
+                .assertNext(
+                        invalids -> {
+                            assertTrue(
+                                    invalids.stream()
+                                            .anyMatch(
+                                                    error ->
+                                                            error.contains(
+                                                                    "'Mongo Connection string URI'"
+                                                                        + " field is empty. Please"
+                                                                        + " edit the 'Mongo"
+                                                                        + " Connection URI' field"
+                                                                        + " to provide a connection"
+                                                                        + " uri to connect"
+                                                                        + " with.")));
+                        })
                 .verifyComplete();
     }
 
@@ -179,12 +219,19 @@ public class MongoPluginErrorsTest {
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> error.contains("Mongo Connection string URI does not seem to be in the" +
-                                    " correct format. Please check the URI once.")));
-                })
+                .assertNext(
+                        invalids -> {
+                            assertTrue(
+                                    invalids.stream()
+                                            .anyMatch(
+                                                    error ->
+                                                            error.contains(
+                                                                    "Mongo Connection string URI"
+                                                                        + " does not seem to be in"
+                                                                        + " the correct format."
+                                                                        + " Please check the URI"
+                                                                        + " once.")));
+                        })
                 .verifyComplete();
     }
 
@@ -198,12 +245,19 @@ public class MongoPluginErrorsTest {
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> error.contains("Mongo Connection string URI does not seem to be in the" +
-                                    " correct format. Please check the URI once.")));
-                })
+                .assertNext(
+                        invalids -> {
+                            assertTrue(
+                                    invalids.stream()
+                                            .anyMatch(
+                                                    error ->
+                                                            error.contains(
+                                                                    "Mongo Connection string URI"
+                                                                        + " does not seem to be in"
+                                                                        + " the correct format."
+                                                                        + " Please check the URI"
+                                                                        + " once.")));
+                        })
                 .verifyComplete();
     }
 
@@ -217,9 +271,10 @@ public class MongoPluginErrorsTest {
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    assertTrue(invalids.isEmpty());
-                })
+                .assertNext(
+                        invalids -> {
+                            assertTrue(invalids.isEmpty());
+                        })
                 .verifyComplete();
     }
 
@@ -228,19 +283,19 @@ public class MongoPluginErrorsTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("Import from URI", "Yes"));
-        properties.add(new Property("Srv Url", "mongodb://username:password@url-1.net:1234,url-2:1234/dbname"));
+        properties.add(
+                new Property(
+                        "Srv Url", "mongodb://username:password@url-1.net:1234,url-2:1234/dbname"));
         dsConfig.setProperties(properties);
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    assertTrue(invalids.isEmpty());
-                })
+                .assertNext(
+                        invalids -> {
+                            assertTrue(invalids.isEmpty());
+                        })
                 .verifyComplete();
     }
-
-
-
 
     @Test
     public void testGetStructureReadPermissionError() {
@@ -253,21 +308,23 @@ public class MongoPluginErrorsTest {
         when(mockMongoCmdException.getErrorCode()).thenReturn(13);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
-                .flatMap(connection -> pluginExecutor.getStructure(mockConnection, dsConfig));
+        Mono<DatasourceStructure> structureMono =
+                pluginExecutor
+                        .datasourceCreate(dsConfig)
+                        .flatMap(
+                                connection ->
+                                        pluginExecutor.getStructure(mockConnection, dsConfig));
 
         StepVerifier.create(structureMono)
-                .verifyErrorSatisfies(error -> {
-                    assertTrue(error instanceof AppsmithPluginException);
-                    String expectedMessage = "Appsmith has failed to get database structure. Please provide read permission on" +
-                            " the database to fix this.";
-                    assertTrue(expectedMessage.equals(error.getMessage()));
-                });
+                .verifyErrorSatisfies(
+                        error -> {
+                            assertTrue(error instanceof AppsmithPluginException);
+                            String expectedMessage =
+                                    "Appsmith has failed to get database structure. Please provide"
+                                            + " read permission on the database to fix this.";
+                            assertTrue(expectedMessage.equals(error.getMessage()));
+                        });
     }
-
-  
-
-   
 
     @Test
     public void testReadableErrorWithFilterKeyError() {
@@ -280,26 +337,37 @@ public class MongoPluginErrorsTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
         // Set bad attribute for limit key
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      filter: \"filter\",\n" +
-                "      limit: 10,\n" +
-                "    }");
+        setDataValueSafelyInFormData(
+                configMap,
+                BODY,
+                "{\n"
+                        + "      find: \"users\",\n"
+                        + "      filter: \"filter\",\n"
+                        + "      limit: 10,\n"
+                        + "    }");
         actionConfiguration.setFormData(configMap);
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono =
+                dsConnectionMono.flatMap(
+                        conn ->
+                                pluginExecutor.executeParameterized(
+                                        conn,
+                                        new ExecuteActionDTO(),
+                                        dsConfig,
+                                        actionConfiguration));
         StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-                    assertNotNull(result);
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
+                .assertNext(
+                        obj -> {
+                            ActionExecutionResult result = (ActionExecutionResult) obj;
+                            assertNotNull(result);
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
 
-                    // Verify readable error.
-                    String expectedReadableError = "'filter' field must be of BSON type object.";
-                    assertEquals(expectedReadableError, result.getReadableError());
-                })
+                            // Verify readable error.
+                            String expectedReadableError =
+                                    "'filter' field must be of BSON type object.";
+                            assertEquals(expectedReadableError, result.getReadableError());
+                        })
                 .verifyComplete();
     }
 
@@ -314,25 +382,32 @@ public class MongoPluginErrorsTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
         // Set bad attribute for limit key
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      limit: [10],\n" +
-                "    }");
+        setDataValueSafelyInFormData(
+                configMap,
+                BODY,
+                "{\n" + "      find: \"users\",\n" + "      limit: [10],\n" + "    }");
         actionConfiguration.setFormData(configMap);
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono =
+                dsConnectionMono.flatMap(
+                        conn ->
+                                pluginExecutor.executeParameterized(
+                                        conn,
+                                        new ExecuteActionDTO(),
+                                        dsConfig,
+                                        actionConfiguration));
         StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-                    assertNotNull(result);
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
+                .assertNext(
+                        obj -> {
+                            ActionExecutionResult result = (ActionExecutionResult) obj;
+                            assertNotNull(result);
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
 
-                    // Verify readable error.
-                    String expectedReadableError = "'limit' field must be numeric.";
-                    assertEquals(expectedReadableError, result.getReadableError());
-                })
+                            // Verify readable error.
+                            String expectedReadableError = "'limit' field must be numeric.";
+                            assertEquals(expectedReadableError, result.getReadableError());
+                        })
                 .verifyComplete();
     }
 
@@ -347,25 +422,32 @@ public class MongoPluginErrorsTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
         // Set unrecognized key limitx
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      limitx: 10,\n" +
-                "    }");
+        setDataValueSafelyInFormData(
+                configMap,
+                BODY,
+                "{\n" + "      find: \"users\",\n" + "      limitx: 10,\n" + "    }");
         actionConfiguration.setFormData(configMap);
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono =
+                dsConnectionMono.flatMap(
+                        conn ->
+                                pluginExecutor.executeParameterized(
+                                        conn,
+                                        new ExecuteActionDTO(),
+                                        dsConfig,
+                                        actionConfiguration));
         StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-                    assertNotNull(result);
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
+                .assertNext(
+                        obj -> {
+                            ActionExecutionResult result = (ActionExecutionResult) obj;
+                            assertNotNull(result);
+                            assertFalse(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
 
-                    // Verify readable error.
-                    String expectedReadableError = "Unrecognized field 'limitx'.";
-                    assertEquals(expectedReadableError, result.getReadableError());
-                })
+                            // Verify readable error.
+                            String expectedReadableError = "Unrecognized field 'limitx'.";
+                            assertEquals(expectedReadableError, result.getReadableError());
+                        })
                 .verifyComplete();
     }
 
@@ -374,24 +456,32 @@ public class MongoPluginErrorsTest {
         // Mock exception on authentication failure.
         MongoSecurityException mockMongoSecurityException = mock(MongoSecurityException.class);
         when(mockMongoSecurityException.getCode()).thenReturn(-4);
-        when(mockMongoSecurityException.getMessage()).thenReturn("Exception authenticating " +
-                "MongoCredential{mechanism=SCRAM-SHA-1, userName='username', source='admin', password=<hidden>," +
-                " mechanismProperties=<hidden>}");
+        when(mockMongoSecurityException.getMessage())
+                .thenReturn(
+                        "Exception authenticating MongoCredential{mechanism=SCRAM-SHA-1,"
+                                + " userName='username', source='admin', password=<hidden>,"
+                                + " mechanismProperties=<hidden>}");
 
         // Throw mock error on datasource create method call.
         MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(pluginExecutor);
-        doReturn(Mono.error(mockMongoSecurityException)).when(spyMongoPluginExecutor).datasourceCreate(any());
+        doReturn(Mono.error(mockMongoSecurityException))
+                .when(spyMongoPluginExecutor)
+                .datasourceCreate(any());
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         StepVerifier.create(spyMongoPluginExecutor.testDatasource(dsConfig))
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertFalse(datasourceTestResult.isSuccess());
+                .assertNext(
+                        datasourceTestResult -> {
+                            assertNotNull(datasourceTestResult);
+                            assertFalse(datasourceTestResult.isSuccess());
 
-                    // Verify readable error.
-                    String expectedReadableError = "Exception authenticating MongoCredential.";
-                    assertEquals(expectedReadableError, datasourceTestResult.getInvalids().toArray()[0]);
-                })
+                            // Verify readable error.
+                            String expectedReadableError =
+                                    "Exception authenticating MongoCredential.";
+                            assertEquals(
+                                    expectedReadableError,
+                                    datasourceTestResult.getInvalids().toArray()[0]);
+                        })
                 .verifyComplete();
     }
 
@@ -412,18 +502,31 @@ public class MongoPluginErrorsTest {
 
         actionConfiguration.setFormData(configMap);
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono =
+                dsConnectionMono.flatMap(
+                        conn ->
+                                pluginExecutor.executeParameterized(
+                                        conn,
+                                        new ExecuteActionDTO(),
+                                        dsConfig,
+                                        actionConfiguration));
         StepVerifier.create(executeMono)
-                .expectErrorMatches(throwable -> {
-                    boolean sameClass = throwable.getClass().equals(AppsmithPluginException.class);
-                    if (sameClass) {
-                        var ape = ((AppsmithPluginException) throwable);
-                        return ape.getError().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR)
-                                && ape.getArgs()[0].equals(MongoPluginErrorMessages.PIPELINE_STAGE_NOT_VALID_ERROR_MSG);
-                    }
-                    return false;
-                })
+                .expectErrorMatches(
+                        throwable -> {
+                            boolean sameClass =
+                                    throwable.getClass().equals(AppsmithPluginException.class);
+                            if (sameClass) {
+                                var ape = ((AppsmithPluginException) throwable);
+                                return ape.getError()
+                                                .equals(
+                                                        AppsmithPluginError
+                                                                .PLUGIN_EXECUTE_ARGUMENT_ERROR)
+                                        && ape.getArgs()[0].equals(
+                                                MongoPluginErrorMessages
+                                                        .PIPELINE_STAGE_NOT_VALID_ERROR_MSG);
+                            }
+                            return false;
+                        })
                 .verify();
     }
 
@@ -435,65 +538,76 @@ public class MongoPluginErrorsTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
         setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
         setDataValueSafelyInFormData(configMap, COLLECTION, "users");
-        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[\n" +
-                "      {\n" +
-                "        \"name\": {\n" +
-                "          \"first\": \"John\",\n" +
-                "          \"last\": \"Backus\"\n" +
-                "        },\n" +
-                "        \"birth\": ISODate(\"0001-01-01T00:00:00.000+00:00\"),\n" +
-                "        \"death\": ISODate(\"2007-03-17T04:00:00Z\"),\n" +
-                "        \"issue\": 13285\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"name\": {\n" +
-                "          \"first\": \"John\",\n" +
-                "          \"last\": \"McCarthy\"\n" +
-                "        },\n" +
-                "        \"birth\": ISODate(\"1927-09-04T04:00:00Z\"),\n" +
-                "        \"death\": ISODate(\"2011-12-24T05:00:00Z\"),\n" +
-                "        \"issue\": 13285\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"name\": {\n" +
-                "          \"first\": \"Grace\",\n" +
-                "          \"last\": \"Hopper\"\n" +
-                "        },\n" +
-                "        \"title\": \"Rear Admiral\",\n" +
-                "        \"birth\": ISODate(\"1906-12-09T05:00:00Z\"),\n" +
-                "        \"death\": ISODate(\"1992-01-01T05:00:00Z\"),\n" +
-                "        \"issue\": 13285\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"name\": {\n" +
-                "          \"first\": \"Kristen\",\n" +
-                "          \"last\": \"Nygaard\"\n" +
-                "        },\n" +
-                "        \"birth\": ISODate(\"1926-08-27T04:00:00Z\"),\n" +
-                "        \"death\": ISODate(\"2002-08-10T04:00:00Z\"),\n" +
-                "        \"issue\": 13285\n" +
-                "      }\n" +
-                "]");
+        setDataValueSafelyInFormData(
+                configMap,
+                INSERT_DOCUMENT,
+                "[\n"
+                        + "      {\n"
+                        + "        \"name\": {\n"
+                        + "          \"first\": \"John\",\n"
+                        + "          \"last\": \"Backus\"\n"
+                        + "        },\n"
+                        + "        \"birth\": ISODate(\"0001-01-01T00:00:00.000+00:00\"),\n"
+                        + "        \"death\": ISODate(\"2007-03-17T04:00:00Z\"),\n"
+                        + "        \"issue\": 13285\n"
+                        + "      },\n"
+                        + "      {\n"
+                        + "        \"name\": {\n"
+                        + "          \"first\": \"John\",\n"
+                        + "          \"last\": \"McCarthy\"\n"
+                        + "        },\n"
+                        + "        \"birth\": ISODate(\"1927-09-04T04:00:00Z\"),\n"
+                        + "        \"death\": ISODate(\"2011-12-24T05:00:00Z\"),\n"
+                        + "        \"issue\": 13285\n"
+                        + "      },\n"
+                        + "      {\n"
+                        + "        \"name\": {\n"
+                        + "          \"first\": \"Grace\",\n"
+                        + "          \"last\": \"Hopper\"\n"
+                        + "        },\n"
+                        + "        \"title\": \"Rear Admiral\",\n"
+                        + "        \"birth\": ISODate(\"1906-12-09T05:00:00Z\"),\n"
+                        + "        \"death\": ISODate(\"1992-01-01T05:00:00Z\"),\n"
+                        + "        \"issue\": 13285\n"
+                        + "      },\n"
+                        + "      {\n"
+                        + "        \"name\": {\n"
+                        + "          \"first\": \"Kristen\",\n"
+                        + "          \"last\": \"Nygaard\"\n"
+                        + "        },\n"
+                        + "        \"birth\": ISODate(\"1926-08-27T04:00:00Z\"),\n"
+                        + "        \"death\": ISODate(\"2002-08-10T04:00:00Z\"),\n"
+                        + "        \"issue\": 13285\n"
+                        + "      }\n"
+                        + "]");
 
         actionConfiguration.setFormData(configMap);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono =
+                dsConnectionMono.flatMap(
+                        conn ->
+                                pluginExecutor.executeParameterized(
+                                        conn,
+                                        new ExecuteActionDTO(),
+                                        dsConfig,
+                                        actionConfiguration));
         StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
-                    );
-                })
+                .assertNext(
+                        obj -> {
+                            ActionExecutionResult result = (ActionExecutionResult) obj;
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            assertEquals(
+                                    List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                            .toString(),
+                                    result.getDataTypes().toString());
+                        })
                 .verifyComplete();
 
-        //Find query
+        // Find query
         configMap.clear();
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
         setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
@@ -503,19 +617,27 @@ public class MongoPluginErrorsTest {
 
         actionConfiguration.setFormData(configMap);
 
-        executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        executeMono =
+                dsConnectionMono.flatMap(
+                        conn ->
+                                pluginExecutor.executeParameterized(
+                                        conn,
+                                        new ExecuteActionDTO(),
+                                        dsConfig,
+                                        actionConfiguration));
         StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    assertEquals(4, ((ArrayNode) result.getBody()).size());
-                    assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
-                    );
-                })
+                .assertNext(
+                        obj -> {
+                            ActionExecutionResult result = (ActionExecutionResult) obj;
+                            assertNotNull(result);
+                            assertTrue(result.getIsExecutionSuccess());
+                            assertNotNull(result.getBody());
+                            assertEquals(4, ((ArrayNode) result.getBody()).size());
+                            assertEquals(
+                                    List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                            .toString(),
+                                    result.getDataTypes().toString());
+                        })
                 .verifyComplete();
 
         // Clean up this newly inserted values
@@ -528,17 +650,33 @@ public class MongoPluginErrorsTest {
 
         actionConfiguration.setFormData(configMap);
         // Run the delete command
-        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+        dsConnectionMono
+                .flatMap(
+                        conn ->
+                                pluginExecutor.executeParameterized(
+                                        conn,
+                                        new ExecuteActionDTO(),
+                                        dsConfig,
+                                        actionConfiguration))
+                .block();
     }
 
     @Test
     public void verifyUniquenessOfMongoPluginErrorCode() {
-        assert (Arrays.stream(MongoPluginError.values()).map(MongoPluginError::getAppErrorCode).distinct().count() == MongoPluginError.values().length);
+        assert (Arrays.stream(MongoPluginError.values())
+                        .map(MongoPluginError::getAppErrorCode)
+                        .distinct()
+                        .count()
+                == MongoPluginError.values().length);
 
-        assert (Arrays.stream(MongoPluginError.values()).map(MongoPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MNG"))
-                .collect(Collectors.toList()).size() == 0);
-
+        assert (Arrays.stream(MongoPluginError.values())
+                        .map(MongoPluginError::getAppErrorCode)
+                        .filter(
+                                appErrorCode ->
+                                        appErrorCode.length() != 11
+                                                || !appErrorCode.startsWith("PE-MNG"))
+                        .collect(Collectors.toList())
+                        .size()
+                == 0);
     }
-
 }

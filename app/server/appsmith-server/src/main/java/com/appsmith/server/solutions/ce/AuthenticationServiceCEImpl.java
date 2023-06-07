@@ -1,4 +1,20 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
+
+import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
+import static com.appsmith.external.constants.Authentication.AUDIENCE;
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
+import static com.appsmith.external.constants.Authentication.CLIENT_ID;
+import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
+import static com.appsmith.external.constants.Authentication.CODE;
+import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
+import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
+import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
+import static com.appsmith.external.constants.Authentication.RESOURCE;
+import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
+import static com.appsmith.external.constants.Authentication.SCOPE;
+import static com.appsmith.external.constants.Authentication.STATE;
+import static com.appsmith.external.constants.Authentication.SUCCESS;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.BaseException;
@@ -35,8 +51,10 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -47,6 +65,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -58,21 +77,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
-import static com.appsmith.external.constants.Authentication.AUDIENCE;
-import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
-import static com.appsmith.external.constants.Authentication.CLIENT_ID;
-import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
-import static com.appsmith.external.constants.Authentication.CODE;
-import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
-import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
-import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
-import static com.appsmith.external.constants.Authentication.RESOURCE;
-import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
-import static com.appsmith.external.constants.Authentication.SCOPE;
-import static com.appsmith.external.constants.Authentication.STATE;
-import static com.appsmith.external.constants.Authentication.SUCCESS;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -88,117 +92,201 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final PagePermission pagePermission;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final DatasourceStorageService datasourceStorageService;
-    private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+    private static final String FILE_SPECIFIC_DRIVE_SCOPE =
+            "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
     // TODO: Remove after client side changes have been merged
-    public Mono<String> getAuthorizationCodeURLForGenericOAuth2(String datasourceId,
-                                                                String environmentId,
-                                                                String pageId,
-                                                                ServerHttpRequest httpRequest,
-                                                                Boolean isTrueEnvironmentIdRequired) {
+    public Mono<String> getAuthorizationCodeURLForGenericOAuth2(
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            ServerHttpRequest httpRequest,
+            Boolean isTrueEnvironmentIdRequired) {
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
-            return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+            return datasourceService
+                    .findById(datasourceId, datasourcePermission.getEditPermission())
                     .map(Datasource::getWorkspaceId)
-                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
-                    .flatMap(trueEnvironmentId -> getAuthorizationCodeURLForGenericOAuth2(datasourceId, trueEnvironmentId, pageId, httpRequest));
+                    .flatMap(
+                            workspaceId ->
+                                    datasourceService.getTrueEnvironmentId(
+                                            workspaceId, environmentId))
+                    .flatMap(
+                            trueEnvironmentId ->
+                                    getAuthorizationCodeURLForGenericOAuth2(
+                                            datasourceId, trueEnvironmentId, pageId, httpRequest));
         }
 
-        return getAuthorizationCodeURLForGenericOAuth2(datasourceId, environmentId, pageId, httpRequest);
+        return getAuthorizationCodeURLForGenericOAuth2(
+                datasourceId, environmentId, pageId, httpRequest);
     }
 
-    public Mono<String> getAppsmithToken(String datasourceId, String environmentId, String pageId, String branchName,
-                                         ServerHttpRequest request, String importForGit,
-                                         Boolean isTrueEnvironmentIdRequired) {
+    public Mono<String> getAppsmithToken(
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            String branchName,
+            ServerHttpRequest request,
+            String importForGit,
+            Boolean isTrueEnvironmentIdRequired) {
 
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
-            return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+            return datasourceService
+                    .findById(datasourceId, datasourcePermission.getEditPermission())
                     .map(Datasource::getWorkspaceId)
-                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
-                    .flatMap(trueEnvironmentId -> getAppsmithToken(datasourceId, trueEnvironmentId, pageId, branchName, request, importForGit));
+                    .flatMap(
+                            workspaceId ->
+                                    datasourceService.getTrueEnvironmentId(
+                                            workspaceId, environmentId))
+                    .flatMap(
+                            trueEnvironmentId ->
+                                    getAppsmithToken(
+                                            datasourceId,
+                                            trueEnvironmentId,
+                                            pageId,
+                                            branchName,
+                                            request,
+                                            importForGit));
         }
 
-        return getAppsmithToken(datasourceId, environmentId, pageId, branchName, request, importForGit);
-
+        return getAppsmithToken(
+                datasourceId, environmentId, pageId, branchName, request, importForGit);
     }
 
-    public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(String datasourceId, String environmentId,
-                                                           String appsmithToken,
-                                                           Boolean isTrueEnvironmentIdRequired) {
+    public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
+            String datasourceId,
+            String environmentId,
+            String appsmithToken,
+            Boolean isTrueEnvironmentIdRequired) {
 
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
-            return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+            return datasourceService
+                    .findById(datasourceId, datasourcePermission.getEditPermission())
                     .map(Datasource::getWorkspaceId)
-                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
-                    .flatMap(trueEnvironmentId -> getAccessTokenFromCloud(datasourceId, trueEnvironmentId, appsmithToken));
+                    .flatMap(
+                            workspaceId ->
+                                    datasourceService.getTrueEnvironmentId(
+                                            workspaceId, environmentId))
+                    .flatMap(
+                            trueEnvironmentId ->
+                                    getAccessTokenFromCloud(
+                                            datasourceId, trueEnvironmentId, appsmithToken));
         }
 
         return getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken);
     }
 
     /**
-     * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
-     * when hitting the authorization url and redirect to it from the controller.
+     * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we
+     * only populate all the required fields when hitting the authorization url and redirect to it
+     * from the controller.
      *
-     * @param datasourceId  required to validate the details in the request and populate redirect url
+     * @param datasourceId required to validate the details in the request and populate redirect url
      * @param environmentId
-     * @param pageId        Required to populate redirect url
-     * @param httpRequest   Used to find the redirect domain
+     * @param pageId Required to populate redirect url
+     * @param httpRequest Used to find the redirect domain
      * @return a url String to continue the authorization flow
      */
-    public Mono<String> getAuthorizationCodeURLForGenericOAuth2(String datasourceId, String environmentId, String pageId, ServerHttpRequest httpRequest) {
+    public Mono<String> getAuthorizationCodeURLForGenericOAuth2(
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
-                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
+        return datasourceService
+                .findById(datasourceId, datasourcePermission.getEditPermission())
+                .flatMap(
+                        datasource1 ->
+                                datasourceStorageService.findByDatasourceAndEnvironmentId(
+                                        datasource1, environmentId))
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.DATASOURCE,
+                                        datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .flatMap((datasource -> {
-                    OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-                    final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
-                    // Adding basic uri components
-                    UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                            .fromUriString(oAuth2.getAuthorizationUrl())
-                            .queryParam(CLIENT_ID, oAuth2.getClientId())
-                            .queryParam(RESPONSE_TYPE, CODE)
-                            .queryParam(REDIRECT_URI, redirectUri + Url.DATASOURCE_URL + "/authorize")
-                            // The state is used internally to calculate the redirect url when returning control to the client
-                            .queryParam(STATE, String.join(",", pageId, datasourceId, environmentId, redirectUri));
-                    // Adding optional scope parameter
-                    if (oAuth2.getScope() != null && !oAuth2.getScope().isEmpty()) {
-                        uriComponentsBuilder
-                                .queryParam(SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
-                    }
-                    // Adding additional user-defined parameters, these would be authorization server specific
-                    if (oAuth2.getCustomAuthenticationParameters() != null) {
-                        oAuth2.getCustomAuthenticationParameters().forEach(x ->
-                                uriComponentsBuilder.queryParam(x.getKey(), x.getValue())
-                        );
-                    }
+                .flatMap(
+                        (datasource -> {
+                            OAuth2 oAuth2 =
+                                    (OAuth2)
+                                            datasource
+                                                    .getDatasourceConfiguration()
+                                                    .getAuthentication();
+                            final String redirectUri =
+                                    redirectHelper.getRedirectDomain(httpRequest.getHeaders());
+                            // Adding basic uri components
+                            UriComponentsBuilder uriComponentsBuilder =
+                                    UriComponentsBuilder.fromUriString(oAuth2.getAuthorizationUrl())
+                                            .queryParam(CLIENT_ID, oAuth2.getClientId())
+                                            .queryParam(RESPONSE_TYPE, CODE)
+                                            .queryParam(
+                                                    REDIRECT_URI,
+                                                    redirectUri + Url.DATASOURCE_URL + "/authorize")
+                                            // The state is used internally to calculate the
+                                            // redirect url when returning control to the client
+                                            .queryParam(
+                                                    STATE,
+                                                    String.join(
+                                                            ",",
+                                                            pageId,
+                                                            datasourceId,
+                                                            environmentId,
+                                                            redirectUri));
+                            // Adding optional scope parameter
+                            if (oAuth2.getScope() != null && !oAuth2.getScope().isEmpty()) {
+                                uriComponentsBuilder.queryParam(
+                                        SCOPE,
+                                        StringUtils.collectionToDelimitedString(
+                                                oAuth2.getScope(), " "));
+                            }
+                            // Adding additional user-defined parameters, these would be
+                            // authorization server specific
+                            if (oAuth2.getCustomAuthenticationParameters() != null) {
+                                oAuth2.getCustomAuthenticationParameters()
+                                        .forEach(
+                                                x ->
+                                                        uriComponentsBuilder.queryParam(
+                                                                x.getKey(), x.getValue()));
+                            }
 
-                    return Mono.just(uriComponentsBuilder.toUriString());
-                }));
+                            return Mono.just(uriComponentsBuilder.toUriString());
+                        }));
     }
 
-    private Mono<DatasourceStorage> validateRequiredFieldsForGenericOAuth2(DatasourceStorage datasourceStorage) {
+    private Mono<DatasourceStorage> validateRequiredFieldsForGenericOAuth2(
+            DatasourceStorage datasourceStorage) {
         // Since validation takes care of checking for fields that are present
         // We just need to make sure that the datasource has the right authentication type
-        if (datasourceStorage.getDatasourceConfiguration() == null || !(datasourceStorage.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
+        if (datasourceStorage.getDatasourceConfiguration() == null
+                || !(datasourceStorage.getDatasourceConfiguration().getAuthentication()
+                        instanceof OAuth2)) {
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
         }
 
-        return datasourceStorageService.validateDatasourceStorage(datasourceStorage, true)
-                .flatMap(datasourceStorage1 -> {
-                    if (!datasourceStorage1.getIsValid()) {
-                        return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, datasourceStorage1.getInvalids().iterator().next()));
-                    }
-                    return Mono.just(datasourceStorage1);
-                });
+        return datasourceStorageService
+                .validateDatasourceStorage(datasourceStorage, true)
+                .flatMap(
+                        datasourceStorage1 -> {
+                            if (!datasourceStorage1.getIsValid()) {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.VALIDATION_FAILURE,
+                                                datasourceStorage1
+                                                        .getInvalids()
+                                                        .iterator()
+                                                        .next()));
+                            }
+                            return Mono.just(datasourceStorage1);
+                        });
     }
 
     /**
-     * This is the method that handles callback for generic OAuth2. We will be retrieving and storing token information here
-     * and redirecting back to a sensible url for clients to see the response in
+     * This is the method that handles callback for generic OAuth2. We will be retrieving and
+     * storing token information here and redirecting back to a sensible url for clients to see the
+     * response in
      *
      * @param callbackDTO OAuth2 details including short lived code and state
      * @return url for redirecting client to including a response_status
@@ -216,114 +304,180 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Otherwise, proceed to retrieve the access token from the authorization server
         return Mono.justOrEmpty(state)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMap(localState -> {
-                    String[] splitStates = localState.split(",");
-                    if (splitStates.length != 4) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                    } else
-                        return datasourceService
-                                .findById(splitStates[1])
-                                .flatMap(datasource1 -> datasourceStorageService
-                                        .findByDatasourceAndEnvironmentId(
-                                                datasource1,
-                                                splitStates[2]));
-                })
-                .flatMap(datasourceStorage -> {
-                    OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
-                    final HttpClient httpClient = HttpClient.create();
+                .flatMap(
+                        localState -> {
+                            String[] splitStates = localState.split(",");
+                            if (splitStates.length != 4) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                            } else
+                                return datasourceService
+                                        .findById(splitStates[1])
+                                        .flatMap(
+                                                datasource1 ->
+                                                        datasourceStorageService
+                                                                .findByDatasourceAndEnvironmentId(
+                                                                        datasource1,
+                                                                        splitStates[2]));
+                        })
+                .flatMap(
+                        datasourceStorage -> {
+                            OAuth2 oAuth2 =
+                                    (OAuth2)
+                                            datasourceStorage
+                                                    .getDatasourceConfiguration()
+                                                    .getAuthentication();
+                            final HttpClient httpClient = HttpClient.create();
 
-                    if (oAuth2.isUseSelfSignedCert()) {
-                        httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceStorage.getDatasourceConfiguration()));
-                    }
+                            if (oAuth2.isUseSelfSignedCert()) {
+                                httpClient.secure(
+                                        SSLHelper.sslCheckForHttpClient(
+                                                datasourceStorage.getDatasourceConfiguration()));
+                            }
 
-                    WebClient.Builder builder = WebClientUtils.builder(httpClient)
-                            .baseUrl(oAuth2.getAccessTokenUrl());
+                            WebClient.Builder builder =
+                                    WebClientUtils.builder(httpClient)
+                                            .baseUrl(oAuth2.getAccessTokenUrl());
 
-                    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+                            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
-                    // Add required fields
-                    map.add(GRANT_TYPE, AUTHORIZATION_CODE);
-                    map.add(CODE, code);
-                    map.add(REDIRECT_URI, state.split(",")[3] + Url.DATASOURCE_URL + "/authorize");
-                    // We use the returned scope instead because users may have authorized fewer scopes than requested
-                    if (scope != null && !scope.isBlank()) {
-                        map.add(SCOPE, scope);
-                    }
+                            // Add required fields
+                            map.add(GRANT_TYPE, AUTHORIZATION_CODE);
+                            map.add(CODE, code);
+                            map.add(
+                                    REDIRECT_URI,
+                                    state.split(",")[3] + Url.DATASOURCE_URL + "/authorize");
+                            // We use the returned scope instead because users may have authorized
+                            // fewer scopes than requested
+                            if (scope != null && !scope.isBlank()) {
+                                map.add(SCOPE, scope);
+                            }
 
-                    // Add client credentials to header or body, as configured
-                    if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
-                        map.add(CLIENT_ID, oAuth2.getClientId());
-                        map.add(CLIENT_SECRET, oAuth2.getClientSecret());
-                        // Adding optional audience parameter
-                        if (!StringUtils.isEmpty(oAuth2.getAudience())) {
-                            map.add(AUDIENCE, oAuth2.getAudience());
-                        }
-                        // Adding optional resource parameter
-                        if (!StringUtils.isEmpty(oAuth2.getResource())) {
-                            map.add(RESOURCE, oAuth2.getResource());
-                        }
-                    } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
-                        byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-                        final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
-                        builder.defaultHeader("Authorization", authorizationHeader);
-                    } else {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "isAuthorizationHeader"));
-                    }
-                    return builder.build()
-                            .method(HttpMethod.POST)
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .body(BodyInserters.fromFormData(map))
-                            .exchange()
-                            .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
-                            .flatMap(response -> {
-                                if (response.statusCode().is2xxSuccessful()) {
-                                    oAuth2.setIsAuthorized(true);
-                                    return response.bodyToMono(Map.class);
-                                } else {
-                                    log.debug("Unable to retrieve access token for datasource {} with error {}", datasourceStorage.getId(), response.statusCode());
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.INTERNAL_SERVER_ERROR,
-                                            "Unable to retrieve access token for datasource {} with error {}", datasourceStorage.getId(), response.statusCode()));
+                            // Add client credentials to header or body, as configured
+                            if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
+                                map.add(CLIENT_ID, oAuth2.getClientId());
+                                map.add(CLIENT_SECRET, oAuth2.getClientSecret());
+                                // Adding optional audience parameter
+                                if (!StringUtils.isEmpty(oAuth2.getAudience())) {
+                                    map.add(AUDIENCE, oAuth2.getAudience());
                                 }
-                            })
-                            .flatMap(response -> {
-                                AuthenticationResponse authenticationResponse = new AuthenticationResponse();
-                                authenticationResponse.setTokenResponse(response);
-                                authenticationResponse.setToken((String) response.get(ACCESS_TOKEN));
-                                authenticationResponse.setRefreshToken((String) response.get(REFRESH_TOKEN));
-                                // Parse useful fields for quick access
-                                Object issuedAtResponse = response.get(Authentication.ISSUED_AT);
-                                // Default issuedAt to current time
-                                Instant issuedAt = Instant.now();
-                                if (issuedAtResponse != null) {
-                                    issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
+                                // Adding optional resource parameter
+                                if (!StringUtils.isEmpty(oAuth2.getResource())) {
+                                    map.add(RESOURCE, oAuth2.getResource());
                                 }
-                                // We expect at least one of the following to be present
-                                Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
-                                Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
-                                Instant expiresAt = null;
-                                if (expiresAtResponse != null) {
-                                    expiresAt = Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
-                                } else if (expiresInResponse != null) {
-                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
-                                }
-                                authenticationResponse.setExpiresAt(expiresAt);
-                                // Replacing with returned scope instead
-                                if (scope != null && !scope.isBlank()) {
-                                    oAuth2.setScopeString(String.join(",", scope.split(" ")));
-                                } else {
-                                    oAuth2.setScopeString("");
-                                }
-                                oAuth2.setAuthenticationResponse(authenticationResponse);
-                                datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return datasourceStorageService.save(datasourceStorage);
-                            });
-                })
-                // We have no use of the datasource object during redirection, we merely send the response as a success state
+                            } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
+                                byte[] clientCredentials =
+                                        (oAuth2.getClientId() + ":" + oAuth2.getClientSecret())
+                                                .getBytes();
+                                final String authorizationHeader =
+                                        "Basic " + Base64.encode(clientCredentials);
+                                builder.defaultHeader("Authorization", authorizationHeader);
+                            } else {
+                                return Mono.error(
+                                        new AppsmithException(
+                                                AppsmithError.INVALID_PARAMETER,
+                                                "isAuthorizationHeader"));
+                            }
+                            return builder.build()
+                                    .method(HttpMethod.POST)
+                                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                    .body(BodyInserters.fromFormData(map))
+                                    .exchange()
+                                    .doOnError(
+                                            e ->
+                                                    Mono.error(
+                                                            new AppsmithPluginException(
+                                                                    AppsmithPluginError
+                                                                            .PLUGIN_ERROR,
+                                                                    e)))
+                                    .flatMap(
+                                            response -> {
+                                                if (response.statusCode().is2xxSuccessful()) {
+                                                    oAuth2.setIsAuthorized(true);
+                                                    return response.bodyToMono(Map.class);
+                                                } else {
+                                                    log.debug(
+                                                            "Unable to retrieve access token for"
+                                                                + " datasource {} with error {}",
+                                                            datasourceStorage.getId(),
+                                                            response.statusCode());
+                                                    return Mono.error(
+                                                            new AppsmithException(
+                                                                    AppsmithError
+                                                                            .INTERNAL_SERVER_ERROR,
+                                                                    "Unable to retrieve access"
+                                                                        + " token for datasource {}"
+                                                                        + " with error {}",
+                                                                    datasourceStorage.getId(),
+                                                                    response.statusCode()));
+                                                }
+                                            })
+                                    .flatMap(
+                                            response -> {
+                                                AuthenticationResponse authenticationResponse =
+                                                        new AuthenticationResponse();
+                                                authenticationResponse.setTokenResponse(response);
+                                                authenticationResponse.setToken(
+                                                        (String) response.get(ACCESS_TOKEN));
+                                                authenticationResponse.setRefreshToken(
+                                                        (String) response.get(REFRESH_TOKEN));
+                                                // Parse useful fields for quick access
+                                                Object issuedAtResponse =
+                                                        response.get(Authentication.ISSUED_AT);
+                                                // Default issuedAt to current time
+                                                Instant issuedAt = Instant.now();
+                                                if (issuedAtResponse != null) {
+                                                    issuedAt =
+                                                            Instant.ofEpochMilli(
+                                                                    Long.parseLong(
+                                                                            (String)
+                                                                                    issuedAtResponse));
+                                                }
+                                                // We expect at least one of the following to be
+                                                // present
+                                                Object expiresAtResponse =
+                                                        response.get(Authentication.EXPIRES_AT);
+                                                Object expiresInResponse =
+                                                        response.get(Authentication.EXPIRES_IN);
+                                                Instant expiresAt = null;
+                                                if (expiresAtResponse != null) {
+                                                    expiresAt =
+                                                            Instant.ofEpochSecond(
+                                                                    Long.parseLong(
+                                                                            String.valueOf(
+                                                                                    expiresAtResponse)));
+                                                } else if (expiresInResponse != null) {
+                                                    expiresAt =
+                                                            issuedAt.plusSeconds(
+                                                                    Long.parseLong(
+                                                                            String.valueOf(
+                                                                                    expiresInResponse)));
+                                                }
+                                                authenticationResponse.setExpiresAt(expiresAt);
+                                                // Replacing with returned scope instead
+                                                if (scope != null && !scope.isBlank()) {
+                                                    oAuth2.setScopeString(
+                                                            String.join(",", scope.split(" ")));
+                                                } else {
+                                                    oAuth2.setScopeString("");
+                                                }
+                                                oAuth2.setAuthenticationResponse(
+                                                        authenticationResponse);
+                                                datasourceStorage
+                                                        .getDatasourceConfiguration()
+                                                        .setAuthentication(oAuth2);
+                                                return datasourceStorageService.save(
+                                                        datasourceStorage);
+                                            });
+                        })
+                // We have no use of the datasource object during redirection, we merely send the
+                // response as a success state
                 .flatMap((datasource -> this.getPageRedirectUrl(state, null)))
                 .onErrorResume(
-                        e -> !(e instanceof AppsmithException
-                                && AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) e).getError())),
+                        e ->
+                                !(e instanceof AppsmithException
+                                        && AppsmithError.UNAUTHORIZED_ACCESS.equals(
+                                                ((AppsmithException) e).getError())),
                         e -> {
                             log.debug("Error while retrieving access token: ", e);
                             return this.getPageRedirectUrl(state, "appsmith_error");
@@ -342,286 +496,521 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             response = error;
         }
         final String responseStatus = response;
-        return newPageService.getById(pageId)
-                .map(newPage -> redirectOrigin + Entity.SLASH +
-                        Entity.APPLICATIONS + Entity.SLASH +
-                        newPage.getApplicationId() + Entity.SLASH +
-                        Entity.PAGES + Entity.SLASH +
-                        newPage.getId() + Entity.SLASH +
-                        "edit" + Entity.SLASH +
-                        Entity.DATASOURCE + Entity.SLASH +
-                        datasourceId +
-                        "?response_status=" + responseStatus +
-                        "&view_mode=true")
-                .onErrorResume(e -> Mono.just(
-                        redirectOrigin + Entity.SLASH +
-                                Entity.APPLICATIONS +
-                                "?response_status=" + responseStatus +
-                                "&view_mode=true"));
+        return newPageService
+                .getById(pageId)
+                .map(
+                        newPage ->
+                                redirectOrigin
+                                        + Entity.SLASH
+                                        + Entity.APPLICATIONS
+                                        + Entity.SLASH
+                                        + newPage.getApplicationId()
+                                        + Entity.SLASH
+                                        + Entity.PAGES
+                                        + Entity.SLASH
+                                        + newPage.getId()
+                                        + Entity.SLASH
+                                        + "edit"
+                                        + Entity.SLASH
+                                        + Entity.DATASOURCE
+                                        + Entity.SLASH
+                                        + datasourceId
+                                        + "?response_status="
+                                        + responseStatus
+                                        + "&view_mode=true")
+                .onErrorResume(
+                        e ->
+                                Mono.just(
+                                        redirectOrigin
+                                                + Entity.SLASH
+                                                + Entity.APPLICATIONS
+                                                + "?response_status="
+                                                + responseStatus
+                                                + "&view_mode=true"));
     }
 
     @Override
-    public Mono<String> getAppsmithToken(String datasourceId, String environmentId, String pageId, String branchName, ServerHttpRequest request, String importForGit) {
+    public Mono<String> getAppsmithToken(
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            String branchName,
+            ServerHttpRequest request,
+            String importForGit) {
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getEditPermission())
-                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
-                .cache();
+        Mono<DatasourceStorage> datasourceStorageMono =
+                datasourceService
+                        .findById(datasourceId, datasourcePermission.getEditPermission())
+                        .flatMap(
+                                datasource1 ->
+                                        datasourceStorageService.findByDatasourceAndEnvironmentId(
+                                                datasource1, environmentId))
+                        .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
 
         return datasourceStorageMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.DATASOURCE,
+                                        datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .flatMap(datasource -> Mono.zip(
-                                newPageService.findById(pageId, pagePermission.getReadPermission()),
-                                configService.getInstanceId(),
-                                pluginService.findById(datasource.getPluginId()))
-                        .map(tuple -> {
-                            IntegrationDTO integrationDTO = new IntegrationDTO();
-                            integrationDTO.setInstallationKey(tuple.getT2());
-                            NewPage page = tuple.getT1();
+                .flatMap(
+                        datasource ->
+                                Mono.zip(
+                                                newPageService.findById(
+                                                        pageId, pagePermission.getReadPermission()),
+                                                configService.getInstanceId(),
+                                                pluginService.findById(datasource.getPluginId()))
+                                        .map(
+                                                tuple -> {
+                                                    IntegrationDTO integrationDTO =
+                                                            new IntegrationDTO();
+                                                    integrationDTO.setInstallationKey(
+                                                            tuple.getT2());
+                                                    NewPage page = tuple.getT1();
 
-                            DefaultResources defaultResourceIds = page.getDefaultResources();
-                            String defaultPageId = StringUtils.hasLength(defaultResourceIds.getPageId())
-                                    ? defaultResourceIds.getPageId()
-                                    : page.getId();
+                                                    DefaultResources defaultResourceIds =
+                                                            page.getDefaultResources();
+                                                    String defaultPageId =
+                                                            StringUtils.hasLength(
+                                                                            defaultResourceIds
+                                                                                    .getPageId())
+                                                                    ? defaultResourceIds.getPageId()
+                                                                    : page.getId();
 
-                            String defaultApplicationId = StringUtils.hasLength(defaultResourceIds.getApplicationId())
-                                    ? defaultResourceIds.getApplicationId()
-                                    : page.getApplicationId();
+                                                    String defaultApplicationId =
+                                                            StringUtils.hasLength(
+                                                                            defaultResourceIds
+                                                                                    .getApplicationId())
+                                                                    ? defaultResourceIds
+                                                                            .getApplicationId()
+                                                                    : page.getApplicationId();
 
-                            integrationDTO.setPageId(defaultPageId);
-                            integrationDTO.setApplicationId(defaultApplicationId);
-                            integrationDTO.setBranch(branchName);
-                            integrationDTO.setImportForGit(importForGit);
-                            final Plugin plugin = tuple.getT3();
-                            integrationDTO.setPluginName(plugin.getPluginName());
-                            integrationDTO.setPluginVersion(plugin.getVersion());
-                            // TODO add authenticationDTO
-                            integrationDTO.setDatasourceId(datasourceId);
-                            integrationDTO.setScope(((OAuth2) datasource.getDatasourceConfiguration().getAuthentication()).getScope());
-                            integrationDTO.setRedirectionDomain(redirectUri);
-                            return integrationDTO;
-                        }))
-                .flatMap(integrationDTO -> {
-                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith")
-                            .method(HttpMethod.POST)
-                            .body(BodyInserters.fromValue(integrationDTO))
-                            .exchange()
-                            .flatMap(response -> {
-                                if (response.statusCode().is2xxSuccessful()) {
-                                    return response.bodyToMono(Map.class);
-                                } else {
-                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
-                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
-                                }
-                            })
-                            .map(body -> String.valueOf(body.get("data")))
-                            .zipWith(datasourceStorageMono)
-                            .flatMap(tuple -> {
-                                String appsmithToken = tuple.getT1();
-                                DatasourceStorage datasourceStorage = tuple.getT2();
-                                datasourceStorage
-                                        .getDatasourceConfiguration()
-                                        .getAuthentication()
-                                        .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS);
-                                return datasourceStorageService.save(datasourceStorage).thenReturn(appsmithToken);
-                            })
-                            .onErrorMap(ConnectException.class,
-                                    error -> new AppsmithException(
-                                            AppsmithError.AUTHENTICATION_FAILURE,
-                                            "Unable to connect to Appsmith authentication server."
-                                    ));
-                })
-                .onErrorResume(BaseException.class, error -> datasourceStorageMono.flatMap(datasourceStorage -> {
-                    datasourceStorage.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
-                    return datasourceStorageService.save(datasourceStorage).then(Mono.error(error));
-                }));
+                                                    integrationDTO.setPageId(defaultPageId);
+                                                    integrationDTO.setApplicationId(
+                                                            defaultApplicationId);
+                                                    integrationDTO.setBranch(branchName);
+                                                    integrationDTO.setImportForGit(importForGit);
+                                                    final Plugin plugin = tuple.getT3();
+                                                    integrationDTO.setPluginName(
+                                                            plugin.getPluginName());
+                                                    integrationDTO.setPluginVersion(
+                                                            plugin.getVersion());
+                                                    // TODO add authenticationDTO
+                                                    integrationDTO.setDatasourceId(datasourceId);
+                                                    integrationDTO.setScope(
+                                                            ((OAuth2)
+                                                                            datasource
+                                                                                    .getDatasourceConfiguration()
+                                                                                    .getAuthentication())
+                                                                    .getScope());
+                                                    integrationDTO.setRedirectionDomain(
+                                                            redirectUri);
+                                                    return integrationDTO;
+                                                }))
+                .flatMap(
+                        integrationDTO -> {
+                            return WebClientUtils.create(
+                                            cloudServicesConfig.getBaseUrl()
+                                                    + "/api/v1/integrations/oauth/appsmith")
+                                    .method(HttpMethod.POST)
+                                    .body(BodyInserters.fromValue(integrationDTO))
+                                    .exchange()
+                                    .flatMap(
+                                            response -> {
+                                                if (response.statusCode().is2xxSuccessful()) {
+                                                    return response.bodyToMono(Map.class);
+                                                } else {
+                                                    log.debug(
+                                                            "Unable to retrieve appsmith token with"
+                                                                    + " error {}",
+                                                            response.statusCode());
+                                                    return Mono.error(
+                                                            new AppsmithException(
+                                                                    AppsmithError
+                                                                            .AUTHENTICATION_FAILURE,
+                                                                    "Unable to retrieve appsmith"
+                                                                            + " token with error "
+                                                                            + response
+                                                                                    .statusCode()));
+                                                }
+                                            })
+                                    .map(body -> String.valueOf(body.get("data")))
+                                    .zipWith(datasourceStorageMono)
+                                    .flatMap(
+                                            tuple -> {
+                                                String appsmithToken = tuple.getT1();
+                                                DatasourceStorage datasourceStorage = tuple.getT2();
+                                                datasourceStorage
+                                                        .getDatasourceConfiguration()
+                                                        .getAuthentication()
+                                                        .setAuthenticationStatus(
+                                                                AuthenticationDTO
+                                                                        .AuthenticationStatus
+                                                                        .IN_PROGRESS);
+                                                return datasourceStorageService
+                                                        .save(datasourceStorage)
+                                                        .thenReturn(appsmithToken);
+                                            })
+                                    .onErrorMap(
+                                            ConnectException.class,
+                                            error ->
+                                                    new AppsmithException(
+                                                            AppsmithError.AUTHENTICATION_FAILURE,
+                                                            "Unable to connect to Appsmith"
+                                                                    + " authentication server."));
+                        })
+                .onErrorResume(
+                        BaseException.class,
+                        error ->
+                                datasourceStorageMono.flatMap(
+                                        datasourceStorage -> {
+                                            datasourceStorage
+                                                    .getDatasourceConfiguration()
+                                                    .getAuthentication()
+                                                    .setAuthenticationStatus(
+                                                            AuthenticationDTO.AuthenticationStatus
+                                                                    .FAILURE);
+                                            return datasourceStorageService
+                                                    .save(datasourceStorage)
+                                                    .then(Mono.error(error));
+                                        }));
     }
 
-    public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(String datasourceId, String environmentId, String appsmithToken) {
+    public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
+            String datasourceId, String environmentId, String appsmithToken) {
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource
         // Update datasource as being authorized
         // Return control to client
 
-        Mono<Datasource> datasourceMonoCache = datasourceService
-                .findById(datasourceId, datasourcePermission.getEditPermission()).cache();
+        Mono<Datasource> datasourceMonoCache =
+                datasourceService
+                        .findById(datasourceId, datasourcePermission.getEditPermission())
+                        .cache();
 
-        Mono<DatasourceStorage> datasourceStorageMonoCache = datasourceMonoCache
-                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
-                .cache();
+        Mono<DatasourceStorage> datasourceStorageMonoCache =
+                datasourceMonoCache
+                        .flatMap(
+                                datasource1 ->
+                                        datasourceStorageService.findByDatasourceAndEnvironmentId(
+                                                datasource1, environmentId))
+                        .cache();
 
         return datasourceStorageMonoCache
-                .filter(datasourceStorage -> AuthenticationDTO.AuthenticationStatus.IN_PROGRESS
-                        .equals(datasourceStorage.getDatasourceConfiguration().getAuthentication().getAuthenticationStatus()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
+                .filter(
+                        datasourceStorage ->
+                                AuthenticationDTO.AuthenticationStatus.IN_PROGRESS.equals(
+                                        datasourceStorage
+                                                .getDatasourceConfiguration()
+                                                .getAuthentication()
+                                                .getAuthenticationStatus()))
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.DATASOURCE,
+                                        datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .flatMap(datasourceStorage -> {
-                    UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-                    try {
-                        uriBuilder.uri(new URI(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/token"))
-                                .queryParam("appsmithToken", appsmithToken);
-                    } catch (URISyntaxException e) {
-                        log.debug("Error while parsing access token URL.", e);
-                    }
-                    return WebClientUtils.create()
-                            .method(HttpMethod.POST)
-                            .uri(uriBuilder.build(true).toUri())
-                            .exchange()
-                            .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
-                            .flatMap(response -> {
-                                if (response.statusCode().is2xxSuccessful()) {
-                                    return response.bodyToMono(AuthenticationResponse.class);
-                                } else {
-                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
-                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
-                                }
-                            })
-                            .flatMap(authenticationResponse -> {
-                                OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
-                                oAuth2.setAuthenticationResponse(authenticationResponse);
-                                final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
-                                if (tokenResponse != null && tokenResponse.containsKey("scope")) {
-                                    if (!new HashSet<>(Arrays.asList(String.valueOf(tokenResponse.get("scope")).split(" "))).containsAll(
-                                            oAuth2.getScope())) {
-                                        return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
-                                                "Please provide access to all the requested scopes to use the integration correctly."));
-                                    }
-                                }
-                                datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
+                .flatMap(
+                        datasourceStorage -> {
+                            UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+                            try {
+                                uriBuilder
+                                        .uri(
+                                                new URI(
+                                                        cloudServicesConfig.getBaseUrl()
+                                                                + "/api/v1/integrations/oauth/token"))
+                                        .queryParam("appsmithToken", appsmithToken);
+                            } catch (URISyntaxException e) {
+                                log.debug("Error while parsing access token URL.", e);
+                            }
+                            return WebClientUtils.create()
+                                    .method(HttpMethod.POST)
+                                    .uri(uriBuilder.build(true).toUri())
+                                    .exchange()
+                                    .doOnError(
+                                            e ->
+                                                    Mono.error(
+                                                            new AppsmithPluginException(
+                                                                    AppsmithPluginError
+                                                                            .PLUGIN_ERROR,
+                                                                    e)))
+                                    .flatMap(
+                                            response -> {
+                                                if (response.statusCode().is2xxSuccessful()) {
+                                                    return response.bodyToMono(
+                                                            AuthenticationResponse.class);
+                                                } else {
+                                                    log.debug(
+                                                            "Unable to retrieve appsmith token with"
+                                                                    + " error {}",
+                                                            response.statusCode());
+                                                    return Mono.error(
+                                                            new AppsmithException(
+                                                                    AppsmithError
+                                                                            .AUTHENTICATION_FAILURE,
+                                                                    "Unable to retrieve appsmith"
+                                                                            + " token with error "
+                                                                            + response
+                                                                                    .statusCode()));
+                                                }
+                                            })
+                                    .flatMap(
+                                            authenticationResponse -> {
+                                                OAuth2 oAuth2 =
+                                                        (OAuth2)
+                                                                datasourceStorage
+                                                                        .getDatasourceConfiguration()
+                                                                        .getAuthentication();
+                                                oAuth2.setAuthenticationResponse(
+                                                        authenticationResponse);
+                                                final Map tokenResponse =
+                                                        (Map)
+                                                                authenticationResponse
+                                                                        .getTokenResponse();
+                                                if (tokenResponse != null
+                                                        && tokenResponse.containsKey("scope")) {
+                                                    if (!new HashSet<>(
+                                                                    Arrays.asList(
+                                                                            String.valueOf(
+                                                                                            tokenResponse
+                                                                                                    .get(
+                                                                                                            "scope"))
+                                                                                    .split(" ")))
+                                                            .containsAll(oAuth2.getScope())) {
+                                                        return Mono.error(
+                                                                new AppsmithException(
+                                                                        AppsmithError
+                                                                                .AUTHENTICATION_FAILURE,
+                                                                        "Please provide access to"
+                                                                            + " all the requested"
+                                                                            + " scopes to use the"
+                                                                            + " integration"
+                                                                            + " correctly."));
+                                                    }
+                                                }
+                                                datasourceStorage
+                                                        .getDatasourceConfiguration()
+                                                        .setAuthentication(oAuth2);
 
-                                // When authentication scope is for specific sheets, we need to send token and project id
-                                String accessToken = "";
-                                String projectID = "";
-                                if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
-                                    accessToken = (String) tokenResponse.get(ACCESS_TOKEN_KEY);
-                                    if (authenticationResponse.getProjectID() != null) {
-                                        projectID = authenticationResponse.getProjectID();
-                                    }
-                                }
+                                                // When authentication scope is for specific sheets,
+                                                // we need to send token and project id
+                                                String accessToken = "";
+                                                String projectID = "";
+                                                if (oAuth2.getScope() != null
+                                                        && oAuth2.getScope()
+                                                                .contains(
+                                                                        FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                                    accessToken =
+                                                            (String)
+                                                                    tokenResponse.get(
+                                                                            ACCESS_TOKEN_KEY);
+                                                    if (authenticationResponse.getProjectID()
+                                                            != null) {
+                                                        projectID =
+                                                                authenticationResponse
+                                                                        .getProjectID();
+                                                    }
+                                                }
 
-                                // when authentication scope is other than specific sheets, we need to set authentication status as success
-                                // for specific sheets, it needs to remain in as in progress until files are selected
-                                // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
-                                // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
-                                Set<String> oauth2Scopes = oAuth2.getScope();
-                                if (oauth2Scopes != null) {
-                                    if (oauth2Scopes.contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
-                                        datasourceStorage
-                                            .getDatasourceConfiguration()
-                                            .getAuthentication()
-                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS_PERMISSIONS_GRANTED);
-                                    } else {
-                                        datasourceStorage
-                                            .getDatasourceConfiguration()
-                                            .getAuthentication()
-                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
-                                    }
-                                }
+                                                // when authentication scope is other than specific
+                                                // sheets, we need to set authentication status as
+                                                // success
+                                                // for specific sheets, it needs to remain in as in
+                                                // progress until files are selected
+                                                // Once files are selected, client sets
+                                                // authentication status as SUCCESS, we can find
+                                                // this code in
+                                                // /app/client/src/sagas/DatasourcesSagas.ts, line
+                                                // 1195
+                                                Set<String> oauth2Scopes = oAuth2.getScope();
+                                                if (oauth2Scopes != null) {
+                                                    if (oauth2Scopes.contains(
+                                                            FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                                        datasourceStorage
+                                                                .getDatasourceConfiguration()
+                                                                .getAuthentication()
+                                                                .setAuthenticationStatus(
+                                                                        AuthenticationDTO
+                                                                                .AuthenticationStatus
+                                                                                .IN_PROGRESS_PERMISSIONS_GRANTED);
+                                                    } else {
+                                                        datasourceStorage
+                                                                .getDatasourceConfiguration()
+                                                                .getAuthentication()
+                                                                .setAuthenticationStatus(
+                                                                        AuthenticationDTO
+                                                                                .AuthenticationStatus
+                                                                                .SUCCESS);
+                                                    }
+                                                }
 
-                                Mono<String> accessTokenMono = Mono.just(accessToken);
-                                Mono<String> projectIdMono = Mono.just(projectID);
+                                                Mono<String> accessTokenMono =
+                                                        Mono.just(accessToken);
+                                                Mono<String> projectIdMono = Mono.just(projectID);
 
-                                return pluginExecutorHelper
-                                        .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
-                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                                                .getDatasourceMetadata(datasourceStorage.getDatasourceConfiguration()))
-                                        .then(Mono.zip(Mono.just(datasourceStorage), accessTokenMono, projectIdMono, datasourceMonoCache));
-                            });
-                })
-                .flatMap(tuple -> {
-                    DatasourceStorage datasourceStorage = tuple.getT1();
-                    String accessToken = tuple.getT2();
-                    String projectID = tuple.getT3();
-                    // This datasource is coming fresh from db which has all the metadata and permissions,
-                    // which is required by client side in order to allow users to generate queries otherwise the
-                    // buttons are disabled. we will be sending this datasource itself which has the permissions as a fix
-                    // ref: https://github.com/appsmithorg/appsmith/issues/23840
-                    Datasource datasource = tuple.getT4();
-                    OAuth2ResponseDTO response = new OAuth2ResponseDTO();
-                    response.setToken(accessToken);
-                    response.setProjectID(projectID);
-                    //since we are fetching our datasource fresh from db we are guaranteed that datasource won't have any storages
-                    datasource.getDatasourceStorages()
-                            .put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
+                                                return pluginExecutorHelper
+                                                        .getPluginExecutor(
+                                                                pluginService.findById(
+                                                                        datasourceStorage
+                                                                                .getPluginId()))
+                                                        .flatMap(
+                                                                pluginExecutor ->
+                                                                        ((PluginExecutor<Object>)
+                                                                                        pluginExecutor)
+                                                                                .getDatasourceMetadata(
+                                                                                        datasourceStorage
+                                                                                                .getDatasourceConfiguration()))
+                                                        .then(
+                                                                Mono.zip(
+                                                                        Mono.just(
+                                                                                datasourceStorage),
+                                                                        accessTokenMono,
+                                                                        projectIdMono,
+                                                                        datasourceMonoCache));
+                                            });
+                        })
+                .flatMap(
+                        tuple -> {
+                            DatasourceStorage datasourceStorage = tuple.getT1();
+                            String accessToken = tuple.getT2();
+                            String projectID = tuple.getT3();
+                            // This datasource is coming fresh from db which has all the metadata
+                            // and permissions,
+                            // which is required by client side in order to allow users to generate
+                            // queries otherwise the
+                            // buttons are disabled. we will be sending this datasource itself which
+                            // has the permissions as a fix
+                            // ref: https://github.com/appsmithorg/appsmith/issues/23840
+                            Datasource datasource = tuple.getT4();
+                            OAuth2ResponseDTO response = new OAuth2ResponseDTO();
+                            response.setToken(accessToken);
+                            response.setProjectID(projectID);
+                            // since we are fetching our datasource fresh from db we are guaranteed
+                            // that datasource won't have any storages
+                            datasource
+                                    .getDatasourceStorages()
+                                    .put(
+                                            datasourceStorage.getEnvironmentId(),
+                                            new DatasourceStorageDTO(datasourceStorage));
 
-                    return datasourceService
-                            .convertToDatasourceDTO(datasource)
-                            .flatMap(datasourceDTO -> {
-                                response.setDatasource(datasourceDTO);
-                                return datasourceStorageService.save(datasourceStorage)
-                                        .thenReturn(response);
-                            });
-                })
-                .onErrorMap(ConnectException.class,
-                        error -> new AppsmithException(
-                                AppsmithError.AUTHENTICATION_FAILURE,
-                                "Unable to connect to Appsmith authentication server."
-                        ))
-                .onErrorResume(BaseException.class, error -> datasourceStorageMonoCache.flatMap(datasourceStorage -> {
-                    datasourceStorage.getDatasourceConfiguration().getAuthentication()
-                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
-                    return datasourceStorageService.save(datasourceStorage).then(Mono.error(error));
-                }));
+                            return datasourceService
+                                    .convertToDatasourceDTO(datasource)
+                                    .flatMap(
+                                            datasourceDTO -> {
+                                                response.setDatasource(datasourceDTO);
+                                                return datasourceStorageService
+                                                        .save(datasourceStorage)
+                                                        .thenReturn(response);
+                                            });
+                        })
+                .onErrorMap(
+                        ConnectException.class,
+                        error ->
+                                new AppsmithException(
+                                        AppsmithError.AUTHENTICATION_FAILURE,
+                                        "Unable to connect to Appsmith authentication server."))
+                .onErrorResume(
+                        BaseException.class,
+                        error ->
+                                datasourceStorageMonoCache.flatMap(
+                                        datasourceStorage -> {
+                                            datasourceStorage
+                                                    .getDatasourceConfiguration()
+                                                    .getAuthentication()
+                                                    .setAuthenticationStatus(
+                                                            AuthenticationDTO.AuthenticationStatus
+                                                                    .FAILURE);
+                                            return datasourceStorageService
+                                                    .save(datasourceStorage)
+                                                    .then(Mono.error(error));
+                                        }));
     }
 
     public Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage) {
-        // This method will always be called from a point where these validations have been performed
-        assert (datasourceStorage != null &&
-                datasourceStorage.getDatasourceConfiguration() != null &&
-                datasourceStorage.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
+        // This method will always be called from a point where these validations have been
+        // performed
+        assert (datasourceStorage != null
+                && datasourceStorage.getDatasourceConfiguration() != null
+                && datasourceStorage.getDatasourceConfiguration().getAuthentication()
+                        instanceof OAuth2);
         OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
-        return pluginService.findById(datasourceStorage.getPluginId())
-                .filter(plugin -> PluginType.SAAS.equals(plugin.getType()) || PluginType.REMOTE.equals(plugin.getType()))
+        return pluginService
+                .findById(datasourceStorage.getPluginId())
+                .filter(
+                        plugin ->
+                                PluginType.SAAS.equals(plugin.getType())
+                                        || PluginType.REMOTE.equals(plugin.getType()))
                 .zipWith(configService.getInstanceId())
-                .flatMap(tuple -> {
-                    Plugin plugin = tuple.getT1();
-                    String installationKey = tuple.getT2();
-                    IntegrationDTO integrationDTO = new IntegrationDTO();
-                    integrationDTO.setInstallationKey(installationKey);
-                    integrationDTO.setAuthenticationResponse(oAuth2.getAuthenticationResponse());
-                    integrationDTO.setScope(oAuth2.getScope());
-                    integrationDTO.setPluginName(plugin.getPluginName());
-                    integrationDTO.setPluginVersion(plugin.getVersion());
+                .flatMap(
+                        tuple -> {
+                            Plugin plugin = tuple.getT1();
+                            String installationKey = tuple.getT2();
+                            IntegrationDTO integrationDTO = new IntegrationDTO();
+                            integrationDTO.setInstallationKey(installationKey);
+                            integrationDTO.setAuthenticationResponse(
+                                    oAuth2.getAuthenticationResponse());
+                            integrationDTO.setScope(oAuth2.getScope());
+                            integrationDTO.setPluginName(plugin.getPluginName());
+                            integrationDTO.setPluginVersion(plugin.getVersion());
 
-                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh")
-                            .method(HttpMethod.POST)
-                            .body(BodyInserters.fromValue(integrationDTO))
-                            .exchange()
-                            .onErrorMap(e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e))
-                            .flatMap(response -> {
-                                if (response.statusCode().is2xxSuccessful()) {
-                                    return response.bodyToMono(AuthenticationResponse.class);
-                                } else {
-                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
-                                            response.statusCode()));
-                                }
-                            })
-                            .flatMap(authenticationResponse -> {
-                                oAuth2.setAuthenticationResponse(authenticationResponse);
-                                datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                // We return the same object instead of the update value because the updates value
-                                // will be in the encrypted form
-                                return datasourceStorageService
-                                        .save(datasourceStorage)
-                                        .thenReturn(datasourceStorage);
-                            });
-                })
+                            return WebClientUtils.create(
+                                            cloudServicesConfig.getBaseUrl()
+                                                    + "/api/v1/integrations/oauth/refresh")
+                                    .method(HttpMethod.POST)
+                                    .body(BodyInserters.fromValue(integrationDTO))
+                                    .exchange()
+                                    .onErrorMap(
+                                            e ->
+                                                    new AppsmithPluginException(
+                                                            AppsmithPluginError.PLUGIN_ERROR, e))
+                                    .flatMap(
+                                            response -> {
+                                                if (response.statusCode().is2xxSuccessful()) {
+                                                    return response.bodyToMono(
+                                                            AuthenticationResponse.class);
+                                                } else {
+                                                    log.debug(
+                                                            "Unable to retrieve appsmith token with"
+                                                                    + " error {}",
+                                                            response.statusCode());
+                                                    return Mono.error(
+                                                            new AppsmithException(
+                                                                    AppsmithError
+                                                                            .AUTHENTICATION_FAILURE,
+                                                                    response.statusCode()));
+                                                }
+                                            })
+                                    .flatMap(
+                                            authenticationResponse -> {
+                                                oAuth2.setAuthenticationResponse(
+                                                        authenticationResponse);
+                                                datasourceStorage
+                                                        .getDatasourceConfiguration()
+                                                        .setAuthentication(oAuth2);
+                                                // We return the same object instead of the update
+                                                // value because the updates value
+                                                // will be in the encrypted form
+                                                return datasourceStorageService
+                                                        .save(datasourceStorage)
+                                                        .thenReturn(datasourceStorage);
+                                            });
+                        })
                 .switchIfEmpty(Mono.just(datasourceStorage))
-                .onErrorMap(ConnectException.class,
-                        error -> new AppsmithException(
-                                AppsmithError.AUTHENTICATION_FAILURE,
-                                "Unable to connect to Appsmith authentication server."
-                        ));
+                .onErrorMap(
+                        ConnectException.class,
+                        error ->
+                                new AppsmithException(
+                                        AppsmithError.AUTHENTICATION_FAILURE,
+                                        "Unable to connect to Appsmith authentication server."));
     }
 }

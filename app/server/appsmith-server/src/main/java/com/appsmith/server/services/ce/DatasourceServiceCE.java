@@ -1,11 +1,14 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.models.DatasourceDTO;
+
 import org.springframework.util.MultiValueMap;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -20,13 +23,15 @@ public interface DatasourceServiceCE {
 
     /**
      * @param datasourceDTO - The datasource which is about to be tested
-     * @param environmentId - environmentName, name of the environment on which the datasource is getting tested,
-     *                      this variable is unused in the CE version of the code.
-     * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection with the remote DB
+     * @param environmentId - environmentName, name of the environment on which the datasource is
+     *     getting tested, this variable is unused in the CE version of the code.
+     * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection
+     *     with the remote DB
      */
     Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
+    Mono<Datasource> findByNameAndWorkspaceId(
+            String name, String workspaceId, Optional<AclPermission> permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
@@ -41,24 +46,27 @@ public interface DatasourceServiceCE {
     Mono<Datasource> save(Datasource datasource);
 
     /**
-     * Retrieves all datasources based on input params, currently only workspaceId.
-     * The retrieved datasources will contain configuration from the default environment,
-     * for compatibility.
+     * Retrieves all datasources based on input params, currently only workspaceId. The retrieved
+     * datasources will contain configuration from the default environment, for compatibility.
+     *
      * @param params
      * @return A flux of DatsourceDTO, which will change after API contracts gets updated
      */
     Flux<DatasourceDTO> getAllWithStorages(MultiValueMap<String, String> params);
 
-    Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission);
+    Flux<Datasource> getAllByWorkspaceIdWithoutStorages(
+            String workspaceId, Optional<AclPermission> permission);
 
     /**
      * Retrieves all datasources based on workspaceId. The retrieved datasources will contain
      * configurations from all environments.
+     *
      * @param workspaceId
      * @param permission In case permissions are absent, the DB query disregards GAC rules
      * @return
      */
-    Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission);
+    Flux<Datasource> getAllByWorkspaceIdWithStorages(
+            String workspaceId, Optional<AclPermission> permission);
 
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
@@ -70,7 +78,11 @@ public interface DatasourceServiceCE {
 
     Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId);
 
-    Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate);
+    Mono<DatasourceDTO> update(
+            String id,
+            DatasourceDTO datasourceDTO,
+            String environmentId,
+            Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId);
 

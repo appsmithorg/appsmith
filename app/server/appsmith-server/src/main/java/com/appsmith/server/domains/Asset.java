@@ -1,9 +1,12 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import org.springframework.http.MediaType;
 
 @Getter
@@ -18,5 +21,4 @@ public class Asset extends BaseDomain {
     String contentType;
 
     byte[] data;
-
 }

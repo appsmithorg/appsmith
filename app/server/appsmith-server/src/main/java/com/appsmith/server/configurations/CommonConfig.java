@@ -1,20 +1,25 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
+
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -100,7 +105,8 @@ public class CommonConfig {
         if (allowedDomainsForOauth == null) {
             final Set<String> domains = new HashSet<>();
             if (StringUtils.hasText(allowedDomainsForOauthString)) {
-                domains.addAll(Arrays.asList(allowedDomainsForOauthString.trim().split("\\s*,[,\\s]*")));
+                domains.addAll(
+                        Arrays.asList(allowedDomainsForOauthString.trim().split("\\s*,[,\\s]*")));
             }
             domains.addAll(getAllowedDomains());
             allowedDomainsForOauth = new ArrayList<>(domains);
@@ -111,9 +117,10 @@ public class CommonConfig {
 
     public List<String> getAllowedDomains() {
         if (allowedDomains == null) {
-            allowedDomains = StringUtils.hasText(allowedDomainsString)
-                    ? Arrays.asList(allowedDomainsString.trim().split("\\s*,[,\\s]*"))
-                    : Collections.emptyList();
+            allowedDomains =
+                    StringUtils.hasText(allowedDomainsString)
+                            ? Arrays.asList(allowedDomainsString.trim().split("\\s*,[,\\s]*"))
+                            : Collections.emptyList();
         }
 
         return allowedDomains;
@@ -126,7 +133,8 @@ public class CommonConfig {
 
     @Autowired
     public void setSignupDisabled(@Value("${signup.disabled}") String value) {
-        // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
+        // If `true`, then disable signup. If anything else, including empty string, then signups
+        // will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
 

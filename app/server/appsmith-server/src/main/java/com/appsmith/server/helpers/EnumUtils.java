@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 public class EnumUtils {
@@ -5,8 +6,8 @@ public class EnumUtils {
     /**
      * A common method for all enums since they can't have another base class
      *
-     * @param <T>    Enum type
-     * @param c      enum type. All enums must be all caps.
+     * @param <T> Enum type
+     * @param c enum type. All enums must be all caps.
      * @param string case insensitive
      * @return corresponding enum, or null
      */

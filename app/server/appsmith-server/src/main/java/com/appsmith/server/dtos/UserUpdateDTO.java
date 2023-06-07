@@ -1,10 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Data;
 
-/**
- * Includes **only** those fields that can be updated for a user, via an API call.
- */
+/** Includes **only** those fields that can be updated for a user, via an API call. */
 @Data
 public class UserUpdateDTO {
 
@@ -23,5 +22,4 @@ public class UserUpdateDTO {
     public boolean hasUserDataUpdates() {
         return role != null || useCase != null || isIntercomConsentGiven;
     }
-
 }

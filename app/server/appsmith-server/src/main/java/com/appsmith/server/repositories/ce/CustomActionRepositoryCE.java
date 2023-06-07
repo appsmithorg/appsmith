@@ -1,9 +1,12 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.repositories.AppsmithRepository;
+
 import org.springframework.data.domain.Sort;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,10 +19,9 @@ public interface CustomActionRepositoryCE extends AppsmithRepository<Action> {
 
     Flux<Action> findByPageId(String pageId, AclPermission aclPermission);
 
-    Flux<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
-                                                                               String pageId,
-                                                                               String httpMethod,
-                                                                               AclPermission aclPermission);
+    Flux<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(
+            Set<String> names, String pageId, String httpMethod, AclPermission aclPermission);
 
-    Flux<Action> findAllActionsByNameAndPageIds(String name, List<String> pageIds, AclPermission aclPermission, Sort sort);
+    Flux<Action> findAllActionsByNameAndPageIds(
+            String name, List<String> pageIds, AclPermission aclPermission, Sort sort);
 }

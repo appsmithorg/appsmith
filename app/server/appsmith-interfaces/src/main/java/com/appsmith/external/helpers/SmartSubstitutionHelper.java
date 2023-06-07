@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,17 +10,18 @@ public class SmartSubstitutionHelper {
 
     public static String replaceQuestionMarkWithDollarIndex(String query) {
         final AtomicInteger counter = new AtomicInteger();
-        String updatedQuery = query.chars()
-                .mapToObj(c -> {
-                    if (c == '?') {
-                        return "$" + counter.incrementAndGet();
-                    }
+        String updatedQuery =
+                query.chars()
+                        .mapToObj(
+                                c -> {
+                                    if (c == '?') {
+                                        return "$" + counter.incrementAndGet();
+                                    }
 
-                    return Character.toString(c);
-                })
-                .collect(Collectors.joining());
+                                    return Character.toString(c);
+                                })
+                        .collect(Collectors.joining());
 
         return updatedQuery;
     }
-
 }

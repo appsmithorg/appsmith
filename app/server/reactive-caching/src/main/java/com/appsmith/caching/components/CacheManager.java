@@ -1,15 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.caching.components;
 
 import reactor.core.publisher.Mono;
 
 public interface CacheManager {
-    /**
-     * This will log the cache stats with INFO severity.
-     */
+    /** This will log the cache stats with INFO severity. */
     void logStats();
-    
+
     /**
      * This will get item from the cache, Mono.empty() if not found.
+     *
      * @param cacheName The name of the cache.
      * @param key The key of the item.
      * @return The Mono of the item.
@@ -18,6 +18,7 @@ public interface CacheManager {
 
     /**
      * This will put item into the cache.
+     *
      * @param cacheName The name of the cache.
      * @param key The key of the item.
      * @param value The value of the item.
@@ -27,6 +28,7 @@ public interface CacheManager {
 
     /**
      * This will remove item from the cache.
+     *
      * @param cacheName The name of the cache.
      * @param key The key of the item.
      * @return Mono<Void> that will complete after the item is removed.
@@ -35,6 +37,7 @@ public interface CacheManager {
 
     /**
      * This will remove all items from the cache.
+     *
      * @param cacheName The name of the cache.
      * @return Mono<Void> that will complete after the items are removed.
      */

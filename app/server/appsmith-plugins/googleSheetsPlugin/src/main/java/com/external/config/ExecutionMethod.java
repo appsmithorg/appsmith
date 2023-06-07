@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.constants.DataType;
@@ -7,9 +8,11 @@ import com.appsmith.external.models.OAuth2;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
+
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
@@ -29,10 +32,14 @@ public interface ExecutionMethod {
 
     String BASE_DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files/";
 
-    ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
-            .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
-            .build();
+    ExchangeStrategies EXCHANGE_STRATEGIES =
+            ExchangeStrategies.builder()
+                    .codecs(
+                            configurer ->
+                                    configurer
+                                            .defaultCodecs()
+                                            .maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
+                    .build();
 
     default UriComponentsBuilder getBaseUriBuilder(String baseUri, String path) {
         return getBaseUriBuilder(baseUri, path, false);
@@ -43,18 +50,34 @@ public interface ExecutionMethod {
             try {
                 String decodedURL = URLDecoder.decode(baseUri + path, StandardCharsets.UTF_8);
                 URL url = new URL(decodedURL);
-                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                URI uri =
+                        new URI(
+                                url.getProtocol(),
+                                url.getUserInfo(),
+                                url.getHost(),
+                                url.getPort(),
+                                url.getPath(),
+                                url.getQuery(),
+                                url.getRef());
                 UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                 return uriBuilder.uri(uri);
             } catch (URISyntaxException | MalformedURLException e) {
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.UNABLE_TO_CREATE_URI_ERROR_MSG, e.getMessage()));
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                ErrorMessages.UNABLE_TO_CREATE_URI_ERROR_MSG,
+                                e.getMessage()));
             }
         } else {
             try {
                 UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                 return uriBuilder.uri(new URI(baseUri + path));
             } catch (URISyntaxException e) {
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.UNABLE_TO_CREATE_URI_ERROR_MSG, e.getMessage()));
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                ErrorMessages.UNABLE_TO_CREATE_URI_ERROR_MSG,
+                                e.getMessage()));
             }
         }
     }
@@ -65,23 +88,27 @@ public interface ExecutionMethod {
         return Mono.just(true);
     }
 
-    WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig);
+    WebClient.RequestHeadersSpec<?> getExecutionClient(
+            WebClient webClient, MethodConfig methodConfig);
 
-    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    default JsonNode transformExecutionResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
-            throw Exceptions.propagate(new AppsmithPluginException(
-                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG));
+            throw Exceptions.propagate(
+                    new AppsmithPluginException(
+                            GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                            ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG));
         }
         // By default, no transformation takes place
         return response;
     }
 
     /**
-     * Method for custom DataType Mapping based on plugin,
-     * so here in GoogleSheet, DataTypes like Integer, Long, Float will be processed as Double as required.
-     * For example, another plugin may implement this method to process all DataType as String etc.
-     * @return  -   Map containing custom DataType to be considered against input DataType.
+     * Method for custom DataType Mapping based on plugin, so here in GoogleSheet, DataTypes like
+     * Integer, Long, Float will be processed as Double as required. For example, another plugin may
+     * implement this method to process all DataType as String etc.
+     *
+     * @return - Map containing custom DataType to be considered against input DataType.
      */
     default Map<DataType, DataType> getDataTypeConversionMap() {
         Map<DataType, DataType> conversionMap = new HashMap<DataType, DataType>();

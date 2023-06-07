@@ -1,11 +1,17 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
+
+import static com.appsmith.external.helpers.DataTypeStringUtils.placeholderPattern;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
+
 import reactor.core.Exceptions;
 
 import java.util.AbstractMap;
@@ -13,18 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import static com.appsmith.external.helpers.DataTypeStringUtils.placeholderPattern;
-import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
-
 public class GraphQLDataTypeUtils {
     public static final String GRAPHQL_BODY_ENDS_WITH_PARAM_REGEX = "[\\w\\W]+:$";
 
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static String smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(String queryBody, String replacement,
-                                                                            List<Map.Entry<String, String>> insertedParams) {
-        final GraphQLBodyDataType dataType = stringToKnownGraphQLDataTypeConverter(queryBody, replacement);
-        Map.Entry<String, String> parameter = new AbstractMap.SimpleEntry<>(replacement, dataType.toString());
+    public static String smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(
+            String queryBody, String replacement, List<Map.Entry<String, String>> insertedParams) {
+        final GraphQLBodyDataType dataType =
+                stringToKnownGraphQLDataTypeConverter(queryBody, replacement);
+        Map.Entry<String, String> parameter =
+                new AbstractMap.SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
 
         String updatedReplacement;
@@ -38,9 +43,7 @@ public class GraphQLDataTypeUtils {
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     replacement,
-                                    e.getMessage()
-                            )
-                    );
+                                    e.getMessage()));
                 }
                 break;
             case GRAPHQL_BODY_FULL:
@@ -55,7 +58,8 @@ public class GraphQLDataTypeUtils {
         return queryBody;
     }
 
-    public static GraphQLBodyDataType stringToKnownGraphQLDataTypeConverter(String queryBody, String replacement) {
+    public static GraphQLBodyDataType stringToKnownGraphQLDataTypeConverter(
+            String queryBody, String replacement) {
         if (replacement == null) {
             return GraphQLBodyDataType.NULL;
         }
@@ -65,7 +69,7 @@ public class GraphQLDataTypeUtils {
             graphqlParser.parseDocument(replacement);
             return GraphQLBodyDataType.GRAPHQL_BODY_FULL;
         } catch (InvalidSyntaxException e) {
-           // do nothing
+            // do nothing
         }
 
         try {
@@ -82,7 +86,8 @@ public class GraphQLDataTypeUtils {
             // Not float
         }
 
-        // Creating a copy of the input in lower case form to do simple string equality to check for boolean/null types.
+        // Creating a copy of the input in lower case form to do simple string equality to check for
+        // boolean/null types.
         String copyInput = String.valueOf(replacement).toLowerCase().trim();
         if (copyInput.equals("true") || copyInput.equals("false")) {
             return GraphQLBodyDataType.GRAPHQL_BODY_BOOLEAN;

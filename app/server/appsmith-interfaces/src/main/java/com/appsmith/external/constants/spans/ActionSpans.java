@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.constants.spans;
 
 public final class ActionSpans {
@@ -8,7 +9,8 @@ public final class ActionSpans {
     public static final String ACTION_EXECUTION_CACHED_DATASOURCE = "get.datasource.cached";
     public static final String ACTION_EXECUTION_CACHED_PLUGIN = "get.plugin.cached";
     public static final String ACTION_EXECUTION_DATASOURCE_CONTEXT = "get.datasource.context";
-    public static final String ACTION_EXECUTION_DATASOURCE_CONTEXT_REMOTE = "get.datasource.context.remote";
+    public static final String ACTION_EXECUTION_DATASOURCE_CONTEXT_REMOTE =
+            "get.datasource.context.remote";
     public static final String ACTION_EXECUTION_EDITOR_CONFIG = "get.editorConfig.cached";
     public static final String ACTION_EXECUTION_VALIDATE_AUTHENTICATION = "validate.authentication";
     public static final String ACTION_EXECUTION_PLUGIN_EXECUTION = "total.plugin.execution";
@@ -16,6 +18,4 @@ public final class ActionSpans {
     public static final String GET_UNPUBLISHED_ACTION = "get.action.unpublished";
     public static final String GET_VIEW_MODE_ACTION = "get.action.viewmode";
     public static final String GET_ACTION_REPOSITORY_CALL = "get.action.repository.call";
-
-
 }

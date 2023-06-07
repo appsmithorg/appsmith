@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -5,7 +6,9 @@ import com.appsmith.server.controllers.ce.LayoutControllerCE;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.solutions.RefactoringSolution;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class LayoutController extends LayoutControllerCE {
 
-    public LayoutController(LayoutService layoutService,
-                            LayoutActionService layoutActionService,
-                            RefactoringSolution refactoringSolution) {
+    public LayoutController(
+            LayoutService layoutService,
+            LayoutActionService layoutActionService,
+            RefactoringSolution refactoringSolution) {
 
         super(layoutService, layoutActionService, refactoringSolution);
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -6,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -18,11 +20,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Connection implements AppsmithDomain {
 
     public enum Mode {
-        READ_ONLY, READ_WRITE
+        READ_ONLY,
+        READ_WRITE
     }
 
     public enum Type {
-        DIRECT, REPLICA_SET
+        DIRECT,
+        REPLICA_SET
     }
 
     Mode mode;

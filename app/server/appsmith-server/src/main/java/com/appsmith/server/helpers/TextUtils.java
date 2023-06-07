@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +26,8 @@ public class TextUtils {
     private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}&&[^-]]");
 
     /**
-     * Creates URL safe text aka slug from the input text. It supports english locale only.
-     * See the test cases for sample conversions
-     * For other languages, it'll return empty.
+     * Creates URL safe text aka slug from the input text. It supports english locale only. See the
+     * test cases for sample conversions For other languages, it'll return empty.
      *
      * @param inputText String that'll be converted
      * @return String, empty if failed due to encoding exception
@@ -48,8 +48,8 @@ public class TextUtils {
     }
 
     /**
-     * Splits a csv string and returns the parts as a set.
-     * If comma has one or more spaces before and after, it'll ignore the spaces.
+     * Splits a csv string and returns the parts as a set. If comma has one or more spaces before
+     * and after, it'll ignore the spaces.
      *
      * @param inputStringCsv csv string
      * @return Set of string containing the parts of the csv
@@ -58,7 +58,8 @@ public class TextUtils {
         if (inputStringCsv == null) {
             return Set.of();
         }
-        Set<String> parts = new HashSet<>(Arrays.asList(inputStringCsv.trim().split("(\\s*,\\s*)+")));
+        Set<String> parts =
+                new HashSet<>(Arrays.asList(inputStringCsv.trim().split("(\\s*,\\s*)+")));
         parts.remove("");
         return parts;
     }
@@ -66,7 +67,7 @@ public class TextUtils {
     /**
      * Generates default names for roles based on role type and resource name.
      *
-     * @param roleType     {@link String}
+     * @param roleType {@link String}
      * @param resourceName {@link String}
      * @return {@link String}
      */

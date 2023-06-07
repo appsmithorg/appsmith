@@ -1,4 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
+
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -6,21 +10,22 @@ import com.appsmith.external.models.TriggerRequestDTO;
 import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
+
 import reactor.core.Exceptions;
 
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
-import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
-
 @Slf4j
 public class GoogleSheetsMethodStrategy {
 
-    public static ExecutionMethod getExecutionMethod(Map<String, Object> formData, ObjectMapper objectMapper) {
-        final String type = getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
-                + "_"
-                + getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
+    public static ExecutionMethod getExecutionMethod(
+            Map<String, Object> formData, ObjectMapper objectMapper) {
+        final String type =
+                getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
+                        + "_"
+                        + getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
         switch (type) {
             case MethodIdentifiers.ROWS_INSERT_ONE:
                 return new RowsAppendMethod(objectMapper);
@@ -51,11 +56,16 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                String.format(
+                                        ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
         }
     }
 
-    public static TriggerMethod getTriggerMethod(TriggerRequestDTO triggerRequestDTO, ObjectMapper objectMapper) {
+    public static TriggerMethod getTriggerMethod(
+            TriggerRequestDTO triggerRequestDTO, ObjectMapper objectMapper) {
         switch (triggerRequestDTO.getRequestType()) {
             case MethodIdentifiers.TRIGGER_SPREADSHEET_SELECTOR:
                 return new FileListMethod(objectMapper);
@@ -64,15 +74,20 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.TRIGGER_COLUMNS_SELECTOR:
                 return new GetStructureMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_TRIGGER_METHOD_ERROR_MSG, triggerRequestDTO.getRequestType())));
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                String.format(
+                                        ErrorMessages.UNKNOWN_TRIGGER_METHOD_ERROR_MSG,
+                                        triggerRequestDTO.getRequestType())));
         }
-
     }
 
     public static TemplateMethod getTemplateMethod(Map<String, Object> formData) {
-        final String type = getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
-                + "_"
-                + getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
+        final String type =
+                getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
+                        + "_"
+                        + getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
 
         switch (type) {
             case MethodIdentifiers.ROWS_INSERT_ONE:
@@ -84,7 +99,11 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod();
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
+                throw Exceptions.propagate(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                String.format(
+                                        ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
         }
     }
 }

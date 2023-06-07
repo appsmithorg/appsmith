@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +12,7 @@ import java.util.List;
 @Setter
 public class MergeStatusDTO {
 
-    @JsonProperty(value="isMergeAble")
+    @JsonProperty(value = "isMergeAble")
     boolean MergeAble;
 
     // Merge status received from JGIT

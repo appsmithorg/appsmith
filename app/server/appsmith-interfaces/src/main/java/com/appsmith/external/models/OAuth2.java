@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.documenttype.DocumentType;
@@ -6,14 +7,17 @@ import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
+
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -51,16 +55,14 @@ public class OAuth2 extends AuthenticationDTO {
 
     String clientId;
 
-    @Encrypted
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String clientSecret;
 
     String authorizationUrl;
 
     String accessTokenUrl;
 
-    @Transient
-    String scopeString;
+    @Transient String scopeString;
 
     Set<String> scope;
 
@@ -89,17 +91,19 @@ public class OAuth2 extends AuthenticationDTO {
     public void setScopeString(String scopeString) {
         this.scopeString = scopeString;
         if (scopeString != null && !scopeString.isBlank()) {
-            this.scope = Arrays.stream(scopeString.split(","))
-                    .filter(x -> !StringUtils.isEmpty(x))
-                    .map(String::trim)
-                    .collect(Collectors.toSet());
+            this.scope =
+                    Arrays.stream(scopeString.split(","))
+                            .filter(x -> !StringUtils.isEmpty(x))
+                            .map(String::trim)
+                            .collect(Collectors.toSet());
         }
     }
 
     @Override
     public Mono<Boolean> hasExpired() {
         if (this.authenticationResponse == null) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
+            return Mono.error(
+                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
         }
 
         if (this.authenticationResponse.expiresAt == null) {

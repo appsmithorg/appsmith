@@ -1,12 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
-
-import com.appsmith.external.models.DatasourceStructure.Template;
-import com.external.plugins.constants.AmazonS3Action;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
@@ -24,6 +17,14 @@ import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
 
+import com.appsmith.external.models.DatasourceStructure.Template;
+import com.external.plugins.constants.AmazonS3Action;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class TemplateUtils {
 
     public static String FILE_PICKER_DATA_EXPRESSION = "{{FilePicker1.files[0]}}";
@@ -38,11 +39,8 @@ public class TemplateUtils {
     public static final String DEFAULT_DIR = "path/to/files";
 
     /**
-     * This method adds templates for the following actions:
-     *   o List files in a bucket
-     *   o Read file content
-     *   o Create new file
-     *   o Delete file
+     * This method adds templates for the following actions: o List files in a bucket o Read file
+     * content o Create new file o Delete file
      *
      * @param bucketName : name of S3 bucket
      * @param fileName
@@ -74,7 +72,8 @@ public class TemplateUtils {
 
     private static Template getDeleteMultipleFilesTemplate(String bucketName) {
         Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.DELETE_MULTIPLE_FILES.name());
+        setDataValueSafelyInFormData(
+                configMap, COMMAND, AmazonS3Action.DELETE_MULTIPLE_FILES.name());
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, PATH, LIST_OF_FILES_STRING);
 
@@ -103,7 +102,8 @@ public class TemplateUtils {
 
     private static Template getCreateFileTemplate(String bucketName, String fileName) {
         Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.UPLOAD_FILE_FROM_BODY.name());
+        setDataValueSafelyInFormData(
+                configMap, COMMAND, AmazonS3Action.UPLOAD_FILE_FROM_BODY.name());
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, YES);
         setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
@@ -115,7 +115,8 @@ public class TemplateUtils {
 
     private static Template getCreateMultipleFilesTemplate(String bucketName) {
         Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name());
+        setDataValueSafelyInFormData(
+                configMap, COMMAND, AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name());
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, YES);
         setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
@@ -131,9 +132,14 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, NO);
         setDataValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, YES);
-        setDataValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{
-            put("condition", "AND");
-        }});
+        setDataValueSafelyInFormData(
+                configMap,
+                LIST_WHERE,
+                new HashMap<String, Object>() {
+                    {
+                        put("condition", "AND");
+                    }
+                });
 
         return new Template(LIST_FILES_TEMPLATE_NAME, configMap);
     }

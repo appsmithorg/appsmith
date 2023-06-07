@@ -1,4 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.transactions;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -18,6 +22,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.google.gson.Gson;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,96 +43,86 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-
-// All the test case are for failure or exception. Test cases for valid json file is already present in ImportExportApplicationServiceTest class
+// All the test case are for failure or exception. Test cases for valid json file is already present
+// in ImportExportApplicationServiceTest class
 
 @AutoConfigureDataMongo
-@SpringBootTest(
-        properties = "de.flapdoodle.mongodb.embedded.version=5.0.5"
-)
+@SpringBootTest(properties = "de.flapdoodle.mongodb.embedded.version=5.0.5")
 @EnableAutoConfiguration()
 @TestPropertySource(properties = "property=C")
 @DirtiesContext
 public class ImportApplicationTransactionServiceTest {
 
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    @Autowired ImportExportApplicationService importExportApplicationService;
 
-    @Autowired
-    WorkspaceService workspaceService;
+    @Autowired WorkspaceService workspaceService;
 
-    @Autowired
-    MongoTemplate mongoTemplate;
+    @Autowired MongoTemplate mongoTemplate;
 
-    @MockBean
-    NewActionService newActionService;
+    @MockBean NewActionService newActionService;
 
-    @MockBean
-    NewActionRepository newActionRepository;
+    @MockBean NewActionRepository newActionRepository;
 
-    @MockBean
-    ActionCollectionService actionCollectionService;
+    @MockBean ActionCollectionService actionCollectionService;
 
-    @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    @MockBean ActionCollectionRepository actionCollectionRepository;
 
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
+    @MockBean PluginExecutorHelper pluginExecutorHelper;
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
     private ApplicationJson applicationJson = new ApplicationJson();
 
     @BeforeEach
     public void setup() {
-        Mockito
-                .when(pluginExecutorHelper.getPluginExecutor(any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
+        applicationJson =
+                createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
         applicationCount = mongoTemplate.count(new Query(), Application.class);
         pageCount = mongoTemplate.count(new Query(), NewPage.class);
         actionCount = mongoTemplate.count(new Query(), NewAction.class);
         actionCollectionCount = mongoTemplate.count(new Query(), ActionCollection.class);
     }
 
-
     private FilePart createFilePart(String filePath) {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(
-                        new ClassPathResource(filePath),
-                        new DefaultDataBufferFactory(),
-                        4096)
-                .cache();
+        Flux<DataBuffer> dataBufferFlux =
+                DataBufferUtils.read(
+                                new ClassPathResource(filePath),
+                                new DefaultDataBufferFactory(),
+                                4096)
+                        .cache();
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
 
         return filepart;
-
     }
 
     private Mono<ApplicationJson> createAppJson(String filePath) {
         FilePart filePart = createFilePart(filePath);
 
-        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
-                .map(dataBuffer -> {
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-                    return new String(data);
-                });
+        Mono<String> stringifiedFile =
+                DataBufferUtils.join(filePart.content())
+                        .map(
+                                dataBuffer -> {
+                                    byte[] data = new byte[dataBuffer.readableByteCount()];
+                                    dataBuffer.read(data);
+                                    DataBufferUtils.release(dataBuffer);
+                                    return new String(data);
+                                });
 
         return stringifiedFile
-                .map(data -> {
-                    Gson gson = new Gson();
-                    return gson.fromJson(data, ApplicationJson.class);
-                })
+                .map(
+                        data -> {
+                            Gson gson = new Gson();
+                            return gson.fromJson(data, ApplicationJson.class);
+                        })
                 .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
     }
 
@@ -143,15 +138,25 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono =
+                importExportApplicationService.importApplicationInWorkspace(
+                        createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
-        StepVerifier
-                .create(resultMono)
-                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().contains(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(
+                        error ->
+                                error instanceof AppsmithException
+                                        && error.getMessage()
+                                                .contains(
+                                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR
+                                                                .getMessage(
+                                                                        createdWorkspace.getId(),
+                                                                        "")))
                 .verify();
 
-        // After the import application failed in the middle of execution after the application and pages are saved to DB
+        // After the import application failed in the middle of execution after the application and
+        // pages are saved to DB
         // check if the saved pages reverted after the exception
         assertThat(mongoTemplate.count(new Query(), Application.class)).isEqualTo(applicationCount);
         assertThat(mongoTemplate.count(new Query(), NewPage.class)).isEqualTo(pageCount);
@@ -160,23 +165,35 @@ public class ImportApplicationTransactionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplication_transactionExceptionDuringListActionSave_omitTransactionMessagePart() {
+    public void
+            importApplication_transactionExceptionDuringListActionSave_omitTransactionMessagePart() {
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
         Mockito.when(newActionRepository.findByApplicationId(any()))
-                .thenThrow(new MongoTransactionException("Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'"));
+                .thenThrow(
+                        new MongoTransactionException(
+                                "Command failed with error 251 (NoSuchTransaction): 'Transaction 1"
+                                        + " has been aborted.'"));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono =
+                importExportApplicationService.importApplicationInWorkspace(
+                        createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
-        StepVerifier
-                .create(resultMono)
-                .expectErrorMatches(error -> error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(
+                        error ->
+                                error instanceof AppsmithException
+                                        && error.getMessage()
+                                                .equals(
+                                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR
+                                                                .getMessage(
+                                                                        createdWorkspace.getId(),
+                                                                        "")))
                 .verify();
     }
 }

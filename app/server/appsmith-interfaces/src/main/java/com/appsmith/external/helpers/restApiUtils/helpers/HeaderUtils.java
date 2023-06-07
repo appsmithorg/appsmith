@@ -1,11 +1,16 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.helpers;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+
 import lombok.NoArgsConstructor;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.InvalidMediaTypeException;
@@ -15,8 +20,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.springframework.util.CollectionUtils.isEmpty;
-
 @NoArgsConstructor
 public class HeaderUtils {
     public static final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
@@ -24,8 +27,8 @@ public class HeaderUtils {
 
     public boolean isEncodeParamsToggleEnabled(ActionConfiguration actionConfiguration) {
         /**
-         * If encodeParamsToggle is null, then assume it to be true because params are supposed to be
-         * encoded by default, unless explicitly prohibited by the user.
+         * If encodeParamsToggle is null, then assume it to be true because params are supposed to
+         * be encoded by default, unless explicitly prohibited by the user.
          */
         if (actionConfiguration.getEncodeParamsToggle() != null
                 && actionConfiguration.getEncodeParamsToggle() == false) {
@@ -37,19 +40,25 @@ public class HeaderUtils {
 
     public void removeEmptyHeaders(ActionConfiguration actionConfiguration) {
         /**
-         * We only check for key being empty since an empty value is still a valid header.
-         * Ref: https://stackoverflow.com/questions/12130910/how-to-interpret-empty-http-accept-header
+         * We only check for key being empty since an empty value is still a valid header. Ref:
+         * https://stackoverflow.com/questions/12130910/how-to-interpret-empty-http-accept-header
          */
-        if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
-            List<Property> headerList = actionConfiguration.getHeaders().stream()
-                    .filter(header -> !org.springframework.util.StringUtils.isEmpty(header.getKey()))
-                    .collect(Collectors.toList());
+        if (actionConfiguration.getHeaders() != null
+                && !actionConfiguration.getHeaders().isEmpty()) {
+            List<Property> headerList =
+                    actionConfiguration.getHeaders().stream()
+                            .filter(
+                                    header ->
+                                            !org.springframework.util.StringUtils.isEmpty(
+                                                    header.getKey()))
+                            .collect(Collectors.toList());
             actionConfiguration.setHeaders(headerList);
         }
     }
 
-    public String getRequestContentType(ActionConfiguration actionConfiguration,
-                                               DatasourceConfiguration datasourceConfiguration) {
+    public String getRequestContentType(
+            ActionConfiguration actionConfiguration,
+            DatasourceConfiguration datasourceConfiguration) {
         String reqContentType = "";
 
         /* Get request content type from datasource config */
@@ -78,8 +87,8 @@ public class HeaderUtils {
     }
 
     /**
-     * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
-     * valid media type.
+     * If the headers list of properties contains a `Content-Type` header, verify if the value of
+     * that header is a valid media type.
      *
      * @param headers List of header Property objects to look for Content-Type headers in.
      * @return An error message string if the Content-Type value is invalid, otherwise `null`.
@@ -90,7 +99,8 @@ public class HeaderUtils {
         }
 
         for (Property header : headers) {
-            if (StringUtils.isNotEmpty(header.getKey()) && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+            if (StringUtils.isNotEmpty(header.getKey())
+                    && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                 try {
                     MediaType.valueOf((String) header.getValue());
                 } catch (InvalidMediaTypeException e) {
@@ -103,7 +113,8 @@ public class HeaderUtils {
         return null;
     }
 
-    public String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+    public String getSignatureKey(DatasourceConfiguration datasourceConfiguration)
+            throws AppsmithPluginException {
         if (!isEmpty(datasourceConfiguration.getProperties())) {
             boolean isSendSessionEnabled = false;
             String secretKey = null;
@@ -120,9 +131,8 @@ public class HeaderUtils {
                 if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Secret key is required when sending session details is switched on," +
-                                    " and should be at least 32 characters in length."
-                    );
+                            "Secret key is required when sending session details is switched on,"
+                                    + " and should be at least 32 characters in length.");
                 }
                 return secretKey;
             }
@@ -131,32 +141,34 @@ public class HeaderUtils {
         return null;
     }
 
-    public void setHeaderFromAutoGeneratedHeaders(ActionConfiguration actionConfiguration){
-        if(isEmpty(actionConfiguration.getAutoGeneratedHeaders())) {
+    public void setHeaderFromAutoGeneratedHeaders(ActionConfiguration actionConfiguration) {
+        if (isEmpty(actionConfiguration.getAutoGeneratedHeaders())) {
             return;
         }
 
-        if(isEmpty(actionConfiguration.getHeaders())) {
+        if (isEmpty(actionConfiguration.getHeaders())) {
             actionConfiguration.setHeaders(actionConfiguration.getAutoGeneratedHeaders());
             return;
         }
 
-        Set<String> userAddedHeaderKeys = actionConfiguration.getHeaders().stream()
-                .filter(header -> !StringUtils.isEmpty(header.getKey()))
-                .map(Property::getKey)
-                .map(String::toLowerCase) // Header keys are case-insensitive
-                .collect(Collectors.toSet());
+        Set<String> userAddedHeaderKeys =
+                actionConfiguration.getHeaders().stream()
+                        .filter(header -> !StringUtils.isEmpty(header.getKey()))
+                        .map(Property::getKey)
+                        .map(String::toLowerCase) // Header keys are case-insensitive
+                        .collect(Collectors.toSet());
 
         actionConfiguration.getAutoGeneratedHeaders().stream()
                 .filter(header -> !StringUtils.isEmpty(header.getKey()))
-                .forEach(header -> {
-                    /**
-                     * Header keys are case insensitive:
-                     * https://stackoverflow.com/questions/5258977/are-http-headers-case-sensitive
-                     */
-                    if (!userAddedHeaderKeys.contains(header.getKey().toLowerCase())) {
-                        actionConfiguration.getHeaders().add(header);
-                    }
-                });
+                .forEach(
+                        header -> {
+                            /**
+                             * Header keys are case insensitive:
+                             * https://stackoverflow.com/questions/5258977/are-http-headers-case-sensitive
+                             */
+                            if (!userAddedHeaderKeys.contains(header.getKey().toLowerCase())) {
+                                actionConfiguration.getHeaders().add(header);
+                            }
+                        });
     }
 }

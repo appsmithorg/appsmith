@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Getter;
@@ -8,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class will hold the fields that will be consumed by the server, which will be received
- * from the clients request body
+ * This class will hold the fields that will be consumed by the server, which will be received from
+ * the clients request body
  */
 @NoArgsConstructor
 @Getter

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.util;
 
 import com.appsmith.external.converters.HttpMethodConverter;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import org.springframework.boot.autoconfigure.gson.GsonBuilderCustomizer;
 import org.springframework.http.HttpMethod;
 
@@ -48,7 +50,8 @@ public class SerializationUtils {
     public static GsonBuilderCustomizer typeAdapterRegistration() {
         return builder -> {
             builder.registerTypeAdapter(Instant.class, new ISOStringToInstantConverter());
-            builder.registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator());
+            builder.registerTypeAdapter(
+                    DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator());
             builder.registerTypeAdapter(HttpMethod.class, new HttpMethodConverter());
         };
     }

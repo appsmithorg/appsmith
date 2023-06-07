@@ -1,7 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,7 +36,8 @@ public class PageNameIdDTO {
     @JsonView(Views.Public.class)
     Set<String> userPermissions;
 
-    // This field will represent the default pageId for current page in git system where we are connecting resources
+    // This field will represent the default pageId for current page in git system where we are
+    // connecting resources
     // among the branches
     @JsonView(Views.Internal.class)
     String defaultPageId;

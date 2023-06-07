@@ -1,12 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.PageDTO;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter

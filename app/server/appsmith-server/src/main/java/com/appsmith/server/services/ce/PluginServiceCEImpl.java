@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
@@ -21,9 +22,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import jakarta.validation.Validator;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
+
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -60,7 +65,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
+public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String>
+        implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
     protected final WorkspaceService workspaceService;
@@ -78,7 +84,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     private static final String UQI_QUERY_EDITOR_BASE_FOLDER = "editor";
     private static final String UQI_QUERY_EDITOR_ROOT_FILE = "root.json";
-    private static final String BASE_UQI_URL = "https://raw.githubusercontent.com/appsmithorg/uqi-configurations/master/";
+    private static final String BASE_UQI_URL =
+            "https://raw.githubusercontent.com/appsmithorg/uqi-configurations/master/";
 
     private static final String KEY_EDITOR = "editor";
     private static final String KEY_CONFIG_PROPERTY = "configProperty";
@@ -91,18 +98,25 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     public static final String KEY_FILES = "files";
 
     @Autowired
-    public PluginServiceCEImpl(Scheduler scheduler,
-                               Validator validator,
-                               MongoConverter mongoConverter,
-                               ReactiveMongoTemplate reactiveMongoTemplate,
-                               PluginRepository repository,
-                               AnalyticsService analyticsService,
-                               WorkspaceService workspaceService,
-                               PluginManager pluginManager,
-                               ReactiveRedisTemplate<String, String> reactiveTemplate,
-                               ChannelTopic topic,
-                               ObjectMapper objectMapper) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+    public PluginServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            PluginRepository repository,
+            AnalyticsService analyticsService,
+            WorkspaceService workspaceService,
+            PluginManager pluginManager,
+            ReactiveRedisTemplate<String, String> reactiveTemplate,
+            ChannelTopic topic,
+            ObjectMapper objectMapper) {
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
@@ -117,45 +131,58 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         String workspaceId = params.getFirst(FieldName.WORKSPACE_ID);
         if (workspaceId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Flux.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
+        // TODO : Think about the various scenarios where this plugin api is called and then decide
+        // on permissions.
         Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
 
         return workspaceMono
-                .flatMapMany(org -> {
-                    log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
-                    if (org.getPlugins() == null) {
-                        log.debug("Null installed plugins found for org: {}. Return empty plugins", org.getName());
-                        return Flux.empty();
-                    }
+                .flatMapMany(
+                        org -> {
+                            log.debug(
+                                    "Fetching plugins by params: {} for org: {}",
+                                    params,
+                                    org.getName());
+                            if (org.getPlugins() == null) {
+                                log.debug(
+                                        "Null installed plugins found for org: {}. Return empty"
+                                                + " plugins",
+                                        org.getName());
+                                return Flux.empty();
+                            }
 
-                    List<String> pluginIds = org.getPlugins()
-                            .stream()
-                            .filter(plugin -> plugin.getDeleted() == false)
-                            .map(WorkspacePlugin::getPluginId)
-                            .collect(Collectors.toList());
-                    Query query = new Query();
-                    query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
+                            List<String> pluginIds =
+                                    org.getPlugins().stream()
+                                            .filter(plugin -> plugin.getDeleted() == false)
+                                            .map(WorkspacePlugin::getPluginId)
+                                            .collect(Collectors.toList());
+                            Query query = new Query();
+                            query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
 
-                    if (params.getFirst(FieldName.TYPE) != null) {
-                        try {
-                            PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
-                            query.addCriteria(Criteria.where(FieldName.TYPE).is(pluginType));
-                        } catch (IllegalArgumentException e) {
-                            log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
-                            return Flux.empty();
-                        }
-                    }
+                            if (params.getFirst(FieldName.TYPE) != null) {
+                                try {
+                                    PluginType pluginType =
+                                            PluginType.valueOf(params.getFirst(FieldName.TYPE));
+                                    query.addCriteria(
+                                            Criteria.where(FieldName.TYPE).is(pluginType));
+                                } catch (IllegalArgumentException e) {
+                                    log.error(
+                                            "No plugins for type : {}",
+                                            params.getFirst(FieldName.TYPE));
+                                    return Flux.empty();
+                                }
+                            }
 
-                    return mongoTemplate.find(query, Plugin.class);
-                })
-                .flatMap(plugin ->
-                        getTemplates(plugin)
-                                .doOnSuccess(plugin::setTemplates)
-                                .thenReturn(plugin)
-                );
+                            return mongoTemplate.find(query, Plugin.class);
+                        })
+                .flatMap(
+                        plugin ->
+                                getTemplates(plugin)
+                                        .doOnSuccess(plugin::setTemplates)
+                                        .thenReturn(plugin));
     }
 
     @Override
@@ -184,7 +211,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
         if (pluginOrgDTO.getWorkspaceId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         return storeWorkspacePlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
@@ -193,23 +221,27 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
-        final List<WorkspacePlugin> newWorkspacePlugins = plugins
-                .stream()
-                .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
-                .map(plugin -> {
-                    return new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.ACTIVATED);
-                })
-                .collect(Collectors.toList());
-        return workspaceService.getAll()
-                .flatMap(workspace -> {
-                    // Only perform a DB op if plugins associated to this org have changed
-                    if (workspace.getPlugins().containsAll(newWorkspacePlugins)) {
-                        return Mono.just(workspace);
-                    } else {
-                        workspace.getPlugins().addAll(newWorkspacePlugins);
-                        return workspaceService.save(workspace);
-                    }
-                });
+        final List<WorkspacePlugin> newWorkspacePlugins =
+                plugins.stream()
+                        .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
+                        .map(
+                                plugin -> {
+                                    return new WorkspacePlugin(
+                                            plugin.getId(), WorkspacePluginStatus.ACTIVATED);
+                                })
+                        .collect(Collectors.toList());
+        return workspaceService
+                .getAll()
+                .flatMap(
+                        workspace -> {
+                            // Only perform a DB op if plugins associated to this org have changed
+                            if (workspace.getPlugins().containsAll(newWorkspacePlugins)) {
+                                return Mono.just(workspace);
+                            } else {
+                                workspace.getPlugins().addAll(newWorkspacePlugins);
+                                return workspaceService.save(workspace);
+                            }
+                        });
     }
 
     @Override
@@ -218,77 +250,110 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
         if (pluginDTO.getWorkspaceId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        //Find the workspace using id and plugin id -> This is to find if the workspace has the plugin installed
-        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(),
-                pluginDTO.getPluginId());
+        // Find the workspace using id and plugin id -> This is to find if the workspace has the
+        // plugin installed
+        Mono<Workspace> workspaceMono =
+                workspaceService.findByIdAndPluginsPluginId(
+                        pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
 
         return workspaceMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
-                //In case the plugin is not found for the workspace, the workspaceMono would not emit and the rest of the flow would stop
-                //i.e. the rest of the code flow would only happen when there is a plugin found for the workspace that can
-                //be uninstalled.
-                .flatMap(workspace -> {
-                    Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
-                    workspacePluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
-                    workspace.setPlugins(workspacePluginList);
-                    return workspaceService.save(workspace);
-                });
+                .switchIfEmpty(
+                        Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.PLUGIN_NOT_INSTALLED,
+                                        pluginDTO.getPluginId())))
+                // In case the plugin is not found for the workspace, the workspaceMono would not
+                // emit and the rest of the flow would stop
+                // i.e. the rest of the code flow would only happen when there is a plugin found for
+                // the workspace that can
+                // be uninstalled.
+                .flatMap(
+                        workspace -> {
+                            Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                            workspacePluginList.removeIf(
+                                    listPlugin ->
+                                            listPlugin
+                                                    .getPluginId()
+                                                    .equals(pluginDTO.getPluginId()));
+                            workspace.setPlugins(workspacePluginList);
+                            return workspaceService.save(workspace);
+                        });
     }
 
-    private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
+    private Mono<Workspace> storeWorkspacePlugin(
+            PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
 
-        Mono<Workspace> pluginInWorkspaceMono = workspaceService
-                .findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
+        Mono<Workspace> pluginInWorkspaceMono =
+                workspaceService.findByIdAndPluginsPluginId(
+                        pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
 
+        // If plugin is already present for the workspace, just return the workspace, else install
+        // and return workspace
+        return pluginInWorkspaceMono.switchIfEmpty(
+                Mono.defer(
+                        () -> {
+                            log.debug(
+                                    "Plugin {} not already installed. Installing now",
+                                    pluginDTO.getPluginId());
+                            // If the plugin is not found in the workspace, its not installed
+                            // already. Install now.
+                            return repository
+                                    .findById(pluginDTO.getPluginId())
+                                    .map(
+                                            plugin -> {
+                                                log.debug("Before publishing to the redis queue");
+                                                // Publish the event to the pub/sub queue
+                                                InstallPluginRedisDTO installPluginRedisDTO =
+                                                        new InstallPluginRedisDTO();
+                                                installPluginRedisDTO.setWorkspaceId(
+                                                        pluginDTO.getWorkspaceId());
+                                                installPluginRedisDTO.setPluginWorkspaceDTO(
+                                                        pluginDTO);
+                                                String jsonString;
+                                                try {
+                                                    jsonString =
+                                                            objectMapper.writeValueAsString(
+                                                                    installPluginRedisDTO);
+                                                } catch (JsonProcessingException e) {
+                                                    log.error("", e);
+                                                    return Mono.error(e);
+                                                }
+                                                return reactiveTemplate
+                                                        .convertAndSend(
+                                                                topic.getTopic(), jsonString)
+                                                        .subscribe();
+                                            })
+                                    // Now that the plugin jar has been successfully downloaded, go
+                                    // on and add the plugin to the workspace
+                                    .then(workspaceService.getById(pluginDTO.getWorkspaceId()))
+                                    .flatMap(
+                                            workspace -> {
+                                                Set<WorkspacePlugin> workspacePluginList =
+                                                        workspace.getPlugins();
+                                                if (workspacePluginList == null) {
+                                                    workspacePluginList = new HashSet<>();
+                                                }
 
-        //If plugin is already present for the workspace, just return the workspace, else install and return workspace
-        return pluginInWorkspaceMono
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
-                    //If the plugin is not found in the workspace, its not installed already. Install now.
-                    return repository
-                            .findById(pluginDTO.getPluginId())
-                            .map(plugin -> {
+                                                WorkspacePlugin workspacePlugin =
+                                                        new WorkspacePlugin();
+                                                workspacePlugin.setPluginId(
+                                                        pluginDTO.getPluginId());
+                                                workspacePlugin.setStatus(status);
+                                                workspacePluginList.add(workspacePlugin);
+                                                workspace.setPlugins(workspacePluginList);
 
-                                log.debug("Before publishing to the redis queue");
-                                //Publish the event to the pub/sub queue
-                                InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                                installPluginRedisDTO.setWorkspaceId(pluginDTO.getWorkspaceId());
-                                installPluginRedisDTO.setPluginWorkspaceDTO(pluginDTO);
-                                String jsonString;
-                                try {
-                                    jsonString = objectMapper.writeValueAsString(installPluginRedisDTO);
-                                } catch (JsonProcessingException e) {
-                                    log.error("", e);
-                                    return Mono.error(e);
-                                }
-                                return reactiveTemplate
-                                        .convertAndSend(topic.getTopic(), jsonString)
-                                        .subscribe();
-                            })
-                            //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the workspace
-                            .then(workspaceService.getById(pluginDTO.getWorkspaceId()))
-                            .flatMap(workspace -> {
+                                                log.debug(
+                                                        "Going to save the workspace with install"
+                                                            + " plugin. This means that"
+                                                            + " installation has been successful");
 
-                                Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
-                                if (workspacePluginList == null) {
-                                    workspacePluginList = new HashSet<>();
-                                }
-
-                                WorkspacePlugin workspacePlugin = new WorkspacePlugin();
-                                workspacePlugin.setPluginId(pluginDTO.getPluginId());
-                                workspacePlugin.setStatus(status);
-                                workspacePluginList.add(workspacePlugin);
-                                workspace.setPlugins(workspacePluginList);
-
-                                log.debug("Going to save the workspace with install plugin. This means that installation has been successful");
-
-                                return workspaceService.save(workspace);
-                            });
-                }));
+                                                return workspaceService.save(workspace);
+                                            });
+                        }));
     }
 
     public Mono<Plugin> findByName(String name) {
@@ -306,29 +371,43 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<String> getPluginName(Mono<Datasource> datasourceMono) {
-        return
-                datasourceMono
-                        .flatMap(datasource -> this.findById(datasource.getPluginId())
-                                .map(plugin -> plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName()));
+        return datasourceMono.flatMap(
+                datasource ->
+                        this.findById(datasource.getPluginId())
+                                .map(
+                                        plugin ->
+                                                plugin.getPluginName() == null
+                                                        ? plugin.getPackageName()
+                                                        : plugin.getPluginName()));
     }
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
+        Mono<Plugin> pluginMono =
+                repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
-                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
-                    return Mono.just(new Plugin());
-                })).block();
+                .flatMap(
+                        plugin ->
+                                downloadAndStartPlugin(
+                                        installPluginRedisDTO.getWorkspaceId(), plugin))
+                .switchIfEmpty(
+                        Mono.defer(
+                                () -> {
+                                    log.debug(
+                                            "During redisInstallPlugin, no plugin with plugin id {}"
+                                                + " found. Returning without download and install",
+                                            installPluginRedisDTO
+                                                    .getPluginWorkspaceDTO()
+                                                    .getPluginId());
+                                    return Mono.just(new Plugin());
+                                }))
+                .block();
     }
 
     private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
         if (plugin.getJarLocation() == null) {
             // Plugin jar location not set. Must be local
-            /** TODO
-             * In future throw an error if jar location is not set
-             */
+            /** TODO In future throw an error if jar location is not set */
             log.debug("plugin jarLocation is null. Not downloading and starting. Returning now");
             return Mono.just(plugin);
         }
@@ -345,12 +424,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     READ_TIMEOUT);
         } catch (Exception e) {
             log.error("", e);
-            return Mono.error(new AppsmithException(AppsmithError.PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR));
         }
 
-        //Now that the plugin has been downloaded, load and restart the plugin
+        // Now that the plugin has been downloaded, load and restart the plugin
         pluginManager.loadPlugin(Path.of(baseUrl + pluginJar));
-        //The following only starts plugins which have been loaded but hasn't been started yet.
+        // The following only starts plugins which have been loaded but hasn't been started yet.
         pluginManager.startPlugins();
 
         return Mono.just(plugin);
@@ -359,48 +439,58 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     @Override
     public Mono<Map> getFormConfig(String pluginId) {
         if (!formCache.containsKey(pluginId)) {
-            final Mono<Map> formMono = loadPluginResource(pluginId, "form.json")
-                    .doOnError(throwable ->
-                            // Remove this pluginId from the cache so it is tried again next time.
-                            formCache.remove(pluginId)
-                    )
-                    .onErrorMap(Exceptions::unwrap)
-                    .cache();
-            final Mono<Map> editorMono = loadPluginResource(pluginId, "editor.json")
-                    .doOnError(throwable ->
-                            // Remove this pluginId from the cache so it is tried again next time.
-                            formCache.remove(pluginId)
-                    )
-                    .onErrorReturn(new HashMap())
-                    .cache();
-            final Mono<Map> settingMono = loadPluginResource(pluginId, "setting.json")
-                    .doOnError(throwable ->
-                            // Remove this pluginId from the cache so it is tried again next time.
-                            formCache.remove(pluginId)
-                    )
-                    .onErrorReturn(new HashMap())
-                    .cache();
-            final Mono<Map> dependencyMono = loadPluginResource(pluginId, "dependency.json")
-                    .doOnError(throwable ->
-                            // Remove this pluginId from the cache so it is tried again next time.
-                            formCache.remove(pluginId)
-                    )
-                    .onErrorReturn(new HashMap())
-                    .cache();
+            final Mono<Map> formMono =
+                    loadPluginResource(pluginId, "form.json")
+                            .doOnError(
+                                    throwable ->
+                                            // Remove this pluginId from the cache so it is tried
+                                            // again next time.
+                                            formCache.remove(pluginId))
+                            .onErrorMap(Exceptions::unwrap)
+                            .cache();
+            final Mono<Map> editorMono =
+                    loadPluginResource(pluginId, "editor.json")
+                            .doOnError(
+                                    throwable ->
+                                            // Remove this pluginId from the cache so it is tried
+                                            // again next time.
+                                            formCache.remove(pluginId))
+                            .onErrorReturn(new HashMap())
+                            .cache();
+            final Mono<Map> settingMono =
+                    loadPluginResource(pluginId, "setting.json")
+                            .doOnError(
+                                    throwable ->
+                                            // Remove this pluginId from the cache so it is tried
+                                            // again next time.
+                                            formCache.remove(pluginId))
+                            .onErrorReturn(new HashMap())
+                            .cache();
+            final Mono<Map> dependencyMono =
+                    loadPluginResource(pluginId, "dependency.json")
+                            .doOnError(
+                                    throwable ->
+                                            // Remove this pluginId from the cache so it is tried
+                                            // again next time.
+                                            formCache.remove(pluginId))
+                            .onErrorReturn(new HashMap())
+                            .cache();
 
-            Mono<Map> resourceMono = Mono.zip(formMono, editorMono, settingMono, dependencyMono)
-                    .map(tuple -> {
-                        Map formMap = tuple.getT1();
-                        Map editorMap = tuple.getT2();
-                        Map settingMap = tuple.getT3();
-                        Map dependencyMap = tuple.getT4();
+            Mono<Map> resourceMono =
+                    Mono.zip(formMono, editorMono, settingMono, dependencyMono)
+                            .map(
+                                    tuple -> {
+                                        Map formMap = tuple.getT1();
+                                        Map editorMap = tuple.getT2();
+                                        Map settingMap = tuple.getT3();
+                                        Map dependencyMap = tuple.getT4();
 
-                        formMap.putAll(editorMap);
-                        formMap.putAll(settingMap);
-                        formMap.putAll(dependencyMap);
+                                        formMap.putAll(editorMap);
+                                        formMap.putAll(settingMap);
+                                        formMap.putAll(dependencyMap);
 
-                        return formMap;
-                    });
+                                        return formMap;
+                                    });
 
             formCache.put(pluginId, resourceMono);
         }
@@ -420,44 +510,70 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.just(new HashMap());
         }
 
-        Mono<Map> labelMapMono = formConfig
-                .flatMap(formMap -> {
-                    Map<String, String> labelMap = new LinkedHashMap(); // need to keep the key value pairs in order
-                    List editorMap = (List) formMap.get(KEY_EDITOR);
-                    if (editorMap == null) {
-                        return Mono.just(new HashMap());
-                    }
+        Mono<Map> labelMapMono =
+                formConfig.flatMap(
+                        formMap -> {
+                            Map<String, String> labelMap =
+                                    new LinkedHashMap(); // need to keep the key value pairs in
+                            // order
+                            List editorMap = (List) formMap.get(KEY_EDITOR);
+                            if (editorMap == null) {
+                                return Mono.just(new HashMap());
+                            }
 
-                    editorMap.stream()
-                            .filter(item -> {
-                                if (((Map) item).get(KEY_CHILDREN) == null) {
-                                    return false;
-                                }
-                                return true;
-                            })
-                            .map(item -> ((Map) item).get(KEY_CHILDREN))
-                            .forEach(item ->
-                                    ((List<Map>) item).stream()
-                                            .forEach(queryField -> {
-                                                /*
-                                                 * - First check for "label" key.
-                                                 * - If "label" key has empty value, then get the value against
-                                                 * "internalLabel" key.
-                                                 */
-                                                String label = StringUtils.isEmpty(queryField.get(KEY_LABEL)) ?
-                                                        (StringUtils.isEmpty(queryField.get(KEY_INTERNAL_LABEL)) ?
-                                                                DEFAULT_LABEL : (String) queryField.get(KEY_INTERNAL_LABEL)) :
-                                                        (String) queryField.get(KEY_LABEL);
-                                                String configProperty = (String) queryField.get(KEY_CONFIG_PROPERTY);
-                                                labelMap.put(
-                                                        configProperty,
-                                                        label
-                                                );
+                            editorMap.stream()
+                                    .filter(
+                                            item -> {
+                                                if (((Map) item).get(KEY_CHILDREN) == null) {
+                                                    return false;
+                                                }
+                                                return true;
                                             })
-                            );
+                                    .map(item -> ((Map) item).get(KEY_CHILDREN))
+                                    .forEach(
+                                            item ->
+                                                    ((List<Map>) item)
+                                                            .stream()
+                                                                    .forEach(
+                                                                            queryField -> {
+                                                                                /*
+                                                                                 * - First check for "label" key.
+                                                                                 * - If "label" key has empty value, then get the value against
+                                                                                 * "internalLabel" key.
+                                                                                 */
+                                                                                String label =
+                                                                                        StringUtils
+                                                                                                        .isEmpty(
+                                                                                                                queryField
+                                                                                                                        .get(
+                                                                                                                                KEY_LABEL))
+                                                                                                ? (StringUtils
+                                                                                                                .isEmpty(
+                                                                                                                        queryField
+                                                                                                                                .get(
+                                                                                                                                        KEY_INTERNAL_LABEL))
+                                                                                                        ? DEFAULT_LABEL
+                                                                                                        : (String)
+                                                                                                                queryField
+                                                                                                                        .get(
+                                                                                                                                KEY_INTERNAL_LABEL))
+                                                                                                : (String)
+                                                                                                        queryField
+                                                                                                                .get(
+                                                                                                                        KEY_LABEL);
+                                                                                String
+                                                                                        configProperty =
+                                                                                                (String)
+                                                                                                        queryField
+                                                                                                                .get(
+                                                                                                                        KEY_CONFIG_PROPERTY);
+                                                                                labelMap.put(
+                                                                                        configProperty,
+                                                                                        label);
+                                                                            }));
 
-                    return Mono.just(labelMap);
-                });
+                            return Mono.just(labelMap);
+                        });
 
         labelCache.put(pluginId, labelMapMono);
 
@@ -468,21 +584,30 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         final String pluginId = plugin.getId();
 
         if (!templateCache.containsKey(pluginId)) {
-            final Mono<Map<String, String>> mono = Mono.fromSupplier(() -> loadTemplatesFromPlugin(plugin))
-                    .onErrorResume(throwable -> throwable.getCause() instanceof FileNotFoundException, throwable -> Mono.just(Collections.emptyMap()))
-                    .doOnError(throwable ->
-                            // Remove this pluginId from the cache so it is tried again next time.
-                            templateCache.remove(pluginId)
-                    )
-                    // It's okay if the templates folder is not present, we just return empty templates collection.
-                    .onErrorMap(throwable -> {
-                        log.error("Error loading templates for plugin {}.", plugin.getPackageName(), throwable);
-                        return new AppsmithException(
-                                AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL,
-                                Exceptions.unwrap(throwable).getMessage()
-                        );
-                    })
-                    .cache();
+            final Mono<Map<String, String>> mono =
+                    Mono.fromSupplier(() -> loadTemplatesFromPlugin(plugin))
+                            .onErrorResume(
+                                    throwable ->
+                                            throwable.getCause() instanceof FileNotFoundException,
+                                    throwable -> Mono.just(Collections.emptyMap()))
+                            .doOnError(
+                                    throwable ->
+                                            // Remove this pluginId from the cache so it is tried
+                                            // again next time.
+                                            templateCache.remove(pluginId))
+                            // It's okay if the templates folder is not present, we just return
+                            // empty templates collection.
+                            .onErrorMap(
+                                    throwable -> {
+                                        log.error(
+                                                "Error loading templates for plugin {}.",
+                                                plugin.getPackageName(),
+                                                throwable);
+                                        return new AppsmithException(
+                                                AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL,
+                                                Exceptions.unwrap(throwable).getMessage());
+                                    })
+                            .cache();
 
             templateCache.put(pluginId, mono);
         }
@@ -491,23 +616,20 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     private Map<String, String> loadTemplatesFromPlugin(Plugin plugin) {
-        final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(
-                pluginManager
-                        .getPlugin(plugin.getPackageName())
-                        .getPluginClassLoader()
-        );
+        final PathMatchingResourcePatternResolver resolver =
+                new PathMatchingResourcePatternResolver(
+                        pluginManager.getPlugin(plugin.getPackageName()).getPluginClassLoader());
 
         final PluginTemplatesMeta pluginTemplatesMeta;
         try {
-            pluginTemplatesMeta = objectMapper.readValue(
-                    resolver.getResource("templates/meta.json").getInputStream(),
-                    PluginTemplatesMeta.class
-            );
+            pluginTemplatesMeta =
+                    objectMapper.readValue(
+                            resolver.getResource("templates/meta.json").getInputStream(),
+                            PluginTemplatesMeta.class);
 
         } catch (IOException e) {
             log.error("Error loading templates metadata in plugin {}", plugin.getPackageName());
             throw Exceptions.propagate(e);
-
         }
 
         if (pluginTemplatesMeta.getTemplates() == null) {
@@ -521,25 +643,27 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             final String filename = template.getFile();
 
             if (filename == null) {
-                log.warn("Empty or missing file for a template in plugin {}.", plugin.getPackageName());
+                log.warn(
+                        "Empty or missing file for a template in plugin {}.",
+                        plugin.getPackageName());
                 continue;
             }
 
             final Resource resource = resolver.getResource("templates/" + filename);
-            final String title = StringUtils.isEmpty(template.getTitle())
-                    ? filename.replaceFirst("\\.\\w+$", "")
-                    : template.getTitle();
+            final String title =
+                    StringUtils.isEmpty(template.getTitle())
+                            ? filename.replaceFirst("\\.\\w+$", "")
+                            : template.getTitle();
 
             try {
                 templates.put(
                         title,
-                        StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset())
-                );
+                        StreamUtils.copyToString(
+                                resource.getInputStream(), Charset.defaultCharset()));
 
             } catch (IOException e) {
                 log.error("Error loading template {} for plugin {}", filename, plugin.getId());
                 throw Exceptions.propagate(e);
-
             }
         }
 
@@ -548,14 +672,15 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     InputStream getConfigInputStream(Plugin plugin, String fileName) throws IOException {
         String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName;
-//        if (Set.of(
-//                "google-sheets-plugin",
-//                "mongo-plugin",
-//                "amazons3-plugin",
-//                "firestore-plugin"
-//        ).contains(plugin.getPackageName())) {
-//            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" + fileName).openStream();
-//        }
+        //        if (Set.of(
+        //                "google-sheets-plugin",
+        //                "mongo-plugin",
+        //                "amazons3-plugin",
+        //                "firestore-plugin"
+        //        ).contains(plugin.getPackageName())) {
+        //            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" +
+        // fileName).openStream();
+        //        }
         return pluginManager
                 .getPlugin(plugin.getPackageName())
                 .getPluginClassLoader()
@@ -563,11 +688,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     /**
-     * This function reads from the folder editor/ starting with file root.json. root.json declares all the combination
-     * of commands that would be present as well as the files from which the action types should be loaded.
+     * This function reads from the folder editor/ starting with file root.json. root.json declares
+     * all the combination of commands that would be present as well as the files from which the
+     * action types should be loaded.
      *
      * @param plugin
-     * @return Map of the editor in the format expected by the client for displaying all the UI fields with conditionals
+     * @return Map of the editor in the format expected by the client for displaying all the UI
+     *     fields with conditionals
      */
     @Override
     public Map loadEditorPluginResourceUqi(Plugin plugin) {
@@ -575,17 +702,28 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         ObjectNode rootTree;
 
-        try (InputStream resourceAsStream = getConfigInputStream(plugin, UQI_QUERY_EDITOR_ROOT_FILE)) {
+        try (InputStream resourceAsStream =
+                getConfigInputStream(plugin, UQI_QUERY_EDITOR_ROOT_FILE)) {
 
             if (resourceAsStream == null) {
-                throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
+                throw new AppsmithException(
+                        AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
+                        plugin.getPackageName(),
+                        "form resource " + resourcePath + " not found");
             }
 
             // Read the root.json content.
             rootTree = objectMapper.readValue(resourceAsStream, ObjectNode.class);
         } catch (IOException e) {
-            log.error("Error loading resource JSON for plugin {} and resourcePath {}", plugin.getPackageName(), resourcePath, e);
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
+            log.error(
+                    "Error loading resource JSON for plugin {} and resourcePath {}",
+                    plugin.getPackageName(),
+                    resourcePath,
+                    e);
+            throw new AppsmithException(
+                    AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
+                    plugin.getPackageName(),
+                    e.getMessage());
         }
 
         /*
@@ -603,7 +741,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         final ArrayNode templateChildrenNode = objectMapper.createArrayNode();
         uiSectionNode.set(KEY_CHILDREN, templateChildrenNode);
 
-        // From root tree, fetch the key "files" which contains the declaration for all the template files
+        // From root tree, fetch the key "files" which contains the declaration for all the template
+        // files
         ArrayNode filesArray = (ArrayNode) rootTree.get(KEY_FILES);
 
         // Adding a section to hold all the template configurations
@@ -615,21 +754,25 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                 String path = fileName.asText();
                 try {
-                    final JsonNode templateConfig = loadPluginResourceGivenPluginAsJsonNode(plugin, path);
+                    final JsonNode templateConfig =
+                            loadPluginResourceGivenPluginAsJsonNode(plugin, path);
                     templateChildrenNode.add(templateConfig);
                 } catch (AppsmithException e) {
-                    // Either the file doesn't exist or malformed JSON was found. Ignore the command template
-                    log.error("Error loading resource JSON for plugin {} and resourcePath {} : ", plugin.getPackageName(), resourcePath, e);
+                    // Either the file doesn't exist or malformed JSON was found. Ignore the command
+                    // template
+                    log.error(
+                            "Error loading resource JSON for plugin {} and resourcePath {} : ",
+                            plugin.getPackageName(),
+                            resourcePath,
+                            e);
                 }
-
             }
         }
 
         ObjectNode topLevel = objectMapper.createObjectNode();
         topLevel.set("editor", editorArray);
 
-        return objectMapper.convertValue(topLevel, new TypeReference<Map<String, Object>>() {
-        });
+        return objectMapper.convertValue(topLevel, new TypeReference<Map<String, Object>>() {});
     }
 
     @Override
@@ -643,20 +786,31 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     private Map loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {
-        try (InputStream resourceAsStream = pluginManager
-                .getPlugin(plugin.getPackageName())
-                .getPluginClassLoader()
-                .getResourceAsStream(resourcePath)) {
+        try (InputStream resourceAsStream =
+                pluginManager
+                        .getPlugin(plugin.getPackageName())
+                        .getPluginClassLoader()
+                        .getResourceAsStream(resourcePath)) {
 
             if (resourceAsStream == null) {
-                throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
+                throw new AppsmithException(
+                        AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
+                        plugin.getPackageName(),
+                        "form resource " + resourcePath + " not found");
             }
 
             Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
             return resourceMap;
         } catch (IOException e) {
-            log.error("[{}] : Error loading resource JSON for resourcePath {}", plugin.getPackageName(), resourcePath, e);
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
+            log.error(
+                    "[{}] : Error loading resource JSON for resourcePath {}",
+                    plugin.getPackageName(),
+                    resourcePath,
+                    e);
+            throw new AppsmithException(
+                    AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
+                    plugin.getPackageName(),
+                    e.getMessage());
         }
     }
 
@@ -664,38 +818,51 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         try (InputStream resourceAsStream = getConfigInputStream(plugin, resourcePath)) {
 
             if (resourceAsStream == null) {
-                throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
+                throw new AppsmithException(
+                        AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
+                        plugin.getPackageName(),
+                        "form resource " + resourcePath + " not found");
             }
 
             return objectMapper.readTree(resourceAsStream);
         } catch (IOException e) {
-            log.error("[{}] : Error loading resource JSON for resourcePath {}", plugin.getPackageName(), resourcePath, e);
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
+            log.error(
+                    "[{}] : Error loading resource JSON for resourcePath {}",
+                    plugin.getPackageName(),
+                    resourcePath,
+                    e);
+            throw new AppsmithException(
+                    AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
+                    plugin.getPackageName(),
+                    e.getMessage());
         }
     }
 
     @Override
     public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
-                .map(plugin -> {
-                    if ("editor.json".equals(resourcePath)) {
-                        // UI config will be available if this plugin is sourced from the cloud
-                        if (plugin.getActionUiConfig() != null) {
-                            return plugin.getActionUiConfig();
-                        }
-                        // For UQI, use another format of loading the config
-                        if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
-                            return loadEditorPluginResourceUqi(plugin);
-                        }
-                    }
-                    if ("form.json".equals(resourcePath)) {
-                        // UI config will be available if this plugin is sourced from the cloud
-                        if (plugin.getDatasourceUiConfig() != null) {
-                            return plugin.getDatasourceUiConfig();
-                        }
-                    }
-                    return loadPluginResourceGivenPluginAsMap(plugin, resourcePath);
-                });
+                .map(
+                        plugin -> {
+                            if ("editor.json".equals(resourcePath)) {
+                                // UI config will be available if this plugin is sourced from the
+                                // cloud
+                                if (plugin.getActionUiConfig() != null) {
+                                    return plugin.getActionUiConfig();
+                                }
+                                // For UQI, use another format of loading the config
+                                if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
+                                    return loadEditorPluginResourceUqi(plugin);
+                                }
+                            }
+                            if ("form.json".equals(resourcePath)) {
+                                // UI config will be available if this plugin is sourced from the
+                                // cloud
+                                if (plugin.getDatasourceUiConfig() != null) {
+                                    return plugin.getDatasourceUiConfig();
+                                }
+                            }
+                            return loadPluginResourceGivenPluginAsMap(plugin, resourcePath);
+                        });
     }
 
     @Data

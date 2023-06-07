@@ -1,15 +1,17 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class TextUtilsTest {
     @Test
     public void makeSlug() {
-        assertThat(TextUtils.makeSlug("Hello Darkness My Old Friend")).isEqualTo("hello-darkness-my-old-friend");
+        assertThat(TextUtils.makeSlug("Hello Darkness My Old Friend"))
+                .isEqualTo("hello-darkness-my-old-friend");
         assertThat(TextUtils.makeSlug("Page1")).isEqualTo("page1");
         assertThat(TextUtils.makeSlug("TestPage123")).isEqualTo("testpage123");
         assertThat(TextUtils.makeSlug("Page 1")).isEqualTo("page-1");

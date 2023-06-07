@@ -1,19 +1,22 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import jakarta.validation.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.Set;
-
 
 @Getter
 @Setter
@@ -55,5 +58,4 @@ public class Organization extends BaseDomain {
     public String getLogoUrl() {
         return Url.ASSET_URL + "/" + logoAssetId;
     }
-
 }

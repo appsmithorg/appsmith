@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.helpers.MustacheHelper;
@@ -6,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+
 import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
@@ -17,20 +19,25 @@ import java.util.regex.Pattern;
 
 public class DslUtils {
 
-    public static Set<MustacheBindingToken> getMustacheValueSetFromSpecificDynamicBindingPath(JsonNode dsl, String fieldPath) {
+    public static Set<MustacheBindingToken> getMustacheValueSetFromSpecificDynamicBindingPath(
+            JsonNode dsl, String fieldPath) {
 
         DslNodeWalkResponse dslWalkResponse = getDslWalkResponse(dsl, fieldPath);
 
         // Only extract mustache keys from leaf nodes
         if (dslWalkResponse != null && dslWalkResponse.isLeafNode) {
 
-            // We found the path. But if the path does not have any mustache bindings, return with empty set
-            if (!MustacheHelper.laxIsBindingPresentInString(((TextNode) dslWalkResponse.currentNode).asText())) {
+            // We found the path. But if the path does not have any mustache bindings, return with
+            // empty set
+            if (!MustacheHelper.laxIsBindingPresentInString(
+                    ((TextNode) dslWalkResponse.currentNode).asText())) {
                 return new HashSet<>();
             }
 
             // Stricter extraction of dynamic bindings
-            Set<MustacheBindingToken> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(((TextNode) dslWalkResponse.currentNode).asText());
+            Set<MustacheBindingToken> mustacheKeysFromFields =
+                    MustacheHelper.extractMustacheKeysFromFields(
+                            ((TextNode) dslWalkResponse.currentNode).asText());
             return mustacheKeysFromFields;
         }
 
@@ -38,21 +45,29 @@ public class DslUtils {
         return new HashSet<>();
     }
 
-    public static JsonNode replaceValuesInSpecificDynamicBindingPath(JsonNode dsl, String fieldPath, Map<MustacheBindingToken, String> replacementMap) {
+    public static JsonNode replaceValuesInSpecificDynamicBindingPath(
+            JsonNode dsl, String fieldPath, Map<MustacheBindingToken, String> replacementMap) {
         DslNodeWalkResponse dslWalkResponse = getDslWalkResponse(dsl, fieldPath);
 
         if (dslWalkResponse != null && dslWalkResponse.isLeafNode) {
-            final StringBuilder oldValue = new StringBuilder(((TextNode) dslWalkResponse.currentNode).asText());
+            final StringBuilder oldValue =
+                    new StringBuilder(((TextNode) dslWalkResponse.currentNode).asText());
 
             for (MustacheBindingToken mustacheBindingToken : replacementMap.keySet()) {
                 String tokenValue = mustacheBindingToken.getValue();
                 int endIndex = mustacheBindingToken.getStartIndex() + tokenValue.length();
-                if (oldValue.length() >= endIndex && oldValue.subSequence(mustacheBindingToken.getStartIndex(), endIndex).equals(tokenValue)) {
-                    oldValue.replace(mustacheBindingToken.getStartIndex(), endIndex, replacementMap.get(mustacheBindingToken));
+                if (oldValue.length() >= endIndex
+                        && oldValue.subSequence(mustacheBindingToken.getStartIndex(), endIndex)
+                                .equals(tokenValue)) {
+                    oldValue.replace(
+                            mustacheBindingToken.getStartIndex(),
+                            endIndex,
+                            replacementMap.get(mustacheBindingToken));
                 }
             }
 
-            ((ObjectNode) dslWalkResponse.parentNode).set(dslWalkResponse.currentKey, new TextNode(oldValue.toString()));
+            ((ObjectNode) dslWalkResponse.parentNode)
+                    .set(dslWalkResponse.currentKey, new TextNode(oldValue.toString()));
         }
         return dsl;
     }
@@ -65,10 +80,12 @@ public class DslUtils {
         // For nested fields, the parent dsl to search in would shift by one level every iteration
         Object currentNode = dsl;
         Object parent = null;
-        Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+        Iterator<String> fieldsIterator =
+                Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
         boolean isLeafNode = false;
         String nextKey = null;
-        // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+        // This loop will end at either a leaf node, or the last identified JSON field (by throwing
+        // an exception)
         // Valid forms of the fieldPath for this search could be:
         // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
         while (fieldsIterator.hasNext()) {

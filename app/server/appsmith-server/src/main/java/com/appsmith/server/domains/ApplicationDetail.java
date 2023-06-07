@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import lombok.EqualsAndHashCode;
@@ -17,5 +18,4 @@ public class ApplicationDetail {
         this.appPositioning = null;
         this.navigationSetting = null;
     }
-
 }

@@ -1,7 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.User;
+
 import jakarta.validation.constraints.NotEmpty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +14,5 @@ public class ResetUserPasswordDTO extends User {
 
     String baseUrl;
 
-    @NotEmpty
-    String token;
+    @NotEmpty String token;
 }

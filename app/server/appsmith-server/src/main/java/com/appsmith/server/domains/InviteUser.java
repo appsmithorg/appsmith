@@ -1,8 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.server.acl.AppsmithRole;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Setter

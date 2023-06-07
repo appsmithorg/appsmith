@@ -1,10 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.acl;
-
-import lombok.Getter;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
@@ -28,20 +23,48 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DE
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 
+import lombok.Getter;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 @Getter
 public enum AppsmithRole {
-    ORGANIZATION_ADMIN(ADMINISTRATOR, WORKSPACE_ADMINISTRATOR_DESCRIPTION,
-            Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
-                    WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS, DELETE_WORKSPACES)),
-    ORGANIZATION_DEVELOPER(DEVELOPER, WORKSPACE_DEVELOPER_DESCRIPTION,
-            Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_MANAGE_DATASOURCES, WORKSPACE_READ_APPLICATIONS,
-                    WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
-                    WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS)),
+    ORGANIZATION_ADMIN(
+            ADMINISTRATOR,
+            WORKSPACE_ADMINISTRATOR_DESCRIPTION,
+            Set.of(
+                    MANAGE_WORKSPACES,
+                    WORKSPACE_INVITE_USERS,
+                    WORKSPACE_EXPORT_APPLICATIONS,
+                    WORKSPACE_CREATE_APPLICATION,
+                    WORKSPACE_CREATE_DATASOURCE,
+                    WORKSPACE_DELETE_DATASOURCES,
+                    WORKSPACE_DELETE_APPLICATIONS,
+                    DELETE_WORKSPACES)),
+    ORGANIZATION_DEVELOPER(
+            DEVELOPER,
+            WORKSPACE_DEVELOPER_DESCRIPTION,
+            Set.of(
+                    READ_WORKSPACES,
+                    WORKSPACE_MANAGE_APPLICATIONS,
+                    WORKSPACE_MANAGE_DATASOURCES,
+                    WORKSPACE_READ_APPLICATIONS,
+                    WORKSPACE_PUBLISH_APPLICATIONS,
+                    WORKSPACE_INVITE_USERS,
+                    WORKSPACE_CREATE_APPLICATION,
+                    WORKSPACE_CREATE_DATASOURCE,
+                    WORKSPACE_DELETE_DATASOURCES,
+                    WORKSPACE_DELETE_APPLICATIONS)),
     ORGANIZATION_VIEWER(
             VIEWER,
             WORKSPACE_VIEWER_DESCRIPTION,
-            Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_EXECUTE_DATASOURCES)
-    ),
+            Set.of(
+                    READ_WORKSPACES,
+                    WORKSPACE_READ_APPLICATIONS,
+                    WORKSPACE_INVITE_USERS,
+                    WORKSPACE_EXECUTE_DATASOURCES)),
     TENANT_ADMIN("", "", Set.of(MANAGE_TENANT)),
     ;
 

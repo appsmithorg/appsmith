@@ -1,13 +1,18 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
+
+import static com.appsmith.server.constants.FieldName.DEFAULT;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
@@ -15,10 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.constants.FieldName.DEFAULT;
-
 /**
- * This model is intended to hold any user-specific information that is not directly about the user's authentication.
+ * This model is intended to hold any user-specific information that is not directly about the
+ * user's authentication.
  */
 @Getter
 @Setter
@@ -46,7 +50,8 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private String releaseNotesViewedVersion;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old
+    // migration
     @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedOrgIds;
@@ -59,8 +64,8 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedAppIds;
 
-
-    // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
+    // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user
+    // default will be the
     // the key for the map
     @JsonView(Views.Internal.class)
     Map<String, GitProfile> gitProfiles;
@@ -100,5 +105,4 @@ public class UserData extends BaseDomain {
     public UserData(String userId) {
         this.userId = userId;
     }
-
 }

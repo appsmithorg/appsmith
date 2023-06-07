@@ -1,12 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -24,14 +27,14 @@ public class CustomJSLib extends BranchAwareDomain {
     String name;
 
     /**
-     * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
-     * JS library
+     * This string is used to uniquely identify a given library. We expect this to be universally
+     * unique for a given JS library
      */
     String uidString;
 
     /**
-     * These are the namespaces under which the library functions reside. User would access lib methods like
-     * `accessor.method`
+     * These are the namespaces under which the library functions reside. User would access lib
+     * methods like `accessor.method`
      */
     Set<String> accessor;
 
@@ -49,9 +52,13 @@ public class CustomJSLib extends BranchAwareDomain {
     String defs;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public CustomJSLib(@JsonProperty("name") String name, @JsonProperty("accessor") Set<String> accessor,
-                       @JsonProperty("url") String url, @JsonProperty("docsUrl") String docsUrl,
-                       @JsonProperty("version") String version, @JsonProperty("defs") String defs) {
+    public CustomJSLib(
+            @JsonProperty("name") String name,
+            @JsonProperty("accessor") Set<String> accessor,
+            @JsonProperty("url") String url,
+            @JsonProperty("docsUrl") String docsUrl,
+            @JsonProperty("version") String version,
+            @JsonProperty("defs") String defs) {
         this.name = name;
         this.accessor = accessor;
         this.url = url;
@@ -68,11 +75,12 @@ public class CustomJSLib extends BranchAwareDomain {
     }
 
     /**
-     * The equality operator has been overridden here so that when two custom JS library objects are compared, they
-     * are compared based on their name and version as opposed to Java object reference. At the moment this check
-     * helps us to identify which JS library needs to be removed from the list of installed libraries when a user
-     * chooses to uninstall a library. It also helps us to identify if a library has already been added.
-     * Please note that this comment may have to be updated once the following issue is closed:
+     * The equality operator has been overridden here so that when two custom JS library objects are
+     * compared, they are compared based on their name and version as opposed to Java object
+     * reference. At the moment this check helps us to identify which JS library needs to be removed
+     * from the list of installed libraries when a user chooses to uninstall a library. It also
+     * helps us to identify if a library has already been added. Please note that this comment may
+     * have to be updated once the following issue is closed:
      * https://github.com/appsmithorg/appsmith/issues/18226
      */
     @Override
@@ -82,7 +90,8 @@ public class CustomJSLib extends BranchAwareDomain {
         }
 
         /**
-         * We check the equality using the uidString since this is supposed to be unique for a given library.
+         * We check the equality using the uidString since this is supposed to be unique for a given
+         * library.
          */
         return ((CustomJSLib) o).getUidString().equals(this.uidString);
     }

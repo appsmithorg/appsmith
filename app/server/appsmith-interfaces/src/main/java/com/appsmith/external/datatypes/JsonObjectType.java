@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
@@ -10,8 +11,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+
 import reactor.core.Exceptions;
 
 import java.io.IOException;
@@ -43,16 +46,13 @@ public class JsonObjectType implements AppsmithType {
         try {
             JSONObject jsonObject = (JSONObject) parser.parse(s);
             String jsonString = objectMapper.writeValueAsString(jsonObject);
-            // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
+            // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during
+            // replacement
             return Matcher.quoteReplacement(jsonString);
         } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
             throw Exceptions.propagate(
                     new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                            s,
-                            e.getMessage()
-                    )
-            );
+                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, s, e.getMessage()));
         }
     }
 

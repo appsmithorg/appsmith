@@ -1,6 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.git.helpers;
 
 import lombok.RequiredArgsConstructor;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -10,8 +12,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * This class provides the handy methods concerned with the repository operation like if the given directory is already
- * initialised with git etc
+ * This class provides the handy methods concerned with the repository operation like if the given
+ * directory is already initialised with git etc
  */
 @Component
 @RequiredArgsConstructor
