@@ -5,6 +5,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
   before(() => {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
+    cy.wait(2000);
     cy.fixture("autoLayoutCopyPaste").then((val) => {
       _.agHelper.AddDsl(val);
     });
@@ -14,9 +15,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       0,
-      true,
     );
-
     _.agHelper.AssertElementLength(_.locators._selectedWidget, 1);
 
     //copying first button in first layer, which is center aligned
@@ -43,7 +42,6 @@ describe("Copy paste widget related tests for Auto layout", () => {
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       1,
-      true,
     );
     _.agHelper.AssertElementLength(_.locators._selectedWidget, 1);
 
@@ -54,7 +52,6 @@ describe("Copy paste widget related tests for Auto layout", () => {
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.CONTAINER),
       0,
-      true,
     );
 
     //paste
@@ -77,7 +74,6 @@ describe("Copy paste widget related tests for Auto layout", () => {
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       0,
-      true,
     );
     _.agHelper.AssertElementLength(_.locators._selectedWidget, 1);
 
@@ -111,24 +107,32 @@ describe("Copy paste widget related tests for Auto layout", () => {
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       1,
+      false,
+      500,
       true,
     );
     // button in layer index 1, start aligned
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       2,
+      false,
+      500,
       true,
     );
     // icon button in layer index 1, end aligned
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.ICONBUTTON),
       0,
+      false,
+      500,
       true,
     );
     // button in layer index 2, center aligned
     _.agHelper.GetNClick(
       _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       3,
+      false,
+      500,
       true,
     );
     _.agHelper.AssertElementLength(_.locators._selectedWidget, 4);

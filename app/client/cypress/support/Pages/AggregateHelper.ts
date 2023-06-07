@@ -555,11 +555,12 @@ export class AggregateHelper {
     index = 0,
     force = false,
     waitTimeInterval = 500,
+    ctrlKey = false,
   ) {
     return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
-      .click({ force: force })
+      .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
   }
 
