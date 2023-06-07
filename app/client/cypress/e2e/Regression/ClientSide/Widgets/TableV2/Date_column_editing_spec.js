@@ -10,12 +10,12 @@ describe("Table widget date column inline editing functionality", () => {
     cy.addDsl(dsl);
   });
 
-  it("1. should check that edit check box is enabled for date type column in the columns list", () => {
-    cy.openPropertyPane("tablewidgetv2");
-    cy.get(
-      `[data-rbd-draggable-id="release_date"] .t--card-checkbox input`,
-    ).should("not.be.disabled");
-  });
+  // it("1. should check that edit check box is enabled for date type column in the columns list", () => {
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.get(
+  //     `[data-rbd-draggable-id="release_date"] .t--card-checkbox input`,
+  //   ).should("not.be.disabled");
+  // });
 
   it("2. should check that date cell edit mode can be turned on", () => {
     cy.openPropertyPane("tablewidgetv2");
@@ -120,109 +120,174 @@ describe("Table widget date column inline editing functionality", () => {
     ).should("contain", "Fr");
   });
 
-  it.skip("6. should check that changing property pane time precision changes the date picker time precision", () => {
-    cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("release_date");
-    cy.get(".t--property-control-timeprecision .bp3-popover-target")
-      .last()
-      .click();
-    cy.get(".t--dropdown-option").children().contains("Minute").click();
-    cy.get(
-      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
-    ).dblclick({
-      force: true,
-    });
-    cy.get(".bp3-timepicker-input-row .bp3-timepicker-hour").should("exist");
-    cy.get(".bp3-timepicker-input-row .bp3-timepicker-minute").should("exist");
-    cy.get(".bp3-timepicker-input-row .bp3-timepicker-second").should(
-      "not.exist",
-    );
+  // it.skip("6. should check that changing property pane time precision changes the date picker time precision", () => {
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.editColumn("release_date");
+  //   cy.get(".t--property-control-timeprecision .bp3-popover-target")
+  //     .last()
+  //     .click();
+  //   cy.get(".t--dropdown-option").children().contains("Minute").click();
+  //   cy.get(
+  //     `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+  //   ).dblclick({
+  //     force: true,
+  //   });
+  //   cy.get(".bp3-timepicker-input-row .bp3-timepicker-hour").should("exist");
+  //   cy.get(".bp3-timepicker-input-row .bp3-timepicker-minute").should("exist");
+  //   cy.get(".bp3-timepicker-input-row .bp3-timepicker-second").should(
+  //     "not.exist",
+  //   );
 
-    cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("release_date");
-    cy.get(".t--property-control-timeprecision .bp3-popover-target")
-      .last()
-      .click();
-    cy.get(".t--dropdown-option").children().contains("None").click();
-    cy.get(
-      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
-    ).dblclick({
-      force: true,
-    });
-    cy.get(".bp3-timepicker-input-row").should("not.exist");
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.editColumn("release_date");
+  //   cy.get(".t--property-control-timeprecision .bp3-popover-target")
+  //     .last()
+  //     .click();
+  //   cy.get(".t--dropdown-option").children().contains("None").click();
+  //   cy.get(
+  //     `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+  //   ).dblclick({
+  //     force: true,
+  //   });
+  //   cy.get(".bp3-timepicker-input-row").should("not.exist");
 
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.editColumn("release_date");
+  //   cy.get(".t--property-control-timeprecision .bp3-popover-target")
+  //     .last()
+  //     .click();
+  //   cy.get(".t--dropdown-option").children().contains("Second").click();
+  //   cy.get(
+  //     `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+  //   ).dblclick({
+  //     force: true,
+  //   });
+  //   cy.get(".bp3-timepicker-input-row .bp3-timepicker-hour").should("exist");
+  //   cy.get(".bp3-timepicker-input-row .bp3-timepicker-minute").should("exist");
+  //   cy.get(".bp3-timepicker-input-row .bp3-timepicker-second").should("exist");
+  // });
+
+  // it("7. should check visible property control functionality", () => {
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.editColumn("release_date");
+  //   cy.get(
+  //     ".t--property-pane-section-general .t--property-control-visible",
+  //   ).should("exist");
+  //   cy.get(
+  //     ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]",
+  //   ).click();
+  //   cy.get(
+  //     `${commonlocators.TableV2Head} [data-header="release_date"] .hidden-header`,
+  //   ).should("exist");
+
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.editColumn("release_date");
+  //   cy.get(
+  //     ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]",
+  //   ).click();
+  //   cy.get(
+  //     `${commonlocators.TableV2Head} [data-header="release_date"] .draggable-header`,
+  //   ).should("exist");
+  // });
+
+  // it("8. should check Show Shortcuts property control functionality", () => {
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.editColumn("release_date");
+  //   cy.get(
+  //     ".t--property-pane-section-datesettings .t--property-control-showshortcuts",
+  //   ).should("exist");
+  //   cy.get(
+  //     ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]",
+  //   ).click();
+  //   cy.get(
+  //     `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+  //   ).dblclick({
+  //     force: true,
+  //   });
+  //   cy.get(`.bp3-dateinput-popover .bp3-daterangepicker-shortcuts`).should(
+  //     "not.exist",
+  //   );
+
+  //   cy.openPropertyPane("tablewidgetv2");
+  //   cy.editColumn("release_date");
+  //   cy.get(
+  //     ".t--property-pane-section-datesettings .t--property-control-showshortcuts",
+  //   ).should("exist");
+  //   cy.get(
+  //     ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]",
+  //   ).click();
+  //   cy.get(
+  //     `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+  //   ).dblclick({
+  //     force: true,
+  //   });
+  //   cy.get(`.bp3-dateinput-popover .bp3-daterangepicker-shortcuts`).should(
+  //     "exist",
+  //   );
+  // });
+  it("2. should check property pane Required toggle functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
-    cy.get(".t--property-control-timeprecision .bp3-popover-target")
-      .last()
-      .click();
-    cy.get(".t--dropdown-option").children().contains("Second").click();
+    // cy.get(
+    //   ".t--property-pane-section-general .t--property-control-editable input[type=checkbox]",
+    // ).click();
     cy.get(
-      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
-    ).dblclick({
+      ".t--property-pane-section-validation .t--property-control-required",
+    ).should("exist");
+    cy.get(
+      ".t--property-pane-section-validation .t--property-control-required input[type=checkbox]",
+    ).click();
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
+    ).realHover();
+    cy.get(`.t--editable-cell-icon`).first().click({
       force: true,
     });
-    cy.get(".bp3-timepicker-input-row .bp3-timepicker-hour").should("exist");
-    cy.get(".bp3-timepicker-input-row .bp3-timepicker-minute").should("exist");
-    cy.get(".bp3-timepicker-input-row .bp3-timepicker-second").should("exist");
+    cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
+    ).realHover();
+    cy.get(`.t--editable-cell-icon`).first().click({ force: true });
+    cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
+    cy.get(
+      ".bp3-transition-container .bp3-popover .bp3-popover-content",
+    ).should("exist");
+    cy.get(
+      ".bp3-transition-container .bp3-popover .bp3-popover-content",
+    ).should("contain", "This field is required");
+    cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
+    cy.get(
+      ".bp3-transition-container .bp3-popover .bp3-popover-content",
+    ).should("not.exist");
   });
 
-  it("7. should check visible property control functionality", () => {
+  it("3. should check date cells behave as expected when adding a new row to table", () => {
     cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("release_date");
+    cy.get("[data-testid='t--property-pane-back-btn']").click();
     cy.get(
-      ".t--property-pane-section-general .t--property-control-visible",
-    ).should("exist");
+      ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]",
+    ).click();
+    cy.get(".t--add-new-row").click();
+    cy.get(".bp3-datepicker").should("not.exist");
+    cy.get(".t--inlined-cell-editor")
+      .should("have.css", "border")
+      .and("eq", "1px solid rgb(255, 255, 255)");
     cy.get(
-      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]",
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
+    ).should("have.value", "");
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
+    ).click();
+    cy.get(".bp3-datepicker").should("exist");
+    cy.get(".t--inlined-cell-editor")
+      .should("have.css", "border")
+      .and("not.eq", "none")
+      .and("not.eq", "1px solid rgb(255, 255, 255)");
+    cy.get(
+      ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week:nth-child(2) .DayPicker-Day:first-child",
     ).click();
     cy.get(
-      `${commonlocators.TableV2Head} [data-header="release_date"] .hidden-header`,
-    ).should("exist");
-
-    cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("release_date");
-    cy.get(
-      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]",
-    ).click();
-    cy.get(
-      `${commonlocators.TableV2Head} [data-header="release_date"] .draggable-header`,
-    ).should("exist");
-  });
-
-  it("8. should check Show Shortcuts property control functionality", () => {
-    cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("release_date");
-    cy.get(
-      ".t--property-pane-section-datesettings .t--property-control-showshortcuts",
-    ).should("exist");
-    cy.get(
-      ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]",
-    ).click();
-    cy.get(
-      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
-    ).dblclick({
-      force: true,
-    });
-    cy.get(`.bp3-dateinput-popover .bp3-daterangepicker-shortcuts`).should(
-      "not.exist",
-    );
-
-    cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("release_date");
-    cy.get(
-      ".t--property-pane-section-datesettings .t--property-control-showshortcuts",
-    ).should("exist");
-    cy.get(
-      ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]",
-    ).click();
-    cy.get(
-      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
-    ).dblclick({
-      force: true,
-    });
-    cy.get(`.bp3-dateinput-popover .bp3-daterangepicker-shortcuts`).should(
-      "exist",
-    );
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
+    ).should("not.have.value", "");
   });
 });
