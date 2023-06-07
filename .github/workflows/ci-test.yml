@@ -9,6 +9,10 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      previous_run_id:
+        description: "This is the previous run id in case we don't need to build the image again"
+        required: false
+        type: number
 
 jobs:
   ci-test:
@@ -119,15 +123,22 @@ jobs:
         run: echo ${{ steps.run_result.outputs.run_result }}
 
       - name: Download Docker image artifact
+        if: inputs.previous_run_id == 0
         uses: actions/download-artifact@v3
         with:
           name: cicontainer
+      
+      - name: Download Docker image artifact
+        if: inputs.previous_run_id != 0
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: cicontainer
+          run_id: ${{ inputs.previous_run_id }}
 
       - name: Load Docker image from tar file
         run: |
           gunzip cicontainer.tar.gz
           docker load -i cicontainer.tar
-
 
       - name: Download the oldstack
         uses: actions/checkout@v3
