@@ -7,9 +7,8 @@ describe("Dynamic input autocomplete", () => {
     cy.addDsl(dsl);
   });
   it("1. Opens autocomplete for bindings", () => {
-    _.entityExplorer.ExpandCollapseEntity("TestModal");
     _.entityExplorer.SelectEntityByName("Aditya");
-    _.entityExplorer.SelectEntityByName("Button2");
+    _.entityExplorer.SelectEntityByName("Button2", "TestModal");
     cy.testJsontext("label", "", {
       parseSpecialCharSequences: true,
     });
