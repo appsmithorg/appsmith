@@ -1,7 +1,10 @@
 import { flattenDSLByName, unflattenDSLByName } from "@shared/dsl";
+import log from "loglevel";
 
 export const getDSLForGit = (nestedDSL) => {
   const gitFlattenedDSL = flattenDSLByName(nestedDSL);
+  log.debug("gitFlattenedDSL", gitFlattenedDSL);
+  log.debug("nestedDSL", nestedDSL);
   return gitFlattenedDSL;
 };
 
