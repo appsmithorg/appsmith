@@ -5194,8 +5194,6 @@ __metadata:
     rollup-plugin-peer-deps-external: ^2.2.4
     rollup-plugin-typescript2: ^0.32.0
     typescript: 4.5.5
-  peerDependencies:
-    react: ^17.0.2
   languageName: unknown
   linkType: soft
 
