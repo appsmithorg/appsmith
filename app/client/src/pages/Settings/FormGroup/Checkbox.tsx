@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import type { EventName } from "utils/AnalyticsUtil";
 import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
+import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -87,7 +88,9 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
         >
           {setting.label}
         </Text>
-        {setting.needsUpgrade && <Tag isClosable={false}>Business</Tag>}
+        {setting.needsUpgrade && (
+          <Tag isClosable={false}>{createMessage(BUSINESS_TAG)}</Tag>
+        )}
       </div>
       <Field
         component={FieldCheckboxWithCheckboxText({

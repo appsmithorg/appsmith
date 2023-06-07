@@ -11,6 +11,7 @@ import {
   UPGRADE,
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
+  BUSINESS_TAG,
 } from "@appsmith/constants/messages";
 import {
   Button,
@@ -193,7 +194,9 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     >
                       {method.label}&nbsp;
                       {method.needsUpgrade && (
-                        <Tag isClosable={false}>Business</Tag>
+                        <Tag isClosable={false}>
+                          {createMessage(BUSINESS_TAG)}
+                        </Tag>
                       )}
                       {method.isConnected && (
                         <Tooltip
