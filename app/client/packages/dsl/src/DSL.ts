@@ -58,7 +58,7 @@ export function unflattenDSLById<DSLWidget>(
 export function flattenDSLByName<DSLWidget>(
   nestedDSL: NestedDSL<DSLWidget>,
 ): FlattenedDSL<DSLWidget> {
-  return normalize(nestedDSL, schemaById);
+  return normalize(nestedDSL, schemaByName);
 }
 
 // Denormalising using widgetName
@@ -66,5 +66,5 @@ export function unflattenDSLByName<DSLWidget>(
   widgetId: string,
   entities: FlattenedDSLEntities<DSLWidget>,
 ): NestedDSL<DSLWidget> {
-  return denormalize(widgetId, schemaById, entities);
+  return denormalize(widgetId, schemaByName, entities);
 }
