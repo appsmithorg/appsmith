@@ -195,10 +195,12 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     if (widgetConfig.select) {
       allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
     }
-    if (widgetConfig.update) {
+
+    if (widgetConfig.update && formConfig.primaryColumn) {
       allBuildConfigs.push(this.buildUpdate(widgetConfig, formConfig));
     }
-    if (widgetConfig.create) {
+
+    if (widgetConfig.create && formConfig.primaryColumn) {
       allBuildConfigs.push(this.buildInsert(widgetConfig, formConfig));
     }
 
