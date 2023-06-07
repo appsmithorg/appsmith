@@ -1,6 +1,10 @@
 import homePageLocatores from "../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
-import { homePage, agHelper } from "../../../support/Objects/ObjectsCore";
+import {
+  homePage,
+  agHelper,
+  dataSources,
+} from "../../../support/Objects/ObjectsCore";
 
 describe("Import, Export and Fork application and validate data binding", function () {
   let workspaceId;
@@ -24,8 +28,8 @@ describe("Import, Export and Fork application and validate data binding", functi
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         // should reconnect button
-        cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
+        dataSources.ReconnectDataSource("mockdata", "PostgreSQL");
+        homePage.AssertNCloseImport();
         cy.wait(2000);
       } else {
         cy.get(homePageLocatores.toastMessage).should(
@@ -122,7 +126,7 @@ describe("Import, Export and Fork application and validate data binding", functi
             const { isPartialImport } = interception.response.body.data;
             if (isPartialImport) {
               // should reconnect button
-              cy.get(reconnectDatasourceModal.Modal).should("be.visible");
+              agHelper.AssertElementVisible(dataSources._testDs); //Making sure modal is fully loaded
               cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
                 force: true,
               });
