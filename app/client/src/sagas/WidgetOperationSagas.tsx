@@ -942,7 +942,12 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 
   const allAllowedToCopy = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be copied
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCopy) {
@@ -1896,7 +1901,12 @@ function* cutWidgetSaga() {
   }
 
   const allAllowedToCut = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be cut
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCut) {
