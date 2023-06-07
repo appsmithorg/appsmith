@@ -439,10 +439,11 @@ public class DatasourceServiceTest {
                     ssl.getKeyFile().setName("ssl_key_file_id2");
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
-                    datasource1.getDatasourceStorages().get(defaultEnvironmentId)
-                            .setDatasourceConfiguration(datasourceConfiguration1);
+
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
                     return datasourceService
-                            .updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+                            .updateDatasourceStorage(datasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
                 });
 
         StepVerifier
@@ -527,7 +528,10 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     datasource1.setDatasourceConfiguration(datasourceConfiguration1);
 
-                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
+                    return datasourceService
+                            .updateDatasourceStorage(datasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
                 });
 
         StepVerifier
@@ -536,8 +540,12 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2).isTrue();
+                    assertThat(createdDatasource.getDatasourceStorages().get(defaultEnvironmentId)).isNotNull();
+                    DatasourceConfiguration datasourceConfiguration1 =
+                            createdDatasource.getDatasourceStorages().get(defaultEnvironmentId).getDatasourceConfiguration();
+
+                    assertThat(datasourceConfiguration1.getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
+                    assertThat(datasourceConfiguration1.getAuthentication() instanceof OAuth2).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1078,7 +1086,11 @@ public class DatasourceServiceTest {
                     datasourceConfiguration.setAuthentication(partialAuthenticationDTO);
                     original.getDatasourceStorages().get(defaultEnvironmentId)
                             .setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.updateByEnvironmentId(original.getId(), original, defaultEnvironmentId);
+
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            new DatasourceStorageDTO(original.getId(), defaultEnvironmentId, datasourceConfiguration);
+                    return datasourceService
+                            .updateDatasourceStorage(datasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
                 });
 
         StepVerifier
@@ -1438,7 +1450,11 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     datasourceConfiguration1.setUrl("http://localhost");
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId).setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
+                    return datasourceService
+                            .updateDatasourceStorage(datasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
                 });
 
         StepVerifier
@@ -1545,8 +1561,11 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.getEndpoints().add(endpoint);
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId)
                             .setDatasourceConfiguration(datasourceConfiguration1);
+
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
                     return datasourceService
-                            .updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+                            .updateDatasourceStorage(datasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
                 });
 
         StepVerifier

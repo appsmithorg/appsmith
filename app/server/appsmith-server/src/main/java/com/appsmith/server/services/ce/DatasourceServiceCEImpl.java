@@ -220,90 +220,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 });
     }
 
-    // TODO: Remove the following snippet after client side API changes
-    @Override
-    public Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId) {
-        return this.update(id, datasourceDTO, environmentId, Boolean.FALSE);
-    }
-
-    @Override
-    public Mono<DatasourceDTO> update(String id,
-                                      DatasourceDTO datasourceDTO,
-                                      String environmentId,
-                                      Boolean isUserRefreshedUpdate) {
-        datasourceDTO.setId(id); // This is for payload without datasourceId & workspaceId
-        return convertToDatasource(datasourceDTO, environmentId)
-                .flatMap(datasource -> updateByEnvironmentId(id, datasource, environmentId, isUserRefreshedUpdate))
-                .flatMap(datasource -> convertToDatasourceDTO(datasource));
-    }
-
-    @Override
-    public Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId) {
-        // since there was no datasource update differentiator between server invoked due to refresh token,
-        // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
-        // adding a default false value here, the value is true only when
-        // the user calls the update event from datasource controller, else it's false.
-        return updateByEnvironmentId(id, datasource, environmentId, Boolean.FALSE);
-    }
-
-    private Mono<Datasource> updateByEnvironmentId(String id,
-                                                   Datasource datasource,
-                                                   String environmentId,
-                                                   Boolean isUserRefreshedUpdate) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        // Since policies are a server only concept, first set the empty set (set by constructor) to null
-        datasource.setPolicies(null);
-
-        Mono<Datasource> datasourceMono = repository.findById(id, datasourcePermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
-
-
-        // Check if this is an update for only datasource related properties
-        if (!datasource.getDatasourceStorages().isEmpty()) {
-            // This is meant to be an update for storage
-            return datasourceMono
-                    .flatMap(dbDatasource -> getTrueEnvironmentId(dbDatasource.getWorkspaceId(), environmentId)
-                            .flatMap(trueEnvironmentId -> datasourceStorageService
-                                    .updateByDatasourceAndEnvironmentId(datasource, trueEnvironmentId, isUserRefreshedUpdate)
-                                    .map(datasourceStorage -> {
-                                        datasource.getDatasourceStorages()
-                                                .put(trueEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
-                                        copyNestedNonNullProperties(datasource, dbDatasource);
-                                        return dbDatasource;
-                                    })))
-                    .flatMap(savedDatasource -> {
-                        Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
-                        if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
-                            analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
-                        } else {
-                            analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
-                        }
-                        return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
-                    });
-        }
-
-        // This is meant to be an update for just the datasource - like a rename
-        return datasourceMono
-                .map(dbDatasource -> {
-                    copyNestedNonNullProperties(datasource, dbDatasource);
-                    return dbDatasource;
-                })
-                .flatMap(this::validateAndSaveDatasourceToRepository)
-                .flatMap(savedDatasource -> {
-                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
-                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
-                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
-                    } else {
-                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
-                    }
-                    return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
-                });
-
-    }
-
     @Override
     public Mono<Datasource> updateDatasource(String id, Datasource datasource,
                                              String activeEnvironmentId,
@@ -314,6 +230,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
+        // this is important to avoid polluting the collection with configuration when we are saving the datasource
+        // check method docstring for description
+        datasource.nullifyStorageReplicaFields();
 
         Mono<Datasource> datasourceMono = repository.findById(id, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
