@@ -172,8 +172,10 @@ class GitSyncAPI extends Api {
     });
   }
 
-  static discardChanges(applicationId: string) {
-    return Api.put(`${GitSyncAPI.baseURL}/discard/app/${applicationId}`);
+  static discardChanges(applicationId: string, doPull: boolean) {
+    return Api.put(
+      `${GitSyncAPI.baseURL}/discard/app/${applicationId}?doPull=${doPull}`,
+    );
   }
 }
 
