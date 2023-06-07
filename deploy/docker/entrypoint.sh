@@ -383,6 +383,9 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
+  # The default NGINX configuration includes an IPv6 listen directive. But not all
+  # servers support it, and we don't need it. So we remove it here before starting
+  # NGINX.
   sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-enabled/default
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
