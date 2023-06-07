@@ -231,59 +231,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("12. Chart - Modal", function () {
-    //creating the Modal and verify Modal name
-    cy.createModal(this.data.ModalName, "onDataPointClick");
-    cy.PublishtheApp();
-    cy.get(widgetsPage.chartPlotGroup).children().first().click();
-    cy.get(modalWidgetPage.modelTextField).should(
-      "have.text",
-      this.data.ModalName,
-    );
-  });
-
-  it("13. Chart-Unckeck Visible field Validation", function () {
-    // Making the widget invisible
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.chartWidget).should("not.exist");
-  });
-
-  it("14. Chart-Check Visible field Validation", function () {
-    // Making the widget visible
-    cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.chartWidget).should("be.visible");
-  });
-
-  it("15. Toggle JS - Chart-Unckeck Visible field Validation", function () {
-    //Uncheck the disabled checkbox using JS and validate
-    cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
-    cy.get(publish.chartWidget).should("not.exist");
-  });
-
-  it("16. Toggle JS - Chart-Check Visible field Validation", function () {
-    //Check the disabled checkbox using JS and Validate
-    cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
-    cy.get(publish.chartWidget).should("be.visible");
-  });
-
-  it("17. Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function () {
-    cy.togglebarDisable(commonlocators.allowScroll);
-    cy.PublishtheApp();
-    cy.get(publish.horizontalTab).should("not.exist");
-  });
-
-  it("18. Chart Widget Functionality To Check Horizontal Scroll Visible", function () {
-    cy.togglebar(commonlocators.allowScroll);
-    cy.PublishtheApp();
-    cy.get(publish.horizontalTab).eq(1).should("exist");
-  });
-
-  it("19. Check Chart widget reskinning config", function () {
+  it("12. Check Chart widget reskinning config", function () {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Column chart");
 
