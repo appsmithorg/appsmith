@@ -1,5 +1,6 @@
 const dsl = require("../../../../fixtures/autocomp.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
@@ -9,7 +10,7 @@ describe("Dynamic input autocomplete", () => {
     cy.selectEntityByName("TestModal");
     cy.wait(3000);
     cy.selectEntityByName("Aditya");
-    cy.openPropertyPane("buttonwidget");
+    _.entityExplorer.SelectEntityByName("Button1");
     cy.testJsontext("label", "", {
       parseSpecialCharSequences: true,
     });

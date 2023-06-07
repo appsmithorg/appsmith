@@ -4,7 +4,7 @@ const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const propPane = ObjectsRegistry.PropertyPane;
@@ -34,7 +34,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    cy.openPropertyPane("tablewidgetv2");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,

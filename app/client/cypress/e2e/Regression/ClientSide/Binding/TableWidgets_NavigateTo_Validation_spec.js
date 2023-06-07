@@ -5,6 +5,7 @@ const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const propPane = ObjectsRegistry.PropertyPane;
 
@@ -33,7 +34,7 @@ describe("Table Widget and Navigate to functionality validation", function () {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    cy.openPropertyPane("tablewidget");
+    _.entityExplorer.SelectEntityByName("Text1");
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,

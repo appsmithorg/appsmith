@@ -4,6 +4,7 @@ const dsl = require("../../../../fixtures/defaultMetadataDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 import {
   WIDGET,
@@ -47,14 +48,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     });
 
     it("2. Bind Button on click  and Text widget content", function () {
-      cy.openPropertyPane(WIDGET.BUTTON);
+      _.entityExplorer.SelectEntityByName("Button1");
       cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onClick,
         `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("success"))}}`,
       );
       // Bind to stored value above
-      cy.openPropertyPane(WIDGET.TEXT);
+      _.entityExplorer.SelectEntityByName("Text1");
       cy.updateCodeInput(PROPERTY_SELECTOR.text, testConfig.textBindingValue);
       cy.closePropertyPane();
 

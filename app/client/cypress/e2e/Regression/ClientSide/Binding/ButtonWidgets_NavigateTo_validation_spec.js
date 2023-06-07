@@ -11,7 +11,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
   });
 
   it("1. Button widget with action navigate to page", function () {
-    cy.openPropertyPane("buttonwidget");
+    _.entityExplorer.SelectEntityByName("Button1");
     _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
     cy.get("label")

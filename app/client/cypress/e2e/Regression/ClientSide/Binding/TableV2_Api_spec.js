@@ -29,7 +29,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
-    cy.openPropertyPane("tablewidgetv2");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("tabledata", "{{Api1.data}}");
 
     /**
@@ -61,7 +61,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
 
-    cy.openPropertyPane("tablewidgetv2");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.togglebarDisable(
       ".t--property-control-clientsidesearch input[type='checkbox']",
     );
