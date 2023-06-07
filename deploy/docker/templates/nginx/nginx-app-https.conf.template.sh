@@ -103,6 +103,7 @@ server {
   location ~ ^/static/(js|css|media)\b {
     # Files in these folders are hashed, so we can set a long cache time.
     add_header Cache-Control "max-age=31104000, immutable";  # 360 days
+    access_log  off;
   }
 
   location ~ ^/app/[^/]+/[^/]+/edit\b {
@@ -127,6 +128,10 @@ server {
   }
 
   location /login {
+    proxy_pass http://localhost:8080;
+  }
+
+  location /actuator {
     proxy_pass http://localhost:8080;
   }
 

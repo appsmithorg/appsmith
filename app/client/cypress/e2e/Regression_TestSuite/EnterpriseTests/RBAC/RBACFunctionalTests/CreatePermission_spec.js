@@ -5,7 +5,7 @@ const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const locators = require("../../../../../locators/commonlocators.json");
-const testUrl1 = "https://mock-api.appsmith.com/echo/get";
+import datasourceFormData from "../../../../../fixtures/datasources.json";
 const omnibar = require("../../../../../locators/Omnibar.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -348,7 +348,7 @@ describe("Create Permission flow ", function () {
       APIName = uid;
       cy.CreateAPI(APIName);
     });
-    cy.enterDatasource(testUrl1);
+    cy.enterDatasource(datasourceFormData.mockApiUrl);
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
   });

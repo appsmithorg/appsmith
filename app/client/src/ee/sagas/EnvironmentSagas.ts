@@ -8,16 +8,32 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 import type FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
+
+export const ENVIRONMENT_QUERY_KEY = "environment";
 
 // Saga to handle fetching the environment configs
 function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
   try {
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<EnvironmentType[]> = yield call(
       EnvironmentApi.fetchEnvironmentConfigs,
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const defaultEnvironment = response.data.find(
+        (env: EnvironmentType) => env.isDefault,
+      );
+      if (defaultEnvironment) {
+        const queryParams = new URLSearchParams(window.location.search);
+        // Set new or modify existing parameter value.
+        queryParams.set(
+          ENVIRONMENT_QUERY_KEY,
+          defaultEnvironment.name.toLowerCase(),
+        );
+        // Replace current querystring with the new one.
+        window.history.replaceState({}, "", "?" + queryParams.toString());
+      }
       yield put({
         type: ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS,
         payload: (response?.data as any) || [],

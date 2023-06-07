@@ -72,4 +72,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
 
+    Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds);
+
 }

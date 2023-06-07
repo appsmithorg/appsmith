@@ -17,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -78,5 +79,17 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     @Override
     public Mono<Long> countAllReadableUserGroups() {
         return count(List.of(), AclPermission.READ_USER_GROUPS);
+    }
+
+    @Override
+    public Flux<UserGroup> getAllByUsersIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
+        Criteria criteriaUserIdsIn = where(fieldName(QUserGroup.userGroup.users)).in(userIds);
+        return queryAll(
+                List.of(criteriaUserIdsIn),
+                includeFields,
+                permission,
+                Optional.empty(),
+                NO_RECORD_LIMIT
+        );
     }
 }

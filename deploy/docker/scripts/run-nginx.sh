@@ -78,10 +78,14 @@ apply-env-vars() {
   fi
   node -e '
   const fs = require("fs")
-  const content = fs.readFileSync("'"$original"'", "utf8").replace(
+  const cdn_url = process.env["APPSMITH_CDN_URL"] || ""
+  let content = fs.readFileSync("'"$original"'", "utf8").replace(
     /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
     (placeholder, name) => (process.env[name] || "")
   )
+  if (cdn_url) {
+    content = content.replace(/\/static\//g, cdn_url + "static/")
+  }
   fs.writeFileSync("'"$served"'", content)
   '
   pushd "$(dirname "$served")"

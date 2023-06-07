@@ -110,10 +110,11 @@ function useUpdateEmbedSnippet() {
       pageId: defaultPageId,
     });
     const fullUrl = new URL(window.location.origin.toString() + url);
+    fullUrl.searchParams.append("embed", "true");
     if (embedSetting?.showNavigationBar) {
+      fullUrl.searchParams.append("navbar", "true");
       return fullUrl.toString();
     }
-    fullUrl.searchParams.append("embed", "true");
     return fullUrl.toString();
   }, [defaultPageId, embedSetting?.showNavigationBar]);
 

@@ -4,10 +4,13 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
@@ -36,12 +39,14 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_PRIMARY_COLOR;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @Service
@@ -94,7 +99,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        return Mono.zip(
+        Mono<Tenant> tenantWithConfigurationMono = tenantService.getTenantConfiguration().cache();
+        Mono<UserProfileDTO> userProfileDTOMono = Mono.zip(
                         super.buildUserProfileDTO(user),
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
                         ReactiveSecurityContextHolder.getContext()
@@ -105,14 +111,22 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     final UserData userData = tuple.getT2();
                     SecurityContext context = tuple.getT3();
 
-                    // Check here if the user is logged in via OIDC.
+                    LoginSource loginSource = user.getSource();
+
+                    // Check here if the user is logged in via oauth, oidc or saml and add the user claims accordingly
                     Authentication authentication = context.getAuthentication();
                     if (authentication instanceof OAuth2AuthenticationToken) {
-                        // Add the ID claims here as metadata which can be exposed by the client to appsmith developers
-                        profile.setIdToken(userData.getUserClaims());
-                    } else {
-                        // Do not return the field metadata otherwise.
-                        profile.setIdToken(null);
+
+                        // Add the user claims which contain either :
+                        // 1. The OIDC user info claims if the user is logged in via OIDC
+                        // 2. The SAML attributes if the user is logged in via SAML
+                        profile.setUserClaims(userData.getUserClaims());
+
+                        if (LoginSource.OIDC.equals(loginSource)) {
+                            // Add the ID claims here as metadata which can be exposed by the client to appsmith developers
+                            profile.setIdToken(userData.getOidcIdTokenClaims());
+                        }
+
                     }
 
                     // Add checks to turn on super user mode if required
@@ -140,6 +154,33 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                         return profile;
                     });
                 });
+        Mono<UserProfileDTO> userProfileDTOWithRolesAndGroups = Mono.zip(userProfileDTOMono, tenantWithConfigurationMono)
+                .flatMap(pair -> {
+                    UserProfileDTO userProfileDTO = pair.getT1();
+                    Tenant defaultTenantWithConfiguration = pair.getT2();
+                    if (Boolean.TRUE.equals(defaultTenantWithConfiguration.getTenantConfiguration().getShowRolesAndGroups())) {
+                        Mono<List<String>> rolesUserHasBeenAssignedMono = Mono.just(List.of());
+                        Mono<List<String>> groupsUsersIsPartOfMono = Mono.just(List.of());
+
+                        if (StringUtils.isNotEmpty(user.getId())) {
+                            rolesUserHasBeenAssignedMono = permissionGroupService.getRoleNamesAssignedToUserIds(Set.of(user.getId())).collectList();
+                            groupsUsersIsPartOfMono = userGroupRepository.getAllByUsersIn(Set.of(user.getId()),
+                                            Optional.of(List.of(fieldName(QUserGroup.userGroup.name))), Optional.empty())
+                                    .map(UserGroup::getName)
+                                    .collectList();
+                        }
+                        return Mono.zip(rolesUserHasBeenAssignedMono, groupsUsersIsPartOfMono)
+                                .map(pair2 -> {
+                                    List<String> rolesAssigned = pair2.getT1();
+                                    List<String> memberOfRoles = pair2.getT2();
+                                    userProfileDTO.setRoles(rolesAssigned);
+                                    userProfileDTO.setGroups(memberOfRoles);
+                                    return userProfileDTO;
+                                });
+                    }
+                    return Mono.just(userProfileDTO);
+                });
+        return userProfileDTOWithRolesAndGroups;
     }
 
     @Override

@@ -44,7 +44,11 @@ public class TenantConfiguration extends TenantConfigurationCE {
     @JsonProperty(value = "APPSMITH_BRAND_FAVICON", access = JsonProperty.Access.WRITE_ONLY)
     String whiteLabelFavicon;
 
+    Boolean showRolesAndGroups;
+
     BrandColors brandColors;
+
+    Boolean singleSessionPerUserEnabled;
 
     public final static String ASSET_PREFIX = "asset:";
 
@@ -76,6 +80,8 @@ public class TenantConfiguration extends TenantConfigurationCE {
         this.whiteLabelLogo = tenantConfiguration.getWhiteLabelLogo();
         this.whiteLabelFavicon = tenantConfiguration.getWhiteLabelFavicon();
         this.brandColors = tenantConfiguration.getBrandColors();
+        this.showRolesAndGroups = tenantConfiguration.getShowRolesAndGroups();
+        this.singleSessionPerUserEnabled = tenantConfiguration.getSingleSessionPerUserEnabled();
 
         boolean isLicenseExist = null != tenantConfiguration.getLicense() && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());
         this.license = isLicenseExist ? tenantConfiguration.getLicense() : null;
