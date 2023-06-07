@@ -24,7 +24,7 @@ const selectForceOpenWidgetPanel = (state: AppState) =>
 const options = [
   {
     value: "explorer",
-    label: "Navigator",
+    label: "Explorer",
   },
   {
     value: "widgets",
