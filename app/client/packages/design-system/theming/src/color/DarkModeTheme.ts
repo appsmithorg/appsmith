@@ -139,7 +139,27 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentActive() {
-    return this.bgAccentHover.clone().darken(0.1);
+    const color = this.bgAccent.clone();
+
+    console.log("seed lightness: " + this.seedLightness);
+
+    if (this.seedLightness < 0.4) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.02;
+    }
+
+    if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.04;
+    }
+
+    if (this.seedLightness >= 0.7 && this.seedLightness < 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.05;
+    }
+
+    if (this.seedLightness >= 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.13;
+    }
+
+    return color;
   }
 
   // used only for generating child colors, not used as a token
