@@ -12,6 +12,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private readonly seedIsAchromatic: boolean;
   private readonly seedIsCold: boolean;
   private readonly seedIsVeryDark: boolean;
+
   constructor(private color: ColorTypes) {
     const {
       chroma,
