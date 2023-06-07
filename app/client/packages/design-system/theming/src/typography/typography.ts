@@ -11,7 +11,7 @@ import segoeUI from "@capsizecss/metrics/segoeUI";
 import openSans from "@capsizecss/metrics/openSans";
 import notoSans from "@capsizecss/metrics/notoSans";
 import montserrat from "@capsizecss/metrics/montserrat";
-import nunitoSans from "@capsizecss/metrics/nunitoSans";
+import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
