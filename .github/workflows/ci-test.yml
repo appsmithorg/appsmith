@@ -183,7 +183,7 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            -e APPSMITH_MONGODB_URI=mongodb://appsmithadmin:W58w5yCN6ZY5Y42A@host.docker.internal:29017/appsmith_${{ github.run_id}}_${{ matrix.job }}_${{ github.run_attempt }}?retryWrites=false \
+            -e APPSMITH_MONGODB_URI=mongodb://<un>:<password>@host.docker.internal:29017/appsmith_${{ github.run_id}}_${{ matrix.job }}_${{ github.run_attempt }}?retryWrites=false \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 
