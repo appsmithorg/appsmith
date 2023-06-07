@@ -122,7 +122,6 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
-import { getCurrentEnvironment } from "./EnvironmentSagas";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -852,11 +851,11 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  const currentEnvironment = getCurrentEnvironment();
-  if (
-    currentEnvironment &&
-    !datasource.datasourceStorages.active_env.datasourceConfiguration
-  ) {
+  if (datasource.datasourceStorages.unused_env) {
+    datasource.datasourceStorages.active_env =
+      datasource.datasourceStorages.unused_env;
+  }
+  if (!datasource.datasourceStorages.active_env?.datasourceConfiguration) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
