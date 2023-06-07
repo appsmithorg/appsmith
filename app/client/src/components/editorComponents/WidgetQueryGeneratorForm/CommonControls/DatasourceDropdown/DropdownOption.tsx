@@ -4,6 +4,7 @@ import styled from "styled-components";
 const Container = styled.div`
   display: flex;
   width: calc(100% - 10px);
+  height: 100%;
 `;
 
 const LeftSection = styled.div`
@@ -12,14 +13,9 @@ const LeftSection = styled.div`
   align-items: center;
 `;
 
-const RightSection = styled.div`
-  width: 16px;
-`;
-
 const IconContainer = styled.div`
   width: 24px;
   display: flex;
-  margin-top: 3px;
 `;
 
 const Label = styled.div`
@@ -43,11 +39,7 @@ export function DropdownOption(props: Props) {
         {leftIcon && <IconContainer>{leftIcon}</IconContainer>}
         <Label>{label}</Label>
       </LeftSection>
-      {rightIcon && (
-        <RightSection>
-          <IconContainer>{rightIcon}</IconContainer>
-        </RightSection>
-      )}
+      {rightIcon && <IconContainer>{rightIcon}</IconContainer>}
     </Container>
   );
 }
