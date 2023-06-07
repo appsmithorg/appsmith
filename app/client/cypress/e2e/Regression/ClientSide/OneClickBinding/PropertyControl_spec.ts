@@ -112,7 +112,7 @@ describe("One click binding control", () => {
     _.propPane.ToggleJSMode("Table data", false);
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from users",
+      "New from Users",
       "Users",
       "public.users",
       "gender",

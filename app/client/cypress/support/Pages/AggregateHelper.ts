@@ -121,7 +121,7 @@ export class AggregateHelper {
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
           this.Sleep(); //settling time for dsl
-          cy.get(this.locator._loading).should("not.exist"); //Checks the spinner is gone & dsl loaded!
+          this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
           this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
         });
       });

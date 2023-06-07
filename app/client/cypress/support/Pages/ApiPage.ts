@@ -82,7 +82,7 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      this.agHelper.GetNClick(this.locator._createNew);
+      this.agHelper.GetNClick(this.locator._createNew, 0, true);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
     }
     this.agHelper.ValidateNetworkStatus("@createNewApi", 201);

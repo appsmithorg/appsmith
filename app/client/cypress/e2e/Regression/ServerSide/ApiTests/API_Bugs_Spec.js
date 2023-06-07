@@ -128,12 +128,7 @@ describe("Rest Bugs tests", function () {
 
   it("2. Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
     cy.startErrorRoutes();
-    cy.CreatePage();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.AddNewPage();
     //Api 1
     _.apiPage.CreateAndFillApi(
       "https://api.thecatapi.com/v1/images/search",
