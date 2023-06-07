@@ -21,5 +21,7 @@
   "bookquantity": "(//div[@class='bp3-input-group'])[8]",
   "addtoCart": "//span[@class='bp3-button-text' and text()='Submit']",
   "deletefromCart": "//span[@class='bp3-button-text' and text()='Delete']",
-  "editbookquantity": "(//div[@class='bp3-input-group'])[4]"
+  "editbookquantity": "(//div[@class='bp3-input-group'])[4]",
+  "addButton":"//span[text()='Add']/parent::button",
+  "editButton":"//span[text()='Edit']/parent::button"
 }

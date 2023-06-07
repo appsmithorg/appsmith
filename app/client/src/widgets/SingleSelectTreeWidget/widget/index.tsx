@@ -490,7 +490,7 @@ class SingleSelectTreeWidget extends BaseWidget<
       },
       isDisabled: "bool",
       isValid: "bool",
-      options: "[$__dropdownOption__$]",
+      options: "[$__dropdrowOptionWithChildren__$]",
     };
   }
 
