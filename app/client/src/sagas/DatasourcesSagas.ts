@@ -1402,12 +1402,7 @@ function* filePickerActionCallbackSaga(
     const authStatus =
       action === FilePickerActionStatus.PICKED
         ? AuthenticationStatus.SUCCESS
-        : AuthenticationStatus.FAILURE;
-    set(
-      datasource,
-      "datasourceConfiguration.authentication.authenticationStatus",
-      authStatus,
-    );
+        : AuthenticationStatus.FAILURE_FILE_NOT_SELECTED;
 
     // Once files are selected in case of import, set this flag
     set(datasource, "isConfigured", true);
@@ -1418,7 +1413,7 @@ function* filePickerActionCallbackSaga(
       pageId: pageId,
       datasourceId: datasource?.id,
       oAuthPassOrFailVerdict:
-        authStatus === AuthenticationStatus.FAILURE
+        authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED
           ? createMessage(FILES_NOT_SELECTED_EVENT)
           : authStatus.toLowerCase(),
       workspaceId: datasource?.workspaceId,
@@ -1665,6 +1660,11 @@ function* updateDatasourceAuthStateSaga(
 ) {
   try {
     const { authStatus, datasource } = actionPayload.payload;
+    set(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationStatus",
+      authStatus,
+    );
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasource(datasource, datasource.id);
     const isValidResponse: boolean = yield validateResponse(response);

@@ -18,7 +18,7 @@ export const Label = styled.p`
 `;
 
 export const Bold = styled.span`
-  font-weight: 700;
+  font-weight: 500;
 `;
 
 export const Section = styled.div``;
@@ -40,13 +40,6 @@ export const RowHeading = styled.p`
 export const StyledButton = styled(Button)`
   &&& {
     width: 100%;
-    height: 50px !important;
-    border-radius: 1px !important;
-
-    & > div {
-      padding: 10px 0px;
-      height: 36px;
-    }
   }
 `;
 
