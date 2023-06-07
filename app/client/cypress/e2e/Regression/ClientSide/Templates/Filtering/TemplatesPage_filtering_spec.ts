@@ -9,44 +9,50 @@ describe("Templates page filtering", () => {
     _.homePage.SwitchToTemplatesTab();
   });
   beforeEach(() =>
-    cy.get(_.templates.locators._templateCard).should("be.visible"),
+    _.agHelper.AssertElementVisible(_.templates.locators._templateCard),
   );
   afterEach(() => cy.reload());
 
   it("1. should filter templates by name", () => {
-    cy.get(_.templates.locators._resultsHeader).then(($header) => {
-      _.templates.filterTemplatesByName(NAME_FILTER);
-      // here we check if header changes, if it does we can assume
-      // list has been filtered
-      cy.get(_.templates.locators._resultsHeader).should(
-        "not.have.value",
-        $header.text(),
-      );
-    });
+    _.agHelper
+      .GetText(_.templates.locators._resultsHeader, "text")
+      .then((headerText) => {
+        _.templates.FilterTemplatesByName(NAME_FILTER);
+        // here we check if header changes, if it does we can assume
+        // list has been filtered
+        if (typeof headerText === "string") {
+          _.templates.AssertResultsHeaderText(headerText, "not.have.text");
+        }
+      });
   });
 
   it("2. should filter templates by functions", () => {
-    cy.get(_.templates.locators._resultsHeader).then(($header) => {
-      cy.wait(500);
-      _.templates.filterTemplatesByFunctions(FUNCTIONS_FILTER);
-      // here we check if header changes, if it does we can assume
-      // list has been filtered
-      cy.get(_.templates.locators._resultsHeader).should(
-        "not.have.value",
-        $header.text(),
-      );
-    });
+    _.agHelper
+      .GetText(_.templates.locators._resultsHeader, "text")
+      .then((headerText) => {
+        _.templates.FilterTemplatesByFunctions(FUNCTIONS_FILTER);
+        // here we check if header changes, if it does we can assume
+        // list has been filtered
+        if (typeof headerText === "string") {
+          _.templates.AssertResultsHeaderText(headerText, "not.have.text");
+        }
+      });
   });
 
   it("3. should retain filters when coming back from template detailed view", () => {
-    cy.get(_.templates.locators._resultsHeader).then(($header) => {
-      _.templates.filterTemplatesByName(NAME_FILTER);
-      _.templates.visitFirstTemplate();
-      _.templates.gobackFromTemplateDetailedView();
-      cy.get(_.templates.locators._templatesSearchInput).should(
-        "have.value",
-        NAME_FILTER,
-      );
-    });
+    _.templates.FilterTemplatesByName(NAME_FILTER);
+    _.agHelper.Sleep();
+    _.agHelper
+      .GetText(_.templates.locators._resultsHeader, "text")
+      .then((headerText) => {
+        _.templates.VisitFirstTemplate();
+        _.templates.GobackFromTemplateDetailedView();
+        _.agHelper
+          .GetText(_.templates.locators._templatesSearchInput, "val")
+          .should("equal", NAME_FILTER);
+        if (typeof headerText === "string") {
+          _.templates.AssertResultsHeaderText(headerText, "have.text");
+        }
+      });
   });
 });

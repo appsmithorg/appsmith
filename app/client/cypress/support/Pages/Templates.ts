@@ -1,3 +1,5 @@
+import { ObjectsRegistry } from "../Objects/Registry";
+
 // Edit mode modal
 export class Templates {
   public locators = {
@@ -11,29 +13,45 @@ export class Templates {
   };
 
   ForkTemplateByName(name: string) {
-    cy.contains(this.locators._templateCard, name)
+    return cy
+      .contains(this.locators._templateCard, name)
       .find(this.locators._forkApp)
       .click();
   }
 
-  filterTemplatesByName(query: string) {
-    return cy.get(this.locators._templatesSearchInput).type(query);
+  FilterTemplatesByName(query: string) {
+    return ObjectsRegistry.AggregateHelper.TypeText(
+      this.locators._templatesSearchInput,
+      query,
+    );
   }
 
-  filterTemplatesByFunctions(valuesToBeChecked: string[]) {
+  FilterTemplatesByFunctions(valuesToBeChecked: string[]) {
     return cy
       .get("input[type='checkbox']")
       .check(valuesToBeChecked, { force: true });
   }
 
-  visitFirstTemplate() {
+  VisitFirstTemplate() {
     return cy.get(this.locators._templateCard).first().click();
   }
 
-  gobackFromTemplateDetailedView() {
+  GobackFromTemplateDetailedView() {
     return cy.get(this.locators._templateViewGoBack).click();
   }
-  closeTemplateDialogBox() {
+
+  CloseTemplateDialogBox() {
     return cy.get(this.locators.templateDialogCloseButton).click();
+  }
+
+  AssertResultsHeaderText(
+    text: string,
+    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
+  ) {
+    ObjectsRegistry.AggregateHelper.GetNAssertElementText(
+      this.locators._resultsHeader,
+      text,
+      textPresence,
+    );
   }
 }
