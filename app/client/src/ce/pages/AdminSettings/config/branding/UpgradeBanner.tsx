@@ -5,6 +5,7 @@ import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,
   ADMIN_BRANDING_SETTINGS_TITLE,
   ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE,
+  BUSINESS_TAG,
   createMessage,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -29,7 +30,7 @@ const UpgradeBanner = () => {
       <ContentBox className="flex items-center justify-between p-6 border upgrade-banner">
         <main>
           <Tag className="business-tag" isClosable={false}>
-            Business
+            {createMessage(BUSINESS_TAG)}
           </Tag>
           <SettingsHeader
             className="mt-1"
