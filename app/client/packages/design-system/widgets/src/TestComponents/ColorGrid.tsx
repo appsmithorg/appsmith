@@ -7,8 +7,8 @@ import {
   defaultTokens,
 } from "@design-system/theming";
 import Color from "colorjs.io";
-import { Text } from "../Text";
-import { StyledTestCmp } from "./index.styled";
+import { Text } from "../";
+import { StyledColorGridButton } from "./ColorGrid.styled";
 import { COLORS as appsmithColors } from "./colors";
 
 const clean = (value: number) => {
@@ -51,7 +51,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
   return obj;
 };
 
-export const ColorComponent = (props: any) => {
+export const ColorGrid = (props: any) => {
   const {
     children,
     colorMode,
@@ -183,7 +183,7 @@ export const ColorComponent = (props: any) => {
                     background: "var(--color-bg)",
                   }}
                 >
-                  <StyledTestCmp
+                  <StyledColorGridButton
                     data-active={isActive ? "" : undefined}
                     data-disabled={isDisabled ? "" : undefined}
                     data-focused={isFocused ? "" : undefined}
@@ -196,7 +196,7 @@ export const ColorComponent = (props: any) => {
                         derived: getDerived(),
                       })}
                     </Text>
-                  </StyledTestCmp>
+                  </StyledColorGridButton>
                 </div>
               </ThemeProvider>
             );
