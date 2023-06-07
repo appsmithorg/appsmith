@@ -29,6 +29,15 @@ export class GitSync {
     branch +
     "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
+  private _branchListItem = "[data-testid=t--branch-list-item]";
+  private _spinner = ".ads-v2-spinner";
+  private _bottomBarMergeButton = ".t--bottom-bar-merge";
+  private _mergeBranchDropdownDestination =
+    ".t--merge-branch-dropdown-destination";
+  private _dropdownmenu = ".rc-select-item-option-content";
+  private _openRepoButton = ".t--git-repo-button";
+  private _commitButton = ".t--commit-button";
+  private _commitCommentInput = ".t--commit-comment-input textarea";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -153,6 +162,67 @@ export class GitSync {
       this.agHelper.AssertElementVisible(this._branchName(branch + uid));
       cy.wrap(branch + uid).as("gitbranchName");
     });
+  }
+
+  SwitchGitBranch(branch: string, expectError?: false) {
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    this.agHelper.GetNClick(this._branchButton);
+    this.agHelper.TypeText(
+      this._branchSearchInput,
+      `{selectall}` + `${branch}`,
+      0,
+      true,
+    );
+    cy.wait(1000);
+    //cy.get(gitSyncLocators.branchListItem).contains(branch).click();
+    this.agHelper.GetNClickByContains(this._branchListItem, branch);
+    if (!expectError) {
+      // increasing timeout to reduce flakyness
+      cy.get(this._spinner, { timeout: 45000 }).should("exist");
+      cy.get(this._spinner, { timeout: 45000 }).should("not.exist");
+    }
+
+    this.agHelper.Sleep(2000);
+  }
+
+  CheckMergeConflicts(destinationBranch: string) {
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    this.agHelper.GetNClick(this._bottomBarMergeButton);
+    cy.wait(2000);
+    this.agHelper.GetNClick(this._mergeBranchDropdownDestination);
+    // cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
+    this.agHelper.GetNClickByContains(this._dropdownmenu, destinationBranch);
+
+    this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
+  }
+
+  OpenRepositoryAndVerify() {
+    this.agHelper.GetNClick(this._openRepoButton);
+  }
+
+  CommitAndPush(assertFailure?: true) {
+    this.agHelper.GetNClick(this.locator._publishButton);
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    //cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    this.agHelper.TypeText(this._commitCommentInput, "Initial commit", 0, true);
+    this.agHelper.GetNClick(this._commitButton);
+    if (!assertFailure) {
+      // check for commit success
+      //adding timeout since commit is taking longer sometimes
+      cy.wait("@commit", { timeout: 35000 }).should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.wait(3000);
+    } else {
+      cy.wait("@commit", { timeout: 35000 }).then((interception: any) => {
+        const status = interception.response.body.responseMeta.status;
+        expect(status).to.be.gte(400);
+      });
+    }
+
+    this.CloseGitSyncModal();
   }
 
   //#region Unused methods
