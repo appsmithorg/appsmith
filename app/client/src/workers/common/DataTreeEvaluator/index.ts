@@ -924,7 +924,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
-    errorModifier.updateAsyncFunctions(tree);
+    errorModifier.updateAsyncFunctions(tree, this.getConfigTree());
     const evalMetaUpdates: EvalMetaUpdates = [];
     const { isFirstTree, metaWidgets, skipRevalidation, unevalUpdates } =
       options;

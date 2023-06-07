@@ -74,7 +74,7 @@ export const CUSTOM_LINT_ERRORS: Record<
     entity: unknown,
     isJsObject: boolean,
   ) =>
-    isEntityFunction(entity, propertyName)
+    isEntityFunction(entity, propertyName, entityName)
       ? asyncActionInSyncFieldLintMessage(isJsObject)
       : `"${propertyName}" doesn't exist in ${entityName}`,
 
