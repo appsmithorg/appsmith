@@ -423,7 +423,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in SecondPage
     //   First Row
-    cy.wait(300);
+    _.agHelper.Sleep(); //for navigated page to load! no intercepts avilable here
     cy.waitUntil(() =>
       cy
         .get(
@@ -475,7 +475,5 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("selectwidget", "Green", 2);
     verifyValueOfWidget("inputwidgetv2", "Sixth", 2);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
-
-    _.deployMode.NavigateBacktoEditor();
   });
 });
