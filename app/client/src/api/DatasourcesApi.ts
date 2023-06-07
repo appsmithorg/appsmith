@@ -45,10 +45,17 @@ class DatasourcesApi extends API {
 
   static testDatasource(
     datasourceConfig: Partial<DatasourceStorage>,
+    pluginId: string,
+    workspaceId: string,
   ): Promise<any> {
-    return API.post(`${DatasourcesApi.url}/test`, datasourceConfig, undefined, {
-      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
-    });
+    return API.post(
+      `${DatasourcesApi.url}/test`,
+      { ...datasourceConfig, pluginId, workspaceId },
+      undefined,
+      {
+        timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+      },
+    );
   }
 
   static updateDatasource(
