@@ -364,7 +364,8 @@ export class AggregateHelper {
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
-    cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
+    this.Sleep(); //Wait a bit for call to finish!
+    cy.wait(aliasName);
     cy.get(aliasName)
       .its("response.body.responseMeta.status")
       .should("eq", expectedStatus);
