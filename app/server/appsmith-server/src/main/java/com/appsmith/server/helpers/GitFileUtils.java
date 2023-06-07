@@ -172,7 +172,7 @@ public class GitFileUtils {
                     JSONObject dsl = newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
                     newPage.getUnpublishedPage().getLayouts().get(0).setDsl(null);
                     // pageName will be used for naming the json file
-                    resourceMapBody.put(pageName, dsl.toString());
+                    resourceMapBody.put(pageName, String.valueOf(dsl));
                     resourceMap.put(pageName, newPage);
                 });
 

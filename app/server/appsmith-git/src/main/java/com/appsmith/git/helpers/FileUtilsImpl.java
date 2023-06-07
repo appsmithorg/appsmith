@@ -243,7 +243,7 @@ public class FileUtilsImpl implements FileInterface {
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
-                            JSONObject normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
+                            Map<String, Object> normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
                             JSONObject entities = new JSONObject(normalizedDSL.get("data").toString());
                             JSONObject canvasWidgets = new JSONObject(entities.get("entities").toString());
                             JSONObject widgetList = new JSONObject(canvasWidgets.get("canvasWidgets").toString());
@@ -901,19 +901,18 @@ public class FileUtilsImpl implements FileInterface {
             .pendingAcquireMaxCount(-1)
             .build());
 
-    public JSONObject getNormalizedDSL(String dsl) {
+    public Map<String, Object> getNormalizedDSL(String dsl) {
 
         return webClient.post()
-                .uri(RTS_BASE_URL+ "/rts-api/v1/git/dsl/normalize")
+                .uri(RTS_BASE_URL+ "/rts-api/v1/dsl/git/normalize ")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(dsl))
                 .retrieve()
-                .bodyToMono(String.class)
-                .map(jsonString -> {
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    return jsonObject;
-
+                .bodyToMono(Map.class)
+                .map(map -> {
+                    Map<String, Object> widgets = (Map<String, Object>) map.get("widgets");
+                    return widgets;
                 })
                 .block();
 
@@ -921,7 +920,7 @@ public class FileUtilsImpl implements FileInterface {
 
     public JSONObject getDenormalizedDSL(String dsl) {
             return webClient.post()
-                    .uri(RTS_BASE_URL+ "/rts-api/v1/git/dsl/denormalize")
+                    .uri(RTS_BASE_URL+ "/rts-api/v1/dsl/git/denormalize")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .body(BodyInserters.fromValue(dsl))
