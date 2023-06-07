@@ -73,7 +73,7 @@ export const addDataTreeToContext = (args: {
     if (removeEntityFunctions) continue;
 
     const entityConfig = configTree[entityName];
-    const entityMethodMap = setters.getMethodFromConfig(
+    const entityMethodMap = setters.getEntitySettersFromConfig(
       entityConfig,
       entityName,
     );
@@ -126,7 +126,7 @@ export const getAllAsyncFunctions = (
     }
 
     const entityConfig = configTree[entityName];
-    const entityMethodMap = setters.getMethodFromConfig(
+    const entityMethodMap = setters.getEntitySettersFromConfig(
       entityConfig,
       entityName,
     );

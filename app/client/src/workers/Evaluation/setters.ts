@@ -16,7 +16,8 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 
 class Setters {
-  private setterMethodsMap: Record<string, any> = {};
+  /** stores the setter accessor as key and true as value */
+  private setterMethodLookup: Record<string, true> = {};
 
   private applySetterMethod(
     path: string,
@@ -101,13 +102,12 @@ class Setters {
 
     return new Promise((resolve) => {
       updatedProperties.push([entityName, propertyPath]);
-
       evalTreeWithChanges(updatedProperties, resolve);
     });
   }
-
+  /** Generates a new setter method */
   factory(path: string, setterMethodName: string, entityName: string) {
-    set(this.setterMethodsMap, [entityName, setterMethodName], true);
+    set(this.setterMethodLookup, [entityName, setterMethodName], true);
     return (value: unknown) => {
       if (!dataTreeEvaluator) return;
       return this.applySetterMethod(path, value, setterMethodName);
@@ -115,18 +115,21 @@ class Setters {
   }
 
   clear() {
-    this.setterMethodsMap = {};
+    this.setterMethodLookup = {};
   }
 
   has(entityName: string, propertyName: string) {
-    return get(this.setterMethodsMap, [entityName, propertyName], false);
+    return get(this.setterMethodLookup, [entityName, propertyName], false);
   }
 
   getMap() {
-    return this.setterMethodsMap;
+    return this.setterMethodLookup;
   }
 
-  getMethodFromConfig(entityConfig: DataTreeEntityConfig, entityName: string) {
+  getEntitySettersFromConfig(
+    entityConfig: DataTreeEntityConfig,
+    entityName: string,
+  ) {
     const setterMethodMap: Record<string, any> = {};
     if (!entityConfig) return setterMethodMap;
 
@@ -148,7 +151,7 @@ class Setters {
   init(configTree: ConfigTree) {
     const configTreeEntries = Object.entries(configTree);
     for (const [entityName, entityConfig] of configTreeEntries) {
-      this.getMethodFromConfig(entityConfig, entityName);
+      this.getEntitySettersFromConfig(entityConfig, entityName);
     }
   }
 }
