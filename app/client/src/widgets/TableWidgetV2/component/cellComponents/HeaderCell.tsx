@@ -268,7 +268,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
       </div>
       <div
         className={`header-menu ${
-          disableSort && !props.canFreezeColumn && "hide-menu"
+          !isSortable && !props.canFreezeColumn && "hide-menu"
         } ${!isMenuOpen && "hide"}`}
       >
         <Popover2
