@@ -4,7 +4,7 @@ import type { JSEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import { mapValues } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
-import type { createEntityTree } from "./createEntityTree";
+import type { createEntityTree } from "./entityTree";
 
 export function setParsedJSEntities(
   entityTree: ReturnType<typeof createEntityTree>,

@@ -1,12 +1,10 @@
-import { convertPathToString } from "ce/workers/Evaluation/evaluationUtils";
-import { toPath } from "lodash";
-
+export type TDependencies = Map<string, Set<string>>;
 export default class DependencyMap {
   #nodes: Map<string, true>;
-  #dependencies: Map<string, Set<string>>;
-  #dependenciesInverse: Map<string, Set<string>>;
-  #invalidDependencies: Map<string, Set<string>>;
-  #invalidDependenciesInverse: Map<string, Set<string>>;
+  #dependencies: TDependencies;
+  #dependenciesInverse: TDependencies;
+  #invalidDependencies: TDependencies;
+  #invalidDependenciesInverse: TDependencies;
 
   constructor() {
     this.#nodes = new Map();
@@ -62,10 +60,8 @@ export default class DependencyMap {
   public addDependency = (node: string, dependencies: string[]) => {
     const validDependencies = new Set<string>();
     const invalidDependencies = new Set<string>();
-    for (let dependency of dependencies) {
-      const { isValid, reference } = getReference(dependency, this.#nodes);
-      dependency = reference;
-      if (isValid) {
+    for (const dependency of dependencies) {
+      if (this.#nodes.has(dependency)) {
         validDependencies.add(dependency);
         if (this.#dependenciesInverse.has(dependency)) {
           this.#dependenciesInverse.get(dependency)?.add(node);
@@ -160,31 +156,7 @@ export default class DependencyMap {
     }
     return false;
   };
-}
-
-function getReference(
-  reference: string,
-  nodes: Map<string, true>,
-): {
-  isValid: boolean;
-  reference: string;
-} {
-  if (nodes.has(reference)) {
-    return { isValid: true, reference };
+  getDependencies() {
+    return this.#dependencies;
   }
-  const subpaths = toPath(reference);
-  let currentString = "";
-  // We want to keep going till we reach top level, but not add top level
-  // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-  // This is mainly to avoid a lot of unnecessary dependency.
-  while (subpaths.length > 1) {
-    currentString = convertPathToString(subpaths);
-    // We've found the dep, add it and return
-    if (nodes.has(currentString)) {
-      return { isValid: true, reference: currentString };
-    }
-    subpaths.pop();
-  }
-  // If no valid reference is derived, return invalidReference
-  return { isValid: false, reference };
 }
