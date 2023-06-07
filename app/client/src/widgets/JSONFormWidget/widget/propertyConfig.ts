@@ -314,6 +314,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         propertyName: `${prefix}.buttonVariant`,
         label: "Button variant",
         controlType: "ICON_TABS",
+        defaultValue: ButtonVariantTypes.PRIMARY,
         fullWidth: true,
         helpText: "Sets the variant of the icon button",
         options: [
@@ -405,6 +406,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
+        defaultValue: "left",
         fullWidth: false,
         options: [
           {
