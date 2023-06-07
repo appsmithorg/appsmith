@@ -8,14 +8,15 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ public interface GitServiceCE {
 
     Mono<Application> deleteBranch(String defaultApplicationId, String branchName);
 
-    Mono<Application> discardChanges(String defaultApplicationId, String branchName);
+    Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull);
 
     Mono<List<GitDocsDTO>> getGitDocUrls();
 

@@ -1189,6 +1189,7 @@ export const OIDC_AUTH_DESC = () =>
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const RESET_BUTTON = () => "Reset";
+export const BUSINESS_TAG = () => "Business";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
