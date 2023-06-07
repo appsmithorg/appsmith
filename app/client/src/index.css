@@ -248,3 +248,9 @@ div.bp3-popover-arrow {
 .reconnect-datasource-modal {
   z-index: 9 !important;
 }
+
+.ads-v2-select .rc-select-selector .rc-select-selection-item {
+  /* Currently added this fix. Maybe we need to fix it in design-system "Select" component */
+  display: flex !important;
+  gap: var(--ads-v2-spaces-3);
+}
