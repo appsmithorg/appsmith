@@ -7,7 +7,7 @@ import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexB
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
@@ -168,17 +168,18 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getPageView() {
-    let height = 0;
-    const snapRows = getCanvasSnapRows(
-      this.props.bottomRow,
-      this.props.mobileBottomRow,
-      this.props.isMobile,
-      this.props.appPositioningType === AppPositioningTypes.AUTO,
-    );
-    height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    // const height = 0;
+    // const snapRows = getCanvasSnapRows(
+    //   this.props.bottomRow,
+    //   this.props.mobileBottomRow,
+    //   this.props.isMobile,
+    //   this.props.appPositioningType === AppPositioningTypes.AUTO,
+    // );
+    // height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",
-      height: this.props.isListWidgetCanvas ? "auto" : `${height}px`,
+      // height: this.props.isListWidgetCanvas ? "auto" : `${height}px`,
+      height: "auto",
       background: "none",
       position: "relative",
     };

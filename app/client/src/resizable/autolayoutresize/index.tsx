@@ -712,7 +712,7 @@ function AutoLayoutResizable(props: ResizableProps) {
       className={wrapperClassName}
       id={`resize-${props.widgetId}`}
       ref={resizableRef}
-      style={{ ...resizeWrapperStyle, ...{ width: "100%" } }}
+      style={{ ...resizeWrapperStyle, ...{ width: "100%", height: "100%" } }}
     >
       {props.children}
       {props.enableHorizontalResize && renderHandles}

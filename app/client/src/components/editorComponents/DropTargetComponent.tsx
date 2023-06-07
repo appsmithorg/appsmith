@@ -60,6 +60,9 @@ const StyledDropTarget = styled.div`
   background: none;
   user-select: none;
   z-index: 1;
+  &.drop-target-0 {
+    min-height: calc(100vh - 110px);
+  }
 `;
 
 function Onboarding() {
@@ -307,10 +310,11 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   };
 
   // Get the height for the drop target
-  const height = `${rowRef.current * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
+  // const height = `${rowRef.current * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
 
   const dropTargetStyles = {
-    height: props.isListWidgetCanvas ? "auto" : height,
+    // height: props.isListWidgetCanvas ? "auto" : height,
+    height: "auto",
   };
 
   const shouldOnboard =
@@ -335,7 +339,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
           props.parentId || MAIN_CONTAINER_WIDGET_ID
         }`}
         onClick={isMainContainer ? handleFocus : undefined}
-        ref={dropTargetRef}
+        // ref={dropTargetRef}
         style={dropTargetStyles}
       >
         {props.children}

@@ -32,7 +32,7 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import { get, isFunction, memoize } from "lodash";
+import { get, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
 import type {
@@ -45,7 +45,7 @@ import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import type { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -66,12 +66,9 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
-import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
-import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 
 /***
  * BaseWidget
@@ -642,43 +639,44 @@ abstract class BaseWidget<
       );
     }
     if (this.props.isFlexChild && !this.props.detachFromLayout) {
-      const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-        this.props.type,
-      ).autoDimension;
+      return content;
+      // const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+      //   this.props.type,
+      // ).autoDimension;
 
-      const shouldObserveWidth = isFunction(autoDimensionConfig)
-        ? autoDimensionConfig(this.props).width
-        : autoDimensionConfig?.width;
-      const shouldObserveHeight = isFunction(autoDimensionConfig)
-        ? autoDimensionConfig(this.props).height
-        : autoDimensionConfig?.height;
+      // const shouldObserveWidth = isFunction(autoDimensionConfig)
+      //   ? autoDimensionConfig(this.props).width
+      //   : autoDimensionConfig?.width;
+      // const shouldObserveHeight = isFunction(autoDimensionConfig)
+      //   ? autoDimensionConfig(this.props).height
+      //   : autoDimensionConfig?.height;
 
-      if (!shouldObserveHeight && !shouldObserveWidth) return content;
+      // if (!shouldObserveHeight && !shouldObserveWidth) return content;
 
-      const { componentHeight, componentWidth } = this.getComponentDimensions();
+      // const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-      const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
-        this.props,
-        this.props.mainCanvasWidth || 0,
-      );
+      // const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
+      //   this.props,
+      //   this.props.mainCanvasWidth || 0,
+      // );
 
-      return (
-        <AutoLayoutDimensionObserver
-          height={componentHeight}
-          isFillWidget={
-            this.props.responsiveBehavior === ResponsiveBehavior.Fill
-          }
-          minHeight={minHeight ?? 0}
-          minWidth={minWidth ?? 0}
-          onDimensionUpdate={this.updateWidgetDimensions}
-          shouldObserveHeight={shouldObserveHeight || false}
-          shouldObserveWidth={shouldObserveWidth || false}
-          type={this.props.type}
-          width={componentWidth}
-        >
-          {content}
-        </AutoLayoutDimensionObserver>
-      );
+      // return (
+      //   <AutoLayoutDimensionObserver
+      //     height={componentHeight}
+      //     isFillWidget={
+      //       this.props.responsiveBehavior === ResponsiveBehavior.Fill
+      //     }
+      //     minHeight={minHeight ?? 0}
+      //     minWidth={minWidth ?? 0}
+      //     onDimensionUpdate={this.updateWidgetDimensions}
+      //     shouldObserveHeight={shouldObserveHeight || false}
+      //     shouldObserveWidth={shouldObserveWidth || false}
+      //     type={this.props.type}
+      //     width={componentWidth}
+      //   >
+      //     {content}
+      //   </AutoLayoutDimensionObserver>
+      // );
     }
 
     content = this.addWidgetComponentBoundary(content, this.props);
