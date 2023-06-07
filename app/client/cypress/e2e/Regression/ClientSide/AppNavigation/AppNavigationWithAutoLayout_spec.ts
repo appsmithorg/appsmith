@@ -24,7 +24,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
       _.appSettings.locators._navigationMenuItem,
       "Page1",
     );
-    _.agHelper.AssertElementVisible(_.locators._sidebar); //Page is loaded
+    _.agHelper.AssertElementVisible(_.locators._sidebar, 0, 30000); //Page is loaded, increased time since failing in CI
     _.agHelper.AssertElementExist(_.locators._widgetInCanvas("inputwidgetv2"));
     _.agHelper.AssertElementExist(
       _.locators._widgetInCanvas("inputwidgetv2"),

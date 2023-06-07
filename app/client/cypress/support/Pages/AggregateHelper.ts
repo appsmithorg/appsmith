@@ -710,12 +710,13 @@ export class AggregateHelper {
     selector: string,
     containsText: string,
     index = 0,
+    force = true,
   ) {
     return cy
       .get(selector)
       .contains(containsText)
       .eq(index)
-      .click({ force: true })
+      .click({ force: force })
       .wait(500);
   }
 

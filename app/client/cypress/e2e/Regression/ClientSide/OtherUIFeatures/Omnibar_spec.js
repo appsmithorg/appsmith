@@ -88,11 +88,9 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
 
-    cy.get(omnibar.globalSearch).click({ force: true });
+    _.agHelper.GetNClick(omnibar.globalSearch, 0, true);
     cy.get(omnibar.categoryTitle).contains("Create new").click();
-    cy.wait(1000);
-    cy.get(omnibar.createNew).contains("New blank API").click();
-    cy.wait(1000);
+    _.agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     cy.wait("@createNewApi");
     cy.renameWithInPane(apiName);
 
