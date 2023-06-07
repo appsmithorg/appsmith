@@ -790,7 +790,7 @@ function* createTempDatasourceFromFormSaga(
     datasourceStorages: {
       active_env: {
         datasourceId: "",
-        environmentId: "",
+        environmentId: "unused_env",
         datasourceConfiguration: {
           properties: [],
         },
