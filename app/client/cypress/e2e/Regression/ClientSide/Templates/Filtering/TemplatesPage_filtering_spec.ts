@@ -16,6 +16,8 @@ describe("Templates page filtering", () => {
   it("1. should filter templates by name", () => {
     cy.get(_.templates.locators._resultsHeader).then(($header) => {
       _.templates.filterTemplatesByName(NAME_FILTER);
+      // here we check if header changes, if it does we can assume
+      // list has been filtered
       cy.get(_.templates.locators._resultsHeader).should(
         "not.have.value",
         $header.text(),
@@ -27,6 +29,8 @@ describe("Templates page filtering", () => {
     cy.get(_.templates.locators._resultsHeader).then(($header) => {
       cy.wait(500);
       _.templates.filterTemplatesByFunctions(FUNCTIONS_FILTER);
+      // here we check if header changes, if it does we can assume
+      // list has been filtered
       cy.get(_.templates.locators._resultsHeader).should(
         "not.have.value",
         $header.text(),
