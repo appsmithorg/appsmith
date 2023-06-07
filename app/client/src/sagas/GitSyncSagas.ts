@@ -930,7 +930,8 @@ function* discardChanges() {
   let response: ApiResponse<GitDiscardResponse>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
-    response = yield GitSyncAPI.discardChanges(appId);
+    const doPull = true;
+    response = yield GitSyncAPI.discardChanges(appId, doPull);
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,

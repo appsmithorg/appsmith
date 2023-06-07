@@ -1,4 +1,5 @@
 import { createStyleObject, createFontStack } from "@capsizecss/core";
+import { css } from "styled-components";
 
 import arial from "@capsizecss/metrics/arial";
 import inter from "@capsizecss/metrics/inter";
@@ -10,11 +11,11 @@ import segoeUI from "@capsizecss/metrics/segoeUI";
 import openSans from "@capsizecss/metrics/openSans";
 import notoSans from "@capsizecss/metrics/notoSans";
 import montserrat from "@capsizecss/metrics/montserrat";
-import nunitoSans from "@capsizecss/metrics/nunitoSans";
+import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
-export const fontMetricsMap = {
+export const fontMetrics = {
   Poppins: poppins,
   Inter: inter,
   Roboto: roboto,
@@ -30,17 +31,26 @@ export const fontMetricsMap = {
   "Segoe UI": segoeUI,
 } as const;
 
-export type fontFamilyTypes = keyof typeof fontMetricsMap;
+import type { FontFamily, Typography } from "./types";
 
-type createTypographyStylesProps = {
-  fontFamily?: fontFamilyTypes;
-  capHeight: number;
-  lineGap: number;
+export const createTypographyStylesMap = (typography: Typography) => {
+  return Object.keys(typography).reduce((prev, current) => {
+    const { capHeight, fontFamily, lineGap } =
+      typography[current as keyof Typography];
+    return {
+      ...prev,
+      [current]: css`
+        ${createTypographyStyles(capHeight, lineGap, fontFamily)}
+      `,
+    };
+  }, {});
 };
 
-export const createTypographyStyles = (props: createTypographyStylesProps) => {
-  const { capHeight, fontFamily, lineGap } = props;
-
+export const createTypographyStyles = (
+  capHeight: number,
+  lineGap: number,
+  fontFamily?: FontFamily,
+) => {
   // if there is no font family, use the default font stack
   if (!fontFamily) {
     const styles = createStyleObject({
@@ -58,7 +68,7 @@ export const createTypographyStyles = (props: createTypographyStylesProps) => {
   const styles = createStyleObject({
     capHeight,
     lineGap,
-    fontMetrics: fontMetricsMap[fontFamily],
+    fontMetrics: fontMetrics[fontFamily],
   });
 
   return {
@@ -67,11 +77,6 @@ export const createTypographyStyles = (props: createTypographyStylesProps) => {
   };
 };
 
-/**
- * create a global font stack
- *
- * @returns
- */
 export const createGlobalFontStack = () => {
   return createFontStack([appleSystem, BlinkMacSystemFont, segoeUI, roboto], {
     fontFaceFormat: "styleString",

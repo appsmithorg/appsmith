@@ -1916,19 +1916,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capsizecss/core@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "@capsizecss/core@npm:3.1.0"
+"@capsizecss/core@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@capsizecss/core@npm:3.1.1"
   dependencies:
     csstype: ^3.1.1
-  checksum: 5f80c0a67e57fc59e6fec9d316945a5eca3b5dfa812210e2e94a6afdfb22271b726471ca6d5116cc2f66459f257290fdeccadd5f0045faaf357489d153493e06
+  checksum: 8baf9e6c237d8faab10178ecb883317eeb6c03edb9d42e6a45ad2f1677745697683477953935eeae8621a91acd9b6b599fa967ccc34894b1b9b998c0c2150517
   languageName: node
   linkType: hard
 
-"@capsizecss/metrics@npm:^1.0.1":
-  version: 1.1.1
-  resolution: "@capsizecss/metrics@npm:1.1.1"
-  checksum: 5ba1b77f510c9e67bb25f686bf2a9f6124ceade7f5c5ce0971d63d3feccfab2bc3fb735c588ef7f0e2a2ea404f4ea4f618f70b4717ab2386de59839b0c861d8b
+"@capsizecss/metrics@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@capsizecss/metrics@npm:1.2.0"
+  checksum: 762e70453f5b4f3aa36e789b3ad538f258f0e5901d18775d7878f96346e6dd0213cb26b5a6ae4a1d674b8be6cfac65ac031f071141dcef3f28dcb363fa99c765
   languageName: node
   linkType: hard
 
@@ -2211,8 +2211,6 @@ __metadata:
   resolution: "@design-system/storybook@workspace:packages/storybook"
   dependencies:
     "@babel/core": ^7.20.12
-    "@capsizecss/core": ^3.1.0
-    "@capsizecss/metrics": ^1.0.1
     "@storybook/addon-actions": ^6.5.16
     "@storybook/addon-essentials": ^6.5.16
     "@storybook/addon-interactions": ^6.5.16
@@ -2242,6 +2240,9 @@ __metadata:
 "@design-system/theming@workspace:^, @design-system/theming@workspace:packages/design-system/theming":
   version: 0.0.0-use.local
   resolution: "@design-system/theming@workspace:packages/design-system/theming"
+  dependencies:
+    "@capsizecss/core": ^3.1.1
+    "@capsizecss/metrics": ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -2290,8 +2291,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@design-system/widgets@workspace:packages/design-system/widgets"
   dependencies:
-    "@capsizecss/core": ^3.1.0
-    "@capsizecss/metrics": ^1.0.1
     "@design-system/headless": "workspace:^"
     "@design-system/theming": "workspace:^"
     "@react-aria/utils": ^3.16.0
@@ -13164,9 +13163,9 @@ __metadata:
   linkType: hard
 
 "csstype@npm:^3.0.2, csstype@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "csstype@npm:3.1.1"
-  checksum: 1f7b4f5fdd955b7444b18ebdddf3f5c699159f13e9cf8ac9027ae4a60ae226aef9bbb14a6e12ca7dba3358b007cee6354b116e720262867c398de6c955ea451d
+  version: 3.1.2
+  resolution: "csstype@npm:3.1.2"
+  checksum: e1a52e6c25c1314d6beef5168da704ab29c5186b877c07d822bd0806717d9a265e8493a2e35ca7e68d0f5d472d43fac1cdce70fd79fd0853dff81f3028d857b5
   languageName: node
   linkType: hard
 
