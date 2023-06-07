@@ -4,6 +4,7 @@ import type { Server, Def } from "tern";
 import type { Hint } from "codemirror";
 import type CodeMirror from "codemirror";
 import {
+  getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -307,7 +308,7 @@ class CodeMirrorTernService {
 
     CodeMirror.on(obj, "shown", () => {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {
-        query: lineValue,
+        query: getDynamicBindings(lineValue)?.jsSnippets[0],
         numberOfResults: completions.filter(
           (completion) => !completion.isHeader,
         ).length,
@@ -379,7 +380,7 @@ class CodeMirrorTernService {
 
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         selectedResult: selected.text,
-        query: hints.lineValue,
+        query: getDynamicBindings(hints.lineValue)?.jsSnippets[0],
         selectedResultIndex,
         selectedResultType: selected.type,
         isBestMatch:
