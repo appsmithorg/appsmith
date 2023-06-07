@@ -24,11 +24,6 @@ export class OneClickBinding {
     _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
     _.agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
-
-    _.agHelper.AssertElementExist(
-      oneClickBindingLocator.tableOrSpreadsheetDropdown,
-    );
-
     _.agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
     _.agHelper.GetNClick(

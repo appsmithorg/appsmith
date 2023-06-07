@@ -9,13 +9,10 @@ const oneClickBinding = new OneClickBinding();
 
 describe("One click binding control", () => {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
   });
 
-  it("1.should check the datasource selector and the form", () => {
-    _.agHelper.AssertElementExist(
-      oneClickBindingLocator.datasourceDropdownSelector,
-    );
+  it("1.Should check the datasource selector and the form", () => {
     _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
     _.agHelper.AssertElementAbsence(
       oneClickBindingLocator.datasourceQueryBindHeaderSelector,
@@ -28,18 +25,12 @@ describe("One click binding control", () => {
     );
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
-    cy.wait(500);
-
-    _.dataSources.CreateMockDB("Users");
-
-    cy.wait(500);
-
-    _.dataSources.CreateQueryAfterDSSaved();
+    _.dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+      _.dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
+    });
 
     _.entityExplorer.NavigateToSwitcher("Widgets");
-
     _.entityExplorer.NavigateToSwitcher("Explorer");
-
     _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
@@ -62,11 +53,6 @@ describe("One click binding control", () => {
     );
 
     _.agHelper.AssertElementExist(oneClickBindingLocator.otherActionSelector());
-
-    _.agHelper.AssertElementExist(
-      oneClickBindingLocator.otherActionSelector("Connect new datasource"),
-    );
-
     _.agHelper.GetNClick(
       oneClickBindingLocator.otherActionSelector("Connect new datasource"),
     );
@@ -103,7 +89,7 @@ describe("One click binding control", () => {
 
     _.propPane.UpdatePropertyFieldValue("Table data", "");
 
-    _.propPane.ToggleJSMode("Table data");
+    _.propPane.ToggleJSMode("Table data", false);
 
     _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -123,10 +109,10 @@ describe("One click binding control", () => {
 
     _.propPane.UpdatePropertyFieldValue("Table data", "");
 
-    _.propPane.ToggleJSMode("Table data");
+    _.propPane.ToggleJSMode("Table data", false);
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from Users",
+      "New from users",
       "Users",
       "public.users",
       "gender",
@@ -137,17 +123,14 @@ describe("One click binding control", () => {
     _.propPane.MoveToTab("Content");
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from sample Movies",
+      "New from movies",
       "movies",
       "movies",
       "status",
     );
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
-
-    _.agHelper.GetNClick("#entity-add_new_datasource");
-
-    _.agHelper.GetNClick(".t--plugin-name:contains('MongoDB')");
+    _.dataSources.CreatePlugIn("Mongo");
 
     _.agHelper.TypeText(
       DatasourceEditor.datasourceTitleInputLocator,
@@ -174,8 +157,7 @@ describe("One click binding control", () => {
       oneClickBindingLocator.datasourceSelector("myinvalidds"),
     );
 
-    cy.wait("@getDatasourceStructure", { timeout: 20000 });
-
+    _.agHelper.ValidateNetworkStatus("@ValidateNetworkStatus");
     _.agHelper.AssertElementExist(
       oneClickBindingLocator.tableError(
         "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",
