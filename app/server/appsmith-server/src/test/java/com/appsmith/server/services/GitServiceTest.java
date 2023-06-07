@@ -3158,7 +3158,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.rebaseBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true);
+        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
         StepVerifier
                 .create(applicationMono)
@@ -3198,7 +3198,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("fetched"));
 
         gitService
-                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true)
+                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName())
                 .timeout(Duration.ofNanos(100))
                 .subscribe();
 
