@@ -53,13 +53,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
   };
 
   selectOption = (value: string, isUpdatedViaKeyboard = false) => {
-    if (this.props.propertyValue === value) {
-      this.updateProperty(
-        this.props.propertyName,
-        this.props.defaultValue,
-        isUpdatedViaKeyboard,
-      );
-    } else {
+    if (this.props.propertyValue !== value) {
       this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
     }
   };
@@ -71,7 +65,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
         onChange={this.selectOption}
         options={this.props.options}
         ref={this.componentRef}
-        value={this.props.propertyValue}
+        value={this.props.propertyValue || this.props.defaultValue}
       />
     );
   }
