@@ -362,10 +362,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
         Mono<DatasourceStorage> datasourceStorageMono;
 
-        // Could we also treat this as a case for default environmentId ?
-        if (!hasText(datasourceStorage.getEnvironmentId())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT_ID));
-        }
+        // Ideally there should also be a check for missing environmentId,
+        // however since we are falling back to default this step is not required here.
 
         // Cases where the datasource hasn't been saved yet
         if (datasourceStorage.getDatasourceId() == null) {
