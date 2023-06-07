@@ -100,7 +100,7 @@ export class WidgetEntity
     return this.entity;
   }
   getName() {
-    return this.config.name;
+    return this.entity.widgetName;
   }
   getId() {
     return this.config.widgetId as string;
@@ -209,4 +209,15 @@ export function isWidgetEntity(entity: TEntity): entity is WidgetEntity {
 }
 export function isPagelistEntity(entity: TEntity): entity is PagelistEntity {
   return entity.getType() === ENTITY_TYPE.PAGELIST;
+}
+
+// only Widgets, jsActions and Actions have paths that can be dynamic
+export function isDynamicEntity(
+  entity: TEntity,
+): entity is JSEntity | WidgetEntity | ActionEntity {
+  return [
+    ENTITY_TYPE.JSACTION,
+    ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE.ACTION,
+  ].includes(entity.getType());
 }

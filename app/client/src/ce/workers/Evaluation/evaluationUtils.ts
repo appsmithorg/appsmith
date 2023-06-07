@@ -95,7 +95,7 @@ export function getEntityNameAndPropertyPath(fullPath: string): {
   return { entityName, propertyPath };
 }
 
-function translateCollectionDiffs(
+export function translateCollectionDiffs(
   propertyPath: string,
   data: unknown,
   event: DataTreeDiffEvent,

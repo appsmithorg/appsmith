@@ -1,6 +1,6 @@
 import type { TEntity } from "Linting/lib/entity";
 import type { ENTITY_TYPE } from "entities/DataTree/types";
-import type { createEntityTree } from "./createEntityTree";
+import type { createEntityTree } from "./entityTree";
 
 export function getEntitiesOfType<T extends TEntity>(
   type: ENTITY_TYPE,
