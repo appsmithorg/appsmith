@@ -20,8 +20,30 @@ export default {
     `.t--one-click-binding-datasource-selector--other-action${
       action ? `:contains(${action})` : ""
     }`,
-  datasourcePage: ".t--integrationsHomePage",
-  backButton: ".t--back-button",
+  tableOrSpreadsheetDropdown:
+    '[data-testid="t--one-click-binding-table-selector"]',
+  tableOrSpreadsheetDropdownOption: (table?: string) =>
+    `.t--one-click-binding-table-selector--table${
+      table ? `:contains(${table})` : ""
+    }`,
+  tableOrSpreadsheetSelectedOption: (table?: string) =>
+    `[data-testid="t--one-click-binding-table-selector"] .rc-select-selection-item${
+      table ? `:contains(${table})` : ""
+    }`,
+  searchableColumn:
+    '[data-testid="t--one-click-binding-column-searchableColumn"]',
+  searchableColumnDropdownOption: (column?: string) =>
+    `.t--one-click-binding-column-searchableColumn--column${
+      column ? `:contains(${column})` : ""
+    }`,
+  searchableColumnSelectedOption: (column?: string) =>
+    `[data-testid="t--one-click-binding-column-searchableColumn"] .rc-select-selection-item${
+      column ? `:contains(${column})` : ""
+    }`,
+  validTableRowData:
+    '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
   tableError: (error: string) =>
     `[data-testId="t--one-click-binding-table-selector--error"]:contains(${error})`,
+  dateInput: `[data-testid="datepicker-container"] input`,
+  dayViewFromDate: ".DayPicker-Day",
 };
