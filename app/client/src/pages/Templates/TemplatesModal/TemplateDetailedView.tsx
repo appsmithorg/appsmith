@@ -148,7 +148,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
               <div className="round yellow" />
               <div className="round green" />
             </IframeTopBar>
-            <iframe src={`${previewUrl}?embed=true`} />
+            <iframe src={previewUrl} />
           </IframeWrapper>
           <TemplateDescriptionWrapper>
             <TemplateDescription hideForkButton template={currentTemplate} />
