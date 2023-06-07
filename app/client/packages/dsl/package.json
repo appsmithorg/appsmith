@@ -6,6 +6,11 @@
     "main": "build/index.js",
     "module": "build/index.es.js",
     "types": "build/index.d.ts",
+    "scripts": {
+        "start": "rollup -c",
+        "build": "rollup -c",
+        "postinstall": "yarn build"
+    },
     "files": [
         "build"
     ],
@@ -25,11 +30,5 @@
         "typescript": "4.5.5"
     },
     "author": "",
-    "license": "ISC",
-    "peerDependencies": {
-        "react": "^17.0.2"
-    },
-    "scripts": {
-        "build": "rollup -c"
-    }
+    "license": "ISC"
 }
