@@ -147,7 +147,6 @@ export default abstract class GSheets extends BaseQueryGenerator {
       return {
         type: QUERY_TYPE.UPDATE,
         name: "Update_query",
-        //tableHeaderIndex
         formData: {
           rowObjects: {
             data: `{{${update.value}}}`,
