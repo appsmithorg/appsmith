@@ -10,6 +10,7 @@ describe("Text-Chart Binding Functionality", function () {
   });
 
   it("1. Text-Chart Binding Functionality View", function () {
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Text1");
     cy.testJsontext("text", JSON.stringify(this.data.chartInputValidate));
     cy.get(commonlocators.TextInside).should(
@@ -17,6 +18,7 @@ describe("Text-Chart Binding Functionality", function () {
       JSON.stringify(this.data.chartInputValidate),
     );
     cy.closePropertyPane();
+    _.entityExplorer.ExpandCollapseEntity("Container1");
     _.entityExplorer.SelectEntityByName("Chart1");
     cy.get(viewWidgetsPage.chartType).last().click({ force: true });
     cy.get(".t--dropdown-option").children().contains("Column chart").click();

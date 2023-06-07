@@ -19,7 +19,7 @@ describe("Binding the multiple widgets and validating default data", function ()
       200,
     );
     //Dropdown widget test with default value from table widget
-    _.entityExplorer.SelectEntityByName("Select1");
+    _.entityExplorer.SelectEntityByName("Dropdown1");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
 
     cy.wait("@updateLayout").should(

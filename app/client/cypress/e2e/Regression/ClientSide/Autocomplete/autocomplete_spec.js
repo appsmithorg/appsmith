@@ -7,10 +7,9 @@ describe("Dynamic input autocomplete", () => {
     cy.addDsl(dsl);
   });
   it("1. Opens autocomplete for bindings", () => {
-    cy.selectEntityByName("TestModal");
-    cy.wait(3000);
-    cy.selectEntityByName("Aditya");
-    _.entityExplorer.SelectEntityByName("Button1");
+    _.entityExplorer.ExpandCollapseEntity("TestModal");
+    _.entityExplorer.SelectEntityByName("Aditya");
+    _.entityExplorer.SelectEntityByName("Button2");
     cy.testJsontext("label", "", {
       parseSpecialCharSequences: true,
     });
@@ -34,7 +33,6 @@ describe("Dynamic input autocomplete", () => {
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
           .should("have.text", "Button1.text");
-
         cy.testJsontext("label", "", {
           parseSpecialCharSequences: true,
         });

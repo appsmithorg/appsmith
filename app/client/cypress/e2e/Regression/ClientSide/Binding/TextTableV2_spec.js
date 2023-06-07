@@ -15,12 +15,14 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   it("1. Text-Table Binding Functionality For Id", function () {
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
     /**
      * @param(Index)  Provide index value to select the row.
      */
     cy.isSelectRow(1);
-    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Text4");
     cy.testJsontext("text", "{{Table1.selectedRow.id}}");
     /**
      * @param{Row Index} Provide the row index
@@ -44,7 +46,9 @@ describe("Text-Table v2 Binding Functionality", function () {
   it("2. Text-Table Binding Functionality For Email", function () {
     cy.get(publish.backToEditor).click();
     cy.isSelectRow(2);
-    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Text4");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
     /**
      * @param{Row Index} Provide the row index
@@ -67,7 +71,9 @@ describe("Text-Table v2 Binding Functionality", function () {
 
   it("3. Text-Table Binding Functionality For Total Length", function () {
     cy.get(publish.backToEditor).click();
-    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Text4");
     cy.testJsontext("text", "{{Table1.pageSize}}");
     cy.get(commonlocators.TableV2Row)
       .find(".tr")
@@ -90,6 +96,8 @@ describe("Text-Table v2 Binding Functionality", function () {
 
   it("4. Table Widget Functionality To Verify Default Row Selection is working", function () {
     cy.get(publish.backToEditor).click();
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("defaultselectedrow", "2");
     cy.wait("@updateLayout");
@@ -99,7 +107,8 @@ describe("Text-Table v2 Binding Functionality", function () {
         const listingCount = listing.length;
         expect(listingCount).to.be.equal(1);
       });
-    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Text4");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
     cy.PublishtheApp();
     cy.readTableV2dataPublish("2", "1").then((tabDataP) => {
@@ -110,11 +119,13 @@ describe("Text-Table v2 Binding Functionality", function () {
 
   it("5. Text-Table Binding Functionality For Username", function () {
     cy.get(publish.backToEditor).click();
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
     /**
      * @param(Index)  Provide index value to select the row.
      */
     cy.isSelectRow(1);
-    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Text4");
     cy.testJsontext("text", JSON.stringify(this.data.textfun));
     /**
      * @param{Row Index} Provide the row index

@@ -48,14 +48,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     });
 
     it("2. Bind Button on click  and Text widget content", function () {
-      _.entityExplorer.SelectEntityByName("Button1");
+      _.entityExplorer.SelectEntityByName("Button4");
       cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onClick,
         `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("success"))}}`,
       );
       // Bind to stored value above
-      _.entityExplorer.SelectEntityByName("Text1");
+      _.entityExplorer.SelectEntityByName("Text3");
       cy.updateCodeInput(PROPERTY_SELECTOR.text, testConfig.textBindingValue);
       cy.closePropertyPane();
 

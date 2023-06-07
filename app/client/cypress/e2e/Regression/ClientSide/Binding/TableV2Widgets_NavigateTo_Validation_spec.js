@@ -28,12 +28,11 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.CheckAndUnfoldEntityItem("Pages");
+    _.entityExplorer.ExpandCollapseEntity("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
     //Table Widget V2 Functionality with multiple page
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.widgetText(
       "Table1",
