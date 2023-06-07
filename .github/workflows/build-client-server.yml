@@ -70,11 +70,10 @@ jobs:
     secrets: inherit
     with:
       pr: 23980
+      previous_run_id: 0
 
   ci-test-only:
-    needs: [ build-docker-image ]
-    # Only run if the build step is successful
-    if: success() && inputs.previous_run_id != '0'
+    if: inputs.previous_run_id != '0'
     name: ci-test-only
     uses: ./.github/workflows/ci-test.yml
     secrets: inherit
