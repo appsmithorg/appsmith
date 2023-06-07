@@ -4,10 +4,11 @@ import {
   TokensAccessor,
   LightModeTheme,
   DarkModeTheme,
+  defaultTokens,
 } from "@design-system/theming";
 import Color from "colorjs.io";
-import { Text } from "../Text";
-import { StyledTestCmp } from "./index.styled";
+import { Text } from "../";
+import { StyledColorGridButton } from "./ColorGrid.styled";
 import { COLORS as appsmithColors } from "./colors";
 
 const clean = (value: number) => {
@@ -50,7 +51,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
   return obj;
 };
 
-export const TestColorComponent = (props: any) => {
+export const ColorGrid = (props: any) => {
   const {
     children,
     colorMode,
@@ -118,6 +119,14 @@ export const TestColorComponent = (props: any) => {
             const seedColor = COLORS[colorKey][colorNestedKey];
 
             const tokensAccessor = new TokensAccessor({
+              rootUnit: 4,
+              typography: {
+                ...defaultTokens.typography,
+                footnote: {
+                  capHeightRatio: 1.4,
+                  lineGapRatio: 1,
+                },
+              },
               seedColor,
               colorMode: colorMode,
             });
@@ -174,20 +183,20 @@ export const TestColorComponent = (props: any) => {
                     background: "var(--color-bg)",
                   }}
                 >
-                  <StyledTestCmp
+                  <StyledColorGridButton
                     data-active={isActive ? "" : undefined}
                     data-disabled={isDisabled ? "" : undefined}
                     data-focused={isFocused ? "" : undefined}
                     data-hovered={isHovered ? "" : undefined}
                     data-variant={variant}
                   >
-                    <Text capHeight={6.5} lineClamp={2}>
+                    <Text lineClamp={2} textAlign="center" variant="footnote">
                       {children({
                         seed: getSeed(),
                         derived: getDerived(),
                       })}
                     </Text>
-                  </StyledTestCmp>
+                  </StyledColorGridButton>
                 </div>
               </ThemeProvider>
             );
