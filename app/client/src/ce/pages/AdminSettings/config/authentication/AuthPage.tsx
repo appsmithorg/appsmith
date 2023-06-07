@@ -104,14 +104,6 @@ export type AuthMethodType = {
   icon?: string;
 };
 
-const Label = styled(Tag)<{ business?: boolean }>`
-  ${(props) =>
-    props.business &&
-    `
-    color: var(--ads-v2-color-fg);
-  `};
-`;
-
 const ButtonWrapper = styled.div`
   min-width: 100px;
   text-align: right;
@@ -201,12 +193,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     >
                       {method.label}&nbsp;
                       {method.needsUpgrade && (
-                        <>
-                          <Label business isClosable={false}>
-                            Business
-                          </Label>
-                          &nbsp;
-                        </>
+                        <Tag isClosable={false}>Business</Tag>
                       )}
                       {method.isConnected && (
                         <Tooltip
