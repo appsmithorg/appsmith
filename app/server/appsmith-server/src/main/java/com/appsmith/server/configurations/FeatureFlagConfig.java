@@ -2,7 +2,6 @@ package com.appsmith.server.configurations;
 
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
-import org.ff4j.parser.yaml.YamlParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
