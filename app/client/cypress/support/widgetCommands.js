@@ -1443,7 +1443,9 @@ Cypress.Commands.add("hoverTableCell", (x, y) => {
 });
 
 Cypress.Commands.add("editTableCell", (x, y) => {
-  cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon svg`,
+  )
     .invoke("show")
     .click({ force: true });
   cy.get(
