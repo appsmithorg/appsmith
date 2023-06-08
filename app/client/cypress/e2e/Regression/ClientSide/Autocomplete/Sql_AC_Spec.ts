@@ -1,24 +1,31 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
 describe("SQL Autocompletion", () => {
   it("1. Create DS for SQL autocompletion testing", () => {
-    _.dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       //Shows autocompletion hints in SQL", () => {
-      _.dataSources.NavigateFromActiveDS(dsName, true);
-      _.agHelper.GetNClick(_.dataSources._templateMenu);
-      _.agHelper.TypeText(_.locators._codeMirrorTextArea, "select");
+      dataSources.NavigateFromActiveDS(dsName, true);
+      agHelper.GetNClick(dataSources._templateMenu);
+      agHelper.TypeText(locators._codeMirrorTextArea, "select");
       // Hints should exist
-      _.agHelper.AssertElementExist(_.locators._hints);
+      agHelper.AssertElementExist(locators._hints);
       // "select" should be parsed as a keyword and should not be capitalised
-      _.agHelper.GetNAssertElementText(
-        _.locators._sqlKeyword,
+      agHelper.GetNAssertElementText(
+        locators._sqlKeyword,
         "select",
         "contain.text",
       );
+      // Hints should disappear on mouse down
+      cy.get(locators._codeMirrorTextArea).realMouseDown();
+      agHelper.AssertElementAbsence(locators._hints);
     });
   });
 });
