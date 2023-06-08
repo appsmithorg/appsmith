@@ -62,7 +62,7 @@ export function useConnectData() {
 
   const show = !!config.datasource;
 
-  const validGsheetConfig =
+  const isValidGsheetConfig =
     config.sheet &&
     config.tableHeaderIndex &&
     isNumber(Number(config.tableHeaderIndex)) &&
@@ -71,7 +71,7 @@ export function useConnectData() {
   const disabled =
     !config.table ||
     (selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-      !validGsheetConfig);
+      !isValidGsheetConfig);
 
   return {
     show,
