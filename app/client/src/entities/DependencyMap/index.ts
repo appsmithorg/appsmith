@@ -159,4 +159,7 @@ export default class DependencyMap {
   getDependencies() {
     return this.#dependencies;
   }
+  getInvalidDependenciesInverse() {
+    return this.#invalidDependenciesInverse;
+  }
 }
