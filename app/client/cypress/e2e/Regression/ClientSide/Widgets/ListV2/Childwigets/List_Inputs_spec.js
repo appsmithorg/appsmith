@@ -28,19 +28,21 @@ describe("Input Widgets", function () {
   });
 
   it("1. Input Widgets default value", function () {
-    cy.dragAndDropToWidget("currencyinputwidget", "listwidgetv2", {
-      x: 50,
-      y: 50,
-    });
-    cy.dragAndDropToWidget("phoneinputwidget", "listwidgetv2", {
-      x: 50,
-      y: 120,
-    });
-
-    cy.dragAndDropToWidget("inputwidgetv2", "listwidgetv2", {
-      x: 50,
-      y: 200,
-    });
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CURRENCY_INPUT,
+      300,
+      100,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.PHONEINPUT,
+      300,
+      200,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      300,
+      300,
+    );
     cy.openPropertyPane("currencyinputwidget");
     cy.updateCodeInput(
       ".t--property-control-defaultvalue",
@@ -76,11 +78,7 @@ describe("Input Widgets", function () {
 
   it("2. Input Widgets isValid", function () {
     // Test for isValid === True
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 50,
-    });
-
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 300);
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Input_Widget");
     cy.wait(1000);
     cy.testJsontext("text", `{{currentView.Input1.isValid}}`);
@@ -88,11 +86,7 @@ describe("Input Widgets", function () {
       .first()
       .should("have.text", "true");
 
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 120,
-    });
-
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 100);
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Currency_Widget");
     cy.wait(1000);
     cy.testJsontext("text", `{{currentView.CurrencyInput1.isValid}}`);
@@ -102,10 +96,7 @@ describe("Input Widgets", function () {
       .first()
       .should("have.text", "true");
 
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 210,
-    });
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 200);
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "PhoneInput_Widget");
     cy.wait(1000);
