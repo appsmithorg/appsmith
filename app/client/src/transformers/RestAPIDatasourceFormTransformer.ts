@@ -19,12 +19,12 @@ export const datasourceToFormValues = (
 ): ApiDatasourceForm => {
   const authType = get(
     datasource,
-    "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+    "datasourceStorages.unused_env.datasourceConfiguration.authentication.authenticationType",
     AuthType.NONE,
   ) as AuthType;
   const connection = get(
     datasource,
-    "datasourceStorages.active_env.datasourceConfiguration.connection",
+    "datasourceStorages.unused_env.datasourceConfiguration.connection",
     {
       ssl: {
         authType: SSLType.DEFAULT,
@@ -35,27 +35,28 @@ export const datasourceToFormValues = (
   const isSendSessionEnabled =
     get(
       datasource,
-      "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+      "datasourceStorages.unused_env.datasourceConfiguration.properties[0].value",
       "N",
     ) === "Y";
   const sessionSignatureKey = isSendSessionEnabled
     ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       get(
         datasource,
-        "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+        "datasourceStorages.unused_env.datasourceConfiguration.properties[1].value",
       )!
     : "";
   return {
     datasourceId: datasource.id,
     workspaceId: datasource.workspaceId,
     pluginId: datasource.pluginId,
-    isValid: datasource.datasourceStorages.active_env.isValid,
-    url: datasource.datasourceStorages.active_env.datasourceConfiguration?.url,
+    isValid: datasource.datasourceStorages.unused_env?.isValid,
+    url: datasource.datasourceStorages.unused_env?.datasourceConfiguration?.url,
     headers: cleanupProperties(
-      datasource.datasourceStorages.active_env.datasourceConfiguration?.headers,
+      datasource.datasourceStorages.unused_env?.datasourceConfiguration
+        ?.headers,
     ),
     queryParameters: cleanupProperties(
-      datasource.datasourceStorages.active_env.datasourceConfiguration
+      datasource.datasourceStorages.unused_env?.datasourceConfiguration
         ?.queryParameters,
     ),
     isSendSessionEnabled: isSendSessionEnabled,
@@ -90,7 +91,7 @@ export const formValuesToDatasource = (
   };
   set(
     datasource,
-    "datasourceStorages.active_env.datasourceConfiguration",
+    "datasourceStorages.unused_env.datasourceConfiguration",
     conf,
   );
   return datasource;
@@ -183,15 +184,15 @@ const datasourceToFormAuthentication = (
 ): Authentication | undefined => {
   if (
     !datasource ||
-    !datasource.datasourceStorages.active_env.datasourceConfiguration ||
-    !datasource.datasourceStorages.active_env.datasourceConfiguration
+    !datasource.datasourceStorages.unused_env?.datasourceConfiguration ||
+    !datasource.datasourceStorages.unused_env?.datasourceConfiguration
       .authentication
   ) {
     return;
   }
 
   const authentication =
-    datasource.datasourceStorages.active_env.datasourceConfiguration
+    datasource.datasourceStorages.unused_env?.datasourceConfiguration
       .authentication;
   if (
     isClientCredentials(authType, authentication) ||

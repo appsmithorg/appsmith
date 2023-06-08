@@ -81,6 +81,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayload } from "./ActionSagas";
+import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -260,6 +261,7 @@ function* formValueChangeSaga(
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
+    const currentEnvironment = getCurrentEnvironment();
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -270,7 +272,8 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasource?.datasourceStorages.active_env.datasourceConfiguration,
+              datasource?.datasourceStorages[currentEnvironment]
+                .datasourceConfiguration,
             ),
           ]
         : [];
