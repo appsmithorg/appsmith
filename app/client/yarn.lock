@@ -9625,7 +9625,7 @@ __metadata:
     craco-alias: ^2.1.1
     craco-babel-loader: ^1.0.4
     cy-verify-downloads: ^0.0.5
-    cypress: ^12.13.0
+    cypress: ^12.14.0
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
@@ -13266,9 +13266,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^12.13.0":
-  version: 12.13.0
-  resolution: "cypress@npm:12.13.0"
+"cypress@npm:^12.14.0":
+  version: 12.14.0
+  resolution: "cypress@npm:12.14.0"
   dependencies:
     "@cypress/request": ^2.88.10
     "@cypress/xvfb": ^1.2.4
@@ -13314,7 +13314,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 8e73c7033dadc15caf17b106cd88665107c8bbf3ba66fc266de1f14a2c1401edfa99c222f2ae6070e1ffb8123eb255fb559dc3e5e24460fadf8e05ce74afa41b
+  checksum: c98d33dc50f5e48a215f41e3a5139514816d2320e433d143a352a460f74941d3106a1f7485f61172f544cf125176c1225ac8edec31645d5a89cd394f72f93588
   languageName: node
   linkType: hard
 
