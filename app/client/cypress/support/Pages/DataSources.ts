@@ -803,6 +803,16 @@ export class DataSources {
     }
   }
 
+  AssertRunButtonDisability(disabled = false) {
+    let query = "";
+    if (disabled) {
+      query = "be.disabled";
+    } else {
+      query = "not.be.disabled";
+    }
+    cy.get(this._runQueryBtn).should(query);
+  }
+
   public ReadQueryTableResponse(index: number, timeout = 100) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
