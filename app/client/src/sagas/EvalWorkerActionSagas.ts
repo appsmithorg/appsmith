@@ -150,7 +150,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
-      yield call(logJSFunctionExecution, message);
+      yield call(handleJSExecutionLog, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
