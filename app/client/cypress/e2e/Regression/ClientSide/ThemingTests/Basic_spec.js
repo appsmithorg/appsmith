@@ -437,7 +437,7 @@ describe("App Theming funtionality", function () {
 
     //check for delete alert
     cy.wait(500);
-    cy.get(commonlocators.toastMsg).contains("Theme testtheme Deleted");
+    cy.get(commonlocators.toastMsg).contains("Theme testtheme deleted");
     cy.xpath(applyTheme("Your themes", "testtheme")).should("not.exist");
   });
 
