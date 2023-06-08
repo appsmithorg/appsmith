@@ -594,7 +594,7 @@ function AutoLayoutResizable(props: any) {
     dispatch(stopReflowAction());
     const widthChange = (newDimensions.width * 100) / parentWidth;
     props.onStop({
-      width: props.componentWidth + widthChange,
+      width: Math.min(props.componentWidth + widthChange, 100),
       height: newDimensions.height,
     });
     setResizing(false);
