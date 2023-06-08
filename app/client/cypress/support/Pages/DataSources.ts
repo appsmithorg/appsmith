@@ -711,7 +711,7 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
     createQuery && this.agHelper.AssertNetworkStatus("@createNewApi", 201);
     !createQuery &&
-      this.agHelper.AssertNetworkStatus("@getDatasourceStructure", 200);
+      this.agHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
   public AssertDSActive(dsName: string) {

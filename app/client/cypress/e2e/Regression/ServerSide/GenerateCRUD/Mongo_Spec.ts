@@ -64,7 +64,6 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
   it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
     dataSources.NavigateFromActiveDS(dsName, false);
-    agHelper.AssertNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
     GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);

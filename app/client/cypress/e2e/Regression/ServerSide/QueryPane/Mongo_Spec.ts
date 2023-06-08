@@ -612,7 +612,6 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
     _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,

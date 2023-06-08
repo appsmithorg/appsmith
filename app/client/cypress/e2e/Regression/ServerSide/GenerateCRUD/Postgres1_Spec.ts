@@ -82,7 +82,6 @@ describe("Postgres Generate CRUD with JSON Form", () => {
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
     _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "orders");
 
