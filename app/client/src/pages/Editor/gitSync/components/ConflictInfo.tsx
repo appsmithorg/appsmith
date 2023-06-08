@@ -53,7 +53,7 @@ export default function ConflictInfo({
       <Space size={3} />
       <Row>
         <StyledButton
-          className="t--git-repo-button"
+          data-testid="t--git-repo-button"
           kind="secondary"
           onClick={handleClickOnOpenRepo}
         >
