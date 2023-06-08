@@ -15,6 +15,8 @@ export const SelectWrapper = styled.div`
 export const Label = styled.p`
   flex: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Bold = styled.span`

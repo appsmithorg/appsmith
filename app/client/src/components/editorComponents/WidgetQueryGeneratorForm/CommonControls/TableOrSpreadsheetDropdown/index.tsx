@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { ErrorMessage, SelectWrapper } from "../../styles";
+import { ErrorMessage, Label, SelectWrapper } from "../../styles";
 import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 import { Select, Option } from "design-system";
 import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
@@ -20,7 +20,7 @@ function TableOrSpreadsheetDropdown() {
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
-        {label}
+        <Label>{label}</Label>
         <Select
           data-testid="t--one-click-binding-table-selector"
           dropdownStyle={{
