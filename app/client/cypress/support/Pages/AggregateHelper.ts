@@ -944,6 +944,7 @@ export class AggregateHelper {
   public UpdateInputValue(selector: string, value: string) {
     this.GetElement(selector)
       .closest("input")
+      .clear()
       //.type(this.selectAll)
       .type(value, { delay: 0 });
   }
