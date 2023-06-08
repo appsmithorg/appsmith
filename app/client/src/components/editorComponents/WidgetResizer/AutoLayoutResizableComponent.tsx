@@ -107,35 +107,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     {
       const canResizeVertically = true;
       const canResizeHorizontally = true;
-      // // this is required for list widget so that template have no collision
-      // if (props.ignoreCollision)
-      //   return {
-      //     canResizeHorizontally,
-      //     canResizeVertically,
-      //   };
-
-      // if (
-      //   resizedPositions &&
-      //   (resizedPositions.right > 100 ||
-      //     resizedPositions.left < 0 ||
-      //     resizedPositions.right - resizedPositions.left < 2)
-      // ) {
-      //   canResizeHorizontally = false;
-      // }
-
-      // if (
-      //   resizedPositions &&
-      //   (resizedPositions.top < 0 ||
-      //     resizedPositions.bottom - resizedPositions.top < 4)
-      // ) {
-      //   canResizeVertically = false;
-      // }
-
-      // if (isAutoHeightEnabledForWidget(props)) {
-      //   canResizeVertically = false;
-      //   resizedPositions.top = props.topRow;
-      //   resizedPositions.bottom = props.bottomRow;
-      // }
 
       // Check if new row cols are occupied by sibling widgets
       return {
@@ -149,65 +120,7 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
   // 1) There is no collision
   // 2) There is a change in widget size
   // Update widget, if both of the above are true.
-  const updateSize = (
-    newDimensions: UIElementSize,
-    // position: XYCord,
-    // dimensionMap = DefaultDimensionMap,
-  ) => {
-    // // Get the difference in size of the widget, before and after resizing.
-    // const delta: UIElementSize = {
-    //   height: newDimensions.height - dimensions.height,
-    //   width: newDimensions.width - dimensions.width,
-    // };
-
-    // const {
-    //   bottomRow: bottomRowMap,
-    //   leftColumn: leftColumnMap,
-    //   rightColumn: rightColumnMap,
-    //   topRow: topRowMap,
-    // } = dimensionMap;
-    // const {
-    //   parentColumnSpace,
-    //   parentRowSpace,
-    //   [bottomRowMap]: bottomRow,
-    //   [leftColumnMap]: leftColumn,
-    //   [rightColumnMap]: rightColumn,
-    //   [topRowMap]: topRow,
-    // } = props as any;
-
-    // // Get the updated Widget rows and columns props
-    // // False, if there is collision
-    // // False, if none of the rows and cols have changed.
-    // const newRowCols: WidgetRowCols | false = isAutoLayout
-    //   ? computeFinalAutoLayoutRowCols(delta, position, {
-    //       bottomRow,
-    //       topRow,
-    //       leftColumn,
-    //       rightColumn,
-    //       parentColumnSpace,
-    //       parentRowSpace,
-    //     })
-    //   : computeFinalRowCols(delta, position, {
-    //       bottomRow,
-    //       topRow,
-    //       leftColumn,
-    //       rightColumn,
-    //       parentColumnSpace,
-    //       parentRowSpace,
-    //     });
-
-    // if (newRowCols) {
-    //   updateWidget &&
-    //     updateWidget(WidgetOperations.RESIZE, props.widgetId, {
-    //       [leftColumnMap]: newRowCols.leftColumn,
-    //       [rightColumnMap]: newRowCols.rightColumn,
-    //       [topRowMap]: newRowCols.topRow,
-    //       [bottomRowMap]: newRowCols.bottomRow,
-    //       parentId: props.parentId,
-    //       snapColumnSpace: props.parentColumnSpace,
-    //       snapRowSpace: props.parentRowSpace,
-    //     });
-    // }
+  const updateSize = (newDimensions: UIElementSize) => {
     updateWidget &&
       updateWidget(WidgetOperations.RESIZE, props.widgetId, {
         width: newDimensions.width,
@@ -263,24 +176,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
         selectWidget(SelectionRequestType.One, [props.widgetId]);
       // Make sure that this tableFilterPane should close
       showTableFilterPane && showTableFilterPane();
-      // // If resizing a fill widget "horizontally", then convert it to a hug widget.
-      // if (
-      //   props.isFlexChild &&
-      //   props.responsiveBehavior === ResponsiveBehavior.Fill &&
-      //   affectsWidth
-      // )
-      //   dispatch(
-      //     batchUpdateMultipleWidgetProperties([
-      //       {
-      //         widgetId: props.widgetId,
-      //         updates: {
-      //           modify: {
-      //             responsiveBehavior: ResponsiveBehavior.Hug,
-      //           },
-      //         },
-      //       },
-      //     ]),
-      //   );
       AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
         widgetName: props.widgetName,
         widgetType: props.type,
