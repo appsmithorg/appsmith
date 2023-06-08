@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
 import {
   getViewType,
@@ -19,9 +19,16 @@ import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import history from "utils/history";
-import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getDatasourceFirstTableName,
+  getPluginTemplates,
+} from "selectors/entitiesSelector";
 import { get } from "lodash";
+import {
+  DB_QUERY_DEFAULT_TABLE_NAME,
+  DB_QUERY_DEFAULT_TEMPLATE_TYPE,
+} from "constants/Datasource";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -52,6 +59,15 @@ function FormControl(props: FormControlProps) {
       }),
     shallowEqual,
   );
+  const datasourceTableName: string = useSelector((state: AppState) =>
+    getDatasourceFirstTableName(state, (formValues?.datasource as any)?.id),
+  );
+  const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
+    getPluginTemplates(state),
+  );
+  const pluginTemplate = !!formValues?.datasource?.pluginId
+    ? pluginTemplates[formValues?.datasource?.pluginId]
+    : undefined;
 
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
   const isNewQuery =
@@ -103,16 +119,24 @@ function FormControl(props: FormControlProps) {
     }
   }
 
-  const createTemplate = (
-    template: string,
-    formName: string,
-    configProperty: string,
-  ) => {
-    updateQueryParams();
-    dispatch(
-      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
-    );
-  };
+  useEffect(() => {
+    if (showTemplate && !convertFormToRaw) {
+      const defaultTemplate = !!pluginTemplate
+        ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
+        : "";
+      const smartTemplate = defaultTemplate
+        .replace(DB_QUERY_DEFAULT_TABLE_NAME, datasourceTableName)
+        .split("--")[0];
+      dispatch(
+        change(
+          props?.formName || QUERY_EDITOR_FORM_NAME,
+          props.config.configProperty,
+          !!datasourceTableName ? smartTemplate : defaultTemplate,
+        ),
+      );
+      updateQueryParams();
+    }
+  }, [showTemplate]);
 
   const FormControlRenderMethod = (config = props.config) => {
     return FormControlFactory.createControl(
@@ -146,18 +170,7 @@ function FormControl(props: FormControlProps) {
             className={`t--form-control-${props.config.controlType}`}
             data-replay-id={btoa(props.config.configProperty)}
           >
-            {showTemplate && !convertFormToRaw ? (
-              <TemplateMenu
-                createTemplate={(templateString: string) =>
-                  createTemplate(
-                    templateString,
-                    props?.formName,
-                    props?.config?.configProperty,
-                  )
-                }
-                pluginId={formValues?.datasource?.pluginId || ""}
-              />
-            ) : viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
+            {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
                 componentControlType={props.config.controlType}
                 configProperty={props.config.configProperty}

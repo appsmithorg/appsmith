@@ -90,6 +90,23 @@ export const getDatasourceTablePrimaryColumn =
     }
   };
 
+export const getDatasourceFirstTableName = (
+  state: AppState,
+  datasourceId: string,
+) => {
+  if (!datasourceId) {
+    return "";
+  }
+  const structure = getDatasourceStructureById(datasourceId)(state);
+
+  if (structure) {
+    if (!!structure.tables && structure.tables.length > 0) {
+      return structure.tables[0].name;
+    }
+  }
+  return "";
+};
+
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
 };
