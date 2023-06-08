@@ -295,7 +295,7 @@ describe("messages without input", () => {
     {
       key: "DISCARD_CHANGES_WARNING",
       value:
-        "Discard will fetch and rebase to get your remote repository's latest changes.",
+        "This action will replace your local changes with the latest remote version.",
     },
     {
       key: "DISCARD_SUCCESS",
@@ -311,7 +311,7 @@ describe("messages without input", () => {
     },
     {
       key: "DISCARD_CHANGES",
-      value: "Discard changes",
+      value: "Discard & pull",
     },
     {
       key: "IMPORTING_APP_FROM_GIT",

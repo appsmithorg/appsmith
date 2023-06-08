@@ -874,8 +874,8 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 export const DISCARD_CHANGES_WARNING = () =>
-  "Discard will fetch and rebase to get your remote repository's latest changes.";
-export const DISCARD_CHANGES = () => "Discard changes";
+  "This action will replace your local changes with the latest remote version.";
+export const DISCARD_CHANGES = () => "Discard & pull";
 
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
@@ -899,7 +899,7 @@ export const DISCARD_MESSAGE = () =>
 export const CHANGES_FROM_APPSMITH = () =>
   "Some changes are platform upgrades from Appsmith.";
 export const TRY_TO_PULL = () =>
-  "We will try to rebase before pushing your changes.";
+  "We will try to pull before pushing your changes.";
 export const NOT_PUSHED_YET = () =>
   "These are the commits that haven't been pushed to remote yet.";
 // GIT CHANGE LIST end
