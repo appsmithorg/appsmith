@@ -5,9 +5,9 @@ import {
   TokensAccessor,
   defaultTokens,
 } from "@design-system/theming";
-import { createGlobalFontStack } from "@design-system/widgets";
+import { createGlobalFontStack } from "@design-system/theming";
 import Color from "colorjs.io";
-import type { ColorMode } from "@design-system/theming/src/utils/TokensAccessor/types";
+import type { ColorMode } from "@design-system/theming";
 
 const StyledThemeProvider = styled(WDSThemeProvider)`
   color: var(--color-fg);
