@@ -244,6 +244,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
+                .map(savedDatasource -> {
+                    //not required by client side in order to avoid updating it to a null storage,
+                    // one alternative is that we find and send datasourceStorages along, but that is an expensive call
+                    savedDatasource.setDatasourceStorages(null);
+                    return savedDatasource;
+                })
                 .flatMap(savedDatasource -> {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
                     Boolean userInvokedUpdate = Boolean.TRUE.equals(isUserRefreshedUpdate) ? Boolean.TRUE: Boolean.FALSE;
