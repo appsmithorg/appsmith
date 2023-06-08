@@ -10,10 +10,12 @@ import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 
 import static com.appsmith.external.constants.CommonFieldName.CLIENT_SECRET;
 import static com.appsmith.external.constants.CommonFieldName.REFRESH_TOKEN;
@@ -54,37 +56,17 @@ public class Migration013UnsetEncryptionVersion2Fields {
     }
 
     @Execution
-    public void executeMigration() {
+    public void executeMigration(MongoOperations mongoOperations) {
 
-        Query datasourcesToUpdateQuery = query(findDatasourceToUnsetFieldsIn()).cursorBatchSize(1024);
-        datasourcesToUpdateQuery.fields().include(
-                fieldName(QDatasource.datasource.id),
-                fieldName(QDatasource.datasource.workspaceId),
-                fieldName(QDatasource.datasource.isConfigured),
-                fieldName(QDatasource.datasource.gitSyncId),
-                fieldName(QDatasource.datasource.invalids),
-                fieldName(QDatasource.datasource.hasDatasourceStorage),
-                fieldName(QDatasource.datasource.datasourceConfiguration)
-        );
+        Query datasourcesToUpdateQuery = query(findDatasourceToUnsetFieldsIn());
 
-        final Query performanceOptimizedUpdateQuery = CompatibilityUtils
-                .optimizeQueryForNoCursorTimeout(mongoTemplate, datasourcesToUpdateQuery, Datasource.class);
-
-        mongoTemplate
-                .stream(performanceOptimizedUpdateQuery, Datasource.class)
-                .forEach(datasource -> {
-
-                    mongoTemplate.updateFirst(
-                            new Query()
-                                    .addCriteria(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-                            new Update()
-                                    .unset(PASSWORD_QUALIFIED_NAME)
-                                    .unset(REFRESH_TOKEN_QUALIFIED_NAME)
-                                    .unset(TOKEN_QUALIFIED_NAME)
-                                    .unset(CLIENT_SECRET_QUALIFIED_NAME)
-                                    .unset(TOKEN_RESPONSE_QUALIFIED_NAME),
-                            Datasource.class);
-                });
+        UpdateDefinition updateQuery = new Update()
+                .unset(PASSWORD_QUALIFIED_NAME)
+                .unset(REFRESH_TOKEN_QUALIFIED_NAME)
+                .unset(TOKEN_QUALIFIED_NAME)
+                .unset(CLIENT_SECRET_QUALIFIED_NAME)
+                .unset(TOKEN_RESPONSE_QUALIFIED_NAME);
+        mongoOperations.updateMulti(datasourcesToUpdateQuery, updateQuery, Datasource.class);
     }
 
         private Criteria findDatasourceToUnsetFieldsIn() {
