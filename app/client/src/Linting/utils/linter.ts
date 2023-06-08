@@ -13,11 +13,8 @@ import { sortDependencies } from "./sortDependencies";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import { translateDiffEventToDataTreeDiffEvent } from "./translateEntityTreeDiffs";
-import {
-  createDependency,
-  dependencyMap,
-  updateDependency,
-} from "./dependencyMap";
+import { createDependency, updateDependency } from "./dependencyMap";
+import { generateSortOrder, getDynamicNodes } from "./generateSortOrder";
 
 type TLintTree = (
   unEvalTree: UnEvalTree,
@@ -54,20 +51,19 @@ class Linter implements TLinter {
 
     const allPaths = getAllPaths(entityTreeWithParsedJS);
 
-    createDependency(entityTree, allPaths);
+    const dependencies = createDependency(entityTree, allPaths);
 
     // MakeParentDependOnChildren skipped
 
     // sort dependencies
-    const sortedDependencies = sortDependencies(
-      dependencyMap.getDependencies(),
-    );
+    const sortedDependencies = sortDependencies(dependencies);
+    const lintOrder = getDynamicNodes(sortedDependencies, entityTree);
 
     // Cache tree
     this.cachedEntityTree = entityTree;
 
     return {
-      lintOrder: sortedDependencies,
+      lintOrder,
       entityTree,
     };
   }
@@ -106,9 +102,15 @@ class Linter implements TLinter {
       allPaths,
     );
 
+    const sortOrder = generateSortOrder(
+      translatedDiffs,
+      entityTreeWithParsedJS,
+      entityTree,
+    );
+
     return {
-      lintOrder: [],
-      entityTree: {},
+      lintOrder: sortOrder,
+      entityTree,
     };
   }
 }
