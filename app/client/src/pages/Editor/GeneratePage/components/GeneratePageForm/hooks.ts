@@ -52,7 +52,7 @@ export const useDatasourceOptions = ({
         data: {
           pluginId,
           isSupportedForTemplate: !!generateCRUDSupportedPlugin[pluginId],
-          isValid: datasourceStorages[currentEnvironment].isValid,
+          isValid: datasourceStorages[currentEnvironment]?.isValid,
         },
       };
       if (generateCRUDSupportedPlugin[pluginId])
