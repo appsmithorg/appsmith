@@ -41,8 +41,8 @@ export class DataSources {
   private _collapseContainer = ".t--collapse-section-container";
   private _collapseSettings =
     "[data-testid='t--dropdown-connection.ssl.authType']";
-  private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
-  private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
+  public _host = "input[name='datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =

@@ -6,7 +6,6 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import CommonLocators from "../../../../locators/commonlocators.json";
-import DatasourceEditor from "../../../../locators/DatasourcesEditor.json";
 import { OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
@@ -138,21 +137,10 @@ describe("One click binding control", () => {
     entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Mongo");
+    agHelper.RenameWithInPane("myinvalidds", false);
 
-    agHelper.TypeText(
-      DatasourceEditor.datasourceTitleInputLocator,
-      "myinvalidds",
-    );
-
-    agHelper.TypeText(
-      `[name="datasourceConfiguration.endpoints[0].host"]`,
-      "127.0.0.1",
-    );
-
-    agHelper.TypeText(
-      `[name="datasourceConfiguration.endpoints[0].port"]`,
-      "8000",
-    );
+    agHelper.UpdateInputValue(dataSources._host, "127.0.0.1");
+    agHelper.UpdateInputValue(dataSources._port, "8000");
 
     dataSources.SaveDatasource();
 
