@@ -4,7 +4,10 @@ import {
   isResizingDisabled,
 } from "components/editorComponents/WidgetResizer/ResizableUtils";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,6 +44,9 @@ import WidgetFactory from "utils/WidgetFactory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
+import { getAutoLayoutCanvasMetaWidth } from "selectors/autoLayoutSelectors";
 
 export function ReflowResizable(props: ResizableProps) {
   // Auto Layouts resizable is dependent on the app state of the widget so on delete it crashes the app
@@ -112,7 +118,7 @@ function AutoLayoutResizable(props: ResizableProps) {
   //end
   const [pointerEvents, togglePointerEvents] = useState(true);
   const [newDimensions, set] = useState<DimensionUpdateProps>({
-    width: props.componentWidth,
+    width: 0,
     height: props.componentHeight,
     x: 0,
     y: 0,
@@ -122,6 +128,22 @@ function AutoLayoutResizable(props: ResizableProps) {
     reflectPosition: true,
   });
   const allWidgets = useSelector(getWidgets);
+  const parentWidth = useSelector((state) =>
+    getAutoLayoutCanvasMetaWidth(
+      state,
+      props.parentId || MAIN_CONTAINER_WIDGET_ID,
+    ),
+  );
+  const {
+    maxHeight,
+    maxWidth,
+    minHeight,
+    minWidth,
+  }: { [key in keyof MinMaxSize]: number | undefined } =
+    getWidgetMinMaxDimensionsInPixel(
+      { type: props.zWidgetType },
+      parentWidth || 1,
+    );
   const dimensionMap = useSelector(getDimensionMap);
   const {
     bottomRow: bottomRowMap,
@@ -296,7 +318,7 @@ function AutoLayoutResizable(props: ResizableProps) {
     set((prevDimensions) => {
       return {
         ...prevDimensions,
-        width: props.componentWidth,
+        width: 0,
         height: props.componentHeight,
         x: 0,
         y: 0,
@@ -333,7 +355,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[rightColumnMap] - x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth - x,
+            width: -x,
             x: 0,
           };
         } else if (widgetAlignment === "center") {
@@ -343,7 +365,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] + x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth - 2 * x,
+            width: -2 * x,
             x: 0,
             reflectDimension: true,
             reflectPosition: true,
@@ -353,7 +375,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] + x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth - x,
+            width: -x,
             x,
           };
         }
@@ -393,7 +415,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[rightColumnMap] + x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth + x,
+            width: x,
             x: 0,
           };
         } else if (widgetAlignment === "center") {
@@ -403,7 +425,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] - x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth + 2 * x,
+            width: 2 * x,
             x: 0,
             reflectDimension: true,
             reflectPosition: true,
@@ -413,7 +435,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] - x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth + x,
+            width: x,
             x: 0,
           };
         }
@@ -472,7 +494,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[rightColumnMap] + x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth + x,
+            width: x,
             x: 0,
           };
         } else if (widgetAlignment === "center") {
@@ -482,7 +504,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] - x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth + 2 * x,
+            width: 2 * x,
             x: 0,
             reflectDimension: true,
             reflectPosition: true,
@@ -492,7 +514,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] - x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth + x,
+            width: x,
             x: 0,
           };
         }
@@ -531,7 +553,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[rightColumnMap] - x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth - x,
+            width: -x,
             x: 0,
           };
         } else if (widgetAlignment === "center") {
@@ -541,7 +563,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] + x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth - 2 * x,
+            width: -2 * x,
             x: 0,
             reflectDimension: true,
             reflectPosition: true,
@@ -551,7 +573,7 @@ function AutoLayoutResizable(props: ResizableProps) {
             widget[leftColumnMap] + x / props.gridProps.parentColumnSpace;
           dimensionUpdates = {
             ...dimensionUpdates,
-            width: props.componentWidth - x,
+            width: -x,
             x,
           };
         }
@@ -668,6 +690,7 @@ function AutoLayoutResizable(props: ResizableProps) {
       props.showResizeBoundary ? "show-boundary" : ""
     } ${pointerEvents ? "" : "pointer-event-none"}`;
   }, [props.className, pointerEvents, props.showResizeBoundary]);
+  const computedWidth = parentWidth * 0.01 * props.componentWidth;
 
   return (
     // <Spring
@@ -718,8 +741,23 @@ function AutoLayoutResizable(props: ResizableProps) {
       style={{
         ...resizeWrapperStyle,
         ...{
-          width: `${props.componentWidth}%`,
-          height: `${props.componentHeight}px`,
+          minWidth,
+          maxWidth,
+          minHeight,
+          maxHeight,
+          width: isResizing
+            ? `calc(${
+                computedWidth < (minWidth || 0) ? minWidth : computedWidth
+              }px + ${newDimensions.width}px)`
+            : `${computedWidth < (minWidth || 0) ? minWidth : computedWidth}px`,
+          height: `${
+            (isResizing ? newDimensions.height : props.componentHeight) <
+            (minHeight || 0)
+              ? minHeight
+              : isResizing
+              ? newDimensions.height
+              : props.componentHeight
+          }px`,
         },
       }}
     >

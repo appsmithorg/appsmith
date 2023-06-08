@@ -1,4 +1,5 @@
-import { isArray } from "lodash";
+import { debounce, isArray } from "lodash";
+import { useCallback, useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import React, { useMemo } from "react";
 import styled from "styled-components";
@@ -11,6 +12,8 @@ import type {
   FlexLayerLayoutData,
 } from "utils/autoLayout/autoLayoutTypes";
 import { getLayoutDataForFlexLayer } from "utils/autoLayout/flexLayerUtils";
+import { useDispatch } from "react-redux";
+import { setCanvasMetaWidthAction } from "actions/autoLayoutActions";
 
 export interface FlexBoxProps {
   stretchHeight: boolean;
@@ -36,6 +39,37 @@ export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
 function FlexBoxComponent(props: FlexBoxProps) {
   const isMobile: boolean = props.isMobile || false;
+  const currentWidth = useRef(0);
+  const flexCanvasRef = React.useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
+  const debouncedDispatch = useCallback(
+    debounce((computedWidth) => {
+      dispatch(setCanvasMetaWidthAction(props.widgetId, computedWidth));
+    }, 50),
+    [props.widgetId],
+  );
+  const resizeObserver = useRef(
+    new ResizeObserver((entries) => {
+      entries.forEach((entry) => {
+        const computedWidth = entry.contentRect.width;
+        if (computedWidth !== currentWidth.current) {
+          debouncedDispatch(computedWidth);
+          currentWidth.current = computedWidth;
+        }
+      });
+    }),
+  );
+
+  useEffect(() => {
+    if (flexCanvasRef && flexCanvasRef.current) {
+      resizeObserver.current.observe(flexCanvasRef.current);
+    }
+    return () => {
+      if (flexCanvasRef && flexCanvasRef.current) {
+        resizeObserver.current.unobserve(flexCanvasRef.current);
+      }
+    };
+  }, []);
 
   const renderChildren = () => {
     if (!props.children) return null;
@@ -99,6 +133,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
   return (
     <FlexBoxContainer
       className={`flex-container-${props.widgetId}`}
+      ref={flexCanvasRef}
       style={flexBoxStyle}
     >
       {renderChildren()}

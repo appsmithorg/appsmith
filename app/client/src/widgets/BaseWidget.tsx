@@ -347,8 +347,7 @@ abstract class BaseWidget<
   getAutoLayoutComponentDimensions = () => {
     return {
       componentWidth:
-        (this.props.isMobile ? this.props.mobileWidth : this.props.width) ||
-        100,
+        (this.props.isMobile ? this.props.mobileWidth : this.props.width) || 25,
       componentHeight:
         (this.props.isMobile ? this.props.mobileHeight : this.props.height) ||
         100,
