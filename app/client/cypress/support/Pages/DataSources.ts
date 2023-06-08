@@ -707,9 +707,8 @@ export class DataSources {
       .closest(this._datasourceCard)
       .within(() => {
         this.agHelper.GetNClick(btnLocator, 0, true);
-        this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //for Page to open
       });
-    this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
+    this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
     createQuery && this.agHelper.AssertNetworkStatus("@createNewApi", 201);
     !createQuery &&
       this.agHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
@@ -738,14 +737,14 @@ export class DataSources {
       .scrollIntoView()
       .within(() => {
         this.agHelper.GetNClick(this._createQuery, 0, true);
-        this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //for Page to open
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
+    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
-    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //for Page to open
+    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.agHelper.GetNClick(this._templateMenu);
