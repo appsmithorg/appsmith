@@ -12,36 +12,11 @@ export class Templates {
     templateDialogCloseButton: ".ads-v2-modal__content-header-close-button",
   };
 
-  ForkTemplateByName(name: string) {
-    return cy
-      .contains(this.locators._templateCard, name)
-      .find(this.locators._forkApp)
-      .click();
-  }
-
   FilterTemplatesByName(query: string) {
     return ObjectsRegistry.AggregateHelper.TypeText(
       this.locators._templatesSearchInput,
       query,
     );
-  }
-
-  FilterTemplatesByFunctions(valuesToBeChecked: string[]) {
-    return cy
-      .get("input[type='checkbox']")
-      .check(valuesToBeChecked, { force: true });
-  }
-
-  VisitFirstTemplate() {
-    return cy.get(this.locators._templateCard).first().click();
-  }
-
-  GobackFromTemplateDetailedView() {
-    return cy.get(this.locators._templateViewGoBack).click();
-  }
-
-  CloseTemplateDialogBox() {
-    return cy.get(this.locators.templateDialogCloseButton).click();
   }
 
   AssertResultsHeaderText(

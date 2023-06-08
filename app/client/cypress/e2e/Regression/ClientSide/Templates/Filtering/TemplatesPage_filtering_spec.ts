@@ -1,9 +1,9 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-const NAME_FILTER = "order";
-const FUNCTIONS_FILTER = ["Operations", "Customer Support"];
-
 describe("Templates page filtering", () => {
+  const FUNCTIONS_FILTER = ["Operations", "Customer Support"];
+  const NAME_FILTER = "order";
+
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.SwitchToTemplatesTab();
@@ -30,7 +30,11 @@ describe("Templates page filtering", () => {
     _.agHelper
       .GetText(_.templates.locators._resultsHeader, "text")
       .then((headerText) => {
-        _.templates.FilterTemplatesByFunctions(FUNCTIONS_FILTER);
+        _.agHelper
+          .GetElement("input[type='checkbox']")
+          .check(FUNCTIONS_FILTER, {
+            force: true,
+          });
         // here we check if header changes, if it does we can assume
         // list has been filtered
         if (typeof headerText === "string") {
@@ -45,8 +49,8 @@ describe("Templates page filtering", () => {
     _.agHelper
       .GetText(_.templates.locators._resultsHeader, "text")
       .then((headerText) => {
-        _.templates.VisitFirstTemplate();
-        _.templates.GobackFromTemplateDetailedView();
+        _.agHelper.GetNClick(_.templates.locators._templateCard).click();
+        _.agHelper.GetNClick(_.templates.locators._templateViewGoBack);
         _.agHelper
           .GetText(_.templates.locators._templatesSearchInput, "val")
           .should("equal", NAME_FILTER);

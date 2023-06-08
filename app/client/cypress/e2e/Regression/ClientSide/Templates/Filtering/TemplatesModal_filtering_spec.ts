@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const NAME_FILTER = "order";
 
 describe("Templates modal filtering", () => {
+  const NAME_FILTER = "order";
   it("1. should not retain filters when trying to add a page from template(multiple attempts)", () => {
     _.entityExplorer.AddNewPage("Add page from template");
     _.agHelper.AssertElementVisible(_.templates.locators.templateDialogBox);
@@ -13,7 +13,7 @@ describe("Templates modal filtering", () => {
         if (typeof headerText === "string") {
           _.templates.AssertResultsHeaderText(headerText, "not.have.text");
         }
-        _.templates.CloseTemplateDialogBox();
+        _.agHelper.GetNClick(_.templates.locators.templateDialogCloseButton);
 
         _.entityExplorer.AddNewPage("Add page from template");
         _.agHelper.AssertElementVisible(_.templates.locators.templateDialogBox);
