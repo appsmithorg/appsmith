@@ -5,7 +5,6 @@ import com.appsmith.external.models.QAuthenticationDTO;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.QDatasourceConfiguration;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -27,8 +26,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 
 @Slf4j
-@ChangeUnit(order = "110", id = "unset-not-encrypted-encryption-version-2-fields", author = " ")
-public class Migration110UnsetEncryptionVersion2Fields {
+@ChangeUnit(order = "013", id = "unset-not-encrypted-encryption-version-2-fields", author = " ")
+public class Migration013UnsetEncryptionVersion2Fields {
 
     private final MongoTemplate mongoTemplate;
     private static final int ENCRYPTION_VERSION = 2;
@@ -45,7 +44,7 @@ public class Migration110UnsetEncryptionVersion2Fields {
     private static final String REFRESH_TOKEN_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + REFRESH_TOKEN;
     private static final String TOKEN_RESPONSE_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + TOKEN_RESPONSE;
 
-    public Migration110UnsetEncryptionVersion2Fields(MongoTemplate mongoTemplate) {
+    public Migration013UnsetEncryptionVersion2Fields(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
