@@ -42,6 +42,10 @@ const eslintConfig = {
             message:
               "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star'))).",
           },
+          {
+            group: ["**/ce/*"],
+            message: "Reason: Please use @appsmith import instead.",
+          },
         ],
       },
     ],
@@ -74,6 +78,14 @@ eslintConfig.overrides = [
         getRestrictedImportsOverrideForCodeEditor(eslintConfig),
       "no-restricted-syntax":
         getRestrictedSyntaxOverrideForCodeEditor(eslintConfig),
+    },
+  },
+  {
+    files: ["**/ee/**/*"],
+    rules: {
+      ...eslintConfig.rules,
+      "@typescript-eslint/no-restricted-imports":
+        getRestrictedImportsOverrideForEE(eslintConfig),
     },
   },
 ];
@@ -111,6 +123,21 @@ function getRestrictedSyntaxOverrideForCodeEditor(eslintConfig) {
   }
 
   return [errorLevel, ...newRules];
+}
+
+function getRestrictedImportsOverrideForEE(eslintConfig) {
+  const [errorLevel, existingRules] =
+    eslintConfig.rules["@typescript-eslint/no-restricted-imports"];
+
+  const newPatterns = (existingRules.patterns ?? []).filter(
+    (i) => i.group[0] !== "**/ce/*",
+  );
+
+  if (newPatterns.length === 0) {
+    return ["off"];
+  }
+
+  return [errorLevel, { paths: existingRules.paths, patterns: newPatterns }];
 }
 
 module.exports = eslintConfig;
