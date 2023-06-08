@@ -368,7 +368,7 @@ export default {
                 if (column && column.displayText) {
                   if (_.isString(column.displayText)) {
                     try {
-                      const displayText = JSON.parse(column.displayText);
+                      const displayText = column.displayText;
                       return sortByOrder(
                         displayText.toLowerCase() > displayText.toLowerCase(),
                       );
@@ -526,7 +526,7 @@ export default {
           if (_.isArray(column.displayText)) {
             displayText = column.displayText[row.__originalIndex__];
           } else {
-            displayText = JSON.parse(column.displayText);
+            displayText = column.displayText;
           }
           acc[column.alias] = displayText;
           return acc;
