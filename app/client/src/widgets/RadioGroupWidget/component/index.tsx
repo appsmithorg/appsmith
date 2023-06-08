@@ -26,6 +26,11 @@ export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
+
+  ${({ compactMode, labelPosition }) =>
+    !compactMode &&
+    labelPosition === LabelPosition.Left &&
+    "align-items: center"};
 `;
 
 export interface StyledRadioGroupProps {
