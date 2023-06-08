@@ -522,7 +522,13 @@ export default {
       const displayedRow = {
         ...row,
         ...columnWithDisplayText.reduce((acc, column) => {
-          acc[column.alias] = column.displayText[row.__originalIndex__];
+          let displayText;
+          if (_.isArray(column.displayText)) {
+            displayText = column.displayText[row.__originalIndex__];
+          } else {
+            displayText = JSON.parse(column.displayText);
+          }
+          acc[column.alias] = displayText;
           return acc;
         }, {}),
       };
