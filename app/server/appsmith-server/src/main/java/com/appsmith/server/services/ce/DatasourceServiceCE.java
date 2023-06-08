@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
@@ -84,4 +85,6 @@ public interface DatasourceServiceCE {
 
     // TODO: Remove the following snippet after client side API changes
     Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId);
+
+    Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
 }

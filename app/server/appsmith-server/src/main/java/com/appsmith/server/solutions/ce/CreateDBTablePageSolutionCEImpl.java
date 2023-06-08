@@ -573,7 +573,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     ActionConfiguration templateActionConfiguration = templateAction.getUnpublishedAction().getActionConfiguration();
                     actionDTO.setPluginId(datasourceStorage.getPluginId());
                     actionDTO.setId(null);
-                    actionDTO.setDatasource(new Datasource(datasourceStorage));
+                    actionDTO.setDatasource(datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage));
                     actionDTO.setPageId(pageId);
                     actionDTO.setName(templateAction.getUnpublishedAction().getName());
                     actionDTO.setDefaultResources(templateAction.getDefaultResources());

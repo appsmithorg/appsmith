@@ -896,7 +896,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasourceStorage.setDatasourceConfiguration(null);
                                     datasourceStorage.setPluginId(null);
                                     datasourceStorage.setEnvironmentId(environmentId);
-                                    Datasource newDatasource = new Datasource(datasourceStorage);
+                                    Datasource newDatasource = datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage);
                                     newDatasource.setPolicies(null);
 
                                     copyNestedNonNullProperties(newDatasource, existingDatasource);
@@ -2073,9 +2073,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             )
                             .map(dsName -> {
                                 datasourceStorage.setName(datasourceStorage.getName() + dsName);
-                                return new Datasource(datasourceStorage);
+                                return datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage);
                             })
-                            .switchIfEmpty(Mono.just(new Datasource(datasourceStorage)))
+                            .switchIfEmpty(Mono.just(datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage)))
                             .flatMap(datasourceService::createWithoutPermissions);
                 }));
     }
