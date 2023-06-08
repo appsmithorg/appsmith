@@ -80,6 +80,14 @@ eslintConfig.overrides = [
         getRestrictedSyntaxOverrideForCodeEditor(eslintConfig),
     },
   },
+  {
+    files: ["**/ee/**/*"],
+    rules: {
+      ...eslintConfig.rules,
+      "@typescript-eslint/no-restricted-imports":
+        getRestrictedImportsOverrideForEE(eslintConfig),
+    },
+  },
 ];
 
 function getRestrictedImportsOverrideForCodeEditor(eslintConfig) {
@@ -115,6 +123,21 @@ function getRestrictedSyntaxOverrideForCodeEditor(eslintConfig) {
   }
 
   return [errorLevel, ...newRules];
+}
+
+function getRestrictedImportsOverrideForEE(eslintConfig) {
+  const [errorLevel, existingRules] =
+    eslintConfig.rules["@typescript-eslint/no-restricted-imports"];
+
+  const newPatterns = (existingRules.patterns ?? []).filter(
+    (i) => i.group[0] !== "**/ce/*",
+  );
+
+  if (newPatterns.length === 0) {
+    return ["off"];
+  }
+
+  return [errorLevel, { paths: existingRules.paths, patterns: newPatterns }];
 }
 
 module.exports = eslintConfig;
