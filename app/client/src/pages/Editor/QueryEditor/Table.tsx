@@ -55,7 +55,7 @@ export const TableWrapper = styled.div`
     background: var(--ads-v2-color-gray-50);
     display: table;
     width: 100%;
-    height: 100%;
+    height: auto;
     .thead,
     .tbody {
       overflow: hidden;
@@ -241,16 +241,6 @@ function Table(props: TableProps) {
     return [];
   }, [data]);
 
-  const responseTypePanelHeight = 24;
-
-  const tableBodyHeightComputed =
-    (props.tableBodyHeight || window.innerHeight) -
-    TABLE_SIZES.COLUMN_HEADER_HEIGHT -
-    theme.tabPanelHeight -
-    TABLE_SIZES.SCROLL_SIZE -
-    responseTypePanelHeight -
-    2 * theme.spaces[4]; //top and bottom padding
-
   const defaultColumn = React.useMemo(
     () => ({
       width: 170,
@@ -274,6 +264,27 @@ function Table(props: TableProps) {
     },
     useBlockLayout,
   );
+
+  const responseTypePanelHeight = 24;
+  const tableRowHeight = 35;
+
+  // height of response pane with respect to other constants.
+  let tableBodyHeightComputed =
+    (props.tableBodyHeight || window.innerHeight) -
+    TABLE_SIZES.COLUMN_HEADER_HEIGHT -
+    theme.tabPanelHeight -
+    TABLE_SIZES.SCROLL_SIZE -
+    responseTypePanelHeight -
+    2 * theme.spaces[4]; //top and bottom padding
+
+  // actual height of all the rows.
+  const actualHeightOfAllRows = rows.length * tableRowHeight;
+
+  // if the actual height of all the rows is less than computed table body height
+  // set the height of the body to it.
+  if (rows.length && actualHeightOfAllRows < tableBodyHeightComputed) {
+    tableBodyHeightComputed = actualHeightOfAllRows;
+  }
 
   const tableBodyEle = tableBodyRef?.current;
   const scrollBarW = React.useMemo(() => scrollbarWidth(), []);
