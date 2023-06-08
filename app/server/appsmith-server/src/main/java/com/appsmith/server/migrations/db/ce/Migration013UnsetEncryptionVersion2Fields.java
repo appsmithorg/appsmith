@@ -5,7 +5,6 @@ import com.appsmith.external.models.QAuthenticationDTO;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.QDatasourceConfiguration;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.migrations.utils.CompatibilityUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -65,7 +64,9 @@ public class Migration013UnsetEncryptionVersion2Fields {
                 .unset(REFRESH_TOKEN_QUALIFIED_NAME)
                 .unset(TOKEN_QUALIFIED_NAME)
                 .unset(CLIENT_SECRET_QUALIFIED_NAME)
-                .unset(TOKEN_RESPONSE_QUALIFIED_NAME);
+                .unset(TOKEN_RESPONSE_QUALIFIED_NAME)
+                .unset(ENCRYPTION_VERSION_FIELD_NAME)
+                .set(fieldName(QDatasource.datasource.isConfigured), Boolean.FALSE);
         mongoOperations.updateMulti(datasourcesToUpdateQuery, updateQuery, Datasource.class);
     }
 
