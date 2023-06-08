@@ -45,10 +45,6 @@ describe("Theme validation usecases", function () {
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
-    cy.shadowMouseover("none");
-    cy.shadowMouseover("S");
-    cy.shadowMouseover("M");
-    cy.shadowMouseover("L");
     cy.xpath(_.theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
