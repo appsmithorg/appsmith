@@ -29,6 +29,10 @@ import BaseWidget from "../../BaseWidget";
 import SelectComponent from "../component";
 import type { DropdownOption } from "../constants";
 import {
+  getOptionLabelValueExpressionPrefix,
+  optionLabelValueExpressionSuffix,
+} from "../constants";
+import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
 } from "../constants";
@@ -210,6 +214,13 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "optionLabel",
             label: "Label",
             controlType: "DROP_DOWN",
+            customJSControl: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: getOptionLabelValueExpressionPrefix,
+                suffix: optionLabelValueExpressionSuffix,
+              },
+            },
             placeholderText: "",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -222,6 +233,13 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "optionValue",
             label: "Value",
             controlType: "DROP_DOWN",
+            customJSControl: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: getOptionLabelValueExpressionPrefix,
+                suffix: optionLabelValueExpressionSuffix,
+              },
+            },
             placeholderText: "",
             isBindProperty: true,
             isTriggerProperty: false,

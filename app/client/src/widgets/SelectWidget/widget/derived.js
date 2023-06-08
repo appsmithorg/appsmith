@@ -17,9 +17,9 @@ export default {
       values = props.optionValue;
     }
 
-    return labels.map((d, i) => ({
-      label: d,
-      value: values[i],
+    return sourceData.map((d, i) => ({
+      label: labels[i] || "",
+      value: values[i] || "",
     }));
   },
   //
