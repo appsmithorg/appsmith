@@ -5,23 +5,17 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import {
-  CalloutV2,
-  Category,
-  notEmptyValidator,
-  TextInput,
-} from "design-system-old";
+import { Callout, Button, Input } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
-import { getGoogleMapsApiKey } from "../../../ce/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import {
   Wrapper,
   SettingsHeader,
-} from "../../../ce/pages/AdminSettings/config/authentication/AuthPage";
-import { createMessage, LEARN_MORE } from "../../../ce/constants/messages";
-import { GOOGLE_MAPS_SETUP_DOC } from "../../../constants/ThirdPartyConstants";
-import { MaxWidthWrapper } from "../components";
-import { StyledClearButton, StyledSaveButton } from "../SaveSettings";
-import { saveSettings } from "../../../ce/actions/settingsAction";
+} from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
+import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
+import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { saveSettings } from "@appsmith/actions/settingsAction";
+import { HeaderWrapper, SettingsFormWrapper } from "../components";
 
 export const config: AdminConfigType = {
   icon: "map-pin-2-line",
@@ -56,56 +50,57 @@ function GoogleMapsConfig(): ReactElement<any, any> {
 
   return (
     <Wrapper>
-      <MaxWidthWrapper>
-        <SettingsHeader>{config.title}</SettingsHeader>
-        <div
-          className="callout-link t--read-more-link"
-          data-testid="admin-settings-group-link"
-          key="APPSMITH_GOOGLE_MAPS_API_KEY"
-        >
-          <CalloutV2
-            actionLabel={createMessage(LEARN_MORE)}
-            desc={createMessage(() => "How to configure?")}
-            type="Notify"
-            url={GOOGLE_MAPS_SETUP_DOC}
-          />
-        </div>
-        <div className="flex flex-col gap-2 t--admin-settings-text-input t--admin-settings-APPSMITH_GOOGLE_MAPS_API_KEY">
-          <label
-            className="font-medium"
-            data-testid="admin-settings-form-group-label"
-            htmlFor="APPSMITH_GOOGLE_MAPS_API_KEY"
+      <SettingsFormWrapper>
+        <HeaderWrapper>
+          <SettingsHeader
+            color="var(--ads-v2-color-fg-emphasis-plus)"
+            kind="heading-l"
+            renderAs="h1"
           >
-            Google Maps API Key
-          </label>
-          <TextInput
-            fill={false}
+            {config.title}
+          </SettingsHeader>
+        </HeaderWrapper>
+        <div className="flex flex-col gap-4">
+          <Callout
+            kind="info"
+            links={[
+              {
+                children: createMessage(LEARN_MORE),
+                to: GOOGLE_MAPS_SETUP_DOC,
+              },
+            ]}
+          >
+            {createMessage(() => "How to configure?")}
+          </Callout>
+          <Input
             id="APPSMITH_GOOGLE_MAPS_API_KEY"
+            isValid={mapsKey.trim() !== ""}
+            label="Google Maps API Key"
             onChange={setMapsKey}
-            validator={notEmptyValidator}
+            size="md"
             value={mapsKey}
-            width="auto"
           />
+          <div className="flex gap-2">
+            <Button
+              className="t--admin-settings-save-button"
+              isDisabled={isModified || mapsKey.length === 0}
+              onClick={onSave}
+              size="md"
+            >
+              {createMessage(() => "Save")}
+            </Button>
+            <Button
+              className="t--admin-settings-reset-button"
+              isDisabled={isModified}
+              kind="secondary"
+              onClick={onReset}
+              size="md"
+            >
+              {createMessage(() => "Reset")}
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2 mt-6">
-          <StyledSaveButton
-            category={Category.primary}
-            className="t--admin-settings-save-button"
-            disabled={isModified || mapsKey.length === 0}
-            onClick={onSave}
-            tag="button"
-            text={createMessage(() => "Save")}
-          />
-          <StyledClearButton
-            category={Category.secondary}
-            className="t--admin-settings-reset-button"
-            disabled={isModified}
-            onClick={onReset}
-            tag="button"
-            text={createMessage(() => "Reset")}
-          />
-        </div>
-      </MaxWidthWrapper>
+      </SettingsFormWrapper>
     </Wrapper>
   );
 }

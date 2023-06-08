@@ -14,13 +14,13 @@ public class TenantConfigurationCE {
 
     private Boolean isFormLoginEnabled;
 
-    public void copyNonSensitiveValues(TenantConfiguration source) {
+    public void copyNonSensitiveValues(TenantConfigurationCE source) {
         if (source == null) {
             return;
         }
 
         googleMapsKey = source.getGoogleMapsKey();
-        isFormLoginEnabled = source.isFormLoginEnabled();
+        isFormLoginEnabled = source.getIsFormLoginEnabled();
     }
 
     // We add `JsonInclude` here, so that this field is included in the JSON response, even if it is `null`. Reason is,
