@@ -63,7 +63,7 @@ import {
   Button,
   Text,
 } from "design-system";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import { keyBy } from "lodash";
 
 const Section = styled.div`

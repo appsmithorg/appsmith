@@ -5,7 +5,7 @@ import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import type { Plugin } from "api/PluginApi";
 import {
   isDatasourceAuthorizedForQueryCreation,

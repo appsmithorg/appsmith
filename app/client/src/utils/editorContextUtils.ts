@@ -4,7 +4,7 @@ import {
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
 } from "@appsmith/constants/forms";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";

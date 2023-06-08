@@ -10,7 +10,7 @@ import {
 import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 
 /**
  * Returns true if :
@@ -24,7 +24,6 @@ export function isAuthorisedFilesEmptyGsheet(
   propertyKey: string,
 ): boolean {
   const currentEnvironment = getCurrentEnvironment();
-  console.log("ondhu ", datasource);
   const scopeValue: string = (
     datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
       ?.authentication as any
@@ -36,7 +35,6 @@ export function isAuthorisedFilesEmptyGsheet(
     propertyKey,
     currentEnvironment,
   );
-  console.log("ondhu 1 ", datasource);
   const authStatus =
     datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
       ?.authentication?.authenticationStatus;

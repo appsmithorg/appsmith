@@ -27,7 +27,7 @@ import { WidgetQueryGeneratorFormContext } from "../..";
 import { Binding, DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptionType } from "../../types";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import { invert } from "lodash";
 import { DropdownOption } from "./DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";

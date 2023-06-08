@@ -45,7 +45,7 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 
 const Wrapper = styled.div`
   padding: 15px;

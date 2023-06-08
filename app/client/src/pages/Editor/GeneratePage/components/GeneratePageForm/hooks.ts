@@ -7,7 +7,7 @@ import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceAct
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { DropdownOption } from "design-system-old";
 import { useDispatch } from "react-redux";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {

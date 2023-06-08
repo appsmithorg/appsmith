@@ -342,7 +342,7 @@ const datasourceReducer = createReducer(initialState, {
       draftState.loading = false;
       draftState.list.forEach((datasource) => {
         if (datasource.id === action.payload.id) {
-          assign(datasource, action.payload);
+          assign(datasource.name, action.payload.name);
         }
       });
     });

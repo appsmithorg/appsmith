@@ -14,7 +14,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import { noop } from "utils/AppsmithUtils";
-import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 
 type NewActionButtonProps = {
   datasource?: Datasource;

@@ -225,7 +225,7 @@ function DatasourceAuth({
     }
   }, [triggerSave]);
   const isAuthorized =
-    datasource?.datasourceStorages.active_env.datasourceConfiguration
+    datasource?.datasourceStorages.active_env?.datasourceConfiguration
       ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
