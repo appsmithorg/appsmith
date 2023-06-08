@@ -1,17 +1,24 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  deployMode,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Post window message", () => {
   it("1. Posts message to an iframe within Appsmith", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.IFRAME, 200, 300);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);
 
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.SelectPlatformFunction("onClick", "Post message");
-    _.agHelper.EnterActionValue("Message", "After postMessage");
-    _.agHelper.EnterActionValue("Target iframe", "Iframe1");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.SelectPlatformFunction("onClick", "Post message");
+    agHelper.EnterActionValue("Message", "After postMessage");
+    agHelper.EnterActionValue("Target iframe", "Iframe1");
 
-    _.entityExplorer.SelectEntityByName("Iframe1", "Widgets");
-    _.propPane.UpdatePropertyFieldValue(
+    entityExplorer.SelectEntityByName("Iframe1", "Widgets");
+    propPane.UpdatePropertyFieldValue(
       "srcDoc",
       `<!doctype html>
       <html lang="en">
@@ -32,26 +39,26 @@ describe("Post window message", () => {
       </body>
       </html>`,
     );
-    _.propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
-    _.agHelper.EnterActionValue("Message", "I got a message from iframe");
-    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
-    _.agHelper.AssertElementVisible("#iframe-Iframe1");
-    _.agHelper.Sleep(5000); //allowing time for elements to load fully before clicking - for CI flaky
+    propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
+    agHelper.EnterActionValue("Message", "I got a message from iframe");
+    deployMode.DeployApp(locators._spanButton("Submit"));
+    agHelper.AssertElementVisible("#iframe-Iframe1");
+    agHelper.Sleep(5000); //allowing time for elements to load fully before clicking - for CI flaky
     cy.get("#iframe-Iframe1").then((element) => {
       element.contents().find("body").find("#iframe-button").click();
     });
-    _.agHelper.ValidateToastMessage("I got a message from iframe");
+    agHelper.ValidateToastMessage("I got a message from iframe");
 
     cy.get("#iframe-Iframe1").then(($element) => {
       const $body = $element.contents().find("body");
       cy.wrap($body).find("#txtMsg").should("have.text", "Before postMessage");
     });
 
-    _.agHelper.ClickButton("Submit");
+    agHelper.ClickButton("Submit");
     cy.get("#iframe-Iframe1").then(($element) => {
       const $body = $element.contents().find("body");
       cy.wrap($body).find("#txtMsg").should("have.text", "After postMessage");
     });
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 });
