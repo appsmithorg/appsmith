@@ -11,7 +11,7 @@ describe("Templates page filtering", () => {
   beforeEach(() =>
     _.agHelper.AssertElementVisible(_.templates.locators._templateCard),
   );
-  afterEach(() => cy.reload());
+  afterEach(() => _.agHelper.RefreshPage());
 
   it("1. should filter templates by name", () => {
     _.agHelper
