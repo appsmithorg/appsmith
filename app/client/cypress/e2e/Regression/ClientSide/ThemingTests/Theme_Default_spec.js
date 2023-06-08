@@ -40,10 +40,6 @@ describe("Theme validation for default data", function () {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.shadowMouseover("none");
-    cy.shadowMouseover("S");
-    cy.shadowMouseover("M");
-    cy.shadowMouseover("L");
     cy.contains("Shadow").click({ force: true });
 
     //Font

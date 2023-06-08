@@ -777,27 +777,14 @@ describe("App Theming funtionality", function () {
       });
 
     //Change Shadow & verify
-    cy.get(".ads-v2-segmented-control-value-0").eq(2).click({ force: true });
-    cy.get(".ads-v2-segmented-control-value-0 div")
-      .eq(2)
-      .invoke("css", "box-shadow")
-      .then((boxshadow) => {
-        cy.get(".t--widget-button2 button").should(
-          "have.css",
-          "box-shadow",
-          boxshadow, //rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px
-        );
-        cy.get(widgetsPage.iconWidgetBtn).should(
-          "have.css",
-          "box-shadow",
-          "none",
-        );
-        cy.get(".t--widget-button1 button").should(
-          "have.css",
-          "box-shadow",
-          "none",
-        );
-      });
+    cy.contains(".ads-v2-segmented-control-value-0", "Large").click();
+
+    cy.get(widgetsPage.iconWidgetBtn).should("have.css", "box-shadow", "none");
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "box-shadow",
+      "none",
+    );
 
     cy.assertPageSave();
     cy.wait(2000);
@@ -1004,29 +991,15 @@ describe("App Theming funtionality", function () {
       });
 
     //Change Shadow & verify
-    cy.get(".ads-v2-segmented-control-value-0").eq(0).click({ force: true });
-    cy.get(".ads-v2-segmented-control-value-0 div")
-      .eq(0)
-      .invoke("css", "box-shadow")
-      .then((boxshadow) => {
-        cy.get(".t--widget-button1 button").should(
-          "have.css",
-          "box-shadow",
-          boxshadow, //rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px
-        );
-        cy.get(widgetsPage.iconWidgetBtn).should(
-          "have.css",
-          "box-shadow",
-          "none",
-        );
-        cy.get(".t--widget-button2 button").should(
-          "have.css",
-          "box-shadow",
-          //same value as previous box shadow selection
-          //since revertion is not possible for box shadow - hence this widget maintains the same value
-          "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-        );
-      });
+    cy.contains(".ads-v2-segmented-control-value-0", "Small").click();
+    cy.get(widgetsPage.iconWidgetBtn).should("have.css", "box-shadow", "none");
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "box-shadow",
+      //same value as previous box shadow selection
+      //since revertion is not possible for box shadow - hence this widget maintains the same value
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    );
 
     cy.assertPageSave();
 

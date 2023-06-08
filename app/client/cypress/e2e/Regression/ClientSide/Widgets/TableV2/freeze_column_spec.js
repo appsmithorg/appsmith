@@ -400,8 +400,7 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
   });
 
   after(() => {
-    cy.openPropertyPane(WIDGET.TABLE);
-    _.propPane.DeleteWidget();
+    _.propPane.DeleteWidgetFromPropertyPane("Table1");
   });
 });
 
