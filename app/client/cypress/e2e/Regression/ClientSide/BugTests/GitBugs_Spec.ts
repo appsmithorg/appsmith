@@ -1,6 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
+let tempBranch: any;
+
 describe("Git Bugs", function () {
   before(() => {
     _.homePage.NavigateToHome();
@@ -25,16 +27,19 @@ describe("Git Bugs", function () {
 
   it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {
     _.gitSync.CreateNConnectToGit();
-    _.gitSync.CreateGitBranch();
-    _.dataSources.NavigateToDSCreateNew();
-    _.dataSources.CreatePlugIn("PostgreSQL");
-    _.dataSources.SaveDSFromDialog(false);
-    _.agHelper.AssertElementVisible(_.gitSync._branchButton);
-    cy.get("@gitRepoName").then((repName) => {
-      repoName = repName;
+    _.gitSync.CreateGitBranch(tempBranch, false);
+
+    cy.get("@gitbranchName").then((branchName) => {
+      tempBranch = branchName;
+      _.dataSources.NavigateToDSCreateNew();
+      _.dataSources.CreatePlugIn("PostgreSQL");
+      _.dataSources.SaveDSFromDialog(false);
+      _.agHelper.AssertElementVisible(_.gitSync._branchButton);
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
+      });
     });
   });
-
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
     _.entityExplorer.AddNewPage();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT);
@@ -64,6 +69,21 @@ describe("Git Bugs", function () {
     _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
+  it("4. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+    _.gitSync.SwitchGitBranch("master");
+    _.entityExplorer.DragDropWidgetNVerify("modalwidget", 50, 50);
+    _.gitSync.CommitAndPush();
+    _.gitSync.SwitchGitBranch(tempBranch);
+    _.gitSync.CommitAndPush();
+    _.gitSync.CheckMergeConflicts("master");
+    cy.window().then((win) => {
+      cy.stub(win, "open", (url) => {
+        win.location.href = "http://host.docker.internal/";
+      }).as("repoURL");
+    });
+    _.gitSync.OpenRepositoryAndVerify();
+    cy.get("@repoURL").should("be.called");
+  });
   // it.only("4. Import application json and validate headers", () => {
   //   _.homePage.NavigateToHome();
   //   _.homePage.ImportApp("DeleteGitRepos.json");

@@ -807,6 +807,7 @@ export class DataSources {
 
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
     cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
     cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
@@ -832,6 +833,16 @@ export class DataSources {
         expectedStatus,
       );
     }
+  }
+
+  AssertRunButtonDisability(disabled = false) {
+    let query = "";
+    if (disabled) {
+      query = "be.disabled";
+    } else {
+      query = "not.be.disabled";
+    }
+    cy.get(this._runQueryBtn).should(query);
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
