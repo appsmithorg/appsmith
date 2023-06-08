@@ -608,10 +608,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
+                                // We need to set refresh token here, because refresh token API call made to google, does not return refresh token in the response
+                                // hence it was resulting in refresh token being set as null, that would break the authentication. 
                                 authenticationResponse.setRefreshToken(integrationDTO.getAuthenticationResponse().getRefreshToken());
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
 
+                                // We need to return datasourceStorage object from the database so as to get decrypted token values,
+                                // if we dont then, encrypted token values would be returned and subsequently those encrypted values would be used to call google apis
                                 return datasourceStorageService
                                         .save(datasourceStorage)
                                         .flatMap(ignore -> datasourceService.findByIdWithStorages(datasourceStorage.getDatasourceId())
