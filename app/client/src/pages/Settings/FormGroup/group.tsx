@@ -33,7 +33,7 @@ type GroupProps = {
   subCategory?: string;
 };
 
-export const GroupWrapper = styled.div`
+const GroupWrapper = styled.div`
   position: relative;
   z-index: 1;
   &.hide {
@@ -41,14 +41,14 @@ export const GroupWrapper = styled.div`
   }
 `;
 
-export const GroupHeader = styled(Text)`
+const GroupHeader = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[9]}px;
   font-size: 20px;
   font-weight: 500;
   margin-bottom: 8px;
 `;
 
-export const GroupBody = styled.div`
+const GroupBody = styled.div`
   & .hide {
     display: none;
   }
