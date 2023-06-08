@@ -7,20 +7,13 @@ import { Colors } from "constants/Colors";
 import { Icon } from "design-system";
 import { Tooltip } from "design-system";
 import React, { memo } from "react";
-import {
-  Label,
-  Row,
-  RowHeading,
-  SelectWrapper,
-  TooltipWrapper,
-} from "../../../styles";
+import { Label, Row, RowHeading, SelectWrapper } from "../../../styles";
 import styled from "styled-components";
 import { useTableHeaderIndex } from "./useTableHeader";
 import { Input } from "design-system";
 
 const RoundBg = styled.div`
   width: 16px;
-  height: 16px;
   border-radius: 16px;
   background-color: ${Colors.WHITE};
   display: flex;
@@ -39,15 +32,13 @@ export default memo(function TableHeaderIndex() {
             <RowHeading>
               {createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}
             </RowHeading>
-            <TooltipWrapper>
-              <Tooltip
-                content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
-              >
-                <RoundBg>
-                  <Icon name="question-line" size="md" />
-                </RoundBg>
-              </Tooltip>
-            </TooltipWrapper>
+            <Tooltip
+              content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
+            >
+              <RoundBg>
+                <Icon name="question-line" size="md" />
+              </RoundBg>
+            </Tooltip>
           </Row>
         </Label>
         <Input

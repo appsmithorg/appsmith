@@ -31,10 +31,6 @@ export const Row = styled.div`
   justify-content: flex-start;
 `;
 
-export const TooltipWrapper = styled.div`
-  margin-top: 2px;
-`;
-
 export const RowHeading = styled.p`
   margin-right: 10px;
 `;
