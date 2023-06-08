@@ -104,7 +104,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
 
   static bindingSuffix = `))}}`;
 
-  constructor(props: ControlProps) {
+  constructor(props: WrappedCodeEditorControlProps) {
     super(props);
 
     this.wrapperCode = {
@@ -125,7 +125,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
     const tableName = this.props.widgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? ComputeTablePropertyControlV2.getInputComputedValue(
+        ? WrappedCodeEditorControl.getInputComputedValue(
             propertyValue,
             tableName,
           )
@@ -161,14 +161,12 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
   }
 
   static getInputComputedValue = (propertyValue: string, tableName: string) => {
-    const bindingPrefix =
-      ComputeTablePropertyControlV2.getBindingPrefix(tableName);
+    const bindingPrefix = WrappedCodeEditorControl.getBindingPrefix(tableName);
 
     if (propertyValue.includes(bindingPrefix)) {
       const value = `${propertyValue.substring(
         bindingPrefix.length,
-        propertyValue.length -
-          ComputeTablePropertyControlV2.bindingSuffix.length,
+        propertyValue.length - WrappedCodeEditorControl.bindingSuffix.length,
       )}`;
       return JSToString(value);
     } else {
@@ -190,9 +188,9 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
       return stringToEvaluate;
     }
 
-    return `${ComputeTablePropertyControlV2.getBindingPrefix(
+    return `${WrappedCodeEditorControl.getBindingPrefix(
       tableName,
-    )}${stringToEvaluate}${ComputeTablePropertyControlV2.bindingSuffix}`;
+    )}${stringToEvaluate}${WrappedCodeEditorControl.bindingSuffix}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
