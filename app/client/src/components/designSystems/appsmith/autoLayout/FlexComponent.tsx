@@ -168,8 +168,6 @@ export function FlexComponent(props: AutoLayoutProps) {
       maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
-      width: props.widgetName == "Image1" ? "200px" : undefined, // This should be done only for resizable widgets
-      height: props.widgetName == "Image1" ? "100px" : undefined, // This should be done only for resizable widgets
     };
   }, [
     props.isMobile,

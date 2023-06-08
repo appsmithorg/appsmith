@@ -182,6 +182,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <AudioComponent
           controls
+          minHeight={this.props.minHeight}
           onEnded={() => {
             // Stopping the audio from playing when the media is finished playing
             this.props.updateWidgetMetaProperty("playing", false);
