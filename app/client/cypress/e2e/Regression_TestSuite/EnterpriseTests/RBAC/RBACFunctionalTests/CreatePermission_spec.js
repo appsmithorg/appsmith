@@ -1,4 +1,5 @@
 import homePageLocators from "../../../../../locators/HomePage";
+import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
