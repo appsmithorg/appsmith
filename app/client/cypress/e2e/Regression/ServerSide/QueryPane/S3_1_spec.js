@@ -144,6 +144,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body.urlExpiryDate).to.exist;
+      expect(response.body.data.body.signedUrl).to.exist;
     });
   });
 
