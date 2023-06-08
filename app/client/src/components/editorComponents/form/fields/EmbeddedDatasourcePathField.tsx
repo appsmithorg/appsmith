@@ -357,6 +357,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   handleDatasourceHint = (): HintHelper => {
     const { datasourceList } = this.props;
+    const currentEnvironment = getCurrentEnvironment();
     return () => {
       return {
         showHint: (editor: CodeMirror.Editor) => {
@@ -373,15 +374,17 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                 const list = datasourceList
                   .filter((datasource: Datasource) =>
                     (
-                      datasource.datasourceStorages.active_env
-                        .datasourceConfiguration?.url || ""
+                      datasource.datasourceStorages[currentEnvironment]
+                        ?.datasourceConfiguration?.url || ""
                     ).includes(parsed.datasourceUrl),
                   )
                   .map((datasource: Datasource) => ({
-                    text: datasource.datasourceStorages.active_env
-                      .datasourceConfiguration?.url,
+                    text: datasource.datasourceStorages[currentEnvironment]
+                      ?.datasourceConfiguration?.url,
                     data: datasource,
-                    className: !datasource.datasourceStorages.active_env.isValid
+                    className: !datasource.datasourceStorages[
+                      currentEnvironment
+                    ]?.isValid
                       ? "datasource-hint custom invalid"
                       : "datasource-hint custom",
                     render: (element: HTMLElement, self: any, data: any) => {
@@ -403,7 +406,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                   "pick",
                   (selected: { text: string; data: Datasource }) => {
                     this.props.updateDatasource(
-                      selected.data.datasourceStorages.active_env,
+                      selected.data.datasourceStorages[currentEnvironment],
                     );
                   },
                 );

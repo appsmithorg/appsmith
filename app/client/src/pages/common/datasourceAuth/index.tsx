@@ -147,7 +147,7 @@ function DatasourceAuth({
   const authType =
     formData && "authType" in formData
       ? formData?.authType
-      : formData?.datasourceStorages.active_env.datasourceConfiguration
+      : formData?.datasourceStorages.active_env?.datasourceConfiguration
           ?.authentication?.authenticationType;
 
   const { id: datasourceId } = datasource;

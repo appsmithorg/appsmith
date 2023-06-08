@@ -381,7 +381,8 @@ function* updateDatasourceSaga(
       getPluginPackageFromDatasourceId,
       datasourcePayload?.id,
     );
-    datasourcePayload.datasourceStorages.active_env.isConfigured = true; // when clicking save button, it should be changed as configured
+    // when clicking save button, it should be changed as configured
+    set(datasourcePayload, "datasourceStorages.active_env.isConfigured", true);
 
     // When importing app with google sheets with specific sheets scope
     // We do not want to set isConfigured to true immediately on save
@@ -1043,19 +1044,23 @@ function* storeAsDatasourceSaga() {
     (d) => !(d.key === "" && d.key === ""),
   );
 
-  set(
-    datasource,
-    "datasourceStorages.active_env.datasourceConfiguration.headers",
-    filteredDatasourceHeaders,
-  );
-
   yield put(createTempDatasourceFromForm(datasource));
   const createDatasourceSuccessAction: unknown = yield take(
     ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
   );
   // @ts-expect-error: createDatasourceSuccessAction is of type unknown
-  const createdDatasource = createDatasourceSuccessAction.payload;
-
+  let createdDatasource = createDatasourceSuccessAction.payload;
+  set(
+    createdDatasource,
+    "datasourceStorages.active_env.datasourceConfiguration.headers",
+    filteredDatasourceHeaders,
+  );
+  set(
+    createdDatasource,
+    "datasourceStorages.active_env.datasourceConfiguration.url",
+    datasource.datasourceConfiguration.url,
+  );
+  createdDatasource = omit(createdDatasource, ["datasourceConfiguration"]);
   // Set datasource page to edit mode
   yield put(setDatasourceViewMode(false));
 
