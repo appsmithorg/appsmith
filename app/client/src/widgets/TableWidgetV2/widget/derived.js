@@ -435,7 +435,6 @@ export default {
         return Number(a) >= Number(b);
       },
       contains: (a, b) => {
-        console.log(a, b, "contains filter");
         try {
           return a
             .toString()
@@ -533,7 +532,6 @@ export default {
           .toLowerCase()
           .includes(searchKey);
       }
-      console.log(displayedRow, isSearchKeyFound, "displayedRow");
       if (!isSearchKeyFound) {
         return false;
       }
@@ -579,7 +577,6 @@ export default {
 
       return isSatisfyingFilters;
     });
-    console.log(finalTableData, "finalTableData");
     return finalTableData;
   },
   //
