@@ -118,7 +118,10 @@ describe("Import, Export and Fork application and validate data binding", functi
             "cypress/fixtures/exportedApp.json",
             { force: true },
           );
-          agHelper.ValidateNetworkStatus("@getReleaseItems");
+          if (!Cypress.env("AIRGAPPED"))
+          { agHelper.ValidateNetworkStatus("@getReleaseItems"); }
+          else
+          { cy.wait(2000);}
 
           // import exported application in new workspace
           // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });
