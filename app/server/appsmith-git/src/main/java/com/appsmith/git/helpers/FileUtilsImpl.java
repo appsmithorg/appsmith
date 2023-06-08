@@ -245,15 +245,15 @@ public class FileUtilsImpl implements FileInterface {
                             Map normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
                             HashMap<String, Object> hashmap = (HashMap<String, Object>) normalizedDSL.get("entities");
                             HashMap<String, Object> widgetsFlattened = (HashMap<String, Object>) hashmap.get("canvasWidgets");
-                            widgetsFlattened.keySet().stream().map(key -> {
+                            widgetsFlattened.forEach((key, val) -> {
+                                // Save Widgets
                                 saveWidgets(
-                                        new JSONObject(widgetsFlattened.get(key).toString()),
+                                        new JSONObject(gson.toJson(val, Map.class)),
                                         key,
                                         pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
-                                return null;
                             });
                             // Remove deleted widgets from the file system
-                            scanAndDeleteFileForDeletedResources(widgetsFlattened.keySet(), pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                            //scanAndDeleteFileForDeletedResources(widgetsFlattened.keySet(), pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
                         }
                         validPages.add(pageName);
                     }
@@ -484,8 +484,10 @@ public class FileUtilsImpl implements FileInterface {
         // unwanted file : corresponding resource from DB has been deleted
         if(resourceDirectory.toFile().exists()) {
             try (Stream<Path> paths = Files.walk(resourceDirectory)) {
-                paths
-                        .filter(path -> Files.isRegularFile(path) && !validResources.contains(path.getFileName().toString()))
+                paths.filter(pathLocal ->
+                                Files.isRegularFile(pathLocal) &&
+                                !validResources.contains(pathLocal.getFileName().toString())
+                        )
                         .forEach(this::deleteFile);
             } catch (IOException e) {
                 log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
@@ -749,9 +751,7 @@ public class FileUtilsImpl implements FileInterface {
             // Read the widgets data
             Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
                 String body = readFileAsString(file.toPath());
-                // Extract the widgetId from the file
-                // Replace the key as widgetId
-                resource.put("0", body);
+                resource.put(getResourceNameFromFile(file.getName()), body);
             });
         }
         // Read the page metadata
@@ -760,6 +760,10 @@ public class FileUtilsImpl implements FileInterface {
         // pageBodyMap.put(CommonConstants.CANVAS + keySuffix, gson.toJson(resource.get(CommonConstants.CANVAS)));
         pageBodyMap.put(keySuffix, gson.toJson(resource));
         return pageMetadata;
+    }
+
+    private String getResourceNameFromFile(String fileName) {
+        return fileName.substring(0, fileName.lastIndexOf("."));
     }
 
     private ApplicationGitReference fetchApplicationReference(Path baseRepoPath, Gson gson) {
@@ -824,6 +828,8 @@ public class FileUtilsImpl implements FileInterface {
             // pages, actions and actionCollections from the JSON files
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(page.getName(), readPageDSL(page.toPath(), gson, page.getName(), pageDsl));
+                // Get the nested DSL from the RTS
+                pageDsl.put(page.getName(), getDenormalizedDSL(pageDsl.get(page.getName())));
                 actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
                 actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
             }
@@ -838,7 +844,7 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Deprecated
-    private void updateGitApplicationReference(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
+    private void   updateGitApplicationReference(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
         // Extract pages and nested actions and actionCollections
         File directory = pageDirectory.toFile();
         Map<String, Object> pageMap = new HashMap<>();
@@ -914,27 +920,17 @@ public class FileUtilsImpl implements FileInterface {
 
     }
 
-    public JSONObject getDenormalizedDSL(String dsl) {
+    public String getDenormalizedDSL(String dsl) {
             return webClient.post()
                     .uri(RTS_BASE_URL+ "/rts-api/v1/dsl/git/denormalize")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .body(BodyInserters.fromValue(dsl))
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(Map.class)
                     .map(jsonString -> {
-                        JSONObject jsonObject = new JSONObject(jsonString);
-                        return jsonObject;
-
+                        return jsonString.toString();
                     })
                     .block();
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    static class WidgetDSL {
-        JSONObject widgets;
     }
 }
