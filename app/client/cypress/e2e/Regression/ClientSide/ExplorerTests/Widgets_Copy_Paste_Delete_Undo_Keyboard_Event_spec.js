@@ -13,11 +13,14 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     _.entityExplorer.SelectEntityByName("Form1", "Widgets");
     _.propPane.RenameWidget("Form1", "FormTest");
-    cy.get("body").click();
+    _.entityExplorer.SelectEntityByName("FormTest", "Widgets");
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(commonlocators.toastBody).first().contains("Copied").click();
+    cy.get(commonlocators.toastBody)
+      .first()
+      .contains("Copied FormTest")
+      .click();
     cy.get("body").type(`{${modifierKey}}v`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
