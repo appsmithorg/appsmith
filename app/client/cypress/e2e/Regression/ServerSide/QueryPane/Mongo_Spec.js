@@ -69,16 +69,17 @@ describe("Validate Mongo query commands", function () {
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
 
+    cy.wait("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
     );
 
-    _.agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
-    });
+    _.dataSources.ValidateNSelectDropdown(
+      "Collection",
+      "",
+      "listingAndReviews",
+    );
     _.dataSources.RunQuery();
     _.dataSources.CheckResponseRecordsCount(10);
 
@@ -138,16 +139,17 @@ describe("Validate Mongo query commands", function () {
 
   it("3. Validate Count command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.wait("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
       "Count",
     );
-    _.agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
-    });
+    _.dataSources.ValidateNSelectDropdown(
+      "Collection",
+      "",
+      "listingAndReviews",
+    );
     _.dataSources.RunQuery();
     _.agHelper.EnterValue("{guests_included : {$gte: 2}}", {
       propFieldName: "",
@@ -166,16 +168,17 @@ describe("Validate Mongo query commands", function () {
 
   it("4. Validate Distinct command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.wait("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
       "Distinct",
     );
-    _.agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
-    });
+    _.dataSources.ValidateNSelectDropdown(
+      "Collection",
+      "",
+      "listingAndReviews",
+    );
     _.agHelper.EnterValue("{price : {$gte: 100}}", {
       propFieldName: "",
       directInput: false,
@@ -198,16 +201,17 @@ describe("Validate Mongo query commands", function () {
 
   it("5. Validate Aggregate command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.wait("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
       "Aggregate",
     );
-    _.agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
-    });
+    _.dataSources.ValidateNSelectDropdown(
+      "Collection",
+      "",
+      "listingAndReviews",
+    );
     _.agHelper.EnterValue(`[{ $project: { count: { $size:"$amenities" }}}]`, {
       propFieldName: "",
       directInput: false,
@@ -384,6 +388,8 @@ describe("Validate Mongo query commands", function () {
       cy.NavigateToActiveDSQueryPane(dbName);
     });
 
+    cy.wait("@trigger");
+
     _.dataSources.SetQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
@@ -395,11 +401,7 @@ describe("Validate Mongo query commands", function () {
     {"_id":2, "Från" :"Joann" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
-    _.agHelper.EnterValue("NonAsciiTest", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
-    });
+    _.dataSources.ValidateNSelectDropdown("Collection", "", "NonAsciiTest");
 
     _.agHelper.EnterValue(nonAsciiDoc, {
       propFieldName: "",

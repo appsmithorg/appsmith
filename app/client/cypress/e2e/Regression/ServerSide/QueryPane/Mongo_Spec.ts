@@ -268,17 +268,15 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     _.dataSources.NavigateFromActiveDS(dsName, true);
 
+    cy.wait("@trigger");
+
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
       "Find document(s)",
       "Insert document(s)",
     );
 
-    _.agHelper.EnterValue("AuthorNAwards", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
-    });
+    _.dataSources.ValidateNSelectDropdown("Collection", "", "AuthorNAwards");
 
     _.agHelper.EnterValue(authorNAwardsArray, {
       propFieldName: "",
@@ -730,6 +728,8 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     _.dataSources.NavigateFromActiveDS(dsName, true);
 
+    cy.wait("@trigger");
+
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
       "Find document(s)",
@@ -737,11 +737,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     _.agHelper.RenameWithInPane("InsertBirthNDeath");
-    _.agHelper.EnterValue("BirthNDeath", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
-    });
+    _.dataSources.ValidateNSelectDropdown("Collection", "", "BirthNDeath");
 
     _.agHelper.EnterValue(birthNDeathArray, {
       propFieldName: "",
