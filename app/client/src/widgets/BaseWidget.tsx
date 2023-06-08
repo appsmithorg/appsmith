@@ -345,12 +345,37 @@ abstract class BaseWidget<
   };
 
   getAutoLayoutComponentDimensions = () => {
+    const {
+      bottomRow,
+      leftColumn,
+      mobileBottomRow = 0,
+      mobileLeftColumn = 0,
+      mobileRightColumn = 0,
+      mobileTopRow = 0,
+      rightColumn,
+      topRow,
+    } = this.props;
+    const widthFromGridProps =
+      ((rightColumn - leftColumn) * 100) / GridDefaults.DEFAULT_GRID_COLUMNS;
+    const heightFromGridProps =
+      (bottomRow - topRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    const mobileWidthValuesExist = mobileRightColumn + mobileLeftColumn > 0;
+    const mobileHeightValuesExist = mobileBottomRow + mobileTopRow > 0;
+    const mobileWidthFromGridProps = mobileWidthValuesExist
+      ? ((mobileRightColumn - mobileLeftColumn) * 100) /
+        GridDefaults.DEFAULT_GRID_COLUMNS
+      : widthFromGridProps;
+    const mobileHeightFromGridProps = mobileHeightValuesExist
+      ? (mobileRightColumn - mobileLeftColumn) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      : heightFromGridProps;
     return {
-      componentWidth:
-        (this.props.isMobile ? this.props.mobileWidth : this.props.width) || 25,
-      componentHeight:
-        (this.props.isMobile ? this.props.mobileHeight : this.props.height) ||
-        100,
+      componentWidth: this.props.isMobile
+        ? this.props.mobileWidth || mobileWidthFromGridProps
+        : this.props.width || widthFromGridProps,
+      componentHeight: this.props.isMobile
+        ? this.props.mobileHeight || mobileHeightFromGridProps
+        : this.props.height || heightFromGridProps,
     };
   };
 
