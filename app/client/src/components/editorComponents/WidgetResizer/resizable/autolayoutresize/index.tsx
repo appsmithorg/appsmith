@@ -58,7 +58,7 @@ export function ReflowResizable(props: ResizableProps) {
   return widget ? <AutoLayoutResizable {...props} /> : null;
 }
 
-function AutoLayoutResizable(props: ResizableProps) {
+function AutoLayoutResizable(props: any) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
   const occupiedSpacesBySiblingWidgets = useSelector(
@@ -592,28 +592,11 @@ function AutoLayoutResizable(props: ResizableProps) {
   const onResizeStop = () => {
     togglePointerEvents(true);
     dispatch(stopReflowAction());
-
-    props.onStop(
-      {
-        width:
-          props.componentWidth +
-          (updatedPositions.current.right - resizedPositions.right) *
-            props.gridProps.parentColumnSpace,
-        height:
-          props.componentHeight +
-          (updatedPositions.current.bottom - resizedPositions.bottom) *
-            props.gridProps.parentRowSpace,
-      },
-      {
-        x:
-          (updatedPositions.current.left - resizedPositions.left) *
-          props.gridProps.parentColumnSpace,
-        y:
-          (updatedPositions.current.top - resizedPositions.top) *
-          props.gridProps.parentRowSpace,
-      },
-      dimensionMap,
-    );
+    const widthChange = (newDimensions.width * 100) / parentWidth;
+    props.onStop({
+      width: props.componentWidth + widthChange,
+      height: newDimensions.height,
+    });
     setResizing(false);
   };
 

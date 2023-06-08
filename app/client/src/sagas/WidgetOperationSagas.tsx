@@ -180,7 +180,52 @@ import {
   LayoutDirection,
 } from "utils/autoLayout/constants";
 
-export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
+export function* triggerResizeSaga(resizeAction: ReduxAction<WidgetResize>) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (isAutoLayout) {
+    yield call(autoLayoutResizeSaga, resizeAction);
+  } else {
+    yield call(resizeSaga, resizeAction);
+  }
+}
+
+function* autoLayoutResizeSaga(resizeAction: ReduxAction<WidgetResize>) {
+  try {
+    toast.dismiss();
+    const start = performance.now();
+    const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const stateWidget: FlattenedWidgetProps = yield select(
+      getWidget,
+      resizeAction.payload.widgetId,
+    );
+    const widgets = { ...stateWidgets };
+    let widget = { ...stateWidget };
+    const { height, width } = resizeAction.payload;
+    widget = {
+      ...widget,
+      ...(isMobile ? { mobileWidth: width } : { width }),
+      ...(isMobile ? { mobileHeight: height } : { height }),
+    };
+    log.debug("resize computations took", performance.now() - start, "ms");
+    yield put(
+      updateAndSaveLayout({
+        ...widgets,
+        [resizeAction.payload.widgetId]: widget,
+      }),
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: WidgetReduxActionTypes.WIDGET_RESIZE,
+        error,
+      },
+    });
+  }
+}
+
+function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     toast.dismiss();
     const start = performance.now();
@@ -195,10 +240,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const {
       bottomRow = widget.bottomRow,
       leftColumn = widget.leftColumn,
-      mobileBottomRow = widget.mobileBottomRow,
-      mobileLeftColumn = widget.mobileLeftColumn,
-      mobileRightColumn = widget.mobileRightColumn,
-      mobileTopRow = widget.mobileTopRow,
       parentId,
       rightColumn = widget.rightColumn,
       snapColumnSpace,
@@ -217,10 +258,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       rightColumn,
       topRow,
       bottomRow,
-      mobileLeftColumn,
-      mobileRightColumn,
-      mobileTopRow,
-      mobileBottomRow,
     };
 
     if (appPositioningType === AppPositioningTypes.AUTO) {
@@ -2071,7 +2108,7 @@ export default function* widgetOperationSagas() {
   yield fork(widgetBatchUpdatePropertySaga);
   yield all([
     takeEvery(ReduxActionTypes.ADD_SUGGESTED_WIDGET, addSuggestedWidget),
-    takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, resizeSaga),
+    takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, triggerResizeSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
       updateWidgetPropertySaga,

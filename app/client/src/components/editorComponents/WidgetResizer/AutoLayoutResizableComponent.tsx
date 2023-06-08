@@ -54,7 +54,7 @@ export type ResizableComponentProps = WidgetProps & {
 };
 
 export const AutoLayoutResizableComponent = memo(function ResizableComponent(
-  props: ResizableComponentProps,
+  props: any,
 ) {
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
