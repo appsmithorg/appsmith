@@ -22,7 +22,7 @@ const RoundBg = styled.div`
   width: 16px;
   height: 16px;
   border-radius: 16px;
-  background-color: ${Colors.GRAY};
+  background-color: ${Colors.WHITE};
   display: flex;
   justify-content: center;
   align-items: center;

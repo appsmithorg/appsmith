@@ -3,6 +3,7 @@ import {
   Label,
   SelectWrapper,
 } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
+import { Tooltip } from "design-system";
 import { Dropdown } from "design-system-old";
 import React, { memo } from "react";
 import { useSheets } from "./useSheets";
@@ -14,7 +15,9 @@ export default memo(function SheetsDropdown() {
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
-        <Label>{label}</Label>
+        <Tooltip content={label}>
+          <Label>{label}</Label>
+        </Tooltip>
         <Dropdown
           data-testid="t--sheetName-dropdown"
           dropdownMaxHeight={"300px"}
