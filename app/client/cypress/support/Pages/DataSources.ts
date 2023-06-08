@@ -701,13 +701,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.ee.NavigateToSwitcher("Explorer", 0, true);
-    this.ee.ExpandCollapseEntity("Datasources", false);
-    //this.ee.SelectEntityByName(datasourceName, "Datasources");
-    //this.ee.ExpandCollapseEntity(datasourceName, false);
-    this.NavigateToActiveTab();
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
+    this.AssertDSActive(datasourceName)
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
@@ -718,6 +712,15 @@ export class DataSources {
     createQuery && this.agHelper.AssertNetworkStatus("@createNewApi", 201);
     !createQuery &&
       this.agHelper.AssertNetworkStatus("@getDatasourceStructure", 200);
+  }
+
+  public AssertDSActive(dsName: string) {
+    this.ee.NavigateToSwitcher("Explorer", 0, true);
+    this.ee.ExpandCollapseEntity("Datasources", false);
+    //this.ee.SelectEntityByName(datasourceName, "Datasources");
+    //this.ee.ExpandCollapseEntity(datasourceName, false);
+    this.NavigateToActiveTab();
+    return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
   public CreateQueryFromActiveTab(

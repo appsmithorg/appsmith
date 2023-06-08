@@ -22,27 +22,29 @@ describe("Undo/Redo functionality", function () {
         .type(postgresDatasourceName, { force: true })
         .should("have.value", postgresDatasourceName)
         .blur();
-    });
-    cy.get(datasourceEditor.sectionAuthentication).click();
-    cy.get(datasourceEditor.username).type(
-      datasourceFormData["postgres-username"],
-    );
-    cy.get(datasourceEditor.password).type(
-      datasourceFormData["postgres-password"],
-    );
-    cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
 
-    cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(`${datasourceEditor.sectionAuthentication} .ads-v2-icon`).should(
-      "exist",
-    );
-    cy.get(".t--application-name").click({ force: true });
-    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
-    cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
-      multiple: true,
+      cy.get(datasourceEditor.sectionAuthentication).click();
+      cy.get(datasourceEditor.username).type(
+        datasourceFormData["postgres-username"],
+      );
+      cy.get(datasourceEditor.password).type(
+        datasourceFormData["postgres-password"],
+      );
+      //cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
+
+      cy.get("body").type(`{${modifierKey}}z`);
+      cy.get(`${datasourceEditor.sectionAuthentication} .ads-v2-icon`).should(
+        "exist",
+      );
+      cy.get(".t--application-name").click({ force: true }).wait(500);
+      cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+      cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+        force: true,
+      });
+      cy.get(datasourceEditor.password).should("be.empty").wait(1000);
+      cy.get(datasourceEditor.saveBtn).click({ force: true });
+      _.dataSources.AssertDSActive(postgresDatasourceName);
     });
-    cy.get(datasourceEditor.username).should("be.empty");
-    cy.get(datasourceEditor.saveBtn).click({ force: true });
   });
 
   it("2. Checks undo/redo for Api pane", function () {
