@@ -94,22 +94,22 @@ function InputText(props: InputTextProp) {
 
 class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps> {
   wrapperCode: {
-    prefix: "";
-    suffix: "";
+    prefix: string;
+    suffix: string;
   };
-
-  static getBindingPrefix(tableName: string) {
-    return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
-  }
-
-  static bindingSuffix = `))}}`;
 
   constructor(props: WrappedCodeEditorControlProps) {
     super(props);
 
     this.wrapperCode = {
-      prefix: "",
-      suffix: "",
+      prefix:
+        typeof props.controlConfig.wrapperCode.prefix === "function"
+          ? props.controlConfig.wrapperCode.prefix(props.widgetProperties)
+          : props.controlConfig.wrapperCode.prefix,
+      suffix:
+        typeof props.controlConfig.wrapperCode.suffix === "function"
+          ? props.controlConfig.wrapperCode.suffix(props.widgetProperties)
+          : props.controlConfig.wrapperCode.suffix,
     };
   }
 
@@ -122,13 +122,10 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
       propertyValue,
       theme,
     } = this.props;
-    const tableName = this.props.widgetProperties.widgetName;
+
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? WrappedCodeEditorControl.getInputComputedValue(
-            propertyValue,
-            tableName,
-          )
+        ? this.getInputComputedValue(propertyValue)
         : propertyValue
         ? propertyValue
         : defaultValue;
@@ -160,13 +157,13 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
     );
   }
 
-  static getInputComputedValue = (propertyValue: string, tableName: string) => {
-    const bindingPrefix = WrappedCodeEditorControl.getBindingPrefix(tableName);
+  getInputComputedValue = (propertyValue: string) => {
+    const bindingPrefix = this.wrapperCode.prefix;
 
     if (propertyValue.includes(bindingPrefix)) {
       const value = `${propertyValue.substring(
         bindingPrefix.length,
-        propertyValue.length - WrappedCodeEditorControl.bindingSuffix.length,
+        propertyValue.length - this.wrapperCode.suffix.length,
       )}`;
       return JSToString(value);
     } else {
@@ -174,7 +171,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
     }
   };
 
-  getComputedValue = (value: string, tableName: string) => {
+  getComputedValue = (value: string) => {
     if (
       !isDynamicValue(value) &&
       !this.props.additionalControlData?.isArrayValue
@@ -188,9 +185,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
       return stringToEvaluate;
     }
 
-    return `${WrappedCodeEditorControl.getBindingPrefix(
-      tableName,
-    )}${stringToEvaluate}${WrappedCodeEditorControl.bindingSuffix}`;
+    return `${this.wrapperCode.prefix}${stringToEvaluate}${this.wrapperCode.suffix}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -203,10 +198,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
     }
 
     if (isString(value)) {
-      const output = this.getComputedValue(
-        value,
-        this.props.widgetProperties.widgetName,
-      );
+      const output = this.getComputedValue(value);
 
       this.updateProperty(this.props.propertyName, output);
     } else {
@@ -220,9 +212,11 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
 }
 
 export interface WrappedCodeEditorControlProps extends ControlProps {
-  wrapperCode?: {
-    prefix: string | ((widget: WidgetProps) => string);
-    suffix: string | ((widget: WidgetProps) => string);
+  controlConfig: {
+    wrapperCode: {
+      prefix: string | ((widget: WidgetProps) => string);
+      suffix: string | ((widget: WidgetProps) => string);
+    };
   };
 }
 

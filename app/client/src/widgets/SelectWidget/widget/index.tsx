@@ -28,6 +28,10 @@ import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import SelectComponent from "../component";
 import type { DropdownOption } from "../constants";
+import {
+  defaultValueExpressionPrefix,
+  getDefaultValueExpressionSuffix,
+} from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
@@ -229,7 +233,13 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
             label: "Default selected value",
-            controlType: "SELECT_DEFAULT_VALUE_CONTROL",
+            controlType: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: defaultValueExpressionPrefix,
+                suffix: getDefaultValueExpressionSuffix,
+              },
+            },
             placeholderText: '{ "label": "label1", "value": "value1" }',
             isBindProperty: true,
             isTriggerProperty: false,

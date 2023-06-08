@@ -5,6 +5,10 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  defaultValueExpressionPrefix,
+  getDefaultValueExpressionSuffix,
+} from "./constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -57,7 +61,9 @@ export const CONFIG = {
               {
                 widgetId: widget.widgetId,
                 propertyName: "defaultOptionValue",
-                propertyValue: `{{(() => "GREEN")(${widget.widgetName}.options)}}`,
+                propertyValue: `${defaultValueExpressionPrefix}"GREEN"${getDefaultValueExpressionSuffix(
+                  widget,
+                )}`,
               },
               {
                 widgetId: widget.widgetId,
