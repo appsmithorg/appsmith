@@ -52,6 +52,6 @@ export function useTableHeaderIndex() {
       "Please enter a positive number",
     value: config.tableHeaderIndex,
     onChange,
-    show: !!config.table,
+    show: !!config.table && !!config.sheet,
   };
 }

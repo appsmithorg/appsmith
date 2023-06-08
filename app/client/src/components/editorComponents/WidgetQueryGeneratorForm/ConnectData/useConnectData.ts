@@ -62,12 +62,16 @@ export function useConnectData() {
 
   const show = !!config.datasource;
 
+  const validGsheetConfig =
+    config.sheet &&
+    config.tableHeaderIndex &&
+    isNumber(Number(config.tableHeaderIndex)) &&
+    !isNaN(Number(config.tableHeaderIndex));
+
   const disabled =
     !config.table ||
     (selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-      (!config.tableHeaderIndex ||
-        !isNumber(Number(config.tableHeaderIndex)) ||
-        isNaN(Number(config.tableHeaderIndex))));
+      !validGsheetConfig);
 
   return {
     show,

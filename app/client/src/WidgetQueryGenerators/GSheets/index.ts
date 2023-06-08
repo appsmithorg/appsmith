@@ -1,4 +1,4 @@
-import { isEmpty, merge } from "lodash";
+import { isEmpty, isNumber, merge } from "lodash";
 import { BaseQueryGenerator } from "WidgetQueryGenerators/BaseQueryGenerator";
 import { QUERY_TYPE } from "WidgetQueryGenerators/types";
 import type {
@@ -38,7 +38,11 @@ export default abstract class GSheets extends BaseQueryGenerator {
       command: { data: command },
       sheetUrl: { data: tableName },
       sheetName: { data: sheetName },
-      tableHeaderIndex: { data: tableHeaderIndex },
+      tableHeaderIndex: {
+        data: isNumber(tableHeaderIndex)
+          ? tableHeaderIndex.toString()
+          : undefined,
+      },
     };
   }
   private static buildFind(

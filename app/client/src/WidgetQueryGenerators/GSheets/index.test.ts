@@ -108,7 +108,7 @@ describe("GSheets WidgetQueryGenerator", () => {
               ],
             },
             tableHeaderIndex: {
-              data: 1,
+              data: "1",
             },
             where: {
               data: {
@@ -190,7 +190,7 @@ describe("GSheets WidgetQueryGenerator", () => {
               data: true,
             },
             tableHeaderIndex: {
-              data: 1,
+              data: "1",
             },
           },
         },
@@ -252,7 +252,7 @@ describe("GSheets WidgetQueryGenerator", () => {
               data: true,
             },
             tableHeaderIndex: {
-              data: 1,
+              data: "1",
             },
           },
         },
