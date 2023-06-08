@@ -1,6 +1,10 @@
 const omnibar = require("../../../../locators/Omnibar.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -8,13 +12,13 @@ describe("Omnibar functionality test cases", () => {
 
   before(() => {
     cy.fixture("omnibarDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
-    _.agHelper.AssertNewTabOpened(() => {
+    agHelper.AssertNewTabOpened(() => {
       cy.xpath('//span[text()="Learn more"]').click();
     });
   });
@@ -88,16 +92,15 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
 
-    _.agHelper.GetNClick(omnibar.globalSearch, 0, true);
-    cy.get(omnibar.categoryTitle).contains("Create new").click();
-    _.agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
+    agHelper.GetNClick(omnibar.globalSearch, 0, true);
+    agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
+    agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     cy.wait("@createNewApi");
-    cy.renameWithInPane(apiName);
+    agHelper.RenameWithInPane(apiName);
 
-    cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).contains("Create new").click();
-    cy.wait(1000);
-    cy.get(omnibar.createNew).contains("New cURL import").click();
+    agHelper.GetNClick(omnibar.globalSearch, 0, true);
+    agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
+    agHelper.GetNClickByContains(omnibar.createNew, "New cURL import");
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
@@ -133,7 +136,7 @@ describe("Omnibar functionality test cases", () => {
   );
 
   it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).contains("Navigate").click();
     // verify recently opened items with their subtext i.e page name
