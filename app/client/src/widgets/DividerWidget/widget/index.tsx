@@ -77,6 +77,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "orientation",
             label: "Direction",
             controlType: "ICON_TABS",
+            defaultValue: "horizontal",
             fullWidth: true,
             options: [
               {
@@ -215,7 +216,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 value: 1,
               },
             ],
-            defaultValue: "0",
+            defaultValue: 0,
             isBindProperty: false,
             isTriggerProperty: false,
           },

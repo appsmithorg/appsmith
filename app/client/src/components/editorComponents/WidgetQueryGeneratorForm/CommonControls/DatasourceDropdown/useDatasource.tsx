@@ -34,7 +34,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { getCurrentWorkspaceId } from "ce/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 export function useDatasource() {
   const {

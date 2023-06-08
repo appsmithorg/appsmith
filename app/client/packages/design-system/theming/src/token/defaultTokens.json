@@ -14,5 +14,19 @@
   },
   "opacity": {
     "disabled": 0.3
+  },
+  "typography": {
+    "heading": {
+      "capHeightRatio": 6,
+      "lineGapRatio": 6
+    },
+    "body": {
+      "capHeightRatio": 2.5,
+      "lineGapRatio": 2
+    },
+    "footnote": {
+      "capHeightRatio": 1.5,
+      "lineGapRatio": 1
+    }
   }
 }

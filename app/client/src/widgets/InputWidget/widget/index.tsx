@@ -626,6 +626,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Icon alignment",
             helpText: "Sets the icon alignment of input field",
             controlType: "ICON_TABS",
+            defaultValue: "left",
             options: [
               {
                 startIcon: "align-left",

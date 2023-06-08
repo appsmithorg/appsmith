@@ -122,6 +122,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             propertyName: "buttonVariant",
             label: "Button variant",
             controlType: "ICON_TABS",
+            defaultValue: ButtonVariantTypes.PRIMARY,
             fullWidth: true,
             helpText: "Sets the variant of the icon button",
             options: [

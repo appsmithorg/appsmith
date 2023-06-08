@@ -1,10 +1,10 @@
-import type { EntityDefinitionsOptions } from "ce/utils/autocomplete/EntityDefinitions";
 import type {
   ConfigTree,
   DataTree,
   WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { isFunction } from "lodash";
 import type { Def } from "tern";
 import WidgetFactory from "utils/WidgetFactory";

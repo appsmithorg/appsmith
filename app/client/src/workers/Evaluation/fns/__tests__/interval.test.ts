@@ -76,23 +76,26 @@ describe("Tests for interval functions", () => {
 
   // skipping this test as its flaky,
   // check https://theappsmith.slack.com/archives/CPG2ZTXEY/p1681368791500909 for more details
-  it.skip("Callback should have access to outer scope variables", async () => {
-    const stalker = jest.fn();
-    function test() {
-      let count = 0;
-      const interval = evalContext.setInterval(() => {
-        count++;
-        stalker(count);
-      }, 100);
-      return interval;
-    }
-    const interval = test();
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    clearInterval(interval);
-    expect(stalker).toBeCalledTimes(2);
-    expect(stalker).toBeCalledWith(1);
-    expect(stalker).toBeCalledWith(2);
-  });
+  // TODO https://github.com/appsmithorg/appsmith/issues/24177
+  // eslint-disable-next-line jest/no-disabled-tests
+  // it.skip("Callback should have access to outer scope variables", async () => {
+  //   const stalker = jest.fn();
+  //   function test() {
+  //     let count = 0;
+  //     const interval = evalContext.setInterval(() => {
+  //       count++;
+  //       stalker(count);
+  //     }, 100);
+  //     return interval;
+  //   }
+  //   // eslint-disable-next-line jest/no-disabled-tests
+  //   const interval = test();
+  //   await new Promise((resolve) => setTimeout(resolve, 300));
+  //   clearInterval(interval);
+  //   expect(stalker).toBeCalledTimes(2);
+  //   expect(stalker).toBeCalledWith(1);
+  //   expect(stalker).toBeCalledWith(2);
+  // });
 
   it("It should have access to platform fns inside callbacks", async () => {
     const showAlertMock = jest.fn();

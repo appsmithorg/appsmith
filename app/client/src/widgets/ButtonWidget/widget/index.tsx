@@ -201,6 +201,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             propertyName: "buttonVariant",
             label: "Button variant",
             controlType: "ICON_TABS",
+            defaultValue: ButtonVariantTypes.PRIMARY,
             fullWidth: true,
             helpText: "Sets the variant of the icon button",
             options: [
@@ -269,6 +270,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "Position",
             helpText: "Sets the icon alignment of the button",
             controlType: "ICON_TABS",
+            defaultValue: "left",
             fullWidth: false,
             options: [
               {

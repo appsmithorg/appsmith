@@ -15,7 +15,7 @@ import {
 import {
   isAppsmithEntity,
   isJSAction,
-} from "ce/workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export const filterInternalProperties = (
   objectName: string,
