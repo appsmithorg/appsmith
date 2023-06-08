@@ -1,10 +1,9 @@
-import { DROPDOWN_TRIGGER_DIMENSION } from "components/editorComponents/WidgetQueryGeneratorForm/constants";
 import {
+  ErrorMessage,
   Label,
   SelectWrapper,
 } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
-import { Tooltip } from "design-system";
-import { Dropdown } from "design-system-old";
+import { Tooltip, Select } from "design-system";
 import React, { memo } from "react";
 import { useSheets } from "./useSheets";
 
@@ -18,19 +17,21 @@ export default memo(function SheetsDropdown() {
         <Tooltip content={label}>
           <Label>{label}</Label>
         </Tooltip>
-        <Dropdown
+        <Select
           data-testid="t--sheetName-dropdown"
-          dropdownMaxHeight={"300px"}
-          errorMsg={error}
-          fillOptions
-          height={DROPDOWN_TRIGGER_DIMENSION.HEIGHT}
+          dropdownStyle={{
+            minWidth: "350px",
+            maxHeight: "300px",
+          }}
           isLoading={isLoading}
+          isValid={!error}
           onSelect={onSelect}
           options={options}
-          selected={selected}
-          showLabelOnly
-          width={DROPDOWN_TRIGGER_DIMENSION.WIDTH}
+          placeholder={label}
+          showSearch
+          value={selected}
         />
+        <ErrorMessage>{error}</ErrorMessage>
       </SelectWrapper>
     );
   } else {
