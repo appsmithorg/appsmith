@@ -26,7 +26,6 @@ import {
   getWidgetMinMaxDimensionsInPixel,
 } from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
-import WidgetFactory from "utils/WidgetFactory";
 // import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
@@ -68,7 +67,6 @@ const FlexWidget = styled.div`
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
-  const config = WidgetFactory.widgetConfigMap.get(props.widgetType);
   const {
     maxHeight,
     maxWidth,
@@ -166,8 +164,6 @@ export function FlexComponent(props: AutoLayoutProps) {
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
       },
-      width: isCurrentWidgetResizing ? `${props.componentWidth}%` : "auto",
-      height: isCurrentWidgetResizing ? `${props.componentHeight}px` : "auto",
       minWidth:
         props.responsiveBehavior === ResponsiveBehavior.Fill && props.isMobile
           ? "calc(100% - 8px)"
@@ -177,16 +173,20 @@ export function FlexComponent(props: AutoLayoutProps) {
       maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
-      height: getWidgetCssHeight(
-        props.widgetType,
-        props.responsiveBehavior,
-        config?.rows,
-      ),
-      width: getWidgetCssWidth(
-        props.widgetType,
-        props.responsiveBehavior,
-        config?.columns,
-      ),
+      height: isCurrentWidgetResizing
+        ? `${props.componentHeight}px`
+        : getWidgetCssHeight(
+            props.widgetType,
+            props.responsiveBehavior,
+            props.componentHeight,
+          ),
+      width: isCurrentWidgetResizing
+        ? `${props.componentWidth}%`
+        : getWidgetCssWidth(
+            props.widgetType,
+            props.responsiveBehavior,
+            props.componentWidth,
+          ),
     };
   }, [
     props.isMobile,

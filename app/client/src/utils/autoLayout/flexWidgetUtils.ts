@@ -3,7 +3,6 @@ import store from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetSizeConfig } from "widgets/constants";
 import { ResponsiveBehavior } from "./constants";
-import { GridDefaults } from "constants/WidgetConstants";
 
 export interface MinMaxSize {
   minHeight: number | string;
@@ -236,8 +235,7 @@ export function getWidgetCssWidth(
   if (!type) return;
   if (responsiveBehavior !== ResponsiveBehavior.Fill) {
     if (hasAutoWidth(type)) return "auto";
-    if (columns)
-      return `${(columns / GridDefaults.DEFAULT_GRID_COLUMNS) * 100}%`;
+    if (columns) return `${columns}%`;
   }
   return;
 }
@@ -250,7 +248,7 @@ export function getWidgetCssHeight(
   if (!type) return;
   if (hasAutoHeight(type)) return "auto";
   if (responsiveBehavior !== ResponsiveBehavior.Fill) {
-    if (rows) return `${rows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
+    if (rows) return `${rows}px`;
   }
   return;
 }
