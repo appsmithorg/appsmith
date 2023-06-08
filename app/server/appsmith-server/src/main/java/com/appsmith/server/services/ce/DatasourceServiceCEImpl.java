@@ -166,6 +166,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         });
             }
             datasourceMono = datasourceMono
+                    .map(datasource1 -> {
+                        // Everything we create needs to use configs from storage
+                        datasource1.setHasDatasourceStorage(true);
+                        return datasource1;
+                    })
                     .flatMap(datasource1 -> {
                         Mono<User> userMono = sessionUserService.getCurrentUser();
                         return generateAndSetDatasourcePolicies(userMono, datasource1, permission);
@@ -261,7 +266,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<Datasource> updateDatasourceStorage(@NotNull DatasourceStorageDTO datasourceStorageDTO,
                                                     String activeEnvironmentId,
-                                                    Boolean IsUserRefreshedUpdate) {
+                                                    Boolean isUserRefreshedUpdate) {
 
         String datasourceId = datasourceStorageDTO.getDatasourceId();
         String environmentId = datasourceStorageDTO.getEnvironmentId();
@@ -275,7 +280,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         // querying for each of the datasource
-        Mono<Datasource> datasourceMono = repository.findById(datasourceId, datasourcePermission.getEditPermission())
+        Mono<Datasource> datasourceMono = findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
         return datasourceMono
