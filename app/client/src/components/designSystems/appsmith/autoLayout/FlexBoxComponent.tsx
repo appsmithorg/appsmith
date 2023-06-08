@@ -45,7 +45,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
   const debouncedDispatch = useCallback(
     debounce((computedWidth) => {
       dispatch(setCanvasMetaWidthAction(props.widgetId, computedWidth));
-    }, 50),
+    }),
     [props.widgetId],
   );
   const resizeObserver = useRef(
