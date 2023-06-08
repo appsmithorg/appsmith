@@ -49,7 +49,7 @@ describe("Templates page filtering", () => {
     _.agHelper
       .GetText(_.templates.locators._resultsHeader, "text")
       .then((headerText) => {
-        _.agHelper.GetNClick(_.templates.locators._templateCard).click();
+        _.agHelper.GetNClick(_.templates.locators._templateCard);
         _.agHelper.GetNClick(_.templates.locators._templateViewGoBack);
         _.agHelper
           .GetText(_.templates.locators._templatesSearchInput, "val")
