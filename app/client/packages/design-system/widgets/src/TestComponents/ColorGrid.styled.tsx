@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 //Most of the styles are copied from the button for testing purposes
-export const StyledTestCmp = styled.button`
+export const StyledColorGridButton = styled.button`
   font-size: 12px;
-  min-height: calc(var(--sizing-root-unit) * 10);
-  min-width: calc(var(--sizing-root-unit) * 27);
+  min-height: calc(var(--root-unit) * 10);
+  min-width: calc(var(--root-unit) * 27);
   cursor: pointer;
   border-radius: var(--border-radius-1);
   outline: 0;
