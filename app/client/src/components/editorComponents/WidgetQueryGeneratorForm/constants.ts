@@ -39,7 +39,7 @@ export const PluginFormInputFieldMap: Record<
 };
 
 export const DATASOURCE_DROPDOWN_SECTIONS = {
-  CONNECT_TO_EXISTING_QUERY: "Connect to existing query",
+  CONNECT_TO_QUERY: "Connect to Query",
   CHOOSE_DATASOURCE_TO_CONNECT: "Choose datasource to connect",
   OTHER_ACTIONS: "Other actions",
 };
