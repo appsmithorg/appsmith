@@ -28,12 +28,12 @@ public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrati
                 fieldName(QEnvironment.environment.id),
                 fieldName(QEnvironment.environment.workspaceId));
 
-        final Query performanceOptimizedUpdateQuery = CompatibilityUtils
+        final Query performanceOptimizedDefaultEnvironmentQuery = CompatibilityUtils
                 .optimizeQueryForNoCursorTimeout(mongoTemplate, defaultEnvironmentQuery, Environment.class);
 
-
-        return mongoTemplate.find(performanceOptimizedUpdateQuery, Environment.class)
-                .stream().collect(Collectors.toMap(Environment::getWorkspaceId, Environment::getId));
+        return mongoTemplate.find(performanceOptimizedDefaultEnvironmentQuery, Environment.class)
+                .stream()
+                .collect(Collectors.toMap(Environment::getWorkspaceId, Environment::getId));
     }
 
     @Override
@@ -47,15 +47,26 @@ public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrati
         return wsIdToEnvIdMap.getOrDefault(workspaceId, FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
+
+    public static Criteria olderCheckForDeletedCriteria() {
+        return new Criteria().orOperator(
+                where(FieldName.DELETED).exists(false),
+                where(FieldName.DELETED).is(false)
+        );
+    }
+
+    public static Criteria newerCheckForDeletedCriteria() {
+        return new Criteria().orOperator(
+                where(FieldName.DELETED_AT).exists(false),
+                where(FieldName.DELETED_AT).is(null)
+        );
+
+    }
+
     public static Criteria nonDeletedDefaultEnvironmentCriteria() {
-        return new Criteria().andOperator( new Criteria().orOperator(
-                        where(FieldName.DELETED).exists(false),
-                        where(FieldName.DELETED).is(false)
-                ),
-                new Criteria().orOperator(
-                        where(FieldName.DELETED_AT).exists(false),
-                        where(FieldName.DELETED_AT).is(null)
-                ),
+        return new Criteria().andOperator(
+                olderCheckForDeletedCriteria(),
+                newerCheckForDeletedCriteria(),
                 where(fieldName(QEnvironment.environment.workspaceId)).exists(true),
                 where(fieldName(QEnvironment.environment.workspaceId)).ne(null),
                 where(fieldName(QEnvironment.environment.isDefault)).is(true)

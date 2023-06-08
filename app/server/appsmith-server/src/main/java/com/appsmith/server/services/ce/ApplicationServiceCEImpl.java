@@ -59,6 +59,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -238,8 +239,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return super.create(application)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            // Catch only if error message contains workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
-                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                            // Catch only if error message contains workspace_app_deleted_gitApplicationMetadata mongo error
+                            && error.getMessage().contains("workspace_app_deleted_gitApplicationMetadata")) {
                         if (suffix > MAX_RETRIES) {
                             return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
                         } else {
@@ -294,9 +295,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         .onErrorResume(error -> {
                             if (error instanceof DuplicateKeyException) {
                                 // Error message : E11000 duplicate key error collection: appsmith.application index:
-                                // workspace_application_deleted_gitApplicationMetadata_compound_index dup key:
+                                // workspace_app_deleted_gitApplicationMetadata dup key:
                                 // { organizationId: "******", name: "AppName", deletedAt: null }
-                                if (error.getCause().getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                                if (error.getCause().getMessage().contains("workspace_app_deleted_gitApplicationMetadata")) {
                                     return Mono.error(
                                             new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
                                     );
@@ -878,5 +879,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return repository.save(branchedApplication).thenReturn(navLogoAssetId);
                 })
                 .flatMap(assetService::remove);
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(Application savedApplication) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("appName", ObjectUtils.defaultIfNull(savedApplication.getName(), ""));
+        analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedApplication.getId(), ""));
+        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
+        return analyticsProperties;
     }
 }

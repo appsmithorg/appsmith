@@ -1,13 +1,13 @@
 import {
   getDefaultEnvironemntId,
   getEnvironmentIdByName,
-} from "@appsmith/selectors/environmentSelector";
+} from "@appsmith/selectors/environmentSelectors";
 import store from "store";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
 export * from "ce/api/ApiUtils";
 
-const DEFAULT_ENV_ID = "";
+export const DEFAULT_ENV_ID = "";
 
 export const getEnvironmentIdForHeader = (): string => {
   let activeEnv = getQueryParamsObject().environment;

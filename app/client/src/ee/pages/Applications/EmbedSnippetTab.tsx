@@ -4,6 +4,7 @@ import {
   default as CE_EmbedSnippetTab,
   EmbedWrapper,
   StyledPropertyHelpLabel,
+  to,
 } from "ce/pages/Applications/EmbedSnippetTab";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -120,7 +121,7 @@ function ShareModal() {
           <div className="flex items-center justify-between mb-2">
             <Text>SSO Method</Text>
             <Link
-              className="t--documentation-link"
+              data-testid="t--documentation-link"
               endIcon="share-box-line"
               target="_blank"
               to={EMBED_PRIVATE_APPS_DOC}
@@ -142,14 +143,13 @@ function ShareModal() {
       )}
 
       <EmbedCodeSnippet isAppSettings={false} snippet={snippetUrl} />
-
       <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
           className="flex gap-1 items-center self-end"
           data-testid="preview-embed"
           endIcon="share-box-line"
           target={"_blank"}
-          to={snippetUrl}
+          to={to(snippetUrl)}
         >
           {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
         </Link>
@@ -218,7 +218,7 @@ function AppSettings() {
             <div className="flex items-center justify-between mb-2">
               <Text>SSO Method</Text>
               <Link
-                className="t--documentation-link"
+                data-testid="t--documentation-link"
                 endIcon="book-line"
                 target="_blank"
                 to={EMBED_PRIVATE_APPS_DOC}

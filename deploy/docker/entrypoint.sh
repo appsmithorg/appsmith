@@ -99,6 +99,14 @@ setup_proxy_variables() {
   fi
 }
 
+setup_cdn_variable() {
+  # Ensure APPSMITH_CDN_URL always ends with a trailing /
+  if [[ -n "${APPSMITH_CDN_URL:-}" ]]; then
+    local cdn_url="$(echo "$APPSMITH_CDN_URL" | sed 's,//*$,,')"
+    export APPSMITH_CDN_URL="${cdn_url}/"
+  fi
+}
+
 unset_unused_variables() {
   # Check for enviroment vairalbes
   echo "Checking environment configuration"
@@ -368,9 +376,6 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
-  
-  # Copy Supervisor Listiner confs to conf.d
-  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -435,7 +440,6 @@ init_postgres() {
         echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
-
       mkdir -p $POSTGRES_DB_PATH
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
@@ -449,7 +453,6 @@ init_postgres() {
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
-
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
@@ -508,6 +511,7 @@ init_loading_pages(){
 init_loading_pages
 init_env_file
 setup_proxy_variables
+setup_cdn_variable
 unset_unused_variables
 
 check_mongodb_uri

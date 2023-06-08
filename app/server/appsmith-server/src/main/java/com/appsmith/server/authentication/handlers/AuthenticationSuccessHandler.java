@@ -31,12 +31,6 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
     private final SessionUserService sessionUserService;
 
 
-
-    // TODO Move this to tenant configuration once we move envs to DB. This is a temporary arrangement hence separate
-    //  config class is not created
-    @Value("${enable.single.session.per.user:false}")
-    private Boolean isSingleSessionPerUserEnabled;
-
     public AuthenticationSuccessHandler(ForkExamplesWorkspace forkExamplesWorkspace,
                                         RedirectHelper redirectHelper,
                                         SessionUserService sessionUserService,
@@ -68,11 +62,11 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
     private Mono<User> logoutUserFromExistingSessionsBasedOnTenantConfig(Authentication authentication, WebFilterExchange exchange) {
         User currentUser = (User) authentication.getPrincipal();
         // TODO update to fetch user specific tenant after multi-tenancy is introduced
-        Mono<Tenant> tenantMono = tenantService.getDefaultTenant();
+        Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
         return tenantMono
             .flatMap(tenant -> {
                 TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                if (tenantConfiguration != null && Boolean.TRUE.equals(this.isSingleSessionPerUserEnabled)) {
+                if (tenantConfiguration != null && Boolean.TRUE.equals(tenantConfiguration.getSingleSessionPerUserEnabled())) {
                     // In a separate thread, we delete all other active sessions of this user.
                     sessionUserService.logoutExistingSessions(currentUser.getEmail(), exchange)
                         .thenReturn(currentUser)

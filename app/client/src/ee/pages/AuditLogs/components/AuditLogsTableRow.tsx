@@ -148,7 +148,11 @@ export default function AuditLogsTableRow({
                 {ellipsis(log?.user?.name)}
               </Text>
             )}
-            <Text className="event-user" kind="body-s" renderAs="p">
+            <Text
+              className="event-user"
+              kind={log?.user?.name ? "body-s" : "body-m"}
+              renderAs="p"
+            >
               {ellipsis(log?.user?.email)}
             </Text>
           </ProfileData>

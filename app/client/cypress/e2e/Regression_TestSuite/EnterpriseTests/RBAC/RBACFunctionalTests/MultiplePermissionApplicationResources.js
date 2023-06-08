@@ -7,10 +7,8 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const locators = require("../../../../../locators/commonlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const jsEditorLocators = require("../../../../../locators/JSEditor.json");
-const testUrl1 = "https://mock-api.appsmith.com/echo/get";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper,
-  homePage1 = ObjectsRegistry.HomePage;
+import datasourceFormData from "../../../../../fixtures/datasources.json";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Multiple Permission flow ", function () {
   let datasourceName;
@@ -89,7 +87,7 @@ describe("Multiple Permission flow ", function () {
           cy.CreateAppForWorkspace(workspaceName2, appName2);
           cy.NavigateToAPI_Panel();
           cy.CreateAPI(APIName);
-          cy.enterDatasource(testUrl1);
+          cy.enterDatasource(datasourceFormData.mockApiUrl);
           cy.SaveAndRunAPI();
           cy.ResponseStatusCheck("200");
           cy.createJSObject('return "Success";');
@@ -209,6 +207,7 @@ describe("Multiple Permission flow ", function () {
     cy.wait(2000);
     // verify user is able to edit exisitng api
     cy.CheckAndUnfoldEntityItem("Queries/JS");
+    _.onboarding.closeIntroModal();
     cy.get(`.t--entity-name:contains(${APIName})`).click();
     cy.get(apiwidget.headerKey).type("info");
     cy.SaveAndRunAPI();

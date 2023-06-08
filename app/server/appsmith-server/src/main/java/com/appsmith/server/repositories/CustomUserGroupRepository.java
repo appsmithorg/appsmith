@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup> {
@@ -23,4 +24,6 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
     Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId);
 
     Mono<Long> countAllReadableUserGroups();
+
+    Flux<UserGroup> getAllByUsersIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
 }

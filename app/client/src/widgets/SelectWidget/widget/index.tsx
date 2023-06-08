@@ -243,7 +243,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: false,
+            fullWidth: true,
             options: [
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
@@ -683,9 +683,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           type: EventType.ON_OPTION_CHANGE,
         },
       });
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
     }
 
     // When Label changes but value doesnt change, Applies to serverside Filtering

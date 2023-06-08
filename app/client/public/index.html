@@ -15,6 +15,29 @@
       transition: all ease-in 0.3s;
     }
   </style>
+  <script>
+    // '' (empty strings), 'false' are falsy
+    // could return either boolean or string based on value
+    const parseConfig = (config) => {
+      if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
+        return "";
+
+      const result = config.trim();
+      if (result.toLowerCase() === "false" || result === "") {
+        return false;
+      } else if (result.toLowerCase() === "true") {
+        return true;
+      }
+
+      return result;
+    }
+    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+    const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+    const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
+    // Setting it as global variable as it is used by webpack in other files
+    CDN_URL = parseConfig("__APPSMITH_CDN_URL__") || "/";
+
+  </script>
   <%=
     (function () {
       // This code emits additional `link rel="preload"` tags for edit.html and view.html.
@@ -49,24 +72,6 @@
     })()
   %>
   <script>
-    // '' (empty strings), 'false' are falsy
-    // could return either boolean or string based on value
-    const parseConfig = (config) => {
-      if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
-        return "";
-
-      const result = config.trim();
-      if (result.toLowerCase() === "false" || result === "") {
-        return false;
-      } else if (result.toLowerCase() === "true") {
-        return true;
-      }
-
-      return result;
-    }
-    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-    const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
-    const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
     if (CLOUD_HOSTING && ZIPY_KEY && !AIRGAPPED) {
       const script = document.createElement('script');
       script.crossOrigin = "anonymous";

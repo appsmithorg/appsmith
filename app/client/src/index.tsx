@@ -19,9 +19,12 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
-const shouldAutoFreeze = process.env.NODE_ENV === "development";
-setAutoFreeze(shouldAutoFreeze);
 
+__webpack_public_path__ = window.CDN_URL;
+
+const shouldAutoFreeze = process.env.NODE_ENV === "development";
+
+setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
 
 appInitializer();

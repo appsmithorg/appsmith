@@ -94,7 +94,10 @@
 									"dynamicPropertyPathList": [
 										{
 											"key": "primaryColumns.pick.buttonColor"
-										}
+										},
+                    {
+                      "key": "tableData"
+                    }
 									],
 									"displayName": "Table",
 									"iconSVG": "/static/media/icon.db8a9cbd.svg",
@@ -665,7 +668,10 @@
 									"dynamicPropertyPathList": [
 										{
 											"key": "primaryColumns.pick.buttonColor"
-										}
+										},
+                    {
+                      "key": "tableData"
+                    }
 									],
 									"displayName": "Table",
 									"iconSVG": "/static/media/icon.db8a9cbd.svg",

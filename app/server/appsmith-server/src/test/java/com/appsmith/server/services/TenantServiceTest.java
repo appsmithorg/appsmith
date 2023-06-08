@@ -6,15 +6,23 @@ import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.LicenseValidator;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +38,7 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -55,6 +64,21 @@ public class TenantServiceTest {
 
     @MockBean
     LicenseValidator licenseValidator;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    UserGroupService userGroupService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserGroupRepository userGroupRepository;
 
     private Tenant tenant;
 
@@ -91,7 +115,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void setTenantLicenseKey_validLicenseKey_Success() {
+    public void updateTenantLicenseKey_validLicenseKey_Success() {
         String licenseKey = "sample-license-key";
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(true);
@@ -105,7 +129,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
                 .thenReturn(Mono.just(license));
 
-        StepVerifier.create(tenantService.setTenantLicenseKey(licenseKey))
+        StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
@@ -136,7 +160,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void setTenantLicenseKey_licenseInGracePeriod_Success() {
+    public void updateTenantLicenseKey_licenseInGracePeriod_Success() {
         String licenseKey = UUID.randomUUID().toString();
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(true);
@@ -150,7 +174,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
             .thenReturn(Mono.just(license));
 
-        StepVerifier.create(tenantService.setTenantLicenseKey(licenseKey))
+        StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
             .assertNext(tenant -> {
                 TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                 TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
@@ -182,7 +206,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void setTenantLicenseKey_Invalid_LicenseKey() {
+    public void updateTenantLicenseKey_Invalid_LicenseKey() {
         String licenseKey = UUID.randomUUID().toString();
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(false);
@@ -192,7 +216,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
             .thenReturn(Mono.just(license));
 
-        Mono<Tenant> addLicenseKeyMono = tenantService.setTenantLicenseKey(licenseKey);
+        Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                     throwable.getMessage().equals(AppsmithError.INVALID_LICENSE_KEY_ENTERED.getMessage()))
@@ -201,7 +225,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("usertest@usertest.com")
-    public void setTenantLicenseKey_missingManageTenantPermission_throwsException() {
+    public void updateTenantLicenseKey_missingManageTenantPermission_throwsException() {
         String licenseKey = "SOME-INVALID-LICENSE-KEY";
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(false);
@@ -211,7 +235,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
             .thenReturn(Mono.just(license));
 
-        Mono<Tenant> addLicenseKeyMono = tenantService.setTenantLicenseKey(licenseKey);
+        Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                 && throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.TENANT, FieldName.DEFAULT)))
@@ -236,5 +260,62 @@ public class TenantServiceTest {
                     assertThat(tenant.getTenantConfiguration().getLicense()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile() {
+        String testName = "test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile";
+        User apiUser = userRepository.findByEmail("api_user").block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        userGroup.setUsers(Set.of(apiUser.getId()));
+        UserGroupDTO createdUserGroupDTO = userGroupService.createGroup(userGroup).block();
+
+        List<String> assignedToRoles = permissionGroupRepository.findByAssignedToUserIdsIn(apiUser.getId())
+                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .map(PermissionGroup::getName)
+                .collectList().block();
+
+        List<String> memberOfGroups = userGroupRepository.findAllByUsersIn(Set.of(apiUser.getId()))
+                .map(UserGroup::getName)
+                .collectList().block();
+
+        // Set the showRolesAndGroups property in tenant configuration to True.
+        TenantConfiguration tenantConfiguration_showRolesAndGroupsTrue = new TenantConfiguration();
+        tenantConfiguration_showRolesAndGroupsTrue.setShowRolesAndGroups(true);
+        Tenant updatedTenant_showRolesAndGroupsTrue = tenantService.updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsTrue).block();
+
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue.getTenantConfiguration()).isNotNull();
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue.getTenantConfiguration().getShowRolesAndGroups()).isTrue();
+
+        // Roles and Groups information should be present in the User Profile.
+        UserProfileDTO userProfileDTO_shouldContainRolesAndGroupInfo = sessionUserService.getCurrentUser()
+                .flatMap(userService::buildUserProfileDTO)
+                .block();
+
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getRoles()).isNotEmpty();
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getRoles()).containsExactlyInAnyOrderElementsOf(assignedToRoles);
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getGroups()).isNotEmpty();
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getGroups()).containsExactlyInAnyOrderElementsOf(memberOfGroups);
+
+
+        // Set the showRolesAndGroups property in tenant configuration to False.
+        TenantConfiguration tenantConfiguration_showRolesAndGroupsFalse = new TenantConfiguration();
+        tenantConfiguration_showRolesAndGroupsFalse.setShowRolesAndGroups(false);
+        Tenant updatedTenant_showRolesAndGroupsFalse = tenantService.updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsFalse).block();
+
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsFalse.getTenantConfiguration()).isNotNull();
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsFalse.getTenantConfiguration().getShowRolesAndGroups()).isFalse();
+
+
+        // Roles and Groups information should not be present in the User Profile.
+        UserProfileDTO userProfileDTO_shouldNotContainRolesAndGroupInfo = sessionUserService.getCurrentUser()
+                .flatMap(userService::buildUserProfileDTO)
+                .block();
+
+        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getRoles()).isNullOrEmpty();
+        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups()).isNullOrEmpty();
     }
 }

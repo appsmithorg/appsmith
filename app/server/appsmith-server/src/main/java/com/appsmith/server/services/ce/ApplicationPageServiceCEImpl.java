@@ -53,6 +53,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -99,11 +100,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final TransactionalOperator transactionalOperator;
 
 
     public static final Integer EVALUATION_VERSION = 2;
 
-
+    @Override
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -211,26 +213,34 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return Boolean.TRUE;
     }
 
+    private PageDTO getDslEscapedPage(PageDTO page) {
+        List<Layout> layouts = page.getLayouts();
+        if (layouts == null || layouts.isEmpty()) {
+            return page;
+        }
+        for (Layout layout : layouts) {
+            if (layout.getDsl() == null ||
+                    layout.getMongoEscapedWidgetNames() == null ||
+                    layout.getMongoEscapedWidgetNames().isEmpty()) {
+                continue;
+            }
+            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+        }
+        page.setLayouts(layouts);
+        return page;
+    }
+
+    @Override
+    public Mono<PageDTO> getPage(NewPage newPage, boolean viewMode) {
+        return newPageService.getPageByViewMode(newPage, viewMode)
+                .map(page -> getDslEscapedPage(page));
+    }
+
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
         AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findPageById(pageId, permission, viewMode)
-                .map(newPage -> {
-                    List<Layout> layouts = newPage.getLayouts();
-                    if (layouts == null || layouts.isEmpty()) {
-                        return newPage;
-                    }
-                    for (Layout layout : layouts) {
-                        if (layout.getDsl() == null ||
-                                layout.getMongoEscapedWidgetNames() == null ||
-                                layout.getMongoEscapedWidgetNames().isEmpty()) {
-                            continue;
-                        }
-                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                    }
-                    newPage.setLayouts(layouts);
-                    return newPage;
-                })
+                .map(newPage -> getDslEscapedPage(newPage))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
     }
 
@@ -241,7 +251,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> {
-                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage.getId(), viewMode));
+                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -943,7 +953,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getDeletePermission())
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
-                .map(responseUtils::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources)
+                .as(transactionalOperator::transactional);
     }
 
     /**

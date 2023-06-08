@@ -24,7 +24,7 @@ export class InviteModal {
     _inputOIDC: "input[value='oidc']",
     _inputSAML: "input[value='saml']",
     _inputGoogle: "input[value='google']",
-    _docLink: ".t--documentation-link",
+    _docLink: "[data-testid='t--documentation-link']",
     _ssoMethods: "[data-testid='t--sso-methods]",
   };
 
@@ -87,12 +87,7 @@ export class InviteModal {
     this.SelectEmbedTab();
     this.embedSettings.ToggleShowNavigationBar(toShowNavBar);
     cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
-    if (toShowNavBar === "true") {
-      this.agHelper.AssertElementExist(this.commonLocators._backToEditor);
-      this.deployPage.NavigateBacktoEditor();
-    } else {
-      this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
-      cy.go("back");
-    }
+    this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
+    cy.go("back");
   }
 }

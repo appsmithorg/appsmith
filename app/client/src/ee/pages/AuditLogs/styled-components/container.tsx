@@ -42,13 +42,18 @@ export const StyledFiltersContainer = styled.div`
   display: flex;
   gap: 16px;
   position: sticky;
-  top: -40px;
+  top: -24px;
   background-color: white;
   padding: 8px 0;
   margin: auto;
   align-items: baseline;
   /* This makes collapsible code fly below it; refer: AuditLogTable Head */
   z-index: 101;
+
+  .ads-v2-daterangepicker.showRangeShortcuts
+    .react-datepicker__children-container {
+    right: 448px;
+  }
 `;
 
 export const StyledCollapsibleLogContainer = styled.div`

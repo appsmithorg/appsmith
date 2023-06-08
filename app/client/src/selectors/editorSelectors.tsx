@@ -301,8 +301,6 @@ export const getCurrentApplicationLayout = createSelector(
 );
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
-export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
-
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getMetaWidgets = (state: AppState) => state.entities.metaWidgets;

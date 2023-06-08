@@ -17,6 +17,7 @@ import type { CodeEditorExpected } from "components/editorComponents/CodeEditor"
 import { examplePrompts } from "./GetStarted";
 import BetaCard from "components/editorComponents/BetaCard";
 import { Button, Spinner } from "design-system";
+import { usePrevious } from "@mantine/hooks";
 
 const QueryForm = styled.form`
   > div {
@@ -59,34 +60,123 @@ const resizeTextArea = (el: React.RefObject<HTMLTextAreaElement>) => {
 const CHARACTER_LIMIT = 500;
 
 type TAskAIProps = {
-  updateResponse: (val: TAssistantPrompt) => void;
-  acceptResponse: (query: string) => void;
-  rejectResponse: (query: string, implicit?: boolean) => void;
+  update?: (...args: any) => void;
   close: () => void;
   triggerContext?: CodeEditorExpected;
-  response: TAssistantPrompt | null;
   dataTreePath?: string;
+  isOpen?: boolean;
+  currentValue: string;
 };
 
 export function AskAI(props: TAskAIProps) {
-  const { close, triggerContext, updateResponse } = props;
-  const [query, setQuery] = useState("");
+  const { close, currentValue, dataTreePath, triggerContext } = props;
   const ref = useRef<HTMLDivElement>(null);
   const contextGenerator = useGPTContextGenerator(
     props.dataTreePath,
     props.triggerContext,
   );
   const task = useGPTTask();
+
   const [isLoading, setIsLoading] = useState(false);
-  const queryContainerRef = useTextAutocomplete(query, setQuery);
   const [error, setError] = useState<string>("");
-  const queryCache = useRef<string>("");
+  /**
+   * Store the AI response
+   * `null` value represents the state when AI response is either not generated or rejected.
+   */
+  const [response, setResponse] = React.useState<TAssistantPrompt | null>(null);
+  const [query, setQuery] = useState("");
+  const queryContainerRef = useTextAutocomplete(query, setQuery);
+
+  /**
+   * Called when AI response is received
+   * Stores the response and calls the update method
+   * @param value
+   */
+  const updateResponse = (value: TAssistantPrompt | null) => {
+    setResponse(value);
+    const responseContent =
+      task.id === GPTTask.JS_EXPRESSION
+        ? `{{${value?.content}}}`
+        : value?.content;
+    props.update?.(responseContent || "");
+  };
+
+  const prevOpen = usePrevious(props.isOpen);
+
+  /**
+   * Holds the default value of the property
+   */
+  const defaultValue = React.useRef<string>(currentValue);
+
+  useEffect(() => {
+    // Popover close -> open
+    if (prevOpen !== props.isOpen && props.isOpen) {
+      defaultValue.current = currentValue;
+      setQuery("");
+      setResponse(null);
+    }
+  }, [props.isOpen, currentValue, prevOpen]);
+
+  /**
+   * When this is invoked the field should already be updated.
+   * Logs analytics and closes the popover.
+   * @param query
+   * @param task
+   */
+  const acceptResponse = useCallback(
+    (implicit = false) => {
+      if (response) {
+        AnalyticsUtil.logEvent("AI_RESPONSE_FEEDBACK", {
+          responseId: response.messageId,
+          requestedOutputType: task.id,
+          liked: true,
+          generatedCode: response.content,
+          userQuery: query,
+          implicit,
+          property: dataTreePath,
+        });
+      }
+      defaultValue.current = currentValue;
+      setResponse(null);
+      close();
+    },
+    [currentValue, close, response, query, task, dataTreePath, setResponse],
+  );
+
+  useEffect(() => {
+    acceptResponseRef.current = acceptResponse;
+  }, [acceptResponse]);
 
   useEffect(() => {
     return () => {
-      props.rejectResponse(queryCache.current, true);
+      acceptResponseRef.current?.(true);
     };
   }, []);
+
+  /** To hold the latest reference of props.acceptResponse,
+   * It needs to be fired when the component unmounts */
+  const acceptResponseRef = useRef(acceptResponse);
+
+  /**
+   * Sets the AI response to null and restore the property to its default value.
+   * @param query
+   * @param task
+   */
+  const rejectResponse = () => {
+    // If response is empty, all changes are committed.
+    if (!response) return;
+    if (!query) return;
+    AnalyticsUtil.logEvent("AI_RESPONSE_FEEDBACK", {
+      responseId: response.messageId,
+      requestedOutputType: task.id,
+      liked: false,
+      generatedCode: response.content,
+      userQuery: query,
+      property: props.dataTreePath,
+    });
+    setResponse(null);
+    props.update?.(defaultValue.current || "");
+  };
 
   const sendQuery = useCallback(() => {
     if (isLoading) return;
@@ -102,7 +192,6 @@ export function AskAI(props: TAskAIProps) {
 
   useEffect(() => {
     resizeTextArea(queryContainerRef);
-    queryCache.current = query;
   }, [query]);
 
   useEffect(() => {
@@ -124,6 +213,7 @@ export function AskAI(props: TAskAIProps) {
       userQuery: query,
       enhancedQuery,
       context,
+      property: props.dataTreePath,
     });
     const start = performance.now();
     try {
@@ -147,9 +237,16 @@ export function AskAI(props: TAskAIProps) {
           result?.responseMeta?.error?.message || "Something went wrong",
         );
       }
+      const content = result.data.response || "";
+      // If the response starts with Error: then we throw an error
+      // This is a temp hack to get around the fact that the API doesn't return
+      // a 500 when there is an error.
+      if (content.startsWith("Error:")) {
+        throw new Error(content);
+      }
       const message: TChatGPTPrompt = {
         role: "assistant",
-        content: result.data.response,
+        content,
         messageId: result.data.messageId,
         task: task,
         query,
@@ -162,6 +259,7 @@ export function AskAI(props: TAskAIProps) {
         userQuery: query,
         context,
         timeTaken: performance.now() - start,
+        property: props.dataTreePath,
       });
       updateResponse(message);
     } catch (e) {
@@ -171,6 +269,8 @@ export function AskAI(props: TAskAIProps) {
         requestedOutputType: task,
         timeTaken: performance.now() - start,
         userQuery: query,
+        context,
+        property: props.dataTreePath,
       });
     }
     setIsLoading(false);
@@ -205,7 +305,7 @@ export function AskAI(props: TAskAIProps) {
     >
       <div
         className={classNames(
-          "flex flex-col flex-shrink-0 p-2 pb-1 gap-1",
+          "flex flex-col flex-shrink-0 pt-2 px-3 pb-1 gap-1",
           !task && "hidden",
         )}
       >
@@ -232,7 +332,7 @@ export function AskAI(props: TAskAIProps) {
         <QueryForm
           className={classNames(
             "flex w-full relative items-center justify-between",
-            props.response && "hidden",
+            response && "hidden",
           )}
         >
           <div
@@ -275,7 +375,7 @@ export function AskAI(props: TAskAIProps) {
         </QueryForm>
         <div
           className={classNames(
-            props.response && "hidden",
+            response && "hidden",
             "flex items-center justify-end gap-[2px] text-[11px]",
           )}
         >
@@ -292,24 +392,23 @@ export function AskAI(props: TAskAIProps) {
           </a>
         </div>
         <div
-          className={classNames(
-            "flex flex-col gap-1",
-            !props.response && "hidden",
-          )}
+          className={classNames("flex flex-col gap-1", !response && "hidden")}
         >
           <UserPrompt
             prompt={{ content: query, task: task.id, role: "user" }}
           />
-          <div className="flex flex-row justify-between items-center pb-1">
+          <div className="flex flex-row justify-end items-center pb-1 gap-2">
             <Button
               kind="secondary"
-              onClick={() => props.acceptResponse(query)}
+              onClick={() => acceptResponse()}
+              startIcon="check-line"
             >
               Accept
             </Button>
             <Button
               kind="secondary"
-              onClick={() => props.rejectResponse(query)}
+              onClick={() => rejectResponse()}
+              startIcon="close"
             >
               Reject
             </Button>

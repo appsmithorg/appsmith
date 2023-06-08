@@ -19,7 +19,7 @@ import {
   USERS_LABEL,
   USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import { Select, Option } from "design-system";
+import { Select, Option, Checkbox } from "design-system";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
 /**
@@ -90,6 +90,7 @@ export default function EmailFilter(): JSX.Element {
         maxTagTextLength={selectedEmails.length === 1 ? 20 : 5}
         onDeselect={removeSelectedOption}
         onSelect={handleSelection}
+        optionLabelProp="label"
         placeholder={createMessage(USERS_PLACEHOLDER)}
         showSearch
         size="md"
@@ -98,8 +99,14 @@ export default function EmailFilter(): JSX.Element {
       >
         {emails.length > 0 &&
           emails.map((obj) => (
-            <Option key={obj.key} value={obj.value}>
-              {obj.label}
+            <Option key={obj.key} label={obj.label} value={obj.value}>
+              <Checkbox
+                isSelected={Boolean(
+                  selectedEmails?.find((e) => e.value == obj.value),
+                )}
+              >
+                {obj.label}
+              </Checkbox>
             </Option>
           ))}
       </Select>

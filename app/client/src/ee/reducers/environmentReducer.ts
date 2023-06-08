@@ -2,21 +2,13 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 
-// Type for one environment variable
-export interface EnvironmentVariable {
-  id: string;
-  name: string;
-  value: string;
-}
-
 // Type for one environment
 export interface EnvironmentType {
   id: string;
   name: string;
-  environmentVariablesList: EnvironmentVariable[];
-  isDefault: boolean;
+  isDefault?: boolean;
+  userPermissions?: string[];
 }
-
 // Type for the environment state in redux
 export interface EnvironmentsReduxState {
   /**

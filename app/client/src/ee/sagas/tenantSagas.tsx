@@ -1,4 +1,5 @@
 export * from "ce/sagas/tenantSagas";
+import { updateTenantConfigSaga } from "ce/sagas/tenantSagas";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -23,7 +24,7 @@ import type {
   License,
 } from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import {
   ADMIN_SETTINGS_PATH,
   BUILDER_PATH,
@@ -289,6 +290,7 @@ export default function* tenantSagas() {
       ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
       fetchCurrentTenantConfigSaga,
     ),
+    takeLatest(ReduxActionTypes.UPDATE_TENANT_CONFIG, updateTenantConfigSaga),
     takeLatest(ReduxActionTypes.VALIDATE_LICENSE_KEY, validateLicenseSaga),
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

@@ -98,15 +98,20 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
-            
+
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
+        working-directory : app/client
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec_ci/combined_failed_spec_ci)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$failed_spec_env" >> $GITHUB_ENV
+          while IFS= read -r line
+          do
+            spec_name=$(echo $line | awk -F'/' '{print $NF}')
+            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
+            echo "$failed_spec_env" >> $GITHUB_ENV
+          done < ~/combined_failed_spec_ci/combined_failed_spec_ci
           echo "EOF" >> $GITHUB_ENV
 
       - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
@@ -148,16 +153,6 @@ jobs:
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
 
-      #Download the oldstacks from appsmithorg/oldstacks repo
-      - name: Download the oldstack
-        uses: actions/checkout@v3
-        with:
-          ref: main
-          repository: appsmithorg/ci-oldstack
-          token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          submodules: "recursive"
-          path: cicontainerlocal/oldstack
-
       - name: Run Appsmith & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
@@ -175,6 +170,7 @@ jobs:
             -v "$PWD/stacks:/appsmith-stacks" \
             -e APPSMITH_LICENSE_KEY="$APPSMITH_LICENSE_KEY" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
+            -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             ${{ env.docker_container_name }}

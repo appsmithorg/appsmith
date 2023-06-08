@@ -53,10 +53,11 @@ export default function DateFilter() {
         dateFormat="dd/MM/yy"
         endDate={selected[1]}
         inputSize="md"
-        isClearable
         label={createMessage(DATE_RANGE_LABEL)}
         maxDate={moment().endOf("day").toDate()}
         onChange={handleSelection}
+        showPreviousMonths
+        showRangeShortcuts
         size="md"
         startDate={selected[0]}
       />
