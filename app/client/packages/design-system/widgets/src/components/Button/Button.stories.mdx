@@ -1,5 +1,8 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
 import { Button } from "./";
+import { Icon } from "@design-system/headless";
+import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
 <Meta
   title="Design-system/widgets/Button"
@@ -9,9 +12,7 @@ import { Button } from "./";
   }}
 />
 
-export const Template = (args, { globals: { fontFamily } }) => (
-  <Button {...args} fontFamily={fontFamily} />
-);
+export const Template = (args) => <Button {...args} />;
 
 # Button
 
@@ -73,6 +74,57 @@ There are 3 variants of the button component.
     args={{
       isLoading: true,
       children: "Loading",
+      onPress: () => alert("on pressed"),
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+# With Icon
+
+<Canvas>
+  <Story
+    name="With Icon"
+    args={{
+      children: "With Icon",
+      icon: (
+        <Icon>
+          <EmotionHappyLineIcon />
+        </Icon>
+      ),
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+# Icon Position
+
+<Canvas>
+  <Story
+    name="Icon Position - Start"
+    args={{
+      children: "Icon Start",
+      icon: (
+        <Icon>
+          <EmotionHappyLineIcon />
+        </Icon>
+      ),
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Icon Position - End"
+    args={{
+      children: "Icon End",
+      icon: (
+        <Icon>
+          <EmotionHappyLineIcon />
+        </Icon>
+      ),
+      iconPosition: "end",
     }}
   >
     {Template.bind({})}

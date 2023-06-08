@@ -8,25 +8,21 @@ import React, {
 import styled from "styled-components";
 import {
   Button,
-  Category,
-  FormGroup,
   Icon,
-  IconSize,
-  MenuDivider,
-  Size,
-  Spinner,
+  toast,
   Text,
-  TextInput,
-  TextType,
-  Toaster,
-  Variant,
-} from "design-system-old";
+  Input,
+  Link,
+  Spinner,
+  Divider,
+  Avatar,
+  Callout,
+  Tooltip,
+} from "design-system";
 import {
   createMessage,
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
-import ProfileImage from "pages/common/ProfileImage";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -36,7 +32,6 @@ import {
   selectQueuedLibraries,
   selectStatusForURL,
 } from "selectors/entitiesSelector";
-import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { AppState } from "@appsmith/reducers";
@@ -62,12 +57,15 @@ const Wrapper = styled.div<{ left: number }>`
   width: 400px;
   max-height: 80vh;
   flex-direction: column;
-  padding: 0 20px 4px 24px;
+  padding: 0 20px 4px 22px;
   position: absolute;
   background: white;
   z-index: 25;
   left: ${(props) => props.left}px;
   bottom: 15px;
+  border-radius: var(--ads-v2-border-radius);
+  border-color: var(--ads-v2-color-border);
+  box-shadow: var(--ads-v2-shadow-popovers);
   .installation-header {
     padding: 20px 0 0;
     display: flex;
@@ -78,6 +76,7 @@ const Wrapper = styled.div<{ left: number }>`
   .search-body {
     display: flex;
     padding-right: 4px;
+    padding-left: 2px;
     flex-direction: column;
     .search-area {
       margin-bottom: 16px;
@@ -106,6 +105,13 @@ const Wrapper = styled.div<{ left: number }>`
       margin-bottom: 16px;
       display: flex;
       flex-direction: column;
+      a {
+        display: inline-block;
+        > span {
+          font-size: inherit;
+        }
+        /* font-size: 12px; */
+      }
     }
     .search-results {
       .library-card {
@@ -114,7 +120,7 @@ const Wrapper = styled.div<{ left: number }>`
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        border-bottom: 1px solid var(--appsmith-color-black-100);
+        border-bottom: 1px solid var(--ads-v2-color-border);
         .description {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -133,6 +139,19 @@ const Wrapper = styled.div<{ left: number }>`
         border-bottom: none;
       }
     }
+    .divider {
+      margin: 0 0 16px 0;
+    }
+    .download {
+      cursor: pointer;
+    }
+    .library-name {
+      /* font-family: var(--font-family); */
+      color: var(--ads-v2-color-fg-emphasis-plus);
+      font-size: var(--ads-v2-font-size-6);
+      font-weight: var(--ads-v2-h4-font-weight);
+      letter-spacing: var(--ads-v2-h4-letter-spacing);
+    }
   }
 `;
 
@@ -141,9 +160,10 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     props.addBorder ? `1px solid var(--appsmith-color-black-300)` : "none"};
   display: flex;
   flex-direction: column;
-  background: var(--appsmith-color-black-50);
+  background: var(--ads-v2-color-bg-muted);
   text-overflow: ellipsis;
   padding: 8px 8px 12px;
+  border-radius: var(--ads-v2-border-radius);
   .install-url {
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -176,36 +196,6 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   }
 `;
 
-const StatusIconWrapper = styled.div<{
-  addHoverState: boolean;
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  cursor: initial;
-  .failed {
-    svg {
-      cursor: initial;
-    }
-  }}
-  ${(props) =>
-    props.addHoverState
-      ? `
-    &:hover {
-      cursor: pointer;
-      background: ${Colors.SHARK2} !important;
-      svg {
-        path {
-          fill: ${Colors.WHITE} !important;
-        }
-      }
-    }
-  `
-      : "svg { cursor: initial }"}
-`;
-
 function isValidJSFileURL(url: string) {
   const JS_FILE_REGEX =
     /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
@@ -224,26 +214,33 @@ function StatusIcon(props: {
   );
   if (status === InstallState.Success || isInstalled)
     return (
-      <StatusIconWrapper addHoverState={false} className="installed">
-        <SaveSuccessIcon color={Colors.GREEN} size={18} />
-      </StatusIconWrapper>
+      <Tooltip content="Successfully installed" trigger="hover">
+        <Icon
+          className="installed"
+          color="var(--ads-v2-color-fg-success)"
+          name="oval-check-fill"
+          size="md"
+        />
+      </Tooltip>
     );
   if (status === InstallState.Failed)
     return (
-      <StatusIconWrapper addHoverState={false} className="failed">
-        <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
-      </StatusIconWrapper>
+      <Tooltip content="Download failed, please try again." trigger="hover">
+        <Icon className="failed" name="warning-line" size="md" />
+      </Tooltip>
     );
-  if (status === InstallState.Queued)
-    return (
-      <StatusIconWrapper addHoverState={false} className="queued">
-        <Spinner />
-      </StatusIconWrapper>
-    );
+  if (status === InstallState.Queued) return <Spinner className="queued" />;
   return (
-    <StatusIconWrapper addHoverState className="t--download" {...actionProps}>
-      <Icon fillColor={Colors.GRAY} name="download" size={IconSize.XL} />
-    </StatusIconWrapper>
+    <Tooltip content="Install" trigger="hover">
+      <Button
+        className="t--download download"
+        isIconButton
+        kind="tertiary"
+        {...actionProps}
+        size="sm"
+        startIcon="download"
+      />
+    </Tooltip>
   );
 }
 
@@ -273,30 +270,25 @@ function ProgressTracker({
             <StatusIcon status={status} />
           </div>
         </div>
-        <div
-          className={classNames({
-            "gap-2 error-card items-start ": true,
-            show: status === InstallState.Failed,
-          })}
-        >
-          <Icon name="danger" size={IconSize.XL} />
-          <div className="flex flex-col unsupported gap-1">
-            <div className="header">
-              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
-            </div>
-            <div className="body">
-              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
-            </div>
-            <div className="footer text-xs font-medium gap-2 flex flex-row">
-              <a onClick={(e) => openDoc(e, EXT_LINK.reportIssue)}>
-                {createMessage(customJSLibraryMessages.REPORT_ISSUE)}
-              </a>
-              <a onClick={(e) => openDoc(e, EXT_LINK.learnMore)}>
-                {createMessage(customJSLibraryMessages.LEARN_MORE)}
-              </a>
-            </div>
-          </div>
-        </div>
+        {status === InstallState.Failed && (
+          <Callout
+            kind="error"
+            links={[
+              {
+                children: createMessage(customJSLibraryMessages.REPORT_ISSUE),
+                to: "#",
+                onClick: (e) => openDoc(e, EXT_LINK.reportIssue),
+              },
+              {
+                children: createMessage(customJSLibraryMessages.LEARN_MORE),
+                onClick: (e) => openDoc(e, EXT_LINK.learnMore),
+                to: "#",
+              },
+            ]}
+          >
+            <Banner />
+          </Callout>
+        )}
       </div>
     </InstallationProgressWrapper>
   );
@@ -323,10 +315,6 @@ function InstallationProgress() {
   );
 }
 
-const SectionDivider = styled(MenuDivider)`
-  margin: 0 0 16px 0;
-`;
-
 const EXT_LINK = {
   learnMore:
     "https://docs.appsmith.com/core-concepts/writing-code/ext-libraries",
@@ -338,6 +326,7 @@ export function Installer(props: { left: number }) {
   const { left } = props;
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
   const queuedLibraries = useSelector(selectQueuedLibraries);
@@ -369,6 +358,8 @@ export function Installer(props: { left: number }) {
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
+
+    setErrorMessage(validate(value).message);
   }, []);
 
   const validate = useCallback((text) => {
@@ -393,13 +384,15 @@ export function Installer(props: { left: number }) {
 
       const libInstalled = installedLibraries.find((lib) => lib.url === url);
       if (libInstalled) {
-        Toaster.show({
-          text: createMessage(
+        toast.show(
+          createMessage(
             customJSLibraryMessages.INSTALLED_ALREADY,
             libInstalled.accessor[0] || "",
           ),
-          variant: Variant.info,
-        });
+          {
+            kind: "info",
+          },
+        );
         return;
       }
       dispatch(
@@ -420,72 +413,75 @@ export function Installer(props: { left: number }) {
       ref={installerRef}
     >
       <div className="installation-header">
-        <Text type={TextType.H1} weight={"bold"}>
+        <Text kind="heading-m">
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
         </Text>
-        <Icon
+        <Button
           className="t--close-installer"
-          fillColor={Colors.GRAY}
-          name="close-modal"
+          isIconButton
+          kind="tertiary"
           onClick={closeInstaller}
-          size={IconSize.XXL}
+          size="md"
+          startIcon="close-line"
         />
       </div>
       <div className="search-body overflow-auto">
         <div className="search-area t--library-container">
           <div className="flex flex-row gap-2 justify-between items-end">
-            <FormGroup className="flex-1" label={"Library URL"}>
-              <TextInput
-                $padding="12px"
+            <div className="w-full h-[83px]">
+              <Input
                 data-testid="library-url"
-                height="30px"
+                errorMessage={errorMessage}
+                isValid={isValid}
                 label={"Library URL"}
-                leftIcon="link-2"
+                labelPosition="top"
                 onChange={updateURL}
-                padding="12px"
                 placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
-                validator={validate}
-                width="100%"
+                size="md"
+                startIcon="link-2"
+                type="text"
               />
-            </FormGroup>
+            </div>
+
             <Button
-              category={Category.primary}
+              className="mb-[22px]"
               data-testid="install-library-btn"
-              disabled={!(URL && isValid)}
-              icon="download"
+              isDisabled={!(URL && isValid)}
               isLoading={queuedLibraries.length > 0}
               onClick={() => installLibrary()}
-              size={Size.medium}
-              tag="button"
-              text="INSTALL"
-              type="button"
-            />
+              size="md"
+              startIcon="download"
+            >
+              Install
+            </Button>
           </div>
         </div>
         <div className="search-CTA mb-3 text-xs">
           <span>
             Explore libraries on{" "}
-            <a
-              className="text-primary-500"
+            <Link
+              kind="primary"
               onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
+              to="#"
             >
               jsDelivr
-            </a>
+            </Link>
             {". "}
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
-            <a
-              className="text-primary-500"
+            <Link
+              kind="primary"
               onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
+              to="#"
             >
               here
-            </a>
+            </Link>
             {"."}
           </span>
         </div>
-        <SectionDivider color="red" />
+        <Divider className="divider" />
         <InstallationProgress />
         <div className="pb-2 sticky top-0 z-2 bg-white">
-          <Text type={TextType.P1} weight={"600"}>
+          <Text kind="heading-xs">
             {createMessage(customJSLibraryMessages.REC_LIBRARY)}
           </Text>
         </div>
@@ -525,20 +521,16 @@ function LibraryCard({
       })}
     >
       <div className="flex flex-row justify-between items-center">
-        <div className="flex flex-row gap-2 items-center">
-          <Text type={TextType.P0} weight="500">
-            {lib.name}
-          </Text>
-          <StatusIconWrapper
-            addHoverState
+        <div className="flex flex-row gap-1 items-center">
+          <Link
+            className="library-name"
+            endIcon="share-box-line"
+            kind="secondary"
             onClick={(e) => openDoc(e, lib.docsURL)}
+            to="#"
           >
-            <Icon
-              fillColor={Colors.GRAY}
-              name="share-2"
-              size={IconSize.SMALL}
-            />
-          </StatusIconWrapper>
+            {lib.name}
+          </Link>
         </div>
         <div className="mr-2">
           <StatusIcon
@@ -550,9 +542,22 @@ function LibraryCard({
       </div>
       <div className="flex flex-row description">{lib.description}</div>
       <div className="flex flex-row items-center gap-1">
-        <ProfileImage size={20} source={lib.icon} />
-        <Text type={TextType.P3}>{lib.author}</Text>
+        <Avatar image={lib.icon} label={lib.author} size="sm" />
+        <Text kind="action-s">{lib.author}</Text>
       </div>
     </div>
   );
 }
+
+export const Banner = () => {
+  return (
+    <div className="flex flex-col unsupported gap-1">
+      <div className="header">
+        {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
+      </div>
+      <div className="body">
+        {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
+      </div>
+    </div>
+  );
+};

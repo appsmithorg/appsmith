@@ -30,7 +30,6 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { selectFeatureFlags } from "./usersSelectors";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
   EVAL_ERROR_PATH,
@@ -40,12 +39,18 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { TJSLibrary } from "workers/common/JSLibrary";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getFormValues } from "redux-form";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
 
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
+};
+
+export const getRecentDatasourceIds = (state: AppState): string[] => {
+  return state.entities.datasources.recentDatasources;
 };
 
 export const getDatasourcesStructure = (
@@ -68,6 +73,20 @@ export const getDatasourceTableColumns =
       const table = structure.tables?.find((d) => d.name === tableName);
 
       return table?.columns;
+    }
+  };
+export const getDatasourceTablePrimaryColumn =
+  (datasourceId: string, tableName: string) => (state: AppState) => {
+    const structure = getDatasourceStructureById(datasourceId)(state);
+
+    if (structure) {
+      const table = structure.tables?.find((d) => d.name === tableName);
+
+      if (table) {
+        const primaryKey = table.keys?.find((d) => d.type === "primary key");
+
+        return primaryKey?.columnNames?.[0];
+      }
     }
   };
 
@@ -147,6 +166,21 @@ export const getPluginPackageFromDatasourceId = (
 
   if (!plugin) return undefined;
   return plugin.packageName;
+};
+
+export const getPluginIdFromDatasourceId = (
+  state: AppState,
+  datasourceId: string,
+): string | undefined => {
+  const datasource = state.entities.datasources.list.find(
+    (datasource) => datasource.id === datasourceId,
+  );
+
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === datasource?.pluginId,
+  );
+
+  return plugin?.id;
 };
 
 export const getPluginNameFromId = (
@@ -752,30 +786,25 @@ export const selectFilesForExplorer = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
   selectDatasourceIdToNameMap,
-  selectFeatureFlags,
-  (actions, jsActions, datasourceIdToNameMap, featureFlags) => {
-    const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
-    const files = [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
-      (acc, file) => {
-        let group = "";
-        if (file.config.pluginType === PluginType.JS) {
-          group = "JS Objects";
-        } else if (file.config.pluginType === PluginType.API) {
-          group = isEmbeddedRestDatasource(file.config.datasource)
-            ? "APIs"
-            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-        } else {
-          group = datasourceIdToNameMap[file.config.datasource.id];
-        }
-        acc = acc.concat({
-          type: file.config.pluginType,
-          entity: file,
-          group,
-        });
-        return acc;
-      },
-      [] as Array<ExplorerFileEntity>,
-    );
+  (actions, jsActions, datasourceIdToNameMap) => {
+    const files = [...actions, ...jsActions].reduce((acc, file) => {
+      let group = "";
+      if (file.config.pluginType === PluginType.JS) {
+        group = "JS Objects";
+      } else if (file.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(file.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[file.config.datasource.id];
+      }
+      acc = acc.concat({
+        type: file.config.pluginType,
+        entity: file,
+        group,
+      });
+      return acc;
+    }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
       (file) => file.group?.toLowerCase(),
@@ -1000,3 +1029,60 @@ export const selectJSCollectionByName = (collectionName: string) =>
       (collection) => collection.config.name === collectionName,
     );
   });
+
+export const getAllDatasourceTableKeys = createSelector(
+  (state: AppState) => getDatasourcesStructure(state),
+  (state: AppState) => getActions(state),
+  (state: AppState, dataTreePath: string | undefined) => dataTreePath,
+  (
+    datasourceStructures: ReturnType<typeof getDatasourcesStructure>,
+    actions: ReturnType<typeof getActions>,
+    dataTreePath: string | undefined,
+  ) => {
+    if (!dataTreePath || !datasourceStructures) return;
+    const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+    const action = find(actions, ({ config: { name } }) => name === entityName);
+    if (!action) return;
+    const datasource = action.config.datasource;
+    const datasourceId = "id" in datasource ? datasource.id : undefined;
+    if (!datasourceId || !(datasourceId in datasourceStructures)) return;
+    const tables: Record<string, string> = {};
+    const { tables: datasourceTable } = datasourceStructures[datasourceId];
+    if (!datasourceTable) return;
+    datasourceTable.forEach((table) => {
+      if (table?.name) {
+        tables[table.name] = "table";
+        table.columns.forEach((column) => {
+          tables[`${table.name}.${column.name}`] = column.type;
+        });
+      }
+    });
+
+    return tables;
+  },
+);
+
+export const getDatasourceScopeValue = (
+  state: AppState,
+  datasourceId: string,
+  formName: string,
+) => {
+  const formData = getFormValues(formName)(state) as Datasource;
+  const { plugins } = state.entities;
+  const { formConfigs } = plugins;
+  const datasource = getDatasource(state, datasourceId);
+  const pluginId = get(datasource, "pluginId", "");
+  const formConfig = formConfigs[pluginId];
+  if (!formConfig || (!!formConfig && formConfig.length === 0)) {
+    return null;
+  }
+  const configProperty = "datasourceConfiguration.authentication.scopeString";
+  const scopeValue = get(formData, configProperty);
+  const options = formConfig[0]?.children?.find(
+    (child: any) => child?.configProperty === configProperty,
+  )?.options;
+  const label = options?.find(
+    (option: any) => option.value === scopeValue,
+  )?.label;
+  return label;
+};

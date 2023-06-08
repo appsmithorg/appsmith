@@ -8,7 +8,7 @@ const PROPERTIES = {
     data: [
       {
         propertyName: "defaultValue",
-        label: "Default State",
+        label: "Default state",
         helpText: "Sets the default checked state of the field",
         controlType: "SWITCH",
         isJSConvertible: true,
@@ -42,6 +42,7 @@ const PROPERTIES = {
         helpText: "Sets the Position of the field",
         label: "Position",
         controlType: "ICON_TABS",
+        defaultValue: "LEFT",
         fullWidth: true,
         options: [
           {

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
-
+# ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
+# As we want derived props alongwith the ip address we are sharing the ip address in separate keys
+# https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
   ip="$(curl -sS https://api64.ipify.org || echo unknown)"
   curl \
@@ -11,7 +13,8 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
       "userId":"'"$ip"'",
       "event":"Instance Start",
       "properties": {
-        "ip": "'"$ip"'"
+        "ip": "'"$ip"'",
+        "ipAddress": "'"$ip"'"
       }
     }' \
     https://api.segment.io/v1/track \
@@ -270,9 +273,6 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
-  
-  # Copy Supervisor Listiner confs to conf.d
-  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -333,7 +333,6 @@ init_postgres() {
         echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
-
       mkdir -p $POSTGRES_DB_PATH
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
@@ -347,7 +346,6 @@ init_postgres() {
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
-
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi

@@ -7,11 +7,9 @@ import {
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import {
-  NAVIGATION_CLASSNAME,
-  PEEKABLE_CLASSNAME,
-  PEEK_STYLE_PERSIST_CLASS,
-} from "./MarkHelpers/entityMarker";
+import { NAVIGATION_CLASSNAME } from "./MarkHelpers/entityMarker";
+
+export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -22,25 +20,22 @@ const getBorderStyle = (
     disabled?: boolean;
   },
 ) => {
-  if (props.hasError) return props.theme.colors.error;
+  if (props.hasError) return "var(--ads-v2-color-border-error)";
   if (props.editorTheme !== EditorTheme.DARK) {
-    if (props.isFocused) return props.theme.colors.inputActiveBorder;
-    return props.theme.colors.border;
+    if (props.isFocused) return "var(--ads-v2-color-border-emphasis)";
+    return "var(--ads-v2-color-border)";
   }
   return "transparent";
 };
 
-const editorBackground = (theme?: EditorTheme) => {
-  let bg = "#FAFAFA";
-  switch (theme) {
-    case EditorTheme.DARK:
-      bg = "#1A191C";
-      break;
-    case EditorTheme.LIGHT:
-      bg = "#FAFAFA";
-      break;
-  }
-  return bg;
+export const CodeEditorColors = {
+  KEYWORD: "#304eaa",
+  FOLD_MARKER: "#442334",
+  STRING: "#1659df",
+  OPERATOR: "#009595",
+  NUMBER: "#555",
+  COMMENT: "#008000",
+  FUNCTION_ARGS: "hsl(288, 44%, 44%)",
 };
 
 export const EditorWrapper = styled.div<{
@@ -60,7 +55,12 @@ export const EditorWrapper = styled.div<{
   className?: string;
   codeEditorVisibleOverflow?: boolean;
   ctrlPressed: boolean;
+  removeHoverAndFocusStyle?: boolean;
 }>`
+  // Bottom border was getting clipped
+  .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {
+    clip-path: none !important;
+  }
   width: 100%;
   ${(props) =>
     (props.size === EditorSize.COMPACT ||
@@ -75,37 +75,14 @@ export const EditorWrapper = styled.div<{
       : `position: relative;`}
   min-height: 36px;
   height: ${(props) => props.height || "auto"};
-  background-color: ${(props) => editorBackground(props.editorTheme)};
-  background-color: ${(props) => props.disabled && "#eef2f5"};
+  background-color: ${(props) =>
+    props.disabled ? "var(--ads-v2-color-bg-muted)" : "var(--ads-v2-color-bg)"};
   border-color: ${getBorderStyle};
   display: flex;
   flex: 1;
   flex-direction: row;
   text-transform: none;
-  ${(props) =>
-    props.hoverInteraction
-      ? `
-  &:hover {
-    && {
-      .cm-s-duotone-dark.CodeMirror {
-        cursor: pointer;
-        border-radius: 0px;
-        background: ${
-          !props.isNotHover
-            ? Colors.SHARK2
-            : props.isFocused
-            ? Colors.NERO
-            : Colors.BALTIC_SEA
-        };
-      }
-      .cm-s-duotone-light.CodeMirror {
-        cursor: pointer;
-        border-radius: 0px;
-        background: ${Colors.GREY_1};
-      }
-    }
-  }`
-      : null};
+
   && {
     .CodeMirror-cursor {
       border-right: none;
@@ -117,53 +94,164 @@ export const EditorWrapper = styled.div<{
     }
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
-      border-radius: 0px;
+      border-radius: var(--ads-v2-border-radius);
+      /* ${(props) =>
+        props.isFocused &&
+        `outline: ${
+          props?.removeHoverAndFocusStyle
+            ? "none"
+            : "var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline)"
+        };
+        outline-offset: var(--ads-v2-offset-outline);
+        clip-path: unset !important;
+        `} */
+      ${(props) => props.isFocused && `clip-path: unset !important;`}
+      font-family: ${(props) => props.theme.fonts.code};
+      font-size: ${(props) => (props.isReadOnly ? "12px" : "13px")};
       border: 1px solid
         ${(props) => {
           switch (true) {
             case props.border === "none":
               return "transparent";
             case props.border === "bottom-side":
-              return Colors.MERCURY;
+              return "var(--ads-v2-color-border)";
             case props.hasError:
-              return "red";
+              return "var(--ads-v2-color-border-error)";
+
             case props.isFocused:
-              return "var(--appsmith-input-focus-border-color)";
+              return "var(--ads-v2-color-border-emphasis-plus) !important";
             default:
-              return Colors.GREY_5;
+              return "var(--ads-v2-color-border)";
           }
         }};
-      ${(props) => props.border === "none" && "border: none"};
-      background: ${(props) => props.theme.colors.apiPane.bg};
-      color: ${Colors.CHARCOAL};
+
+      background: var(--ads-v2-color-bg);
+      color: var(--ads-v2-color-fg);
       & {
         span.cm-operator {
-          color: ${(props) => props.theme.colors.textDefault};
+          color: ${CodeEditorColors.OPERATOR};
         }
       }
+      .cm-property {
+        color: hsl(21, 70%, 53%);
+      }
+      .cm-keyword {
+        color: ${CodeEditorColors.KEYWORD};
+      }
+
+      .CodeMirror-foldgutter {
+        width: 0.9em;
+      }
+
+      /* gutter arrow to collapse or expand code */
+      .CodeMirror-guttermarker-subtle {
+        color: #442334 !important;
+        &:after {
+          font-size: 14px;
+          position: absolute;
+          right: 4px;
+        }
+      }
+
+      /* Text selection */
+      div.CodeMirror-selected {
+        background: #dbeafe !important;
+      }
+      .cm-string,
+      .token.string {
+        color: ${CodeEditorColors.STRING};
+      }
+
+      /* json response in the debugger */
+      .cm-string.cm-property {
+        color: hsl(21, 70%, 53%);
+      }
+
+      // /* +, =>, -, etc. operators */
+      // span.cm-operator {
+      //   color: #009595;
+      // }A
+
+      /* function arguments */
+      .cm-def {
+        color: #364252; /* This is gray-7 from our new shades of gray */
+      }
+
+      /* variable declarations */
+      .cm-keyword + span + .cm-def {
+        color: #364252;
+      }
+
+      /* function arguments */
+      .cm-def,
+      .cm-property + span + .cm-def,
+      .cm-def + span + .cm-def {
+        color: ${CodeEditorColors.FUNCTION_ARGS};
+      }
+
+      .cm-atom + span + .cm-property,
+      .cm-variable-2 + span + .cm-property {
+        color: #364252;
+      }
+
+      /* object keys, object methods */
+      .cm-keyword + span + .cm-property,
+      .cm-variable + span + .cm-property,
+      .cm-property + span + .cm-property,
+      .cm-number + span + .cm-property,
+      .cm-string + span + .cm-property,
+      .cm-operator + span + .cm-property {
+        color: hsl(30, 77%, 40%);
+      }
+
+      span.cm-number {
+        color: ${CodeEditorColors.NUMBER};
+      }
+
+      .cm-s-duotone-light span.cm-variable-2,
+      .cm-s-duotone-light span.cm-variable-3 {
+        color: #364252;
+      }
+
+      .cm-positive,
+      .cm-string-2,
+      .cm-type,
+      .cm-url {
+        color: #364252;
+      }
+
+      .binding-brackets,
+      .CodeMirror-matchingbracket,
+      .binding-highlight {
+        font-weight: 400;
+      }
+
+      .navigable-entity-highlight:hover {
+        background-color: #ededed !important;
+        font-weight: 600;
+      }
+
+      .binding-brackets {
+        // letter-spacing: -1.8px;
+        color: hsl(222, 70%, 77%);
+      }
+
+      /* some sql fixes */
+      .cm-m-sql.cm-keyword {
+        font-weight: 400;
+      }
+
+      .CodeMirror-activeline-background {
+        background-color: #ececec;
+      }
+    }
+    .CodeMirror-guttermarker-subtle {
+      color: var(--ads-v2-color-fg-subtle);
     }
     .cm-s-duotone-light .CodeMirror-gutters {
-      background: ${Colors.Gallery};
-    }
-    .cm-s-duotone-dark.CodeMirror {
-      border-radius: 0px;
-      ${(props) =>
-        props.border === "none"
-          ? `border: 0px`
-          : props.border === "bottom-side"
-          ? `border-bottom: 1px solid ${Colors.NERO}`
-          : `border: 1px solid ${Colors.NERO}`};
-      background: ${(props) =>
-        props.isFocused || props.fillUp ? Colors.NERO : "#262626"};
-      color: ${Colors.LIGHT_GREY};
+      background: var(--ads-v2-color-bg-subtle);
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
-    .cm-s-duotone-dark .CodeMirror-linenumber {
-      color: ${Colors.DOVE_GRAY};
-    }
-    .cm-s-duotone-dark .CodeMirror-gutters {
-      background: ${Colors.SHARK2};
-    }
     .binding-brackets {
       color: ${(props) =>
         props.editorTheme === EditorTheme.DARK
@@ -172,8 +260,9 @@ export const EditorWrapper = styled.div<{
       font-weight: 700;
     }
 
-    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
-      background-color: #f4ffde;
+    .${PEEK_STYLE_PERSIST_CLASS} {
+      border-color: var(--ads-v2-color-border-emphasis);
+      background-color: #ededed;
     }
 
     .${NAVIGATION_CLASSNAME} {
@@ -182,7 +271,7 @@ export const EditorWrapper = styled.div<{
         props.ctrlPressed &&
         `&:hover {
         text-decoration: underline;
-        background-color:	#FFEFCF;
+        background-color:	#ededed;
       }`}
     }
 
@@ -202,12 +291,12 @@ export const EditorWrapper = styled.div<{
       margin-right: 2px;
     }
     .datasource-highlight-error {
-      background: #fff0f0;
-      border: 1px solid #f22b2b;
+      background: var(--ads-v2-color-bg-error);
+      border: 1px solid var(--ads-v2-color-border-error);
     }
     .datasource-highlight-success {
-      background: #e3fff3;
-      border: 1px solid #03b365;
+      background: var(--ads-v2-color-bg-success);
+      border: 1px solid var(--ads-v2-color-border-success);
     }
     .CodeMirror {
       flex: 1;
@@ -224,8 +313,7 @@ export const EditorWrapper = styled.div<{
     }
     `}
     .CodeMirror pre.CodeMirror-placeholder {
-      color: ${(props) =>
-        props.theme.colors.apiPane.codeEditor.placeholderColor};
+      color: var(--ads-v2-color-fg-subtle);
     }
     ${(props) =>
       (props.size === EditorSize.COMPACT ||
@@ -242,10 +330,20 @@ export const EditorWrapper = styled.div<{
   && {
     .CodeMirror-lines {
       padding: ${(props) => props.theme.spaces[2]}px 0px;
-      background-color: ${(props) => props.disabled && "#eef2f5"};
+      opacity: ${(props) => props.disabled && "var(--ads-v2-opacity-disabled)"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
+      pre.CodeMirror-line,
+      pre.CodeMirror-line-like {
+        padding: 0 ${(props) => props.theme.spaces[2]}px;
+      }
     }
   }
+
+  pre.CodeMirror-line,
+  pre.CodeMirror-line-like {
+    padding: 0 ${(props) => props.theme.spaces[3]}px;
+  }
+
   ${(props) =>
     props.className === "js-editor" &&
     `
@@ -274,13 +372,27 @@ export const EditorWrapper = styled.div<{
     text-shadow: none;
     font: inherit;
   }
+
+  ${(props) =>
+    props.isReadOnly &&
+    `
+  &&&&&&&& .CodeMirror-scroll {
+    width: 100%;
+  }
+  `}
+
   .CodeEditorTarget {
     width: 100%;
 
-    &:focus {
-      border: 1px solid var(--appsmith-input-focus-border-color);
+    &:hover {
       .CodeMirror.cm-s-duotone-light {
-        border: none;
+        border-color: var(--ads-v2-color-border-emphasis);
+      }
+    }
+
+    &:focus {
+      .CodeMirror.cm-s-duotone-light {
+        border-color: var(--ads-v2-color-border-emphasis-plus);
       }
     }
 
@@ -318,7 +430,7 @@ export const EditorWrapper = styled.div<{
     }
 
     & .CodeEditorTarget {
-      height: ${props.isFocused ? "auto" : "35px"};
+      height: ${props.isFocused ? "auto" : "36px"};
     }
   `}
 
@@ -371,7 +483,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   > span:first-of-type {
     width: 30px;
     position: absolute;
-    right: 0px;
+    right: 0;
   }
   &:hover {
     .lightning-menu {
@@ -388,34 +500,15 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
-    .commands-button {
-      display: flex;
+    button {
+      visibility: visible;
     }
   }
-  border-radius: 0px;
+  border-radius: var(--ads-v2-border-radius);
+  .ur--has-border {
+    border-radius: var(--ads-v2-border-radius);
+  }
   .lightning-menu {
     z-index: 1 !important;
-  }
-  .commands-button {
-    z-index: 2;
-    width: 20px;
-    position: absolute;
-    right: 0;
-    transform: translate(-50%, 50%);
-    height: 20px;
-    background: transparent;
-    display: none;
-    color: #f86a2b;
-    border: none;
-    font-weight: bold;
-    font-size: 14px;
-    font-style: italic;
-    padding: 0 0 3px;
-    margin: 0 !important;
-    top: -2px;
-    &:hover {
-      background: #f86a2b;
-      color: white;
-    }
   }
 `;

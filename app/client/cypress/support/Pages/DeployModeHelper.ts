@@ -20,7 +20,8 @@ export class DeployMode {
   _clearDropdown = "button.select-button span.cancel-icon";
   private _jsonFormMultiSelectOptions = (option: string) =>
     `//div[@title='${option}']//input[@type='checkbox']/ancestor::div[@title='${option}']`;
-  private _backtoHome = ".t--back-to-home";
+  private _backtoHome =
+    ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
 
   //refering PublishtheApp from command.js
@@ -67,7 +68,7 @@ export class DeployMode {
   }
 
   public NavigateBacktoEditor() {
-    cy.get(this.locator._backToEditor).click();
+    cy.get(this.locator._backToEditor).click({ force: true });
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!

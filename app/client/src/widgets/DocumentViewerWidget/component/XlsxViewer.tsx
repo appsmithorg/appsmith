@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import Excel from "exceljs";
-import type { Column } from "react-table";
 import { useTable } from "react-table";
 import _ from "lodash";
+import * as XLSX from "xlsx";
 
 const StyledViewer = styled.div`
   width: 100%;
@@ -69,100 +68,163 @@ const chars = [
 
 // get excel column name from index, e.g. A,B,...,AA,AB
 const numberToExcelHeader = (index: number): string => {
-  index -= 1;
   const quotient = Math.floor(index / 26);
   if (quotient > 0) {
-    return numberToExcelHeader(quotient) + chars[index % 26];
+    return numberToExcelHeader(quotient - 1) + chars[index % 26];
   }
   return chars[index % 26];
 };
 
-type sheetsDataType = {
-  name: string;
-  id: number;
-};
+interface DocumentViewerState {
+  sheetNames: string[];
+  currentTableData: RowData[];
+  currentTableHeaders: HeaderCell[];
+  tableData: Record<number, RowData[]>;
+  headerData: Record<number, HeaderCell[]>;
+}
+
+interface HeaderCell {
+  Header: string;
+  accessor: string;
+}
+
+type RawSheetData = unknown[][];
+
+type RowData = Record<string, unknown>; // key is column name, value is cell value
 
 export default function XlsxViewer(props: { blob?: Blob }) {
-  const [sheets, setSheets] = useState([] as sheetsDataType[]);
-  const [tableData, setTableData] = useState([]);
-  const [headerData, setHeaderData] = useState([] as Column[]);
-  const workbook = useRef(new Excel.Workbook());
+  const [sheetIndex, setSheetIndex] = useState<number>(-1);
+  const [state, setState] = useState<DocumentViewerState>(newStateInstance());
 
   useEffect(() => {
-    props.blob?.arrayBuffer().then((buffer) => {
-      // read excel
-      workbook.current.xlsx.load(buffer).then(() => {
-        const newSheets = [] as any;
-        // get all sheets from excel
-        workbook.current.eachSheet((sheet, id) => {
-          newSheets.push({ name: sheet.name, id });
+    if (!props.blob) {
+      resetStates();
+    } else {
+      parseBlob(props.blob)
+        .then(
+          (jsonData: { sheetsData: RawSheetData[]; sheetNames: string[] }) => {
+            const newState = newStateInstance();
+            newState.sheetNames = jsonData.sheetNames;
+            const newSheetIndex = jsonData.sheetsData.length > 0 ? 0 : -1;
+
+            jsonData.sheetsData.forEach((data: RawSheetData, index: number) => {
+              newState.tableData[index] = parseTableBody(data);
+              newState.headerData[index] = parseTableHeaders(data);
+            });
+
+            newState.currentTableData = newState.tableData[newSheetIndex];
+            newState.currentTableHeaders = newState.headerData[newSheetIndex];
+
+            setState(newState);
+            setSheetIndex(newSheetIndex);
+          },
+        )
+        .catch(() => {
+          resetStates();
         });
-        setSheets(newSheets);
-        // get 1st sheet data
-        getSheetData(1);
-      });
-    });
+    }
   }, [props.blob]);
 
-  // get provided sheet data, read all row and columns
-  const getSheetData = useCallback((sheetId: number) => {
-    const worksheet = workbook.current.getWorksheet(sheetId);
-    // collect all row data
-    const data = [] as any;
-    worksheet.eachRow({ includeEmpty: true }, (row) => {
-      const currRow = {} as any;
-      // read value of each cell of current row
-      row.eachCell((cell) => {
-        // value can be merged value | Date | formula result | string | number
-        let value: any;
-        if (cell.isMerged) {
-          value = _.get(cell, "_mergeCount") ? cell.value : "";
-        } else {
-          value = cell.value;
-        }
-        if (_.isDate(value)) {
-          value = value.toDateString();
-        } else if (_.isObject(value) && _.has(value, "result")) {
-          value = _.get(value, "result", "");
-        }
-        currRow[String(numberToExcelHeader(Number(cell.col)))] = value;
-      });
-      data.push(currRow);
+  async function parseBlob(
+    blob: Blob,
+  ): Promise<{ sheetsData: RawSheetData[]; sheetNames: string[] }> {
+    const buffer = await blob.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    return convertWorkbookDataToJSON(workbook);
+  }
+
+  const convertWorkbookDataToJSON = (
+    workbook: XLSX.WorkBook,
+  ): { sheetsData: RawSheetData[]; sheetNames: string[] } => {
+    const sheetsData: RawSheetData[] = [];
+    const sheetNames: string[] = [];
+
+    workbook.SheetNames.forEach((sheetName) => {
+      sheetNames.push(sheetName);
+
+      const result: RawSheetData = XLSX.utils.sheet_to_json(
+        workbook.Sheets[sheetName],
+        { header: 1 },
+      );
+      sheetsData.push(result);
     });
-    setTableData(data);
-    if (data.length) {
+
+    return { sheetsData, sheetNames };
+  };
+
+  function newStateInstance() {
+    const defaultTableData: Record<number, RowData[]> = { "-1": [] };
+    const defaultHeaderData: Record<number, HeaderCell[]> = { "-1": [] };
+    const newState: DocumentViewerState = {
+      sheetNames: [],
+      currentTableData: [],
+      currentTableHeaders: [],
+      tableData: { ...defaultTableData },
+      headerData: { ...defaultHeaderData },
+    };
+    return newState;
+  }
+
+  const resetStates = () => {
+    const newState = newStateInstance();
+    setState(newState);
+    setSheetIndex(-1);
+  };
+
+  function parseTableBody(excelData: RawSheetData): RowData[] {
+    const data: RowData[] = [];
+    for (const row of excelData) {
+      const currRow: RowData = {};
+
+      for (const [index, value] of row.entries()) {
+        const columnLabel: string = numberToExcelHeader(index);
+        let cellValue = value;
+        if (_.isDate(value)) {
+          cellValue = value.toDateString();
+        }
+
+        currRow[columnLabel] = cellValue;
+      }
+
+      data.push(currRow);
+    }
+    return data;
+  }
+
+  const parseTableHeaders = (tableData: RawSheetData): HeaderCell[] => {
+    const newHeader: HeaderCell[] = [];
+    if (tableData.length) {
       // create header letters based on columnCount
-      const newHeader = [];
-      for (let index = 1; index <= worksheet.columnCount; index++) {
-        const currHeader = numberToExcelHeader(index);
+      const headers = tableData[0];
+
+      for (let i = 0; i < headers.length; i++) {
+        const currHeader: string = numberToExcelHeader(i);
         newHeader.push({
           Header: currHeader,
           accessor: currHeader,
         });
       }
-      setHeaderData(newHeader);
-    } else {
-      setHeaderData([]);
     }
-  }, []);
-
-  // when user click on another sheet, re-generate data
-  const updateSheet = useCallback(
-    (sheetId) => () => {
-      getSheetData(sheetId);
-    },
-    [],
-  );
+    return newHeader;
+  };
 
   const { getTableBodyProps, getTableProps, headerGroups, prepareRow, rows } =
-    useTable({ columns: headerData, data: tableData });
+    useTable({
+      columns: state.headerData[sheetIndex],
+      data: state.tableData[sheetIndex],
+    });
 
   return (
     <StyledViewer>
       <div>
-        {sheets.map((sheet) => (
-          <button key={sheet.id} onClick={updateSheet(sheet.id)}>
-            {sheet.name}
+        {state.sheetNames.map((name, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setSheetIndex(index);
+            }}
+          >
+            {name}
           </button>
         ))}
       </div>

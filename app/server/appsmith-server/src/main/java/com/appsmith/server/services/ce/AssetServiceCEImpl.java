@@ -46,9 +46,32 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             MediaType.valueOf("image/vnd.microsoft.icon")
     );
 
+    private static final Set<String> ALLOWED_CONTENT_TYPES_STR = Set.of(
+            MediaType.IMAGE_JPEG_VALUE,
+            MediaType.IMAGE_PNG_VALUE
+    );
+
     @Override
     public Mono<Asset> getById(String id) {
         return repository.findById(id);
+    }
+
+    private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
+        // Resetting the position of the cursor
+        dataBuffer.readPosition(0);
+        if (bufferedImage == null) {
+            /*
+                This is true for SVG and ICO images.
+                If ImageIO.read returns bufferedImage as null and the contentType file extension is .png or .jpeg which
+                means the file is not an image type file rather any other corrupted file but the extension has been
+                changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
+             */
+            if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -111,8 +134,13 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     }
 
     private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail) throws IOException {
-        byte[] imageData = null;
         MediaType contentType = srcContentType;
+        Boolean isValidImage = checkImageTypeValidation(dataBuffer, contentType);
+        if (isValidImage != true) {
+            throw new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
+        }
+
+        byte[] imageData = null;
 
         if (createThumbnail) {
             try {

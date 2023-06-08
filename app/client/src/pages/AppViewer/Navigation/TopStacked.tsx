@@ -6,7 +6,6 @@ import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Icon, IconSize } from "design-system-old";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
@@ -115,19 +114,20 @@ export function TopStacked(props: TopStackedProps) {
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >
-      <ScrollBtnContainer
-        className="left-0 scroll-arrows"
-        navColorStyle={navColorStyle}
-        onMouseDown={() => startScrolling(true)}
-        onMouseLeave={stopScrolling}
-        onMouseUp={stopScrolling}
-        onTouchEnd={stopScrolling}
-        onTouchStart={() => startScrolling(true)}
-        primaryColor={primaryColor}
-        visible={shouldShowLeftArrow}
-      >
-        <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
+      {tabsScrollable && (
+        <ScrollBtnContainer
+          className="left-0 scroll-arrows"
+          kind="tertiary"
+          onMouseDown={() => startScrolling(true)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(true)}
+          size="sm"
+          startIcon="left-arrow-2"
+          visible={shouldShowLeftArrow}
+        />
+      )}
 
       <div
         className="flex w-full hidden-scrollbar gap-x-2  items-center"
@@ -155,19 +155,20 @@ export function TopStacked(props: TopStackedProps) {
         })}
       </div>
 
-      <ScrollBtnContainer
-        className="right-0 scroll-arrows"
-        navColorStyle={navColorStyle}
-        onMouseDown={() => startScrolling(false)}
-        onMouseLeave={stopScrolling}
-        onMouseUp={stopScrolling}
-        onTouchEnd={stopScrolling}
-        onTouchStart={() => startScrolling(false)}
-        primaryColor={primaryColor}
-        visible={shouldShowRightArrow}
-      >
-        <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
+      {tabsScrollable && (
+        <ScrollBtnContainer
+          className="right-0 scroll-arrows"
+          kind="tertiary"
+          onMouseDown={() => startScrolling(false)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(false)}
+          size="sm"
+          startIcon="right-arrow-2"
+          visible={shouldShowRightArrow}
+        />
+      )}
     </Container>
   );
 }

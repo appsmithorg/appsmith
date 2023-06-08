@@ -22,7 +22,6 @@ import {
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
@@ -39,38 +38,26 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import type { IconName } from "design-system-old";
-import {
-  Button,
-  Category,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Size,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
+import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
   className?: string;
   count?: number;
   disabled?: boolean;
-  icon: IconName;
+  icon: string;
   loading?: boolean;
   onClick: () => void;
   tooltipText: string;
 };
 
-const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
-  padding: ${(props) => props.theme.spaces[1]}px
-    ${(props) => props.theme.spaces[2]}px;
-  margin: 0 ${(props) => props.theme.spaces[2]}px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+const SpinnerContainer = styled.div`
+  padding: 0 10px;
+`;
 
-  &:hover {
-    background-color: ${(props) =>
-      props.theme.colors.editorBottomBar.buttonBackgroundHover};
-  }
+const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
 
   position: relative;
   overflow: visible;
@@ -82,9 +69,9 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
     justify-content: center;
     align-items: center;
     color: ${Colors.WHITE};
-    background-color: ${Colors.BLACK};
+    background-color: var(--ads-v2-color-bg-brand-secondary-emphasis-plus);
     top: ${(props) => -1 * props.theme.spaces[3]}px;
-    left: ${(props) => props.theme.spaces[8]}px;
+    left: ${(props) => props.theme.spaces[10]}px;
     border-radius: ${(props) => props.theme.spaces[3]}px;
     ${getTypographyByKey("p3")};
     z-index: 1;
@@ -93,7 +80,7 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   }
 `;
 
-const capitalizeFirstLetter = (string = " ") => {
+export const capitalizeFirstLetter = (string = " ") => {
   return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
 };
 
@@ -109,24 +96,24 @@ function QuickActionButton({
   const content = capitalizeFirstLetter(tooltipText);
 
   return (
-    <Tooltip content={content} hoverOpenDelay={10}>
-      <QuickActionButtonContainer
-        className={className}
-        disabled={disabled}
-        onClick={onClick}
-      >
-        {loading ? (
-          <div className="t--loader-quick-git-action">
-            <SpinnerLoader height="16px" width="16px" />
-          </div>
-        ) : (
+    <QuickActionButtonContainer
+      className={className}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {loading ? (
+        <SpinnerContainer className="t--loader-quick-git-action">
+          <SpinnerLoader size="md" />
+        </SpinnerContainer>
+      ) : (
+        <Tooltip content={content}>
           <div>
-            <Icon name={icon} size={IconSize.XL} />
+            <Button isIconButton kind="tertiary" size="md" startIcon={icon} />
             {count > 0 && <span className="count">{count}</span>}
           </div>
-        )}
-      </QuickActionButtonContainer>
-    </Tooltip>
+        </Tooltip>
+      )}
+    </QuickActionButtonContainer>
   );
 }
 
@@ -176,7 +163,7 @@ const getQuickActionButtons = ({
     {
       className: "t--bottom-bar-commit",
       count: changesToCommit,
-      icon: "plus" as IconName,
+      icon: "plus",
       loading: isFetchingGitStatus,
       onClick: commit,
       tooltipText: createMessage(COMMIT_CHANGES),
@@ -184,7 +171,7 @@ const getQuickActionButtons = ({
     {
       className: "t--bottom-bar-pull",
       count: gitStatus?.behindCount,
-      icon: "down-arrow-2" as IconName,
+      icon: "down-arrow-2",
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
       disabled: pullDisabled,
@@ -192,12 +179,13 @@ const getQuickActionButtons = ({
     },
     {
       className: "t--bottom-bar-merge",
-      icon: "fork" as IconName,
+      icon: "fork",
       onClick: merge,
       tooltipText: createMessage(MERGE),
     },
     {
-      icon: "settings-2-line" as IconName,
+      className: "t--bottom-git-settings",
+      icon: "settings-2-line",
       onClick: connect,
       tooltipText: createMessage(GIT_SETTINGS),
     },
@@ -210,13 +198,8 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledIcon = styled(GitCommitLine)`
+const StyledIcon = styled(Icon)`
   cursor: default;
-
-  & path {
-    fill: ${Colors.DARK_GRAY};
-  }
-
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -233,7 +216,6 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-
   const isTooltipEnabled = isInGuidedTour;
   const tooltipContent = !isInGuidedTour ? (
     <>
@@ -250,21 +232,17 @@ function ConnectGitPlaceholder() {
 
   return (
     <Container>
-      <Tooltip
-        autoFocus={false}
-        content={tooltipContent}
-        disabled={!isTooltipEnabled}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
-        openOnTargetFocus={false}
-      >
+      <Tooltip content={tooltipContent} isDisabled={!isTooltipEnabled}>
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
-          <StyledIcon />
+          <StyledIcon
+            color="var(--ads-v2-color-fg-muted)"
+            name="git-commit"
+            size="lg"
+          />
           {isGitConnectionEnabled ? (
             <Button
-              category={Category.secondary}
               className="t--connect-git-bottom-bar"
+              kind="secondary"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
                   source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
@@ -272,9 +250,10 @@ function ConnectGitPlaceholder() {
 
                 dispatch(showConnectGitModal());
               }}
-              size={Size.small}
-              text={createMessage(CONNECT_GIT_BETA)}
-            />
+              size="sm"
+            >
+              {createMessage(CONNECT_GIT_BETA)}
+            </Button>
           ) : (
             <PlaceholderButton className="t--disabled-connect-git-bottom-bar">
               {createMessage(CONNECT_GIT)}

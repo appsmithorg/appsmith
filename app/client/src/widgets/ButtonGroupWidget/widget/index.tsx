@@ -63,7 +63,7 @@ class ButtonGroupWidget extends BaseWidget<
                   children: [
                     {
                       propertyName: "buttonType",
-                      label: "Button Type",
+                      label: "Button type",
                       controlType: "ICON_TABS",
                       fullWidth: true,
                       helpText: "Sets button type",
@@ -77,6 +77,7 @@ class ButtonGroupWidget extends BaseWidget<
                           value: "MENU",
                         },
                       ],
+                      defaultValue: "SIMPLE",
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: false,
@@ -100,10 +101,10 @@ class ButtonGroupWidget extends BaseWidget<
                         return buttonType !== "MENU";
                       },
                       dependencies: ["groupButtons"],
-                      helpText: "Menu Items",
+                      helpText: "Menu items",
                       propertyName: "menuItems",
                       controlType: "MENU_ITEMS",
-                      label: "Menu Items",
+                      label: "Menu items",
                       isBindProperty: false,
                       isTriggerProperty: false,
                       panelConfig: {
@@ -204,17 +205,18 @@ class ButtonGroupWidget extends BaseWidget<
                                 helpText:
                                   "Sets the icon alignment of a menu item",
                                 controlType: "ICON_TABS",
-                                fullWidth: true,
+                                fullWidth: false,
                                 options: [
                                   {
-                                    icon: "VERTICAL_LEFT",
+                                    startIcon: "skip-left-line",
                                     value: "left",
                                   },
                                   {
-                                    icon: "VERTICAL_RIGHT",
+                                    startIcon: "skip-right-line",
                                     value: "right",
                                   },
                                 ],
+                                defaultValue: "left",
                                 isBindProperty: false,
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
@@ -228,7 +230,7 @@ class ButtonGroupWidget extends BaseWidget<
                                 propertyName: "backgroundColor",
                                 helpText:
                                   "Sets the background color of a menu item",
-                                label: "Background Color",
+                                label: "Background color",
                                 controlType: "COLOR_PICKER",
                                 isJSConvertible: true,
                                 isBindProperty: true,
@@ -246,7 +248,7 @@ class ButtonGroupWidget extends BaseWidget<
                               {
                                 propertyName: "textColor",
                                 helpText: "Sets the text color of a menu item",
-                                label: "Text Color",
+                                label: "Text color",
                                 controlType: "COLOR_PICKER",
                                 isBindProperty: false,
                                 isTriggerProperty: false,
@@ -343,17 +345,18 @@ class ButtonGroupWidget extends BaseWidget<
                       label: "Position",
                       helpText: "Sets the icon alignment of a button",
                       controlType: "ICON_TABS",
-                      fullWidth: true,
+                      fullWidth: false,
                       options: [
                         {
-                          icon: "VERTICAL_LEFT",
+                          startIcon: "skip-left-line",
                           value: "left",
                         },
                         {
-                          icon: "VERTICAL_RIGHT",
+                          startIcon: "skip-right-line",
                           value: "right",
                         },
                       ],
+                      defaultValue: "left",
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
@@ -402,7 +405,7 @@ class ButtonGroupWidget extends BaseWidget<
                       getStylesheetValue,
                       propertyName: "buttonColor",
                       helpText: "Changes the color of the button",
-                      label: "Button Color",
+                      label: "Button color",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       isBindProperty: true,
@@ -441,7 +444,7 @@ class ButtonGroupWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -462,7 +465,7 @@ class ButtonGroupWidget extends BaseWidget<
         children: [
           {
             propertyName: "buttonVariant",
-            label: "Button Variant",
+            label: "Button variant",
             controlType: "ICON_TABS",
             fullWidth: true,
             helpText: "Sets the variant of the button",
@@ -480,6 +483,7 @@ class ButtonGroupWidget extends BaseWidget<
                 value: ButtonVariantTypes.TERTIARY,
               },
             ],
+            defaultValue: ButtonVariantTypes.PRIMARY,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -511,6 +515,7 @@ class ButtonGroupWidget extends BaseWidget<
                 value: "vertical",
               },
             ],
+            defaultValue: "horizontal",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -518,11 +523,11 @@ class ButtonGroupWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -533,7 +538,7 @@ class ButtonGroupWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",

@@ -357,8 +357,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public Mono<Void> applyChanges(Map<String, String> changes) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
-        return verifyCurrentUserIsSuper().
-                flatMap(user -> validateChanges(user, changes).thenReturn(user))
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
                     // Write the changes to the env file.
                     final String originalContent;
@@ -716,7 +716,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     Properties props = mailSender.getJavaMailProperties();
                     props.put("mail.transport.protocol", "smtp");
-                    props.put("mail.smtp.starttls.enable", "true");
+
+                    props.put("mail.smtp.starttls.enable", requestDTO.getStarttlsEnabled().toString());
+
                     props.put("mail.smtp.timeout", 7000); // 7 seconds
 
                     if (StringUtils.hasLength(requestDTO.getUsername())) {

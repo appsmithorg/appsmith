@@ -8,12 +8,15 @@
   "editButton": ".t--back-to-editor",
   "forkButton": ".t--fork-app",
   "signButton": ".t--sign-in",
+  "backToAppsButton": ".t--app-viewer-back-to-apps-button",
   "userProfileDropdownButton": ".t--profile-menu-icon",
-  "userProfileDropdownMenu": ".t--profile-menu",
-  "modal": ".bp3-dialog",
-  "modalClose": ".bp3-dialog .bp3-dialog-close-button",
+  "userProfileDropdownMenu": ".ads-v2-menu",
+  "modal": "div[role=dialog]",
+  "modalClose": "div[role=dialog] button[aria-label='Close']",
+  "modalHeader": ".ads-v2-modal__content-header",
+  "modalBody": ".ads-v2-modal__content-body",
   "navigationMenuItem": ".t--page-switch-tab",
-  "appSettingsButton": "#t--app-settings-cta",
+  "appSettingsButton": ".t--app-settings-cta",
   "navigationSettingsTab": "#t--navigation-settings-header",
   "navigationPreview": ".t--navigation-preview",
   "navigationSettings": {
@@ -23,16 +26,16 @@
     "navStyle": ".t--navigation-settings-navStyle",
     "colorStyle": ".t--navigation-settings-colorStyle",
     "orientationOptions": {
-      "top": ".t--navigation-settings-orientation .t--button-group-top",
-      "side": ".t--navigation-settings-orientation .t--button-group-side"
+      "top": ".t--navigation-settings-orientation .ads-v2-segmented-control-value-top",
+      "side": ".t--navigation-settings-orientation .ads-v2-segmented-control-value-side"
     },
     "navStyleOptions": {
-      "stacked": ".t--navigation-settings-navStyle .t--button-group-stacked",
-      "inline": ".t--navigation-settings-navStyle .t--button-group-inline"
+      "stacked": ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-stacked",
+      "inline": ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-inline"
     },
     "colorStyleOptions": {
-      "light": ".t--navigation-settings-colorStyle .t--button-group-light",
-      "theme": ".t--navigation-settings-colorStyle .t--button-group-theme"
+      "light": ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-light",
+      "theme": ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-theme"
     }
   },
   "scrollArrows": ".scroll-arrows",

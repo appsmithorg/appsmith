@@ -78,7 +78,7 @@ class FormButtonWidget extends ButtonWidget {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -99,7 +99,7 @@ class FormButtonWidget extends ButtonWidget {
           },
           {
             propertyName: "recaptchaType",
-            label: "Google reCAPTCHA Version",
+            label: "Google reCAPTCHA version",
             controlType: "DROP_DOWN",
             helpText: "Select reCAPTCHA version",
             options: [
@@ -131,7 +131,7 @@ class FormButtonWidget extends ButtonWidget {
             helpText:
               "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
             propertyName: "disabledWhenInvalid",
-            label: "Disabled Invalid Forms",
+            label: "Disabled invalid forms",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -142,7 +142,7 @@ class FormButtonWidget extends ButtonWidget {
             helpText:
               "Resets the fields of the form, on click, if this widget exists directly within a Form widget.",
             propertyName: "resetFormOnClick",
-            label: "Reset Form on Success",
+            label: "Reset form on success",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -171,7 +171,7 @@ class FormButtonWidget extends ButtonWidget {
           {
             propertyName: "buttonColor",
             helpText: "Changes the color of the button",
-            label: "Button Color",
+            label: "Button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -180,7 +180,7 @@ class FormButtonWidget extends ButtonWidget {
           },
           {
             propertyName: "buttonVariant",
-            label: "Button Variant",
+            label: "Button variant",
             controlType: "DROP_DOWN",
             helpText: "Sets the variant of the icon button",
             options: [
@@ -214,7 +214,7 @@ class FormButtonWidget extends ButtonWidget {
           },
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -227,7 +227,7 @@ class FormButtonWidget extends ButtonWidget {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -302,13 +302,14 @@ class FormButtonWidget extends ButtonWidget {
             label: "Icon Alignment",
             helpText: "Sets the icon alignment of the button",
             controlType: "ICON_TABS",
+            defaultValue: "left",
             options: [
               {
-                icon: "VERTICAL_LEFT",
+                startIcon: "align-left",
                 value: "left",
               },
               {
-                icon: "VERTICAL_RIGHT",
+                startIcon: "align-right",
                 value: "right",
               },
             ],

@@ -3,10 +3,8 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import lottie from "lottie-web";
-import confetti from "assets/lottie/binding.json";
-import welcomeConfetti from "assets/lottie/welcome-confetti.json";
-import successAnimation from "assets/lottie/success-animation.json";
+import lazyLottie from "./lazyLottie";
+import welcomeConfettiAnimationURL from "assets/lottie/welcome-confetti.json.txt";
 import {
   DATA_TREE_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
@@ -516,24 +514,13 @@ export const getSubstringBetweenTwoWords = (
   return str.substring(startIndexOfEndWord, endIndexOfStartWord);
 };
 
-export const playOnboardingAnimation = () => {
-  playLottieAnimation("#root", confetti);
-};
-
 export const playWelcomeAnimation = (container: string) => {
-  playLottieAnimation(container, welcomeConfetti);
-};
-
-export const playOnboardingStepCompletionAnimation = () => {
-  playLottieAnimation(".onboarding-step-indicator", successAnimation, {
-    "background-color": "white",
-    padding: "60px",
-  });
+  playLottieAnimation(container, welcomeConfettiAnimationURL);
 };
 
 const playLottieAnimation = (
   selector: string,
-  animation: any,
+  animationURL: string,
   styles?: any,
 ) => {
   const container: Element = document.querySelector(selector) as Element;
@@ -554,18 +541,16 @@ const playLottieAnimation = (
 
   container.appendChild(el);
 
-  const animObj = lottie.loadAnimation({
+  const animObj = lazyLottie.loadAnimation({
     container: el,
-    animationData: animation,
+    path: animationURL,
     loop: false,
   });
 
-  const duration = (animObj.totalFrames / animObj.frameRate) * 1000;
-
   animObj.play();
-  setTimeout(() => {
+  animObj.addEventListener("complete", () => {
     container.removeChild(el);
-  }, duration);
+  });
 };
 
 export const getSelectedText = () => {
@@ -719,10 +704,9 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMacOrIOS() ? <span>&#8984;</span> : "Ctrl +");
-export const altText = () => (isMacOrIOS() ? <span>&#8997;</span> : "Alt +");
-export const shiftText = () =>
-  isMacOrIOS() ? <span>&#8682;</span> : "Shift +";
+export const modText = () => (isMacOrIOS() ? "\u2318" : "Ctrl +");
+export const altText = () => (isMacOrIOS() ? "\u2325" : "Alt +");
+export const shiftText = () => (isMacOrIOS() ? "\u21EA" : "Shift +");
 
 export const undoShortCut = () => <span>{modText()} Z</span>;
 
@@ -1145,3 +1129,20 @@ export function concatWithArray(
   if (makeUnique) return uniq(finalArr);
   return finalArr;
 }
+
+export const capitalizeFirstLetter = (str: string) => {
+  // Find the index of the first letter of the first sentence
+  const firstLetterIndex = str.search(/[a-z]/i);
+
+  // If there are no letters in the string, return the original string
+  if (firstLetterIndex === -1) {
+    return str;
+  }
+
+  // Capitalize the first letter of the first sentence and return the modified string
+  return (
+    str.slice(0, firstLetterIndex) +
+    str.charAt(firstLetterIndex).toUpperCase() +
+    str.slice(firstLetterIndex + 1).toLocaleLowerCase()
+  );
+};

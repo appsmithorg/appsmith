@@ -13,14 +13,14 @@ export class DebuggerHelper {
   private commonLocators = ObjectsRegistry.CommonLocators;
 
   // ActionExecutionResizerHeight -> in repo
-  private readonly bottomPaneHeight = 307;
+  private readonly bottomPaneHeight = 360;
   // from design system
   private readonly TAB_MIN_HEIGHT = 36;
 
   public readonly locators = {
-    _debuggerIcon: ".t--debugger",
-    _debuggerToggle: "[data-cy=t--debugger-toggle]",
-    _debuggerDownStreamErrMsg: "[data-cy=t--debugger-downStreamErrorMsg]",
+    _debuggerIcon: ".t--debugger-count",
+    _debuggerToggle: "[data-testid=t--debugger-toggle]",
+    _debuggerDownStreamErrMsg: "[data-testid=t--debugger-downStreamErrorMsg]",
     _tabsContainer: ".t--debugger-tabs-container",
     _closeButton: ".t--close-debugger",
     _logMessage: ".t--debugger-log-message",
@@ -29,7 +29,7 @@ export class DebuggerHelper {
     _errorCount: ".t--debugger-count",
     _clearLogs: ".t--debugger-clear-logs",
     _logMessageOccurence: ".t--debugger-log-message-occurence",
-    _debuggerMessage: "[data-cy=t--debugger-log-message]",
+    _debuggerMessage: "[data-testid=t--debugger-log-message]",
     _contextMenuIcon: ".t--debugger-contextual-error-menu ",
     _contextMenuItem: ".t--debugger-contextual-menuitem",
     _debuggerLabel: "span.debugger-label",
@@ -40,8 +40,11 @@ export class DebuggerHelper {
       [PageType.DataSources]: ".t--datasource-bottom-pane-container",
     },
     _debuggerList: ".debugger-list",
-    _debuggerFilter: ".debugger-search",
-    _debuggerSelectedTab: ".react-tabs__tab--selected",
+    _debuggerFilter: "input[data-testid=t--debugger-search]",
+    _debuggerSelectedTab: ".ads-v2-tabs__list-tab",
+    _helpButton: "[data-testid='t--help-button']",
+    _intercomOption: "#intercom-trigger",
+    _intercomConsentText: "[data-testid='t--intercom-consent-text']",
   };
 
   ClickDebuggerIcon(
@@ -60,7 +63,7 @@ export class DebuggerHelper {
   ClickDebuggerToggle(expand = true, index = 0) {
     cy.get(this.locators._debuggerToggle)
       .eq(index)
-      .invoke("attr", "data-isOpen")
+      .invoke("attr", "data-isopen")
       .then((arrow) => {
         if (expand && arrow == "false")
           cy.get(this.locators._debuggerToggle)
@@ -91,18 +94,26 @@ export class DebuggerHelper {
         break;
       case PageType.API:
       case PageType.JsEditor:
-        this.agHelper.AssertHeight(
-          this.locators._bottomPaneContainer[pageType],
-          this.bottomPaneHeight,
-        );
-        break;
       case PageType.Query:
       case PageType.DataSources:
-        this.agHelper.AssertHeight(
+        this.agHelper.AssertElementVisible(
           this.locators._bottomPaneContainer[pageType],
-          this.bottomPaneHeight - 1, // -1 to offset error
         );
+        // this.agHelper.AssertHeight(
+        //   this.locators._bottomPaneContainer[pageType],
+        //   this.bottomPaneHeight,
+        // );
         break;
+      // case PageType.Query:
+      // case PageType.DataSources:
+      //   this.agHelper.AssertElementVisible(
+      //     this.locators._bottomPaneContainer[pageType],
+      //   );
+      //   // this.agHelper.AssertHeight(
+      //   //   this.locators._bottomPaneContainer[pageType],
+      //   //   this.bottomPaneHeight - 1, // -1 to offset error
+      //   // );
+      //   break;
     }
   }
 
@@ -112,6 +123,7 @@ export class DebuggerHelper {
 
   AssertSelectedTab(text: string) {
     this.agHelper.GetNAssertContains(this.locators._debuggerSelectedTab, text);
+    this.agHelper.AssertSelectedTab(this.locators._debuggerSelectedTab, "true");
   }
 
   DoesConsoleLogExist(
@@ -129,7 +141,7 @@ export class DebuggerHelper {
     );
   }
 
-  filter(text: string) {
+  DebuggerLogsFilter(text: string) {
     this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
   }
 

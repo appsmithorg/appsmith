@@ -49,7 +49,6 @@ import {
   safeCrashAppRequest,
 } from "actions/errorActions";
 import localStorage from "utils/localStorage";
-import { Toaster, Variant } from "design-system-old";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -72,8 +71,12 @@ import {
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
+import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import {
+  USER_PROFILE_PICTURE_UPLOAD_FAILED,
+  UPDATE_USER_DETAILS_FAILED,
+} from "@appsmith/constants/messages";
 import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
@@ -330,7 +333,7 @@ export function* inviteUsers(
       usernames: data.usernames,
       permissionGroupId: data.permissionGroupId,
     });
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
       errorMessage += getResponseErrorMessage(response);
@@ -356,12 +359,6 @@ export function* inviteUsers(
     yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
   } catch (error) {
     yield call(reject, { _error: (error as Error).message });
-    yield put({
-      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
-      payload: {
-        error,
-      },
-    });
   }
 }
 
@@ -486,11 +483,27 @@ export function* updatePhoto(
     const response: ApiResponse = yield call(UserApi.uploadPhoto, {
       file: action.payload.file,
     });
+    if (!response.responseMeta.success) {
+      throw response.responseMeta.error;
+    }
     //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
+
+    const payload: ErrorActionPayload = {
+      show: true,
+      error: {
+        message:
+          (error as any).message ??
+          createMessage(USER_PROFILE_PICTURE_UPLOAD_FAILED),
+      },
+    };
+    yield put({
+      type: ReduxActionErrorTypes.USER_PROFILE_PICTURE_UPLOAD_FAILED,
+      payload,
+    });
   }
 }
 
@@ -538,9 +551,8 @@ export function* leaveWorkspaceSaga(
       yield put({
         type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       });
-      Toaster.show({
-        text: `You have successfully left the workspace`,
-        variant: Variant.success,
+      toast.show(`You have successfully left the workspace`, {
+        kind: "success",
       });
     }
   } catch (error) {

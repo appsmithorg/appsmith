@@ -6,7 +6,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.solutions.EnvManager;
 import com.fasterxml.jackson.annotation.JsonView;
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.Map;
 
 @RequestMapping(Url.INSTANCE_ADMIN_URL)

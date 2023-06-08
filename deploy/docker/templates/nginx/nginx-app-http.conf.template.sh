@@ -76,6 +76,15 @@ server {
   location ~ ^/static/(js|css|media)\b {
     # Files in these folders are hashed, so we can set a long cache time.
     add_header Cache-Control "max-age=31104000, immutable";  # 360 days
+    access_log  off;
+  }
+
+  location ~ ^/app/[^/]+/[^/]+/edit\b {
+    try_files /edit.html /index.html =404;
+  }
+
+  location /app/ {
+    try_files /view.html /index.html =404;
   }
 
   # If the path has an extension at the end, then respond with 404 status if the file not found.

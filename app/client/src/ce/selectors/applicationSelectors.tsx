@@ -35,8 +35,6 @@ export const getApplicationSearchKeyword = (state: AppState) =>
 export const getAppMode = (state: AppState) => state.entities.app.mode;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
-export const getIsDuplicatingApplication = (state: AppState) =>
-  state.ui.applications.duplicatingApplication;
 export const getIsSavingAppName = (state: AppState) =>
   state.ui.applications.isSavingAppName;
 export const getIsErroredSavingAppName = (state: AppState) =>
@@ -214,6 +212,14 @@ export const getSidebarWidth = (state: AppState) => {
   }
 
   return 0;
+};
+
+export const getIsUploadingNavigationLogo = (state: AppState) => {
+  return state.ui.applications.isUploadingNavigationLogo;
+};
+
+export const getIsDeletingNavigationLogo = (state: AppState) => {
+  return state.ui.applications.isDeletingNavigationLogo;
 };
 
 const DEFAULT_EVALUATION_VERSION = 2;

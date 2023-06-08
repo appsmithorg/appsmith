@@ -7,6 +7,7 @@ import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -29,8 +30,9 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ImportExportApplicationService importExportApplicationService;
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
+    private final ResponseUtils responseUtils;
 
-    private static final int MAX_SNAPSHOT_SIZE = 15*1024*1024; // 15 MB
+    private static final int MAX_SNAPSHOT_SIZE = 15 * 1024 * 1024; // 15 MB
 
     @Override
     public Mono<Boolean> createApplicationSnapshot(String applicationId, String branchName) {
@@ -93,9 +95,10 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                     );
                 })
                 .flatMap(application ->
-                    applicationSnapshotRepository.deleteAllByApplicationId(application.getId())
-                            .thenReturn(application)
-                );
+                        applicationSnapshotRepository.deleteAllByApplicationId(application.getId())
+                                .thenReturn(application)
+                )
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<String> getApplicationJsonStringFromSnapShot(String applicationId) {
@@ -105,14 +108,14 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 .collectList()
                 .map(bytes -> {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    for(byte [] b: bytes) {
+                    for (byte[] b : bytes) {
                         outputStream.writeBytes(b);
                     }
                     return outputStream.toString(StandardCharsets.UTF_8);
                 });
     }
 
-    private List<ApplicationSnapshot> createSnapshotsObjects(byte [] bytes, String applicationId) {
+    private List<ApplicationSnapshot> createSnapshotsObjects(byte[] bytes, String applicationId) {
         List<ApplicationSnapshot> applicationSnapshots = new ArrayList<>();
         int total = bytes.length;
         int copiedCount = 0;
@@ -120,10 +123,10 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
 
         while (copiedCount < total) {
             int currentChunkSize = MAX_SNAPSHOT_SIZE;
-            if(copiedCount + currentChunkSize > total) {
+            if (copiedCount + currentChunkSize > total) {
                 currentChunkSize = total - copiedCount;
             }
-            byte [] sub = new byte[currentChunkSize];
+            byte[] sub = new byte[currentChunkSize];
             System.arraycopy(bytes, copiedCount, sub, 0, currentChunkSize);
             copiedCount += currentChunkSize;
 

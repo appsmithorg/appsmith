@@ -1,10 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
-import { Category, Size } from "design-system-old";
+import { Button } from "design-system";
 
 export type OnButtonClickProps = {
   props: ControlProps;
@@ -22,15 +20,6 @@ export type ButtonControlProps = ControlProps & {
 type ButtonControlState = {
   isLoading: boolean;
 };
-
-const StyledButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin: 0;
-  }
-`;
 
 class ButtonControl extends BaseControl<
   ButtonControlProps,
@@ -58,16 +47,15 @@ class ButtonControl extends BaseControl<
     const { buttonLabel, isDisabled, widgetProperties } = this.props;
 
     return (
-      <StyledButton
-        category={Category.secondary}
-        disabled={isDisabled?.(widgetProperties)}
+      <Button
+        isDisabled={isDisabled?.(widgetProperties)}
         isLoading={this.state.isLoading}
+        kind="secondary"
         onClick={this.onCTAClick}
-        size={Size.medium}
-        tag="button"
-        text={buttonLabel}
-        type="button"
-      />
+        size="sm"
+      >
+        {buttonLabel}
+      </Button>
     );
   }
 

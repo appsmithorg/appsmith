@@ -12,13 +12,12 @@ import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
+import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 
@@ -119,5 +118,4 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     return tenantForClient;
                 });
     }
-
 }

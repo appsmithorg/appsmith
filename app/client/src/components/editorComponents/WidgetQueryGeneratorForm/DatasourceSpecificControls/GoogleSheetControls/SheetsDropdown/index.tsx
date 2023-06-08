@@ -4,10 +4,10 @@ import {
   SelectWrapper,
 } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
 import { Dropdown } from "design-system-old";
-import React from "react";
+import React, { memo } from "react";
 import { useSheets } from "./useSheets";
 
-export function SheetsDropdown() {
+export default memo(function SheetsDropdown() {
   const { error, isLoading, label, onSelect, options, selected, show } =
     useSheets();
 
@@ -16,7 +16,7 @@ export function SheetsDropdown() {
       <SelectWrapper className="space-y-2">
         <Label>{label}</Label>
         <Dropdown
-          cypressSelector="t--sheetName-dropdown"
+          data-testid="t--sheetName-dropdown"
           dropdownMaxHeight={"300px"}
           errorMsg={error}
           fillOptions
@@ -33,4 +33,4 @@ export function SheetsDropdown() {
   } else {
     return null;
   }
-}
+});

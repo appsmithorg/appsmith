@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.services.GitService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +51,13 @@ public class GitControllerCE {
     public GitControllerCE(GitService service) {
         this.service = service;
     }
+
     /**
      * applicationId is the defaultApplicationId
      * For every git connected app, the master branch applicationId is used as defaultApplicationId
      * This is stored in gitApplicationMetadata
      * Note : The master branch here refers to the app that was created even before connecting to git
-     * */
+     */
 
     @JsonView(Views.Public.class)
     @PostMapping("/profile/default")
@@ -196,7 +196,7 @@ public class GitControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/merge/app/{defaultApplicationId}")
     public Mono<ResponseDTO<MergeStatusDTO>> merge(@PathVariable String defaultApplicationId,
-                                               @RequestBody GitMergeDTO gitMergeDTO) {
+                                                   @RequestBody GitMergeDTO gitMergeDTO) {
         log.debug("Going to merge branch {} with branch {} for application {}", gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
         return service.mergeBranch(defaultApplicationId, gitMergeDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
@@ -206,7 +206,7 @@ public class GitControllerCE {
     @PostMapping("/merge/status/app/{defaultApplicationId}")
     public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(@PathVariable String defaultApplicationId,
                                                          @RequestBody GitMergeDTO gitMergeDTO) {
-        log.debug("Check if branch {} can be merged with branch {} for application {}",gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
+        log.debug("Check if branch {} can be merged with branch {} for application {}", gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
         return service.isBranchMergeable(defaultApplicationId, gitMergeDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
@@ -226,7 +226,7 @@ public class GitControllerCE {
         return service.generateSSHKey(keyType)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
-    
+
     @JsonView(Views.Public.class)
     @PostMapping("/import/{workspaceId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String workspaceId,
@@ -253,9 +253,10 @@ public class GitControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/discard/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> discardChanges(@PathVariable String defaultApplicationId,
+                                                         @RequestParam(required = false, defaultValue = "true") Boolean doPull,
                                                          @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
         log.debug("Going to discard changes for branch {} with defaultApplicationId {}", branchName, defaultApplicationId);
-        return service.discardChanges(defaultApplicationId, branchName)
+        return service.discardChanges(defaultApplicationId, branchName, doPull)
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 
