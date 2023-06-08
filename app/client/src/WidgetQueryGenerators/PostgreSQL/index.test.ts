@@ -112,7 +112,7 @@ OFFSET
     ]);
   });
 
-  test("should build update form data correctly ", () => {
+  test("should not build update form data without primary key ", () => {
     const expr = PostgreSQL.build(
       {
         update: {
@@ -133,6 +133,30 @@ OFFSET
       initialValues,
     );
 
+    expect(expr).toEqual([]);
+  });
+
+  test("should build update form data correctly ", () => {
+    const expr = PostgreSQL.build(
+      {
+        update: {
+          value: `update_form.fieldState'`,
+          where: `data_table.selectedRow`,
+        },
+        totalRecord: false,
+      },
+      {
+        tableName: "someTable",
+        datasourceId: "someId",
+        aliases: [{ name: "someColumn1", alias: "someColumn1" }],
+        widgetId: "someWidgetId",
+        searchableColumn: "title",
+        columns: ["id", "name"],
+        primaryColumn: "id",
+      },
+      initialValues,
+    );
+
     expect(expr).toEqual([
       {
         name: "Update_query",
@@ -143,13 +167,14 @@ OFFSET
           },
         ],
         payload: {
-          body: 'UPDATE someTable SET "id"= \'{{update_form.fieldState\'.id}}\', "name"= \'{{update_form.fieldState\'.name}}\' WHERE ""= {{"id" = {{data_table.selectedRow.id}}.}};',
+          body: "UPDATE someTable SET \"id\"= '{{update_form.fieldState'.id}}', \"name\"= '{{update_form.fieldState'.name}}' WHERE \"id\"= {{data_table.selectedRow.id}};",
           pluginSpecifiedTemplates: [{ value: false }],
         },
       },
     ]);
   });
-  test("should build insert form data correctly ", () => {
+
+  test("should not build insert form data without primary key ", () => {
     const expr = PostgreSQL.build(
       {
         create: {
@@ -166,6 +191,29 @@ OFFSET
         searchableColumn: "title",
         columns: ["id", "name"],
         primaryColumn: "",
+      },
+      initialValues,
+    );
+    expect(expr).toEqual([]);
+  });
+
+  test("should build insert form data correctly ", () => {
+    const expr = PostgreSQL.build(
+      {
+        create: {
+          value: `update_form.fieldState`,
+        },
+        totalRecord: false,
+      },
+      {
+        tableName: "someTable",
+        datasourceId: "someId",
+        // ignore columns
+        aliases: [{ name: "someColumn1", alias: "someColumn1" }],
+        widgetId: "someWidgetId",
+        searchableColumn: "title",
+        columns: ["id", "name"],
+        primaryColumn: "id",
       },
       initialValues,
     );
