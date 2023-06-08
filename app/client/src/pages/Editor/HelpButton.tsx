@@ -27,6 +27,8 @@ import moment from "moment/moment";
 import styled from "styled-components";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -124,6 +126,9 @@ function IntercomConsent({
 function HelpButton() {
   const user = useSelector(getCurrentUser);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
 
   useEffect(() => {
     bootIntercom(user);
@@ -155,54 +160,60 @@ function HelpButton() {
           </Tooltip>
         </div>
       </MenuTrigger>
-      <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
-        {showIntercomConsent ? (
-          <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
-        ) : (
-          HELP_MENU_ITEMS.map((item) => (
-            <MenuItem
-              id={item.id}
-              key={item.label}
-              onSelect={(e) => {
-                if (item.link) {
-                  window.open(item.link, "_blank");
-                }
-                if (item.id === "intercom-trigger") {
-                  e?.preventDefault();
-                  if (intercomAppID && window.Intercom) {
-                    if (user?.isIntercomConsentGiven || cloudHosting) {
-                      window.Intercom("show");
-                    } else {
-                      setShowIntercomConsent(true);
+      {isFirstTimeUserOnboardingEnabled ? (
+        <SignpostingPopup />
+      ) : (
+        <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
+          {showIntercomConsent ? (
+            <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
+          ) : (
+            HELP_MENU_ITEMS.map((item) => (
+              <MenuItem
+                id={item.id}
+                key={item.label}
+                onSelect={(e) => {
+                  if (item.link) {
+                    window.open(item.link, "_blank");
+                  }
+                  if (item.id === "intercom-trigger") {
+                    e?.preventDefault();
+                    if (intercomAppID && window.Intercom) {
+                      if (user?.isIntercomConsentGiven || cloudHosting) {
+                        window.Intercom("show");
+                      } else {
+                        setShowIntercomConsent(true);
+                      }
                     }
                   }
-                }
-              }}
-              startIcon={item.icon}
-            >
-              {item.label}
-            </MenuItem>
-          ))
-        )}
-        {appVersion.id && (
-          <>
-            <MenuSeparator />
-            <MenuItem className="menuitem-nohover">
-              <HelpFooter>
-                <span>
-                  {createMessage(
-                    APPSMITH_DISPLAY_VERSION,
-                    appVersion.edition,
-                    appVersion.id,
-                    cloudHosting,
-                  )}
-                </span>
-                <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
-              </HelpFooter>
-            </MenuItem>
-          </>
-        )}
-      </MenuContent>
+                }}
+                startIcon={item.icon}
+              >
+                {item.label}
+              </MenuItem>
+            ))
+          )}
+          {appVersion.id && (
+            <>
+              <MenuSeparator />
+              <MenuItem className="menuitem-nohover">
+                <HelpFooter>
+                  <span>
+                    {createMessage(
+                      APPSMITH_DISPLAY_VERSION,
+                      appVersion.edition,
+                      appVersion.id,
+                      cloudHosting,
+                    )}
+                  </span>
+                  <span>
+                    Released {moment(appVersion.releaseDate).fromNow()}
+                  </span>
+                </HelpFooter>
+              </MenuItem>
+            </>
+          )}
+        </MenuContent>
+      )}
     </Menu>
   );
 }

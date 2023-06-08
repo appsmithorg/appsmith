@@ -980,6 +980,9 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
+export const SIGNPOSTING_POPUP_SUBTITLE = () =>
+  "These are all the things you need to do to build your first application.";
+
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
   bold: () => "Connect your datasource",
   normal: () => "to start building an application.",
