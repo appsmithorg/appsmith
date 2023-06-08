@@ -121,7 +121,7 @@ describe("Test error modifier", () => {
   } as unknown as DataTree;
 
   beforeAll(() => {
-    errorModifier.updateAsyncFunctions(dataTree);
+    errorModifier.updateAsyncFunctions(dataTree, {});
   });
 
   it("TypeError for defined Api in data field ", () => {
