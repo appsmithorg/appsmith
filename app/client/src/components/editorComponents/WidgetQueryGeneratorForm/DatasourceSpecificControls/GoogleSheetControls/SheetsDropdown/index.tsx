@@ -8,13 +8,21 @@ import React, { memo } from "react";
 import { useSheets } from "./useSheets";
 
 export default memo(function SheetsDropdown() {
-  const { error, isLoading, label, onSelect, options, selected, show } =
-    useSheets();
+  const {
+    error,
+    isLoading,
+    label,
+    labelText,
+    onSelect,
+    options,
+    selected,
+    show,
+  } = useSheets();
 
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
-        <Tooltip content={label}>
+        <Tooltip content={labelText}>
           <Label>{label}</Label>
         </Tooltip>
         <Select
@@ -27,7 +35,7 @@ export default memo(function SheetsDropdown() {
           isValid={!error}
           onSelect={onSelect}
           options={options}
-          placeholder={label}
+          placeholder="Select sheet"
           showSearch
           value={selected}
         />

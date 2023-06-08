@@ -11,6 +11,7 @@ function TableOrSpreadsheetDropdown() {
     error,
     isLoading,
     label,
+    labelText,
     onSelect,
     options,
     selected,
@@ -20,7 +21,7 @@ function TableOrSpreadsheetDropdown() {
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
-        <Tooltip content={label}>
+        <Tooltip content={labelText}>
           <Label>{label}</Label>
         </Tooltip>
         <Select

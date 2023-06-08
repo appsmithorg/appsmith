@@ -48,7 +48,8 @@ export function useTableHeaderIndex() {
     error:
       (!config.tableHeaderIndex ||
         !isNumber(Number(config.tableHeaderIndex)) ||
-        isNaN(Number(config.tableHeaderIndex))) &&
+        isNaN(Number(config.tableHeaderIndex)) ||
+        config.tableHeaderIndex < 1) &&
       "Please enter a positive number",
     value: config.tableHeaderIndex,
     onChange,
