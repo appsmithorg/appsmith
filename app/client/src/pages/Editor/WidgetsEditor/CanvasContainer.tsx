@@ -34,6 +34,7 @@ import {
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import type { AppState } from "@appsmith/reducers";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -176,13 +177,18 @@ function CanvasContainer(props: CanvasContainerProps) {
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
   const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
+  const featureFlags = useSelector(selectFeatureFlags);
+  const isWDSV2Enabled = featureFlags.wds_v2 === true;
+
   return (
     <>
       <Container
         $isAutoLayout={isAutoLayout}
         background={
           isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-            ? selectedTheme.properties.colors.backgroundColor
+            ? isWDSV2Enabled
+              ? "var(--bg-color)"
+              : selectedTheme.properties.colors.backgroundColor
             : "initial"
         }
         className={classNames({

@@ -9,7 +9,6 @@ import type {
   AppLayoutConfig,
   PageListReduxState,
 } from "reducers/entityReducers/pageListReducer";
-import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
@@ -60,6 +59,8 @@ import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { selectFeatureFlags } from "./usersSelectors";
+import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -340,11 +341,28 @@ export const getCurrentPageName = createSelector(
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
   getIsAutoLayout,
-  (widgetConfigs: WidgetConfigReducerState, isAutoLayout: boolean) => {
+  selectFeatureFlags,
+  (widgetConfigs, isAutoLayout, featureFlags) => {
     const cards = Object.values(widgetConfigs.config).filter((config) => {
-      return isAirgapped()
-        ? config.widgetName !== "Map" && !config.hideCard
-        : !config.hideCard;
+      if (isAirgapped()) {
+        return config.widgetName !== "Map" && !config.hideCard;
+      }
+
+      if (
+        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
+        featureFlags.wds_v2 === false
+      ) {
+        return false;
+      }
+
+      if (
+        Object.keys(WDS_V2_WIDGET_MAP).includes(config.type) &&
+        featureFlags.wds_v2 === true
+      ) {
+        return false;
+      }
+
+      return !config.hideCard;
     });
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {

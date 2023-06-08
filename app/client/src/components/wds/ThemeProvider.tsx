@@ -10,7 +10,6 @@ import Color from "colorjs.io";
 import type { ColorMode } from "@design-system/theming/src/utils/TokensAccessor/types";
 
 const StyledThemeProvider = styled(WDSThemeProvider)`
-  background: var(--color-bg);
   color: var(--color-fg);
 `;
 const { fontFaces } = createGlobalFontStack();

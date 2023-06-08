@@ -24,6 +24,8 @@ import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { batchUpdateWidgetProperty } from "actions/controlActions";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -41,6 +43,7 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET",
   "FILE_PICKER_WIDGET_V2",
   "TABLE_WIDGET_V2",
+  "BUTTON_WIDGET_V2",
 ];
 
 function PropertyPaneView(
@@ -56,6 +59,7 @@ function PropertyPaneView(
   );
 
   const doActionsExist = useSelector(actionsExist);
+  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
@@ -198,6 +202,16 @@ function PropertyPaneView(
     }
   };
 
+  // Note: We don't want to show deprecation callout
+  // for widgets that are listed in WDS_V2_WIDGET_MAP and when feature flag is off
+  let shouldShowDeprecationMessage = isDeprecated;
+  if (
+    Object.keys(WDS_V2_WIDGET_MAP).includes(widgetProperties.type) &&
+    featureFlags.wds_v2 === false
+  ) {
+    shouldShowDeprecationMessage = false;
+  }
+
   return (
     <div
       className="w-full h-full overflow-y-scroll"
@@ -224,7 +238,7 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        {isDeprecated && (
+        {shouldShowDeprecationMessage && (
           <Callout data-testid="t--deprecation-warning" kind="warning">
             {deprecationMessage}
             {migration && <Button onClick={onMigrate}>Migrate</Button>}
