@@ -341,6 +341,11 @@ abstract class BaseWidget<
   };
 
   getComponentDimensions = () => {
+    if (this.props.isFlexChild)
+      return {
+        componentWidth: 100, // This should be replaced with the width computed by resizer
+        componentHeight: 500, // This should be replaced with the height computed by resizer
+      };
     return this.calculateWidgetBounds(
       this.props.rightColumn,
       this.props.leftColumn,
