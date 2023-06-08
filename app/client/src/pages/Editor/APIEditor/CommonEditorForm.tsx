@@ -577,6 +577,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   // this gets the url of the current action's datasource
   const actionDatasourceUrl =
     currentActionConfig?.datasource?.datasourceConfiguration?.url || "";
+  const actionDatasourceUrlPath =
+    currentActionConfig?.actionConfiguration?.path || "";
   // this gets the name of the current action's datasource
   const actionDatasourceName = currentActionConfig?.datasource.name || "";
 
@@ -585,6 +587,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   // we block action execution.
   const blockExecution =
     (!actionDatasourceUrl &&
+      !actionDatasourceUrlPath &&
       actionDatasourceName === DEFAULT_DATASOURCE_NAME) ||
     !isExecutePermitted;
 
