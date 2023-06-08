@@ -16,7 +16,7 @@ import type { Placement } from "@floating-ui/react";
 
 const DEFAULT_TOOLTIP_OFFSET = 10;
 const DEFAULT_TOOLTIP_SHIFT = 5;
-const DEFFAULT_TOOLTIP_PADDING = 5;
+const DEFAULT_TOOLTIP_PADDING = 5;
 
 export interface TooltipOptions {
   initialOpen?: boolean;
@@ -39,7 +39,7 @@ export function useTooltip({
   placement = "top",
   offset: offsetProp = DEFAULT_TOOLTIP_OFFSET,
   shift: shiftProp = DEFAULT_TOOLTIP_SHIFT,
-  padding: paddingProp = DEFFAULT_TOOLTIP_PADDING,
+  padding: paddingProp = DEFAULT_TOOLTIP_PADDING,
 }: TooltipOptions = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
 

@@ -1,4 +1,4 @@
-import { ColorsAccessor } from "../ColorsAccessor";
+import { ColorsAccessor } from "./ColorsAccessor";
 
 import type Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
@@ -14,7 +14,7 @@ export class LightModeTheme implements ColorModeTheme {
   private readonly seedIsVeryLight: boolean;
   private readonly seedIsYellow: boolean;
 
-  constructor(private color: ColorTypes) {
+  constructor(color: ColorTypes) {
     const {
       chroma,
       color: seedColor,
@@ -38,26 +38,27 @@ export class LightModeTheme implements ColorModeTheme {
   public getColors = () => {
     return {
       // bg
-      bg: this.bg.toString({ format: "hex" }),
-      bgAccent: this.bgAccent.toString({ format: "hex" }),
-      bgAccentHover: this.bgAccentHover.toString({ format: "hex" }),
-      bgAccentActive: this.bgAccentActive.toString({ format: "hex" }),
-      bgAccentSubtleHover: this.bgAccentSubtleHover.toString({ format: "hex" }),
-      bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
-        format: "hex",
-      }),
+      bg: this.bg.toString(),
+      bgAccent: this.bgAccent.toString(),
+      bgAccentHover: this.bgAccentHover.toString(),
+      bgAccentActive: this.bgAccentActive.toString(),
+      bgAccentSubtleHover: this.bgAccentSubtleHover.toString(),
+      bgAccentSubtleActive: this.bgAccentSubtleActive.toString(),
       bgAssistive: this.bgAssistive.toString(),
       // fg
-      fg: this.fg.toString({ format: "hex" }),
-      fgAccent: this.fgAccent.toString({ format: "hex" }),
-      fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
+      fg: this.fg.toString(),
+      fgAccent: this.fgAccent.toString(),
+      fgOnAccent: this.fgOnAccent.toString(),
+      fgOnAssistive: this.fgOnAssistive.toString(),
+      fgNeutral: this.fgNeutral.toString(),
+      fgPositive: this.fgPositive,
+      fgWarn: this.fgWarn,
       fgNegative: this.fgNegative,
-      fgOnAssistive: this.fgOnAssistive.toString({ format: "hex" }),
       // bd
-      bdAccent: this.bdAccent.toString({ format: "hex" }),
-      bdNeutral: this.bdNeutral.toString({ format: "hex" }),
-      bdNeutralHover: this.bdNeutralHover.toString({ format: "hex" }),
-      bdFocus: this.bdFocus.toString({ format: "hex" }),
+      bdAccent: this.bdAccent.toString(),
+      bdNeutral: this.bdNeutral.toString(),
+      bdNeutralHover: this.bdNeutralHover.toString(),
+      bdFocus: this.bdFocus.toString(),
       bdNegative: this.bdNegative,
       bdNegativeHover: this.bdNegativeHover,
     };
@@ -106,11 +107,11 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgAccent.clone();
 
     if (this.seedLightness < 0.06) {
-      color.oklch.l = this.seedLightness + 0.28;
+      color.oklch.l = this.bgAccent.oklch.l + 0.28;
     }
 
     if (this.seedLightness > 0.06 && this.seedLightness < 0.14) {
-      color.oklch.l = this.seedLightness + 0.2;
+      color.oklch.l = this.bgAccent.oklch.l + 0.2;
     }
 
     if (
@@ -118,7 +119,7 @@ export class LightModeTheme implements ColorModeTheme {
       this.seedLightness < 0.25 &&
       this.seedIsCold
     ) {
-      color.oklch.l = this.seedLightness + 0.1;
+      color.oklch.l = this.bgAccent.oklch.l + 0.1;
     }
 
     if (
@@ -126,19 +127,19 @@ export class LightModeTheme implements ColorModeTheme {
       this.seedLightness < 0.21 &&
       !this.seedIsCold
     ) {
-      color.oklch.l = this.seedLightness + 0.13;
+      color.oklch.l = this.bgAccent.oklch.l + 0.13;
     }
 
     if (this.seedLightness >= 0.21 && this.seedLightness < 0.4) {
-      color.oklch.l = this.seedLightness + 0.09;
+      color.oklch.l = this.bgAccent.oklch.l + 0.09;
     }
 
     if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
-      color.oklch.l = this.seedLightness + 0.05;
+      color.oklch.l = this.bgAccent.oklch.l + 0.05;
     }
 
     if (this.seedLightness >= 0.7) {
-      color.oklch.l = this.seedLightness + 0.03;
+      color.oklch.l = this.bgAccent.oklch.l + 0.03;
     }
 
     if (this.seedIsVeryLight && this.seedIsYellow) {
@@ -160,15 +161,15 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgAccent.clone();
 
     if (this.seedLightness < 0.4) {
-      color.oklch.l = this.seedLightness - 0.04;
+      color.oklch.l = this.bgAccent.oklch.l - 0.04;
     }
 
     if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
-      color.oklch.l = this.seedLightness - 0.02;
+      color.oklch.l = this.bgAccent.oklch.l - 0.02;
     }
 
     if (this.seedLightness >= 0.7) {
-      color.oklch.l = this.seedLightness - 0.01;
+      color.oklch.l = this.bgAccent.oklch.l - 0.01;
     }
 
     if (this.seedIsVeryLight) {
@@ -204,11 +205,11 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentSubtleHover() {
-    return this.bgAccentSubtle.lighten(0.02);
+    return this.bgAccentSubtle.clone().lighten(0.02);
   }
 
   private get bgAccentSubtleActive() {
-    return this.bgAccentSubtle.darken(0.01);
+    return this.bgAccentSubtle.clone().darken(0.01);
   }
 
   private get bgAssistive() {
@@ -269,6 +270,18 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     return shade;
+  }
+
+  private get fgNeutral() {
+    return this.bdNeutral.clone();
+  }
+
+  private get fgPositive() {
+    return "#4ade80";
+  }
+
+  private get fgWarn() {
+    return "#facc15";
   }
 
   private get fgNegative() {
