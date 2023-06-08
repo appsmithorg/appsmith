@@ -1,58 +1,57 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  table,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Validate TableV2 with API data and then add a column", function () {
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-
     cy.RunAPI();
-    _.entityExplorer.SelectEntityByName("Table1");
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
+    entityExplorer.SelectEntityByName("Table1");
+    propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
 
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
 
-    _.entityExplorer.SelectEntityByName("Table1");
-    cy.readTableV2data("0", "0").then((tabData) => {
-      const tableData = tabData;
-      localStorage.setItem("tableDataPage1", tableData);
-    });
-    cy.readTableV2data("0", "4").then((tabData) => {
-      const tableData = tabData;
-      expect(tableData).to.equal("1");
+    entityExplorer.SelectEntityByName("Table1");
+    table.ReadTableRowColumnData(0, 4, "v2").then(($fifthCellData) => {
+      expect($fifthCellData).to.equal("1");
     });
     cy.addColumnV2("CustomColumn");
     cy.editColumn("customColumn1");
     cy.editColName("UpdatedColName");
-    cy.readTableV2dataPublish("0", "5").then((tabData) => {
-      const tabValue = tabData;
+    table.ReadTableRowColumnData(0, 5, "v2").then(($tabValue) => {
       cy.updateComputedValueV2(testdata.currentRowEmail);
-      cy.readTableV2dataPublish("0", "5").then((tabData) => {
-        expect(tabData).to.be.equal(tabValue);
-        cy.log("computed value of plain text " + tabData);
+      cy.readTableV2dataPublish(0, 5, "v2").then(($tabData) => {
+        expect($tabData).to.be.equal($tabValue);
+        cy.log("computed value of plain text " + $tabData);
       });
     });
     cy.closePropertyPane();
   });
 
   it("2. Check Image alignment is working as expected", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
 
     cy.editColumn("avatar");
     cy.changeColumnType("Image");
     cy.closePropertyPane();
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();
     cy.moveToStyleTab();
     cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
@@ -60,14 +59,14 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "center");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.moveToStyleTab();
     cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "flex-end");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.moveToStyleTab();
     cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     cy.closePropertyPane();
@@ -77,7 +76,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("3. Update table json data and check the derived column values after update", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.moveToContentTab();
     cy.tableV2ColumnDataValidation("id");
     cy.tableV2ColumnDataValidation("name");
