@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.ClientDataDisplayType;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -20,6 +21,7 @@ import com.appsmith.server.solutions.DatasourceStructureSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,15 +49,17 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
     public Mono<TriggerResultDTO> trigger(String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
 
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getExecutePermission())
-                .flatMap(datasource1 -> datasourceStorageService
-                        .findByDatasourceAndEnvironmentId(
-                                datasource1,
-                                environmentId))
+        Mono<Datasource> datasourceMonoCached = datasourceService
+                .findById(datasourceId, datasourcePermission.getExecutePermission()).cache();
+
+        Mono<DatasourceStorage> datasourceStorageMonoCached = datasourceMonoCached
+                .flatMap(datasource1 -> datasourceService.getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId)
+                        .zipWhen(trueEnvironmentId ->
+                                datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, trueEnvironmentId))
+                        .map(Tuple2::getT2))
                 .cache();
 
-        final Mono<Plugin> pluginMono = datasourceStorageMono
+        final Mono<Plugin> pluginMono = datasourceStorageMonoCached
                 .map(datasourceStorage -> datasourceStorage.getPluginId())
                 .flatMap(pluginId -> pluginService.findById(pluginId))
                 .cache();
@@ -74,7 +78,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
         final ClientDataDisplayType displayType = triggerRequestDTO.getDisplayType();
 
-        Mono<DatasourceStorage> validatedDatasourceStorageMono = datasourceStorageMono
+        Mono<DatasourceStorage> validatedDatasourceStorageMono = datasourceStorageMonoCached
                 .flatMap(authenticationValidator::validateAuthentication);
 
         // If the plugin has overridden and implemented the same, use the plugin result
@@ -98,8 +102,11 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                 });
 
         // If the plugin hasn't implemented the trigger function, go for the default implementation
-        Mono<TriggerResultDTO> defaultResultMono = datasourceStorageMono
-                .flatMap(datasource -> entitySelectorTriggerSolution(datasourceId, triggerRequestDTO, environmentId))
+        Mono<TriggerResultDTO> defaultResultMono = datasourceMonoCached
+                .flatMap(datasource1 -> datasourceService.getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId)
+                        .zipWhen(trueEnvironmentId ->
+                                entitySelectorTriggerSolution(datasourceId, triggerRequestDTO, trueEnvironmentId))
+                        .map(Tuple2::getT2))
                 .map(entityNames -> {
                     List<Object> result = new ArrayList<>();
 
@@ -120,15 +127,17 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                 .switchIfEmpty(defaultResultMono);
     }
 
-    private Mono<Set<String>> entitySelectorTriggerSolution(String datasourceId, TriggerRequestDTO request,
-                                                            String environmentName) {
+    private Mono<Set<String>> entitySelectorTriggerSolution(String datasourceId,
+                                                            TriggerRequestDTO request,
+                                                            String environmentId) {
+
         if (request.getDisplayType() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
         }
 
         final Map<String, Object> parameters = request.getParameters();
         Mono<DatasourceStructure> structureMono = datasourceStructureSolution.getStructure(datasourceId, false,
-                environmentName);
+                environmentId);
 
         return structureMono
                 .map(structure -> {
