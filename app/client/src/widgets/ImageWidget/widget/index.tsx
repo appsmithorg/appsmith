@@ -250,6 +250,8 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         imageUrl={this.props.image}
         isLoading={this.props.isLoading}
         maxZoomLevel={maxZoomLevel}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         objectFit={objectFit}
         onClick={this.props.onClick ? this.onImageClick : undefined}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
