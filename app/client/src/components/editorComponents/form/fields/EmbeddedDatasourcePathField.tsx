@@ -64,6 +64,7 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
+import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -547,20 +548,16 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           evaluatedValue={this.handleEvaluatedValue()}
           focusElementName={`${this.props.actionName}.url`}
         />
-        {datasourceObject &&
-          datasourceObject.name !== "DEFAULT_REST_DATASOURCE" && (
-            <StyledTooltip
-              id="custom-tooltip"
-              width={this.state.highlightedElementWidth}
-            >
-              <Text
-                color="var(--ads-v2-color-fg-on-emphasis-max)"
-                kind="body-s"
-              >
-                {`Datasource ${datasourceObject?.name}`}
-              </Text>
-            </StyledTooltip>
-          )}
+        {datasource && datasource.name !== DEFAULT_DATASOURCE_NAME && (
+          <StyledTooltip
+            id="custom-tooltip"
+            width={this.state.highlightedElementWidth}
+          >
+            <Text color="var(--ads-v2-color-fg-on-emphasis-max)" kind="body-s">
+              {`Datasource ${datasource?.name}`}
+            </Text>
+          </StyledTooltip>
+        )}
         {displayValue && (
           <StoreAsDatasource
             datasourceId={

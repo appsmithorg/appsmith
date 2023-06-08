@@ -1,4 +1,4 @@
-import { ColorsAccessor } from "../ColorsAccessor";
+import { ColorsAccessor } from "./ColorsAccessor";
 
 import type Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
@@ -9,15 +9,17 @@ export class DarkModeTheme implements ColorModeTheme {
   private readonly seedLightness: number;
   private readonly seedChroma: number;
   private readonly seedHue: number;
-  private readonly seedIsVeryDark: boolean;
   private readonly seedIsAchromatic: boolean;
+  private readonly seedIsCold: boolean;
+  private readonly seedIsVeryDark: boolean;
 
-  constructor(private color: ColorTypes) {
+  constructor(color: ColorTypes) {
     const {
       chroma,
       color: seedColor,
       hue,
       isAchromatic,
+      isCold,
       isVeryDark,
       lightness,
     } = new ColorsAccessor(color);
@@ -25,6 +27,7 @@ export class DarkModeTheme implements ColorModeTheme {
     this.seedLightness = lightness;
     this.seedChroma = chroma;
     this.seedHue = hue;
+    this.seedIsCold = isCold;
     this.seedIsVeryDark = isVeryDark;
     this.seedIsAchromatic = isAchromatic;
   }
@@ -32,26 +35,27 @@ export class DarkModeTheme implements ColorModeTheme {
   public getColors = () => {
     return {
       // bg
-      bg: this.bg.toString({ format: "hex" }),
-      bgAccent: this.bgAccent.toString({ format: "hex" }),
-      bgAccentHover: this.bgAccentHover.toString({ format: "hex" }),
-      bgAccentActive: this.bgAccentActive.toString({ format: "hex" }),
-      bgAccentSubtleHover: this.bgAccentSubtleHover.toString({ format: "hex" }),
-      bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
-        format: "hex",
-      }),
-      bgAssistive: this.bgAssistive.toString({ format: "hex" }),
+      bg: this.bg.toString(),
+      bgAccent: this.bgAccent.toString(),
+      bgAccentHover: this.bgAccentHover.toString(),
+      bgAccentActive: this.bgAccentActive.toString(),
+      bgAccentSubtleHover: this.bgAccentSubtleHover.toString(),
+      bgAccentSubtleActive: this.bgAccentSubtleActive.toString(),
+      bgAssistive: this.bgAssistive.toString(),
       // fg
-      fg: this.fg.toString({ format: "hex" }),
-      fgAccent: this.fgAccent.toString({ format: "hex" }),
-      fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
+      fg: this.fg.toString(),
+      fgAccent: this.fgAccent.toString(),
+      fgOnAccent: this.fgOnAccent.toString(),
+      fgNeutral: this.fgNeutral.toString(),
+      fgPositive: this.fgPositive,
+      fgWarn: this.fgWarn,
       fgNegative: this.fgNegative,
-      fgOnAssistive: this.fgOnAssistive.toString({ format: "hex" }),
+      fgOnAssistive: this.fgOnAssistive.toString(),
       // bd
-      bdAccent: this.bdAccent.toString({ format: "hex" }),
-      bdFocus: this.bdFocus.toString({ format: "hex" }),
-      bdNeutral: this.bdNeutral.toString({ format: "hex" }),
-      bdNeutralHover: this.bdNeutralHover.toString({ format: "hex" }),
+      bdAccent: this.bdAccent.toString(),
+      bdFocus: this.bdFocus.toString(),
+      bdNeutral: this.bdNeutral.toString(),
+      bdNeutralHover: this.bdNeutralHover.toString(),
       bdNegative: this.bdNegative,
       bdNegativeHover: this.bdNegativeHover,
     };
@@ -86,11 +90,75 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentHover() {
-    return this.bgAccent.clone().lighten(0.06);
+    const color = this.bgAccent.clone();
+
+    if (this.seedLightness < 0.3) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.05;
+    }
+
+    if (this.seedLightness >= 0.3 && this.seedLightness < 0.45) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.04;
+    }
+
+    if (this.seedLightness >= 0.45 && this.seedLightness < 0.77) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.03;
+    }
+
+    if (
+      this.seedLightness >= 0.77 &&
+      this.seedLightness < 0.85 &&
+      !this.seedIsAchromatic &&
+      this.seedIsCold
+    ) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.04;
+      color.oklch.c = this.bgAccent.oklch.c + 0.05;
+    }
+
+    if (
+      this.seedLightness >= 0.77 &&
+      this.seedLightness < 0.85 &&
+      !this.seedIsAchromatic &&
+      !this.seedIsCold
+    ) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.06;
+      color.oklch.c = this.bgAccent.oklch.c + 0.1;
+    }
+
+    if (
+      this.seedLightness >= 0.77 &&
+      this.seedLightness < 0.85 &&
+      this.seedIsAchromatic
+    ) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.04;
+    }
+
+    if (this.seedLightness >= 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.07;
+    }
+
+    return color;
   }
 
   private get bgAccentActive() {
-    return this.bgAccentHover.clone().darken(0.1);
+    const color = this.bgAccent.clone();
+
+    if (this.seedLightness < 0.4) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.02;
+    }
+
+    if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.04;
+    }
+
+    if (this.seedLightness >= 0.7 && this.seedLightness < 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.05;
+    }
+
+    if (this.seedLightness >= 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.13;
+    }
+
+    return color;
   }
 
   // used only for generating child colors, not used as a token
@@ -101,6 +169,10 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.3;
     }
 
+    if (this.seedLightness < 0.2) {
+      color.oklch.l = 0.2;
+    }
+
     if (this.seedChroma > 0.112 && !this.seedIsAchromatic) {
       color.oklch.c = 0.112;
     }
@@ -109,11 +181,19 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentSubtleHover() {
-    return this.bgAccentSubtle.clone().lighten(0.06);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgAccentSubtleActive() {
-    return this.bgAccentSubtleHover.clone().darken(0.1);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.02;
+
+    return color;
   }
 
   private get bgAssistive() {
@@ -171,6 +251,18 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     return tint;
+  }
+
+  private get fgNeutral() {
+    return this.bdNeutral.clone();
+  }
+
+  private get fgPositive() {
+    return "#4ade80";
+  }
+
+  private get fgWarn() {
+    return "#facc15";
   }
 
   private get fgNegative() {

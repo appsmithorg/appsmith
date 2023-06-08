@@ -137,7 +137,7 @@ import {
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { toast } from "design-system";
 import { fetchPluginFormConfig } from "actions/pluginActions";
-import { addClassToDocumentBody } from "pages/utils";
+import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import {
@@ -1677,7 +1677,7 @@ function* loadFilePickerSaga() {
     !!appsmithToken &&
     !!gapiScriptLoaded
   ) {
-    addClassToDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+    addClassToDocumentRoot(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
   }
 }
 
