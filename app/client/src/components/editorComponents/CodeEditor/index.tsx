@@ -528,12 +528,17 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
-    if (identifierHasChanged && shouldFocusOnPropertyControl()) {
-      setTimeout(() => {
-        if (this.props.editorIsFocused) {
-          this.editor.focus();
-        }
-      }, 200);
+    if (identifierHasChanged) {
+      if (this.state.showAIWindow) {
+        this.setState({ showAIWindow: false });
+      }
+      if (shouldFocusOnPropertyControl()) {
+        setTimeout(() => {
+          if (this.props.editorIsFocused) {
+            this.editor.focus();
+          }
+        }, 200);
+      }
     }
     this.editor.operation(() => {
       if (prevProps.lintErrors !== this.props.lintErrors) {

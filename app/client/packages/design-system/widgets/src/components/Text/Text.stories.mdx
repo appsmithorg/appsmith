@@ -4,19 +4,13 @@ import { Text } from "./";
 <Meta
   title="Design-system/widgets/Text"
   component={Text}
-  parameters={{
-    width: 500,
-  }}
   args={{
-    lineClamp: undefined,
     children:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
   }}
 />
 
-export const Template = (args, { globals: { fontFamily } }) => (
-  <Text {...args} />
-);
+export const Template = (args) => <Text {...args} />;
 
 # Text
 
@@ -27,23 +21,6 @@ Text is a component that renders a capsized text.
 </Canvas>
 
 <ArgsTable of={Text} story="Text" />
-
-# Truncated text
-
-<Canvas>
-  <Story
-    name="Truncated"
-    parameters={{
-      width: 180,
-      height: "auto",
-    }}
-    args={{
-      lineClamp: 1,
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
 
 # Line clamp
 
