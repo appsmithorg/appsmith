@@ -350,6 +350,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
             parentColumnWidth={props.snapColumnSpace}
           />
         )}
+        {/* A dummy div which will helps to show the highlights at the bottom of MainCanvas */}
+        {isMainContainer && isDragging && draggedOn === props.widgetId && (
+          <div style={{ height: "10px" }} />
+        )}
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
