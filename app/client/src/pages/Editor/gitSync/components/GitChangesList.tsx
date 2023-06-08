@@ -75,12 +75,12 @@ const STATUS_MAP: GitStatusMap = {
     hasValue: (status?.behindCount || 0) > 0,
   }),
   [Kind.SETTINGS]: (status: GitStatusData) => ({
-    message: `Application settings updated`,
+    message: `Application settings modified`,
     iconName: "settings-2-line",
     hasValue: (status?.modified || []).includes("application.json"),
   }),
   [Kind.THEME]: (status: GitStatusData) => ({
-    message: `Theme updated`,
+    message: `Theme modified`,
     iconName: "sip-line",
     hasValue: (status?.modified || []).includes("theme.json"),
   }),
