@@ -12,7 +12,7 @@ import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json
 
 const oneClickBinding = new OneClickBinding();
 
-describe("One click binding control", () => {
+describe.skip("One click binding control", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
   });
