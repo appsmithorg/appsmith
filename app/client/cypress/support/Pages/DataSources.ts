@@ -706,7 +706,8 @@ export class DataSources {
       .should("be.visible")
       .closest(this._datasourceCard)
       .within(() => {
-        cy.get(btnLocator).click({ force: true });
+        this.agHelper.GetNClick(btnLocator, 0, true);
+        this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //for Page to open
       });
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
     createQuery && this.agHelper.AssertNetworkStatus("@createNewApi", 201);
@@ -736,13 +737,15 @@ export class DataSources {
       .closest(this._datasourceCard)
       .scrollIntoView()
       .within(() => {
-        cy.get(this._createQuery).click({ force: true });
+        this.agHelper.GetNClick(this._createQuery, 0, true);
+        this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //for Page to open
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //for Page to open
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.agHelper.GetNClick(this._templateMenu);

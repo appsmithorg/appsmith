@@ -39,7 +39,7 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage();
     this.agHelper.ClickButton("Deploy");
-    this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000); //to make sure we have started navigation from Edit page
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     cy.get("@windowDeployStub").should("be.calledOnce");
     this.assertHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));

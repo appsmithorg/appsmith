@@ -29,7 +29,6 @@ export class GitSync {
     "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
   private _branchListItem = "[data-testid=t--branch-list-item]";
-  private _spinner = ".ads-v2-spinner";
   private _bottomBarMergeButton = ".t--bottom-bar-merge";
   private _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
@@ -156,8 +155,8 @@ export class GitSync {
         0,
         true,
       );
-      this.agHelper.AssertElementExist(this.locator._runBtnSpinner);
-      this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.AssertElementExist(this.locator._btnSpinner);
+      this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
       this.agHelper.AssertElementVisible(this._branchName(branch + uid));
       cy.wrap(branch + uid).as("gitbranchName");
     });
@@ -177,8 +176,8 @@ export class GitSync {
     this.agHelper.GetNClickByContains(this._branchListItem, branch);
     if (!expectError) {
       // increasing timeout to reduce flakyness
-      cy.get(this._spinner, { timeout: 45000 }).should("exist");
-      cy.get(this._spinner, { timeout: 45000 }).should("not.exist");
+      cy.get(this.locator._btnSpinner, { timeout: 45000 }).should("exist");
+      cy.get(this.locator._btnSpinner, { timeout: 45000 }).should("not.exist");
     }
 
     this.agHelper.Sleep(2000);

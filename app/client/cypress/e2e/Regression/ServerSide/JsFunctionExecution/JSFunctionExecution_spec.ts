@@ -527,7 +527,7 @@ return "yes";`;
     _.agHelper.RefreshPage();
     _.jsEditor.RunJSObj();
     //_.agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
-    _.agHelper.AssertElementAbsence(_.locators._runBtnSpinner, 10000);
+    _.agHelper.AssertElementAbsence(_.locators._btnSpinner, 10000);
     _.agHelper.GetNClick(_.locators._errorTab);
     _.agHelper.AssertContains(
       "Cannot read properties of undefined (reading 'id')",

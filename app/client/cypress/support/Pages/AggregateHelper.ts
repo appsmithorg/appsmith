@@ -142,7 +142,7 @@ export class AggregateHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementAbsence(this.locator._runBtnSpinner, 10000);
+    this.AssertElementAbsence(this.locator._btnSpinner, 10000);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 

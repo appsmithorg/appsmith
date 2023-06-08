@@ -4,9 +4,8 @@ export class CommonLocators {
   _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
-  _spinner = ".ads-v2-spinner";
   _animationSpnner = ".bp3-spinner-animation";
-  _runBtnSpinner = ".ads-v2-spinner";
+  _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";

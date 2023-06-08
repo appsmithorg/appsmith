@@ -165,7 +165,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("Queries/JS", false);
     ee.SelectEntityByName("update_form", "Widgets");
-    updatingVesselsJSONPropertyFileds();
+    UpdatingVesselsJSONPropertyFileds();
   });
 
   it("6. Verify Update data from Deploy page - on Vessels - existing record", () => {
@@ -181,7 +181,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get("@Callsign").then(($callSign) => {
       newCallsign = $callSign;
       cy.log("newCallsign is : " + newCallsign);
-      updateNVerify(5, 1, newCallsign as string);
+      UpdateNVerify(5, 1, newCallsign as string);
     });
 
     //Checking Required field validations
@@ -239,7 +239,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("7. Verify Update data from Deploy page - on Vessels - existing record", () => {
-    updateNVerify(5, 2, "DISNEY DREAM");
+    UpdateNVerify(5, 2, "DISNEY DREAM");
     table.ReadTableRowColumnData(5, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("France");
     });
@@ -321,7 +321,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
     agHelper.WaitUntilAllToastsDisappear(); //for previous case toasts for next Update to be Success!!
 
-    updateNVerify(8, 3, "");
+    UpdateNVerify(8, 3, "");
   });
 
   it("9. Verify Delete row from Deploy page - on Vessels - existing record", () => {
@@ -433,7 +433,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     //propPane.UpdateJSONFormWithPlaceholders();//Since cypress is hanging here sometimes in local run also commenting
 
     //Updating JSON field properties similar to Update JSON!
-    updatingVesselsJSONPropertyFileds();
+    UpdatingVesselsJSONPropertyFileds();
   });
 
   it("13. Verify Add/Insert from Deploy page - on Vessels - new record - few validations", () => {
@@ -564,7 +564,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.ClearJSONFieldValue("Next Port Name");
 
-    updateNVerify(0, 2, "MAJESTIC MAERSK");
+    UpdateNVerify(0, 2, "MAJESTIC MAERSK");
 
     table.NavigateToNextPage(); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
@@ -703,14 +703,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       });
   }
 
-  function updateNVerify(
+  function UpdateNVerify(
     rowIndex: number,
     colIndex: number,
     expectedTableData: string,
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
-    agHelper.AssertElementAbsence(locator._spinner, 10000); //10 secs for update to reflect!
+    agHelper.AssertElementAbsence(locator._btnSpinner, 10000); //10 secs for update to reflect!
     agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.AssertNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection
@@ -723,7 +723,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       });
   }
 
-  function updatingVesselsJSONPropertyFileds() {
+  function UpdatingVesselsJSONPropertyFileds() {
     propPane.ChangeJsonFormFieldType("Callsign", "Password Input");
     propPane.NavigateBackToPropertyPane();
 

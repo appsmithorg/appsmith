@@ -79,7 +79,7 @@ describe.skip("Binary Datatype tests", function () {
     _.agHelper.ClickButton("Insert");
     _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
     _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 10000); //for the update row to appear at last
+    _.agHelper.AssertElementAbsence(_.locators._btnSpinner, 10000); //for the update row to appear at last
     _.table.WaitUntilTableLoad();
     _.agHelper.Sleep(3000); //some more time for all rows with images to be populated
     _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
@@ -107,7 +107,7 @@ describe.skip("Binary Datatype tests", function () {
     _.agHelper.ClickButton("Insert");
     _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
     _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //for the update row to appear at last
+    _.agHelper.AssertElementAbsence(_.locators._btnSpinner, 20000); //for the update row to appear at last
     _.table.WaitUntilTableLoad();
     _.agHelper.Sleep(2000); //some more time for all rows with images to be populated
     _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
@@ -135,7 +135,7 @@ describe.skip("Binary Datatype tests", function () {
     _.agHelper.ClickButton("Insert");
     _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
     _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //for the update row to appear at last
+    _.agHelper.AssertElementAbsence(_.locators._btnSpinner, 20000); //for the update row to appear at last
     _.table.WaitUntilTableLoad();
     _.agHelper.Sleep(2000); //some more time for all rows with images to be populated
     _.table.ReadTableRowColumnData(2, 0).then(($cellData) => {
@@ -164,7 +164,7 @@ describe.skip("Binary Datatype tests", function () {
     _.agHelper.ClickButton("Update");
     _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Update did not fail
     _.agHelper.AssertElementVisible(_.locators._spanButton("Run UpdateQuery"));
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //for the update row to appear at last
+    _.agHelper.AssertElementAbsence(_.locators._btnSpinner, 20000); //for the update row to appear at last
     _.table.WaitUntilTableLoad();
     _.agHelper.Sleep(10000); //some more time for rows to rearrange!
     _.table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
@@ -188,7 +188,7 @@ describe.skip("Binary Datatype tests", function () {
     _.agHelper.ClickButton("DeleteQuery", 1);
     _.agHelper.AssertNetworkStatus("@postExecute", 200);
     _.agHelper.AssertNetworkStatus("@postExecute", 200);
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //Allowing time for delete to be success
+    _.agHelper.AssertElementAbsence(_.locators._btnSpinner, 20000); //Allowing time for delete to be success
     _.agHelper.Sleep(6000); //Allwowing time for delete to be success
     _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
