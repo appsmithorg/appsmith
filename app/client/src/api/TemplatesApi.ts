@@ -21,6 +21,7 @@ export interface Template {
   useCases: string[];
   datasources: string[];
   pages: ApplicationPagePayload[];
+  allowPageImport: boolean;
 }
 
 export type FetchTemplatesResponse = ApiResponse<Template[]>;

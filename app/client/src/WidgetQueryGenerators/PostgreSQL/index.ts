@@ -35,14 +35,22 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
           3: `'%{{${where}}}%'`,
         },
       },
-      {
-        isValuePresent: orderBy,
-        template: "ORDER BY $4 $5",
-        params: {
-          4: `"{{${orderBy} || '${formConfig.primaryColumn}'}}"`,
-          5: `{{${sortOrder} ? "" : "DESC"}}`,
-        },
-      },
+      formConfig.primaryColumn
+        ? {
+            isValuePresent: orderBy,
+            template: `ORDER BY $4 $5`,
+            params: {
+              4: `"{{${orderBy} || '${formConfig.primaryColumn}'}}"`,
+              5: `{{${sortOrder} ? "" : "DESC"}}`,
+            },
+          }
+        : {
+            isValuePresent: orderBy,
+            template: "$4",
+            params: {
+              4: `{{${orderBy} ? "ORDER BY " + ${orderBy} + "  " + (${sortOrder} ? "" : "DESC") : ""}}`,
+            },
+          },
       {
         isValuePresent: limit,
         template: "LIMIT $6",
@@ -187,10 +195,12 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     if (widgetConfig.select) {
       allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
     }
-    if (widgetConfig.update) {
+
+    if (widgetConfig.update && formConfig.primaryColumn) {
       allBuildConfigs.push(this.buildUpdate(widgetConfig, formConfig));
     }
-    if (widgetConfig.create) {
+
+    if (widgetConfig.create && formConfig.primaryColumn) {
       allBuildConfigs.push(this.buildInsert(widgetConfig, formConfig));
     }
 
