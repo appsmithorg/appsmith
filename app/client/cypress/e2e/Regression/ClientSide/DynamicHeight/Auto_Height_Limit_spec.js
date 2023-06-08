@@ -1,11 +1,12 @@
 const dsl = require("../../../../fixtures/dynamicHeightContainerdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with limits", function () {
   it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
-    cy.openPropertyPane("containerwidget");
+    _.entityExplorer.SelectEntityByName("Container1");
     cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
     cy.wait(3000); //for dsl to settle
