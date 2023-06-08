@@ -7,7 +7,7 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from "../..";
+} from "../";
 
 export const ComplexForm = () => {
   return (
