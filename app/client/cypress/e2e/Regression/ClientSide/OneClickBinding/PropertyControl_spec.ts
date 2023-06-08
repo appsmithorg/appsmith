@@ -78,20 +78,6 @@ describe.skip("One click binding control", () => {
     _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
-      oneClickBindingLocator.otherActionSelector("Insert snippet"),
-    );
-
-    _.agHelper.GetNClick(
-      oneClickBindingLocator.otherActionSelector("Insert snippet"),
-    );
-
-    _.agHelper.AssertElementExist(CommonLocators.globalSearchModal);
-
-    _.agHelper.TypeText(CommonLocators.globalSearchInput, "{esc}", 0, true);
-
-    _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-
-    _.agHelper.AssertElementExist(
       oneClickBindingLocator.otherActionSelector("Insert binding"),
     );
 

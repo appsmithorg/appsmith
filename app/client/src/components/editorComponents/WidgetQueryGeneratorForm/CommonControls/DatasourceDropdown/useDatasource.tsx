@@ -283,22 +283,6 @@ export function useDatasource() {
         },
       },
       {
-        id: "Insert snippet",
-        label: "Insert snippet",
-        value: "Insert snippet",
-        icon: <Icon name="code" size="md" />,
-        onSelect: () => {
-          addSnippet();
-
-          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
-            widgetName: widget.widgetName,
-            widgetType: widget.type,
-            propertyName: propertyName,
-            selectedAction: "Snippet",
-          });
-        },
-      },
-      {
         id: "Insert binding",
         label: "Insert binding",
         value: "Insert binding",
