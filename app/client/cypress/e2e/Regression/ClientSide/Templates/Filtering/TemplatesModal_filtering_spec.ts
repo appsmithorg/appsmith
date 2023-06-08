@@ -4,7 +4,7 @@ import {
   templates,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Templates modal filtering", () => {
+describe("Bug 17276 - Templates modal filtering", () => {
   const NAME_FILTER = "order";
   it("1. should not retain filters when trying to add a page from template(multiple attempts)", () => {
     entityExplorer.AddNewPage("Add page from template");
