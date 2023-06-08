@@ -115,7 +115,10 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         configForClient.addThirdPartyAuth("github");
                     }
 
+                    configForClient.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
+
                     return tenantForClient;
                 });
     }
+
 }
