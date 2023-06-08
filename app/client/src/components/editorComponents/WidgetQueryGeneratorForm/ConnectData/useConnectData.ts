@@ -1,7 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { PluginPackageName } from "entities/Action";
-import { isNumber } from "lodash";
 import { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
@@ -9,6 +8,7 @@ import { getPluginPackageFromDatasourceId } from "selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetQueryGeneratorFormContext } from "..";
+import { isValidGsheetConfig } from "../utils";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
 
 export function useConnectData() {
@@ -62,16 +62,10 @@ export function useConnectData() {
 
   const show = !!config.datasource;
 
-  const isValidGsheetConfig =
-    config.sheet &&
-    config.tableHeaderIndex &&
-    isNumber(Number(config.tableHeaderIndex)) &&
-    !isNaN(Number(config.tableHeaderIndex));
-
   const disabled =
     !config.table ||
     (selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-      !isValidGsheetConfig);
+      !isValidGsheetConfig(config));
 
   return {
     show,
