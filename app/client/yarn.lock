@@ -9581,6 +9581,7 @@ __metadata:
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
+    echarts: ^5.4.2
     eslint: ^8.36.0
     eslint-config-prettier: ^8.6.0
     eslint-import-resolver-babel-module: ^5.3.1
@@ -14157,6 +14158,16 @@ __metadata:
     jsbn: ~0.1.0
     safer-buffer: ^2.1.0
   checksum: 22fef4b6203e5f31d425f5b711eb389e4c6c2723402e389af394f8411b76a488fa414d309d866e2b577ce3e8462d344205545c88a8143cc21752a5172818888a
+  languageName: node
+  linkType: hard
+
+"echarts@npm:^5.4.2":
+  version: 5.4.2
+  resolution: "echarts@npm:5.4.2"
+  dependencies:
+    tslib: 2.3.0
+    zrender: 5.4.3
+  checksum: 933c28dada362314f7c7a5fd4243b44b24f75adb233f7c87541ac9a81734cb380a9683c3f56c8e559dacfddd363879e95a96f0047e33820123cd8f5b95b60f8f
   languageName: node
   linkType: hard
 
@@ -29443,6 +29454,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:2.3.0":
+  version: 2.3.0
+  resolution: "tslib@npm:2.3.0"
+  checksum: 8869694c26e4a7b56d449662fd54a4f9ba872c889d991202c74462bd99f10e61d5bd63199566c4284c0f742277736292a969642cc7b590f98727a7cae9529122
+  languageName: node
+  linkType: hard
+
 "tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
@@ -31589,6 +31607,15 @@ __metadata:
     jszip: ^3.1.3
     lodash.escape: ^4.0.1
   checksum: 950dd520195c48249b8f94d0e46bea0e1b0dce69f35a4bb734dcc7157192e5ecafec654ede53fccfcc7eb6e1e4a61104dc395fadb0705ebe7bf5c13576732715
+  languageName: node
+  linkType: hard
+
+"zrender@npm:5.4.3":
+  version: 5.4.3
+  resolution: "zrender@npm:5.4.3"
+  dependencies:
+    tslib: 2.3.0
+  checksum: ae89584fbe4256217e500a74183fd5870a2bed7e7b3234cd78fcbc0a1a82da8449596b2019105927069531b567ecf94425fb171abd6cedcbf517e52fdf438722
   languageName: node
   linkType: hard
 

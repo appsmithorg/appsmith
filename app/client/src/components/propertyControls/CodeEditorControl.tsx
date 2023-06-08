@@ -30,7 +30,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
       <LazyCodeEditor
         additionalDynamicData={this.props.additionalAutoComplete}
         input={{ value: propertyValue, onChange: this.onChange }}
-        mode={EditorModes.TEXT_WITH_BINDING}
+        mode={EditorModes.JSON_WITH_BINDING}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={this.props.theme}
