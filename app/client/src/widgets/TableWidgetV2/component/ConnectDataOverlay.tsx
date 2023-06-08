@@ -49,7 +49,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
     <Wrapper>
       <Container>
         <Header className="t--cypress-table-overlay-header">
-          To display data, connect your own datasource
+          Connect your or sample datasources to display data
         </Header>
         <ConnecData
           className="t--cypress-table-overlay-connectdata"
@@ -58,7 +58,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
         >
           Connect data
         </ConnecData>
-        <Footer>, or use mock data</Footer>
+        <Footer>or write a new binding</Footer>
       </Container>
     </Wrapper>
   );
