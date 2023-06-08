@@ -26,11 +26,5 @@
                 <param name="emailDomains" value="appsmith.com,moolya.com"/>
             </flipstrategy>
         </feature>
-        <feature uid="ONE_CLICK_BINDING" enable="true"
-                 description="Show property controls to generate queries for table widget with just clicks">
-            <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
-                <param name="emails" value="balaji@appsmith.com,vamsi@appsmith.com"/>
-            </flipstrategy>
-        </feature>
     </features>
 </ff4j>
