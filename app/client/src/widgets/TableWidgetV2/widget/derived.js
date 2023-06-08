@@ -363,6 +363,33 @@ export default {
                 } catch (e) {
                   return -1;
                 }
+              case "url":
+                const column = primaryColumns[sortByColumnOriginalId];
+                if (column && column.displayText) {
+                  if (_.isString(column.displayText)) {
+                    try {
+                      const displayText = JSON.parse(column.displayText);
+                      return sortByOrder(
+                        displayText.toLowerCase() > displayText.toLowerCase(),
+                      );
+                    } catch (e) {
+                      /* do nothing */
+                    }
+                  } else if (_.isArray(column.displayText)) {
+                    return sortByOrder(
+                      primaryColumns[sortByColumnOriginalId].displayText[
+                        a.__originalIndex__
+                      ]
+                        .toString()
+                        .toLowerCase() >
+                        primaryColumns[sortByColumnOriginalId].displayText[
+                          b.__originalIndex__
+                        ]
+                          .toString()
+                          .toLowerCase(),
+                    );
+                  }
+                }
               default:
                 return sortByOrder(
                   a[sortByColumnOriginalId].toString().toLowerCase() >
@@ -408,6 +435,7 @@ export default {
         return Number(a) >= Number(b);
       },
       contains: (a, b) => {
+        console.log(a, b, "contains filter");
         try {
           return a
             .toString()
@@ -489,14 +517,23 @@ export default {
 
     const finalTableData = sortedTableData.filter((row) => {
       let isSearchKeyFound = true;
-
+      const columnWithDisplayText = Object.values(props.primaryColumns).filter(
+        (column) => column.columnType === "url" && column.displayText,
+      );
+      const displayedRow = {
+        ...row,
+        ...columnWithDisplayText.reduce((acc, column) => {
+          acc[column.alias] = column.displayText[row.__originalIndex__];
+          return acc;
+        }, {}),
+      };
       if (searchKey) {
-        isSearchKeyFound = Object.values(_.omit(row, hiddenColumns))
+        isSearchKeyFound = Object.values(_.omit(displayedRow, hiddenColumns))
           .join(", ")
           .toLowerCase()
           .includes(searchKey);
       }
-
+      console.log(displayedRow, isSearchKeyFound, "displayedRow");
       if (!isSearchKeyFound) {
         return false;
       }
@@ -516,7 +553,7 @@ export default {
             ConditionFunctions[props.filters[i].condition];
           if (conditionFunction) {
             filterResult = conditionFunction(
-              row[props.filters[i].column],
+              displayedRow[props.filters[i].column],
               props.filters[i].value,
             );
           }
@@ -542,7 +579,7 @@ export default {
 
       return isSatisfyingFilters;
     });
-
+    console.log(finalTableData, "finalTableData");
     return finalTableData;
   },
   //
