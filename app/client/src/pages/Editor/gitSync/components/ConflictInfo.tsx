@@ -32,6 +32,10 @@ export default function ConflictInfo({
   browserSupportedRemoteUrl,
   learnMoreLink,
 }: Props) {
+  const handleClickOnOpenRepo = () => {
+    window.open(browserSupportedRemoteUrl, "_blank");
+  };
+
   return (
     <ConflictInfoContainer data-testid="t--conflict-info-container">
       <Callout
@@ -49,9 +53,9 @@ export default function ConflictInfo({
       <Space size={3} />
       <Row>
         <StyledButton
-          className="t--commit-button"
-          href={browserSupportedRemoteUrl}
+          data-testid="t--git-repo-button"
           kind="secondary"
+          onClick={handleClickOnOpenRepo}
         >
           {createMessage(OPEN_REPO)}
         </StyledButton>
