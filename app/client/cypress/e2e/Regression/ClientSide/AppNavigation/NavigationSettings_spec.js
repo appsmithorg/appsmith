@@ -1,5 +1,10 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
@@ -19,12 +24,12 @@ describe("Test app's navigation settings", function () {
     cy.get(appNavigationLocators.navigationSettings.showNavbar).click({
       force: true,
     });
-    _.deployMode.DeployApp(_.locators._emptyPageTxt);
+    deployMode.DeployApp(locators._emptyPageTxt);
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.go("back");
     // Wait for the app to load
-    _.agHelper.Sleep(3000);
+    agHelper.Sleep(3000);
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
     // Toggle show navbar back to on
@@ -39,15 +44,15 @@ describe("Test app's navigation settings", function () {
     ).click({
       force: true,
     });
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.get(appNavigationLocators.sidebar).should("exist");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("4. Change 'Orientation' back to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
-    _.entityExplorer.AddNewPage();
+    entityExplorer.AddNewPage();
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
     cy.get(
@@ -60,10 +65,10 @@ describe("Test app's navigation settings", function () {
     ).click({
       force: true,
     });
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.get(appNavigationLocators.topInline).should("exist");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 });
