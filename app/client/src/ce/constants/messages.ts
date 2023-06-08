@@ -1184,6 +1184,10 @@ export const SAML_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred SAML2 compliant provider.";
 export const OIDC_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred OIDC compliant provider.";
+export const SAVE_BUTTON = () => "Save";
+export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
+export const RESET_BUTTON = () => "Reset";
+export const BUSINESS_TAG = () => "Business";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
@@ -1657,6 +1661,8 @@ export const DATASOURCE_SCHEMA_NOT_AVAILABLE = () => "Schema is not available";
 export const DATASOURCE_INTERCOM_TEXT = () =>
   "Do you need help setting up a Google Sheets datasource?";
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask For Support";
+export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
+  "Select Google Sheets to Query";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
