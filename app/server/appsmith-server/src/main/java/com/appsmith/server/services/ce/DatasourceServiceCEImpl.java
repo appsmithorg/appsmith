@@ -224,7 +224,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<Datasource> updateDatasource(String id, Datasource datasource,
                                              String activeEnvironmentId,
                                              Boolean isUserRefreshedUpdate) {
-        if (id == null) {
+        if (!hasText(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
