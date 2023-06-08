@@ -64,6 +64,8 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
@@ -257,7 +259,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 })
                 .flatMap(savedDatasource -> {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
-                    Boolean userInvokedUpdate = Boolean.TRUE.equals(isUserRefreshedUpdate) ? Boolean.TRUE: Boolean.FALSE;
+                    Boolean userInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE: FALSE;
                     analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, userInvokedUpdate);
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
                 });
@@ -276,23 +278,34 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         if (!hasText(environmentId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT_ID));
+            //ideally the error would be thrown, but we would only throw error when complete client side changes
+            // have been done for multiple-environments. For now this call will go through
+            log.debug("environmentId not found while updating datasource storage with datasourceId : {}", datasourceId);
         }
 
         // querying for each of the datasource
-        Mono<Datasource> datasourceMono = findById(datasourceId, datasourcePermission.getEditPermission())
+        Mono<Datasource> datasourceMonoCached = findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
-        return datasourceMono
-                .flatMap(datasource -> {
-                            datasource.getDatasourceStorages().put(environmentId, datasourceStorageDTO);
-                            return datasourceStorageService.updateByDatasourceAndEnvironmentId(datasource, environmentId, Boolean.TRUE)
-                                    .map(DatasourceStorageDTO::new)
-                                    .map(datasourceStorageDTO1 -> {
-                                        String envId = datasourceStorageDTO1.getEnvironmentId();
-                                        datasource.getDatasourceStorages().put(envId, datasourceStorageDTO1);
-                                        return datasource;
-                                    });
+        Mono<String> trueEnvironmentIdMono = datasourceMonoCached
+                .flatMap(datasource -> getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId));
+
+        return datasourceMonoCached
+                .zipWith(trueEnvironmentIdMono)
+                .flatMap(tuple2 ->  {
+                    Datasource dbDatasource = tuple2.getT1();
+                    String trueEnvironmentId = tuple2.getT2();
+
+                    datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
+                    DatasourceStorage datasourceStorage =  new DatasourceStorage(datasourceStorageDTO);
+                    datasourceStorage.prepareTransientFields(dbDatasource);
+
+                    return datasourceStorageService.updateDatasourceStorage(datasourceStorage, activeEnvironmentId, Boolean.TRUE)
+                            .map(DatasourceStorageDTO::new)
+                            .map(datasourceStorageDTO1 -> {
+                                dbDatasource.getDatasourceStorages().put(trueEnvironmentId, datasourceStorageDTO1);
+                                return dbDatasource;
+                            });
                 });
     }
 
