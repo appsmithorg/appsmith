@@ -608,13 +608,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
+                                authenticationResponse.setRefreshToken(integrationDTO.getAuthenticationResponse().getRefreshToken());
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                // We return the same object instead of the update value because the updates value
-                                // will be in the encrypted form
+
                                 return datasourceStorageService
                                         .save(datasourceStorage)
-                                        .thenReturn(datasourceStorage);
+                                        .flatMap(ignore -> datasourceService.findByIdWithStorages(datasourceStorage.getDatasourceId())
+                                                .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, datasourceStorage.getEnvironmentId())));
                             });
                 })
                 .switchIfEmpty(Mono.just(datasourceStorage))
