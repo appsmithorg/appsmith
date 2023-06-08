@@ -39,21 +39,11 @@ public class Migration110UnsetEncryptionVersion2Fields {
 
     private static final String AUTHENTICATION_QUALIFIED_NAME =  DATASOURCE_CONFIGURATION_FIELD_NAME + DELIMITER + AUTHENTICATION_FIELD_NAME;
     private static final String AUTHENTICATION_RESPONSE_QUALIFIED_NAME =  AUTHENTICATION_QUALIFIED_NAME + DELIMITER + fieldName(QAuthenticationDTO.authenticationDTO.authenticationResponse);
-
-    // "datasourceConfiguration.authentication.password"
-    // "datasourceConfiguration.authentication.clientSecret"
-    // "datasourceConfiguration.authentication.authenticationResponse.token"
-    // "datasourceConfiguration.authentication.authenticationResponse.refreshToken"
-    // "datasourceConfiguration.authentication.authenticationResponse.tokenResponse"
     private static final String PASSWORD_QUALIFIED_NAME =  AUTHENTICATION_QUALIFIED_NAME + DELIMITER + PASSWORD;
     private static final String CLIENT_SECRET_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + CLIENT_SECRET;
     private static final String TOKEN_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + TOKEN;
     private static final String REFRESH_TOKEN_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + REFRESH_TOKEN;
     private static final String TOKEN_RESPONSE_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + TOKEN_RESPONSE;
-
-
-
-    private final DatasourceStorageMigrationSolution solution = new DatasourceStorageMigrationSolution();
 
     public Migration110UnsetEncryptionVersion2Fields(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
