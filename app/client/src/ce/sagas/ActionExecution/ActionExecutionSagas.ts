@@ -128,7 +128,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
     {
       source,
       triggerPropertyName,
-      triggerKind: TriggerKind.APP_ACTION_EXECUTION,
+      triggerKind: TriggerKind.EVENT_EXECUTION,
     },
     callbackData,
     globalContext,

@@ -36,7 +36,7 @@ function saveExecutionData({
 
 function logJSExecution({ executionMetaData, jsFnFullName }: PostProcessorArg) {
   switch (executionMetaData.triggerMeta.triggerKind) {
-    case TriggerKind.APP_ACTION_EXECUTION: {
+    case TriggerKind.EVENT_EXECUTION: {
       TriggerEmitter.emit(BatchKey.process_batched_fn_invoke_log, jsFnFullName);
       break;
     }

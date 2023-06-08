@@ -27,7 +27,7 @@ export type TriggerSource = {
   actionId?: string;
 };
 export enum TriggerKind {
-  APP_ACTION_EXECUTION = "APP_ACTION_EXECUTION", // Eg. Button onClick
+  EVENT_EXECUTION = "EVENT_EXECUTION", // Eg. Button onClick
   JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION", // Executing js function from jsObject page
 }
 
