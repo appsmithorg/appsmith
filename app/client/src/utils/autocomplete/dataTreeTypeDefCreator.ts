@@ -240,7 +240,9 @@ export function addSettersToDefinitions(
     setters.forEach((setterName: string) => {
       const setterType = entityConfig.__setters?.[setterName].type;
 
-      definitions[setterName] = `fn(value:${setterType})`;
+      definitions[
+        setterName
+      ] = `fn(value:${setterType}) -> +Promise[:t=[!0.<i>.:t]]`;
     });
   }
 }
