@@ -2,6 +2,8 @@ import { getIsAutoLayout } from "selectors/editorSelectors";
 import store from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetSizeConfig } from "widgets/constants";
+import { ResponsiveBehavior } from "./constants";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export interface MinMaxSize {
   minHeight: number | string;
@@ -214,4 +216,41 @@ export function getWidgetMinMaxDimensionsInPixel(
 export function isAutoLayout() {
   const appState = store.getState();
   return !!getIsAutoLayout(appState);
+}
+
+export function hasAutoWidth(type: string): boolean {
+  if (!type) return false;
+  return ["BUTTON_WIDGET"].includes(type);
+}
+
+export function hasAutoHeight(type: string): boolean {
+  if (!type) return false;
+  return ["TEXT_WIDGET"].includes(type);
+}
+
+export function getWidgetCssWidth(
+  type: string,
+  responsiveBehavior?: ResponsiveBehavior,
+  columns?: number,
+): string | undefined {
+  if (!type) return;
+  if (responsiveBehavior !== ResponsiveBehavior.Fill) {
+    if (hasAutoWidth(type)) return "auto";
+    if (columns)
+      return `${(columns / GridDefaults.DEFAULT_GRID_COLUMNS) * 100}%`;
+  }
+  return;
+}
+
+export function getWidgetCssHeight(
+  type: string,
+  responsiveBehavior?: ResponsiveBehavior,
+  rows?: number,
+): string | undefined {
+  if (!type) return;
+  if (hasAutoHeight(type)) return "auto";
+  if (responsiveBehavior !== ResponsiveBehavior.Fill) {
+    if (rows) return `${rows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
+  }
+  return;
 }

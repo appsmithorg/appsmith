@@ -12,7 +12,7 @@ import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
  *
  * Else:
  * render children in 3 alignments: start, center and end.
- * Each alignment has following characteristcs:
+ * Each alignment has following characteristics:
  * 1. Mobile viewport:
  *   - flex-wrap: wrap.
  *   - flex-basis: auto.
@@ -20,7 +20,7 @@ import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
  *   ~ It can stretch to the full width of the viewport.
  *   ~ or collapse completely if there is no content.
  *
- * 2. Larger viewports:
+ * 2. Larger view ports:
  *  - flex-wrap: nowrap.
  *  - flex-basis: 0%.
  *  ~ This ensures that alignments share the total space equally, until possible.
