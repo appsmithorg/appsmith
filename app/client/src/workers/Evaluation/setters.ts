@@ -2,8 +2,8 @@ import {
   getEntityNameAndPropertyPath,
   isWidget,
   overrideWidgetProperties,
-} from "ce/workers/Evaluation/evaluationUtils";
-import type { EvalMetaUpdates } from "ce/workers/common/DataTreeEvaluator/types";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "./fns/utils/Messenger";

@@ -103,7 +103,7 @@ import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
-import type { EvalMetaUpdates } from "ce/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
