@@ -24,8 +24,9 @@ export function isAuthorisedFilesEmptyGsheet(
   propertyKey: string,
 ): boolean {
   const currentEnvironment = getCurrentEnvironment();
+  console.log("ondhu ", datasource);
   const scopeValue: string = (
-    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
       ?.authentication as any
   )?.scopeString;
 
@@ -35,8 +36,9 @@ export function isAuthorisedFilesEmptyGsheet(
     propertyKey,
     currentEnvironment,
   );
+  console.log("ondhu 1 ", datasource);
   const authStatus =
-    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
       ?.authentication?.authenticationStatus;
   const isAuthFailure =
     !!authStatus &&
