@@ -96,6 +96,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
         return this.findByDatasourceId(datasource.getId())
+                .map(datasourceStorage -> {
+                    datasourceStorage.prepareTransientFields(datasource);
+                    return datasourceStorage;
+                })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
     }
 
