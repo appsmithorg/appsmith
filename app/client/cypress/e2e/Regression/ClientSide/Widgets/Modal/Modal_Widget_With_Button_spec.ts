@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget with auto layout usecases", function () {
-  it("1. Add new Modal widget with other widgets and validate with Auto layout", () => {
+describe("Modal Widget with auto-layout usecases", function () {
+  it("1. Add new Modal widget with other widgets and validate with auto-layout", () => {
     _.autoLayout.ConvertToAutoLayout();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MODAL, 300, 300);
     _.agHelper.AssertElementExist(_.locators._modal);

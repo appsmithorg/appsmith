@@ -95,10 +95,10 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
   });
 
-  it("5. Test_Add Paginate with Response URL and Execute the Api", function () {
+  it("5. Test_Add Paginate with response URL and Execute the Api", function () {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    /** Create Api2 of Paginate with Response URL*/
+    /** Create Api2 of Paginate with response URL*/
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
     cy.NavigateToPaginationTab();
@@ -120,7 +120,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
-  it("6. Table-Text, Validate Server Side Pagination of Paginate with Response URL", function () {
+  it("6. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
     /**Validate Response data with Table data in Text Widget */
     _.entityExplorer.SelectEntityByName("Table1");
 
