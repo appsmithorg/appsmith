@@ -9,8 +9,9 @@ export class DarkModeTheme implements ColorModeTheme {
   private readonly seedLightness: number;
   private readonly seedChroma: number;
   private readonly seedHue: number;
-  private readonly seedIsVeryDark: boolean;
   private readonly seedIsAchromatic: boolean;
+  private readonly seedIsCold: boolean;
+  private readonly seedIsVeryDark: boolean;
 
   constructor(color: ColorTypes) {
     const {
@@ -18,6 +19,7 @@ export class DarkModeTheme implements ColorModeTheme {
       color: seedColor,
       hue,
       isAchromatic,
+      isCold,
       isVeryDark,
       lightness,
     } = new ColorsAccessor(color);
@@ -25,6 +27,7 @@ export class DarkModeTheme implements ColorModeTheme {
     this.seedLightness = lightness;
     this.seedChroma = chroma;
     this.seedHue = hue;
+    this.seedIsCold = isCold;
     this.seedIsVeryDark = isVeryDark;
     this.seedIsAchromatic = isAchromatic;
   }
@@ -87,11 +90,75 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentHover() {
-    return this.bgAccent.clone().lighten(0.06);
+    const color = this.bgAccent.clone();
+
+    if (this.seedLightness < 0.3) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.05;
+    }
+
+    if (this.seedLightness >= 0.3 && this.seedLightness < 0.45) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.04;
+    }
+
+    if (this.seedLightness >= 0.45 && this.seedLightness < 0.77) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.03;
+    }
+
+    if (
+      this.seedLightness >= 0.77 &&
+      this.seedLightness < 0.85 &&
+      !this.seedIsAchromatic &&
+      this.seedIsCold
+    ) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.04;
+      color.oklch.c = this.bgAccent.oklch.c + 0.05;
+    }
+
+    if (
+      this.seedLightness >= 0.77 &&
+      this.seedLightness < 0.85 &&
+      !this.seedIsAchromatic &&
+      !this.seedIsCold
+    ) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.06;
+      color.oklch.c = this.bgAccent.oklch.c + 0.1;
+    }
+
+    if (
+      this.seedLightness >= 0.77 &&
+      this.seedLightness < 0.85 &&
+      this.seedIsAchromatic
+    ) {
+      color.oklch.l = this.bgAccent.oklch.l + 0.04;
+    }
+
+    if (this.seedLightness >= 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.07;
+    }
+
+    return color;
   }
 
   private get bgAccentActive() {
-    return this.bgAccentHover.clone().darken(0.1);
+    const color = this.bgAccent.clone();
+
+    if (this.seedLightness < 0.4) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.02;
+    }
+
+    if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.04;
+    }
+
+    if (this.seedLightness >= 0.7 && this.seedLightness < 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.05;
+    }
+
+    if (this.seedLightness >= 0.85) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.13;
+    }
+
+    return color;
   }
 
   // used only for generating child colors, not used as a token
@@ -102,6 +169,10 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.3;
     }
 
+    if (this.seedLightness < 0.2) {
+      color.oklch.l = 0.2;
+    }
+
     if (this.seedChroma > 0.112 && !this.seedIsAchromatic) {
       color.oklch.c = 0.112;
     }
@@ -110,11 +181,19 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentSubtleHover() {
-    return this.bgAccentSubtle.clone().lighten(0.06);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgAccentSubtleActive() {
-    return this.bgAccentSubtleHover.clone().darken(0.1);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.02;
+
+    return color;
   }
 
   private get bgAssistive() {

@@ -1,6 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
-import { CONVERT_TO_AUTO_BUTTON } from "../../../src/ce/constants/messages";
 
 type FixedConversionOptions = "DESKTOP" | "MOBILE";
 

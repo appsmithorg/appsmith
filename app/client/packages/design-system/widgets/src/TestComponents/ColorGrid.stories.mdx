@@ -1,10 +1,10 @@
 import { Canvas, Meta, Story } from "@storybook/addon-docs";
-import { ColorComponent } from "./ColorComponent";
+import { ColorGrid } from "./ColorGrid";
 
-<Meta title="Design-system/widgets" component={ColorComponent} />
+<Meta title="Design-system/Testing" component={ColorGrid} />
 
 export const Template = (args, { globals: { colorMode } }) => (
-  <ColorComponent {...args} colorMode={colorMode}>
+  <ColorGrid {...args} colorMode={colorMode}>
     {(color) => (
       <>
         {color.seed}
@@ -12,12 +12,12 @@ export const Template = (args, { globals: { colorMode } }) => (
         {color.derived}
       </>
     )}
-  </ColorComponent>
+  </ColorGrid>
 );
 
 <Canvas>
   <Story
-    name="Test Color Component"
+    name="Test Colors"
     args={{
       source: "oklch",
       size: "small",
