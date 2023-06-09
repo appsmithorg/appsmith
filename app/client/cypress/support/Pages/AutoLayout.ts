@@ -15,6 +15,7 @@ export class AutoLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private propPane = ObjectsRegistry.PropertyPane;
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private locators = ObjectsRegistry.CommonLocators;
 
   _buttonWidgetSelector = getWidgetSelector(WIDGET.BUTTON);
   _buttonComponentSelector = `${getWidgetSelector(WIDGET.BUTTON)} button`;
@@ -23,9 +24,8 @@ export class AutoLayout {
     WIDGET.TEXT,
   )} .t--text-widget-container`;
   _containerWidgetSelector = getWidgetSelector(WIDGET.CONTAINER);
-  private _autoConvert = "#t--layout-conversion-cta";
-  private _convert = "button:contains('Convert layout')";
-  private _refreshApp = "button:contains('Refresh the app')";
+
+  _flexComponentClass = `*[class^="flex-container"]`;
 
   private autoConvertButton = "#t--layout-conversion-cta";
 
@@ -46,29 +46,16 @@ export class AutoLayout {
   public ConvertToAutoLayoutAndVerify(isNotNewApp = true) {
     this.VerifyIsFixedLayout();
 
-    cy.get(this.autoConvertButton).contains("Auto").click({
-      force: true,
-    });
-    cy.get(this.convertDialogButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.autoConvertButton, 0, true);
 
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    this.agHelper.GetNClick(this.convertDialogButton, 0, true);
+
+    this.agHelper.ValidateNetworkStatus("@updateApplication");
     if (isNotNewApp) {
-      cy.wait("@snapshotSuccess").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
+      this.agHelper.ValidateNetworkStatus("@snapshotSuccess", 201);
     }
 
-    cy.get(this.refreshAppDialogButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
     cy.wait(2000);
 
     this.VerifyIsAutoLayout();
@@ -79,109 +66,80 @@ export class AutoLayout {
   ) {
     this.VerifyIsAutoLayout();
 
-    cy.get(this.autoConvertButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.autoConvertButton, 0, true);
 
-    cy.xpath(this.fixedModeConversionOptionButton(fixedConversionOption)).click(
-      {
-        force: true,
-      },
+    this.agHelper.GetNClick(
+      this.fixedModeConversionOptionButton(fixedConversionOption),
+      0,
+      true,
     );
 
-    cy.get(this.convertDialogButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.convertDialogButton, 0, true);
 
     cy.get("body").then(($body) => {
       if ($body.find(this.convertAnywaysDialogButton).length) {
-        cy.get(this.convertAnywaysDialogButton).click({
-          force: true,
-        });
+        this.agHelper.GetNClick(this.convertAnywaysDialogButton, 0, true);
       }
     });
 
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait("@snapshotSuccess").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    this.agHelper.ValidateNetworkStatus("@updateApplication");
+    this.agHelper.ValidateNetworkStatus("@snapshotSuccess", 201);
 
-    cy.get(this.refreshAppDialogButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
     cy.wait(2000);
 
     this.VerifyIsFixedLayout();
   }
 
   public UseSnapshotFromBanner() {
-    cy.get(this.useSnapshotBannerButton).click({
-      force: true,
-    });
-    cy.get(this.useSnapshotDialogButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.useSnapshotBannerButton, 0, true);
+    this.agHelper.GetNClick(this.useSnapshotDialogButton, 0, true);
 
     cy.wait(2000);
 
-    cy.get(this.refreshAppDialogButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
 
     cy.wait(2000);
   }
 
   public DiscardSnapshot() {
-    cy.get(this.discardSnapshotBannerButton).click({
-      force: true,
-    });
-    cy.get(this.discardDialogButton).click({
-      force: true,
-    });
+    this.agHelper.GetNClick(this.discardSnapshotBannerButton, 0, true);
+    this.agHelper.GetNClick(this.discardDialogButton, 0, true);
   }
 
   public VerifyIsAutoLayout() {
-    cy.get(`#div-selection-0`).click({
-      force: true,
-    });
-    cy.get(this.autoConvertButton).should("contain", "Fixed");
+    this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
+    cy.get(this.autoConvertButton).should("contain", "fixed layout");
     cy.get(this.flexMainContainer).should("exist");
   }
 
   public VerifyIsFixedLayout() {
-    cy.get(`#div-selection-0`).click({
-      force: true,
-    });
-    cy.get(this.autoConvertButton).should("contain", "Auto");
+    this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
+    cy.get(this.autoConvertButton).should("contain", "auto-layout");
     cy.get(this.flexMainContainer).should("not.exist");
   }
 
   public VerifyCurrentWidgetIsAutolayout(widgetTypeName: string) {
-    if (widgetTypeName === "modalwidget") {
-      cy.get(`.t--modal-widget canvas`)
-        .siblings('*[class^="flex-container"]')
+    if (widgetTypeName === WIDGET.MODAL) {
+      cy.get(`${this.locators._modal} canvas`)
+        .siblings(this._flexComponentClass)
         .should("exist");
     } else {
-      cy.get(`.t--draggable-${widgetTypeName} canvas`)
-        .siblings('*[class^="flex-container"]')
+      this.agHelper.AssertExistingCheckedState;
+      cy.get(`${this.locators._widgetInCanvas(widgetTypeName)} canvas`)
+        .siblings(this._flexComponentClass)
         .should("exist");
     }
   }
 
   public VerifyCurrentWidgetIsFixedlayout(widgetTypeName: string) {
-    if (widgetTypeName === "modalwidget") {
-      cy.get(`.t--modal-widget canvas`)
-        .siblings('*[class^="flex-container"]')
+    if (widgetTypeName === WIDGET.MODAL) {
+      cy.get(`${this.locators._modal} canvas`)
+        .siblings(this._flexComponentClass)
         .should("not.exist");
     } else {
-      cy.get(`.t--draggable-${widgetTypeName} canvas`)
-        .siblings('*[class^="flex-container"]')
+      cy.get(`${this.locators._widgetInCanvas(widgetTypeName)} canvas`)
+        .siblings(this._flexComponentClass)
         .should("not.exist");
     }
   }
@@ -193,7 +151,7 @@ export class AutoLayout {
     alignment: Alignments,
   ) {
     cy.get(`${canvasWrapperSelector} canvas`)
-      .siblings('*[class^="flex-container"]')
+      .siblings(this._flexComponentClass)
       .children()
       .eq(layerIndex)
       .children()
