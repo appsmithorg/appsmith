@@ -30,6 +30,7 @@ export class DeployMode {
     eleToCheckInDeployPage: string = this.locator._backToEditor,
     toCheckFailureToast = true,
     toValidateSavedState = true,
+    addDebugFlag = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
@@ -37,7 +38,7 @@ export class DeployMode {
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
     this.assertHelper.AssertDocumentReady();
-    this.StubbingDeployPage();
+    this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     cy.get("@windowDeployStub").should("be.calledOnce");
@@ -71,12 +72,17 @@ export class DeployMode {
     });
   }
 
-  public StubbingDeployPage() {
+  public StubbingDeployPage(addDebugFlag = true) {
     cy.window({ timeout: 30000 }).then((window) => {
       cy.stub(window, "open")
         .as("windowDeployStub")
         .callsFake((url) => {
-          window.location.href = Cypress.config().baseUrl + url.substring(1);
+          const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+          window.location.href = `${updatedUrl}${
+            addDebugFlag
+              ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+              : ""
+          }`;
         });
     });
   }
