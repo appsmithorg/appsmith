@@ -22,7 +22,7 @@ describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {
       },
     );
     agHelper.AssertContains("404 hit : Api1 failed to execute");
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?", true);
     entityExplorer.SelectEntityByName("Api1", "Queries/JS");
     entityExplorer.ActionContextMenuByEntityName("Api1", "Delete");
   });

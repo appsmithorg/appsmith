@@ -856,8 +856,9 @@ export class AggregateHelper {
     }
     if (action == "Delete") {
       !jsDelete && this.AssertNetworkStatus("@deleteAction");
-      jsDelete && this.AssertNetworkStatus("@deleteJSCollection");
-      jsDelete && this.AssertContains("deleted successfully");
+      jsDelete &&
+        this.AssertContains("deleted successfully") &&
+        this.AssertNetworkStatus("@deleteJSCollection");
     }
   }
 
