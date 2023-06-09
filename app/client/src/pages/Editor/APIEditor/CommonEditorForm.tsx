@@ -66,6 +66,7 @@ import SearchSnippets from "../../common/SearchSnippets";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { noop } from "lodash";
+import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 const Form = styled.form`
   position: relative;
@@ -554,6 +555,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (state: AppState) => state.entities.actions.map((action) => action.config),
     equal,
   );
+
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -571,6 +573,20 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, pluginId ?? ""),
   );
+
+  // this gets the url of the current action's datasource
+  const actionDatasourceUrl =
+    currentActionConfig?.datasource?.datasourceConfiguration?.url || "";
+  // this gets the name of the current action's datasource
+  const actionDatasourceName = currentActionConfig?.datasource.name || "";
+
+  // if the url is empty and the action's datasource name is the default datasource name (this means the api does not have a datasource attached)
+  // or the user does not have permission,
+  // we block action execution.
+  const blockExecution =
+    (!actionDatasourceUrl &&
+      actionDatasourceName === DEFAULT_DATASOURCE_NAME) ||
+    !isExecutePermitted;
 
   // Debugger render flag
   const showDebugger = useSelector(showDebuggerFlag);
@@ -621,7 +637,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
-                isDisabled={!isExecutePermitted}
+                isDisabled={blockExecution}
                 isLoading={isRunning}
                 onClick={() => {
                   onRunClick();

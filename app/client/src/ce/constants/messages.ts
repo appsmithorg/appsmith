@@ -874,8 +874,8 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 export const DISCARD_CHANGES_WARNING = () =>
-  "Discarding these changes will pull previous changes from Git.";
-export const DISCARD_CHANGES = () => "Discard changes";
+  "This action will replace your local changes with the latest remote version.";
+export const DISCARD_CHANGES = () => "Discard & pull";
 
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
@@ -891,6 +891,8 @@ export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
 export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
+export const DISCARD_MESSAGE = () =>
+  `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
 // GIT DEPLOY end
 
 // GIT CHANGE LIST begin
@@ -1187,6 +1189,7 @@ export const OIDC_AUTH_DESC = () =>
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const RESET_BUTTON = () => "Reset";
+export const BUSINESS_TAG = () => "Business";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";

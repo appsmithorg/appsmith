@@ -113,8 +113,18 @@ export class ApiPage {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
     this.EnterURL(url);
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
-    cy.get(this._apiRunBtn).should("not.be.disabled");
+    this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
+  }
+
+  AssertRunButtonDisability(disabled = false) {
+    let query = "";
+    if (disabled) {
+      query = "be.disabled";
+    } else {
+      query = "not.be.disabled";
+    }
+    cy.get(this._apiRunBtn).should(query);
   }
 
   EnterURL(url: string) {
@@ -397,7 +407,7 @@ export class ApiPage {
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
-    cy.get(this._apiRunBtn).should("not.be.disabled");
+    this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }
 

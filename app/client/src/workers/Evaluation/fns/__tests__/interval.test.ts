@@ -76,6 +76,8 @@ describe("Tests for interval functions", () => {
 
   // skipping this test as its flaky,
   // check https://theappsmith.slack.com/archives/CPG2ZTXEY/p1681368791500909 for more details
+  // TODO https://github.com/appsmithorg/appsmith/issues/24177
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("Callback should have access to outer scope variables", async () => {
     const stalker = jest.fn();
     function test() {

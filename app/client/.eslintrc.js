@@ -36,7 +36,13 @@ const eslintConfig = {
             allowTypeImports: true,
           },
         ],
-        patterns: [...(baseNoRestrictedImports.patterns ?? [])],
+        patterns: [
+          ...(baseNoRestrictedImports.patterns ?? []),
+          {
+            group: ["**/ce/*"],
+            message: "Reason: Please use @appsmith import instead.",
+          },
+        ],
       },
     ],
     // Annoyingly, the `no-restricted-imports` rule doesn’t allow to restrict imports of
@@ -71,17 +77,11 @@ eslintConfig.overrides = [
     },
   },
   {
-    files: ["**/*.test.js", "*.test.ts", "*.test.tsx"],
+    files: ["**/ee/**/*"],
     rules: {
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector:
-            'CallExpression[callee.object.name="it"][callee.property.name="only"], CallExpression[callee.object.name="describe"][callee.property.name="only"]',
-          message:
-            "Reason: Dangling *.only tests skip other tests in the file and reduce test coverage.",
-        },
-      ],
+      ...eslintConfig.rules,
+      "@typescript-eslint/no-restricted-imports":
+        getRestrictedImportsOverrideForEE(eslintConfig),
     },
   },
 ];
@@ -119,6 +119,21 @@ function getRestrictedSyntaxOverrideForCodeEditor(eslintConfig) {
   }
 
   return [errorLevel, ...newRules];
+}
+
+function getRestrictedImportsOverrideForEE(eslintConfig) {
+  const [errorLevel, existingRules] =
+    eslintConfig.rules["@typescript-eslint/no-restricted-imports"];
+
+  const newPatterns = (existingRules.patterns ?? []).filter(
+    (i) => i.group[0] !== "**/ce/*",
+  );
+
+  if (newPatterns.length === 0) {
+    return ["off"];
+  }
+
+  return [errorLevel, { paths: existingRules.paths, patterns: newPatterns }];
 }
 
 module.exports = eslintConfig;
