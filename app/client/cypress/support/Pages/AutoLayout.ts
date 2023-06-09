@@ -183,6 +183,7 @@ export class AutoLayout {
           this.agHelper.GetNClick(this._autoConvert);
           this.agHelper.GetNClick(this._convert);
           this.agHelper.GetNClick(this._refreshApp);
+          this.agHelper.AssertNetworkStatus("@getWorkspace"); //getWorkspace for Edit page!
         }
       });
   }
