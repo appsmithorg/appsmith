@@ -1,10 +1,16 @@
 import React from "react";
-import _, { merge } from "lodash";
+import _, { isEqual, omit } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
-import { getFormValues, isDirty, reduxForm } from "redux-form";
+import {
+  getFormValues,
+  isDirty,
+  reduxForm,
+  initialize,
+  getFormInitialValues,
+} from "redux-form";
 import type { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -62,7 +68,6 @@ import {
 import { getDatasourceErrorMessage } from "./errorUtils";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
-import { getConfigInitialValues } from "components/formControls/utils";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { DSFormHeader } from "../DataSourceEditor/DSFormHeader";
 import Debugger, {
@@ -112,6 +117,7 @@ interface DatasourceFormFunctions {
   setDatasourceViewMode: (viewMode: boolean) => void;
   loadFilePickerAction: () => void;
   datasourceDiscardAction: (pluginId: string) => void;
+  initializeDatasource: (values: any) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -223,6 +229,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     const pluginId = urlObject?.searchParams?.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
 
+    // if the datasource configurations (except the name) has changed, we reinitialize the form.
+    // this is to allow for cases when the datasource has been authorized
+    if (
+      !isEqual(
+        omit(this.props.datasource, "name"),
+        omit(prevProps.datasource, "name"),
+      )
+    ) {
+      this.props.initializeDatasource(omit(this.props.datasource, "name"));
+    }
+
     if (
       prevProps.viewMode !== this.props.viewMode &&
       !this.props.viewMode &&
@@ -252,6 +269,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   componentDidMount() {
     const urlObject = new URL(window?.location?.href);
     const pluginId = urlObject?.searchParams?.get("pluginId");
+
+    // if there are no initial values, it means the form has not been initialized, hence we initialize the form.
+    if (!this.props.initialValues) {
+      this.props.initializeDatasource(omit(this.props.datasource, "name"));
+    }
+
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
@@ -447,7 +470,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 <ViewModeWrapper>
                   {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
                     <AuthMessage
-                      actionType="authorize"
+                      actionType={ActionType.AUTHORIZE}
                       datasource={datasource}
                       description={authErrorMessage}
                       isInViewMode
@@ -524,12 +547,9 @@ const mapStateToProps = (state: AppState, props: any) => {
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const formConfig = formConfigs[pluginId];
-  const initialValues = {};
-  if (formConfig) {
-    merge(initialValues, getConfigInitialValues(formConfig));
-  }
-
-  merge(initialValues, datasource);
+  const initialValues = getFormInitialValues(DATASOURCE_SAAS_FORM)(
+    state,
+  ) as Datasource;
 
   // get scopeValue to be shown in analytical events
   const scopeValue = getDatasourceScopeValue(
@@ -540,7 +560,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
-    formData?.pluginId,
+    pluginId,
   );
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID
@@ -639,6 +659,8 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   loadFilePickerAction: () => dispatch(loadFilePickerAction()),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
+  initializeDatasource: (values: any) =>
+    dispatch(initialize(DATASOURCE_SAAS_FORM, values)),
 });
 
 const SaaSEditor = connect(

@@ -64,6 +64,24 @@ export const handlers = {
     ...state,
     isLoading: false,
   }),
+  [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (
+    state: TenantReduxState<any>,
+    action: ReduxAction<TenantReduxState<any>>,
+  ) => ({
+    ...state,
+    ...action.payload,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      ...action.payload.tenantConfiguration,
+    },
+    isLoading: false,
+  }),
+  [ReduxActionErrorTypes.UPDATE_TENANT_CONFIG_ERROR]: (
+    state: TenantReduxState<any>,
+  ) => ({
+    ...state,
+    isLoading: false,
+  }),
 };
 
 export default createReducer(initialState, handlers);

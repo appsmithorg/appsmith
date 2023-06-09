@@ -3,27 +3,29 @@ import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
+  width: calc(100% - 10px);
+  height: 100%;
 `;
 
 const LeftSection = styled.div`
   width: calc(100% - 16px);
   display: flex;
-`;
-
-const RightSection = styled.div`
-  width: 16px;
+  align-items: center;
 `;
 
 const IconContainer = styled.div`
-  width: 28px;
+  width: 24px;
+  display: flex;
 `;
 
 const Label = styled.div`
-  width: calc(100% - 28px);
+  width: calc(100% - 40px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 type Props = {
-  label?: string;
+  label?: JSX.Element | string;
   leftIcon?: JSX.Element;
   rightIcon?: JSX.Element;
 };
@@ -37,11 +39,7 @@ export function DropdownOption(props: Props) {
         {leftIcon && <IconContainer>{leftIcon}</IconContainer>}
         <Label>{label}</Label>
       </LeftSection>
-      {rightIcon && (
-        <RightSection>
-          <IconContainer>{rightIcon}</IconContainer>
-        </RightSection>
-      )}
+      {rightIcon && <IconContainer>{rightIcon}</IconContainer>}
     </Container>
   );
 }

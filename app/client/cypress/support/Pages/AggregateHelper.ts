@@ -317,15 +317,18 @@ export class AggregateHelper {
   }
 
   public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
-    cy.wait(aliasName).then(($apiCall: any) => {
-      expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
-    });
+    // cy.wait(aliasName).then(($apiCall: any) => {
+    //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
+    // });
 
     // should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
+    cy.wait(aliasName)
+      .its("response.body.responseMeta.status")
+      .should("eq", expectedStatus);
 
     //To improve below:
     // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
@@ -459,6 +462,14 @@ export class AggregateHelper {
 
   public PressDelete() {
     cy.get("body").type(`{del}`, { force: true });
+  }
+
+  public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
+    cy.get(parentWidget).type(this.isMac ? "{meta}A" : "{ctrl}A");
+  }
+
+  public SetCanvasViewportWidth(width: number) {
+    cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
   }
 
   public ClickOutside() {
@@ -1196,6 +1207,18 @@ export class AggregateHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
+  GetWidgetWidth(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("width");
+  }
+
+  GetWidgetHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("height");
+  }
+
+  GetWidgetByName(widgetName: string) {
+    return this.GetElement(this.locator._widgetByName(widgetName));
+  }
+
   public EnableAllEditors() {
     this.Sleep(2000);
     cy.get("body").then(($body: any) => {
@@ -1230,8 +1253,14 @@ export class AggregateHelper {
   // with the same name.
   public EnableAllCodeEditors() {
     cy.get(this.lazyCodeEditorFallback, { timeout: 60000 }).should("not.exist");
-    cy.get(this.lazyCodeEditorRendered).each(($el) => {
-      cy.wrap($el).find(".CodeMirror").should("exist");
+    // Code editors might not always be present on the page, so we need to check for their existence first
+    // (https://docs.cypress.io/guides/core-concepts/conditional-testing#Element-existence)
+    cy.get("body").then(($body) => {
+      if ($body.find(this.lazyCodeEditorRendered).length === 0) return;
+
+      return cy.get(this.lazyCodeEditorRendered).each(($el) => {
+        cy.wrap($el).find(".CodeMirror").should("exist");
+      });
     });
   }
 
@@ -1245,6 +1274,10 @@ export class AggregateHelper {
         "_blank",
       );
     });
+  }
+
+  public visitURL(url: string) {
+    cy.visit(url);
   }
 
   //Not used:

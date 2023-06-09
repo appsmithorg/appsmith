@@ -4,7 +4,7 @@ import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import type CodeEditor from "components/editorComponents/CodeEditor";
 import CodeEditorFallback from "./CodeEditorFallback";
-import { CODE_EDITOR_LOADING_ERROR } from "ce/constants/messages";
+import { CODE_EDITOR_LOADING_ERROR } from "@appsmith/constants/messages";
 import assertNever from "assert-never/index";
 import log from "loglevel";
 import { toast } from "design-system";

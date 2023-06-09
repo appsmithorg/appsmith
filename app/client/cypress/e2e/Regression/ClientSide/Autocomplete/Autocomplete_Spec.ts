@@ -3,6 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Autocomplete bug fixes", function () {
   it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
+    _.table.AddSampleTableData();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 200, 600);
     _.entityExplorer.SelectEntityByName("Text1");
     _.propPane.TypeTextIntoField("Text", "{{Table1.");

@@ -390,8 +390,11 @@ function* switchBranch(action: ReduxAction<string>) {
         );
       }
     }
+
+    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS });
   } catch (e) {
     // non api error
+    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_ERROR });
     if (!response || response?.responseMeta?.success) {
       throw e;
     }
@@ -927,7 +930,8 @@ function* discardChanges() {
   let response: ApiResponse<GitDiscardResponse>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
-    response = yield GitSyncAPI.discardChanges(appId);
+    const doPull = true;
+    response = yield GitSyncAPI.discardChanges(appId, doPull);
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,

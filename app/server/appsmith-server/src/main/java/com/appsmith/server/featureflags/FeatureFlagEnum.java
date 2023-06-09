@@ -26,7 +26,6 @@ public enum FeatureFlagEnum {
     DATASOURCE_ENVIRONMENTS,
     MULTIPLE_PANES,
     AUTO_LAYOUT,
-    ONE_CLICK_BINDING,
     APP_NAVIGATION_LOGO_UPLOAD,
 
     // Add EE flags below this line, to avoid conflicts.

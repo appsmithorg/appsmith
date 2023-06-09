@@ -3,7 +3,7 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
-} from "ce/constants/forms";
+} from "@appsmith/constants/forms";
 import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
@@ -105,7 +105,7 @@ export function isDatasourceAuthorizedForQueryCreation(
  * @param pluginPackageName string
  * @returns boolean
  */
-export function isGoogleSheetPluginDS(pluginPackageName: string) {
+export function isGoogleSheetPluginDS(pluginPackageName?: string) {
   return pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 }
 
