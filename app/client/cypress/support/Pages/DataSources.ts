@@ -391,6 +391,7 @@ export class DataSources {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
     });
+    this.agHelper.RemoveTooltip("Add a new datasource");
 
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")

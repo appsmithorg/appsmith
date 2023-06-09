@@ -257,6 +257,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.wait("@postLogout");
 
   cy.visit("/user/signup");
+  cy.wait(4000); //for sign up page to open fully
   cy.wait("@signUp").its("response.body.responseMeta.status").should("eq", 200);
   cy.get(signupPage.username).should("be.visible");
   cy.get(signupPage.username).type(uname);

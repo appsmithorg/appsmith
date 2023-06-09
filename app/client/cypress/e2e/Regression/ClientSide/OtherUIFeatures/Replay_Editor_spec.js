@@ -4,14 +4,19 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  jsEditor,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   let postgresDatasourceName;
 
   it("1. Checks undo/redo in datasource forms", () => {
-    _.dataSources.NavigateToDSCreateNew();
+    dataSources.NavigateToDSCreateNew();
     cy.get(datasource.PostgreSQL).click({ force: true });
     cy.generateUUID().then((uid) => {
       postgresDatasourceName = uid;
@@ -43,7 +48,7 @@ describe("Undo/Redo functionality", function () {
       });
       cy.get(datasourceEditor.password).should("be.empty").wait(1000);
       cy.get(datasourceEditor.saveBtn).click({ force: true });
-      _.dataSources.AssertDSActive(postgresDatasourceName);
+      dataSources.AssertDSActive(postgresDatasourceName);
     });
   });
 
@@ -56,6 +61,8 @@ describe("Undo/Redo functionality", function () {
       "https://mock-api.appsmith.com/users", //testing placeholder!
     );
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    agHelper.RemoveTooltip("Add a new query/JS Object");
+
     cy.get(`${apiwidget.headerKey}`).type("Authorization");
     cy.get("body").click(0, 0);
     cy.get(apiwidget.settings).click({ force: true });
@@ -89,7 +96,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("3. Checks undo/redo in query editor", () => {
-    _.dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
+    dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea").first().focus().type("{{FirstAPI}}", {
       force: true,
@@ -130,7 +137,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("4. Checks undo/redo in JS Objects", () => {
-    _.jsEditor.NavigateToNewJSEditor();
+    jsEditor.NavigateToNewJSEditor();
     cy.wait(1000);
     cy.get(".CodeMirror textarea")
       .first()
