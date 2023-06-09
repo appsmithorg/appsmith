@@ -256,7 +256,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("9. shows fields appropriately for JS object functions with/without arguments", () => {
+  it("9. shows fields appropriately for JS Object functions with/without arguments", () => {
     const JS_OBJECT_BODY = `export default {
       funcWithoutArgsSync: () => {
         console.log("hi");
@@ -377,7 +377,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("10. shows fields appropriately for JS object functions with/without arguments and then/catch blocks", () => {
+  it("10. shows fields appropriately for JS Object functions with/without arguments and then/catch blocks", () => {
     const JS_OBJECT_BODY = `export default {
       promiseFuncNoArgs: () => {
         return new Promise((resolve) => {

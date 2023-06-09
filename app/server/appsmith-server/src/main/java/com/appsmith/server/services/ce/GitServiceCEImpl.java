@@ -83,7 +83,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2190,7 +2189,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull) {
+    public Mono<Application> discardChanges(String defaultApplicationId, String branchName) {
 
         if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
@@ -2201,42 +2200,37 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<Application> defaultApplicationMono = this.getApplicationById(defaultApplicationId);
 
         Mono<Application> discardChangeMono;
-        if (Boolean.TRUE.equals(doPull)) {
-            discardChangeMono = defaultApplicationMono
-                    // Add file lock before proceeding with the git operation
-                    .flatMap(application -> addFileLock(defaultApplicationId).thenReturn(application))
-                    .flatMap(defaultApplication -> this.pullAndRehydrateApplication(defaultApplication, branchName))
-                    .map(GitPullDTO::getApplication)
-                    .flatMap(application -> releaseFileLock(defaultApplicationId)
-                                .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
-                    .map(responseUtils::updateApplicationWithDefaultResources);
-        } else {
-            // Rehydrate the application from local file system
-            discardChangeMono = branchedApplicationMono
-                    // Add file lock before proceeding with the git operation
-                    .flatMap(application -> addFileLock(defaultApplicationId).thenReturn(application))
-                    .flatMap(branchedApplication -> {
-                        GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
-                        if (gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
-                        }
-                        Path repoSuffix = Paths.get(branchedApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                        return gitExecutor.checkoutToBranch(repoSuffix, branchName)
-                                .then(fileUtils.reconstructApplicationJsonFromGitRepo(
+
+        // Rehydrate the application from local file system
+        discardChangeMono = branchedApplicationMono
+                // Add file lock before proceeding with the git operation
+                .flatMap(application -> addFileLock(defaultApplicationId).thenReturn(application))
+                .flatMap(branchedApplication -> {
+                    GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
+                    if (gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+                    }
+                    Path repoSuffix = Paths.get(branchedApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                    return gitExecutor.rebaseBranch(repoSuffix, branchName)
+                            .flatMap(rebaseStatus -> {
+                                if (rebaseStatus.equals(Boolean.FALSE)) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "rebase branch", "Unable to rebase branch - " + branchName));
+                                }
+                                return fileUtils.reconstructApplicationJsonFromGitRepo(
                                         branchedApplication.getWorkspaceId(),
                                         branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                                         branchedApplication.getGitApplicationMetadata().getRepoName(),
-                                        branchName)
-                                )
-                                .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
-                                );
-                    })
-                    .flatMap(application -> releaseFileLock(defaultApplicationId)
-                            .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
-                    .map(responseUtils::updateApplicationWithDefaultResources);
-        }
+                                        branchName);
+                            })
+                            .flatMap(applicationJson ->
+                                    importExportApplicationService
+                                            .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
+                            );
+                })
+                .flatMap(application -> releaseFileLock(defaultApplicationId)
+                        .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
+                .map(responseUtils::updateApplicationWithDefaultResources);
+
 
         return Mono.create(sink -> discardChangeMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
