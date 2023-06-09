@@ -34,7 +34,7 @@ import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetState } from "../../BaseWidget";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
@@ -191,6 +191,17 @@ class ListWidget extends BaseWidget<
       };
 
       return obj;
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
     };
   }
 

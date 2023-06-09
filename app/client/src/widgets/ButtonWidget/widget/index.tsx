@@ -459,7 +459,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           path: "text",
           type: "string",
         },
-        setColour: {
+        setColor: {
           path: "buttonColor",
           type: "string",
         },
