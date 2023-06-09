@@ -198,7 +198,6 @@ class CodeMirrorTernService {
 
     const doc = this.findDoc(cm.getDoc());
     const lineValue = this.lineValue(doc);
-    transformBlankSpacedObjectKeyToBracketNotation(lineValue, data.completions);
 
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
@@ -227,6 +226,10 @@ class CodeMirrorTernService {
     ) {
       after = '"]';
     }
+
+    data.completions.push(
+      ...transformBlankSpacedObjectKeyToBracketNotation(lineValue),
+    );
 
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
@@ -285,6 +288,8 @@ class CodeMirrorTernService {
       }
       completions.push(codeMirrorCompletion);
     }
+
+    console.log("**", completions);
 
     const shouldComputeBestMatch =
       this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;

@@ -1,25 +1,25 @@
-import type { Completion } from "./CodemirrorTernService";
 import { isBracketOrDotNotation, isIdentifier } from "@shared/ast";
 import { getCodeFromMoustache } from "../../components/editorComponents/ActionCreator/utils";
 import { isNil } from "lodash";
 
 export const transformBlankSpacedObjectKeyToBracketNotation = (
   lineValue: string,
-  completion: Completion,
 ) => {
   const completions = [];
   const wordArray = getCodeFromMoustache(lineValue).split(" ");
   if (wordArray.length > 0) {
+    const transformedText = getTransformedText(wordArray);
     completions.push({
-      ...completion,
-      name: "bracket-notation",
-      text: getTransformedText(wordArray),
+      name: transformedText,
+      type: "OBJECT",
+      text: transformedText,
       render: (element: HTMLElement) => {
         element.setAttribute("object", "Bracket notation");
-        element.innerHTML = "bracket notation";
+        element.innerHTML = transformedText;
       },
     });
   }
+  return completions;
 };
 
 export const getTransformedText = (input: string[]) => {
