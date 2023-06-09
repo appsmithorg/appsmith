@@ -9679,6 +9679,7 @@ __metadata:
     js-regex-pl: ^1.0.1
     js-sha256: ^0.9.0
     jshint: ^2.13.4
+    json5: ^2.2.3
     klona: ^2.0.5
     libphonenumber-js: ^1.9.44
     linkedom: ^0.14.20
