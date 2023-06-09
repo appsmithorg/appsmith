@@ -393,6 +393,7 @@ class AnalyticsUtil {
   static cachedUserId: string;
   static user?: User = undefined;
   static blockTrackEvent: boolean | undefined;
+  static instanceId?: string = "";
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -486,6 +487,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
+    const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
@@ -511,6 +513,7 @@ class AnalyticsUtil {
       finalEventData = {
         ...eventData,
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
+        instanceId,
       };
     }
 
@@ -581,6 +584,10 @@ class AnalyticsUtil {
     }
 
     AnalyticsUtil.blockTrackEvent = false;
+  }
+
+  static initInstanceId(instanceId: string) {
+    AnalyticsUtil.instanceId = instanceId;
   }
 
   static getAnonymousId() {
