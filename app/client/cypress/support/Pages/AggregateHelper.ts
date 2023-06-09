@@ -79,7 +79,7 @@ export class AggregateHelper {
     reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
-    let appId: string | null = localStorage.getItem("applicationId");
+    let appId: string | null;
     cy.url().then((url) => {
       pageid = url.split("/")[5]?.split("-").pop() as string;
       cy.log(pageid + "page id");
