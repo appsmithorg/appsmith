@@ -11,11 +11,11 @@ describe("Dynamic Height Width validation", function () {
       .invoke("css", "height")
       .then((lheight) => {
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
-        _.entityExplorer.SelectEntityByName("Container1","List1");
-        _.entityExplorer.SelectEntityByName("Text1","Container1");
+        _.entityExplorer.SelectEntityByName("Container1", "List1");
+        _.entityExplorer.SelectEntityByName("Text1", "Container1");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
-        _.entityExplorer.SelectEntityByName("Text2","Container1");
+        _.entityExplorer.SelectEntityByName("Text2", "Container1");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
         cy.get(".t--widget-listwidget")

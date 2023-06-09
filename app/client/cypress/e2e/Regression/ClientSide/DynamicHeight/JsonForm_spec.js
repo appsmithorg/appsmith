@@ -6,7 +6,7 @@ describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for JsonForm", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
-    _.entityExplorer.SelectEntityByName("Jsonform1","Widgets");
+    _.entityExplorer.SelectEntityByName("Jsonform1", "Widgets");
     cy.get(".t--widget-jsonformwidget")
       .invoke("css", "height")
       .then((formheight) => {

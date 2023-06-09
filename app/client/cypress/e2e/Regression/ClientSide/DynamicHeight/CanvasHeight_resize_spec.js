@@ -15,7 +15,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
         cy.get(".t--widget-textwidget")
           .invoke("css", "height")
           .then((tnewheight) => {
-            _.entityExplorer.SelectEntityByName("Text1","Container1")
+            _.entityExplorer.SelectEntityByName("Text1", "Container1");
             cy.get(".t--widget-textwidget")
               .invoke("css", "height")
               .then((theight) => {
