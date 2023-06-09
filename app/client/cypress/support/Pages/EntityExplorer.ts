@@ -45,7 +45,7 @@ export class EntityExplorer {
     "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
   private _pageClone = ".single-select >div:contains('Clone')";
   private getPageLocator = (pageName: string) =>
-    `.t--entity-name:contains(${pageName})`;
+    `.t--entity.page:contains('${pageName}')`;
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
   _createNewPopup = ".bp3-overlay-content";
@@ -363,9 +363,6 @@ export class EntityExplorer {
   }
 
   public VerifyIsCurrentPage(pageName: string) {
-    cy.get(`.t--entity.page:contains('${pageName}')`).should(
-      "have.class",
-      "activePage",
-    );
+    cy.get(this.getPageLocator(pageName)).should("have.class", "activePage");
   }
 }
