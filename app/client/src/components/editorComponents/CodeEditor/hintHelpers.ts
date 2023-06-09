@@ -12,7 +12,7 @@ import {
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
-import { renderHint } from "./customSQLHint";
+import { getHintDetailsFromClassName } from "./utils/sqlHint";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
@@ -76,8 +76,8 @@ class SqlHintHelper {
   constructor() {
     this.hinter = this.hinter.bind(this);
     this.setDatasourceTableKeys = this.setDatasourceTableKeys.bind(this);
-    this.addCustomRendererToCompletions =
-      this.addCustomRendererToCompletions.bind(this);
+    this.addCustomAttributesToCompletions =
+      this.addCustomAttributesToCompletions.bind(this);
     this.generateTables = this.generateTables.bind(this);
   }
 
@@ -95,10 +95,15 @@ class SqlHintHelper {
         if (!showHints) return false;
         editor.showHint({
           hint: () => {
+            editor.on("mousedown", () => {
+              // @ts-expect-error: Types are not available
+              editor.closeHint();
+            });
             return completions;
           },
           completeSingle: false,
           alignWithWord: false,
+          closeOnUnfocus: true,
           extraKeys: {
             Tab: (editor: CodeMirror.Editor, handle) => {
               handle.pick();
@@ -125,11 +130,19 @@ class SqlHintHelper {
     return editorMode?.name === EditorModes.SQL;
   }
 
-  addCustomRendererToCompletions(completions: Hints): Hints {
+  addCustomAttributesToCompletions(completions: Hints): Hints {
     completions.list = completions.list.map((completion) => {
       if (isString(completion)) return completion;
-      completion.render = (LiElement, data, currentHint) => {
-        renderHint(LiElement, currentHint.text, currentHint.className);
+      completion.render = (LiElement, _data, { className, text }) => {
+        const { hintType, iconBgType, iconText } = getHintDetailsFromClassName(
+          text,
+          className,
+        );
+        LiElement.setAttribute("hinttype", hintType);
+        LiElement.setAttribute("icontext", iconText);
+        LiElement.classList.add("cm-sql-hint");
+        LiElement.classList.add(`cm-sql-hint-${iconBgType}`);
+        LiElement.innerHTML = text;
       };
       return completion;
     });
@@ -145,7 +158,7 @@ class SqlHintHelper {
     });
     if (isEmpty(completions.list)) return noHints;
     return {
-      completions: this.addCustomRendererToCompletions(completions),
+      completions: this.addCustomAttributesToCompletions(completions),
       showHints: true,
     };
   }

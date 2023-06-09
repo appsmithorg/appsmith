@@ -2211,13 +2211,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
                     Path repoSuffix = Paths.get(branchedApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return gitExecutor.checkoutToBranch(repoSuffix, branchName)
-                            .then(fileUtils.reconstructApplicationJsonFromGitRepo(
-                                    branchedApplication.getWorkspaceId(),
-                                    branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
-                                    branchedApplication.getGitApplicationMetadata().getRepoName(),
-                                    branchName)
-                            )
+                    return gitExecutor.rebaseBranch(repoSuffix, branchName)
+                            .flatMap(rebaseStatus -> {
+                                if (rebaseStatus.equals(Boolean.FALSE)) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "rebase branch", "Unable to rebase branch - " + branchName));
+                                }
+                                return fileUtils.reconstructApplicationJsonFromGitRepo(
+                                        branchedApplication.getWorkspaceId(),
+                                        branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                        branchedApplication.getGitApplicationMetadata().getRepoName(),
+                                        branchName);
+                            })
                             .flatMap(applicationJson ->
                                     importExportApplicationService
                                             .importApplicationInWorkspace(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)

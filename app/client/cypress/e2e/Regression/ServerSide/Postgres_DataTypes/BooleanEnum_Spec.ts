@@ -213,7 +213,7 @@ describe("Boolean & Enum Datatype tests", function () {
   });
 
   after(
-    "Verify Deletion of the datasource after all created queries are Deleted",
+    "Verify Deletion of the datasource after all created queries are deleted",
     () => {
       //Drop table:
 

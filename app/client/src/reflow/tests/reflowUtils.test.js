@@ -340,6 +340,21 @@ describe("Test reflow util methods", () => {
         Y: 40,
       });
     });
+
+    it("should return 0 0, when empty object is passed", () => {
+      expect(getDelta({}, newPositions, ReflowDirection.TOPLEFT)).toEqual({
+        X: 0,
+        Y: 0,
+      });
+      expect(getDelta(OGPositions, {}, ReflowDirection.TOPRIGHT)).toEqual({
+        X: 0,
+        Y: 0,
+      });
+      expect(getDelta({}, {}, ReflowDirection.TOPRIGHT)).toEqual({
+        X: 0,
+        Y: 0,
+      });
+    });
   });
 
   describe("Test getCollidingSpaces and getCollidingSpacesInDirection method", () => {

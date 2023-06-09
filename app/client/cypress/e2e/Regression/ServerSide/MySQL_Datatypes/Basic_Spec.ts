@@ -116,7 +116,7 @@ describe("MySQL Datatype tests", function () {
   });
 
   after(
-    "Verify Drop of tables & Deletion of the datasource after all created queries are Deleted",
+    "Verify Drop of tables & Deletion of the datasource after all created queries are deleted",
     () => {
       _.entityExplorer.SelectEntityByName("dropTable");
       _.dataSources.RunQuery();
