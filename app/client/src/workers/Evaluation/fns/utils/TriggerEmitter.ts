@@ -147,13 +147,15 @@ TriggerEmitter.on(
   jsVariableUpdatesHandlerWrapper,
 );
 
-export const fnInvokeLogHandler = priorityBatchedActionHandler((data) => {
-  const set = new Set([...data]);
-  WorkerMessenger.ping({
-    method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
-    data: [...set],
-  });
-});
+export const fnInvokeLogHandler = priorityBatchedActionHandler<string>(
+  (data) => {
+    const set = new Set([...data]);
+    WorkerMessenger.ping({
+      method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
+      data: [...set],
+    });
+  },
+);
 
 TriggerEmitter.on(BatchKey.process_batched_fn_invoke_log, fnInvokeLogHandler);
 
