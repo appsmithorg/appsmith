@@ -476,26 +476,29 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (isModalOpen && !isTesting) {
       const id = selectedDatasourceId;
-      const pending = datasources.filter(
-        (ds: Datasource) =>
-          !ds.datasourceStorages[currentEnvironment].isConfigured,
+      const pending = datasources.filter((ds: Datasource) =>
+        ds.datasourceStorages
+          ? !ds.datasourceStorages[currentEnvironment]?.isConfigured
+          : true,
       );
       if (pending.length > 0) {
         let next: Datasource | undefined = undefined;
         if (id) {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
           if (
-            index > -1 &&
-            !datasources[index].datasourceStorages[currentEnvironment]
-              .isConfigured
+            index > -1 && datasources[index].datasourceStorages
+              ? !datasources[index].datasourceStorages[currentEnvironment]
+                  ?.isConfigured
+              : true
           ) {
             return;
           }
           next = datasources
             .slice(index + 1)
-            .find(
-              (ds: Datasource) =>
-                !ds.datasourceStorages[currentEnvironment].isConfigured,
+            .find((ds: Datasource) =>
+              ds.datasourceStorages
+                ? !ds.datasourceStorages[currentEnvironment]?.isConfigured
+                : true,
             );
         }
         next = next || pending[0];
