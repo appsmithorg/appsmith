@@ -2,8 +2,8 @@ import {
   getEntityNameAndPropertyPath,
   isWidget,
   overrideWidgetProperties,
-} from "ce/workers/Evaluation/evaluationUtils";
-import type { EvalMetaUpdates } from "ce/workers/common/DataTreeEvaluator/types";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "./fns/utils/Messenger";
@@ -52,7 +52,9 @@ class Setters {
 
     if (validationPaths) {
       const validationConfig = validationPaths[propertyPath] || {};
-      const config = { ...validationConfig, params: { strict: true } };
+      const config = { ...validationConfig };
+      config.params.strict = true;
+
       const { isValid, messages } = validate(
         config,
         value,
