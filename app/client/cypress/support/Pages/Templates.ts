@@ -10,6 +10,7 @@ export class Templates {
     _templateViewGoBack: "[data-testid='t--template-view-goback']",
     templateDialogBox: "[data-testid=t--templates-dialog-component]",
     templateDialogCloseButton: ".ads-v2-modal__content-header-close-button",
+    _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
   };
 
   FilterTemplatesByName(query: string) {
@@ -28,5 +29,9 @@ export class Templates {
       text,
       textPresence,
     );
+  }
+
+  GetTemplatesCardsList() {
+    return cy.get(this.locators._templateCard);
   }
 }

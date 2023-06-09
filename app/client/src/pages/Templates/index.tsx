@@ -148,6 +148,7 @@ type TemplatesContentProps = {
   onForkTemplateClick?: (template: Template) => void;
   stickySearchBar?: boolean;
   isForkingEnabled: boolean;
+  filterWithAllowPageImport?: boolean;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {
@@ -160,7 +161,10 @@ export function TemplatesContent(props: TemplatesContentProps) {
     dispatch(setTemplateSearchQuery(query));
   };
   const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
-  const templates = useSelector(getSearchedTemplateList);
+  const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
+  const templates = useSelector(getSearchedTemplateList).filter((template) =>
+    filterWithAllowPageImport ? !!template.allowPageImport : true,
+  );
   const filterCount = useSelector(getTemplateFiltersLength);
 
   let resultsText =
