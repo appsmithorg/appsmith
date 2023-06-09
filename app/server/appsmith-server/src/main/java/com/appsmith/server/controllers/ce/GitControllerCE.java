@@ -256,7 +256,7 @@ public class GitControllerCE {
                                                          @RequestParam(required = false, defaultValue = "true") Boolean doPull,
                                                          @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
         log.debug("Going to discard changes for branch {} with defaultApplicationId {}", branchName, defaultApplicationId);
-        return service.discardChanges(defaultApplicationId, branchName, doPull)
+        return service.discardChanges(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 

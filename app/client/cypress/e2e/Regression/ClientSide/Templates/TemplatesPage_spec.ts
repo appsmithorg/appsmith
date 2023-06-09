@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Templates page", () => {
+describe("excludeForAirgap", "Templates page", () => {
   it("1. Templates tab should have no impact of 'allowPageImport:true'", () => {
     cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
       cy.intercept(
@@ -22,7 +22,7 @@ describe("Templates page", () => {
             .should("have.length", response.body.data.length);
 
           const templatesFilteredForAllowPageImport = response.body.data.filter(
-            (card) => !!card.allowPageImport,
+            (card: any) => !!card.allowPageImport,
           );
           _.templates
             .GetTemplatesCardsList()
