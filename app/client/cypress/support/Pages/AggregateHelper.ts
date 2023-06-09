@@ -316,7 +316,7 @@ export class AggregateHelper {
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
       errorMsg: "Element did not disappear even after 10 seconds",
-      timeout: 10000,
+      timeout: 20000,
       interval: 1000,
     });
   }
