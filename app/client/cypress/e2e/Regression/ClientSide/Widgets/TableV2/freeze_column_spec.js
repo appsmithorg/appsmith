@@ -4,15 +4,15 @@ import {
   WIDGET,
 } from "../../../../../locators/WidgetLocators";
 import { TABLE_DATA_DYNAMIC } from "../../../../../support/Constants";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
+    _.table.AddSampleTableData();
     cy.dragAndDropToCanvas(WIDGET.TEXT, { x: 200, y: 600 });
     cy.openPropertyPane(WIDGET.TEXT);
     cy.updateCodeInput(
@@ -228,18 +228,20 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
 
 describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
   before(() => {
-    cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
-    cy.openPropertyPane(WIDGET.TABLE);
+    cy.startServerAndRoutes();
+    cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 400, y: 200 });
+    _.table.AddSampleTableData();
     cy.PublishtheApp();
   });
   describe("2.1 Column freeze and unfreeze testing with 0 pre-frozen columns", () => {
     beforeEach(() => {
-      agHelper.RestoreLocalStorageCache();
+      _.agHelper.RestoreLocalStorageCache();
     });
 
     afterEach(() => {
-      agHelper.SaveLocalStorageCache();
+      _.agHelper.SaveLocalStorageCache();
     });
+
     it("2.1.1 Freeze Columns left", () => {
       cy.freezeColumnFromDropdown("step", "left");
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
@@ -290,11 +292,11 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
   });
   describe("2.2 Column freeze and unfreeze testing with multiple pre-frozen columns", () => {
     beforeEach(() => {
-      agHelper.RestoreLocalStorageCache();
+      _.agHelper.RestoreLocalStorageCache();
     });
 
     afterEach(() => {
-      agHelper.SaveLocalStorageCache();
+      _.agHelper.SaveLocalStorageCache();
     });
     it("2.2.1 Freeze column left", () => {
       // Freeze additional column in editor mode
@@ -329,7 +331,7 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
     });
 
     it("2.2.4 Unfreeze columns by developers", () => {
-      agHelper.ClearLocalStorageCache();
+      _.agHelper.ClearLocalStorageCache();
       cy.reload();
       cy.wait(1000);
 
@@ -396,11 +398,17 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
       cy.checkIfColumnIsFrozenViaCSS("0", "3");
     });
   });
+
+  after(() => {
+    _.propPane.DeleteWidgetFromPropertyPane("Table1");
+  });
 });
 
 describe("3. Server-side pagination when turned on test of re-ordering columns", () => {
   before(() => {
+    cy.startServerAndRoutes();
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 500, y: 200 });
+    _.table.AddSampleTableData();
     cy.openPropertyPane(WIDGET.TABLE);
     cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_DYNAMIC);
     cy.get(commonlocators.serverSidePaginationCheckbox).click({ force: true });

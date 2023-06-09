@@ -589,4 +589,22 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         return bulkUnassignFromUserGroups(permissionGroup, userGroups)
                 .flatMap(permissionGroup1 -> sendEventUserGroupsRemovedFromRole(permissionGroup1, groupNames));
     }
+
+    /**
+     * The method will get all the roles assigned to user.
+     * Here, we have added a filter to remove the User Management roles, because it is internal
+     * to Appsmith, and should not be shown to users.
+     * @param userIds
+     * @return
+     */
+    @Override
+    public Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds) {
+        List<String> includeFields = List.of(
+                fieldName(QPermissionGroup.permissionGroup.name),
+                fieldName(QPermissionGroup.permissionGroup.policies)
+        );
+        return repository.findAllByAssignedToUserIn(userIds, Optional.of(includeFields), Optional.empty())
+                .filter(role -> ! PermissionGroupUtils.isUserManagementRole(role))
+                .map(PermissionGroup::getName);
+    }
 }

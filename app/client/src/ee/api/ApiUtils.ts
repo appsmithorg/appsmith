@@ -1,7 +1,7 @@
 import {
   getDefaultEnvironemntId,
   getEnvironmentIdByName,
-} from "@appsmith/selectors/environmentSelector";
+} from "@appsmith/selectors/environmentSelectors";
 import store from "store";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 

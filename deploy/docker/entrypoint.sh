@@ -435,7 +435,6 @@ init_postgres() {
         echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
-
       mkdir -p $POSTGRES_DB_PATH
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
@@ -449,7 +448,6 @@ init_postgres() {
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
-
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
@@ -493,6 +491,10 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
+  # The default NGINX configuration includes an IPv6 listen directive. But not all
+  # servers support it, and we don't need it. So we remove it here before starting
+  # NGINX. 
+  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default  
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
   local editor_load_page="/opt/appsmith/editor/loading.html" 

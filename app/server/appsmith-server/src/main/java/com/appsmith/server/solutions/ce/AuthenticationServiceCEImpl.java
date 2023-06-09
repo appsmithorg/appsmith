@@ -57,6 +57,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
 import static com.appsmith.external.constants.Authentication.AUDIENCE;
@@ -512,11 +513,19 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 // for specific sheets, it needs to remain in as in progress until files are selected
                                 // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
                                 // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
-                                if (oAuth2.getScope() != null && !oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
-                                    datasourceStorage
+                                Set<String> oauth2Scopes = oAuth2.getScope();
+                                if (oauth2Scopes != null) {
+                                    if (oauth2Scopes.contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                        datasourceStorage
+                                            .getDatasourceConfiguration()
+                                            .getAuthentication()
+                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS_PERMISSIONS_GRANTED);
+                                    } else {
+                                        datasourceStorage
                                             .getDatasourceConfiguration()
                                             .getAuthentication()
                                             .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+                                    }
                                 }
 
                                 Mono<String> accessTokenMono = Mono.just(accessToken);
@@ -599,13 +608,18 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
+                                // We need to set refresh token here, because refresh token API call made to google, does not return refresh token in the response
+                                // hence it was resulting in refresh token being set as null, that would break the authentication. 
+                                authenticationResponse.setRefreshToken(integrationDTO.getAuthenticationResponse().getRefreshToken());
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                // We return the same object instead of the update value because the updates value
-                                // will be in the encrypted form
+
+                                // We need to return datasourceStorage object from the database so as to get decrypted token values,
+                                // if we dont then, encrypted token values would be returned and subsequently those encrypted values would be used to call google apis
                                 return datasourceStorageService
                                         .save(datasourceStorage)
-                                        .thenReturn(datasourceStorage);
+                                        .flatMap(ignore -> datasourceService.findByIdWithStorages(datasourceStorage.getDatasourceId())
+                                                .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, datasourceStorage.getEnvironmentId())));
                             });
                 })
                 .switchIfEmpty(Mono.just(datasourceStorage))

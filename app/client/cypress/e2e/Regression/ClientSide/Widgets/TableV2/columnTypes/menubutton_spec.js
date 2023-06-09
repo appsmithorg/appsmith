@@ -1,10 +1,9 @@
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
-
-const propPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe("Custom column alias functionality", () => {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 150, y: 300 });
+    _.table.AddSampleTableData();
   });
 
   it("1. should check that menuitems background color property has access to currentRow", () => {
@@ -31,7 +30,7 @@ describe("Custom column alias functionality", () => {
     );
     cy.moveToStyleTab();
     cy.get(".t--property-control-backgroundcolor .t--js-toggle").click();
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Background color",
       "{{currentRow.step === '#1' ? '#f00' : '#0f0'}}",
     );
@@ -72,7 +71,7 @@ describe("Custom column alias functionality", () => {
       "rgb(24, 32, 38)",
     );
     cy.get(".t--property-control-textcolor .t--js-toggle").click();
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Text color",
       "{{currentRow.step === '#1' ? '#f00' : '#0f0'}}",
     );
@@ -114,7 +113,7 @@ describe("Custom column alias functionality", () => {
     );
     cy.moveToContentTab();
     cy.get(".t--property-control-disabled .t--js-toggle").click();
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Disabled",
       "{{currentRow.step === '#1'}}",
     );
@@ -147,7 +146,7 @@ describe("Custom column alias functionality", () => {
     });
     cy.get(".table-menu-button-popover li a").should("exist");
     cy.get(".t--property-control-visible .t--js-toggle").click();
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Visible",
       "{{currentRow.step === '#1'}}",
     );

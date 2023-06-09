@@ -30,8 +30,17 @@ export const APPSMITH_SINGLE_USER_PER_SESSION_SETTING: Setting = {
   name: "APPSMITH_ENABLE_SINGLE_SESSION_PER_USER",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
-  label: "User Session Limit",
+  label: "User session limit",
   text: "Limit users to a single active session",
+};
+
+export const APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING: Setting = {
+  id: "APPSMITH_SHOW_ROLES_AND_GROUPS",
+  name: "APPSMITH_SHOW_ROLES_AND_GROUPS",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "Programmatic access control",
+  text: "Access roles and user groups in code for conditional business logic",
 };
 
 const isAirgappedInstance = isAirgapped();
@@ -45,6 +54,7 @@ export const config: AdminConfigType = {
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
     APPSMITH_SINGLE_USER_PER_SESSION_SETTING,
+    APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ].filter((setting) =>
     isAirgappedInstance ? setting !== APPSMITH_DISABLE_TELEMETRY_SETTING : true,

@@ -8,7 +8,7 @@ import type {
 import { selectGPTTriggerContext } from "@appsmith/components/editorComponents/GPT/utils";
 import type { GPTTask } from "@appsmith/components/editorComponents/GPT/utils";
 import { evalWorker } from "sagas/EvaluationsSaga";
-import { EVAL_WORKER_ACTIONS } from "ce/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { GPTTriggerContext } from "@appsmith/reducers/AIReducer";
 

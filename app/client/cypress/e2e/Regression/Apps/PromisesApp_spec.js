@@ -48,6 +48,7 @@ describe("JSEditor tests", function () {
         },
       );
       _.entityExplorer.SelectEntityByName("Page1", "Pages");
+      cy.wait(2000);
       // verify text in the text widget
       cy.get(".t--draggable-textwidget span")
         .eq(5)

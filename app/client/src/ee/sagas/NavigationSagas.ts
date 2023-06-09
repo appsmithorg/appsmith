@@ -1,6 +1,6 @@
 export * from "ce/sagas/NavigationSagas";
 
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeEvery } from "redux-saga/effects";
 import { handleRouteChange } from "ce/sagas/NavigationSagas";
 
@@ -12,7 +12,7 @@ export default function* rootSaga() {
   ]);
 }
 
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { AppsmithLocationState } from "utils/history";
 import type { Location } from "history";
 import { hasNavigatedOutOfPage } from "@appsmith/pages/Editor/Explorer/helpers";

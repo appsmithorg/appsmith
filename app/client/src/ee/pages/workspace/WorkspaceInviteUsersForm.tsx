@@ -1,5 +1,6 @@
 export * from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import {
+  CustomRolesRamp,
   ErrorBox,
   ErrorTextContainer,
   MailConfigContainer,
@@ -13,6 +14,7 @@ import {
   UserName,
   UserRole,
   WorkspaceInviteWrapper,
+  WorkspaceText,
 } from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
@@ -39,6 +41,8 @@ import {
   USERS_HAVE_ACCESS_TO_ALL_APPS,
   USERS_HAVE_ACCESS_TO_ONLY_THIS_APP,
   NO_USERS_INVITED,
+  BUSINESS_EDITION_TEXT,
+  INVITE_USER_RAMP_TEXT,
 } from "@appsmith/constants/messages";
 import {
   INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
@@ -80,6 +84,7 @@ import {
   Button,
   Callout,
   Icon,
+  Link,
   Option,
   Select,
   Spinner,
@@ -88,6 +93,9 @@ import {
   toast,
 } from "design-system";
 import { importSvg } from "design-system-old";
+import { getRampLink, showProductRamps } from "utils/ProductRamps";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -174,6 +182,44 @@ const StyledUserList = styled(UserList)`
   }
 `;
 
+function InviteUserText({
+  isAppLevelInviteOnSelfHost,
+  isApplicationInvite,
+}: {
+  isApplicationInvite: boolean;
+  isAppLevelInviteOnSelfHost: boolean;
+}) {
+  let content: JSX.Element;
+
+  if (isAppLevelInviteOnSelfHost) {
+    content = <>{createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)}</>;
+  } else {
+    content = <>{createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}</>;
+  }
+
+  if (cloudHosting && showProductRamps(RAMP_NAME.INVITE_USER_TO_APP)) {
+    if (isApplicationInvite) {
+      content = (
+        <>
+          {createMessage(INVITE_USER_RAMP_TEXT)}
+          <Link kind="primary" target="_blank" to={getRampLink("app_share")}>
+            {createMessage(BUSINESS_EDITION_TEXT)}
+          </Link>
+        </>
+      );
+    }
+  }
+  return (
+    <Text
+      color="var(--ads-v2-color-fg)"
+      data-testid="helper-message"
+      kind="action-m"
+    >
+      {content}
+    </Text>
+  );
+}
+
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
@@ -227,6 +273,7 @@ function WorkspaceInviteUsersForm(props: any) {
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const instanceId = useSelector(getInstanceId);
   const groupSuggestions: any[] = useSelector(getGroupSuggestions);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
@@ -235,7 +282,8 @@ function WorkspaceInviteUsersForm(props: any) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
   const isEEFeature = (!isAclFlow && !cloudHosting) || false;
-  const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
+  const isAppLevelInviteOnSelfHost =
+    (!cloudHosting && isApplicationInvite) || false;
 
   useEffect(() => {
     setSelectedOption([]);
@@ -243,7 +291,7 @@ function WorkspaceInviteUsersForm(props: any) {
 
   useEffect(() => {
     if (!isAclFlow) {
-      if (isAppLevelInvite) {
+      if (isAppLevelInviteOnSelfHost) {
         fetchAllAppUsers(props.applicationId);
         fetchAllAppRoles(props.applicationId);
       } else {
@@ -262,7 +310,7 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchAllAppRoles,
     fetchAllAppUsers,
     props.applicationId,
-    isAppLevelInvite,
+    isAppLevelInviteOnSelfHost,
   ]);
 
   useEffect(() => {
@@ -404,8 +452,13 @@ function WorkspaceInviteUsersForm(props: any) {
                 }
               : {}),
             ...(cloudHosting ? { users: usersStr } : {}),
+            ...(isAppLevelInviteOnSelfHost
+              ? { appId: props.applicationId }
+              : {}),
             numberOfUsersInvited: usersArray.length,
             role: roles,
+            orgId: props.workspaceId,
+            instanceId,
           });
           if (onSubmitHandler) {
             return onSubmitHandler({
@@ -422,8 +475,8 @@ function WorkspaceInviteUsersForm(props: any) {
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
               users: usersStr,
               permissionGroupId: roles,
-              isApplicationInvite: isAppLevelInvite,
-              ...(isAppLevelInvite
+              isApplicationInvite: isAppLevelInviteOnSelfHost,
+              ...(isAppLevelInviteOnSelfHost
                 ? {
                     applicationId: props.applicationId,
                     roleType: selectedOption[0].value,
@@ -434,20 +487,6 @@ function WorkspaceInviteUsersForm(props: any) {
           );
         })}
       >
-        {!isAclFlow && (
-          <div className="flex gap-2 mb-2">
-            <Text
-              color="var(--ads-v2-color-fg)"
-              data-testid="helper-message"
-              kind="action-m"
-            >
-              {isAppLevelInvite
-                ? createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)
-                : createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-            </Text>
-          </div>
-        )}
-
         <StyledInviteFieldGroupEE>
           <div style={{ width: "60%" }}>
             <TagListField
@@ -502,15 +541,15 @@ function WorkspaceInviteUsersForm(props: any) {
             >
               {styledRoles.map((role: any) => (
                 <Option
-                  key={isAppLevelInvite ? role.value : role.key}
+                  key={isAppLevelInviteOnSelfHost ? role.value : role.key}
                   label={role.value}
-                  value={isAppLevelInvite ? role.value : role.key}
+                  value={isAppLevelInviteOnSelfHost ? role.value : role.key}
                 >
                   <div className="flex gap-1 items-center">
                     {isMultiSelectDropdown && (
                       <StyledCheckbox
                         isSelected={selectedOption.find((v) =>
-                          isAppLevelInvite
+                          isAppLevelInviteOnSelfHost
                             ? v.value === role.value
                             : v.key === role.key,
                         )}
@@ -533,6 +572,11 @@ function WorkspaceInviteUsersForm(props: any) {
                   </div>
                 </Option>
               ))}
+              {cloudHosting && showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                <Option disabled>
+                  <CustomRolesRamp />
+                </Option>
+              )}
             </Select>
           </div>
           <div>
@@ -547,6 +591,18 @@ function WorkspaceInviteUsersForm(props: any) {
             </Button>
           </div>
         </StyledInviteFieldGroupEE>
+
+        {!isAclFlow && (
+          <div className="flex gap-2 mt-2 items-start">
+            <Icon className="mt-1" name="user-3-line" size="md" />
+            <WorkspaceText>
+              <InviteUserText
+                isAppLevelInviteOnSelfHost={isAppLevelInviteOnSelfHost}
+                isApplicationInvite={isApplicationInvite}
+              />
+            </WorkspaceText>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="pt-4 overflow-hidden">
@@ -573,7 +629,7 @@ function WorkspaceInviteUsersForm(props: any) {
                     photoId?: string;
                   }) => {
                     const showUser =
-                      (isAppLevelInvite
+                      (isAppLevelInviteOnSelfHost
                         ? user.roles?.[0]?.entityType ===
                           ENTITY_TYPE.APPLICATION
                         : user.roles?.[0]?.entityType ===
@@ -666,13 +722,16 @@ export default connect(
       isApplicationInvite,
     }: { formName?: string; isApplicationInvite?: boolean },
   ): any => {
-    const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
+    const isAppLevelInviteOnSelfHost =
+      (!cloudHosting && isApplicationInvite) || false;
     return {
-      roles: isAppLevelInvite
+      roles: isAppLevelInviteOnSelfHost
         ? getAppRolesForField(state)
         : getRolesForField(state),
-      allUsers: isAppLevelInvite ? getAllAppUsers(state) : getAllUsers(state),
-      isLoading: isAppLevelInvite
+      allUsers: isAppLevelInviteOnSelfHost
+        ? getAllAppUsers(state)
+        : getAllUsers(state),
+      isLoading: isAppLevelInviteOnSelfHost
         ? state.ui.applications.loadingStates.isFetchAllUsers
         : state.ui.workspaces.loadingStates.isFetchAllUsers,
       form: formName || INVITE_USERS_TO_WORKSPACE_FORM,

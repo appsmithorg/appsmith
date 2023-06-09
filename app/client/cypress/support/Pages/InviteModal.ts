@@ -87,12 +87,7 @@ export class InviteModal {
     this.SelectEmbedTab();
     this.embedSettings.ToggleShowNavigationBar(toShowNavBar);
     cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
-    if (toShowNavBar === "true") {
-      this.agHelper.AssertElementExist(this.commonLocators._backToEditor);
-      this.deployPage.NavigateBacktoEditor();
-    } else {
-      this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
-      cy.go("back");
-    }
+    this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
+    cy.go("back");
   }
 }

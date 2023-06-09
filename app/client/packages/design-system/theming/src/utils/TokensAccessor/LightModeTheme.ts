@@ -287,13 +287,13 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (this.bg.contrastAPCA(this.seedColor) <= 25) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.15;
+        color.oklch.l = 0.3;
         color.oklch.c = 0;
         return color;
       }
 
-      color.oklch.l = 0.15;
-      color.oklch.c = 0.064;
+      color.oklch.l = 0.55;
+      color.oklch.c = 0.25;
       return color;
     }
 

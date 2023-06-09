@@ -14,10 +14,11 @@ describe("In-app embed settings", () => {
     restMethods.forEach((method) => {
       cy.get(locator).should("not.contain", `ssoTrigger=${method}`);
     });
+    cy.get(locator).should("contain", `embed=true`);
     if (showNavBar) {
-      cy.get(locator).should("not.contain", `embed=true`);
+      cy.get(locator).should("contain", `navbar=true`);
     } else {
-      cy.get(locator).should("contain", `embed=true`);
+      cy.get(locator).should("not.contain", `navbar=true`);
     }
     if (isInviteModal) {
       cy.get(_.inviteModal.locators._previewEmbed)
