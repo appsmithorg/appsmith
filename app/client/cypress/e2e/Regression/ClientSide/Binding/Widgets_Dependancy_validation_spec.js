@@ -2,7 +2,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Binding the multiple input Widget", function () {
   before(() => {
@@ -16,7 +17,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("1. Cyclic depedancy error message validation", function () {
-    _.entityExplorer.SelectEntityByName("Input1");
+    entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
@@ -28,7 +29,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("2. Binding input widget1 and validating", function () {
-    _.entityExplorer.SelectEntityByName("Input1");
+    entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultdata);
 
     cy.wait("@updateLayout").should(

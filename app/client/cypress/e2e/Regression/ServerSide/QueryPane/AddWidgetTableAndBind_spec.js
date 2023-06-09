@@ -4,8 +4,8 @@ const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 let datasourceName;
 
 describe("Addwidget from Query and bind with other widgets", function () {
@@ -45,7 +45,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       .then((text) => {
         const tableRowTxt = text;
         cy.get(queryEditor.suggestedTableWidget).click();
-        _.entityExplorer.SelectEntityByName("Table1");
+        entityExplorer.SelectEntityByName("Table1");
         cy.isSelectRow(1);
         cy.readTableV2dataPublish("1", "0").then((tabData) => {
           const tabValue = tabData;
@@ -57,7 +57,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
   });
 
   it("3. Input widget test with default value from table widget", () => {
-    _.entityExplorer.SelectEntityByName("Input1");
+    entityExplorer.SelectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -81,7 +81,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
   });
 
   it("5. Input widget test with default value from table widget[Bug#4136]", () => {
-    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.get(".t--property-pane-title").click({ force: true });
     cy.get(".t--property-pane-title")
       .type("TableUpdated", { delay: 300 })

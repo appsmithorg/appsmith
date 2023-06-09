@@ -1,7 +1,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 import apiPage from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   let apiData;
@@ -26,10 +27,10 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
 
   it("2. Test_Validate the Api data is updated on Table widget", function () {
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("Table1");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3");
+    entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("tabledata", "{{Api1.data}}");
 
     /**
@@ -57,11 +58,11 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3");
+    entityExplorer.SelectEntityByName("Table1");
 
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.togglebarDisable(
       ".t--property-control-clientsidesearch input[type='checkbox']",
     );

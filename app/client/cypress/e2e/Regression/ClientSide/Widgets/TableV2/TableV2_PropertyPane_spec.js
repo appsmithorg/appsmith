@@ -1,4 +1,5 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -21,9 +22,9 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
     // close Widget side bar
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Explorer");
     cy.wait(2000);
-    _.entityExplorer.SelectEntityByName("Table2");
+    entityExplorer.SelectEntityByName("Table2");
     // Verify default array data
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.deleteWidget(widgetsPage.tableWidgetV2);
@@ -37,7 +38,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
     _.table.AddSampleTableData();
     // close Widget side bar
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Explorer");
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.get(`${widgetsPage.tabedataField} .CodeMirror`)
       .first()

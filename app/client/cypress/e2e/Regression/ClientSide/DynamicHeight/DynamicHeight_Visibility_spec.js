@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/invisibleWidgetdsl.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Dynamic Height Width validation for Visibility", function () {
   before(() => {
@@ -9,11 +10,11 @@ describe("Dynamic Height Width validation for Visibility", function () {
   it("1. Validating visbility/invisiblity of widget with dynamic height feature", function () {
     //changing the Text Name and verifying
     cy.wait(3000);
-    _.entityExplorer.SelectEntityByName("Container1", "Widgets");
+    entityExplorer.SelectEntityByName("Container1", "Widgets");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
-    _.entityExplorer.SelectEntityByName("Input1", "Container1");
+    entityExplorer.SelectEntityByName("Input1", "Container1");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
-    _.entityExplorer.SelectEntityByName("Input2", "Container1");
+    entityExplorer.SelectEntityByName("Input2", "Container1");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")

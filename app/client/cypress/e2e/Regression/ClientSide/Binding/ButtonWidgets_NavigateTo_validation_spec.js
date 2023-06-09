@@ -3,7 +3,8 @@ const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function () {
   before(() => {
@@ -11,7 +12,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
   });
 
   it("1. Button widget with action navigate to page", function () {
-    _.entityExplorer.SelectEntityByName("Button1");
+    entityExplorer.SelectEntityByName("Button1");
     _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
     cy.get("label")

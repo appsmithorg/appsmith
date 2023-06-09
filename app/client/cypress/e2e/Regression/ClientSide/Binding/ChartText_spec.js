@@ -2,7 +2,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/ChartTextDsl.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Text-Chart Binding Functionality", function () {
   before(() => {
@@ -10,14 +11,14 @@ describe("Text-Chart Binding Functionality", function () {
   });
 
   it("1. Text-Chart Binding Functionality View", function () {
-    _.entityExplorer.SelectEntityByName("Text1", "Container3");
+    entityExplorer.SelectEntityByName("Text1", "Container3");
     cy.testJsontext("text", JSON.stringify(this.data.chartInputValidate));
     cy.get(commonlocators.TextInside).should(
       "have.text",
       JSON.stringify(this.data.chartInputValidate),
     );
     cy.closePropertyPane();
-    _.entityExplorer.SelectEntityByName("Chart1", "Container1");
+    entityExplorer.SelectEntityByName("Chart1", "Container1");
     cy.get(viewWidgetsPage.chartType).last().click({ force: true });
     cy.get(".t--dropdown-option").children().contains("Column chart").click();
     cy.get(".t--property-control-charttype span.rc-select-selection-item span")

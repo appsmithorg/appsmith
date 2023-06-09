@@ -3,7 +3,8 @@ const dsl = require("../../../../fixtures/tableV2TextPaginationDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPage from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
@@ -18,15 +19,15 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("2. Table-Text, Validate Server Side Pagination of Paginate with Table v2 Page No", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     /**Bind Api1 with Table widget */
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     /**Bind Table with Textwidget with selected row */
-    _.entityExplorer.SelectEntityByName("Text1");
+    entityExplorer.SelectEntityByName("Text1");
 
     cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
 
     cy.readTableV2data("0", "0").then((tabData) => {
       const tableData = tabData;
@@ -74,8 +75,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   it("4. Table-Text, Validate Server Side Pagination of Paginate with Total v2 Records Count", function () {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.get(".t--entity-name").contains("Table1").click({ force: true });
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.testJsontext("totalrecords", 20);
     cy.PublishtheApp();
     cy.wait(500);
@@ -115,14 +115,14 @@ describe("Test Create Api and Bind to Table widget", function () {
       },
     );
     cy.WaitAutoSave();
-    _.entityExplorer.ExpandCollapseEntity("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.testJsontext("tabledata", "{{Api2.data}}");
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
   it("6. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
     /**Validate Response data with Table data in Text Widget */
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     cy.ValidatePaginateResponseUrlDataV2(apiPage.apiPaginationPrevTest, false);
     cy.PublishtheApp();
@@ -134,8 +134,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.ValidatePaginateResponseUrlDataV2(apiPage.apiPaginationNextTest, true);
   });
 });

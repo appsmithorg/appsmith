@@ -3,7 +3,8 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
@@ -13,7 +14,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";
 
   it("1. Table widget V2 toggle test for text alignment", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.editColumn("id");
     cy.moveToStyleTab();
     cy.wait(500);
@@ -26,7 +27,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
   it("2. Table widget V2 change text size and validate", function () {
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
@@ -41,7 +42,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("3. Table widget toggle test for text size", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
@@ -52,7 +53,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("4. Table widget toggle test for vertical Alignment", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
@@ -67,7 +68,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("5. Table widget V2 toggle test for style Alignment", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
@@ -84,7 +85,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("6. Table widget toggle test for text color", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
@@ -98,7 +99,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("7. Table widget toggle test for background color", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();

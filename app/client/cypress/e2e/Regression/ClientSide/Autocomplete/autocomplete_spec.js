@@ -1,14 +1,15 @@
 const dsl = require("../../../../fixtures/autocomp.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
     cy.addDsl(dsl);
   });
   it("1. Opens autocomplete for bindings", () => {
-    _.entityExplorer.SelectEntityByName("Aditya");
-    _.entityExplorer.SelectEntityByName("Button2", "TestModal");
+    entityExplorer.SelectEntityByName("Aditya");
+    entityExplorer.SelectEntityByName("Button2", "TestModal");
     cy.testJsontext("label", "", {
       parseSpecialCharSequences: true,
     });

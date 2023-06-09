@@ -2,7 +2,8 @@ const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableAndChart.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Text-Table Binding Functionality", function () {
   const updateData = `[
@@ -24,7 +25,7 @@ describe("Text-Table Binding Functionality", function () {
   });
 
   it("1. Update table data and assert", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(widgetLocators.tabedataField).then(($el) => {
       cy.updateCodeInput($el, updateData);
       cy.readTabledata("1", "0").then((cellData) => {
@@ -32,7 +33,7 @@ describe("Text-Table Binding Functionality", function () {
       });
     });
     //Update chart data and assert
-    _.entityExplorer.SelectEntityByName("Chart1");
+    entityExplorer.SelectEntityByName("Chart1");
     cy.get(".t--property-control-chart-series-data-control").then(($el) => {
       cy.updateCodeInput($el, updateData);
       cy.get(viewWidgetsPage.chartWidget)

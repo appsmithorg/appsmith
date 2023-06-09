@@ -10,7 +10,7 @@ const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const propPane = ObjectsRegistry.PropertyPane;
-import * as _ from "../../../../support/Objects/ObjectsCore";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
@@ -40,7 +40,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    _.entityExplorer.SelectEntityByName("Input1");
+    entityExplorer.SelectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();

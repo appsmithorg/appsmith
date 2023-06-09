@@ -8,6 +8,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const propPane = ObjectsRegistry.PropertyPane;
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Table Widget and Navigate to functionality validation", function () {
   afterEach(() => {
@@ -28,11 +29,11 @@ describe("Table Widget and Navigate to functionality validation", function () {
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    _.entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.ExpandCollapseEntity("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
     //Table Widget Functionality with multiple page
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
-    _.entityExplorer.SelectEntityByName("Table1", "Container3");
+    entityExplorer.SelectEntityByName("Page1", "Pages");
+    entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,

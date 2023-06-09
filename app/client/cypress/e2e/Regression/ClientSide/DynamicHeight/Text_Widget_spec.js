@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/textWidgetDynamicdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Dynamic Height Width validation for text widget", function () {
   before(() => {
@@ -9,7 +10,7 @@ describe("Dynamic Height Width validation for text widget", function () {
   it("1. Text widget validation of height with dynamic height feature", function () {
     const textMsg = "Dynamic panel validation for text widget wrt height";
     //changing the Text Name and verifying
-    _.entityExplorer.SelectEntityByName("Text1", "Widgets");
+    entityExplorer.SelectEntityByName("Text1", "Widgets");
     cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
     cy.get(".t--widget-textwidget")

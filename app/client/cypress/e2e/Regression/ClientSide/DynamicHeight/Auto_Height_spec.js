@@ -3,7 +3,8 @@ const cdsl = require("../../../../fixtures/dynamicHeigthContainerFixedDsl.json")
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Dynamic Height Width validation", function () {
   afterEach(() => {
@@ -17,8 +18,8 @@ describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
-    _.entityExplorer.SelectEntityByName("Container1", "Widgets");
-    _.entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
+    entityExplorer.SelectEntityByName("Container1", "Widgets");
+    entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     cy.moveToStyleTab();
     cy.get(".t--property-control-fontsize .rc-select")
       .invoke("css", "font-size")
@@ -92,12 +93,12 @@ describe("Dynamic Height Width validation", function () {
   it("2. Validate container with auto height and child widgets with fixed height", function () {
     cy.addDsl(cdsl);
     cy.wait(3000); //for dsl to settle
-    _.entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
+    entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeight);
-    _.entityExplorer.SelectEntityByName("Input1");
+    entityExplorer.SelectEntityByName("Input1");
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
@@ -105,7 +106,7 @@ describe("Dynamic Height Width validation", function () {
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((height) => {
-        _.entityExplorer.SelectEntityByName("Container1", "Widgets");
+        entityExplorer.SelectEntityByName("Container1", "Widgets");
         cy.changeLayoutHeight(commonlocators.autoHeight);
         cy.wait(4000);
         cy.get(".t--widget-containerwidget")
