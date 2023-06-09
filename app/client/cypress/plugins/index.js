@@ -159,4 +159,7 @@ module.exports = (on, config) => {
 module.exports = (on, config) => {
   on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
+  require('@cypress/code-coverage/task')(on, config);
+  return config;
 };
+

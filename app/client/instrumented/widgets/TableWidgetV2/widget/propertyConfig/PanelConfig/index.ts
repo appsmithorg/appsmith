@@ -1,0 +1,55 @@
+function cov_zr9oyiwkq() {
+  var path = "/Users/apple/github/appsmith/app/client/src/widgets/TableWidgetV2/widget/propertyConfig/PanelConfig/index.ts";
+  var hash = "cd1cd1a68f50451c0426a409fde9d8d9a9e3d74d";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/apple/github/appsmith/app/client/src/widgets/TableWidgetV2/widget/propertyConfig/PanelConfig/index.ts",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "cd1cd1a68f50451c0426a409fde9d8d9a9e3d74d"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_zr9oyiwkq = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_zr9oyiwkq();
+import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
+import Alignment from "./Alignment";
+import Basic from "./Basic";
+import BorderAndShadow from "./BorderAndShadow";
+import Color from "./Color";
+import Data from "./Data";
+import DiscardButtonproperties, { discardButtonStyleConfig } from "./DiscardButtonproperties";
+import Events from "./Events";
+import General, { GeneralStyle } from "./General";
+import Icon from "./Icon";
+import SaveButtonProperties, { saveButtonStyleConfig } from "./SaveButtonProperties";
+import Select from "./Select";
+import TextFormatting from "./TextFormatting";
+import Validations from "./Validation";
+import DateProperties from "./DateProperties";
+export default {
+  editableTitle: true,
+  titlePropertyName: "label",
+  panelIdPropertyName: "id",
+  dependencies: ["primaryColumns", "columnOrder"],
+  contentChildren: [Data, Basic, General, Validations, SaveButtonProperties, DiscardButtonproperties, Select, Events, DateProperties],
+  styleChildren: [GeneralStyle, Icon, Alignment, TextFormatting, Color, saveButtonStyleConfig, discardButtonStyleConfig, BorderAndShadow],
+  updateHook: updateCustomColumnAliasOnLabelChange
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJjb3ZfenI5b3lpd2txIiwiYWN0dWFsQ292ZXJhZ2UiLCJ1cGRhdGVDdXN0b21Db2x1bW5BbGlhc09uTGFiZWxDaGFuZ2UiLCJBbGlnbm1lbnQiLCJCYXNpYyIsIkJvcmRlckFuZFNoYWRvdyIsIkNvbG9yIiwiRGF0YSIsIkRpc2NhcmRCdXR0b25wcm9wZXJ0aWVzIiwiZGlzY2FyZEJ1dHRvblN0eWxlQ29uZmlnIiwiRXZlbnRzIiwiR2VuZXJhbCIsIkdlbmVyYWxTdHlsZSIsIkljb24iLCJTYXZlQnV0dG9uUHJvcGVydGllcyIsInNhdmVCdXR0b25TdHlsZUNvbmZpZyIsIlNlbGVjdCIsIlRleHRGb3JtYXR0aW5nIiwiVmFsaWRhdGlvbnMiLCJEYXRlUHJvcGVydGllcyIsImVkaXRhYmxlVGl0bGUiLCJ0aXRsZVByb3BlcnR5TmFtZSIsInBhbmVsSWRQcm9wZXJ0eU5hbWUiLCJkZXBlbmRlbmNpZXMiLCJjb250ZW50Q2hpbGRyZW4iLCJzdHlsZUNoaWxkcmVuIiwidXBkYXRlSG9vayJdLCJzb3VyY2VzIjpbImluZGV4LnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IHVwZGF0ZUN1c3RvbUNvbHVtbkFsaWFzT25MYWJlbENoYW5nZSB9IGZyb20gXCIuLi8uLi9wcm9wZXJ0eVV0aWxzXCI7XG5pbXBvcnQgQWxpZ25tZW50IGZyb20gXCIuL0FsaWdubWVudFwiO1xuaW1wb3J0IEJhc2ljIGZyb20gXCIuL0Jhc2ljXCI7XG5pbXBvcnQgQm9yZGVyQW5kU2hhZG93IGZyb20gXCIuL0JvcmRlckFuZFNoYWRvd1wiO1xuaW1wb3J0IENvbG9yIGZyb20gXCIuL0NvbG9yXCI7XG5pbXBvcnQgRGF0YSBmcm9tIFwiLi9EYXRhXCI7XG5pbXBvcnQgRGlzY2FyZEJ1dHRvbnByb3BlcnRpZXMsIHtcbiAgZGlzY2FyZEJ1dHRvblN0eWxlQ29uZmlnLFxufSBmcm9tIFwiLi9EaXNjYXJkQnV0dG9ucHJvcGVydGllc1wiO1xuaW1wb3J0IEV2ZW50cyBmcm9tIFwiLi9FdmVudHNcIjtcbmltcG9ydCBHZW5lcmFsLCB7IEdlbmVyYWxTdHlsZSB9IGZyb20gXCIuL0dlbmVyYWxcIjtcbmltcG9ydCBJY29uIGZyb20gXCIuL0ljb25cIjtcbmltcG9ydCBTYXZlQnV0dG9uUHJvcGVydGllcywge1xuICBzYXZlQnV0dG9uU3R5bGVDb25maWcsXG59IGZyb20gXCIuL1NhdmVCdXR0b25Qcm9wZXJ0aWVzXCI7XG5pbXBvcnQgU2VsZWN0IGZyb20gXCIuL1NlbGVjdFwiO1xuaW1wb3J0IFRleHRGb3JtYXR0aW5nIGZyb20gXCIuL1RleHRGb3JtYXR0aW5nXCI7XG5pbXBvcnQgVmFsaWRhdGlvbnMgZnJvbSBcIi4vVmFsaWRhdGlvblwiO1xuaW1wb3J0IERhdGVQcm9wZXJ0aWVzIGZyb20gXCIuL0RhdGVQcm9wZXJ0aWVzXCI7XG5cbmV4cG9ydCBkZWZhdWx0IHtcbiAgZWRpdGFibGVUaXRsZTogdHJ1ZSxcbiAgdGl0bGVQcm9wZXJ0eU5hbWU6IFwibGFiZWxcIixcbiAgcGFuZWxJZFByb3BlcnR5TmFtZTogXCJpZFwiLFxuICBkZXBlbmRlbmNpZXM6IFtcInByaW1hcnlDb2x1bW5zXCIsIFwiY29sdW1uT3JkZXJcIl0sXG4gIGNvbnRlbnRDaGlsZHJlbjogW1xuICAgIERhdGEsXG4gICAgQmFzaWMsXG4gICAgR2VuZXJhbCxcbiAgICBWYWxpZGF0aW9ucyxcbiAgICBTYXZlQnV0dG9uUHJvcGVydGllcyxcbiAgICBEaXNjYXJkQnV0dG9ucHJvcGVydGllcyxcbiAgICBTZWxlY3QsXG4gICAgRXZlbnRzLFxuICAgIERhdGVQcm9wZXJ0aWVzLFxuICBdLFxuICBzdHlsZUNoaWxkcmVuOiBbXG4gICAgR2VuZXJhbFN0eWxlLFxuICAgIEljb24sXG4gICAgQWxpZ25tZW50LFxuICAgIFRleHRGb3JtYXR0aW5nLFxuICAgIENvbG9yLFxuICAgIHNhdmVCdXR0b25TdHlsZUNvbmZpZyxcbiAgICBkaXNjYXJkQnV0dG9uU3R5bGVDb25maWcsXG4gICAgQm9yZGVyQW5kU2hhZG93LFxuICBdLFxuICB1cGRhdGVIb29rOiB1cGRhdGVDdXN0b21Db2x1bW5BbGlhc09uTGFiZWxDaGFuZ2UsXG59O1xuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0lBZVk7SUFBQUEsYUFBQSxZQUFBQSxDQUFBO01BQUEsT0FBQUMsY0FBQTtJQUFBO0VBQUE7RUFBQSxPQUFBQSxjQUFBO0FBQUE7QUFBQUQsYUFBQTtBQWZaLFNBQVNFLG9DQUFvQyxRQUFRLHFCQUFxQjtBQUMxRSxPQUFPQyxTQUFTLE1BQU0sYUFBYTtBQUNuQyxPQUFPQyxLQUFLLE1BQU0sU0FBUztBQUMzQixPQUFPQyxlQUFlLE1BQU0sbUJBQW1CO0FBQy9DLE9BQU9DLEtBQUssTUFBTSxTQUFTO0FBQzNCLE9BQU9DLElBQUksTUFBTSxRQUFRO0FBQ3pCLE9BQU9DLHVCQUF1QixJQUM1QkMsd0JBQXdCLFFBQ25CLDJCQUEyQjtBQUNsQyxPQUFPQyxNQUFNLE1BQU0sVUFBVTtBQUM3QixPQUFPQyxPQUFPLElBQUlDLFlBQVksUUFBUSxXQUFXO0FBQ2pELE9BQU9DLElBQUksTUFBTSxRQUFRO0FBQ3pCLE9BQU9DLG9CQUFvQixJQUN6QkMscUJBQXFCLFFBQ2hCLHdCQUF3QjtBQUMvQixPQUFPQyxNQUFNLE1BQU0sVUFBVTtBQUM3QixPQUFPQyxjQUFjLE1BQU0sa0JBQWtCO0FBQzdDLE9BQU9DLFdBQVcsTUFBTSxjQUFjO0FBQ3RDLE9BQU9DLGNBQWMsTUFBTSxrQkFBa0I7QUFFN0MsZUFBZTtFQUNiQyxhQUFhLEVBQUUsSUFBSTtFQUNuQkMsaUJBQWlCLEVBQUUsT0FBTztFQUMxQkMsbUJBQW1CLEVBQUUsSUFBSTtFQUN6QkMsWUFBWSxFQUFFLENBQUMsZ0JBQWdCLEVBQUUsYUFBYSxDQUFDO0VBQy9DQyxlQUFlLEVBQUUsQ0FDZmpCLElBQUksRUFDSkgsS0FBSyxFQUNMTyxPQUFPLEVBQ1BPLFdBQVcsRUFDWEosb0JBQW9CLEVBQ3BCTix1QkFBdUIsRUFDdkJRLE1BQU0sRUFDTk4sTUFBTSxFQUNOUyxjQUFjLENBQ2Y7RUFDRE0sYUFBYSxFQUFFLENBQ2JiLFlBQVksRUFDWkMsSUFBSSxFQUNKVixTQUFTLEVBQ1RjLGNBQWMsRUFDZFgsS0FBSyxFQUNMUyxxQkFBcUIsRUFDckJOLHdCQUF3QixFQUN4QkosZUFBZSxDQUNoQjtFQUNEcUIsVUFBVSxFQUFFeEI7QUFDZCxDQUFDIn0=

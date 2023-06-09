@@ -1,21 +1,26 @@
 {
+  "presets": ["env", "react"],
   "plugins": [
-    ["module-resolver", {
-      "root": ["./src"],
-      "alias": {
-        "utils": "./src/utils/",
-        "test/*": ["../test/*"],
-        "underscore": "lodash",
-        "constants": "./src/constants/",
-        "components": "./src/components/",
-        "selectors": "./src/selectors/",
-        "reducers": "./src/reducers/",
-        "actions":"./src/actions/",
-        "api": "./src/api/",
-        "assets": "./src/assets/",
-        "sagas": "./src/sagas/",
-        "@appsmith": "./src/ee"
+    "istanbul",
+    [
+      "module-resolver",
+      {
+        "root": ["./instrumented"],
+        "alias": {
+          "utils": "./instrumented/utils/",
+          "test/*": ["../test/*"],
+          "underscore": "lodash",
+          "constants": "./instrumented/constants/",
+          "components": "./instrumented/components/",
+          "selectors": "./instrumented/selectors/",
+          "reducers": "./instrumented/reducers/",
+          "actions": "./instrumented/actions/",
+          "api": "./instrumented/api/",
+          "assets": "./instrumented/assets/",
+          "sagas": "./instrumented/sagas/",
+          "@appsmith": "./instrumented/ee"
+        }
       }
-    }, "babel-plugin-styled-components"]
+    ]
   ]
 }

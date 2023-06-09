@@ -1,0 +1,360 @@
+import { IconNames } from "@blueprintjs/icons";
+import type { Theme } from "constants/DefaultTheme";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import type { Stylesheet } from "entities/AppTheming";
+import { omit } from "lodash";
+import moment from "moment";
+import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetFeatures } from "utils/WidgetFeatures";
+import type { WidgetProps } from "./BaseWidget";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+
+export type WidgetSizeConfig = {
+  viewportMinWidth: number;
+  configuration: (props: any) => Record<string, string | number>;
+};
+
+type ResizableValues = { vertical?: boolean; horizontal?: boolean };
+type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
+type AutoDimensionValues = { width?: boolean; height?: boolean };
+type AutoDimensionOptions =
+  | AutoDimensionValues
+  | ((props: any) => AutoDimensionValues);
+
+export type AutoLayoutConfig = {
+  // Indicates if a widgets dimensions should be auto adjusted according to content inside it
+  autoDimension?: AutoDimensionOptions;
+  // min/max sizes for the widget
+  widgetSize?: Array<WidgetSizeConfig>;
+  // Indicates if the widgets resize handles should be disabled
+  disableResizeHandles?: ResizableOptions;
+  // default values for the widget specifi to auto layout
+  defaults?: Partial<WidgetConfigProps>;
+  // default values for the properties that are hidden/disabled in auto layout
+  disabledPropsDefaults?: Partial<WidgetProps>;
+};
+
+export interface WidgetConfiguration {
+  autoLayout?: AutoLayoutConfig;
+  type: string;
+  name: string;
+  iconSVG?: string;
+  defaults: Partial<WidgetProps> & WidgetConfigProps;
+  hideCard?: boolean;
+  eagerRender?: boolean;
+  isDeprecated?: boolean;
+  replacement?: string;
+  isCanvas?: boolean;
+  needsMeta?: boolean;
+  features?: WidgetFeatures;
+  canvasHeightOffset?: (props: WidgetProps) => number;
+  searchTags?: string[];
+  needsHeightForContent?: boolean;
+  properties: {
+    config?: PropertyPaneConfig[];
+    contentConfig?: PropertyPaneConfig[];
+    styleConfig?: PropertyPaneConfig[];
+    default: Record<string, string>;
+    meta: Record<string, any>;
+    derived: DerivedPropertiesMap;
+    loadingProperties?: Array<RegExp>;
+    stylesheetConfig?: Stylesheet;
+    autocompleteDefinitions?: AutocompletionDefinitions;
+  };
+  methods?: Record<string, WidgetMethods>;
+}
+
+export type WidgetMethods =
+  | GetQueryGenerationConfig
+  | GetPropertyUpdatesForQueryBinding;
+
+type GetQueryGenerationConfig = (
+  widgetProps: WidgetProps,
+) => WidgetQueryGenerationConfig;
+
+type GetPropertyUpdatesForQueryBinding = (
+  queryConfig: WidgetQueryConfig,
+  widget: WidgetProps,
+  formConfig: WidgetQueryGenerationFormConfig,
+) => Record<string, unknown>;
+
+export const GRID_DENSITY_MIGRATION_V1 = 4;
+
+export enum BlueprintOperationTypes {
+  MODIFY_PROPS = "MODIFY_PROPS",
+  ADD_ACTION = "ADD_ACTION",
+  CHILD_OPERATIONS = "CHILD_OPERATIONS",
+  BEFORE_DROP = "BEFORE_DROP",
+  BEFORE_PASTE = "BEFORE_PASTE",
+  BEFORE_ADD = "BEFORE_ADD",
+  UPDATE_CREATE_PARAMS_BEFORE_ADD = "UPDATE_CREATE_PARAMS_BEFORE_ADD",
+}
+
+export type FlattenedWidgetProps = WidgetProps & {
+  children?: string[];
+};
+
+export interface DSLWidget extends WidgetProps {
+  children?: DSLWidget[];
+}
+
+interface LayoutProps {
+  positioning?: Positioning;
+  useAutoLayout?: boolean;
+  direction?: LayoutDirection;
+  isFlexChild?: boolean;
+  responsiveBehavior?: ResponsiveBehavior;
+}
+
+export type AutocompleteDefinitionFunction = (
+  widgetProps: WidgetProps,
+  extraDefsToDefine?: ExtraDef,
+) => Record<string, any>;
+
+export type AutocompletionDefinitions =
+  | Record<string, any>
+  | AutocompleteDefinitionFunction;
+
+const staticProps = omit(
+  WIDGET_STATIC_PROPS,
+  "children",
+  "topRowBeforeCollapse",
+  "bottomRowBeforeCollapse",
+);
+export type CanvasWidgetStructure = Pick<
+  WidgetProps,
+  keyof typeof staticProps
+> &
+  LayoutProps & {
+    children?: CanvasWidgetStructure[];
+    selected?: boolean;
+    onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
+    isListWidgetCanvas?: boolean;
+  };
+
+export enum FileDataTypes {
+  Base64 = "Base64",
+  Text = "Text",
+  Binary = "Binary",
+  Array = "Array",
+}
+
+export type AlignWidget = "LEFT" | "RIGHT";
+export enum AlignWidgetTypes {
+  LEFT = "LEFT",
+  RIGHT = "RIGHT",
+}
+
+// Minimum Rows for Widget Popups
+export const MinimumPopupRows = 12;
+
+// Default boxShadowColor used in theming migration
+export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";
+
+export const BUTTON_GROUP_CHILD_STYLESHEET = {
+  button: {
+    buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+  },
+};
+
+export const TABLE_WIDGET_CHILD_STYLESHEET = {
+  button: {
+    buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  menuButton: {
+    menuColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  iconButton: {
+    menuColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+};
+
+export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
+  ARRAY: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+    cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    cellBoxShadow: "none",
+  },
+  OBJECT: {
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+    cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    cellBoxShadow: "none",
+  },
+  CHECKBOX: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  },
+  CURRENCY_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  DATEPICKER: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  EMAIL_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  MULTISELECT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  MULTILINE_TEXT_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  NUMBER_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  PASSWORD_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  PHONE_NUMBER_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  RADIO_GROUP: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    boxShadow: "none",
+  },
+  SELECT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  SWITCH: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    boxShadow: "none",
+  },
+  TEXT_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+};
+
+export const YOUTUBE_URL_REGEX =
+  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+
+export const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
+
+export const dateFormatOptions = [
+  {
+    label: moment().format("YYYY-MM-DDTHH:mm:ss.sssZ"),
+    subText: "ISO 8601",
+    value: "YYYY-MM-DDTHH:mm:ss.sssZ",
+  },
+  {
+    label: moment().format("LLL"),
+    subText: "LLL",
+    value: "LLL",
+  },
+  {
+    label: moment().format("LL"),
+    subText: "LL",
+    value: "LL",
+  },
+  {
+    label: moment().format("YYYY-MM-DD HH:mm"),
+    subText: "YYYY-MM-DD HH:mm",
+    value: "YYYY-MM-DD HH:mm",
+  },
+  {
+    label: moment().format("YYYY-MM-DDTHH:mm:ss"),
+    subText: "YYYY-MM-DDTHH:mm:ss",
+    value: "YYYY-MM-DDTHH:mm:ss",
+  },
+  {
+    label: moment().format("YYYY-MM-DD hh:mm:ss A"),
+    subText: "YYYY-MM-DD hh:mm:ss A",
+    value: "YYYY-MM-DD hh:mm:ss A",
+  },
+  {
+    label: moment().format("DD/MM/YYYY HH:mm"),
+    subText: "DD/MM/YYYY HH:mm",
+    value: "DD/MM/YYYY HH:mm",
+  },
+  {
+    label: moment().format("D MMMM, YYYY"),
+    subText: "D MMMM, YYYY",
+    value: "D MMMM, YYYY",
+  },
+  {
+    label: moment().format("H:mm A D MMMM, YYYY"),
+    subText: "H:mm A D MMMM, YYYY",
+    value: "H:mm A D MMMM, YYYY",
+  },
+  {
+    label: moment().format("YYYY-MM-DD"),
+    subText: "YYYY-MM-DD",
+    value: "YYYY-MM-DD",
+  },
+  {
+    label: moment().format("MM-DD-YYYY"),
+    subText: "MM-DD-YYYY",
+    value: "MM-DD-YYYY",
+  },
+  {
+    label: moment().format("DD-MM-YYYY"),
+    subText: "DD-MM-YYYY",
+    value: "DD-MM-YYYY",
+  },
+  {
+    label: moment().format("MM/DD/YYYY"),
+    subText: "MM/DD/YYYY",
+    value: "MM/DD/YYYY",
+  },
+  {
+    label: moment().format("DD/MM/YYYY"),
+    subText: "DD/MM/YYYY",
+    value: "DD/MM/YYYY",
+  },
+  {
+    label: moment().format("DD/MM/YY"),
+    subText: "DD/MM/YY",
+    value: "DD/MM/YY",
+  },
+  {
+    label: moment().format("MM/DD/YY"),
+    subText: "MM/DD/YY",
+    value: "MM/DD/YY",
+  },
+];
+
+export type ThemeProp = {
+  theme: Theme;
+};

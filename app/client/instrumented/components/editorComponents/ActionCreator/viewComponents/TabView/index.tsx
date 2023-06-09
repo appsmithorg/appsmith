@@ -1,0 +1,44 @@
+import type { TabViewProps } from "../../types";
+import {
+  ControlWrapper,
+  FieldWrapper,
+} from "components/propertyControls/StyledControls";
+import { SegmentedControl } from "design-system";
+import React from "react";
+
+type Option = {
+  id: string;
+  text: string;
+  action: () => void;
+};
+
+export function TabView(props: TabViewProps) {
+  const onClick = (id: string) => {
+    const selectedOption = props.switches.find(
+      (option: Option) => option.id === id,
+    );
+
+    if (selectedOption && selectedOption.action) {
+      selectedOption.action();
+    }
+  };
+  return (
+    <FieldWrapper className="tab-view">
+      <ControlWrapper>
+        {props.label && (
+          <label className="!text-gray-600 !text-xs" data-testid="tabs-label">
+            {props.label}
+          </label>
+        )}
+        <SegmentedControl
+          onChange={onClick}
+          options={props.switches.map((option: Option) => ({
+            label: option.text,
+            value: option.id,
+          }))}
+          value={props.activeObj.id}
+        />
+      </ControlWrapper>
+    </FieldWrapper>
+  );
+}

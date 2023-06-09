@@ -1,0 +1,57 @@
+import { fetchGheetColumns } from "actions/datasourceActions";
+import type { AppState } from "@appsmith/reducers";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
+import { isNumber } from "lodash";
+import { useCallback, useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getDatasource } from "selectors/entitiesSelector";
+
+export function useTableHeaderIndex() {
+  const dispatch = useDispatch();
+
+  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+
+  const selectedDatasource = useSelector((state: AppState) =>
+    getDatasource(state, config.datasource),
+  );
+
+  const onChange = useCallback(
+    (value) => {
+      const parsed = Number(value);
+
+      updateConfig("tableHeaderIndex", value);
+
+      if (
+        selectedDatasource &&
+        config.datasource &&
+        config.sheet &&
+        config.table &&
+        value &&
+        isNumber(parsed) &&
+        !isNaN(parsed)
+      ) {
+        dispatch(
+          fetchGheetColumns({
+            datasourceId: config.datasource,
+            pluginId: selectedDatasource.pluginId,
+            sheetName: config.sheet,
+            sheetUrl: config.table,
+            headerIndex: parsed,
+          }),
+        );
+      }
+    },
+    [config, updateConfig, dispatch],
+  );
+
+  return {
+    error:
+      (!config.tableHeaderIndex ||
+        !isNumber(Number(config.tableHeaderIndex)) ||
+        isNaN(Number(config.tableHeaderIndex))) &&
+      "Please enter a positive number",
+    value: config.tableHeaderIndex,
+    onChange,
+    show: !!config.table,
+  };
+}

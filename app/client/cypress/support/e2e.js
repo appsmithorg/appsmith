@@ -27,7 +27,7 @@ import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
-
+import '@cypress/code-coverage/support'
 import "./WorkspaceCommands";
 import "./queryCommands";
 import "./widgetCommands";

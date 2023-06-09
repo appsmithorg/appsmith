@@ -1,0 +1,179 @@
+import { Classes } from "@blueprintjs/core";
+import type { ReactNode, Context } from "react";
+import React, { memo, useState, createContext, useCallback } from "react";
+import { Collapse } from "@blueprintjs/core";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
+import { Icon, Tag } from "design-system";
+import type { AppState } from "@appsmith/reducers";
+import { useDispatch, useSelector } from "react-redux";
+import { getPropertySectionState } from "selectors/editorContextSelectors";
+import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
+import { setPropertySectionState } from "actions/propertyPaneActions";
+
+const TagContainer = styled.div``;
+
+const SectionTitle = styled.span`
+  color: var(--ads-v2-color-gray-600);
+  font-size: var(--ads-v2-font-size-4);
+  font-weight: var(--ads-v2-font-weight-bold);
+  margin-right: 8px;
+`;
+
+const SectionWrapper = styled.div`
+  position: relative;
+  border-top: 1px solid var(--ads-v2-color-border);
+  padding: 12px 16px;
+
+  &:first-of-type {
+    border-top: 0;
+  }
+
+  /* Referring to a nested SectionWrapper */
+  & & {
+    padding: 0;
+    margin-top: 8px;
+    &:first-of-type {
+      margin-top: 0;
+    }
+    ${TagContainer} {
+      display: none;
+    }
+  }
+
+  & & .section-title-wrapper {
+    margin-top: 10px;
+    margin-bottom: 7px;
+  }
+
+  & & .section-title-wrapper span {
+    color: ${Colors.GRAY_700};
+    font-size: 12px;
+  }
+
+  .${Classes.COLLAPSE_BODY} {
+    z-index: 1;
+    position: relative;
+    padding: 4px 0;
+  }
+
+  .bp3-collapse {
+    transition: none;
+  }
+`;
+
+type PropertySectionProps = {
+  id: string;
+  name: string;
+  childrenId?: string;
+  collapsible?: boolean;
+  children?: ReactNode;
+  childrenWrapperRef?: React.RefObject<HTMLDivElement>;
+  className?: string;
+  hidden?: (props: any, propertyPath: string) => boolean;
+  isDefaultOpen?: boolean;
+  propertyPath?: string;
+  tag?: string; // Used to show a tag on the section title on search results
+  panelPropertyPath?: string;
+};
+
+const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
+  return prev.id === next.id && prev.childrenId === next.childrenId;
+};
+
+//Context is being provided to re-render anything that subscribes to this context on open and close
+export const CollapseContext: Context<boolean> = createContext<boolean>(false);
+
+export const PropertySection = memo((props: PropertySectionProps) => {
+  const dispatch = useDispatch();
+  const currentWidgetId = useSelector(getCurrentWidgetId);
+  const { isDefaultOpen = true } = props;
+  const isDefaultContextOpen = useSelector(
+    (state: AppState) =>
+      getPropertySectionState(state, {
+        key: `${currentWidgetId}.${props.id}`,
+        panelPropertyPath: props.panelPropertyPath,
+      }),
+    () => true,
+  );
+  const isSearchResult = props.tag !== undefined;
+  let initialIsOpenState = true;
+  if (isSearchResult) {
+    initialIsOpenState = true;
+  } else if (isDefaultContextOpen !== undefined) {
+    initialIsOpenState = isDefaultContextOpen;
+  } else {
+    initialIsOpenState = !!isDefaultOpen;
+  }
+  const [isOpen, setIsOpen] = useState(initialIsOpenState);
+
+  const handleSectionTitleClick = useCallback(() => {
+    if (props.collapsible)
+      setIsOpen((x) => {
+        dispatch(
+          setPropertySectionState(
+            `${currentWidgetId}.${props.id}`,
+            !x,
+            props.panelPropertyPath,
+          ),
+        );
+        return !x;
+      });
+  }, [props.collapsible, props.id, currentWidgetId]);
+
+  if (!currentWidgetId) return null;
+
+  const className = props.name.split(" ").join("").toLowerCase();
+  return (
+    <SectionWrapper
+      className={`t--property-pane-section-wrapper ${props.className}`}
+    >
+      <div
+        className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${
+          !props.tag ? "cursor-pointer" : "cursor-default"
+        }`}
+        onClick={handleSectionTitleClick}
+      >
+        <SectionTitle>{props.name}</SectionTitle>
+        {props.tag && (
+          <TagContainer>
+            <Tag
+              className={`capitalize t--property-section-tag-${props.tag}`}
+              isClosable={false}
+            >
+              {props.tag.toLowerCase()}
+            </Tag>
+          </TagContainer>
+        )}
+        {props.collapsible && (
+          <Icon
+            className={`ml-auto t--chevron-icon ${isOpen ? "rotate-180" : ""}`}
+            name="arrow-up-s-line"
+            size="md"
+          />
+        )}
+      </div>
+      {props.children && (
+        <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
+          <div
+            className={`t--property-pane-section-${className}`}
+            ref={props.childrenWrapperRef}
+            style={{ position: "relative", zIndex: 1 }}
+          >
+            <CollapseContext.Provider value={isOpen}>
+              {props.children}
+            </CollapseContext.Provider>
+          </div>
+        </Collapse>
+      )}
+    </SectionWrapper>
+  );
+}, areEqual);
+
+PropertySection.displayName = "PropertySection";
+
+(PropertySection as any).whyDidYouRender = {
+  logOnDifferentValues: false,
+};
+
+export default PropertySection;
