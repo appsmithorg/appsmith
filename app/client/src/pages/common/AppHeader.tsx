@@ -22,16 +22,16 @@ import AppEditorHeader from "pages/Editor/EditorHeader";
 
 type Props = RouteComponentProps;
 
-const headerRoot = document.getElementById("header-root");
+const headerRootId = "header-root";
 
 class AppHeader extends React.Component<Props, any> {
   private container = document.createElement("div");
 
   componentDidMount() {
-    headerRoot?.appendChild(this.container);
+    document.getElementById(headerRootId)?.appendChild(this.container);
   }
   componentWillUnmount() {
-    headerRoot?.removeChild(this.container);
+    document.getElementById(headerRootId)?.removeChild(this.container);
   }
   get header() {
     return (
