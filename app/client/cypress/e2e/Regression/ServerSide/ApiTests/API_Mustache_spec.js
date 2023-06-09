@@ -3,13 +3,15 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Moustache test Functionality", function () {
   beforeEach(() => {
     cy.addDsl(dsl);
   });
   it("1. Moustache test Functionality", function () {
-    cy.openPropertyPane("textwidget");
+    _.entityExplorer.SelectEntityByName("Aditya", "Widgets");
+    _.entityExplorer.SelectEntityByName("TestTextBox", "Aditya");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror(testdata.methods);
     cy.NavigateToAPI_Panel();

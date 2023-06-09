@@ -81,7 +81,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
   });
 
   it("5. Input widget test with default value from table widget[Bug#4136]", () => {
-    cy.openPropertyPane("tablewidgetv2");
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.get(".t--property-pane-title").click({ force: true });
     cy.get(".t--property-pane-title")
       .type("TableUpdated", { delay: 300 })
