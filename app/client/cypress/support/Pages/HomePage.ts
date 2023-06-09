@@ -6,6 +6,7 @@ export class HomePage {
   private locator = ObjectsRegistry.CommonLocators;
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private onboarding = ObjectsRegistry.Onboarding;
+
   private _inviteButton = ".t--invite-user-btn";
   private _username = "input[name='username']";
   private _password = "input[name='password']";
@@ -91,7 +92,6 @@ export class HomePage {
   private _wsAction = (action: string) =>
     ".ads-v2-menu__menu-item-children:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
-  private _templatesTab = ".t--templates-tab";
   private _workSpaceByName = (wsName: string) =>
     "//div[contains(@class, 't--applications-container')]//span[text()='" +
     wsName +
@@ -108,10 +108,6 @@ export class HomePage {
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
-  }
-
-  public SwitchToTemplatesTab() {
-    this.agHelper.GetNClick(this._templatesTab);
   }
 
   public CreateNewWorkspace(workspaceNewName: string) {

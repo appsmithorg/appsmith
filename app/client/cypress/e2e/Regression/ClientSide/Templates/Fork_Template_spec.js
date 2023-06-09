@@ -36,13 +36,11 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
   });
 
   it("3. Hide template fork button if user does not have a valid workspace to fork", () => {
-    _.homePage.NavigateToHome();
     // Mock user with App Viewer permission
     cy.intercept("/api/v1/applications/new", {
       fixture: "Templates/MockAppViewerUser.json",
     });
-    _.agHelper.RefreshPage(true, "getReleaseItems");
-    _.homePage.SwitchToTemplatesTab();
+    _.templates.SwitchToTemplatesTab();
     _.agHelper.Sleep(2000);
     _.agHelper.CheckForErrorToast(
       "Internal server error while processing request",
