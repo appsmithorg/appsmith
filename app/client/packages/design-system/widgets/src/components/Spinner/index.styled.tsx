@@ -2,9 +2,16 @@ import React from "react";
 import styled from "styled-components";
 
 // Adapted from remixicon-react/Loader2FillIcon (https://github.com/Remix-Design/RemixIcon/blob/f88a51b6402562c6c2465f61a3e845115992e4c6/icons/System/loader-2-fill.svg)
-function LoaderIcon({ className }: { className?: string }) {
+function LoaderIcon({
+  className,
+  ...props
+}: {
+  className?: string;
+  [key: string]: any;
+}) {
   return (
     <svg
+      {...props}
       className={className}
       fill="currentColor"
       height={24}
