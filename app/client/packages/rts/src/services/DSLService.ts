@@ -1,11 +1,12 @@
 import { flattenDSLByName, unflattenDSLByName } from "@shared/dsl";
 
-export const getDSLForGit = (nestedDSL) => {
+export const getFlattenedDSLForGit = (nestedDSL) => {
   const gitFlattenedDSL = flattenDSLByName(nestedDSL);
   return gitFlattenedDSL;
 };
 
-export const getNestedDSLFromGit = (flattenedDSLEntities) => {
-  const nestedDSL = unflattenDSLByName("0", flattenedDSLEntities);
+export const getNestedDSLFromGit = (flattenedDSL) => {
+  const { entities, result = "0" } = flattenedDSL;
+  const nestedDSL = unflattenDSLByName(result, entities);
   return nestedDSL;
 };

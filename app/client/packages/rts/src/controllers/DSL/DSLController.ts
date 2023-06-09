@@ -1,6 +1,9 @@
 import BaseController from "@controllers/BaseController";
 import type { Request, Response } from "express";
-import { getDSLForGit, getNestedDSLFromGit } from "@services/DSLService";
+import {
+  getFlattenedDSLForGit,
+  getNestedDSLFromGit,
+} from "@services/DSLService";
 
 export default class DSLController extends BaseController {
   constructor() {
@@ -9,7 +12,7 @@ export default class DSLController extends BaseController {
 
   async getNormalizedDSLForGit(req: Request, res: Response) {
     const DSLData = req.body;
-    return super.sendResponse(res, getDSLForGit(DSLData));
+    return super.sendResponse(res, getFlattenedDSLForGit(DSLData));
   }
 
   async getDenormalizedDSLForGit(req: Request, res: Response) {
