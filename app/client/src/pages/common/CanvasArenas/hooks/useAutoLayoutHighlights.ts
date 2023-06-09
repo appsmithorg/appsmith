@@ -9,6 +9,8 @@ import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
+import { GridDefaults } from "constants/WidgetConstants";
+import type { AppState } from "ce/reducers";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
@@ -32,6 +34,9 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
+  const widgetPositions = useSelector(
+    (state: AppState) => state.entities.widgetPositions,
+  );
   const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
   const highlights = useRef<HighlightInfo[]>([]);
   let lastActiveHighlight: HighlightInfo | undefined;
@@ -77,8 +82,9 @@ export const useAutoLayoutHighlights = ({
       isFillWidget = checkForFillWidget();
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
+        widgetPositions,
         canvasId,
-        snapColumnSpace,
+        snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
@@ -108,8 +114,9 @@ export const useAutoLayoutHighlights = ({
     if (!highlights || !highlights?.current?.length)
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
+        widgetPositions,
         canvasId,
-        snapColumnSpace,
+        snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,

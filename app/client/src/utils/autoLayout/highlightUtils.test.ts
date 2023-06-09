@@ -1,3 +1,4 @@
+import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
@@ -43,8 +44,9 @@ describe("test HighlightUtils methods", () => {
       };
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
+        {},
         "1",
-        9.875,
+        632,
       );
       expect(highlights.length).toEqual(3);
       expect(highlights[0].isVertical).toBeFalsy;
@@ -104,11 +106,21 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       };
+
+      const widgetPositions = {
+        "2": {
+          left: 0,
+          top: 0,
+          width: 160,
+          height: 40,
+        },
+      };
       const offsetTop = ROW_GAP;
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
+        widgetPositions,
         "1",
-        10,
+        640,
       );
       expect(highlights.length).toEqual(10);
       expect(
@@ -163,6 +175,15 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       ];
+
+      const widgetPositions = {
+        "2": {
+          left: 0,
+          top: 0,
+          width: 160,
+          height: 40,
+        },
+      };
       const result: HighlightInfo[] = generateHighlightsForAlignment({
         arr: children,
         childCount: 0,
@@ -170,23 +191,23 @@ describe("test HighlightUtils methods", () => {
         alignment: FlexLayerAlignment.Start,
         maxHeight: 40,
         offsetTop: 4,
-        parentColumnSpace: 10,
+        canvasWidth: 640,
         avoidInitialHighlight: false,
         isMobile: false,
         startPosition: 0,
         canvasId: "1",
+        widgetPositions,
       });
       expect(result.length).toEqual(2);
-      expect(result[0].posX).toEqual(2);
-      expect(result[0].posY).toEqual(4);
+      expect(result[0].posX).toEqual(-1 * DEFAULT_HIGHLIGHT_SIZE);
+      expect(result[0].posY).toEqual(0);
       expect(result[0].width).toEqual(4);
       expect(result[0].height).toEqual(
         getWidgetHeight(children[0], false) * children[0].parentRowSpace,
       );
 
       expect(result[1].posX).toEqual(
-        children[0].rightColumn * children[0].parentColumnSpace +
-          FLEXBOX_PADDING / 2,
+        children[0].rightColumn * children[0].parentColumnSpace,
       );
       expect(result[1].isNewLayer).toBeFalsy;
       expect(result[1].isVertical).toBeTruthy;
@@ -237,6 +258,22 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       ];
+
+      const widgetPositions = {
+        "2": {
+          left: 0,
+          top: 0,
+          width: 160,
+          height: 40,
+        },
+        "3": {
+          left: 0,
+          top: 0,
+          width: 160,
+          height: 60,
+        },
+      };
+
       const result: HighlightInfo[] = generateHighlightsForAlignment({
         arr: children,
         childCount: 0,
@@ -245,12 +282,12 @@ describe("test HighlightUtils methods", () => {
         maxHeight:
           getWidgetHeight(children[1], false) * children[1].parentRowSpace,
         offsetTop: 4,
-        parentColumnSpace: 10,
-
+        canvasWidth: 640,
         avoidInitialHighlight: false,
         isMobile: false,
         startPosition: 0,
         canvasId: "1",
+        widgetPositions,
       });
       expect(result.length).toEqual(3);
       expect(result[0].height).toEqual(
@@ -260,12 +297,13 @@ describe("test HighlightUtils methods", () => {
     it("should not render initial highlight is avoidInitialHighlight is true", () => {
       const result: HighlightInfo[] = generateHighlightsForAlignment({
         arr: [],
+        widgetPositions: {},
         childCount: 0,
         layerIndex: 0,
         alignment: FlexLayerAlignment.Start,
         maxHeight: 40,
         offsetTop: 4,
-        parentColumnSpace: 10,
+        canvasWidth: 640,
 
         avoidInitialHighlight: true,
         isMobile: false,
@@ -352,15 +390,31 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       };
+
+      const widgetPositions = {
+        "2": {
+          left: 0,
+          top: 0,
+          width: 160,
+          height: 40,
+        },
+        "3": {
+          left: 160,
+          top: 0,
+          width: 100,
+          height: 60,
+        },
+      };
       const result: VerticalHighlightsPayload = generateVerticalHighlights({
         widgets,
+        widgetPositions,
         layer: widgets["1"].flexLayers[0],
         childCount: 0,
         layerIndex: 0,
         offsetTop: 4,
 
         canvasId: "1",
-        columnSpace: 10,
+        canvasWidth: 640,
         draggedWidgets: [],
         isMobile: false,
       });
@@ -442,27 +496,41 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       };
+
+      const widgetPositions = {
+        "2": {
+          left: 0,
+          top: 0,
+          width: 158,
+          height: 40,
+        },
+        "3": {
+          left: 0,
+          top: 40,
+          width: 632,
+          height: 60,
+        },
+      };
       const result: VerticalHighlightsPayload = generateVerticalHighlights({
         widgets,
+        widgetPositions,
         layer: widgets["1"].flexLayers[0],
         childCount: 0,
         layerIndex: 0,
-        offsetTop: 4,
+        offsetTop: 0,
         canvasId: "1",
-        columnSpace: 9.875,
+        canvasWidth: 632,
         draggedWidgets: [],
         isMobile: true,
       });
       expect(result.highlights.length).toEqual(3);
       expect(result.highlights[1].posY).toEqual(
-        widgets["3"].mobileTopRow * widgets["3"].parentRowSpace +
-          FLEXBOX_PADDING,
+        widgets["3"].mobileTopRow * widgets["3"].parentRowSpace,
       );
       expect(result.highlights[1].height).toEqual(60);
-      expect(result.highlights[2].posX).toEqual(634);
+      expect(result.highlights[2].posX).toEqual(632);
       expect(result.highlights[2].posY).toEqual(
-        widgets["3"].mobileTopRow * widgets["3"].parentRowSpace +
-          FLEXBOX_PADDING,
+        widgets["3"].mobileTopRow * widgets["3"].parentRowSpace,
       );
       expect(result.childCount).toEqual(2);
     });

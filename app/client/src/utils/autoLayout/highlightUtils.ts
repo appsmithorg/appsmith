@@ -13,26 +13,48 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  getLeftColumn,
-  getRightColumn,
-  getTopRow,
-  getWidgetHeight,
-  getWidgetWidth,
-} from "./flexWidgetUtils";
-import {
-  getAlignmentSizeInfo,
-  getTotalRowsOfAllChildren,
-  getWrappedAlignmentInfo,
-} from "./positionUtils";
 import type {
-  AlignmentChildren,
   AlignmentInfo,
   DropZone,
   FlexLayer,
   HighlightInfo,
+  HighlightsAlignmentChildren,
   LayerChild,
 } from "./autoLayoutTypes";
+import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
+
+function getWrappedAlignmentInfo(
+  arr: AlignmentInfo[],
+  canvasWidth: number,
+  res: AlignmentInfo[][] = [[], [], []],
+  resIndex = 0,
+): AlignmentInfo[][] {
+  if (arr.length === 1) {
+    res[resIndex].push(arr[0]);
+    return res;
+  }
+  let index = 0;
+  let total = 0;
+  for (const each of arr) {
+    if (total + each.width > canvasWidth) {
+      let x = index;
+      if (!res[resIndex].length) {
+        res[resIndex].push(each);
+        x += 1;
+      }
+      return getWrappedAlignmentInfo(
+        [...arr.slice(x)],
+        canvasWidth,
+        res,
+        resIndex + 1,
+      );
+    }
+    total += each.width;
+    index += 1;
+    res[resIndex].push(each);
+  }
+  return res;
+}
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState
@@ -44,8 +66,9 @@ import type {
  */
 export function deriveHighlightsFromLayers(
   allWidgets: CanvasWidgetsReduxState,
+  widgetPositions: WidgetPositions,
   canvasId: string,
-  snapColumnSpace: number,
+  canvasWidth: number,
   draggedWidgets: string[] = [],
   hasFillWidget = false,
   isMobile = false,
@@ -80,20 +103,21 @@ export function deriveHighlightsFromLayers(
       updatedLayer?.children?.filter(
         (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
       ).length === 0;
-    const childrenRows = getTotalRowsOfAllChildren(
+    const layerHeight = getTotalRowsOfAllChildren(
       widgets,
+      widgetPositions,
       updatedLayer.children?.map((child) => child.id) || [],
-      isMobile,
     );
 
     const payload: VerticalHighlightsPayload = generateVerticalHighlights({
       widgets,
+      widgetPositions,
+      canvasWidth,
       layer: updatedLayer,
       childCount,
       layerIndex,
       offsetTop,
       canvasId,
-      columnSpace: snapColumnSpace,
       draggedWidgets,
       isMobile,
     });
@@ -108,10 +132,10 @@ export function deriveHighlightsFromLayers(
           childCount,
           layerIndex,
           offsetTop,
-          snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
+          canvasWidth,
           canvasId,
           hasFillWidget,
-          childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          layerHeight,
           getPreviousOffsetTop(highlights),
           isMobile,
         ),
@@ -120,8 +144,7 @@ export function deriveHighlightsFromLayers(
       highlights.push(...payload.highlights);
       layerIndex += 1;
     } else highlights = updateHorizontalDropZone(highlights);
-    offsetTop +=
-      childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + rowGap || 0;
+    offsetTop += layerHeight + rowGap || 0;
     childCount += payload.childCount;
   }
   // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
@@ -130,7 +153,7 @@ export function deriveHighlightsFromLayers(
       childCount,
       layerIndex,
       offsetTop,
-      snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
+      canvasWidth,
       canvasId,
       hasFillWidget,
       -1,
@@ -152,24 +175,26 @@ export interface VerticalHighlightsPayload {
  */
 export function generateVerticalHighlights(data: {
   widgets: CanvasWidgetsReduxState;
+  widgetPositions: WidgetPositions;
+  canvasWidth: number;
   layer: FlexLayer;
   childCount: number;
   layerIndex: number;
   offsetTop: number;
   canvasId: string;
-  columnSpace: number;
   draggedWidgets: string[];
   isMobile: boolean;
 }): VerticalHighlightsPayload {
   const {
     canvasId,
+    canvasWidth,
     childCount,
-    columnSpace,
     draggedWidgets,
     isMobile,
     layer,
     layerIndex,
     offsetTop,
+    widgetPositions,
     widgets,
   } = data;
   const { children } = layer;
@@ -178,28 +203,26 @@ export function generateVerticalHighlights(data: {
   const startChildren = [],
     centerChildren = [],
     endChildren = [];
-  let startColumns = 0,
-    centerColumns = 0,
-    endColumns = 0;
+  let startWidth = 0,
+    centerWidth = 0,
+    endWidth = 0;
   let maxHeight = 0;
-  const rowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   for (const child of children) {
     const widget = widgets[child.id];
-    if (!widget) continue;
+    if (!widget || !widgetPositions[widget.widgetId]) continue;
     count += 1;
     if (draggedWidgets.indexOf(child.id) > -1) continue;
-    const columns: number = getWidgetWidth(widget, isMobile);
-    const rows: number = getWidgetHeight(widget, isMobile);
-    maxHeight = Math.max(maxHeight, rows * rowSpace);
+    const { height, width } = widgetPositions[widget.widgetId];
+    maxHeight = Math.max(maxHeight, height);
     if (child.align === FlexLayerAlignment.End) {
-      endChildren.push({ widget, columns, rows });
-      endColumns += columns;
+      endChildren.push({ widget, width, height });
+      endWidth += width;
     } else if (child.align === FlexLayerAlignment.Center) {
-      centerChildren.push({ widget, columns, rows });
-      centerColumns += columns;
+      centerChildren.push({ widget, width, height });
+      centerWidth += width;
     } else {
-      startChildren.push({ widget, columns, rows });
-      startColumns += columns;
+      startChildren.push({ widget, width, height });
+      startWidth += width;
     }
   }
 
@@ -207,22 +230,22 @@ export function generateVerticalHighlights(data: {
     {
       alignment: FlexLayerAlignment.Start,
       children: startChildren,
-      columns: startColumns,
+      width: startWidth,
     },
     {
       alignment: FlexLayerAlignment.Center,
       children: centerChildren,
-      columns: centerColumns,
+      width: centerWidth,
     },
     {
       alignment: FlexLayerAlignment.End,
       children: endChildren,
-      columns: endColumns,
+      width: endWidth,
     },
   ];
 
   const wrappingInfo: AlignmentInfo[][] = isMobile
-    ? getWrappedAlignmentInfo(alignmentInfo)
+    ? getWrappedAlignmentInfo(alignmentInfo, canvasWidth)
     : [alignmentInfo];
 
   let highlights: HighlightInfo[] = [];
@@ -237,7 +260,7 @@ export function generateVerticalHighlights(data: {
     if (
       isMobile &&
       each.length < 3 &&
-      each.reduce((a, b) => a + b.columns, 0) === 0
+      each.reduce((a, b) => a + b.width, 0) === 0
     )
       continue;
     let index = 0;
@@ -245,9 +268,10 @@ export function generateVerticalHighlights(data: {
       let avoidInitialHighlight = false;
       let startPosition: number | undefined;
       if (item.alignment === FlexLayerAlignment.Center) {
-        const { centerSize } = getAlignmentSizeInfo(each);
+        const { centerSize } = getAlignmentSizeInfo(each, canvasWidth);
         avoidInitialHighlight =
-          ((startColumns > 25 || endColumns > 25) && centerColumns === 0) ||
+          ((startWidth / canvasWidth > 0.4 || endWidth / canvasWidth > 0.4) &&
+            centerWidth === 0) ||
           centerSize === 0;
         if (each.length === 2)
           startPosition =
@@ -257,7 +281,9 @@ export function generateVerticalHighlights(data: {
       }
       highlights.push(
         ...generateHighlightsForAlignment({
-          arr: item.children.map((each: AlignmentChildren) => each.widget),
+          arr: item.children.map(
+            (each: HighlightsAlignmentChildren) => each.widget,
+          ),
           childCount:
             item.alignment === FlexLayerAlignment.Start
               ? childCount
@@ -269,7 +295,8 @@ export function generateVerticalHighlights(data: {
           maxHeight,
           offsetTop,
           canvasId,
-          parentColumnSpace: columnSpace,
+          canvasWidth,
+          widgetPositions,
           isMobile,
           avoidInitialHighlight,
           startPosition,
@@ -278,7 +305,7 @@ export function generateVerticalHighlights(data: {
       index += 1;
     }
   }
-  highlights = updateVerticalHighlightDropZone(highlights, columnSpace * 64);
+  highlights = updateVerticalHighlightDropZone(highlights, canvasWidth);
   return { highlights, childCount: count };
 }
 
@@ -291,13 +318,14 @@ export function generateVerticalHighlights(data: {
  */
 export function generateHighlightsForAlignment(data: {
   arr: FlattenedWidgetProps[];
+  widgetPositions: WidgetPositions;
+  canvasWidth: number;
   childCount: number;
   layerIndex: number;
   alignment: FlexLayerAlignment;
   maxHeight: number;
   offsetTop: number;
   canvasId: string;
-  parentColumnSpace: number;
   avoidInitialHighlight?: boolean;
   isMobile: boolean;
   startPosition: number | undefined;
@@ -307,31 +335,30 @@ export function generateHighlightsForAlignment(data: {
     arr,
     avoidInitialHighlight,
     canvasId,
+    canvasWidth,
     childCount,
     isMobile,
     layerIndex,
     maxHeight,
     offsetTop,
-    parentColumnSpace,
     startPosition,
+    widgetPositions,
   } = data;
   const res: HighlightInfo[] = [];
   let count = 0;
-  const rowSpace: number = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   for (const child of arr) {
-    const left = getLeftColumn(child, isMobile);
+    if (!widgetPositions[child.widgetId]) continue;
+    const { height, left, top } = widgetPositions[child.widgetId];
     res.push({
       isNewLayer: false,
       index: count + childCount,
       layerIndex,
       rowIndex: count,
       alignment,
-      posX: left * parentColumnSpace + FLEXBOX_PADDING / 2,
-      posY: getTopRow(child, isMobile) * rowSpace + FLEXBOX_PADDING,
+      posX: left - DEFAULT_HIGHLIGHT_SIZE,
+      posY: top,
       width: DEFAULT_HIGHLIGHT_SIZE,
-      height: isMobile
-        ? getWidgetHeight(child, isMobile) * rowSpace
-        : maxHeight,
+      height: isMobile ? height : maxHeight,
       isVertical: true,
       canvasId,
       dropZone: {},
@@ -342,6 +369,8 @@ export function generateHighlightsForAlignment(data: {
   if (!avoidInitialHighlight) {
     const lastChild: FlattenedWidgetProps | null =
       arr && arr.length ? arr[arr.length - 1] : null;
+    const { height, left, top, width } =
+      widgetPositions[lastChild?.widgetId || ""] || {};
     res.push({
       isNewLayer: false,
       index: count + childCount,
@@ -351,23 +380,13 @@ export function generateHighlightsForAlignment(data: {
       posX: getPositionForInitialHighlight(
         res,
         alignment,
-        lastChild !== null
-          ? getRightColumn(lastChild, isMobile) * parentColumnSpace +
-              FLEXBOX_PADDING / 2
-          : 0,
-        canvasId,
-        parentColumnSpace,
+        lastChild !== null ? left + width : 0,
+        canvasWidth,
         startPosition,
       ),
-      posY:
-        lastChild === null
-          ? offsetTop
-          : getTopRow(lastChild, isMobile) * rowSpace + FLEXBOX_PADDING,
+      posY: lastChild === null ? offsetTop : top,
       width: DEFAULT_HIGHLIGHT_SIZE,
-      height:
-        isMobile && lastChild !== null
-          ? getWidgetHeight(lastChild, isMobile) * rowSpace
-          : maxHeight,
+      height: isMobile && lastChild !== null ? height : maxHeight,
       isVertical: true,
       canvasId,
       dropZone: {},
@@ -389,17 +408,15 @@ function getPositionForInitialHighlight(
   highlights: HighlightInfo[],
   alignment: FlexLayerAlignment,
   posX: number,
-  canvasId: string,
-  columnSpace: number,
+  canvasWidth: number,
   startPosition: number | undefined,
 ): number {
-  const containerWidth = GridDefaults.DEFAULT_GRID_COLUMNS * columnSpace;
-  const endPosition = containerWidth + FLEXBOX_PADDING / 2;
+  const endPosition = canvasWidth + FLEXBOX_PADDING / 2;
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length)
-      return startPosition !== undefined ? startPosition : containerWidth / 2;
+      return startPosition !== undefined ? startPosition : canvasWidth / 2;
     return Math.min(posX, endPosition);
   } else {
     if (!highlights.length) return 2;
@@ -565,4 +582,74 @@ function getPreviousOffsetTop(highlights: HighlightInfo[]): number {
     index--;
   }
   return highlights[index].posY + highlights[index].height;
+}
+
+function getTotalRowsOfAllChildren(
+  widgets: CanvasWidgetsReduxState,
+  widgetPositions: WidgetPositions,
+  children: string[],
+): number {
+  if (!children || !children.length) return 0;
+  let top = 10000,
+    bottom = 0;
+  for (const childId of children) {
+    const child = widgets[childId];
+    if (!child || !widgetPositions[child.widgetId]) continue;
+
+    const { height, top: widgetTop } = widgetPositions[child.widgetId];
+    top = Math.min(top, widgetTop);
+    bottom = Math.max(bottom, widgetTop + height);
+  }
+  return bottom - top;
+}
+
+function getAlignmentSizes(
+  input: AlignmentInfo[],
+  canvasWidth: number,
+  sizes: AlignmentInfo[] = [],
+): AlignmentInfo[] {
+  if (input.length === 0) return sizes;
+  const arr: AlignmentInfo[] = [...input].sort((a, b) => b.width - a.width);
+  if (arr[0].width > canvasWidth / arr.length) {
+    sizes.push(arr[0]);
+    arr.shift();
+    return getAlignmentSizes(
+      arr,
+      canvasWidth - sizes[sizes.length - 1].width,
+      sizes,
+    );
+  } else {
+    for (let i = 0; i < arr.length; i++) {
+      sizes.push({ ...arr[i], width: canvasWidth / arr.length });
+    }
+  }
+  return sizes;
+}
+
+function getAlignmentSizeInfo(
+  arr: AlignmentInfo[],
+  canvasWidth: number,
+): {
+  startSize: number;
+  centerSize: number;
+  endSize: number;
+} {
+  let startSize = 0,
+    centerSize = 0,
+    endSize = 0;
+  const sizes: {
+    alignment: FlexLayerAlignment;
+    width: number;
+  }[] = getAlignmentSizes(arr, canvasWidth, []);
+
+  for (const each of sizes) {
+    if (each.alignment === FlexLayerAlignment.Start) {
+      startSize = each.width;
+    } else if (each.alignment === FlexLayerAlignment.Center) {
+      centerSize = each.width;
+    } else if (each.alignment === FlexLayerAlignment.End) {
+      endSize = each.width;
+    }
+  }
+  return { startSize, centerSize, endSize };
 }
