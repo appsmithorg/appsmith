@@ -74,10 +74,12 @@ export function updateDependency(
             entityTreeWithParsedJS,
           );
           dependencyMap.addNodes(allAddedPaths);
-          const dependencies = isDynamicLeaf(entity, fullPropertyPath)
-            ? getEntityPathDependencies(entity, fullPropertyPath)
-            : getEntityDependencies(entity);
-          updateDependencies(dependencies, allPaths);
+          for (const addedPath of Object.keys(allAddedPaths)) {
+            const dependencies = isDynamicLeaf(entity, addedPath)
+              ? getEntityPathDependencies(entity, addedPath)
+              : getEntityDependencies(entity);
+            updateDependencies(dependencies, allPaths);
+          }
         }
         break;
     }
