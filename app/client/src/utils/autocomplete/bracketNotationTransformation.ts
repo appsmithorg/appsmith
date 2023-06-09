@@ -58,6 +58,5 @@ export const getTransformedText = (input: string[]) => {
       text = `${text} ${word}`;
     }
   }
-  console.log("**", text.trim());
   return text.trim();
 };

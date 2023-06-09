@@ -289,8 +289,6 @@ class CodeMirrorTernService {
       completions.push(codeMirrorCompletion);
     }
 
-    console.log("**", completions);
-
     const shouldComputeBestMatch =
       this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;
 
