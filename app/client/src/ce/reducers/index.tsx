@@ -76,6 +76,7 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
+import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -154,6 +155,7 @@ export interface AppState {
     jsActions: JSCollectionDataState;
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
+    widgetPositions: WidgetPositions;
   };
   evaluations: {
     tree: EvaluatedTreeState;

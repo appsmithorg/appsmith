@@ -49,6 +49,7 @@ import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
+import widgetPositionSagas from "sagas/WidgetPositionSagas";
 
 export const sagas = [
   initSagas,
@@ -102,4 +103,5 @@ export const sagas = [
   layoutConversionSagas,
   snapshotSagas,
   oneClickBindingSaga,
+  widgetPositionSagas,
 ];

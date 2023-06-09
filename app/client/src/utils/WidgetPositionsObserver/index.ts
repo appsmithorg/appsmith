@@ -1,12 +1,8 @@
 import _ from "lodash";
 import type { RefObject } from "react";
-import {
-  AUTO_LAYER,
-  AUTO_WIDGET,
-  getAffectedWidgetsFromLayer,
-  getAutoWidgetId,
-} from "./utils";
+import { AUTO_LAYER, AUTO_WIDGET } from "./utils";
 import store from "store";
+import { readWidgetPositions } from "actions/autoLayoutActions";
 
 class WidgetPositionsObserver {
   private registeredWidgets: {
@@ -21,10 +17,11 @@ class WidgetPositionsObserver {
   } = {};
 
   private widgetsProcessQueue: {
-    [widgetDOMId: string]: RefObject<HTMLDivElement>;
+    [widgetId: string]: boolean;
   } = {};
+  private layersProcessQueue: { [canvasId: string]: number } = {};
 
-  private debouncedProcessBatch = _.debounce(this.processWidgetBatch, 100);
+  private debouncedProcessBatch = _.debounce(this.processWidgetBatch, 200);
 
   private resizeObserver = new ResizeObserver(
     (entries: ResizeObserverEntry[]) => {
@@ -34,7 +31,7 @@ class WidgetPositionsObserver {
           if (DOMId.indexOf(AUTO_WIDGET) > -1) {
             this.addWidgetToProcess(DOMId);
           } else if (DOMId.indexOf(AUTO_LAYER) > -1) {
-            this.processLayerResize(DOMId);
+            this.addLayerToProcess(DOMId);
           }
         }
       }
@@ -85,73 +82,41 @@ class WidgetPositionsObserver {
     delete this.registeredLayers[layerId];
   }
 
-  private processLayerResize(layerId: string) {
-    if (this.registeredLayers[layerId]) {
-      const { canvasId, layerIndex } = this.registeredLayers[layerId];
-
-      const affectedWidgets = getAffectedWidgetsFromLayer(
-        store.getState(),
-        canvasId,
-        layerIndex,
-      );
-
-      for (const widgetId of affectedWidgets) {
-        this.addWidgetToProcess(getAutoWidgetId(widgetId));
-      }
-    }
-  }
-
   private addWidgetToProcess(widgetDOMId: string) {
-    if (
-      this.registeredWidgets[widgetDOMId] &&
-      !this.widgetsProcessQueue[widgetDOMId]
-    ) {
-      this.widgetsProcessQueue[widgetDOMId] =
-        this.registeredWidgets[widgetDOMId].ref;
+    if (this.registeredWidgets[widgetDOMId]) {
+      const widgetId = this.registeredWidgets[widgetDOMId].id;
+      this.widgetsProcessQueue[widgetId] = true;
       this.debouncedProcessBatch();
     }
   }
 
-  private clearWidgetProcessQueue() {
+  private addLayerToProcess(LayerId: string) {
+    if (this.registeredLayers[LayerId]) {
+      const { canvasId, layerIndex } = this.registeredLayers[LayerId];
+
+      if (
+        this.layersProcessQueue[canvasId] === undefined ||
+        this.layersProcessQueue[canvasId] > layerIndex
+      ) {
+        this.layersProcessQueue[canvasId] = layerIndex;
+      }
+      this.debouncedProcessBatch();
+    }
+  }
+
+  private clearProcessQueue() {
     this.widgetsProcessQueue = {};
+    this.layersProcessQueue = {};
   }
 
   private processWidgetBatch() {
-    const perfTimer = performance.now();
-    const widgetsToProcess = { ...this.widgetsProcessQueue };
-    this.clearWidgetProcessQueue();
-
-    const widgetDimensions: {
-      [widgetId: string]: {
-        left: number;
-        top: number;
-        height: number;
-        width: number;
-      };
-    } = {};
-
-    const mainCanvasElement = document.querySelector(".flex-container-0");
-
-    const mainRect = mainCanvasElement?.getBoundingClientRect();
-
-    const { left = 0, top = 0 } = mainRect || {};
-
-    for (const [id, ref] of Object.entries(widgetsToProcess)) {
-      if (ref && ref.current) {
-        const rect = ref.current.getBoundingClientRect();
-        widgetDimensions[this.registeredWidgets[id].id] = {
-          left: rect.left - left,
-          top: rect.top - top,
-          height: rect.height,
-          width: rect.width,
-        };
-      }
-    }
-
-    console.log(
-      "widgetDimensions in " + (performance.now() - perfTimer) + "ms: ",
-      widgetDimensions,
+    store.dispatch(
+      readWidgetPositions(
+        { ...this.widgetsProcessQueue },
+        { ...this.layersProcessQueue },
+      ),
     );
+    this.clearProcessQueue();
   }
 }
 
