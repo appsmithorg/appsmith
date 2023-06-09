@@ -9,7 +9,7 @@ app/client/packages/storybook/* @appsmithorg/wds
 app/client/.husky @KelvinOm
 app/client/.yarn @KelvinOm
 app/client/.editorconfig @KelvinOm
-app/client/.eslintrc.base.json @KelvinOm
+app/client/.eslintrc.base.json @jsartisan
 app/client/.eslintrc.js @KelvinOm
 app/client/.gitignore @KelvinOm
 app/client/.lintstagedrc @KelvinOm
