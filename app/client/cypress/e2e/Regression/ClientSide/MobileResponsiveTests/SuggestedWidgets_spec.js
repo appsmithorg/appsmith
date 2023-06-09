@@ -7,7 +7,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
-    autoLayout.ConvertToAutoLayout();
+    autoLayout.ConvertToAutoLayoutAndVerify(false);
   });
 
   it("1. Suggested widget", () => {
