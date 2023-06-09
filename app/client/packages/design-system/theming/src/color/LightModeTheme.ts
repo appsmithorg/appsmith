@@ -107,11 +107,11 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgAccent.clone();
 
     if (this.seedLightness < 0.06) {
-      color.oklch.l = this.seedLightness + 0.28;
+      color.oklch.l = this.bgAccent.oklch.l + 0.28;
     }
 
     if (this.seedLightness > 0.06 && this.seedLightness < 0.14) {
-      color.oklch.l = this.seedLightness + 0.2;
+      color.oklch.l = this.bgAccent.oklch.l + 0.2;
     }
 
     if (
@@ -119,7 +119,7 @@ export class LightModeTheme implements ColorModeTheme {
       this.seedLightness < 0.25 &&
       this.seedIsCold
     ) {
-      color.oklch.l = this.seedLightness + 0.1;
+      color.oklch.l = this.bgAccent.oklch.l + 0.1;
     }
 
     if (
@@ -127,19 +127,19 @@ export class LightModeTheme implements ColorModeTheme {
       this.seedLightness < 0.21 &&
       !this.seedIsCold
     ) {
-      color.oklch.l = this.seedLightness + 0.13;
+      color.oklch.l = this.bgAccent.oklch.l + 0.13;
     }
 
     if (this.seedLightness >= 0.21 && this.seedLightness < 0.4) {
-      color.oklch.l = this.seedLightness + 0.09;
+      color.oklch.l = this.bgAccent.oklch.l + 0.09;
     }
 
     if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
-      color.oklch.l = this.seedLightness + 0.05;
+      color.oklch.l = this.bgAccent.oklch.l + 0.05;
     }
 
     if (this.seedLightness >= 0.7) {
-      color.oklch.l = this.seedLightness + 0.03;
+      color.oklch.l = this.bgAccent.oklch.l + 0.03;
     }
 
     if (this.seedIsVeryLight && this.seedIsYellow) {
@@ -161,15 +161,15 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgAccent.clone();
 
     if (this.seedLightness < 0.4) {
-      color.oklch.l = this.seedLightness - 0.04;
+      color.oklch.l = this.bgAccent.oklch.l - 0.04;
     }
 
     if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
-      color.oklch.l = this.seedLightness - 0.02;
+      color.oklch.l = this.bgAccent.oklch.l - 0.02;
     }
 
     if (this.seedLightness >= 0.7) {
-      color.oklch.l = this.seedLightness - 0.01;
+      color.oklch.l = this.bgAccent.oklch.l - 0.01;
     }
 
     if (this.seedIsVeryLight) {
