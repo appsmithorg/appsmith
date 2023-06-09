@@ -17,10 +17,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
-import com.mongodb.MongoServerException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -87,20 +84,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     datasourceStorage.prepareTransientFields(datasource);
                     return datasourceStorage;
                 })
-                // TODO: This is a temporary call being made till storage transfer migrations are done
-                .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
-                        .transferAndGetDatasourceStorage(datasource, environmentId)))
-                .onErrorResume(e -> e instanceof DuplicateKeyException
-                                || e instanceof MongoServerException
-                                || e instanceof UncategorizedMongoDbException,
-                        error -> {
-                            if (error.getMessage() != null
-                                    && error.getMessage().contains("datasource_storage_compound_index")) {
-                                // The duplicate key error is because of the `name` field.
-                                return findByDatasourceAndEnvironmentId(datasource, environmentId);
-                            }
-                            return Mono.error(error);
-                        });
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
     }
 
     @Override
@@ -112,20 +96,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
         return this.findByDatasourceId(datasource.getId())
-                // TODO: This is a temporary call being made till storage transfer migrations are done
-                .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
-                        .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource)))
-                .onErrorResume(e -> e instanceof DuplicateKeyException
-                                || e instanceof MongoServerException
-                                || e instanceof UncategorizedMongoDbException,
-                        error -> {
-                            if (error.getMessage() != null
-                                    && error.getMessage().contains("datasource_storage_compound_index")) {
-                                // The duplicate key error is because of the `name` field.
-                                return findByDatasource(datasource);
-                            }
-                            return Mono.error(error);
-                        });
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
     }
 
     protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
@@ -179,19 +150,22 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration) {
+
+        if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
+        }
+
+        if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
+        }
+
+        return validateDatasourceConfiguration(datasourceStorage);
+    }
+
+    @Override
+    public Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage) {
         Set<String> invalids = new HashSet<>();
         datasourceStorage.setInvalids(invalids);
-
-        // TODO: Get rid of this condition once client starts to have this information
-        if (!Boolean.TRUE.equals(onlyConfiguration)) {
-            if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
-            }
-
-            if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
-            }
-        }
 
         if (datasourceStorage.getDatasourceConfiguration() == null) {
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
@@ -215,11 +189,6 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     invalids.add("Unable to validate datasource.");
                     return Mono.just(datasourceStorage);
                 });
-    }
-
-    @Override
-    public Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage) {
-        return this.validateDatasourceStorage(datasourceStorage, true);
     }
 
     private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(DatasourceStorage datasourceStorage) {
