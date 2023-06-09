@@ -123,7 +123,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
-  it("6. Table-Text, Validate Server Side Pagination of Paginate with Response URL", function () {
+  it("6. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
     /**Validate Response data with Table data in Text Widget */
     _.entityExplorer.SelectEntityByName("Table1");
 

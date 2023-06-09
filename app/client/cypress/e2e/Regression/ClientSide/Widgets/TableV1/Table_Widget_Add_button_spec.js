@@ -76,7 +76,7 @@ describe("Table Widget property pane feature validation", function () {
       .click();
     cy.get(".t--dropdown-option")
       .children()
-      .contains("Plain Text")
+      .contains("Plain text")
       .click();
     cy.changeColumnType("Button", false); */
     const color1 = "rgb(255, 0, 0)";

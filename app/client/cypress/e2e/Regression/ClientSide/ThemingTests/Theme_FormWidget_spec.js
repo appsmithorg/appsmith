@@ -201,7 +201,7 @@ describe("Theme validation usecases", function () {
       .first()
       .invoke("text")
       .then((text) => {
-        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
+        cy.get(commonlocators.toastmsg).contains(`Theme ${text} applied`);
       });
     cy.get(`${commonlocators.themeCard} > main`)
       .last()

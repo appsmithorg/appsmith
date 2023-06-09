@@ -13,9 +13,9 @@ describe("Verify various Table_Filter combinations", function () {
     _.agHelper.AssertNetworkStatus("@updateLayout", 200);
     _.agHelper.PressEscape();
     /*
-      Changing id and orderAmount to "Plain Text" column type
+      Changing id and orderAmount to "Plain text" column type
       so that the tests that depend on id and orderAmount
-      being "Plain Text" type do not fail.
+      being "Plain text" type do not fail.
       From this PR onwards columns with number data (like id and orderAmount here)
       will be auto-assigned as "NUMBER" type column
     */

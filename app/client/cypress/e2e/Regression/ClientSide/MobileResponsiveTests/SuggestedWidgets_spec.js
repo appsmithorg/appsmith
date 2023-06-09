@@ -5,7 +5,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
-describe("Check Suggested Widgets Feature in Auto Layout", function () {
+describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
     autoLayout.ConvertToAutoLayout();
   });

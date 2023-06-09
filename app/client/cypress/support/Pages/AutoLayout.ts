@@ -172,7 +172,7 @@ export class AutoLayout {
   }
 
   /**
-   * Converts the layout to auto layout if not already converted
+   * Converts the layout to auto-layout if not already converted
    */
   public ConvertToAutoLayout() {
     this.agHelper

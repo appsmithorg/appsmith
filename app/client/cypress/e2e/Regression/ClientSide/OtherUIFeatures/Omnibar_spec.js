@@ -41,7 +41,7 @@ describe("Omnibar functionality test cases", () => {
       .eq(1)
       .should("have.text", "Create new")
       .next()
-      .should("have.text", "Create a new query, API or JS object");
+      .should("have.text", "Create a new query, API or JS Object");
     cy.get(omnibar.categoryTitle)
       .eq(2)
       .should("have.text", "Use snippets")
@@ -86,7 +86,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.categoryTitle).contains("Create new").click();
 
     // create new api, js object and cURL import from omnibar
-    cy.get(omnibar.createNew).contains("New JS object").click();
+    cy.get(omnibar.createNew).contains("New JS Object").click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);

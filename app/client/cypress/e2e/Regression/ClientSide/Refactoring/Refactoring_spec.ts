@@ -79,7 +79,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     );
   });
 
-  it("2. Verify refactoring updates in JS object", () => {
+  it("2. Verify refactoring updates in JS Object", () => {
     //Verify JSObject refactoring in API pane
     _.entityExplorer.SelectEntityByName(refactorInput.api.newName);
     _.agHelper.Sleep(1000);
@@ -97,7 +97,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     );
 
     //Verify TextWidget, InputWidget, QueryRefactor, RefactorAPI refactor
-    //Verify Names in JS object string shouldn't be updated
+    //Verify Names in JS Object string shouldn't be updated
     _.entityExplorer.SelectEntityByName(refactorInput.jsObject.newName);
     _.agHelper.GetNAssertContains(
       _.locators._consoleString,

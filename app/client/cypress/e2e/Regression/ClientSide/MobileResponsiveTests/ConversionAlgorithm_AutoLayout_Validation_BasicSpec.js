@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 let testHeight;
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Auto conversion algorithm usecases for Autolayout", function () {
+describe("Auto conversion algorithm usecases for auto-layout", function () {
   it("1. Validate basic conversion algorithm usecases", function () {
     cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
       _.agHelper.AddDsl(val);
