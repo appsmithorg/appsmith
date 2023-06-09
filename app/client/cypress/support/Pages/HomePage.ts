@@ -220,7 +220,11 @@ export class HomePage {
   public NavigateToHome() {
     cy.get(this._homeIcon).click({ force: true });
     this.agHelper.Sleep(2000);
-    this.agHelper.AssertNetworkStatus("@getReleaseItems");
+    if (!Cypress.env("AIRGAPPED")) {
+      this.agHelper.AssertNetworkStatus("@getReleaseItems");
+    } else {
+      this.agHelper.Sleep(2000);
+    }
     //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
     this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
