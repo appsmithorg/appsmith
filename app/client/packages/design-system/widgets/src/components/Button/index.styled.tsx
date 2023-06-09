@@ -16,6 +16,10 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   user-select: none;
   min-width: calc(var(--root-unit) * 7.5);
 
+  & span {
+    text-align: center;
+  }
+
   // TODO: remove this when we use only flex layout
   &[data-fit-container] {
     width: 100%;

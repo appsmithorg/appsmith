@@ -6,7 +6,7 @@ import { Container } from "./Container";
 import { useRecaptcha } from "./useRecaptcha";
 import type { UseRecaptchaProps } from "./useRecaptcha";
 import type { ButtonVariant, ButtonProps } from "@design-system/widgets";
-import { Button, Text, Icon, WithTooltip } from "@design-system/widgets";
+import { Button, Icon, WithTooltip } from "@design-system/widgets";
 
 export type ButtonComponentProps = {
   text?: string;
@@ -36,7 +36,7 @@ function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
     <Container showInAllModes>
       <WithTooltip tooltip={tooltip}>
         <Button icon={icon} isFitContainer onPress={onClick} {...rest}>
-          <Text>{text}</Text>
+          {text}
         </Button>
       </WithTooltip>
       {recpatcha}

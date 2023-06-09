@@ -41,6 +41,7 @@ import HtmlTitle from "./AppViewerHtmlTitle";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -175,6 +176,12 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
+  const featureFlags = useSelector(selectFeatureFlags);
+  const isWDSV2Enabled = featureFlags.wds_v2;
+  const backgroundForBody = isWDSV2Enabled
+    ? "var(--color-bg)"
+    : selectedTheme.properties.colors.backgroundColor;
+
   return (
     <WDSThemeProvider
       borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
@@ -190,9 +197,7 @@ function AppViewer(props: Props) {
             description={pageDescription}
             name={currentApplicationDetails?.name}
           />
-          <AppViewerBodyContainer
-            backgroundColor={selectedTheme.properties.colors.backgroundColor}
-          >
+          <AppViewerBodyContainer backgroundColor={backgroundForBody}>
             <AppViewerBody
               className={CANVAS_SELECTOR}
               hasPages={pages.length > 1}
