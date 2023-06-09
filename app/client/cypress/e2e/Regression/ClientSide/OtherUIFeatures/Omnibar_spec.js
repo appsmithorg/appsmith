@@ -94,6 +94,7 @@ describe("Omnibar functionality test cases", () => {
 
     agHelper.GetNClick(omnibar.globalSearch, 0, true);
     agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
+    agHelper.AssertElementVisible(omnibar.blankAPI);
     agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     agHelper.AssertNetworkStatus("@createNewApi", 201);
     agHelper.ValidateURL("/api");
