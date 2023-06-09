@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,17 +42,15 @@ class ImportApplicationPermissionProviderTest {
     @Test
     public void testCheckPermissionMethods_WhenNoPermissionProvided_ReturnsTrue() {
         ImportApplicationPermissionProvider importApplicationPermissionProvider = ImportApplicationPermissionProvider
-                .builder()
+                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
                 .build();
 
         assertTrue(importApplicationPermissionProvider.hasEditPermission(new NewPage()));
         assertTrue(importApplicationPermissionProvider.hasEditPermission(new NewAction()));
-        assertTrue(importApplicationPermissionProvider.hasEditPermission(new ActionCollection()));
         assertTrue(importApplicationPermissionProvider.hasEditPermission(new Datasource()));
 
         assertTrue(importApplicationPermissionProvider.canCreateDatasource(new Workspace()));
         assertTrue(importApplicationPermissionProvider.canCreateAction(new NewPage()));
-        assertTrue(importApplicationPermissionProvider.canCreateActionCollection(new NewPage()));
         assertTrue(importApplicationPermissionProvider.canCreatePage(new Application()));
     }
 
@@ -76,8 +75,6 @@ class ImportApplicationPermissionProviderTest {
                 assertFalse(provider.hasEditPermission((NewPage) domain));
             } else if (domain instanceof NewAction) {
                 assertFalse(provider.hasEditPermission((NewAction) domain));
-            } else if (domain instanceof ActionCollection) {
-                assertFalse(provider.hasEditPermission((ActionCollection) domain));
             } else if (domain instanceof Datasource) {
                 assertFalse(provider.hasEditPermission((Datasource) domain));
             }
@@ -104,18 +101,54 @@ class ImportApplicationPermissionProviderTest {
                 assertFalse(provider.canCreatePage((Application) domain));
             } else if (domain instanceof NewPage) {
                 assertFalse(provider.canCreateAction((NewPage) domain));
-                assertFalse(provider.canCreateActionCollection((NewPage) domain));
             } else if (domain instanceof Workspace) {
                 assertFalse(provider.canCreateDatasource((Workspace) domain));
             }
         }
     }
 
+    @Test
+    public void tesBuilderIsSettingTheCorrectParametersToPermissionProvider() {
+        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider
+                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
+
+        assertThat(builder.requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .build().getRequiredPermissionOnTargetApplication()
+        ).isEqualTo(applicationPermission.getEditPermission());
+
+        assertThat(builder.requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                .build().getRequiredPermissionOnTargetWorkspace()
+        ).isEqualTo(workspacePermission.getReadPermission());
+
+        assertTrue(builder.permissionRequiredToCreateDatasource(true).build().isPermissionRequiredToCreateDatasource());
+        assertTrue(builder.permissionRequiredToCreatePage(true).build().isPermissionRequiredToCreatePage());
+        assertTrue(builder.permissionRequiredToCreateAction(true).build().isPermissionRequiredToCreateAction());
+
+        assertTrue(builder.permissionRequiredToEditDatasource(true).build().isPermissionRequiredToEditDatasource());
+        assertTrue(builder.permissionRequiredToEditPage(true).build().isPermissionRequiredToEditPage());
+        assertTrue(builder.permissionRequiredToEditAction(true).build().isPermissionRequiredToEditAction());
+    }
+
+    @Test
+    public void testAllPermissionsRequiredIsSettingAllPermissionsAsRequired() {
+        ImportApplicationPermissionProvider provider = ImportApplicationPermissionProvider
+                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                .allPermissionsRequired()
+                .build();
+
+        assertTrue(provider.isPermissionRequiredToCreateDatasource());
+        assertTrue(provider.isPermissionRequiredToCreatePage());
+        assertTrue(provider.isPermissionRequiredToCreateAction());
+        assertTrue(provider.isPermissionRequiredToEditDatasource());
+        assertTrue(provider.isPermissionRequiredToEditPage());
+        assertTrue(provider.isPermissionRequiredToEditAction());
+    }
+
     /**
      * Prepares the domain and creates a permission provider to test edit permission check on domain.
      * The method does the following:
      * 1. Adds a policy with the edit permission and dummy groups to the domain.
-     * 2. Creates a permission provider with the edit permission on the domain and another permission groups.
+     * 2. Creates a permission provider with corresponding edit permission as required
      * 3. Returns the permission provider.
      * The permission group in the domain policy and the permission provider are different.
      * Hence, the edit permission check should fail.
@@ -127,17 +160,15 @@ class ImportApplicationPermissionProviderTest {
         setPoliciesToDomain(baseDomain, domainPermission.getEditPermission());
 
         ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider
-                .builder()
-                .userPermissionGroups(Set.of());
+                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                .currentUserPermissionGroups(Set.of());
 
         if(baseDomain instanceof NewPage) {
-            builder.editPagePermission(domainPermission.getEditPermission());
+            builder.permissionRequiredToEditPage(true);
         } else if(baseDomain instanceof NewAction) {
-            builder.editActionPermission(domainPermission.getEditPermission());
-        } else if(baseDomain instanceof ActionCollection) {
-            builder.editActionCollectionPermission(domainPermission.getEditPermission());
+            builder.permissionRequiredToEditAction(true);
         } else if(baseDomain instanceof Datasource) {
-            builder.editDatasourcePermission(domainPermission.getEditPermission());
+            builder.permissionRequiredToEditDatasource(true);
         }
         return builder.build();
     }
@@ -146,7 +177,7 @@ class ImportApplicationPermissionProviderTest {
      * Prepares the domain and creates a permission provider to test create resource permission check on domain.
      * The method does the following:
      * 1. Adds a policy with the edit permission and dummy groups to the domain.
-     * 2. Creates a permission provider with the create resource permission on the domain and another permission groups.
+     * 2. Creates a permission provider with the corresponding permission as required.
      * 3. Returns the permission provider.
      * The permission group in the domain policy and the permission provider are different.
      * Hence, the create resource permission check should fail.
@@ -158,16 +189,15 @@ class ImportApplicationPermissionProviderTest {
         setPoliciesToDomain(baseDomain, permission);
 
         ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider
-                .builder()
-                .userPermissionGroups(Set.of());
+                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                .currentUserPermissionGroups(Set.of());
 
         if(baseDomain instanceof Application) {
-            builder.createPagePermission(permission);
+            builder.permissionRequiredToCreatePage(true);
         } else if(baseDomain instanceof NewPage) {
-            builder.createActionPermission(permission);
-            builder.createActionCollectionPermission(permission);
+            builder.permissionRequiredToCreateAction(true);
         } else if(baseDomain instanceof Workspace) {
-            builder.createDatasourcePermission(permission);
+            builder.permissionRequiredToCreateDatasource(true);
         }
         return builder.build();
     }

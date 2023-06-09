@@ -665,18 +665,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private Mono<ImportApplicationPermissionProvider> getPermissionProviderForUpdateNonGitConnectedAppFromJson() {
         return permissionGroupRepository.getCurrentUserPermissionGroups()
                 .map(permissionGroups -> {
-                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                            .workspacePermission(workspacePermission.getReadPermission())
-                            .editDatasourcePermission(datasourcePermission.getEditPermission())
-                            .createDatasourcePermission(workspacePermission.getDatasourceCreatePermission())
-                            .applicationPermission(applicationPermission.getEditPermission())
-                            .editPagePermission(pagePermission.getEditPermission())
-                            .editActionPermission(actionPermission.getEditPermission())
-                            .editActionCollectionPermission(actionPermission.getEditPermission())
-                            .createActionPermission(pagePermission.getActionCreatePermission())
-                            .createPagePermission(applicationPermission.getPageCreatePermission())
-                            .createActionCollectionPermission(pagePermission.getActionCreatePermission())
-                            .userPermissionGroups(permissionGroups)
+                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider
+                            .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                            .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                            .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                            .allPermissionsRequired()
+                            .currentUserPermissionGroups(permissionGroups)
                             .build();
                     return permissionProvider;
                 });
@@ -759,11 +753,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                    .workspacePermission(workspacePermission.getApplicationCreatePermission())
-                    .createDatasourcePermission(workspacePermission.getDatasourceCreatePermission())
-                    .editDatasourcePermission(datasourcePermission.getEditPermission())
-                    .userPermissionGroups(userPermissionGroups)
+            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider
+                    .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                    .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
+                    .permissionRequiredToCreateDatasource(true)
+                    .permissionRequiredToEditDatasource(true)
+                    .currentUserPermissionGroups(userPermissionGroups)
                     .build();
 
             return importApplicationInWorkspace(workspaceId, importedDoc, null, null, false, permissionProvider);
@@ -784,15 +779,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .flatMap(userPermissionGroups -> {
                     /**
                      * If the application is connected to git, then the user must have edit permission on the application.
-                     * If user is importing application from Git, create application permission is clready checked by the
-                     * caller method so it's not required here.
+                     * If user is importing application from Git, create application permission is already checked by the
+                     * caller method, so it's not required here.
                      * Other permissions are not required because Git is the source of truth for the application and Git
-                     * Sync is a system level operation to get latest code from Git. If the user does not have some
+                     * Sync is a system level operation to get the latest code from Git. If the user does not have some
                      * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
                      */
-                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                            .applicationPermission(applicationPermission.getEditPermission())
-                            .userPermissionGroups(userPermissionGroups)
+                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider
+                            .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                            .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                            .currentUserPermissionGroups(userPermissionGroups)
                             .build();
                     return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
                 });
@@ -800,12 +796,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     @Override
     public Mono<Application> restoreSnapshot(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
+        /**
+         * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
+         * Only permission required is to edit the application.
+         */
         return permissionGroupRepository.getCurrentUserPermissionGroups()
                 .flatMap(userPermissionGroups -> {
-                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                            .workspacePermission(workspacePermission.getReadPermission())
-                            .applicationPermission(applicationPermission.getEditPermission())
-                            .userPermissionGroups(userPermissionGroups)
+                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider
+                            .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                            .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                            .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                            .currentUserPermissionGroups(userPermissionGroups)
                             .build();
                     return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
                 });
@@ -885,9 +886,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, permissionProvider.getWorkspacePermission())
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.error("No workspace found with id: {} and permission: {}", workspaceId, permissionProvider.getWorkspacePermission());
+                    log.error("No workspace found with id: {} and permission: {}", workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace());
                     return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
                 }));
 
@@ -1044,9 +1045,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         importedApplication.setWorkspaceId(workspaceId);
                                         // Application Id will be present for GIT sync
                                         if (!StringUtils.isEmpty(applicationId)) {
-                                            return applicationService.findById(applicationId, permissionProvider.getApplicationPermission())
+                                            return applicationService.findById(applicationId, permissionProvider.getRequiredPermissionOnTargetApplication())
                                                     .switchIfEmpty(Mono.defer(() -> {
-                                                        log.error("No application found with id: {} and permission: {}", applicationId, permissionProvider.getApplicationPermission());
+                                                        log.error("No application found with id: {} and permission: {}", applicationId, permissionProvider.getRequiredPermissionOnTargetApplication());
                                                         return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId));
                                                     }))
                                                     .flatMap(existingApplication -> {
@@ -1809,10 +1810,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                         //Since the resource is already present in DB, just update resource
                         ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
-                        if(!permissionProvider.hasEditPermission(existingActionCollection)) {
-                            log.error("User does not have permission to edit the action collection with id: {}", existingActionCollection.getId());
-                            return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, existingActionCollection.getId()));
-                        }
 
                         Set<Policy> existingPolicy = existingActionCollection.getPolicies();
                         copyNestedNonNullProperties(actionCollection, existingActionCollection);
@@ -1828,7 +1825,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 actionCollectionService.save(existingActionCollection)
                         );
                     } else {
-                        if(!permissionProvider.canCreateActionCollection(parentPage)) {
+                        if(!permissionProvider.canCreateAction(parentPage)) {
                             return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, parentPage.getId()));
                         }
 
@@ -2395,18 +2392,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         return permissionGroupRepository.getCurrentUserPermissionGroups()
                 .flatMap(userPermissionGroups -> {
-                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                            .workspacePermission(workspacePermission.getReadPermission())
-                            .editDatasourcePermission(datasourcePermission.getEditPermission())
-                            .createDatasourcePermission(workspacePermission.getDatasourceCreatePermission())
-                            .applicationPermission(applicationPermission.getEditPermission())
-                            .editPagePermission(pagePermission.getEditPermission())
-                            .editActionPermission(actionPermission.getEditPermission())
-                            .editActionCollectionPermission(actionPermission.getEditPermission())
-                            .createActionPermission(pagePermission.getActionCreatePermission())
-                            .createPagePermission(applicationPermission.getPageCreatePermission())
-                            .createActionCollectionPermission(pagePermission.getActionCreatePermission())
-                            .userPermissionGroups(userPermissionGroups)
+                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+                            .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                            .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                            .allPermissionsRequired()
+                            .currentUserPermissionGroups(userPermissionGroups)
                             .build();
                     return importApplicationInWorkspace(workspaceId, applicationJson, applicationId, branchName, true, permissionProvider);
                 });
