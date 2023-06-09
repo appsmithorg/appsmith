@@ -9,7 +9,6 @@ export class Templates {
     _resultsHeader: "[data-testid='t--application-templates-results-header']",
     _templateViewGoBack: "[data-testid='t--template-view-goback']",
     templateDialogBox: "[data-testid=t--templates-dialog-component]",
-    templateDialogCloseButton: ".ads-v2-modal__content-header-close-button",
     _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
   };
 

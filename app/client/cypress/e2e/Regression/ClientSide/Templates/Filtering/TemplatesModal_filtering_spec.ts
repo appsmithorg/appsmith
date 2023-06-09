@@ -15,7 +15,7 @@ describe("excludeForAirgap", "Bug 17276 - Templates modal filtering", () => {
       if (typeof headerText === "string") {
         templates.AssertResultsHeaderText(headerText, "not.have.text");
       }
-      agHelper.GetNClick(templates.locators.templateDialogCloseButton);
+      agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
 
       entityExplorer.AddNewPage("Add page from template");
       agHelper.AssertElementVisible(templates.locators.templateDialogBox);
