@@ -77,12 +77,30 @@ export const useAutoLayoutHighlights = ({
 
   const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
     cleanUpTempStyles();
+    let left = 0,
+      top = 0;
+
+    const mainCanvasElement = document.querySelector(".flex-container-0");
+    const currCanvasElement = document.querySelector(
+      `.flex-container-${canvasId}`,
+    );
+
+    if (mainCanvasElement && currCanvasElement) {
+      const { left: mainLeft, top: mainTop } =
+        mainCanvasElement.getBoundingClientRect();
+      const { left: currLeft, top: currTop } =
+        currCanvasElement.getBoundingClientRect();
+
+      left = currLeft - mainLeft;
+      top = currTop - mainTop;
+    }
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
       isFillWidget = checkForFillWidget();
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         widgetPositions,
+        { left, top },
         canvasId,
         snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
         blocksToDraw.map((block) => block?.widgetId),
@@ -110,11 +128,29 @@ export const useAutoLayoutHighlights = ({
     mouseUp = false,
   ) => {
     if (mouseUp && lastActiveHighlight) return lastActiveHighlight;
+    let left = 0,
+      top = 0;
+
+    const mainCanvasElement = document.querySelector(".flex-container-0");
+    const currCanvasElement = document.querySelector(
+      `.flex-container-${canvasId}`,
+    );
+
+    if (mainCanvasElement && currCanvasElement) {
+      const { left: mainLeft, top: mainTop } =
+        mainCanvasElement.getBoundingClientRect();
+      const { left: currLeft, top: currTop } =
+        currCanvasElement.getBoundingClientRect();
+
+      left = currLeft - mainLeft;
+      top = currTop - mainTop;
+    }
 
     if (!highlights || !highlights?.current?.length)
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         widgetPositions,
+        { left, top },
         canvasId,
         snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
         blocksToDraw.map((block) => block?.widgetId),

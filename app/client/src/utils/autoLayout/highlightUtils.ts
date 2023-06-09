@@ -67,6 +67,7 @@ function getWrappedAlignmentInfo(
 export function deriveHighlightsFromLayers(
   allWidgets: CanvasWidgetsReduxState,
   widgetPositions: WidgetPositions,
+  canvasPositions: { left: number; top: number },
   canvasId: string,
   canvasWidth: number,
   draggedWidgets: string[] = [],
@@ -112,6 +113,7 @@ export function deriveHighlightsFromLayers(
     const payload: VerticalHighlightsPayload = generateVerticalHighlights({
       widgets,
       widgetPositions,
+      canvasPositions,
       canvasWidth,
       layer: updatedLayer,
       childCount,
@@ -176,6 +178,7 @@ export interface VerticalHighlightsPayload {
 export function generateVerticalHighlights(data: {
   widgets: CanvasWidgetsReduxState;
   widgetPositions: WidgetPositions;
+  canvasPositions: { left: number; top: number };
   canvasWidth: number;
   layer: FlexLayer;
   childCount: number;
@@ -187,6 +190,7 @@ export function generateVerticalHighlights(data: {
 }): VerticalHighlightsPayload {
   const {
     canvasId,
+    canvasPositions,
     canvasWidth,
     childCount,
     draggedWidgets,
@@ -296,6 +300,7 @@ export function generateVerticalHighlights(data: {
           offsetTop,
           canvasId,
           canvasWidth,
+          canvasPositions,
           widgetPositions,
           isMobile,
           avoidInitialHighlight,
@@ -319,6 +324,7 @@ export function generateVerticalHighlights(data: {
 export function generateHighlightsForAlignment(data: {
   arr: FlattenedWidgetProps[];
   widgetPositions: WidgetPositions;
+  canvasPositions: { left: number; top: number };
   canvasWidth: number;
   childCount: number;
   layerIndex: number;
@@ -335,6 +341,7 @@ export function generateHighlightsForAlignment(data: {
     arr,
     avoidInitialHighlight,
     canvasId,
+    canvasPositions,
     canvasWidth,
     childCount,
     isMobile,
@@ -355,8 +362,8 @@ export function generateHighlightsForAlignment(data: {
       layerIndex,
       rowIndex: count,
       alignment,
-      posX: left - DEFAULT_HIGHLIGHT_SIZE,
-      posY: top,
+      posX: left - canvasPositions.left - DEFAULT_HIGHLIGHT_SIZE,
+      posY: top - canvasPositions.top,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile ? height : maxHeight,
       isVertical: true,
@@ -380,11 +387,11 @@ export function generateHighlightsForAlignment(data: {
       posX: getPositionForInitialHighlight(
         res,
         alignment,
-        lastChild !== null ? left + width : 0,
+        lastChild !== null ? left - canvasPositions.left + width : 0,
         canvasWidth,
         startPosition,
       ),
-      posY: lastChild === null ? offsetTop : top,
+      posY: lastChild === null ? offsetTop : top - canvasPositions.top,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile && lastChild !== null ? height : maxHeight,
       isVertical: true,

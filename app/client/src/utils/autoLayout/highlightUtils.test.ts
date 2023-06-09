@@ -45,6 +45,7 @@ describe("test HighlightUtils methods", () => {
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
         {},
+        { left: 0, top: 0 },
         "1",
         632,
       );
@@ -119,6 +120,7 @@ describe("test HighlightUtils methods", () => {
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
         widgetPositions,
+        { left: 0, top: 0 },
         "1",
         640,
       );
@@ -187,6 +189,7 @@ describe("test HighlightUtils methods", () => {
       const result: HighlightInfo[] = generateHighlightsForAlignment({
         arr: children,
         childCount: 0,
+        canvasPositions: { left: 0, top: 0 },
         layerIndex: 0,
         alignment: FlexLayerAlignment.Start,
         maxHeight: 40,
@@ -278,6 +281,7 @@ describe("test HighlightUtils methods", () => {
         arr: children,
         childCount: 0,
         layerIndex: 0,
+        canvasPositions: { left: 0, top: 0 },
         alignment: FlexLayerAlignment.Start,
         maxHeight:
           getWidgetHeight(children[1], false) * children[1].parentRowSpace,
@@ -300,6 +304,7 @@ describe("test HighlightUtils methods", () => {
         widgetPositions: {},
         childCount: 0,
         layerIndex: 0,
+        canvasPositions: { left: 0, top: 0 },
         alignment: FlexLayerAlignment.Start,
         maxHeight: 40,
         offsetTop: 4,
@@ -412,7 +417,7 @@ describe("test HighlightUtils methods", () => {
         childCount: 0,
         layerIndex: 0,
         offsetTop: 4,
-
+        canvasPositions: { left: 0, top: 0 },
         canvasId: "1",
         canvasWidth: 640,
         draggedWidgets: [],
@@ -514,6 +519,7 @@ describe("test HighlightUtils methods", () => {
       const result: VerticalHighlightsPayload = generateVerticalHighlights({
         widgets,
         widgetPositions,
+        canvasPositions: { left: 0, top: 0 },
         layer: widgets["1"].flexLayers[0],
         childCount: 0,
         layerIndex: 0,
