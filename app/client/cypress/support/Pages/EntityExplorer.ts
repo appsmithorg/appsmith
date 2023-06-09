@@ -224,8 +224,9 @@ export class EntityExplorer {
       this.agHelper.Sleep(300);
     }
     if (action == "Delete") {
-      jsDelete && this.agHelper.AssertNetworkStatus("@deleteJSCollection");
-      jsDelete && this.agHelper.AssertContains("deleted successfully");
+      jsDelete &&
+        this.agHelper.AssertContains("deleted successfully") &&
+        this.agHelper.AssertNetworkStatus("@deleteJSCollection");
     }
   }
 

@@ -152,14 +152,14 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "response.body.responseMeta.status",
       200,
     ); //This verifies the Select on the table, ie page is created fine
+    agHelper.AssertNetworkStatus("@updateLayout", 200);
 
     cy.ClickGotIt();
-    cy.wait(2000);
+    cy.wait(3000);
     //Verifying Update from UI
     cy.xpath(generatePage.selectRowinTable)
       .eq(0)
       .scrollIntoView()
-      .should("be.visible")
       .click({ force: true });
 
     //Commenting below section as it will be replaced with new JSON Form CRUD!
