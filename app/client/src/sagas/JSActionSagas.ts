@@ -276,7 +276,7 @@ export function* deleteJSCollectionSaga(
       history.push(builderURL({ pageId }));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
-        text: "JS object was deleted",
+        text: "JS Object was deleted",
         source: {
           type: ENTITY_TYPE.JSACTION,
           // @ts-expect-error: response.data is of type unknown

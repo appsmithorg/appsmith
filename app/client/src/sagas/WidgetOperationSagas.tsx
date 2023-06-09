@@ -261,7 +261,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         bottomRow: updatedCanvasBottomRow,
       };
     }
-    // If it is an auto layout canvas, then use positionUtils to update canvas bottomRow.
+    // If it is an auto-layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
@@ -2030,7 +2030,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 export function* groupWidgetsSaga() {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
-  // Grouping functionality has been temporarily disabled for auto layout canvas.
+  // Grouping functionality has been temporarily disabled for auto-layout canvas.
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
   if (isAutoLayout) return;
   if (isMultipleWidgetsSelected) {

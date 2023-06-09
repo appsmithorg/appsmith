@@ -52,7 +52,7 @@ describe("MySQL Datatype tests", function () {
   });
 
   after(
-    "Verify Drop table & Deletion of the datasource after all created queries are Deleted",
+    "Verify Drop table & Deletion of the datasource after all created queries are deleted",
     () => {
       query = inputData.query.dropTable;
       _.dataSources.EnterQuery(query);
