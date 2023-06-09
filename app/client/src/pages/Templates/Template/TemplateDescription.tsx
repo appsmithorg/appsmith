@@ -64,7 +64,6 @@ export const TemplateDatasources = styled.div`
 
 type TemplateDescriptionProps = {
   template: Template;
-  hideForkButton?: boolean;
 };
 
 function TemplateDescription(props: TemplateDescriptionProps) {
