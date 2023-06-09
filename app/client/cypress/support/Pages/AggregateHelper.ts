@@ -77,14 +77,16 @@ export class AggregateHelper {
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
     let pageid: string, layoutId;
-    const appId: string | null = localStorage.getItem("applicationId");
+    let appId: string | null;
     cy.url().then((url) => {
       pageid = url.split("/")[5]?.split("-").pop() as string;
       cy.log(pageid + "page id");
       //Fetch the layout id
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
-        layoutId = JSON.parse(respBody).data.layouts[0].id;
+        const data = JSON.parse(respBody).data;
+        layoutId = data.layouts[0].id;
+        appId = data.applicationId;
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
@@ -553,11 +555,12 @@ export class AggregateHelper {
     index = 0,
     force = false,
     waitTimeInterval = 500,
+    ctrlKey = false,
   ) {
     return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
-      .click({ force: force })
+      .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
   }
 
@@ -1214,6 +1217,10 @@ export class AggregateHelper {
 
   GetWidgetHeight(widgetSelector: string) {
     return this.GetElement(widgetSelector).invoke("height");
+  }
+
+  GetWidgetCSSHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("css", "height");
   }
 
   GetWidgetByName(widgetName: string) {
