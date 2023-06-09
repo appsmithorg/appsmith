@@ -22,7 +22,7 @@ public interface RefactoringSolutionCE {
 
     /**
      * This method is responsible for the core logic of refactoring a valid name inside an Appsmith page.
-     * This includes refactoring inside the DSL, in actions, and JS objects.
+     * This includes refactoring inside the DSL, in actions, and JS Objects.
      *
      * @param pageId   The page where the refactor needs to happen
      * @param layoutId The layout where the refactor needs to happen
