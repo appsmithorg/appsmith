@@ -845,10 +845,10 @@ Cypress.Commands.add("closePropertyPane", () => {
 
 Cypress.Commands.add(
   "onClickActions",
-  (forSuccess, forFailure, actionType, actionValue) => {
+  (forSuccess, forFailure, actionType, actionValue, idx = 0) => {
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-    cy.get(propPane._actionCallbacks).click();
+    cy.get(propPane._actionCallbacks).last().click();
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
