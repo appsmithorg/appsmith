@@ -64,7 +64,9 @@ function ListItemWrapper(props: {
   const currentEnvironment = getCurrentEnvironment();
   const isPluginAuthorized = isGoogleSheetPluginDS(plugin?.packageName)
     ? isDatasourceAuthorizedForQueryCreation(ds, plugin ?? {})
-    : ds.datasourceStorages[currentEnvironment].isConfigured;
+    : ds.datasourceStorages
+    ? ds.datasourceStorages[currentEnvironment]?.isConfigured
+    : false;
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}
