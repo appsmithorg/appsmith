@@ -106,11 +106,11 @@ export default function Pagination(props: PaginationProps) {
               value: PaginationType.NONE,
             },
             {
-              label: "Paginate with Table Page No",
+              label: "Paginate with table page number",
               value: PaginationType.PAGE_NO,
             },
             {
-              label: "Paginate with Response URL",
+              label: "Paginate with response URL",
               value: PaginationType.URL,
             },
           ]}
@@ -122,14 +122,14 @@ export default function Pagination(props: PaginationProps) {
               <div>
                 <StepTitle>
                   <Text type={TextType.P1}>
-                    1. Configure Table for Pagination
+                    1. Configure table for pagination
                   </Text>
                 </StepTitle>
                 <Step type={TextType.P1}>1. Enable server side pagination</Step>
                 <Step type={TextType.P1}>2. Configure OnPageChange action</Step>
                 <StepTitle>
                   <Text type={TextType.P1}>
-                    2. Configure Request Parameters
+                    2. Configure request parameters
                   </Text>
                 </StepTitle>
                 <Step style={{ width: "336px" }} type={TextType.P1}>
@@ -157,7 +157,7 @@ export default function Pagination(props: PaginationProps) {
                   }
                 />
                 <Text type={TextType.P3}>
-                  1. How to Configure Table for Pagination
+                  1. How to configure table for pagination
                 </Text>
               </GifContainer>
             </PaginationTypeView>,
@@ -165,7 +165,7 @@ export default function Pagination(props: PaginationProps) {
               <div>
                 <StepTitle>
                   <Text type={TextType.P1}>
-                    1. Configure Table for Pagination
+                    1. Configure table for pagination
                   </Text>
                 </StepTitle>
                 <Step type={TextType.P1}>1. Enable server side pagination</Step>
@@ -175,7 +175,7 @@ export default function Pagination(props: PaginationProps) {
                     2. Configure Request Parameters
                   </Text>
                 </StepTitle>
-                <Step type={TextType.P1}>Configure Next and Previous URL </Step>
+                <Step type={TextType.P1}>Configure next and previous URL </Step>
                 <Step type={TextType.P1}>Previous URL</Step>
                 <PaginationFieldWrapper
                   data-replay-id={btoa("actionConfiguration.prev")}
@@ -241,7 +241,7 @@ export default function Pagination(props: PaginationProps) {
                   }
                 />
                 <Text type={TextType.P3}>
-                  1. How to Configure Table for Pagination
+                  1. How to configure table for pagination
                 </Text>
               </GifContainer>
             </PaginationTypeView>,

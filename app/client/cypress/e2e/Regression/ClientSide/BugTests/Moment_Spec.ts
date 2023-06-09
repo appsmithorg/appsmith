@@ -101,7 +101,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
   });
 
   after(
-    "Verify Deletion of the datasource after all created queries are Deleted",
+    "Verify Deletion of the datasource after all created queries are deleted",
     () => {
       _.deployMode.NavigateBacktoEditor();
       _.agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
