@@ -3158,17 +3158,10 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(Paths.get("path")));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(gitExecutor.pullApplication(
-                        Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(mergeStatusDTO));
-        Mockito.when(gitExecutor.getStatus(Mockito.any(Path.class), Mockito.anyString()))
-                .thenReturn(Mono.just(gitStatusDTO));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true), Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn(Mono.just("fetched"));
-        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+        Mockito.when(gitExecutor.rebaseBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true);
+        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
         StepVerifier
                 .create(applicationMono)
@@ -3208,7 +3201,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("fetched"));
 
         gitService
-                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true)
+                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName())
                 .timeout(Duration.ofNanos(100))
                 .subscribe();
 
