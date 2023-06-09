@@ -40,28 +40,11 @@ class Linter implements TLinter {
       : this.lintUpdatedTree(unEvalTree, configTree);
   }
   lintFirstTree(unEvalTree: UnEvalTree, configTree: ConfigTree) {
-    const entityTree = createEntityTree(unEvalTree, configTree);
-    const jsActions = getEntitiesOfType<JSEntity>(
-      ENTITY_TYPE.JSACTION,
-      entityTree,
-    );
-    const parsedJSActions = ParsedJSObjectState.parseJSEntities(jsActions);
-    setParsedJSEntities(entityTree, parsedJSActions);
-    const entityTreeWithParsedJS = getEntityTreeWithParsedJS(entityTree);
-
-    const allPaths = getAllPaths(entityTreeWithParsedJS);
-
+    const { allPaths, entityTree } = this.initialize(unEvalTree, configTree);
     const dependencies = createDependency(entityTree, allPaths);
-
-    // MakeParentDependOnChildren skipped
-
-    // sort dependencies
     const sortedDependencies = sortDependencies(dependencies);
     const lintOrder = getDynamicNodes(sortedDependencies, entityTree);
-
-    // Cache tree
     this.cachedEntityTree = entityTree;
-
     return {
       lintOrder,
       entityTree,
@@ -69,31 +52,20 @@ class Linter implements TLinter {
   }
 
   lintUpdatedTree(unEvalTree: UnEvalTree, configTree: ConfigTree) {
-    const entityTree = createEntityTree(unEvalTree, configTree);
-    const cachedEntityTree = this.cachedEntityTree;
-    const jsActions = getEntitiesOfType<JSEntity>(
-      ENTITY_TYPE.JSACTION,
-      entityTree,
+    const { allPaths, entityTree, entityTreeWithParsedJS } = this.initialize(
+      unEvalTree,
+      configTree,
     );
-    const parsedJSActions = ParsedJSObjectState.parseJSEntities(jsActions);
-    setParsedJSEntities(entityTree, parsedJSActions);
-    const entityTreeWithParsedJS = getEntityTreeWithParsedJS(entityTree);
+    const cachedEntityTree = this.cachedEntityTree;
     const cachedEntityTreeWithParsedJS =
       getEntityTreeWithParsedJS(cachedEntityTree);
-    // Calculate diff
     const entityTreeDiff: Diff<TEntityTreeWithParsedJS>[] =
       diff(cachedEntityTreeWithParsedJS, entityTreeWithParsedJS) || [];
-
-    // Translate diffs
     const translatedDiffs = flatten(
       entityTreeDiff.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, entityTree),
       ),
     );
-
-    // Update dependency
-    const allPaths = getAllPaths(entityTreeWithParsedJS);
-
     updateDependency(
       translatedDiffs,
       entityTree,
@@ -101,17 +73,28 @@ class Linter implements TLinter {
       entityTreeWithParsedJS,
       allPaths,
     );
-
     const sortOrder = generateSortOrder(
       translatedDiffs,
       entityTreeWithParsedJS,
       entityTree,
     );
-
     return {
       lintOrder: sortOrder,
       entityTree,
     };
+  }
+  initialize(unEvalTree: UnEvalTree, configTree: ConfigTree) {
+    const entityTree = createEntityTree(unEvalTree, configTree);
+    const jsActions = getEntitiesOfType<JSEntity>(
+      ENTITY_TYPE.JSACTION,
+      entityTree,
+    );
+    const parsedJSActions = ParsedJSObjectState.parseJSEntities(jsActions);
+    setParsedJSEntities(entityTree, parsedJSActions);
+    const entityTreeWithParsedJS = getEntityTreeWithParsedJS(entityTree);
+    const allPaths = getAllPaths(entityTreeWithParsedJS);
+
+    return { entityTree, entityTreeWithParsedJS, allPaths };
   }
 }
 
