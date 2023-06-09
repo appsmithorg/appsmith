@@ -793,7 +793,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 .flatMap(applicationJson -> {
                                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                                     return importExportApplicationService
-                                                            .importApplicationInWorkspace(workspaceId, applicationJson, applicationId, defaultBranch);
+                                                            .importApplicationInWorkspaceFromGit(workspaceId, applicationJson, applicationId, defaultBranch);
                                                 });
                                     }
                                 })
@@ -1210,7 +1210,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
-                    return importExportApplicationService.importApplicationInWorkspace(
+                    return importExportApplicationService.importApplicationInWorkspaceFromGit(
                                     savedApplication.getWorkspaceId(),
                                     tuple.getT2(),
                                     savedApplication.getId(),
@@ -1343,7 +1343,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     ApplicationJson applicationJson = tuple.getT1();
                     Application application = tuple.getT2();
                     return importExportApplicationService
-                            .importApplicationInWorkspace(application.getWorkspaceId(), applicationJson, application.getId(), branchName)
+                            .importApplicationInWorkspaceFromGit(application.getWorkspaceId(), applicationJson, application.getId(), branchName)
                             .flatMap(application1 -> addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH.getEventName(),
                                     application1,
@@ -1736,7 +1736,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
-                            .importApplicationInWorkspace(destApplication.getWorkspaceId(), applicationJson, destApplication.getId(), destinationBranch.replaceFirst("origin/", ""))
+                            .importApplicationInWorkspaceFromGit(destApplication.getWorkspaceId(), applicationJson, destApplication.getId(), destinationBranch.replaceFirst("origin/", ""))
                             .flatMap(application1 -> {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
@@ -2042,7 +2042,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                 return importExportApplicationService
-                                        .importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), defaultBranch)
+                                        .importApplicationInWorkspaceFromGit(workspaceId, applicationJson, application.getId(), defaultBranch)
                                         .onErrorResume(throwable ->
                                                 deleteApplicationCreatedFromGitImport(application.getId(), application.getWorkspaceId(), gitApplicationMetadata.getRepoName())
                                                         .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())))
@@ -2224,7 +2224,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             })
                             .flatMap(applicationJson ->
                                     importExportApplicationService
-                                            .importApplicationInWorkspace(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
+                                            .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
                             );
                 })
                 .flatMap(application -> releaseFileLock(defaultApplicationId)
@@ -2457,7 +2457,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Get the latest application with all the changes
                     // Commit and push changes to sync with remote
                     return importExportApplicationService
-                            .importApplicationInWorkspace(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
+                            .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
                             .flatMap(application -> addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_PULL.getEventName(),
                                             application,
