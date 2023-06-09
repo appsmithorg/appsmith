@@ -1719,13 +1719,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:^7.10.2":
-  version: 7.11.2
-  resolution: "@babel/runtime-corejs3@npm:7.11.2"
+"@babel/runtime-corejs3@npm:^7.10.2, @babel/runtime-corejs3@npm:^7.16.5":
+  version: 7.22.5
+  resolution: "@babel/runtime-corejs3@npm:7.22.5"
   dependencies:
-    core-js-pure: ^3.0.0
-    regenerator-runtime: ^0.13.4
-  checksum: a055ddc9f0403164b4db7ea3344bca6d12ad0d7b9aecad6a6bef121e943dbec717827df88d91237d618eb294dfcce564e0c17f631858536859638ca55d938171
+    core-js-pure: ^3.30.2
+    regenerator-runtime: ^0.13.11
+  checksum: cdeabaa6858cedb0ec47c1245195a09a8fd2de06f4545614acb574d150a81d0e27eb9c08d69787b2c1ad4a1fc57919a3f0599f60d14914227c200563cd595503
   languageName: node
   linkType: hard
 
@@ -9671,7 +9671,7 @@ __metadata:
     interweave: ^12.7.2
     interweave-autolink: ^4.4.2
     jest: ^27.4.1
-    jest-canvas-mock: ^2.3.1
+    jest-canvas-mock: ^2.5.1
     jest-environment-jsdom: ^27.4.1
     jest-preview: ^0.3.1
     jest-styled-components: ^7.0.8
@@ -9791,6 +9791,7 @@ __metadata:
     webpack-retry-chunk-load-plugin: ^3.1.1
     workbox-webpack-plugin: ^6.5.3
     xlsx: "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
+    xregexp: ^5.1.1
     yjs: ^13.5.12
     zipcelx: ^1.6.2
   languageName: unknown
@@ -12523,10 +12524,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.0.0, core-js-pure@npm:^3.23.3":
-  version: 3.29.0
-  resolution: "core-js-pure@npm:3.29.0"
-  checksum: 281805cda717a471a15fd44a526ce873e19598ce4f2a5ac00daf4324583becc4956b1a15a266d5488668326bba420cc84fc957abe42f198796e5cf0acc62dfc8
+"core-js-pure@npm:^3.23.3, core-js-pure@npm:^3.30.2":
+  version: 3.30.2
+  resolution: "core-js-pure@npm:3.30.2"
+  checksum: e0e012fe94e38663d837410baac62efe05d0c7431e3fbaa70c65f51eb980da9c3add225eca04208d576bc0d92cefeca9a4f7671a65fd84fd7dfc92d8618dddfd
   languageName: node
   linkType: hard
 
@@ -18795,13 +18796,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-canvas-mock@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "jest-canvas-mock@npm:2.3.1"
+"jest-canvas-mock@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "jest-canvas-mock@npm:2.5.1"
   dependencies:
     cssfontparser: ^1.2.1
     moo-color: ^1.0.2
-  checksum: 82606d348cf4f671af098dcebac19c98643fc5896c6e1af24b572b8e477e7bee18e4c65e0aee8d72d3af88511eba265e12001c6fb72c319d7efe15a6ba23b58b
+  checksum: b8ff56c1b7b7feb6d33b7914dbfac21f19a5a33db0bc092f0426e500e80e67df1286bf817eb780e378b648c9130d7b8ca20cd46e45520657996273a948a7c198
   languageName: node
   linkType: hard
 
@@ -31495,6 +31496,15 @@ __metadata:
   version: 2.0.0
   resolution: "xmlhttprequest-ssl@npm:2.0.0"
   checksum: 1e98df67f004fec15754392a131343ea92e6ab5ac4d77e842378c5c4e4fd5b6a9134b169d96842cc19422d77b1606b8df84a5685562b3b698cb68441636f827e
+  languageName: node
+  linkType: hard
+
+"xregexp@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "xregexp@npm:5.1.1"
+  dependencies:
+    "@babel/runtime-corejs3": ^7.16.5
+  checksum: b7fee45db0daacc68d8f747c9d3865af6b1135866c6dbd72980fc7d61138310018c397effdc0ec1f50ced71b9437ccb70c27818f4470e28e48dc59ea6e3900a0
   languageName: node
   linkType: hard
 

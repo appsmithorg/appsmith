@@ -206,6 +206,7 @@
     "url-search-params-polyfill": "^8.0.0",
     "webfontloader": "^1.6.28",
     "webpack-retry-chunk-load-plugin": "^3.1.1",
+    "xregexp": "^5.1.1",
     "yjs": "^13.5.12",
     "zipcelx": "^1.6.2"
   },
@@ -303,7 +304,7 @@
     "factory.ts": "^0.5.1",
     "husky": "^8.0.0",
     "jest": "^27.4.1",
-    "jest-canvas-mock": "^2.3.1",
+    "jest-canvas-mock": "^2.5.1",
     "jest-environment-jsdom": "^27.4.1",
     "jest-styled-components": "^7.0.8",
     "lint-staged": "^13.2.0",

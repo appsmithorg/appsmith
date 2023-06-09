@@ -52,12 +52,18 @@ describe("AUTOCOMPLETE_MATCH_REGEX match", () => {
 
     test.each(
       tests.map(({ matches, value }) => {
+        const executedMatches: Record<string, unknown>[] = [];
+
         let match;
-        while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(value)) != null) {
-          expect(match.index).toBe(matches[0].start);
-          expect(AUTOCOMPLETE_MATCH_REGEX.lastIndex).toBe(matches[0].end);
-          matches.shift();
+
+        while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(value)) !== null) {
+          executedMatches.push({
+            start: match.index,
+            end: AUTOCOMPLETE_MATCH_REGEX.lastIndex,
+          });
         }
+
+        expect(executedMatches).toEqual(matches);
       }),
     );
   });
