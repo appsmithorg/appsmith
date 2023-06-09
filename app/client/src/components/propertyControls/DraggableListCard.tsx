@@ -6,15 +6,14 @@ import {
   StyledActionContainer,
   InputGroup,
 } from "components/propertyControls/StyledControls";
-import { Colors } from "constants/Colors";
 import { Button, Checkbox } from "design-system";
 
 const ItemWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  &.has-duplicate-label > div:nth-child(2) {
-    border: 1px solid ${Colors.DANGER_SOLID};
+  &.has-duplicate-label input[type="text"] {
+    border-color: var(--ads-v2-color-border-error);
   }
 `;
 
@@ -46,9 +45,11 @@ type RenderComponentProps = {
 const PADDING_WITHOUT_CHECKBOX = 60;
 const PADDING_WITH_CHECKBOX = 90;
 
-const StyledInputGroup = styled(InputGroup)`
+const StyledInputGroup = styled(InputGroup)<{ rightPadding?: number }>`
   input {
     padding-left: 20px;
+    padding-right: ${(props) => props.rightPadding}px;
+    text-overflow: ellipsis;
   }
 `;
 

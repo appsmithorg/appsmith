@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { debounce, isNil } from "lodash";
+import { debounce, isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
@@ -13,13 +13,7 @@ import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import {
-  Button,
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-} from "design-system";
+import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -49,7 +43,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { MenuWrapper } from "components/utils/formComponents";
+import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 const Wrapper = styled.div`
@@ -71,10 +65,6 @@ const DatasourceCardMainBody = styled.div`
   flex: 1;
   flex-direction: row;
   width: 100%;
-`;
-
-const StyledMenu = styled(Menu)`
-  flex: 0;
 `;
 
 const DatasourceImage = styled.img`
@@ -376,7 +366,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           </ButtonsWrapper>
         </DatasourceCardHeader>
       </DatasourceCardMainBody>
-      {!isNil(currentFormConfig) && (
+      {!isEmpty(currentFormConfig) && (
         <CollapseComponentWrapper
           onClick={(e) => {
             e.stopPropagation();

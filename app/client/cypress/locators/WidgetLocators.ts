@@ -6,6 +6,7 @@ export const WIDGET = {
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
+  CONTAINER: "containerwidget",
   MULTISELECT: "multiselectwidgetv2",
   BUTTON_GROUP: "buttongroupwidget",
   TREESELECT: "singleselecttreewidget",
@@ -17,6 +18,7 @@ export const WIDGET = {
   MULTITREESELECT: "multiselecttreewidget",
   RADIO_GROUP: "radiogroupwidget",
   LIST: "listwidget",
+  LIST_V2: "listwidgetv2",
   RATING: "ratewidget",
   CHECKBOXGROUP: "checkboxgroupwidget",
   CHECKBOX: "checkboxwidget",
@@ -33,6 +35,9 @@ export const WIDGET = {
   RANGE_SLIDER: "rangesliderwidget",
   IFRAME: "iframewidget",
   DIVIDER: "dividerwidget",
+  MODAL: "modalwidget",
+  FORM: "formwidget",
+  ICONBUTTON: "iconbuttonwidget",
 } as const;
 
 // property pane element selector are maintained here

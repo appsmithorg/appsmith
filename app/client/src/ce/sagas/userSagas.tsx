@@ -73,8 +73,10 @@ import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
-import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import {
+  USER_PROFILE_PICTURE_UPLOAD_FAILED,
+  UPDATE_USER_DETAILS_FAILED,
+} from "@appsmith/constants/messages";
 import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
@@ -331,7 +333,7 @@ export function* inviteUsers(
       usernames: data.usernames,
       permissionGroupId: data.permissionGroupId,
     });
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
       errorMessage += getResponseErrorMessage(response);

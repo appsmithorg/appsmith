@@ -101,8 +101,7 @@ export class DataSources {
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
-  _contextMenuDatasource = "span[name='comment-context-menu']";
-  _contextMenuDSReviewPage = "span[name='context-menu']";
+  _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>
@@ -243,7 +242,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 0);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.Sleep(500);
+    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("public.users")`,
@@ -495,12 +494,12 @@ export class DataSources {
 
   public FillAirtableDSForm() {
     this.ValidateNSelectDropdown(
-      "Authentication Type",
+      "Authentication type",
       "Please select an option",
-      "Bearer Token",
+      "Bearer token",
     );
     this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Bearer Token"),
+      this.locator._inputFieldByName("Bearer token"),
       Cypress.env("AIRTABLE_BEARER"),
     );
     this.agHelper.Sleep();
@@ -1000,7 +999,7 @@ export class DataSources {
     };
   }) {
     if (options.limit) {
-      // Select Limit Variable from dropdown
+      // Select Limit variable from dropdown
       cy.get(this._graphqlPagination._limitVariable).click({
         force: true,
       });
@@ -1008,7 +1007,7 @@ export class DataSources {
         .contains(options.limit.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._limitValue)
         .first()
         .focus()
@@ -1016,7 +1015,7 @@ export class DataSources {
     }
 
     if (options.offset) {
-      // Select Offset Variable from dropdown
+      // Select Offset vaiable from dropdown
       cy.get(this._graphqlPagination._offsetVariable).click({
         force: true,
       });
@@ -1025,7 +1024,7 @@ export class DataSources {
         .contains(options.offset.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._offsetValue)
         .first()
         .focus()

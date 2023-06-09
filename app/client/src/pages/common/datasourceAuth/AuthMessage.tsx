@@ -17,11 +17,17 @@ import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
   GOOGLE_SHEETS_LEARN_MORE,
   createMessage,
+  GOOGLE_SHEETS_ASK_FOR_SUPPORT,
+  DATASOURCE_INTERCOM_TEXT,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+const { intercomAppID } = getAppsmithConfigs();
 
-const StyledAuthMessage = styled.div`
+const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
   width: fit-content;
-  margin-bottom: var(--ads-v2-spaces-4);
+  ${(props) =>
+    !props.isInViewMode &&
+    `margin-top: var(--ads-v2-spaces-5);margin-bottom: var(--ads-v2-spaces-4);`}
 `;
 
 type AuthMessageProps = {
@@ -32,6 +38,7 @@ type AuthMessageProps = {
   pageId?: string;
   style?: any;
   calloutType?: CalloutKind;
+  isInViewMode?: boolean;
 };
 
 export default function AuthMessage(props: AuthMessageProps) {
@@ -42,6 +49,7 @@ export default function AuthMessage(props: AuthMessageProps) {
     description,
     pageId,
     style = {},
+    isInViewMode = false,
   } = props;
   const dispatch = useDispatch();
   const pluginType = useSelector((state: AppState) =>
@@ -64,28 +72,43 @@ export default function AuthMessage(props: AuthMessageProps) {
     });
   };
 
+  const getCallOutLinks = () => {
+    switch (actionType) {
+      case ActionType.AUTHORIZE:
+        return [
+          {
+            children: createMessage(GOOGLE_SHEETS_AUTHORIZE_DATASOURCE),
+            onClick: handleOauthAuthorization,
+          },
+          {
+            children: createMessage(GOOGLE_SHEETS_ASK_FOR_SUPPORT),
+            onClick: () => {
+              // Triggering intercom here, to understand what exact
+              // problem user is facing while creating google sheets datasource
+              if (intercomAppID && window.Intercom) {
+                window.Intercom(
+                  "showNewMessage",
+                  createMessage(DATASOURCE_INTERCOM_TEXT),
+                );
+              }
+            },
+          },
+        ];
+      case ActionType.DOCUMENTATION:
+        return [
+          {
+            children: createMessage(GOOGLE_SHEETS_LEARN_MORE),
+            onClick: handleDocumentationClick,
+          },
+        ];
+      default:
+        return undefined;
+    }
+  };
+
   return (
-    <StyledAuthMessage style={style}>
-      <Callout
-        kind={calloutType}
-        links={
-          actionType === ActionType.AUTHORIZE
-            ? [
-                {
-                  children: createMessage(GOOGLE_SHEETS_AUTHORIZE_DATASOURCE),
-                  onClick: handleOauthAuthorization,
-                },
-              ]
-            : actionType === ActionType.DOCUMENTATION
-            ? [
-                {
-                  children: createMessage(GOOGLE_SHEETS_LEARN_MORE),
-                  onClick: handleDocumentationClick,
-                },
-              ]
-            : undefined
-        }
-      >
+    <StyledAuthMessage isInViewMode={isInViewMode} style={style}>
+      <Callout kind={calloutType} links={getCallOutLinks()}>
         {description}
       </Callout>
     </StyledAuthMessage>

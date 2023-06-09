@@ -20,7 +20,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Spinner } from "design-system";
-import { getAssetUrl } from "../../../ce/utils/airgapHelpers";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -105,6 +105,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
           <div
             style={{
               display: "flex",
+              alignItems: "center",
             }}
           >
             {currentPlugin && (
