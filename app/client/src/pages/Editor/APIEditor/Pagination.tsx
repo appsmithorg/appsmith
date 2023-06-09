@@ -7,15 +7,11 @@ import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import { Classes, Text, TextType } from "design-system-old";
 import { Button } from "design-system";
-import {
-  CodeEditorBorder,
-  EditorTheme,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import { GifPlayer } from "design-system-old";
-import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
-import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";
-import lightmodeThumbnail from "assets/icons/gifs/lightmode_thumbnail.png";
-import darkmodeThumbnail from "assets/icons/gifs/darkmode_thumbnail.png";
+import thumbnail from "assets/icons/gifs/thumbnail.png";
+import configPagination from "assets/icons/gifs/config_pagination.gif";
 
 interface PaginationProps {
   actionName: string;
@@ -144,18 +140,7 @@ export default function Pagination(props: PaginationProps) {
                 </BindingKey>
               </div>
               <GifContainer>
-                <GifPlayer
-                  gif={
-                    props.theme === EditorTheme.LIGHT
-                      ? lightmodeGif
-                      : darkmodeGif
-                  }
-                  thumbnail={
-                    props.theme === EditorTheme.LIGHT
-                      ? lightmodeThumbnail
-                      : darkmodeThumbnail
-                  }
-                />
+                <GifPlayer gif={configPagination} thumbnail={thumbnail} />
                 <Text type={TextType.P3}>
                   1. How to Configure Table for Pagination
                 </Text>
@@ -228,18 +213,7 @@ export default function Pagination(props: PaginationProps) {
                 </PaginationFieldWrapper>
               </div>
               <GifContainer>
-                <GifPlayer
-                  gif={
-                    props.theme === EditorTheme.LIGHT
-                      ? lightmodeGif
-                      : darkmodeGif
-                  }
-                  thumbnail={
-                    props.theme === EditorTheme.LIGHT
-                      ? lightmodeThumbnail
-                      : darkmodeThumbnail
-                  }
-                />
+                <GifPlayer gif={configPagination} thumbnail={thumbnail} />
                 <Text type={TextType.P3}>
                   1. How to Configure Table for Pagination
                 </Text>
