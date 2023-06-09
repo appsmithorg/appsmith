@@ -603,11 +603,12 @@ export class AggregateHelper {
     index = 0,
     force = false,
     waitTimeInterval = 500,
+    ctrlKey = false,
   ) {
     return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
-      .click({ force: force })
+      .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
   }
 
@@ -1286,6 +1287,10 @@ export class AggregateHelper {
     this.GetElement(widgetSelector).then(($element) => {
       cy.wrap(Number($element.height())).as("widgetHeight");
     });
+  }
+
+  GetWidgetCSSHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("css", "height");
   }
 
   GetWidgetByName(widgetName: string) {

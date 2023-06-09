@@ -367,4 +367,11 @@ export class EntityExplorer {
     this.AssertEntityPresenceInExplorer(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
+
+  public VerifyIsCurrentPage(pageName: string) {
+    cy.get(`.t--entity.page:contains('${pageName}')`).should(
+      "have.class",
+      "activePage",
+    );
+  }
 }
