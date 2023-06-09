@@ -7,9 +7,11 @@ describe("Mongo Form to Native conversion works", () => {
 
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
-    _.agHelper.TypeDynamicInputValueNValidate(
+    cy.wait("@trigger");
+    _.dataSources.ValidateNSelectDropdown(
+      "Collection",
+      "",
       "listingAndReviews",
-      formControls.mongoCollection,
     );
 
     _.agHelper.TypeDynamicInputValueNValidate(

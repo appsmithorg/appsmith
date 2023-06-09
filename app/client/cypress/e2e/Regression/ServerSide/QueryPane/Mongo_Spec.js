@@ -401,7 +401,12 @@ describe("Validate Mongo query commands", function () {
     {"_id":2, "Från" :"Joann" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
-    _.dataSources.ValidateNSelectDropdown("Collection", "", "NonAsciiTest");
+    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.EnterValue("NonAsciiTest", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
 
     _.agHelper.EnterValue(nonAsciiDoc, {
       propFieldName: "",
