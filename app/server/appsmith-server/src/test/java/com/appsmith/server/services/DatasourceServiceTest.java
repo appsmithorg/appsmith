@@ -248,10 +248,16 @@ public class DatasourceServiceTest {
         storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
+        Mono<Datasource> datasourceMono = pluginMono.flatMap(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasourceService.create(datasource);
+        });
+
         StepVerifier
-                .create(datasourceService.create(datasource))
+                .create(datasourceMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE)))
                 .verify();
     }
 
@@ -416,13 +422,10 @@ public class DatasourceServiceTest {
         sslDetails.setCertificateFile(new UploadedFile("ssl_cert_file_id", ""));
         connection.setSsl(sslDetails);
         datasourceConfiguration.setConnection(connection);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
-        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
-        datasource.setDatasourceStorages(storages);
 
-        datasource.setWorkspaceId(workspaceId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -440,8 +443,7 @@ public class DatasourceServiceTest {
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
 
-                    DatasourceStorageDTO datasourceStorageDTO =
-                            new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
+                    DatasourceStorageDTO datasourceStorageDTO = new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
                     return datasourceService
                             .updateDatasourceStorage(datasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
                 });
