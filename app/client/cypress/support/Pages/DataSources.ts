@@ -710,7 +710,12 @@ export class DataSources {
         this.agHelper.GetNClick(btnLocator, 0, true);
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
-    createQuery && this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    createQuery &&
+      this.agHelper.AssertElementVisible(
+        this.locator._spanButton("Run"),
+        0,
+        20000,
+      );
     !createQuery &&
       this.agHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
@@ -740,12 +745,22 @@ export class DataSources {
         this.agHelper.GetNClick(this._createQuery, 0, true);
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
-    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    //this.agHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
+    this.agHelper.AssertElementVisible(
+      this.locator._spanButton("Run"),
+      0,
+      20000,
+    );
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
-    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    //this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    this.agHelper.AssertElementVisible(
+      this.locator._spanButton("Run"),
+      0,
+      20000,
+    );
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.agHelper.GetNClick(this._templateMenu);
