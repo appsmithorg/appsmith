@@ -128,10 +128,10 @@ describe("Dynamic Height Width validation list widget", function () {
         entityExplorer.SelectEntityByName("Text3CopyCopyCopy", "Container1");
         cy.wait(2000);
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
-        entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
+        entityExplorer.SelectEntityByName("Text3CopyCopy");
         cy.wait(2000);
         cy.get("body").type(`{${modifierKey}}x`);
-        entityExplorer.SelectEntityByName("List1", "Widgets");
+        entityExplorer.SelectEntityByName("List1");
         cy.moveToStyleTab();
         cy.wait(500);
         cy.get("body").type(`{${modifierKey}}v`);
@@ -141,7 +141,6 @@ describe("Dynamic Height Width validation list widget", function () {
           200,
         );
         cy.wait(2000);
-        entityExplorer.SelectEntityByName("Container1", "List1");
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
         cy.wait(2000);
         cy.get(commonlocators.generalSectionHeight).should("not.exist");

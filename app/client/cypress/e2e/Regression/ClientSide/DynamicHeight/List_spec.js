@@ -15,7 +15,7 @@ describe("Dynamic Height Width validation", function () {
         entityExplorer.SelectEntityByName("Text1", "Container1");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
-        entityExplorer.SelectEntityByName("Text2", "Container1");
+        entityExplorer.SelectEntityByName("Text2");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
         cy.get(".t--widget-listwidget")

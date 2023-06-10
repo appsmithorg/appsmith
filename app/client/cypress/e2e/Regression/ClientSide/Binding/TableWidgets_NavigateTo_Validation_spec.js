@@ -28,8 +28,6 @@ describe("Table Widget and Navigate to functionality validation", function () {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-    entityExplorer.ExpandCollapseEntity("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
     //Table Widget Functionality with multiple page
     entityExplorer.SelectEntityByName("Page1", "Pages");
