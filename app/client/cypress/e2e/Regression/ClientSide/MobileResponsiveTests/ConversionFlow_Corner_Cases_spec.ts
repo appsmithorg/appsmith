@@ -60,17 +60,19 @@ describe("Handle Cases while conversion", () => {
 
   it("5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load", () => {
     _.entityExplorer.AddNewPage("Add page from template");
-    _.agHelper.GetElement(template.templateDialogBox).should("be.visible");
-    _.agHelper.GetElement("//h1[text()='Marketing Dashboard']").click();
+    _.agHelper.AssertElementVisible(template.templateDialogBox);
+    _.agHelper.GetNClick("//h1[text()='Marketing Dashboard']");
     cy.wait(10000); // for templates page to load fully
-    _.agHelper.GetElement(template.selectCheckbox).first().click();
+    _.agHelper.GetNClick(template.selectCheckbox);
     cy.wait(1000);
-    _.agHelper.GetElement(template.selectCheckbox).eq(1).click();
-    _.agHelper.GetElement(template.templateViewForkButton).click();
+    _.agHelper.GetNClick(template.selectCheckbox, 1);
+    _.agHelper.GetNClick(template.templateViewForkButton);
     cy.wait(5000);
-    _.agHelper
-      .GetElement(widgetLocators.toastAction, 40000)
-      .should("contain", "template added successfully");
+    _.agHelper.AssertContains(
+      "template added successfully",
+      "exist",
+      widgetLocators.toastAction,
+    );
 
     _.autoLayout.ConvertToAutoLayoutAndVerify();
   });
