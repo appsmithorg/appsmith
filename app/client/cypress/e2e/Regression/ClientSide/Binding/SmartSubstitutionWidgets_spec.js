@@ -2,8 +2,7 @@ const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableAndChart.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table Binding Functionality", function () {
   const updateData = `[

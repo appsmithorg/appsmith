@@ -1,8 +1,10 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 import apiLocators from "../../../../locators/ApiEditor";
-
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  apiPage,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   let apiData;
@@ -11,7 +13,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("1. Test_Add users api and execute api", function () {
-    _.apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
+    apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
     cy.RunAPI();
     cy.get(apiLocators.jsonResponseTab).click();
     cy.get(apiLocators.responseBody)
@@ -28,8 +30,8 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("2. Test_Validate the Api data is updated on Table widget", function () {
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.SelectEntityByName("Table1", "Container3");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.testJsontext("tabledata", "{{ Api1.data}}");
 
     /**
@@ -57,8 +59,8 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.SelectEntityByName("Table1", "Container3");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.togglebarDisable(
       ".t--property-control-enableclientsidesearch input[type='checkbox']",
     );

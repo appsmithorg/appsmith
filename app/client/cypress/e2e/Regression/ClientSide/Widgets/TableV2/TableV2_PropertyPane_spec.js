@@ -1,5 +1,4 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");

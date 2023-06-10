@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/autocomp.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {

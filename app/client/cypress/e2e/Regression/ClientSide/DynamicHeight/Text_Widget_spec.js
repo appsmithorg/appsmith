@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/textWidgetDynamicdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for text widget", function () {
   before(() => {

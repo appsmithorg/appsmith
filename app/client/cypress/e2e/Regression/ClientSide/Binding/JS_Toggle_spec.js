@@ -1,6 +1,5 @@
 const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("JS Toggle tests", () => {
   before(() => {

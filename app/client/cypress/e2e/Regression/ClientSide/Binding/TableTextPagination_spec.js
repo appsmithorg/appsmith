@@ -3,8 +3,7 @@ const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPage from "../../../../locators/ApiEditor";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {

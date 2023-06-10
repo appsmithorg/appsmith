@@ -4,7 +4,11 @@ const testdata = require("../../../../fixtures/testdata.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-import {agHelper,propPane,entityExplorer} from "../../../../support/Objects/ObjectsCore"
+import {
+  agHelper,
+  propPane,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget and Navigate to functionality validation", function () {
   afterEach(() => {

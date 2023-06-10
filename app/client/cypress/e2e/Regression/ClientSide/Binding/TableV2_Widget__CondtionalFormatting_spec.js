@@ -1,7 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../fixtures/tableV2WidgetCondnFormatDsl.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 condtional formatting to remain consistent", function () {
   before(() => {

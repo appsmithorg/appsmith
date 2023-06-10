@@ -7,10 +7,11 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const propPane = ObjectsRegistry.PropertyPane;
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import {
+  agHelper,
+  propPane,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {

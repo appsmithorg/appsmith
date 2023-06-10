@@ -2,9 +2,10 @@
 
 const dsl = require("../../../../fixtures/defaultMetadataDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 import {
   WIDGET,
   PROPERTY_SELECTOR,

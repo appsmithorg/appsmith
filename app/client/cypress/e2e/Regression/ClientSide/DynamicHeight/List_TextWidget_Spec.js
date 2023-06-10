@@ -1,8 +1,7 @@
 const dsl = require("../../../../fixtures/DynamicHeightListTextDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const explorer = require("../../../../locators/explorerlocators.json");
-const entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation list widget", function () {
   it("1. Validate change with auto height width for list widgets", function () {

@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/dynamicHeightCanvasResizeDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with multiple containers and text widget", function () {
   it("1. Validate change with auto height width for widgets", function () {

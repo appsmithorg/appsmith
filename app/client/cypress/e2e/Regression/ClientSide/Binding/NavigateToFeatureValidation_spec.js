@@ -4,8 +4,7 @@ const dsl = require("../../../../fixtures/navigateTotabledsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/navigateToInputDsl.json");
 const pageid = "MyPage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
   before(() => {

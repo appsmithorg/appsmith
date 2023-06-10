@@ -4,11 +4,11 @@ const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const propPane = ObjectsRegistry.PropertyPane;
-let entityExplorer = ObjectsRegistry.EntityExplorer;
+import {
+  agHelper,
+  propPane,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 and Navigate to functionality validation", function () {
   afterEach(() => {
