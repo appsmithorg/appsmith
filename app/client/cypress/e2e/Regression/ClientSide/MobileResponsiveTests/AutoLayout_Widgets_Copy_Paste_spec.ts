@@ -10,7 +10,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
-    cy.wait(2000);
+    agHelper.Sleep(2000);
     cy.fixture("autoLayoutCopyPaste").then((val) => {
       agHelper.AddDsl(val);
     });
@@ -55,7 +55,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //paste
     agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
-    cy.wait(1000);
+    agHelper.Sleep(1000);
 
     //verify button widget pastes inside selected the container, in layer index 4 and is end aligned
     autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
@@ -83,7 +83,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     agHelper.AssertElementLength(locators._selectedWidget, 0);
     //paste
     agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
-    cy.wait(1000);
+    agHelper.Sleep();
 
     //verify button widget pastes in main canvas, in layer index 1 and is center aligned
     autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
@@ -141,7 +141,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     agHelper.AssertElementLength(locators._selectedWidget, 0);
     //paste
     agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
-    cy.wait(1000);
+    agHelper.Sleep();
 
     //verify widgets paste in copied orientation,
     // button in layer index 2, end aligned
