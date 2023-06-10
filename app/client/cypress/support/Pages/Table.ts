@@ -479,12 +479,7 @@ export class Table {
     newDataType: columnTypeValues,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    const colSettings =
-      tableVersion == "v1"
-        ? this._columnSettings(columnName)
-        : this._columnSettingsV2(columnName);
-
-    this.agHelper.GetNClick(colSettings);
+    this.EditColumn(columnName, tableVersion);
     this.agHelper.SelectDropdownList("Column type", newDataType);
     this.agHelper.AssertNetworkStatus("@updateLayout");
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
@@ -525,17 +520,12 @@ export class Table {
     cy.get(this._defaultColName).type(colId, { force: true });
   }
 
-  public EditColumn(colId: string, shouldReturnToMainPane = true) {
-    if (shouldReturnToMainPane) {
-      this.propPane.NavigateBackToPropertyPane();
-    }
-    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
-      {
-        force: true,
-      },
-    );
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1500);
+  public EditColumn(columnName: string, tableVersion: "v1" | "v2") {
+    const colSettings =
+      tableVersion == "v1"
+        ? this._columnSettings(columnName)
+        : this._columnSettingsV2(columnName);
+    this.agHelper.GetNClick(colSettings);
   }
 
   public DeleteColumn(colId: string) {
@@ -545,7 +535,6 @@ export class Table {
     ).click({
       force: true,
     });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
   }
 

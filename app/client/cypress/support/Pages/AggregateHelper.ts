@@ -806,7 +806,7 @@ export class AggregateHelper {
 
   public GenerateUUID() {
     let id = uuidv4();
-    id = id.split("-")[0];
+    id = "Cy" + id.split("-")[0];
     cy.wrap(id).as("guid");
   }
 

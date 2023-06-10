@@ -13,7 +13,6 @@ describe("Export application as a JSON file", function () {
     cy.fixture("displayWidgetDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(5000);
   });
 
   it("1. Check if exporting app flow works as expected", function () {

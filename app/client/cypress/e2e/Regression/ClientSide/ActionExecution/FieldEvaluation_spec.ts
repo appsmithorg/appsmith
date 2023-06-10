@@ -13,10 +13,7 @@ describe("Field value evaluation", () => {
   it("1. Evaluation works for fields", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPlatformFunction("onClick", "Show alert");
-    agHelper.TypeText(
-      propPane._actionSelectorFieldByLabel("Message"),
-      "{{Button1.text}}",
-    );
+    agHelper.EnterActionValue("Message", "{{Button1.text}}");
     agHelper.VerifyEvaluatedValue("Submit");
   });
 });

@@ -1,69 +1,56 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
     cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Table widget V2 with Add button test and validation", function () {
-    cy.openPropertyPane("tablewidgetv2");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     // Open column details of "id".
-    cy.editColumn("id");
-    cy.get(widgetsPage.tablV2Btn).should("not.exist");
+    cy.get(widgetsPage.tableV2Btn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    table.ChangeColumnType("id", "Button");
     // Changing the computed value (data) to "orderAmount"
-    cy.updateComputedValue(testdata.currentRowOrderAmt);
+    propPane.UpdatePropertyFieldValue("Text", "{{currentRow.orderAmount}}");
     // Selecting button action to show message
-    cy.getAlert("onClick", "Successful ".concat(testdata.currentRowEmail));
-    // Close Property pane
-    cy.get(commonlocators.editPropBackButton).click({
-      force: true,
-    });
+    propPane.SelectPlatformFunction("onClick", "Show alert");
+    agHelper.EnterActionValue(
+      "Message",
+      "Successful ".concat(testdata.currentRowEmail),
+    );
+
+    agHelper.AssertAutoSave();
     // Validating the button action by clicking
     cy.get(widgetsPage.tableV2Btn).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     // Validating the toast message
-    cy.get(widgetsPage.toastAction).should("be.visible");
-    cy.get(widgetsPage.toastActionText)
-      .last()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("Successful tobias.funke@reqres.in");
-      });
+    agHelper.WaitUntilToastDisappear("Successful tobias.funke@reqres.in");
 
     // Open column details of "id".
-    cy.editColumn("id");
-
-    cy.get(widgetsPage.toggleOnClick).click({ force: true });
-    cy.get(".t--property-control-onclick").then(($el) => {
-      cy.updateCodeInput(
-        $el,
-        "{{showAlert('Successful' + currentRow.email).then(() => showAlert('second alert')) }}",
-      );
-    });
-
-    cy.get(commonlocators.editPropBackButton).click({
-      force: true,
-    });
+    propPane.EnterJSContext(
+      "onClick",
+      "{{showAlert('Successful ' + currentRow.email).then(() => showAlert('second alert')) }}",
+    );
 
     // Validating the button action by clicking
     cy.get(widgetsPage.tableV2Btn).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
-
-    cy.get(widgetsPage.toastActionText)
-      .last()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("second alert");
-      });
+    agHelper.AssertContains("Successful tobias.funke@reqres.in");
+    agHelper.AssertContains("second alert");
   });
 
   it("2. Table Button color validation", function () {

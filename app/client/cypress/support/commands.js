@@ -228,6 +228,10 @@ Cypress.Commands.add("LogOutUser", () => {
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
   goToLoginPage && cy.visit("/user/login");
+  cy.wait(3000); //for login page to load fully for CI runs
+  cy.wait("@signUpLogin")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
@@ -258,7 +262,9 @@ Cypress.Commands.add("Signup", (uname, pword) => {
 
   cy.visit("/user/signup");
   cy.wait(4000); //for sign up page to open fully
-  cy.wait("@signUp").its("response.body.responseMeta.status").should("eq", 200);
+  cy.wait("@signUpLogin")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
   cy.get(signupPage.username).should("be.visible");
   cy.get(signupPage.username).type(uname);
   cy.get(signupPage.password).type(pword);
@@ -1111,7 +1117,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postEnv");
 
   cy.intercept("GET", "/settings/general").as("getGeneral");
-  cy.intercept("GET", "/api/v1/tenants/current").as("signUp");
+  cy.intercept("GET", "/api/v1/tenants/current").as("signUpLogin");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
