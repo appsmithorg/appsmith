@@ -155,7 +155,7 @@ describe("FirstTimeUserOnboarding", function () {
       let open;
       cy.window().then((window) => {
         open = window.open;
-        window.open = _.noop;
+        window.open = Cypress._.noop;
       });
       cy.get(OnboardingLocator.checklistDeployBtn).should("be.visible");
       cy.get(OnboardingLocator.checklistDeployBtn).click();
