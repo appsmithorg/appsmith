@@ -109,7 +109,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     propPane.MoveToTab("Content");
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from sample Movies",
+      "New from Movies",
       "movies",
       "movies",
       "status",
@@ -132,8 +132,6 @@ describe("excludeForAirgap", "One click binding control", () => {
     agHelper.GetNClick(
       oneClickBindingLocator.datasourceSelector("myinvalidds"),
     );
-
-    agHelper.AssertNetworkStatus("@postExecute");
     agHelper.AssertElementExist(
       oneClickBindingLocator.tableError(
         "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",

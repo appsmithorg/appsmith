@@ -1,11 +1,11 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
     const textMsg = "Dynamic panel validation for text widget wrt height";
     cy.fixture("dynamicHeightListDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     cy.openPropertyPane("listwidget");
     cy.get(".t--widget-listwidget")
