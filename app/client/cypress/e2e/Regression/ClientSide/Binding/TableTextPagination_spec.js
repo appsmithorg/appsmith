@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import apiPage from "../../../../locators/ApiEditor";
+import api from "../../../../locators/ApiEditor";
 import {
   entityExplorer,
   apiPage,
@@ -28,8 +28,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     /**Bind Table with Textwidget with selected row */
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
-
+    entityExplorer.SelectEntityByName("Text1", "Widgets");
     cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
@@ -102,14 +101,14 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
     apiPage.SelectPaneTab("Pagination");
-    agHelper.GetNClick(apiPage.apiPaginationTab);
-    cy.get(apiPage.apiPaginationNextText).type(
+    agHelper.GetNClick(api.apiPaginationTab);
+    cy.get(api.apiPaginationNextText).type(
       this.data.paginationUrl + testdata.nextUrl,
       {
         parseSpecialCharSequences: false,
       },
     );
-    cy.get(apiPage.apiPaginationPrevText).type(
+    cy.get(api.apiPaginationPrevText).type(
       this.data.paginationUrl + testdata.prevUrl,
       {
         parseSpecialCharSequences: false,
@@ -125,7 +124,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     /**Validate Response data with Table data in Text Widget */
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-    cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationPrevTest, false);
+    cy.ValidatePaginateResponseUrlData(api.apiPaginationPrevTest, false);
     cy.PublishtheApp();
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
@@ -137,6 +136,6 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.wait(3000);
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-    cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest, true);
+    cy.ValidatePaginateResponseUrlData(api.apiPaginationNextTest, true);
   });
 });
