@@ -50,7 +50,7 @@ describe("Git sync:", function () {
 
     entityExplorer.SelectEntityByName("Page1", "Pages");
 
-    cy.wait(1000);
+    agHelper.Sleep();
 
     entityExplorer.ActionContextMenuByEntityName("Page2");
   });
