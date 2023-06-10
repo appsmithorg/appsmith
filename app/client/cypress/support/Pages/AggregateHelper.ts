@@ -377,6 +377,7 @@ export class AggregateHelper {
     //   expectedStatus,
     // );
     this.Sleep(); //Wait a bit for call to finish!
+    aliasName = aliasName.startsWith("@") ? aliasName : "@" + aliasName;
     cy.wait(aliasName);
     cy.get(aliasName)
       .its("response.body.responseMeta.status")
