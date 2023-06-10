@@ -224,6 +224,7 @@ describe("Auto conversion algorithm usecases for auto-layout", function () {
     canvasTypeWidgets.forEach((canvasWidget, index) => {
       _.entityExplorer.DragDropWidgetNVerify(canvasWidget, x, y);
 
+      //Logic to add widgets without overlapping each other on the canvas
       if (index % 2 === 0) {
         x += 400;
       } else {

@@ -1,10 +1,11 @@
+import { agHelper, autoLayout } from "../../../../support/Objects/ObjectsCore";
+
 let testHeight;
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Auto conversion algorithm usecases for fixed Layout", function () {
   it("1. Validate basic conversion algorithm usecases fixed layout usecase Mobile", function () {
     cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     //cy.openPropertyPane("containerwidget");
     cy.get("@getPage").then((httpResponse) => {
@@ -26,7 +27,7 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                 cy.log(dheight);
                 cy.wait(3000);
 
-                _.autoLayout.ConvertToAutoLayoutAndVerify();
+                autoLayout.ConvertToAutoLayoutAndVerify();
 
                 cy.get(".t--widget-audiorecorderwidget")
                   .invoke("css", "height")
@@ -41,9 +42,7 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
 
-                            _.autoLayout.ConvertToFixedLayoutAndVerify(
-                              "MOBILE",
-                            );
+                            autoLayout.ConvertToFixedLayoutAndVerify("MOBILE");
 
                             cy.get(".t--widget-audiorecorderwidget")
                               .invoke("css", "height")
