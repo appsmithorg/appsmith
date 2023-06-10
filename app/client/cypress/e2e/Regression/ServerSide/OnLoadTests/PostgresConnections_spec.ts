@@ -5,15 +5,15 @@ let guid: any, dsName_1: any, dsName_2: any;
 describe("Test Postgres number of connections on page load + Bug 11572, Bug 11202", function () {
   before(() => {
     _.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
+    cy.get("@guid").then((uid: any) => {
       _.dataSources.NavigateToDSCreateNew();
       _.dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      _.agHelper.RenameWithInPane("Postgres_1_ " + guid, false);
+      guid = uid.toLowerCase();
+      _.agHelper.RenameWithInPane("Postgres_1_" + guid, false);
       _.dataSources.FillPostgresDSForm();
       _.dataSources.TestSaveDatasource();
 
-      cy.wrap("Postgres_1_ " + guid).as("dsName_1");
+      cy.wrap("Postgres_1_" + guid).as("dsName_1");
       cy.get("@dsName_1").then(($dsName) => {
         dsName_1 = $dsName;
       });
@@ -42,12 +42,12 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
   it("2. Create new datasource for user test_conn_user", () => {
     _.dataSources.NavigateToDSCreateNew();
     _.dataSources.CreatePlugIn("PostgreSQL");
-    _.agHelper.RenameWithInPane("Postgres_2_ " + guid, false);
+    _.agHelper.RenameWithInPane("Postgres_2_" + guid, false);
     const userName = "test_conn_user_" + guid;
     _.dataSources.FillPostgresDSForm(false, userName, "password");
     _.dataSources.TestSaveDatasource();
 
-    cy.wrap("Postgres_2_ " + guid).as("dsName_2");
+    cy.wrap("Postgres_2_" + guid).as("dsName_2");
     cy.get("@dsName_2").then(($dsName) => {
       dsName_2 = $dsName;
 
