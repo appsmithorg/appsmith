@@ -5,14 +5,13 @@ import {
   dataSources,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import CommonLocators from "../../../../locators/commonlocators.json";
 import { OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
 
 const oneClickBinding = new OneClickBinding();
 
-describe.skip("One click binding control", () => {
+describe.skip("excludeForAirgap", "One click binding control", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
   });
