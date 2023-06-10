@@ -371,7 +371,7 @@ describe("Create Permission flow ", function () {
       .eq(1)
       .should("have.text", "Create new")
       .next()
-      .should("have.text", "Create a new query, API or JS object");
+      .should("have.text", "Create a new query, API or JS Object");
     cy.get(omnibar.categoryTitle).eq(1).click();
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("POST", "/api/v1/collections/actions").as(
