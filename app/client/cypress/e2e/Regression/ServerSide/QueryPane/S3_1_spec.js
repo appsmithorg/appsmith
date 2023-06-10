@@ -42,7 +42,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(datasource.AmazonS3).click({ force: true }).wait(1000);
 
     cy.generateUUID().then((uid) => {
-      datasourceName = `Amazon S3 CRUD ds ${uid}`;
+      datasourceName = `S3 CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
       cy.fillAmazonS3DatasourceForm();
