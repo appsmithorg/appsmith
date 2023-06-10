@@ -58,22 +58,26 @@ describe("Handle Cases while conversion", () => {
     _.autoLayout.UseSnapshotFromBanner();
   });
 
-  it("5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load", () => {
-    _.entityExplorer.AddNewPage("Add page from template");
-    _.agHelper.AssertElementVisible(template.templateDialogBox);
-    _.agHelper.GetNClick("//h1[text()='Marketing Dashboard']");
-    cy.wait(10000); // for templates page to load fully
-    _.agHelper.GetNClick(template.selectCheckbox);
-    cy.wait(1000);
-    _.agHelper.GetNClick(template.selectCheckbox, 1);
-    _.agHelper.GetNClick(template.templateViewForkButton);
-    cy.wait(5000);
-    _.agHelper.AssertContains(
-      "template added successfully",
-      "exist",
-      widgetLocators.toastAction,
-    );
+  it(
+    "excludeForAirgap",
+    "5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load",
+    () => {
+      _.entityExplorer.AddNewPage("Add page from template");
+      _.agHelper.AssertElementVisible(template.templateDialogBox);
+      _.agHelper.GetNClick("//h1[text()='Marketing Dashboard']");
+      cy.wait(10000); // for templates page to load fully
+      _.agHelper.GetNClick(template.selectCheckbox);
+      cy.wait(1000);
+      _.agHelper.GetNClick(template.selectCheckbox, 1);
+      _.agHelper.GetNClick(template.templateViewForkButton);
+      cy.wait(5000);
+      _.agHelper.AssertContains(
+        "template added successfully",
+        "exist",
+        widgetLocators.toastAction,
+      );
 
-    _.autoLayout.ConvertToAutoLayoutAndVerify();
-  });
+      _.autoLayout.ConvertToAutoLayoutAndVerify();
+    },
+  );
 });
