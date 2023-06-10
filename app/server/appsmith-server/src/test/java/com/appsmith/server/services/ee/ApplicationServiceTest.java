@@ -201,7 +201,7 @@ public class ApplicationServiceTest {
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
             DefaultResources defaultResources = new DefaultResources();
