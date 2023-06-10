@@ -11,7 +11,7 @@ import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json
 
 const oneClickBinding = new OneClickBinding();
 
-describe.skip("excludeForAirgap", "One click binding control", () => {
+describe("excludeForAirgap", "One click binding control", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
   });
