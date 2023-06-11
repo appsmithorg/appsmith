@@ -65,6 +65,7 @@ import {
 } from "design-system";
 import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import { keyBy } from "lodash";
+import { isEnvironmentConfigured } from "utils/environments";
 
 const Section = styled.div`
   display: flex;
@@ -430,7 +431,7 @@ function ReconnectDatasourceModal() {
       id: ds.id,
       name: ds.name,
       pluginName: plugins[ds.id]?.name,
-      isConfigured: ds.datasourceStorages[currentEnvironment].isConfigured,
+      isConfigured: isEnvironmentConfigured(ds, currentEnvironment),
     });
   }, []);
 
@@ -478,7 +479,7 @@ function ReconnectDatasourceModal() {
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) =>
         ds.datasourceStorages
-          ? !ds.datasourceStorages[currentEnvironment]?.isConfigured
+          ? !isEnvironmentConfigured(ds, currentEnvironment)
           : true,
       );
       if (pending.length > 0) {
@@ -487,8 +488,7 @@ function ReconnectDatasourceModal() {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
           if (
             index > -1 && datasources[index].datasourceStorages
-              ? !datasources[index].datasourceStorages[currentEnvironment]
-                  ?.isConfigured
+              ? !isEnvironmentConfigured(datasource, currentEnvironment)
               : true
           ) {
             return;
@@ -497,7 +497,7 @@ function ReconnectDatasourceModal() {
             .slice(index + 1)
             .find((ds: Datasource) =>
               ds.datasourceStorages
-                ? !ds.datasourceStorages[currentEnvironment]?.isConfigured
+                ? !isEnvironmentConfigured(ds, currentEnvironment)
                 : true,
             );
         }
@@ -542,8 +542,8 @@ function ReconnectDatasourceModal() {
   const shouldShowDBForm =
     isConfigFetched &&
     !isLoading &&
-    !datasource?.datasourceStorages[currentEnvironment].isConfigured;
-
+    !isEnvironmentConfigured(datasource, currentEnvironment);
+  console.log("ondhu ", datasource);
   return (
     <Modal open={isModalOpen}>
       <ModalContentWrapper
@@ -579,8 +579,8 @@ function ReconnectDatasourceModal() {
                     pageId={pageId}
                   />
                 )}
-                {datasource?.datasourceStorages[currentEnvironment]
-                  .isConfigured && SuccessMessages()}
+                {isEnvironmentConfigured(datasource, currentEnvironment) &&
+                  SuccessMessages()}
               </DBFormWrapper>
 
               <SkipToAppWrapper>
