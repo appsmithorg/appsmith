@@ -286,11 +286,11 @@ describe("Validate Mongo query commands", function () {
     _.entityExplorer.ExpandCollapseEntity("Datasources");
     _.entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
     // div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']",
-    cy.get("[data-testid='t--entity-item-listingAndReviews']")
-      .find(".t--template-menu-trigger")
-      .click({ force: true });
 
-    cy.get(".ads-v2-menu__menu-item").contains("Find").click().wait(100); //wait for Find form to open
+    _.entityExplorer.ActionTemplateMenuByEntityName(
+      "listingAndReviews",
+      "Find",
+    );
 
     cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
       let localcolData = colData.replace("{", "").replace("}", "");

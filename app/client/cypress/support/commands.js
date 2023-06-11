@@ -1106,7 +1106,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       res.send({
         //status: 200,
         body: {
-          success: false, //since anything can be faked!
+          success: true, //since anything can be faked!
         },
       });
     });
