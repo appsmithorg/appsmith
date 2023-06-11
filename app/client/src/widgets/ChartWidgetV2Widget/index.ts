@@ -3,6 +3,7 @@ import IconSVG from "./icon.svg";
 import { DefaultChartConfigs, defaultChartDataset } from "./constants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { generateReactKey } from "widgets/WidgetUtils";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -31,6 +32,25 @@ export const CONFIG = {
     chartType: "COLUMN_CHART",
     chartData: defaultChartDataset,
     customChartData: DefaultChartConfigs["CUSTOM_ECHARTS_CHART"],
+    chartDataPrevious: {
+      [generateReactKey()]: {
+        seriesName: "Sales",
+        data: [
+          {
+            x: "Product1",
+            y: 20000,
+          },
+          {
+            x: "Product2",
+            y: 22000,
+          },
+          {
+            x: "Product3",
+            y: 32000,
+          },
+        ],
+      },
+    },
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },

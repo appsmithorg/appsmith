@@ -219,6 +219,7 @@ function DataControlComponent(props: RenderComponentProps) {
 
 class ChartDataControl extends BaseControl<ControlProps> {
   render() {
+    console.log("****", "chart control props is ", this.props)
     const chartData: AllChartData = isString(this.props.propertyValue)
       ? {}
       : this.props.propertyValue;

@@ -52,6 +52,7 @@ export const getOriginalRowIndex = (
 ) => {
   let primaryKey = "";
   let index = -1;
+  console.log("***", "previou table data is ", prevTableData)
 
   if (
     !_.isNil(selectedRowIndex) &&

@@ -4,6 +4,7 @@ import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import type { ChartType, ChartSelectedDataPoint } from "../constants";
 import type { WidgetPositionProps } from "widgets/BaseWidget";
+import type { AllChartData } from "../widget/constants";
 
 const CanvasContainer = styled.div<ChartWidgetV2ComponentProps>`
   border-radius: ${({ borderRadius }) => borderRadius};
@@ -80,14 +81,27 @@ function ChartWidgetV2Component(props: ChartWidgetV2ComponentProps) {
       };
       console.log("***", "setting normal chart data");
     }
+    getChartOptionsFromPreviousData(props.chartDataPrevious)
 
     console.log("***", "going to set options ", options);
     chartInstance?.setOption(options, true);
   });
 
+  function datassetFromData(data : AllChartData) {
+    // const seri
+    // for (int i = 0; i < data.length; i++) {
+
+    // }
+
+  }
+
   useEffect(() => {
     chartInstance?.resize();
   }, [props.leftColumn, props.rightColumn, props.bottomRow, props.topRow]);
+
+  function getChartOptionsFromPreviousData(data : AllChartData) {
+    console.log("***", "all chart data in component is ", data)
+  }
 
   return <CanvasContainer id={chartContainerId} {...props} />;
 }
@@ -100,6 +114,7 @@ export interface ChartWidgetV2ComponentProps extends WidgetPositionProps {
   customChartData: any;
   borderRadius: string;
   boxShadow: string;
+  chartDataPrevious: AllChartData
   onDataPointClick:
     | ((selectedDataPoint: ChartSelectedDataPoint) => void)
     | undefined;

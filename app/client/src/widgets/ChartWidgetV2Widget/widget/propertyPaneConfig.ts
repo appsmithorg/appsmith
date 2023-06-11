@@ -3,6 +3,9 @@ import type { ChartWidgetV2WidgetProps } from ".";
 import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import type { ChartType } from "../constants";
 import { DefaultChartConfigs } from "../constants";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
+
 
 const chartTypeUpdateHook = (
   props: ChartWidgetV2WidgetProps,
@@ -73,6 +76,68 @@ export const propertyPaneConfig = [
             ],
           },
         },
+      },
+      {
+        helpText: "Populates the chart with the data",
+        propertyName: "chartDataPrevious",
+        placeholderText: '[{ "x": "2021", "y": "94000" }]',
+        label: "Chart series",
+        controlType: "CHART_DATA",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        hidden: (props: ChartWidgetProps) =>
+          props.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
+        children: [
+          {
+            helpText: "Series data",
+            propertyName: "data",
+            label: "Series data",
+            controlType: "INPUT_TEXT_AREA",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "x",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          required: true,
+                          default: "",
+                        },
+                      },
+                      {
+                        name: "y",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          required: true,
+                          default: 10,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            helpText: "Series name",
+            propertyName: "seriesName",
+            label: "Series name",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
       },
       {
         helpText: "Populates the chart with the data",

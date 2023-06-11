@@ -12,6 +12,8 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { AllChartData } from "./constants";
+import { getCompletionsForKeyword } from "utils/autocomplete/keywordCompletion";
 
 class ChartWidgetV2Widget extends BaseWidget<
   ChartWidgetV2WidgetProps,
@@ -82,6 +84,7 @@ class ChartWidgetV2Widget extends BaseWidget<
   };
 
   getPageView() {
+    console.log("****", "get page view called with props ", this.props)
     return (
       <ChartWidgetV2Component
         {...this.props}
@@ -104,6 +107,7 @@ export interface ChartWidgetV2WidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow: string;
   onDataPointClick?: string;
+  chartDataPrevious: AllChartData
 }
 
 export default ChartWidgetV2Widget;
