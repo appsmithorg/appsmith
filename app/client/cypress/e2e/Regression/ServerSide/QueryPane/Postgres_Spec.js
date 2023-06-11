@@ -277,6 +277,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToQueryEditor();
     dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName("Public.users_crud", "Delete");
+    agHelper.RefreshPage();
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
