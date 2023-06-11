@@ -1,3 +1,25 @@
+<style>
+  .container {
+    display: flex;
+    height: 100%;
+  }
+  .content-container {
+    background-color: red;
+    flex-grow: 1;
+    overflow-y: auto;
+    flex-basis: 80%;
+    flex-shrink: 1;
+  }
+  .contents-container {
+    background-color: green;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 20%;
+    overflow-y: auto;
+  }
+</style>
+<div class="container">
+<div class="content-container">
 ## Running Client Codebase
 
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows. We use VS Code Editor as our primary editor.
@@ -244,3 +266,11 @@ After this, you can continue Setting up from [here](#pre-requisites).
 ## I still need help!
 
 Please open a [Github issue](https://github.com/appsmithorg/appsmith/issues/new/choose) or join our [discord server](https://discord.com/invite/rBTTVJp).
+
+</div>
+<div class="contents-container">
+- Table of Contents
+  - Content 1
+  - Content 2
+</div>
+</div>
