@@ -644,7 +644,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 return new AppsmithPluginException(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
                         actionDTO.getName(), timeoutDuration);
             } else if (error instanceof StaleConnectionException e) {
-                return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR);
+                return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR, e.getMessage());
             } else {
                 return error;
             }

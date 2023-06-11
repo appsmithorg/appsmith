@@ -66,6 +66,7 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
 import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
 import static com.external.utils.MySqlGetStructureUtils.getKeyInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
@@ -256,9 +257,9 @@ public class MySqlPlugin extends BasePlugin {
                     connectionPool.create(),
                     connection -> {
                         // TODO: add JUnit TC for the `connection.validate` check. Not sure how to do it at the moment.
-                        Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                        Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.LOCAL))
                                 .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
-                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
+                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
                                 .flatMapMany(isValid -> {
                                     if (isValid) {
                                         return createAndExecuteQueryFromConnection(finalQuery,
@@ -269,7 +270,7 @@ public class MySqlPlugin extends BasePlugin {
                                                 requestData,
                                                 psParams);
                                     }
-                                    return Flux.error(new StaleConnectionException());
+                                    return Flux.error(new StaleConnectionException(CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG));
                                 });
 
                         Mono<List<Map<String, Object>>> resultMono;
@@ -348,9 +349,10 @@ public class MySqlPlugin extends BasePlugin {
                     },
                     Connection::close
             )
-            .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
-            .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
-            .onErrorMap(R2dbcNonTransientResourceException.class, error -> new StaleConnectionException())
+            .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
+            .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException(error.getMessage()))
+            .onErrorMap(R2dbcNonTransientResourceException.class, error -> new StaleConnectionException(error.getMessage()))
+            .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException(error.getMessage()))
             .subscribeOn(scheduler);
         }
 
@@ -582,12 +584,12 @@ public class MySqlPlugin extends BasePlugin {
                     connection -> {
                         return Mono.from(connection.validate(ValidationDepth.REMOTE))
                                 .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
-                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
+                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
                                 .flatMapMany(isValid -> {
                                     if (isValid) {
                                         return connection.createStatement(COLUMNS_QUERY).execute();
                                     } else {
-                                        return Flux.error(new StaleConnectionException());
+                                        return Flux.error(new StaleConnectionException()); // TBD
                                     }
                                 })
                                 .flatMap(result -> {
@@ -631,8 +633,8 @@ public class MySqlPlugin extends BasePlugin {
                     },
                     Connection::close
                     )
-                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
-                    .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
+                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
+                    .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException(error.getMessage()))
                     .subscribeOn(scheduler);
         }
     }

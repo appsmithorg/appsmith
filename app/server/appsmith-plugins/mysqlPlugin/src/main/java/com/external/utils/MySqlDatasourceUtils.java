@@ -8,7 +8,6 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MySQLErrorMessages;
-import com.external.plugins.exceptions.MySQLPluginError;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactoryOptions;
@@ -25,12 +24,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static io.r2dbc.pool.PoolingConnectionFactoryProvider.MAX_SIZE;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 
 public class MySqlDatasourceUtils {
 
-    public static int MAX_CONNECTION_POOL_SIZE = 5;
+    public static int MAX_CONNECTION_POOL_SIZE = 10;
 
     private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10);
 

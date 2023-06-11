@@ -32,7 +32,8 @@ public class MySQLErrorMessages {
     public static final String DS_MISSING_DATABASE_NAME_ERROR_MSG = "Missing database name.";
     public static final String DS_SSL_CONFIGURATION_FETCHING_FAILED_ERROR_MSG = "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
             "Please reach out to Appsmith customer support to resolve this.";
-
+    public static final String CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG = "Connection obtained from connection pool" +
+            " is invalid.";
 
 
 }
