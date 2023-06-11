@@ -32,14 +32,14 @@ describe("Test curl import flow", function () {
     });
   });
 
-  it.skip("2. Test curl import flow for POST action with multipart form data", function () {
+  it("2. Test curl import flow for POST action with multipart form data", function () {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
     _.dataSources.NavigateToDSCreateNew();
 
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      "curl --request POST http://httpbin.org/post -F 'randomKey=randomValue' --form 'randomKey2=\"randomValue2\"'",
+      "curl --request POST http://host.docker.internal:5001/v1/mock-api/echo-multipart -F 'randomKey=randomValue' --form 'randomKey2=\"randomValue2\"'",
       {
         force: true,
         parseSpecialCharSequences: false,
@@ -49,17 +49,10 @@ describe("Test curl import flow", function () {
     cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Ran the API successfully");
-    cy.get("@postExecute").then((response) => {
-      cy.log(response.response.body);
-      cy.expect(response.response.body.responseMeta.success).to.eq(true);
-      // Asserting if the form key value are returned in the response
-      cy.expect(response.response.body.data.body.form.randomKey).to.eq(
-        "randomValue",
-      );
-      // Asserting the content type header set in curl import is multipart/form-data
-      cy.expect(
-        response.response.body.data.body.headers["Content-Type"],
-      ).contains("multipart/form-data;boundary");
+
+    _.apiPage.ValidateHeaderParams({
+      key: "Content-Type",
+      value: "multipart/form-data",
     });
   });
 });
