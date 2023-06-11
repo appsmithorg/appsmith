@@ -1,56 +1,43 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget v2 edge case scenario testing", function () {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
     cy.fixture("tableV2WithTextWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Check if the selectedRowIndices does not contain 2d array", function () {
-    cy.openPropertyPane("tablewidgetv2");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
 
-    //Enable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
-      .first()
-      .click({ force: true });
+    propPane.UpdatePropertyFieldValue("Default selected rows", "[1]"); //Change the value of default selected row
 
-    //Change the value of default selected row
-    cy.updateCodeInput(".t--property-control-defaultselectedrows", "[1]");
-
-    //Disable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
-      .first()
-      .click({ force: true });
+    propPane.TogglePropertyState("Enable multi-row selection", "Off"); //Disable Multi row select
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "[]");
 
-    //Enable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
-      .first()
-      .click({ force: true });
+    propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.text",
       "[  1]",
     );
 
-    //Disable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
-      .first()
-      .click({ force: true });
+    propPane.TogglePropertyState("Enable multi-row selection", "Off"); //Disable Multi row select
 
-    //Enable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
-      .first()
-      .click({ force: true });
+    propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.text",

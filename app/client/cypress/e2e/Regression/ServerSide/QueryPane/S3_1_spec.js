@@ -89,7 +89,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "Create a new file",
     );
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").should(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
@@ -98,7 +98,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
@@ -107,7 +107,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.typeValueNValidate(fileName, formControls.s3FilePath);
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.eq(
@@ -116,7 +116,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.typeValueNValidate("Hi", formControls.rawBody);
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.pluginErrorDetails.appsmithErrorMessage).to.eq(
@@ -128,8 +128,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       '{"data": "Hi, this is Automation script adding File!"}',
       formControls.rawBody,
     );
-
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(
@@ -138,7 +137,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     dataSources.ValidateNSelectDropdown("File data type", "Base64", "Text");
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       //expect(['The specified bucket does not exist', 'The specified bucket is not valid.']).to.include(response.body.data.body)
@@ -152,7 +151,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       formControls.s3BucketName,
     );
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.urlExpiryDate).to.exist;
@@ -167,7 +166,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "List files in bucket",
     );
 
-    // cy.onlyQueryRun();
+    // dataSources.RunQuery({toValidateResponse: false});
     // cy.wait("@postExecute").should(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(false);
     //   expect(response.body.data.body).to.contains(
@@ -177,7 +176,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.typeValueNValidate("assets-test.appsmith.com", "Bucket name");
 
     cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
 
     agHelper.GetNClick(dataSources._queryResponse("TABLE"));
     agHelper.GetNClick(dataSources._queryResponse("JSON"));
@@ -189,7 +188,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body[0].fileName).to.contains("S3File_");
@@ -199,7 +198,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     dataSources.ValidateNSelectDropdown("Generate signed URL", "No", "Yes");
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body[0].fileName).to.contains("S3File_");
@@ -220,7 +219,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // .click({ force: true });
 
     dataSources.ValidateNSelectDropdown("Generate unsigned URL", "Yes", "No");
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body[0].fileName).to.contains("S3File_");
@@ -241,7 +240,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "Read file",
     );
 
-    // cy.onlyQueryRun();
+    //  dataSources.RunQuery({toValidateResponse: false});
     // cy.wait("@postExecute").should(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(false);
     //   expect(response.body.data.body).to.contains(
@@ -250,7 +249,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // });
     // cy.typeValueNValidate("AutoTest", "Bucket name");
 
-    // cy.onlyQueryRun();
+    // dataSources.RunQuery({toValidateResponse: false});
     // cy.wait("@postExecute").then(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(false);
     //   expect(response.body.data.body).to.contains(
@@ -259,7 +258,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // });
     cy.typeValueNValidate("S3File_", formControls.s3FilePath);
 
-    // cy.onlyQueryRun();
+    //  dataSources.RunQuery({toValidateResponse: false});
     // cy.wait("@postExecute").then(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(false);
     //   expect(response.body.data.body.split("(")[0].trim()).to.be.oneOf([
@@ -270,7 +269,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     // cy.typeValueNValidate("assets-test.appsmith.com", "Bucket name");
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(
@@ -282,7 +281,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     cy.typeValueNValidate(fileName.toLowerCase(), formControls.s3FilePath);
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(
@@ -297,7 +296,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Commenting below since below dropdown is removed from Read
     //cy.validateNSelectDropdown("File data type", "Base64", "Text");
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.fileData).to.not.eq(
@@ -310,7 +309,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "Yes",
       "No",
     );
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.fileData).to.eq(
@@ -330,7 +329,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "Delete file",
     );
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").should(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
@@ -339,7 +338,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
 
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
@@ -347,7 +346,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       );
     });
     cy.typeValueNValidate("S3File_", formControls.s3FilePath);
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(
@@ -359,7 +358,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       formControls.s3BucketName,
     );
     cy.typeValueNValidate(fileName, formControls.s3FilePath);
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.status).to.eq("File deleted successfully");
@@ -377,7 +376,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     //cy.typeValueNValidate("assets-test.appsmith.com", "Bucket name");
     cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
-    cy.onlyQueryRun();
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.length).to.eq(0); //checking that body is empty array
@@ -410,7 +409,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
       cy.setQueryTimeout(30000);
 
-      cy.onlyQueryRun();
+      dataSources.RunQuery({ toValidateResponse: false });
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
       });
