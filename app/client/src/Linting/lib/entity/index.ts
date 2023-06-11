@@ -36,7 +36,7 @@ export type IEntity<
   getId(): string;
   getType(): ENTITY_TYPE;
   getRawEntity(): T;
-  getConfig(): K;
+  getConfig(): K | null;
 };
 
 export default class EntityFactory {
@@ -149,7 +149,7 @@ export class JSEntity
 
 export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
   private entity: TPageListEntity;
-  private config: undefined;
+  private config = null;
   constructor(entity: TPageListEntity) {
     this.entity = entity;
   }
@@ -172,7 +172,7 @@ export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
 
 export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
   private entity: TAppsmithEntity;
-  private config: undefined;
+  private config = null;
   constructor(entity: TAppsmithEntity) {
     this.entity = entity;
   }
@@ -195,25 +195,25 @@ export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
 
 export type TEntity = ReturnType<typeof EntityFactory.getEntity>;
 
-export function isJSEntity(entity: TEntity): entity is JSEntity {
+export function isJSEntity(entity: IEntity): entity is JSEntity {
   return entity.getType() === ENTITY_TYPE.JSACTION;
 }
-export function isActionEntity(entity: TEntity): entity is ActionEntity {
+export function isActionEntity(entity: IEntity): entity is ActionEntity {
   return entity.getType() === ENTITY_TYPE.ACTION;
 }
-export function isAppsmithEntity(entity: TEntity): entity is AppsmithEntity {
+export function isAppsmithEntity(entity: IEntity): entity is AppsmithEntity {
   return entity.getType() === ENTITY_TYPE.APPSMITH;
 }
-export function isWidgetEntity(entity: TEntity): entity is WidgetEntity {
+export function isWidgetEntity(entity: IEntity): entity is WidgetEntity {
   return entity.getType() === ENTITY_TYPE.WIDGET;
 }
-export function isPagelistEntity(entity: TEntity): entity is PagelistEntity {
+export function isPagelistEntity(entity: IEntity): entity is PagelistEntity {
   return entity.getType() === ENTITY_TYPE.PAGELIST;
 }
 
 // only Widgets, jsActions and Actions have paths that can be dynamic
 export function isDynamicEntity(
-  entity: TEntity,
+  entity: IEntity,
 ): entity is JSEntity | WidgetEntity | ActionEntity {
   return [
     ENTITY_TYPE.JSACTION,

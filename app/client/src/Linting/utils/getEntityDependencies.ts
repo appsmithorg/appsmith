@@ -238,7 +238,8 @@ export function extractReferencesFromPath(
 ) {
   if (!isDynamicLeaf(entity, fullPropertyPath)) return [];
   const entityPropertyPath = getPropertyPath(fullPropertyPath);
-  const propertyPathContent = get(entity, entityPropertyPath);
+  const rawEntity = entity.getRawEntity();
+  const propertyPathContent = get(rawEntity, entityPropertyPath);
   if (!isString(propertyPathContent)) return [];
 
   const { jsSnippets } = getDynamicBindings(
