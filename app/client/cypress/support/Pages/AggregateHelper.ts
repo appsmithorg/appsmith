@@ -389,7 +389,7 @@ export class AggregateHelper {
     // });
   }
 
-  public ValidateNetworkDataAssert(
+  public AssertNetworkData(
     aliasName: string,
     expectedPath: string,
     expectedRes: any,
