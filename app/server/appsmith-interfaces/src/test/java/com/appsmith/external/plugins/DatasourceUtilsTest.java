@@ -10,10 +10,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DatasourceUtilsTest {
     @Test
-    public void testValidateDatasourceSkipsEmptyUrlCheck() {
+    public void testValidateDatasourceSkipsEmptyUrlCheckIfEmbedded() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         DatasourceUtils datasourceUtils = new DatasourceUtils();
-        Set<String> invalids = datasourceUtils.validateDatasource(dsConfig);
+        Set<String> invalids = datasourceUtils.validateDatasource(dsConfig, true);
         assertTrue(invalids.isEmpty());
+    }
+
+    @Test
+    public void testValidateDatasourceAddsEmptyUrlInvalidIfNotEmbedded() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceUtils datasourceUtils = new DatasourceUtils();
+        Set<String> invalids = datasourceUtils.validateDatasource(dsConfig, false);
+        assertTrue(invalids.contains("Missing URL."));
     }
 }
