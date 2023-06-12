@@ -90,7 +90,7 @@ function renderSegementedControl(
       isFullWidth
       onChange={(value) => onSelectOptions(value)}
       options={segmentedOptions}
-      value={props.initialValue as string}
+      value={selectedValue}
     />
   );
 }
