@@ -71,8 +71,8 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 `;
 
 const CopyIconWrapper = styled(Button)`
-  position: absolute;
-  right: 0;
+  position: absolute !important;
+  right: var(--ads-v2-spaces-2);
   top: var(--ads-v2-spaces-2);
   cursor: pointer;
   padding: 0;
