@@ -31,12 +31,14 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
 
     @Execution
     public void defaultWorkspaceIdMigration() {
-        if (mongoTemplate.findOne(new Query(), PermissionGroup.class) == null) {
+        Query defaultWorkspaceIdExistsQuery = query(where(
+                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
+
+        if (mongoTemplate.findOne(defaultWorkspaceIdExistsQuery, PermissionGroup.class) == null) {
             System.out.println("No permissionGroup data to migrate.");
             return;
         }
-        Query defaultWorkspaceIdExistsQuery = query(where(
-                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
+
         UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
                 .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
                 .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
