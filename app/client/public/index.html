@@ -47,7 +47,7 @@
         'view-mode': getChunkUrls("AppViewer")
       };
 
-      return JSON.stringify(chunksToPreload.flatMap(chunk => [...chunk.files]).map(url => webpackConfig.output.publicPath + url));
+      return JSON.stringify(chunksToPreload);
 
       function getChunkUrls(chunkName) {
         return compilation.namedChunkGroups.get(chunkName).chunks
