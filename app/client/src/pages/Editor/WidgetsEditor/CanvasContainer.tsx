@@ -33,7 +33,7 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;

@@ -8,7 +8,6 @@ import type {
 } from "@design-system/headless";
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
-import type { fontFamilyTypes } from "../../utils/typography";
 import { Icon as HeadlessIcon } from "@design-system/headless";
 
 export type ButtonVariants = "primary" | "secondary" | "tertiary";
@@ -18,7 +17,6 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
    *  @default primary
    */
   variant?: ButtonVariants;
-  fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
   isFocused?: boolean;
   isLoading?: boolean;
@@ -32,7 +30,6 @@ export const Button = forwardRef(
     props = useVisuallyDisabled(props);
     const {
       children,
-      fontFamily,
       icon,
       iconPosition = "start",
       isFitContainer = false,
@@ -60,9 +57,7 @@ export const Button = forwardRef(
       return (
         <>
           {icon}
-          <Text fontFamily={fontFamily} lineClamp={1}>
-            {children}
-          </Text>
+          <Text lineClamp={1}>{children}</Text>
         </>
       );
     };
@@ -88,9 +83,6 @@ export const Button = forwardRef(
 /**
  * This hook is used to disable all click/press events on a button
  * when the button is visually disabled
- *
- * @param props
- * @returns
  */
 const useVisuallyDisabled = (props: ButtonProps) => {
   let computedProps = props;
