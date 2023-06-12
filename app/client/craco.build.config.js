@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const assert = require("assert");
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 const { merge } = require("webpack-merge");
 const common = require("./craco.common.config.js");
