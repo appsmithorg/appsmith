@@ -60,8 +60,8 @@ describe("Contains all UI tests for JS libraries", () => {
         </Provider>
       </BrowserRouter>,
     );
-    expect(screen.getByText("Add JS Libraries")).toBeDefined();
-    expect(screen.getByText("Recommended Libraries")).toBeDefined();
+    expect(screen.getByText("Add JS libraries")).toBeDefined();
+    expect(screen.getByText("Recommended libraries")).toBeDefined();
     expect(screen.getByTestId("library-url")).toBeDefined();
     expect(screen.getByTestId("install-library-btn")).toBeDisabled();
   });
