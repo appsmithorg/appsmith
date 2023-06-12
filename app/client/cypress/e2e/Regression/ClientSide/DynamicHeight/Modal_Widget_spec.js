@@ -1,18 +1,21 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with limits", function () {
   it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt height Dynamic panel validation for text widget Dynamic panel validation for text widget Dynamic panel validation for text widget";
     cy.fixture("DynamicHeightModalDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
-    cy.selectEntityByName("Modal1");
+    entityExplorer.SelectEntityByName("Modal1", "Widgets");
     cy.get(".t--modal-widget")
       .invoke("css", "height")
       .then((mheight) => {
-        cy.openPropertyPane("textwidget");
+        entityExplorer.SelectEntityByName("Text1", "Modal1");
         cy.get(commonlocators.generalSectionHeight).should("be.visible");
         cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
         cy.openPropertyPaneFromModal("textwidget");

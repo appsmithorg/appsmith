@@ -1,17 +1,21 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../locators/commonlocators.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for Form/Switch", function () {
     cy.fixture("dynamicHeightFormSwitchdsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
-    cy.openPropertyPane("formwidget");
+    entityExplorer.SelectEntityByName("Form1", "Widgets");
     cy.get(".t--widget-formwidget")
       .invoke("css", "height")
       .then((formheight) => {
         cy.changeLayoutHeight(commonlocators.autoHeight);
-        cy.openPropertyPane("switchgroupwidget");
+        entityExplorer.SelectEntityByName("SwitchGroup1", "Form1");
         cy.changeLayoutHeight(commonlocators.autoHeight);
         cy.get(".t--widget-switchgroupwidget")
           .invoke("css", "height")

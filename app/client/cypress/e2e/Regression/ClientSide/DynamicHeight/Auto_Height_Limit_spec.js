@@ -1,12 +1,15 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with limits", function () {
   it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
     cy.fixture("dynamicHeightContainerdsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
-    cy.openPropertyPane("containerwidget");
+    entityExplorer.SelectEntityByName("Container1");
     cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
     cy.wait(3000);

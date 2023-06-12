@@ -1,15 +1,19 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Moustache test Functionality", function () {
   beforeEach(() => {
     cy.fixture("commondsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
   it("1. Moustache test Functionality", function () {
-    cy.openPropertyPane("textwidget");
+    entityExplorer.ExpandCollapseEntity("Aditya");
+    entityExplorer.SelectEntityByName("TestTextBox", "Aditya");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror(testdata.methods);
     cy.NavigateToAPI_Panel();

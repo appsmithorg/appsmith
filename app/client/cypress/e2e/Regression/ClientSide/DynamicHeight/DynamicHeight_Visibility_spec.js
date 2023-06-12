@@ -1,20 +1,24 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  deployMode,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for Visibility", function () {
   before(() => {
     cy.fixture("invisibleWidgetdsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
   it("1. Validating visbility/invisiblity of widget with dynamic height feature", function () {
     //changing the Text Name and verifying
     cy.wait(3000);
-    cy.openPropertyPane("containerwidget");
+    entityExplorer.SelectEntityByName("Container1", "Widgets");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
-    cy.openPropertyPaneWithIndex("inputwidgetv2", 0);
+    entityExplorer.SelectEntityByName("Input1", "Container1");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
-    cy.openPropertyPaneWithIndex("inputwidgetv2", 1);
+    entityExplorer.SelectEntityByName("Input2", "Container1");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
@@ -27,7 +31,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
             cy.get("label:Contains('On')").should("not.be.enabled");
           });
       });
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((theight) => {

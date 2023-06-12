@@ -1,12 +1,15 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for JsonForm", function () {
     cy.fixture("jsonFormDynamicHeightDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
-    cy.openPropertyPane("jsonformwidget");
+    entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
     cy.get(".t--widget-jsonformwidget")
       .invoke("css", "height")
       .then((formheight) => {

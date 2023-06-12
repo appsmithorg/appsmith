@@ -5,27 +5,31 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  propPane,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
     cy.fixture("tableInputDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
     cy.fixture("displayWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
@@ -37,9 +41,9 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    cy.openPropertyPane("inputwidgetv2");
+    entityExplorer.SelectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    _.propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
+    propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)

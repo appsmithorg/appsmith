@@ -2,17 +2,21 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
   before(() => {
     cy.fixture("navigateTotabledsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Table Widget Functionality with multiple page", function () {
-    cy.openPropertyPane("tablewidget");
+    entityExplorer.SelectEntityByName("Table1");
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,
@@ -22,7 +26,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     //Create MyPage and valdiate if its successfully created
     cy.Createpage(pageid);
     cy.fixture("navigateToInputDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -35,7 +39,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
       .should("be.visible")
       .click({ force: true });
     cy.wait(4000);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.readTabledataPublish("1", "0").then((tabDataP) => {
       const tabValueP = tabDataP;
       cy.log(tabValueP);

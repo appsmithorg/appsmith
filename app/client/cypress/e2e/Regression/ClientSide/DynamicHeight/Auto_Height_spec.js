@@ -1,23 +1,25 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   it("1. Validate change with auto height width for widgets", function () {
     cy.fixture("dynamicHeightContainerCheckboxdsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
-    cy.openPropertyPane("containerwidget");
+    entityExplorer.SelectEntityByName("Container1", "Widgets");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
-    cy.openPropertyPane("checkboxgroupwidget");
+    entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     cy.moveToStyleTab();
     cy.get(".t--property-control-fontsize .rc-select")
       .invoke("css", "font-size")
@@ -90,16 +92,16 @@ describe("Dynamic Height Width validation", function () {
 
   it("2. Validate container with auto height and child widgets with fixed height", function () {
     cy.fixture("dynamicHeigthContainerFixedDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     //cy.openPropertyPane("containerwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
-    cy.openPropertyPane("checkboxgroupwidget");
+    entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeight);
-    cy.openPropertyPane("inputwidgetv2");
+    entityExplorer.SelectEntityByName("Input1");
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
@@ -107,7 +109,7 @@ describe("Dynamic Height Width validation", function () {
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((height) => {
-        cy.openPropertyPane("containerwidget");
+        entityExplorer.SelectEntityByName("Container1", "Widgets");
         cy.changeLayoutHeight(commonlocators.autoHeight);
         cy.wait(4000);
         cy.get(".t--widget-containerwidget")

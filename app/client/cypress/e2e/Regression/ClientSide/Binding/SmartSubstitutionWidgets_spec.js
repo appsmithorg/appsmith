@@ -1,7 +1,11 @@
 const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table Binding Functionality", function () {
   const updateData = `[
@@ -20,12 +24,12 @@ describe("Text-Table Binding Functionality", function () {
 ]`;
   before(() => {
     cy.fixture("tableAndChart").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Update table data and assert", function () {
-    cy.openPropertyPane("tablewidget");
+    entityExplorer.SelectEntityByName("Table1");
     cy.get(widgetLocators.tabedataField).then(($el) => {
       cy.updateCodeInput($el, updateData);
       cy.readTabledata("1", "0").then((cellData) => {
@@ -33,7 +37,7 @@ describe("Text-Table Binding Functionality", function () {
       });
     });
     //Update chart data and assert
-    cy.openPropertyPane("chartwidget");
+    entityExplorer.SelectEntityByName("Chart1");
     cy.get(".t--property-control-chart-series-data-control").then(($el) => {
       cy.updateCodeInput($el, updateData);
       cy.get(viewWidgetsPage.chartWidget)
@@ -49,7 +53,7 @@ describe("Text-Table Binding Functionality", function () {
   });
 
   it("2. Publish and assert", function () {
-    _.deployMode.DeployApp(_.locators._backToEditor, true, false);
+    deployMode.DeployApp(_.locators._backToEditor, true, false);
     cy.readTabledata("1", "0").then((cellData) => {
       cy.wrap(cellData).should("equal", "Product2");
     });

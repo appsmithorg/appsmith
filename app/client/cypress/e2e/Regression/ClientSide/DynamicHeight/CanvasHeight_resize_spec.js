@@ -1,12 +1,15 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with multiple containers and text widget", function () {
   it("1. Validate change with auto height width for widgets", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height";
     cy.fixture("dynamicHeightCanvasResizeDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     cy.get(".t--widget-containerwidget")
       .eq(0)
@@ -15,7 +18,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
         cy.get(".t--widget-textwidget")
           .invoke("css", "height")
           .then((tnewheight) => {
-            cy.openPropertyPane("textwidget");
+            entityExplorer.SelectEntityByName("Text1", "Container1");
             cy.get(".t--widget-textwidget")
               .invoke("css", "height")
               .then((theight) => {

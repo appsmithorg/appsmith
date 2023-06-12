@@ -1,5 +1,8 @@
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../locators/commonlocators.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
@@ -7,15 +10,16 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("dynamicHeightListDsl").then((val) => {
       agHelper.AddDsl(val);
     });
-    cy.openPropertyPane("listwidget");
+    entityExplorer.SelectEntityByName("List1");
     cy.get(".t--widget-listwidget")
       .invoke("css", "height")
       .then((lheight) => {
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
-        cy.openPropertyPaneWithIndex("textwidget", 0);
+        entityExplorer.SelectEntityByName("Container1", "List1");
+        entityExplorer.SelectEntityByName("Text1", "Container1");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
-        cy.openPropertyPaneWithIndex("textwidget", 1);
+        entityExplorer.SelectEntityByName("Text2");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
         cy.get(".t--widget-listwidget")
