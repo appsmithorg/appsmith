@@ -1,7 +1,7 @@
 /// <reference types="Cypress" />
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import homePage from "../../../../locators/HomePage";
+import homePageLocators from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 import {
@@ -26,7 +26,7 @@ describe("Create new workspace and share with a user", function () {
       homePage.CreateAppInWorkspace(workspaceId, appid);
 
       cy.get("h2").contains("Drag and drop a widget here");
-      cy.get(homePage.shareApp).click({ force: true });
+      cy.get(homePageLocators.shareApp).click({ force: true });
       homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
@@ -36,22 +36,27 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("2. login as Invited user and then validate viewer privilage", function () {
-    cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.get(homePage.searchInput).type(appid, { force: true });
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME1"),
+      Cypress.env("TESTPASSWORD1"),
+      "App Viewer",
+    );
+
+    cy.get(homePageLocators.searchInput).type(appid, { force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.appsContainer).contains(workspaceId);
+    cy.get(homePageLocators.appsContainer).contains(workspaceId);
     if (CURRENT_REPO === REPO.CE) {
-      cy.xpath(homePage.ShareBtn).first().should("be.visible");
+      cy.xpath(homePageLocators.ShareBtn).first().should("be.visible");
     }
-    cy.get(homePage.applicationCard).trigger("mouseover");
-    cy.get(homePage.appEditIcon).should("not.exist");
+    cy.get(homePageLocators.applicationCard).trigger("mouseover");
+    cy.get(homePageLocators.appEditIcon).should("not.exist");
     cy.launchApp(appid);
     cy.LogOut();
   });
 
   it("3. Enable public access to Application", function () {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
@@ -59,7 +64,7 @@ describe("Create new workspace and share with a user", function () {
       200,
     );
     cy.get("h2").contains("Drag and drop a widget here");
-    cy.get(homePage.shareApp).click();
+    cy.get(homePageLocators.shareApp).click();
     cy.enablePublicAccess(true);
     deployMode.DeployApp();
     currentUrl = cy.url();
@@ -90,7 +95,10 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("5. login as uninvited user and then validate public access of Application", function () {
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME2"),
+      Cypress.env("TESTPASSWORD2"),
+    );
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
@@ -107,7 +115,7 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("6. login as Owner and disable public access", function () {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
@@ -115,13 +123,16 @@ describe("Create new workspace and share with a user", function () {
       200,
     );
     cy.get("h2").contains("Drag and drop a widget here");
-    cy.get(homePage.shareApp).click();
+    cy.get(homePageLocators.shareApp).click();
     cy.enablePublicAccess(true);
     cy.LogOut();
   });
 
   it("7. login as uninvited user, validate public access disable feature ", function () {
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME2"),
+      Cypress.env("TESTPASSWORD2"),
+    );
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",

@@ -314,7 +314,7 @@ export class HomePage {
     this.agHelper.Sleep(); //waiting for window to load
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
-    cy.visit("/user/login");
+    this.agHelper.VisitNValidate("/user/login", "signUpLogin");
     cy.get(this._username).should("be.visible").type(uname);
     cy.get(this._password).type(pswd, { log: false });
     cy.get(this._submitBtn).click();
