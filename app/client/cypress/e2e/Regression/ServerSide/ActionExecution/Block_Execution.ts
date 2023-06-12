@@ -20,7 +20,23 @@ describe("Block Action Execution when no field is present", () => {
       name = $dsName;
 
       agHelper.Sleep(1000);
-      dataSources.NavigateFromActiveDS(name, true);
+      dataSources.CreateQueryAfterDSSaved();
+      agHelper.GetNClick(dataSources._templateMenu);
+      dataSources.EnterQuery("SELECT * from users");
+      dataSources.AssertRunButtonDisability(false);
+      dataSources.EnterQuery("");
+      dataSources.AssertRunButtonDisability(true);
+    });
+  });
+
+  it("3. Ensure Run button is disabled for Post UQI Datasources e.g. Oracle when no body data is present", () => {
+    let name: any;
+    dataSources.CreateDataSource("Oracle", true, false);
+    cy.get("@dsName").then(($dsName) => {
+      name = $dsName;
+
+      agHelper.Sleep(1000);
+      dataSources.CreateQueryAfterDSSaved();
       agHelper.GetNClick(dataSources._templateMenu);
       dataSources.EnterQuery("SELECT * from users");
       dataSources.AssertRunButtonDisability(false);
