@@ -205,21 +205,19 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgNegative() {
-    const color = this.bgAccent.clone();
+    const color = this.seedColor.clone();
 
-    color.oklch.h = 40;
+    color.oklch.l = 0.55;
+    color.oklch.c = 0.22;
+    color.oklch.h = 27;
 
     if (this.seedIsRed) {
-      if (this.seedColor.oklch.h < 39) {
-        color.oklch.h = 50;
+      if (this.seedColor.oklch.h < 27) {
+        color.oklch.h = 35;
       }
-      if (this.seedColor.oklch.h >= 39) {
-        color.oklch.h = 29;
+      if (this.seedColor.oklch.h >= 27) {
+        color.oklch.h = 19;
       }
-    }
-
-    if (color.oklch.c < 0.19) {
-      color.oklch.c = 0.19;
     }
 
     return color;
