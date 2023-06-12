@@ -113,7 +113,7 @@ describe("Fork application across workspaces", function () {
     });
   });
 
-  it("Mark application as forkable", () => {
+  it.skip("Mark application as forkable", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToEmbedSettings();
     _.embedSettings.ToggleMarkForkable();

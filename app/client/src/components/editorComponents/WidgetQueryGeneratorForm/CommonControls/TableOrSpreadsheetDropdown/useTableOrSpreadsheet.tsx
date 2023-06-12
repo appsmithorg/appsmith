@@ -152,6 +152,7 @@ export function useTableOrSpreadsheet() {
     error: isGoogleSheetPluginDS(selectedDatasourcePluginPackageName)
       ? spreadSheets?.error
       : datasourceStructure?.error?.message,
+    labelText: `Select ${fieldName} from ${selectedDatasource?.name}`,
     label: (
       <Label>
         Select {fieldName} from <Bold>{selectedDatasource?.name}</Bold>
