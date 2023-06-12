@@ -34,7 +34,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
       cy.wait(2000);
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+        // Resetting the default query and rewriting a new one
+        _.dataSources.EnterQuery("");
         _.dataSources.ToggleUsePreparedStatement(false);
       });
 
@@ -119,7 +120,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       cy.get(queryLocators.switch).last().click({ force: true });
 
-      cy.get(queryLocators.templateMenu).click();
+      // Resetting the default query and rewriting a new one
+      _.dataSources.EnterQuery("");
       cy.xpath(queryLocators.query).click({ force: true });
 
       cy.get(".CodeMirror textarea")

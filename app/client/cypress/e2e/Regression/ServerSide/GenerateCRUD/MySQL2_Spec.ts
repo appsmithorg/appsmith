@@ -55,7 +55,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
    INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2188,'Kind''s Jack and Jill Food Center','I','110 S Main Sigourney, IA 525910000 (41.333550830000036, -92.20522134099997)',NULL);
    INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2190,'Central City Liquor, Inc.','A','1460 2nd Ave Des Moines, IA 503140000 (41.60557033500004, -93.61982683699995)',NULL);`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    dataSources.EnterQuery("");
     agHelper.RenameWithInPane("CreateStores");
     dataSources.EnterQuery(tableCreateQuery);
     agHelper.FocusElement(locator._codeMirrorTextArea);
@@ -348,7 +349,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("12. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE Stores;";
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    dataSources.EnterQuery("");
     agHelper.RenameWithInPane("DropStores");
     dataSources.EnterQuery(deleteTblQuery);
     agHelper.FocusElement(locator._codeMirrorTextArea);

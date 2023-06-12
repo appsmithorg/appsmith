@@ -27,7 +27,9 @@ describe("MySQL noise test", function () {
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
     cy.get(queryLocators.queryNameField).type("NoiseTestQuery");
-    cy.get(queryLocators.templateMenu).click();
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
+    _.dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
     // mySQL query to fetch data
     cy.get(".CodeMirror textarea")
       .first()

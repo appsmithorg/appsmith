@@ -69,7 +69,8 @@ describe("Entity explorer datasource structure", function () {
 
   it("2. Refresh datasource structure", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
 
     //cy.GlobalSearchEntity(datasourceName);
     // cy.get(`.t--entity.datasource:contains(${datasourceName})`)

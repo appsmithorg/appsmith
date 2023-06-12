@@ -16,7 +16,8 @@ describe("SQL Autocompletion", () => {
 
   it("Shows autocompletion hints in SQL", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    dataSources.EnterQuery("");
     cy.get(locator._codeMirrorTextArea).focus().type("select");
     // Hints should exist
     cy.get(locator._hints).should("exist");

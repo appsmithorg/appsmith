@@ -138,7 +138,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 `;
 
     _.dataSources.NavigateFromActiveDS(dsName, true);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     _.agHelper.RenameWithInPane("CreateProductLines");
     _.dataSources.EnterQuery(tableCreateQuery);
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
@@ -264,7 +265,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE productlines;";
     _.dataSources.NavigateFromActiveDS(dsName, true);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     _.agHelper.RenameWithInPane("DropProductlines");
     _.dataSources.EnterQuery(deleteTblQuery);
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);

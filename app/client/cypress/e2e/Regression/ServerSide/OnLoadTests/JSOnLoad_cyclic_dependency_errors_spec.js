@@ -33,8 +33,10 @@ describe("Cyclic Dependency Informational Error Messages", function () {
       //Step1 : Create Mock Users DB
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+        // Resetting the default query and rewriting a new one
+        _.dataSources.EnterQuery("");
         _.dataSources.ToggleUsePreparedStatement(false);
+        _.dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       });
       _.entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
@@ -61,8 +63,10 @@ describe("Cyclic Dependency Informational Error Messages", function () {
       });
       cy.wait(1000);
       cy.get(datasource.createQuery).click();
-      _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+      // Resetting the default query and rewriting a new one
+      _.dataSources.EnterQuery("");
       _.dataSources.ToggleUsePreparedStatement(false);
+      _.dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       _.entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(

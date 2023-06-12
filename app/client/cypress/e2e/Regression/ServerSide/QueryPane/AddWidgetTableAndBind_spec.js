@@ -26,7 +26,8 @@ describe("Addwidget from Query and bind with other widgets", function () {
 
   it("2. Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

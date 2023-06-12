@@ -88,7 +88,8 @@ describe("Git discard changes:", function () {
       });
     cy.get(queryLocators.queryNameField).type(`${query2}`);
     cy.get(queryLocators.switch).last().click({ force: true });
-    cy.get(queryLocators.templateMenu).click();
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.xpath(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
       .first()

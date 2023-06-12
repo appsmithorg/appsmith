@@ -17,7 +17,8 @@ describe("Character Datatype tests", function () {
   it("1. Creating table - chartypes", () => {
     query = `create table charTypes(serialid serial primary key, "One(1)" char, "AsMany" varchar, "Limited(4)" varchar(4), "Unlimited" text)`;
     _.dataSources.NavigateFromActiveDS(dsName, true);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     _.dataSources.EnterQuery(query);
     _.agHelper.RenameWithInPane("createTable");
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);

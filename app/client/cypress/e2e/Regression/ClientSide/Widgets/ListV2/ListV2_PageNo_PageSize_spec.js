@@ -164,7 +164,8 @@ describe("List widget V2 page number and page size", () => {
       cy.wait(2000);
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+        // Resetting the default query and rewriting a new one
+        _.dataSources.EnterQuery("");
         _.dataSources.ToggleUsePreparedStatement(false);
       });
       // writing query to get the schema
@@ -221,8 +222,10 @@ describe("List widget V2 page number and page size", () => {
       // switching off Use Prepared Statement toggle
       cy.get(queryLocators.switch).last().click({ force: true });
 
+      // Resetting the default query and rewriting a new one
+      _.dataSources.EnterQuery("");
+
       //.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
       cy.xpath(queryLocators.query).click({ force: true });
 
       // writing query to get the schema

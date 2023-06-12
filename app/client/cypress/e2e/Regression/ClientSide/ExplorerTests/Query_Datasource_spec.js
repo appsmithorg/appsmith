@@ -78,7 +78,8 @@ describe("Entity explorer tests related to query and datasource", function () {
       200,
     );
 
-    // cy.get(queryLocators.templateMenu).click();
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.get(".CodeMirror textarea").first().focus().type("select * from users");
 
     cy.EvaluateCurrentValue("select * from users");

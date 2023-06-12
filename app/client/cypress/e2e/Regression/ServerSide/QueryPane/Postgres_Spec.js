@@ -23,7 +23,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     _.agHelper.TypeDynamicInputValueNValidate(
       "select * from users limit {{Table1.pageSize}} OFFSET {{((Table1.pageNo - 1)*Table1.pageSize)}}",
       ".CodeEditorTarget",
@@ -77,7 +78,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       (29, 'CRUD User29', 'IN PROGRESS', 'Male','cruduser29@ihg.com', '19624 Scofield Way', 'Editor'),
       (30, 'CRUD User30', 'APPROVED', 'Female','cruduser30@ihg.com', '19624 Scofield Way', 'Admin');`;
 
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     //cy.typeValueNValidate(tableCreateQuery);//Since type method is slow for such big text - using paste!
     cy.get(".CodeMirror textarea").focus().paste(tableCreateQuery);
     cy.EvaluateCurrentValue(tableCreateQuery);
@@ -88,7 +90,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("4. Validate Select record from Postgress datasource", () => {
     let selectQuery = "select * from public.users_crud";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.typeValueNValidate(selectQuery);
 
     // cy.xpath(queryLocators.codeTextArea).paste(selectQuery);
@@ -101,7 +104,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let insertQuery =
       "INSERT INTO public.users_crud (id, name, gender, email) VALUES (31, 'CRUD User11','Male','cruduser31@ihg.com');";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.typeValueNValidate(insertQuery);
     cy.runAndDeleteQuery();
   });
@@ -110,7 +114,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let updateQuery =
       "UPDATE public.users_crud SET status = 'PENDING', role = 'Viewer' WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.typeValueNValidate(updateQuery);
     cy.runAndDeleteQuery();
   });
@@ -118,7 +123,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("7. Validate Delete record from Postgress datasource", () => {
     let deleteQuery = "DELETE FROM public.users_crud WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.typeValueNValidate(deleteQuery);
     cy.runAndDeleteQuery();
   });
@@ -281,7 +287,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
     let deleteTblQuery = "DROP TABLE public.users_crud;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.typeValueNValidate(deleteTblQuery);
     cy.runQuery();
     _.entityExplorer.ExpandCollapseEntity("Datasources");
@@ -292,7 +299,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.typeValueNValidate("select * from public.users limit 10");
     cy.runQuery();
     cy.typeValueNValidate("select * from public.users_crud limit 10");
@@ -309,7 +317,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.typeValueNValidate(
       "select * from public.users where name='Ayush1234' ORDER BY id LIMIT 10",
     );

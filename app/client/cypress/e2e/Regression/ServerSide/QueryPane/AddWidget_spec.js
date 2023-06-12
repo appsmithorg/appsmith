@@ -14,7 +14,8 @@ describe("Add widget - Postgress DataSource", function () {
 
   it("1. Verify 'Add to widget [Widget Suggestion]' functionality - Postgress", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.wait(500);
     cy.get(".CodeMirror textarea")
       .first()

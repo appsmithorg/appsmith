@@ -23,7 +23,8 @@ describe("API Panel Test Functionality", function () {
 
   it("2. Create and runs query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch).last().click({ force: true });
     cy.xpath(queryLocators.query).click({ force: true });
