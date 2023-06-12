@@ -84,9 +84,9 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     const toLoadPageId = "634902ae07bb483342666137";
     yield all([
       call(engine.loadAppData, action.payload),
-      call(engine.loadAppURL, toLoadPageId, action.payload.pageId),
       call(engine.loadAppEntities, toLoadPageId, applicationId),
     ]);
+    yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
     yield call(engine.loadGit, applicationId);
 
     // const { applicationId, toLoadPageId } = yield call(
