@@ -16,7 +16,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("1. Test_Add users api and execute api", function () {
-    apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
+    apiPage.CreateAndFillApi(this.dataSet.userApi + "/mock-api?records=10");
     cy.RunAPI();
     cy.get(apiLocators.jsonResponseTab).click();
     cy.get(apiLocators.responseBody)

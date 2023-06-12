@@ -4,12 +4,13 @@ import {
   entityExplorer,
   propPane,
   agHelper,
+  deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function () {
   before(() => {
     cy.fixture("buttondsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -29,14 +30,14 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
   });
 
   it("2. Button click should take the control to page link validation", function () {
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.wait(2000);
     cy.get(publish.buttonWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(publish.buttonWidget).should("not.exist");
     cy.go("back");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.wait("@getPage")
       .its("response.body.responseMeta.status")
       .should("eq", 200);

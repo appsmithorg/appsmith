@@ -5,6 +5,7 @@ import {
   entityExplorer,
   agHelper,
   deployMode,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table Binding Functionality", function () {
@@ -53,7 +54,7 @@ describe("Text-Table Binding Functionality", function () {
   });
 
   it("2. Publish and assert", function () {
-    deployMode.DeployApp(_.locators._backToEditor, true, false);
+    deployMode.DeployApp(locators._backToEditor, true, false);
     cy.readTabledata("1", "0").then((cellData) => {
       cy.wrap(cellData).should("equal", "Product2");
     });

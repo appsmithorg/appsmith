@@ -4,6 +4,7 @@ import {
   entityExplorer,
   agHelper,
   deployMode,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table Binding Functionality", function () {
@@ -43,6 +44,7 @@ describe("Text-Table Binding Functionality", function () {
         cy.get(commonlocators.TextInside).should("have.text", tabValueP);
       });
     });
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. Text-Table Binding Functionality For Email", function () {
@@ -67,7 +69,9 @@ describe("Text-Table Binding Functionality", function () {
         cy.get(commonlocators.TextInside).should("have.text", tabValueP);
       });
     });
+    deployMode.NavigateBacktoEditor();
   });
+
   it("3. Text-Table Binding Functionality For Total Length", function () {
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.SelectEntityByName("Text4", "Container1");
@@ -88,6 +92,7 @@ describe("Text-Table Binding Functionality", function () {
             cy.get(commonlocators.TextInside).contains(listingCountP);
           });
       });
+    deployMode.NavigateBacktoEditor();
   });
 
   it("4. Table Widget Functionality To Verify Default Row Selection is working", function () {
@@ -109,6 +114,7 @@ describe("Text-Table Binding Functionality", function () {
       const tabValueP = tabDataP;
       cy.get(commonlocators.TextInside).should("have.text", tabValueP);
     });
+    deployMode.NavigateBacktoEditor();
   });
 
   it("5. Text-Table Binding Functionality For Username", function () {
@@ -118,7 +124,10 @@ describe("Text-Table Binding Functionality", function () {
     cy.isSelectRow(1);
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.SelectEntityByName("Text4", "Container1");
-    cy.testJsontext("text", JSON.stringify(this.data.textfun));
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      JSON.stringify(this.dataSet.textfun),
+    );
     /**
      * @param{Row Index} Provide the row index
      * @param(Column Index) Provide column index
@@ -126,6 +135,7 @@ describe("Text-Table Binding Functionality", function () {
     cy.readTabledata("1", "2").then((tabData) => {
       const tabValue = `\"${tabData}\"`;
       cy.get(commonlocators.TextInside).contains(tabValue);
+      //entityExplorer.SelectEntityByName("Text4");
       cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
@@ -137,7 +147,7 @@ describe("Text-Table Binding Functionality", function () {
       });
     });
   });
-});
-afterEach(() => {
-  deployMode.NavigateBacktoEditor();
+  afterEach(() => {
+    // deployMode.NavigateBacktoEditor();
+  });
 });

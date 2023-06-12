@@ -1,12 +1,16 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 import apiPage from "../../../../locators/ApiEditor";
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   let apiData;
   before(() => {
     cy.fixture("tableV2WidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
   it("1. Test_Add users api and execute api", function () {
@@ -38,7 +42,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.readTableV2data("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       apiData = JSON.stringify(interception.response.body.data.body[0].name);
     });

@@ -5,12 +5,13 @@ const testdata = require("../../../../fixtures/testdata.json");
 import {
   entityExplorer,
   propPane,
+  agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
     cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
