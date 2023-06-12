@@ -658,7 +658,6 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   try {
-    //Chandan
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.testDatasource(
         payload.datasourceStorages.active_env,
