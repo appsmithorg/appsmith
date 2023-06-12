@@ -10,10 +10,15 @@ export class PathUtils {
     const config = entity.getConfig();
     const name = entity.getName();
     const allReactivePaths = Object.keys(config.reactivePaths);
-    if (isWidgetEntity(entity)) {
-      allReactivePaths.push(...Object.keys(config.bindingPaths));
-    }
     return allReactivePaths.map((p) => `${name}.${p}`);
+  }
+
+  static getBindingPaths(entity: IEntity) {
+    const paths: string[] = [];
+    if (!isWidgetEntity(entity)) return paths;
+    const config = entity.getConfig();
+    const name = entity.getName();
+    return Object.keys(config.bindingPaths).map((p) => `${name}.${p}`);
   }
 
   static getTriggerPaths(entity: IEntity) {
@@ -21,5 +26,12 @@ export class PathUtils {
     const config = entity.getConfig();
     const name = entity.getName();
     return Object.keys(config.triggerPaths).map((p) => `${name}.${p}`);
+  }
+
+  static getPathsToLint(entity: IEntity) {
+    const reactivePaths = PathUtils.getReactivePaths(entity);
+    const triggerPaths = PathUtils.getTriggerPaths(entity);
+    const bindingPaths = PathUtils.getBindingPaths(entity);
+    return [...reactivePaths, ...triggerPaths, ...bindingPaths];
   }
 }

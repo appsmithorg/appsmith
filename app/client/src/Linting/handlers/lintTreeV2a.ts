@@ -7,18 +7,39 @@ import { getLintErrorsFromTree } from "Linting/utils/lintTree";
 import {
   convertPathToString,
   getAllPaths,
-  getEntityNameAndPropertyPath,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DiffArray, DiffDeleted, DiffEdit, DiffNew } from "deep-diff";
 import { diff } from "deep-diff";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import DependencyMap from "entities/DependencyMap";
-import { partition } from "lodash";
 
 let dataTreeCache: DataTree | null = null;
 let configTreeCache: ConfigTree | null = null;
 
 const lintingDependencyMap = new DependencyMap();
+
+export function lintTreeV2(data: LintTreeRequestPayload) {
+  const { configTree, unevalTree } = data;
+  preProcessUnevalTreeForLinting(unevalTree);
+  const isFirstTree = !dataTreeCache || !configTreeCache;
+  const paths = isFirstTree
+    ? lintPathsForFirstTree(unevalTree, configTree)
+    : lintPathsForUpdateTree(unevalTree, configTree);
+  dataTreeCache = unevalTree;
+  configTreeCache = configTree;
+  if (!paths.length) return {};
+
+  const { errors, updatedJSEntities } = getLintErrorsFromTree({
+    pathsToLint: paths,
+    unEvalTree: unevalTree,
+    jsPropertiesState: {},
+    cloudHosting: true,
+    asyncJSFunctionsInDataFields: {},
+    configTree,
+  });
+  return { errors, updatedJSEntities };
+}
 
 function preProcessUnevalTreeForLinting(unEvalTree: DataTree) {
   const entityNames = Object.keys(unEvalTree || {});
@@ -41,163 +62,125 @@ function preProcessUnevalTreeForLinting(unEvalTree: DataTree) {
   }
 }
 
-export function lintTreeV2(data: LintTreeRequestPayload) {
-  const { configTree, unevalTree } = data;
-  preProcessUnevalTreeForLinting(unevalTree);
-  const paths: string[] = [];
-  if (!dataTreeCache || !configTreeCache) {
-    dataTreeCache = unevalTree;
-    configTreeCache = configTree;
-    const allNodes = getAllPaths(unevalTree);
-    const entityNames = Object.keys(unevalTree || {});
-
-    for (const entityName of entityNames) {
-      const rawEntity = unevalTree[entityName];
-      const entity = EntityFactory.getEntity(rawEntity, configTree[entityName]);
-      const reactivePaths = PathUtils.getReactivePaths(entity);
-      for (const path of reactivePaths) {
-        const references = extractReferencesFromPath(entity, path, allNodes);
-        lintingDependencyMap.addNodes({ [path]: true });
-        lintingDependencyMap.addDependency(path, references);
-        paths.push(path);
-      }
-      const triggerPaths = PathUtils.getTriggerPaths(entity);
-      for (const path of triggerPaths) {
-        const references = extractReferencesFromPath(entity, path, allNodes);
-        lintingDependencyMap.addNodes({ [path]: true });
-        lintingDependencyMap.addDependency(path, references);
-        paths.push(path);
-      }
+function lintPathsForFirstTree(unevalTree: DataTree, configTree: ConfigTree) {
+  const paths = new Set<string>();
+  const allNodes = getAllPaths(unevalTree);
+  const entityNames = Object.keys(unevalTree || {});
+  for (const entityName of entityNames) {
+    const rawEntity = unevalTree[entityName];
+    const entity = EntityFactory.getEntity(rawEntity, configTree[entityName]);
+    const pathsToLint = PathUtils.getPathsToLint(entity);
+    for (const path of pathsToLint) {
+      const references = extractReferencesFromPath(entity, path, allNodes);
+      lintingDependencyMap.addNodes({ [path]: true });
+      lintingDependencyMap.addDependency(path, references);
+      paths.add(path);
     }
+  }
+  return Array.from(paths);
+}
 
-    console.log("After 1st Tree", { paths, nodes: lintingDependencyMap.nodes });
-  } else {
-    const allNodes = getAllPaths(unevalTree);
-    lintingDependencyMap.addNodes(allNodes);
-    const differences = diff(dataTreeCache, unevalTree);
+function lintPathsForUpdateTree(unevalTree: DataTree, configTree: ConfigTree) {
+  if (!dataTreeCache) return [];
+  if (!configTreeCache) return [];
 
-    if (!differences?.length) return {};
+  const allNodes = getAllPaths(unevalTree);
+  const paths = new Set<string>();
+  const entityNames = Array.from(
+    new Set([
+      ...Object.keys(unevalTree || {}),
+      ...Object.keys(dataTreeCache || {}),
+    ]),
+  );
 
-    const [edits, others] = partition(
-      differences,
-      (diff) => diff.kind === "E" || diff.kind === "A",
-    );
-    const [additions, deletions] = partition(
-      others,
-      (diff) => diff.kind === "N",
-    );
+  const differences = diff(dataTreeCache, unevalTree);
+  if (!differences?.length) return [];
+  const differencesGroupedByEntity: Record<
+    string,
+    {
+      additions: DiffNew<DataTree>[];
+      deletions: DiffDeleted<DataTree>[];
+      edits: (DiffEdit<DataTree> | DiffArray<DataTree>)[];
+    }
+  > = {};
 
-    console.log({ edits, additions, deletions });
+  for (const difference of differences) {
+    const entityName = difference?.path?.[0];
+    differencesGroupedByEntity[entityName] =
+      differencesGroupedByEntity[entityName] || {};
+    if (difference.kind === "E" || difference.kind === "A") {
+      differencesGroupedByEntity[entityName].edits =
+        differencesGroupedByEntity[entityName].edits || [];
+      differencesGroupedByEntity[entityName].edits.push(difference);
+    } else if (difference.kind === "N") {
+      differencesGroupedByEntity[entityName].additions =
+        differencesGroupedByEntity[entityName].additions || [];
+      differencesGroupedByEntity[entityName].additions.push(difference);
+    } else {
+      differencesGroupedByEntity[entityName].deletions =
+        differencesGroupedByEntity[entityName].deletions || [];
+      differencesGroupedByEntity[entityName].deletions.push(difference);
+    }
+  }
+
+  for (const entityName of entityNames) {
+    const entity = unevalTree.hasOwnProperty(entityName)
+      ? EntityFactory.getEntity(unevalTree[entityName], configTree[entityName])
+      : EntityFactory.getEntity(
+          dataTreeCache[entityName],
+          configTreeCache[entityName],
+        );
+    const pathsToLint = PathUtils.getPathsToLint(entity);
+
+    const {
+      additions = [],
+      deletions = [],
+      edits = [],
+    } = differencesGroupedByEntity[entityName] || {};
 
     for (const edit of edits) {
       const pathString = convertPathToString(edit?.path || []);
       if (!pathString) continue;
-      const { entityName } = getEntityNameAndPropertyPath(pathString);
-      const entity = EntityFactory.getEntity(
-        unevalTree[entityName],
-        configTree[entityName],
-      );
-      const reactivePaths = PathUtils.getReactivePaths(entity);
-      const triggerPaths = PathUtils.getTriggerPaths(entity);
-      if (
-        !reactivePaths.includes(pathString) &&
-        !triggerPaths.includes(pathString)
-      ) {
-        if (!reactivePaths.some((p) => pathString.startsWith(p))) continue;
-      }
-
+      if (!pathsToLint.includes(pathString)) continue;
       const references = extractReferencesFromPath(
         entity,
         pathString,
         allNodes,
       );
       lintingDependencyMap.addDependency(pathString, references);
-      paths.push(pathString);
+      paths.add(pathString);
     }
-
-    console.log("After Edits", { paths });
 
     for (const addition of additions) {
       const pathString = convertPathToString(addition?.path || []);
       if (!pathString) continue;
-      const entityName = addition.path?.[0];
-      if (!entityName) continue;
-      const entity = EntityFactory.getEntity(
-        unevalTree[entityName],
-        configTree[entityName],
-      );
-      const reactivePaths = PathUtils.getReactivePaths(entity);
-      const triggerPaths = PathUtils.getTriggerPaths(entity);
-      if (
-        !reactivePaths.includes(pathString) &&
-        !triggerPaths.includes(pathString)
-      ) {
-        if (!reactivePaths.some((p) => p.startsWith(pathString))) continue;
-      }
-
       lintingDependencyMap.addNodes(
-        reactivePaths.reduce((acc, p) => {
+        pathsToLint.reduce((acc, p) => {
           acc[p] = true;
           return acc;
         }, {} as Record<string, true>),
       );
-      const incomingNodes = reactivePaths.flatMap((n) =>
+      const incomingNodes = pathsToLint.flatMap((n) =>
         lintingDependencyMap.getIncomingDependencies(n),
       );
-      paths.push(...incomingNodes);
+      incomingNodes.forEach((n) => paths.add(n));
+      pathsToLint.forEach((n) => paths.add(n));
     }
-
-    console.log("After Additions", { paths });
 
     for (const deletion of deletions) {
       const pathString = convertPathToString(deletion?.path || []);
       if (!pathString) continue;
-      const entityName = deletion.path?.[0];
-      if (!entityName) continue;
-      const entity = EntityFactory.getEntity(
-        dataTreeCache[entityName],
-        configTreeCache[entityName],
-      );
-      const reactivePaths = PathUtils.getReactivePaths(entity);
-      const triggerPaths = PathUtils.getTriggerPaths(entity);
-      if (
-        !reactivePaths.includes(pathString) &&
-        !triggerPaths.includes(pathString)
-      ) {
-        if (!reactivePaths.some((p) => p.startsWith(pathString))) continue;
-      }
-
       lintingDependencyMap.removeNodes(
-        reactivePaths.reduce((acc, p) => {
+        pathsToLint.reduce((acc, p) => {
           acc[p] = true;
           return acc;
         }, {} as Record<string, true>),
       );
-      const incomingNodes = reactivePaths.flatMap((n) =>
+      const incomingNodes = pathsToLint.flatMap((n) =>
         lintingDependencyMap.getIncomingDependencies(n),
       );
-      paths.push(...incomingNodes);
+      incomingNodes.forEach((n) => paths.add(n));
     }
-
-    console.log("After Deletions", { paths });
-
-    dataTreeCache = unevalTree;
-    configTreeCache = configTree;
-    console.log("After update Tree", {
-      paths,
-      nodes: lintingDependencyMap.nodes,
-    });
   }
-  const { errors, updatedJSEntities } = getLintErrorsFromTree({
-    pathsToLint: paths,
-    unEvalTree: unevalTree,
-    jsPropertiesState: {},
-    cloudHosting: true,
-    asyncJSFunctionsInDataFields: {},
-    configTree,
-  });
-
-  console.log("After Linting", { updatedJSEntities, errors });
-
-  return { errors, updatedJSEntities };
+  return Array.from(paths);
 }
