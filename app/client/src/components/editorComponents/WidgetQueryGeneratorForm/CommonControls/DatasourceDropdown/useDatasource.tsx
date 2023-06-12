@@ -35,7 +35,7 @@ import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { isEnvironmentValid } from "@appsmith/utils/Environments";
 
 export function useDatasource() {
   const {
@@ -61,7 +61,6 @@ export function useDatasource() {
   const pluginImages = useSelector(getPluginImages);
 
   const datasources: Datasource[] = useSelector(getDatasources);
-  const currentEnvironment = getCurrentEnvironment();
 
   const isDatasourceLoading = useSelector(getDatasourceLoading);
 
@@ -88,7 +87,7 @@ export function useDatasource() {
           value: datasource.name,
           data: {
             pluginId: datasource.pluginId,
-            isValid: datasource.datasourceStorages[currentEnvironment].isValid,
+            isValid: isEnvironmentValid(datasource),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
           },

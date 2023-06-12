@@ -1,3 +1,4 @@
+import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import type { Property } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import type {
@@ -49,7 +50,7 @@ export const datasourceToFormValues = (
     datasourceId: datasource.id,
     workspaceId: datasource.workspaceId,
     pluginId: datasource.pluginId,
-    isValid: datasource.datasourceStorages.active_env?.isValid,
+    isValid: isEnvironmentValid(datasource, "active_env"),
     url: datasource.datasourceStorages.active_env?.datasourceConfiguration?.url,
     headers: cleanupProperties(
       datasource.datasourceStorages.active_env?.datasourceConfiguration

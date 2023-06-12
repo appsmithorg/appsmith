@@ -63,9 +63,8 @@ import {
   Button,
   Text,
 } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
 import { keyBy } from "lodash";
-import { isEnvironmentConfigured } from "utils/environments";
 
 const Section = styled.div`
   display: flex;
@@ -265,7 +264,6 @@ function ReconnectDatasourceModal() {
   const isLoading = useSelector(getIsListing);
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
-  const currentEnvironment = getCurrentEnvironment();
 
   // checking refresh modal
   const pendingApp = JSON.parse(
@@ -431,7 +429,7 @@ function ReconnectDatasourceModal() {
       id: ds.id,
       name: ds.name,
       pluginName: plugins[ds.id]?.name,
-      isConfigured: isEnvironmentConfigured(ds, currentEnvironment),
+      isConfigured: isEnvironmentConfigured(ds),
     });
   }, []);
 
@@ -478,9 +476,7 @@ function ReconnectDatasourceModal() {
     if (isModalOpen && !isTesting) {
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) =>
-        ds.datasourceStorages
-          ? !isEnvironmentConfigured(ds, currentEnvironment)
-          : true,
+        ds.datasourceStorages ? !isEnvironmentConfigured(ds) : true,
       );
       if (pending.length > 0) {
         let next: Datasource | undefined = undefined;
@@ -488,7 +484,7 @@ function ReconnectDatasourceModal() {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
           if (
             index > -1 && datasources[index].datasourceStorages
-              ? !isEnvironmentConfigured(datasource, currentEnvironment)
+              ? !isEnvironmentConfigured(datasource)
               : true
           ) {
             return;
@@ -496,9 +492,7 @@ function ReconnectDatasourceModal() {
           next = datasources
             .slice(index + 1)
             .find((ds: Datasource) =>
-              ds.datasourceStorages
-                ? !isEnvironmentConfigured(ds, currentEnvironment)
-                : true,
+              ds.datasourceStorages ? !isEnvironmentConfigured(ds) : true,
             );
         }
         next = next || pending[0];
@@ -540,9 +534,7 @@ function ReconnectDatasourceModal() {
   });
 
   const shouldShowDBForm =
-    isConfigFetched &&
-    !isLoading &&
-    !isEnvironmentConfigured(datasource, currentEnvironment);
+    isConfigFetched && !isLoading && !isEnvironmentConfigured(datasource);
 
   return (
     <Modal open={isModalOpen}>
@@ -579,8 +571,7 @@ function ReconnectDatasourceModal() {
                     pageId={pageId}
                   />
                 )}
-                {isEnvironmentConfigured(datasource, currentEnvironment) &&
-                  SuccessMessages()}
+                {isEnvironmentConfigured(datasource) && SuccessMessages()}
               </DBFormWrapper>
 
               <SkipToAppWrapper>

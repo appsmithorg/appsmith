@@ -5,7 +5,7 @@ import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
 import type { Plugin } from "api/PluginApi";
 import {
   isDatasourceAuthorizedForQueryCreation,
@@ -61,12 +61,9 @@ function ListItemWrapper(props: {
   onClick: (ds: Datasource) => void;
 }) {
   const { ds, onClick, plugin, selected } = props;
-  const currentEnvironment = getCurrentEnvironment();
   const isPluginAuthorized = isGoogleSheetPluginDS(plugin?.packageName)
     ? isDatasourceAuthorizedForQueryCreation(ds, plugin ?? {})
-    : ds.datasourceStorages
-    ? ds.datasourceStorages[currentEnvironment]?.isConfigured
-    : false;
+    : isEnvironmentConfigured(ds);
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}

@@ -63,7 +63,10 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import {
+  getCurrentEnvironment,
+  isEnvironmentValid,
+} from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 type ReduxStateProps = {
@@ -382,9 +385,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                     text: datasource.datasourceStorages[currentEnvironment]
                       ?.datasourceConfiguration?.url,
                     data: datasource,
-                    className: !datasource.datasourceStorages[
-                      currentEnvironment
-                    ]?.isValid
+                    className: !isEnvironmentValid(datasource)
                       ? "datasource-hint custom invalid"
                       : "datasource-hint custom",
                     render: (element: HTMLElement, self: any, data: any) => {

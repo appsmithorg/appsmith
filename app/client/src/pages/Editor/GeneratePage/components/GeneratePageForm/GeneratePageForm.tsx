@@ -70,6 +70,7 @@ import { getPluginImages } from "selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
+import { isEnvironmentValid } from "@appsmith/utils/Environments";
 
 //  ---------- Styles ----------
 
@@ -601,7 +602,7 @@ function GeneratePageForm() {
   };
 
   // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
-  const isValidDatasourceConfig = selectedDatasource.data?.isValid;
+  const isValidDatasourceConfig = isEnvironmentValid(selectedDatasource.data);
 
   const pluginField: {
     TABLE: string;
