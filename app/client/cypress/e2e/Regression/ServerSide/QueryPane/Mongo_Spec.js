@@ -279,6 +279,7 @@ describe("Validate Mongo query commands", function () {
       "ListingAndReviews",
       "Delete",
     );
+    _.agHelper.RefreshPage();
   });
 
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
