@@ -232,7 +232,7 @@ export class LightModeTheme implements ColorModeTheme {
         color.oklch.h = 35;
       }
       if (this.seedColor.oklch.h >= 27) {
-        color.oklch.h = 15;
+        color.oklch.h = 19;
       }
     }
 

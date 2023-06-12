@@ -291,7 +291,7 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bgNegative.clone();
 
     if (this.bg.contrastAPCA(color) > -60) {
-      color.oklch.l = 50;
+      color.oklch.l = 0.5;
     }
 
     return color;
