@@ -3,79 +3,85 @@ import {
   MOBILE_ROW_GAP,
   ROW_GAP,
 } from "../../../../../src/utils/autoLayout/constants";
-const commonlocators = require("../../../../locators/commonlocators.json");
+import {
+  agHelper,
+  autoLayout,
+  draggableWidgets,
+  entityExplorer,
+  propPane,
+  tabs,
+} from "../../../../support/Objects/ObjectsCore";
+import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 
 let childHeight = 0;
 let containerHeight = 0;
 let inputHeight = 0;
 const tabsMinHeight = 300 - WIDGET_PADDING;
+let dropTargetClass = "";
 describe("validate auto height for tabs widget on auto layout canvas", () => {
   it("tabs widget should maintain a minHeight of 30 rows", () => {
     /**
      * Convert app to AutoLayout
      */
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.wait(2000);
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.wait(2000);
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
-    cy.wait(2000);
+    autoLayout.ConvertToAutoLayoutAndVerify(false);
+    agHelper.Sleep();
 
     /**
      * Add Tabs widget.
      */
-    cy.dragAndDropToCanvas("tabswidget", { x: 100, y: 200 });
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TAB, 100, 200);
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((height) => {
         containerHeight = parseInt(height?.split("px")[0]);
         // TABS widget has a minHeight of 30 rows.
         expect(containerHeight).to.equal(tabsMinHeight);
       });
 
-    // add an input widget to the tabs widget.
-    cy.dragAndDropToWidget("inputwidgetv2", "tabswidget", {
-      x: 100,
-      y: 100,
-    });
+    agHelper.GetDropTargetId("Tabs1").then((id) => {
+      dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
+      // add an input widget to the tabs widget.
+      entityExplorer.DragDropWidgetNVerify(
+        draggableWidgets.INPUT_V2,
+        100,
+        100,
+        dropTargetClass,
+      );
 
-    cy.get(".t--widget-inputwidgetv2")
-      .invoke("css", "height")
-      .then((height) => {
-        childHeight += parseInt(height?.split("px")[0]);
-        inputHeight = parseInt(height?.split("px")[0]);
-        expect(containerHeight).to.be.greaterThan(childHeight);
-      });
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
-      .then((newHeight) => {
-        const updatedHeight = parseInt(newHeight?.split("px")[0]);
-        // Widget maintains a minHeight of 30 rows.
-        expect(updatedHeight).to.equal(containerHeight);
-        containerHeight = updatedHeight;
-      });
+      agHelper
+        .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
+        .then((height) => {
+          childHeight += parseInt(height?.split("px")[0]);
+          inputHeight = parseInt(height?.split("px")[0]);
+          expect(containerHeight).to.be.greaterThan(childHeight);
+        });
+      agHelper
+        .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
+        .then((newHeight) => {
+          const updatedHeight = parseInt(newHeight?.split("px")[0]);
+          // Widget maintains a minHeight of 30 rows.
+          expect(updatedHeight).to.equal(containerHeight);
+          containerHeight = updatedHeight;
+        });
+    });
   });
 
   it("should update height on adding child widgets", () => {
     // Add a child Table widget to the container.
-    cy.dragAndDropToWidget("tablewidgetv2", "tabswidget", {
-      x: 300,
-      y: 150,
-    });
-    cy.wait(1000);
-    cy.get(".t--widget-tablewidgetv2")
-      .invoke("css", "height")
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.TABLE,
+      300,
+      150,
+      dropTargetClass,
+    );
+    agHelper.Sleep();
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TABLE))
       .then((height) => {
         childHeight += parseInt(height?.split("px")[0]);
       });
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(containerHeight);
@@ -85,12 +91,9 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on toggling visibility of tabs header", () => {
     // Hide tabs header.
-    cy.openPropertyPane("tabswidget");
-    cy.wait(500);
-    cy.get(commonlocators.showTabsControl).click({ force: true });
-    cy.wait(500);
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    tabs.toggleShowTabHeader(false);
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.lessThan(containerHeight);
@@ -100,12 +103,9 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
 
     // Show tabs header.
-    cy.openPropertyPane("tabswidget");
-    cy.wait(500);
-    cy.get(commonlocators.showTabsControl).click({ force: true });
-    cy.wait(500);
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    tabs.toggleShowTabHeader();
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(containerHeight);
@@ -117,10 +117,10 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on switching tabs", () => {
     // Switch to tab 2.
-    cy.get(".t--tabid-tab2").click({ force: true });
-    cy.wait(500);
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    tabs.selectTab("tab2");
+
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.lessThan(containerHeight);
@@ -130,10 +130,10 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
 
     // Switch to tab 1.
-    cy.get(".t--tabid-tab1").click({ force: true });
-    cy.wait(500);
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    tabs.selectTab("tab1");
+
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(containerHeight);
@@ -143,17 +143,19 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on flex wrap at mobile viewport", () => {
     // add an input widget to the tabs widget, in the first row.
-    cy.dragAndDropToWidget("inputwidgetv2", "tabswidget", {
-      x: 30,
-      y: 70,
-    });
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.INPUT_V2,
+      30,
+      70,
+      dropTargetClass,
+    );
 
     // Switch to mobile viewport
-    cy.get("#canvas-viewport").invoke("width", `400px`);
-    cy.wait(2000);
+    agHelper.SetCanvasViewportWidth(400);
+    agHelper.Sleep(2000);
 
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         // Flex wrap would lead to creation of a new row.
@@ -175,10 +177,10 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on switching tabs at mobile viewport", () => {
     // Switch to tab 2.
-    cy.get(".t--tabid-tab2").click({ force: true });
-    cy.wait(2000);
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    tabs.selectTab("tab2");
+
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.lessThan(containerHeight);
@@ -188,10 +190,10 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
 
     // Switch to tab 1.
-    cy.get(".t--tabid-tab1").click({ force: true });
-    cy.wait(500);
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    tabs.selectTab("tab1");
+
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(containerHeight);
@@ -201,16 +203,14 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on deleting child widgets", () => {
     // Switch to desktop viewport
-    cy.get("#canvas-viewport").invoke("width", `1024px`);
-    cy.wait(2000);
+    agHelper.SetCanvasViewportWidth(1024);
+    agHelper.Sleep(2000);
 
     // Delete table widget
-    cy.openPropertyPane("tablewidgetv2");
-    cy.wait(1000);
-    cy.get("[data-testid='t--delete-widget']").click({ force: true });
-    cy.wait(1000);
-    cy.get(".t--widget-tabswidget")
-      .invoke("css", "height")
+    propPane.DeleteWidgetFromPropertyPane("Table1");
+    agHelper.Sleep();
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.lessThan(containerHeight);

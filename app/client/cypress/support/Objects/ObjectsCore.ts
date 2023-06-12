@@ -27,3 +27,4 @@ export const onboarding = ObjectsRegistry.Onboarding;
 export const autoLayout = ObjectsRegistry.AutoLayout;
 export const draggableWidgets = WIDGET;
 export const fakerHelper = ObjectsRegistry.FakerHelper;
+export const tabs = ObjectsRegistry.Tabs;

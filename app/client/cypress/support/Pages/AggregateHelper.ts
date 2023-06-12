@@ -1226,6 +1226,14 @@ export class AggregateHelper {
     return this.GetElement(this.locator._widgetByName(widgetName));
   }
 
+  GetDropTargetId(widgetName: string) {
+    return this.GetWidgetByName(widgetName).invoke("attr", "id");
+  }
+
+  GetModalDropTargetId() {
+    return this.GetElement(this.locator._modal).invoke("attr", "id");
+  }
+
   public EnableAllEditors() {
     this.Sleep(2000);
     cy.get("body").then(($body: any) => {
