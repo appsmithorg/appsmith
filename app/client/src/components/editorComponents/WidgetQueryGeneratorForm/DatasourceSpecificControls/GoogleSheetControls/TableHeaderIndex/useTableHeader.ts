@@ -5,6 +5,7 @@ import { isNumber } from "lodash";
 import { useCallback, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDatasource } from "selectors/entitiesSelector";
+import { isValidGsheetConfig } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
 
 export function useTableHeaderIndex() {
   const dispatch = useDispatch();
@@ -45,13 +46,9 @@ export function useTableHeaderIndex() {
   );
 
   return {
-    error:
-      (!config.tableHeaderIndex ||
-        !isNumber(Number(config.tableHeaderIndex)) ||
-        isNaN(Number(config.tableHeaderIndex))) &&
-      "Please enter a positive number",
+    error: !isValidGsheetConfig(config) && "Please enter a positive number",
     value: config.tableHeaderIndex,
     onChange,
-    show: !!config.table,
+    show: !!config.table && !!config.sheet,
   };
 }
