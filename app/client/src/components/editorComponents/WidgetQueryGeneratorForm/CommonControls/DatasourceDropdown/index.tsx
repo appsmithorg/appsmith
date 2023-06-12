@@ -45,8 +45,8 @@ function DatasourceDropdown() {
         filterOption={(value: string, option?: DefaultOptionType) => {
           if (
             [
-              DATASOURCE_DROPDOWN_SECTIONS.BIND_TO_QUERY,
-              DATASOURCE_DROPDOWN_SECTIONS.GENERATE_A_QUERY,
+              DATASOURCE_DROPDOWN_SECTIONS.CONNECT_TO_QUERY,
+              DATASOURCE_DROPDOWN_SECTIONS.CHOOSE_DATASOURCE_TO_CONNECT,
               DATASOURCE_DROPDOWN_SECTIONS.OTHER_ACTIONS,
             ].includes(option?.value as string)
           ) {
@@ -85,10 +85,10 @@ function DatasourceDropdown() {
           <Option
             className="t--one-click-binding-datasource-selector--bind-to-query"
             disabled
-            key="Bind to query"
+            key={DATASOURCE_DROPDOWN_SECTIONS.CONNECT_TO_QUERY}
           >
             <SectionHeader>
-              {DATASOURCE_DROPDOWN_SECTIONS.BIND_TO_QUERY}
+              {DATASOURCE_DROPDOWN_SECTIONS.CONNECT_TO_QUERY}
             </SectionHeader>
           </Option>
         )}
@@ -111,10 +111,10 @@ function DatasourceDropdown() {
             queryOptions.length && "has-seperator"
           } t--one-click-binding-datasource-selector--generate-a-query`}
           disabled
-          key="Generate a query"
+          key={DATASOURCE_DROPDOWN_SECTIONS.CHOOSE_DATASOURCE_TO_CONNECT}
         >
           <SectionHeader>
-            {DATASOURCE_DROPDOWN_SECTIONS.GENERATE_A_QUERY}
+            {DATASOURCE_DROPDOWN_SECTIONS.CHOOSE_DATASOURCE_TO_CONNECT}
           </SectionHeader>
         </Option>
 

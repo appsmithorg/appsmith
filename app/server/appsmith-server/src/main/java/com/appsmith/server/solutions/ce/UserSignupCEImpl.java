@@ -296,9 +296,14 @@ public class UserSignupCEImpl implements UserSignupCE {
                      */
                     Mono<User> sendCreateSuperUserEvent = sendCreateSuperUserEventOnSeparateThreadMono(user);
 
-                    Mono<Boolean> installationSetupAnalyticsMono = sendInstallationSetupAnalyticsOnSeparateThreadMono(userFromRequest, user, userData);
+                    // In the past, we have seen "Installation Setup Complete" not getting triggered if subscribed within
+                    // secondary functions, hence subscribing this in a separate thread to avoid getting cancelled because
+                    // of any other secondary function mono throwing an exception
+                    sendInstallationSetupAnalytics(userFromRequest, user, userData)
+                            .subscribeOn(commonConfig.scheduler())
+                            .subscribe();
 
-                    Mono<Long> allSecondaryFunctions = Mono.when(userDataMono, installationSetupAnalyticsMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
+                    Mono<Long> allSecondaryFunctions = Mono.when(userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {
@@ -360,16 +365,16 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
-    private Mono<Boolean> sendInstallationSetupAnalyticsOnSeparateThreadMono(UserSignupRequestDTO userFromRequest,
-                                                                             User user,
-                                                                             UserData userData) {
+    private Mono<Void> sendInstallationSetupAnalytics(UserSignupRequestDTO userFromRequest,
+                                                      User user,
+                                                      UserData userData) {
 
         Mono<String> getInstanceIdMono = configService.getInstanceId()
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken to get instance ID: {} ms", pair.getT1());
                     return pair.getT2();
-                });;
+                });
 
         Mono<String> getExternalAddressMono = NetworkUtils.getExternalAddress().defaultIfEmpty("unknown")
                 .elapsed()
@@ -378,7 +383,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return pair.getT2();
                 });
 
-        Mono.zip(getInstanceIdMono, getExternalAddressMono)
+        return Mono.zip(getInstanceIdMono, getExternalAddressMono)
                 .flatMap(tuple -> {
                     final String instanceId = tuple.getT1();
                     final String ip = tuple.getT2();
@@ -425,9 +430,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     log.debug("UserSignupCEImpl::Time taken to send installation setup analytics event: {} ms", pair.getT1());
                     return pair.getT2();
                 })
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
-        return Mono.just(Boolean.TRUE);
+                .then();
     }
 
     private Mono<User> sendCreateSuperUserEventOnSeparateThreadMono(User user) {

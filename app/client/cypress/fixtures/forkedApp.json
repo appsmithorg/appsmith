@@ -672,17 +672,6 @@
       "new": false
     }
   ],
-  "decryptedFields": {
-    "mockdata": {
-      "password": "docker",
-      "authType": "com.appsmith.external.models.DBAuth",
-      "dbAuth": {
-        "authenticationType": "dbAuth",
-        "username": "docker",
-        "databaseName": "fakeapi"
-      }
-    }
-  },
   "editModeTheme": {
     "name": "Classic",
     "new": true,

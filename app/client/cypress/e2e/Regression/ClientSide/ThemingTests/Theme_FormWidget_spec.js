@@ -1,4 +1,8 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  appSettings,
+  theme,
+} from "../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
@@ -25,14 +29,14 @@ describe("Theme validation usecases", function () {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    _.appSettings.OpenAppSettings();
-    _.appSettings.GoToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
-    _.agHelper.AssertElementLength(_.theme.locators._border, 3);
-    _.theme.AssertBorderPopoverText(0, "none", 1);
-    _.theme.AssertBorderPopoverText(1, "M", 2);
-    _.theme.AssertBorderPopoverText(2, "L", 3);
+    agHelper.AssertElementLength(theme.locators._border, 3);
+    theme.AssertBorderPopoverText(0, "none", 1);
+    theme.AssertBorderPopoverText(1, "M", 2);
+    theme.AssertBorderPopoverText(2, "L", 3);
     cy.get(themelocator.border).eq(2).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
@@ -44,11 +48,11 @@ describe("Theme validation usecases", function () {
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
-    _.theme.AssertShadowPopoverText(0, "none", 1);
-    _.theme.AssertShadowPopoverText(1, "S", 2);
-    _.theme.AssertShadowPopoverText(2, "M", 3);
-    _.theme.AssertShadowPopoverText(3, "L", 4);
-    cy.xpath(_.theme.locators._boxShadow("L")).click({ force: true });
+    theme.AssertShadowPopoverText(0, "none", 1);
+    theme.AssertShadowPopoverText(1, "S", 2);
+    theme.AssertShadowPopoverText(2, "M", 3);
+    theme.AssertShadowPopoverText(3, "L", 4);
+    cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -84,20 +88,20 @@ describe("Theme validation usecases", function () {
           //themeFont = `${$childElem.children().last().text()}, sans-serif`;
           themeFont = `Poppins, sans-serif`;
 
-          _.agHelper.ContainsNClick("Font");
-          _.agHelper.Sleep();
-          _.theme.ChooseColorType("Primary");
-          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#553DE9");
-          _.agHelper.Sleep();
-          _.theme.ChooseColorType("Background");
-          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#F8FAFC");
-          _.agHelper.Sleep();
-          _.theme.ChangeThemeColor(3, "Background");
-          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#d4d4d8");
-          _.theme.ChangeThemeColor(3, "Primary");
-          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#d4d4d8");
-          _.agHelper.ContainsNClick("Color");
-          _.appSettings.ClosePane();
+          agHelper.ContainsNClick("Font");
+          agHelper.Sleep();
+          theme.ChooseColorType("Primary");
+          agHelper.AssertText(theme.locators._inputColor, "val", "#553DE9");
+          agHelper.Sleep();
+          theme.ChooseColorType("Background");
+          agHelper.AssertText(theme.locators._inputColor, "val", "#F8FAFC");
+          agHelper.Sleep();
+          theme.ChangeThemeColor(3, "Background");
+          agHelper.AssertText(theme.locators._inputColor, "val", "#d4d4d8");
+          theme.ChangeThemeColor(3, "Primary");
+          agHelper.AssertText(theme.locators._inputColor, "val", "#d4d4d8");
+          agHelper.ContainsNClick("Color");
+          appSettings.ClosePane();
           //Publish the App and validate Font across the app
           cy.PublishtheApp();
           cy.get(".bp3-button:contains('Sub')").should(
@@ -131,8 +135,8 @@ describe("Theme validation usecases", function () {
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
 
-    _.appSettings.OpenAppSettings();
-    _.appSettings.GoToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
@@ -146,7 +150,7 @@ describe("Theme validation usecases", function () {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
-            _.appSettings.ClosePane();
+            appSettings.ClosePane();
           });
       });
   });
@@ -169,8 +173,8 @@ describe("Theme validation usecases", function () {
 
     cy.get("#canvas-selection-0").click({ force: true });
 
-    _.appSettings.OpenAppSettings();
-    _.appSettings.GoToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     // select a theme
@@ -183,7 +187,7 @@ describe("Theme validation usecases", function () {
       .first()
       .invoke("text")
       .then((text) => {
-        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
+        cy.get(commonlocators.toastmsg).contains(`Theme ${text} applied`);
       });
     cy.get(`${commonlocators.themeCard} > main`)
       .last()
@@ -216,7 +220,7 @@ describe("Theme validation usecases", function () {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
-            _.appSettings.ClosePane();
+            appSettings.ClosePane();
           });
       });
     cy.get(formWidgetsPage.formD).click();

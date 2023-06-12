@@ -37,7 +37,7 @@ export class ThemeSettings {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this.locators._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this.locators._themeCard(newTheme));
-    this.agHelper.AssertContains("Theme " + newTheme + " Applied");
+    this.agHelper.AssertContains("Theme " + newTheme + " applied");
   }
 
   public ChangeThemeColor(

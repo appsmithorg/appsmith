@@ -1,5 +1,8 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
+import {
+  agHelper,
+  appSettings,
+  theme,
+} from "../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -24,22 +27,22 @@ describe("Theme validation for default data", function () {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    _.appSettings.OpenAppSettings();
-    _.appSettings.GoToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Border validation
-    _.agHelper.AssertElementLength(_.theme.locators._border, 3);
-    _.theme.AssertBorderPopoverText(0, "none", 1);
-    _.theme.AssertBorderPopoverText(1, "M", 2);
-    _.theme.AssertBorderPopoverText(2, "L", 3);
+    agHelper.AssertElementLength(theme.locators._border, 3);
+    theme.AssertBorderPopoverText(0, "none", 1);
+    theme.AssertBorderPopoverText(1, "M", 2);
+    theme.AssertBorderPopoverText(2, "L", 3);
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    _.theme.AssertShadowPopoverText(0, "none", 1);
-    _.theme.AssertShadowPopoverText(1, "S", 2);
-    _.theme.AssertShadowPopoverText(2, "M", 3);
-    _.theme.AssertShadowPopoverText(3, "L", 4);
+    theme.AssertShadowPopoverText(0, "none", 1);
+    theme.AssertShadowPopoverText(1, "S", 2);
+    theme.AssertShadowPopoverText(2, "M", 3);
+    theme.AssertShadowPopoverText(3, "L", 4);
     cy.contains("Shadow").click({ force: true });
 
     //Font
@@ -57,13 +60,13 @@ describe("Theme validation for default data", function () {
     //Color
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
-    _.theme.ChooseColorType("Primary");
-    _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#553DE9");
-    _.agHelper.Sleep();
-    _.theme.ChooseColorType("Background");
-    _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#F8FAFC");
-    _.agHelper.Sleep();
-    _.appSettings.ClosePane();
+    theme.ChooseColorType("Primary");
+    agHelper.AssertText(theme.locators._inputColor, "val", "#553DE9");
+    agHelper.Sleep();
+    theme.ChooseColorType("Background");
+    agHelper.AssertText(theme.locators._inputColor, "val", "#F8FAFC");
+    agHelper.Sleep();
+    appSettings.ClosePane();
   });
 
   it("2. Validate Default Theme change across application", function () {
@@ -81,11 +84,11 @@ describe("Theme validation for default data", function () {
       .should("have.css", "background-color")
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
-    _.appSettings.OpenAppSettings();
-    _.appSettings.GoToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
-    cy.get(".cursor-pointer:contains('Applied Theme')").click({ force: true });
+    cy.get(".cursor-pointer:contains('Applied theme')").click({ force: true });
     cy.get(".t--theme-card main > main")
       .first()
       .invoke("css", "background-color")

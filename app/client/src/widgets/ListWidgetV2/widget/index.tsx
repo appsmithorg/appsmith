@@ -564,7 +564,7 @@ class ListWidget extends BaseWidget<
       });
     }
 
-    //To Add Auto Layout flex layer for meta Canvas Widgets
+    //To Add auto-layout flex layer for meta Canvas Widgets
     if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
       metaWidget.flexLayers = getMetaFlexLayers(
         metaWidget.flexLayers,
