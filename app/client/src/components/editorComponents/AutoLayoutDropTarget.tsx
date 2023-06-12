@@ -28,6 +28,7 @@ export function AutoLayoutDropTarget(props: AutoLayoutDropTargetProps) {
   return (
     <StyledDiv $isMainContainer={props.widgetId === MAIN_CONTAINER_WIDGET_ID}>
       {props.children}
+      {/* A dummy div which will helps to show the highlights at the bottom of MainCanvas */}
       {isDragging && isDraggingInCurrentCanvas && (
         <div style={{ height: "10px" }} />
       )}
