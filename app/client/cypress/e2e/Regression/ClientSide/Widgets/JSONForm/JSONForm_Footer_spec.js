@@ -52,6 +52,7 @@ describe("JSONForm Footer spec", () => {
   it("3. floats to the bottom when fixed footer is true and content overflows", () => {
     cy.fixture("jsonFormDslWithSchema").then((val) => {
       _.agHelper.AddDsl(val);
+      _.agHelper.AddDsl(val); //Should not be needed, to check
     });
 
     cy.openPropertyPane("jsonformwidget");
