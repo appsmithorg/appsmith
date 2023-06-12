@@ -4,6 +4,7 @@ import {
   entityExplorer,
   agHelper,
   deployMode,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table v2 Binding Functionality", function () {
@@ -123,7 +124,10 @@ describe("Text-Table v2 Binding Functionality", function () {
      */
     cy.isSelectRow(1);
     entityExplorer.SelectEntityByName("Text4", "Container1");
-    cy.testJsontext("text", JSON.stringify(this.data.textfun));
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      JSON.stringify(this.dataSet.textfun),
+    );
     /**
      * @param{Row Index} Provide the row index
      * @param(Column Index) Provide column index
