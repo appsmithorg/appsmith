@@ -227,7 +227,7 @@ export class LightModeTheme implements ColorModeTheme {
     color.oklch.c = 0.22;
     color.oklch.h = 27;
 
-    if (this.seedIsRed && color.oklch.c > 0.12) {
+    if (this.seedIsRed && this.seedColor.oklch.c > 0.12) {
       if (this.seedColor.oklch.h < 27) {
         color.oklch.h = 34;
       }
@@ -310,8 +310,18 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgNegative() {
     const color = this.bgNegative.clone();
 
-    if (this.bg.contrastAPCA(color) < 60) {
-      color.oklch.l = 0.5;
+    color.oklch.l = color.oklch.l + 0.1;
+    color.oklch.c = color.oklch.c + 0.1;
+    color.oklch.h = color.oklch.h - 10;
+
+    if (
+      this.seedIsRed &&
+      !this.seedIsAchromatic &&
+      this.fgAccent.oklch.l > 0.5 &&
+      this.fgAccent.oklch.h < 28
+    ) {
+      color.oklch.c = color.oklch.c + 0.05;
+      color.oklch.h = color.oklch.h - 15;
     }
 
     return color;
