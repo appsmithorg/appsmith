@@ -55,7 +55,11 @@ module.exports = {
                   modulePath.endsWith(".svg")
                 );
               },
-              // This determines which chunk to put the icon into
+              // This determines which chunk to put the icon into.
+              //
+              // Why have three separate cache groups for three different kinds of
+              // icons? Purely as an optimization: not every page needs all icons,
+              // so we can avoid loading unused icons sometimes.
               name: (module) => {
                 if (
                   module.resource?.match(
