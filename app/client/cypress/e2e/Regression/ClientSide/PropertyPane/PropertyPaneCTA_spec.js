@@ -7,7 +7,7 @@ describe("Property pane CTA to add an action", function () {
   });
 
   it("1. Check if CTA is shown when there is no action", function () {
-    entityExplorer.SelectEntityByName("Table1","Container3");
+    entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.get(".t--propertypane-connect-cta")
       .scrollIntoView()
       .should("be.visible");

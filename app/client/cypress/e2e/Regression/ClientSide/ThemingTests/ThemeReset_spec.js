@@ -14,7 +14,7 @@ describe("Theme validation usecases", function () {
     cy.get(".t--widget-buttonwidget").should("exist");
 
     // open property pane
-    entityExplorer.SelectEntityByName("Button1")
+    entityExplorer.SelectEntityByName("Button1");
     cy.moveToStyleTab();
     // change color to red
     cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type("red");
