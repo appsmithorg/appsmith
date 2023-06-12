@@ -868,6 +868,9 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
     const payload = merge(initialValues, datasource);
     //Chandan
     payload.datasourceStorages.active_env.isConfigured = false; // imported datasource as not configured yet
+    payload.datasourceStorages.unused_env =
+      payload.datasourceStorages.active_env;
+    delete payload.datasourceStorages.active_env;
     const response: ApiResponse = yield DatasourcesApi.updateDatasource(
       payload,
       datasource.id,
