@@ -871,9 +871,8 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
     payload.datasourceStorages.unused_env =
       payload.datasourceStorages.active_env;
     delete payload.datasourceStorages.active_env;
-    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
-      payload,
-      datasource.id,
+    const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
+      payload.datasourceStorages.unused_env,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
