@@ -65,7 +65,7 @@ describe("Git Bugs", function () {
     _.agHelper
       .GetText(_.locators._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
-    _.agHelper.AssertURL("branch=" + repoName); //Validate we are still in Git branch
+    _.agHelper.AssertURL("branch=" + tempBranch); //Validate we are still in Git branch
     _.agHelper.AssertURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
@@ -84,6 +84,7 @@ describe("Git Bugs", function () {
     _.gitSync.OpenRepositoryAndVerify();
     cy.get("@repoURL").should("be.called");
   });
+
   // it.only("4. Import application json and validate headers", () => {
   //   _.homePage.NavigateToHome();
   //   _.homePage.ImportApp("DeleteGitRepos.json");

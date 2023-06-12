@@ -1,20 +1,25 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   before(() => {
     cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
   it("1. Create an API and Execute the API and bind with Table", function () {
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-    _.apiPage.RunAPI();
+    apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column
-    _.entityExplorer.SelectEntityByName("Table1");
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
+    entityExplorer.SelectEntityByName("Table1");
+    propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.get(`.t--widget-tablewidgetv2 .page-item`)
       .first()
