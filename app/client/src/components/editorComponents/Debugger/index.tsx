@@ -33,7 +33,7 @@ export function DebuggerTrigger() {
 
   useEffect(() => {
     dispatch(setErrorCount(messageCounters.errors));
-  }, []);
+  });
 
   const onClick = (e: any) => {
     // If debugger is already open and selected tab is error tab then we will close debugger.
