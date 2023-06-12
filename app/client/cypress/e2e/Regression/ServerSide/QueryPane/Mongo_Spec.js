@@ -75,11 +75,12 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
     );
 
-    _.dataSources.ValidateNSelectDropdown(
-      "Collection",
-      "",
-      "listingAndReviews",
-    );
+    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
     _.dataSources.RunQuery();
     _.dataSources.CheckResponseRecordsCount(10);
 
@@ -145,11 +146,12 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Count",
     );
-    _.dataSources.ValidateNSelectDropdown(
-      "Collection",
-      "",
-      "listingAndReviews",
-    );
+    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
     _.dataSources.RunQuery();
     _.agHelper.EnterValue("{guests_included : {$gte: 2}}", {
       propFieldName: "",
@@ -174,11 +176,12 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Distinct",
     );
-    _.dataSources.ValidateNSelectDropdown(
-      "Collection",
-      "",
-      "listingAndReviews",
-    );
+    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
     _.agHelper.EnterValue("{price : {$gte: 100}}", {
       propFieldName: "",
       directInput: false,
@@ -207,11 +210,12 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Aggregate",
     );
-    _.dataSources.ValidateNSelectDropdown(
-      "Collection",
-      "",
-      "listingAndReviews",
-    );
+    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
     _.agHelper.EnterValue(`[{ $project: { count: { $size:"$amenities" }}}]`, {
       propFieldName: "",
       directInput: false,

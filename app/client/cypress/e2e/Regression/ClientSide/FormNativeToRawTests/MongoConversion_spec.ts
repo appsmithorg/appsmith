@@ -46,10 +46,9 @@ describe("Mongo Form to Native conversion works", () => {
       "Find document(s)",
     );
 
-    _.agHelper.TypeDynamicInputValueNValidate(
-      "modifyCollection",
-      formControls.mongoCollection,
-    );
+    cy.wait(500);
+
+    _.dataSources.ValidateNSelectDropdown("Collection", "", "modifyCollection");
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",

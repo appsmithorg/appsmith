@@ -82,8 +82,11 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Mongo_Query");
 
     cy.wait(1000);
-    cy.wait("@trigger");
-    _.dataSources.ValidateNSelectDropdown("Collection", "", "TestCollection");
+    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    cy.updateCodeInput(
+      ".t--actionConfiguration\\.formData\\.collection\\.data",
+      "TestCollection",
+    );
     cy.wait("@saveAction");
   });
 

@@ -283,9 +283,7 @@ describe("Autocomplete tests", () => {
         const input = ins[0].CodeMirror;
         input.focus();
         cy.wait(200);
-        cy.get(_.locators._codeMirrorTextArea)
-          .eq(1)
-          .focus()
+        input
           .type(
             "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
           )
