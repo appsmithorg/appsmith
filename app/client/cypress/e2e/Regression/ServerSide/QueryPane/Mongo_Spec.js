@@ -308,11 +308,17 @@ describe("Validate Mongo query commands", function () {
 
     cy.get(".ads-v2-menu__menu-item").contains("Find").click().wait(100); //wait for Find form to open
 
-    cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
-      let localcolData = colData.replace("{", "").replace("}", "");
-      cy.log("Collection value is fieldData: " + localcolData);
-      cy.wrap(localcolData).as("colData");
-    });
+    cy.get(`${formControls.mongoCollection} .rc-select-selection-item`).then(
+      ($field) => {
+        val = cy.wrap($field).invoke("text");
+        cy.wrap(val).as("colData");
+      },
+    );
+    // cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
+    //   let localcolData = colData.replace("{", "").replace("}", "");
+    //   cy.log("Collection value is fieldData: " + localcolData);
+    //   cy.wrap(localcolData).as("colData");
+    // });
     cy.EvaluatFieldValue(formControls.mongoFindQuery).then((queryData) => {
       let localqueryData = queryData.replace("{", "").replace("}", "");
       id = localqueryData;

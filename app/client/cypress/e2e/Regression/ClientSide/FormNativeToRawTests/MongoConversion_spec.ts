@@ -8,11 +8,19 @@ describe("Mongo Form to Native conversion works", () => {
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
     cy.wait("@trigger");
-    _.dataSources.ValidateNSelectDropdown(
-      "Collection",
-      "",
-      "listingAndReviews",
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
     );
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
+    // _.dataSources.ValidateNSelectDropdown(
+    //   "Collection",
+    //   "",
+    //   "listingAndReviews",
+    // );
 
     _.agHelper.TypeDynamicInputValueNValidate(
       "{beds : {$lte: 2}}",
@@ -48,9 +56,6 @@ describe("Mongo Form to Native conversion works", () => {
 
     cy.wait(500);
 
-    _.agHelper.GetNClick(
-      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
-    );
     _.agHelper.EnterValue("modifyCollection", {
       propFieldName: "",
       directInput: false,
