@@ -26,6 +26,13 @@ export const removeFirstTimeUserOnboardingApplicationId = (
   };
 };
 
+export const showSignpostingModal = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+    payload,
+  };
+};
+
 export const disableStartSignpostingAction = () => {
   return {
     type: ReduxActionTypes.DISABLE_START_SIGNPOSTING,

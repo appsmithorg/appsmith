@@ -24,7 +24,7 @@ import { tailwindLayers } from "constants/Layers";
 import { Tooltip } from "design-system";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
+import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/StatusBar";
 import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";

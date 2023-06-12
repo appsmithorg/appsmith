@@ -1,5 +1,6 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { createReducer } from "utils/ReducerUtils";
 
 const initialState: OnboardingState = {
@@ -9,6 +10,13 @@ const initialState: OnboardingState = {
   firstTimeUserOnboardingApplicationIds: [],
   firstTimeUserOnboardingComplete: false,
   showFirstTimeUserOnboardingModal: false,
+  stepState: [],
+};
+
+export type StepState = {
+  step: SIGNPOSTING_STEP;
+  completed: boolean;
+  read?: boolean;
 };
 
 export interface OnboardingState {
@@ -17,6 +25,7 @@ export interface OnboardingState {
   firstTimeUserOnboardingApplicationIds: string[];
   firstTimeUserOnboardingComplete: boolean;
   showFirstTimeUserOnboardingModal: boolean;
+  stepState: StepState[];
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -61,6 +70,40 @@ const onboardingReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => {
     return { ...state, forceOpenWidgetPanel: action.payload };
+  },
+  SIGNPOSTING_STEP_UPDATE: (
+    state: OnboardingState,
+    action: ReduxAction<StepState>,
+  ) => {
+    const index = state.stepState.findIndex(
+      (stepState) => stepState.step === action.payload.step,
+    );
+    const newArray = [...state.stepState];
+    if (index >= 0) {
+      newArray[index] = action.payload;
+    } else {
+      newArray.push(action.payload);
+    }
+    console.log(newArray, "newArray-SIGNPOSTING");
+    console.log(action.payload, "action-SIGNPOSTING");
+    return {
+      ...state,
+      stepState: newArray,
+    };
+  },
+  SIGNPOSTING_MARK_ALL_READ: (state: OnboardingState) => {
+    return {
+      ...state,
+      stepState: state.stepState.map((step) => {
+        if (step.completed) {
+          return {
+            ...step,
+            read: true,
+          };
+        }
+        return step;
+      }),
+    };
   },
 });
 

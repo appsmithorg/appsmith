@@ -13,10 +13,12 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
+  fetchSignpostingAppState,
   getFirstTimeUserOnboardingApplicationIds,
   removeAllFirstTimeUserOnboardingApplicationIds,
   removeFirstTimeUserOnboardingApplicationId,
   setEnableStartSignposting,
+  setSignpostingAppState,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
@@ -29,6 +31,7 @@ import {
   getHadReachedStep,
   getOnboardingWorkspaces,
   getQueryAction,
+  getSignpostingStepStateByStep,
   getTableWidget,
 } from "selectors/onboardingSelectors";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
@@ -84,6 +87,8 @@ import {
 } from "@appsmith/constants/messages";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -449,6 +454,18 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
   });
+  const appState: Record<string, any> = yield call(
+    fetchSignpostingAppState,
+    action.payload.applicationId,
+  );
+  if (appState && appState.stepState) {
+    yield put({
+      type: "SIGNPOSTING_STEP_UPDATE",
+      payload: {
+        ...appState.stepState,
+      },
+    });
+  }
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
@@ -465,6 +482,34 @@ function* setFirstTimeUserOnboardingCompleteSaga(action: ReduxAction<boolean>) {
 function* disableStartFirstTimeUserOnboardingSaga() {
   yield call(removeAllFirstTimeUserOnboardingApplicationIds);
   yield call(setEnableStartSignposting, false);
+}
+
+function* setSignpostingStepStateSaga(
+  action: ReduxAction<{ step: SIGNPOSTING_STEP; completed: boolean }>,
+) {
+  const { completed, step } = action.payload;
+  const stepState: StepState | undefined = yield select(
+    getSignpostingStepStateByStep,
+    step,
+  );
+  const applicationId: string = yield select(getCurrentApplicationId);
+
+  // No changes to updated so we ignore
+  if (stepState && stepState.completed === completed) return;
+
+  const readProps = completed
+    ? {
+        read: false,
+      }
+    : {};
+  yield put({
+    type: "SIGNPOSTING_STEP_UPDATE",
+    payload: {
+      ...action.payload,
+      ...readProps,
+    },
+  });
+  yield call(setSignpostingAppState, stepState, applicationId);
 }
 
 export default function* onboardingActionSagas() {
@@ -516,5 +561,6 @@ export default function* onboardingActionSagas() {
       ReduxActionTypes.DISABLE_START_SIGNPOSTING,
       disableStartFirstTimeUserOnboardingSaga,
     ),
+    takeLatest("SIGNPOSTING_STEP_COMPLETE", setSignpostingStepStateSaga),
   ]);
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { MenuContent } from "design-system";
 import styled from "styled-components";
-import Checklist from "./Checklist2";
+import Checklist from "./Checklist";
 
 const SIGNPOSTING_POPUP_WIDTH = "360px";
 

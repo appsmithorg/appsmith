@@ -10,6 +10,8 @@ import {
 } from "./entitiesSelector";
 import { getLastSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import { isBoolean } from "lodash";
 
 // Signposting selectors
 
@@ -59,6 +61,23 @@ export const getIsOnboardingTasksView = createSelector(
       !isOnboardingWidgetSelection &&
       !inPreviewMode
     );
+  },
+);
+
+export const getSignpostingStepState = (state: AppState) =>
+  state.ui.onBoarding.stepState;
+export const getSignpostingStepStateByStep = createSelector(
+  getSignpostingStepState,
+  (_state: AppState, step: SIGNPOSTING_STEP) => step,
+  (stepState, step) => {
+    return stepState.find((state) => state.step === step);
+  },
+);
+export const getSignpostingUnreadSteps = createSelector(
+  getSignpostingStepState,
+  (stepState) => {
+    if (!stepState.length) return [];
+    return stepState.filter((state) => isBoolean(state.read) && !state.read);
   },
 );
 

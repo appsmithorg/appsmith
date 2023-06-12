@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
@@ -28,8 +27,12 @@ import moment from "moment/moment";
 import styled from "styled-components";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getFirstTimeUserOnboardingModal,
+  getSignpostingUnreadSteps,
+} from "selectors/onboardingSelectors";
 import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
+import { showSignpostingModal } from "actions/onboardingActions";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -48,6 +51,16 @@ const ActionsRow = styled.div`
   align-items: center;
   margin-bottom: 8px;
 `;
+const UnreadSteps = styled.div`
+  position: absolute;
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  top: 10px;
+  left: 22px;
+  background-color: var(--ads-v2-color-fg-error);
+`;
+
 type HelpItem = {
   label: string;
   link?: string;
@@ -127,7 +140,20 @@ function IntercomConsent({
 function HelpButton() {
   const user = useSelector(getCurrentUser);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
+  const dispatch = useDispatch();
   const isFirstTimeUserOnboardingEnabled = true;
+  const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
+  const unreadSteps = useSelector(getSignpostingUnreadSteps);
+  const showUnroadSteps =
+    !!unreadSteps.length &&
+    isFirstTimeUserOnboardingEnabled &&
+    !onboardingModalOpen;
+  const menuProps = isFirstTimeUserOnboardingEnabled
+    ? {
+        open: onboardingModalOpen,
+        modal: false,
+      }
+    : {};
 
   useEffect(() => {
     bootIntercom(user);
@@ -137,25 +163,31 @@ function HelpButton() {
     <Menu
       onOpenChange={(open) => {
         if (open) {
+          isFirstTimeUserOnboardingEnabled &&
+            dispatch(showSignpostingModal(true));
           setShowIntercomConsent(false);
           AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
         }
       }}
+      {...menuProps}
     >
       <MenuTrigger>
-        <div>
+        <div className="relative">
           <Tooltip
             content={createMessage(HELP_RESOURCE_TOOLTIP)}
             placement="bottomRight"
           >
-            <Button
-              data-testid="t--help-button"
-              kind="tertiary"
-              size="md"
-              startIcon="question-line"
-            >
-              Help
-            </Button>
+            <>
+              <Button
+                data-testid="t--help-button"
+                kind="tertiary"
+                size="md"
+                startIcon="question-line"
+              >
+                Help
+              </Button>
+              {showUnroadSteps && <UnreadSteps className="unread" />}
+            </>
           </Tooltip>
         </div>
       </MenuTrigger>

@@ -22,6 +22,7 @@ export const STORAGE_KEYS: {
   APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
+  SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
 };
 
 const store = localforage.createInstance({
@@ -414,6 +415,33 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
     log.error(
       "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
     );
+    log.error(error);
+  }
+};
+
+export const setSignpostingAppState = async (state: any, appId: string) => {
+  try {
+    const appState =
+      ((await store.getItem(STORAGE_KEYS.RECENT_ENTITIES)) as Record<
+        string,
+        any
+      >) || {};
+    appState[appId] = state;
+    await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, appState);
+  } catch (error) {
+    log.error("An error occurred while saving signposting app state");
+    log.error(error);
+  }
+};
+
+export const fetchSignpostingAppState = async (appId: string) => {
+  try {
+    const appState = (await store.getItem(
+      STORAGE_KEYS.RECENT_ENTITIES,
+    )) as Record<string, any>;
+    return (appState && appState[appId]) || [];
+  } catch (error) {
+    log.error("An error occurred while fetching signposting app state");
     log.error(error);
   }
 };
