@@ -62,6 +62,8 @@ function GoogleMapsConfig(): ReactElement<any, any> {
         </HeaderWrapper>
         <div className="flex flex-col gap-4">
           <Callout
+            className="t--read-more-link"
+            data-testid="admin-settings-group-link"
             kind="info"
             links={[
               {
