@@ -60,6 +60,16 @@ export default class DependencyMap {
   public addDependency = (node: string, dependencies: string[]) => {
     const validDependencies = new Set<string>();
     const invalidDependencies = new Set<string>();
+
+    const currentNodeDependencies =
+      this.#dependencies.get(node) || new Set<string>();
+
+    for (const currentDependency of currentNodeDependencies) {
+      if (!dependencies.includes(currentDependency)) {
+        this.#dependenciesInverse.get(currentDependency)?.delete(node);
+      }
+    }
+
     for (const dependency of dependencies) {
       if (this.#nodes.has(dependency)) {
         validDependencies.add(dependency);
@@ -140,15 +150,15 @@ export default class DependencyMap {
     }
   };
 
-  isRelated = (source: string, target: string) => {
-    if (source === target) return true;
+  isRelated = (source: string, targets: string[]) => {
+    if (targets.includes(source)) return true;
     const visited = new Set();
     const queue = [source];
     while (queue.length) {
       const node = queue.shift() as string;
       if (visited.has(node)) continue;
       visited.add(node);
-      if (node === target) return true;
+      if (targets.includes(node)) return true;
       const nodes = this.#dependencies.get(node) || [];
       for (const n of nodes) {
         queue.push(n);
@@ -161,5 +171,8 @@ export default class DependencyMap {
   }
   getInvalidDependenciesInverse() {
     return this.#invalidDependenciesInverse;
+  }
+  getDependenciesInverse() {
+    return this.#dependenciesInverse;
   }
 }

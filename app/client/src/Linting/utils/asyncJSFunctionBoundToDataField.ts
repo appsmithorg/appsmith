@@ -1,222 +1,145 @@
-import {
-  getEntityNameAndPropertyPath,
-  isATriggerPath,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { difference, get, isString } from "lodash";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { find, get, isString } from "lodash";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { isChildPropertyPath } from "utils/DynamicBindingUtils";
-import {
-  isDataField,
-  isWidgetActionOrJsObject,
-} from "workers/common/DataTreeEvaluator/utils";
-import {
-  isAsyncJSFunction,
-  isJSFunction,
-  updateMap,
-} from "workers/common/DependencyMap/utils";
+import { ParsedJSEntities } from "./jsEntity";
+import type { TEntity } from "Linting/lib/entity";
+import { isJSEntity } from "Linting/lib/entity";
+import { isJSFunctionProperty } from "@shared/ast";
+import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
+import type { TEntityTree } from "./entityTree";
+import DependencyMap from "entities/DependencyMap";
+import { getAllPathsFromNode } from "./entityPath";
+import type { TEntityTreeWithParsedJS } from "./linter";
+import { dependencyMap } from "./dependencyMap";
 
+function isDataField(fullPath: string, entityTree: TEntityTree) {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  const entity = find(entityTree, entityName);
+  if (!entity) return false;
+  const entityConfig = entity.getConfig();
+  if (entityConfig && "triggerPaths" in entityConfig) {
+    return !(propertyPath in entityConfig.triggerPaths);
+  }
+  return false;
+}
 export class AsyncJsFunctionInDataField {
-  private asyncFunctionsInDataFieldsMap: DependencyMap = {};
+  private dependencyMap = new DependencyMap();
   private isDisabled = true;
   initialize(appMode: APP_MODE | undefined) {
     this.isDisabled = !(appMode === APP_MODE.EDIT);
-    this.asyncFunctionsInDataFieldsMap = {};
   }
 
   update(
     fullPath: string,
     referencesInPath: string[],
-    unEvalDataTree: DataTree,
-    configTree: ConfigTree,
+    entityTree: TEntityTree,
   ) {
     if (this.isDisabled) return [];
-    const updatedAsyncJSFunctionsInMap = new Set<string>();
+
+    const { entityName } = getEntityNameAndPropertyPath(fullPath);
+    const entity = find(entityTree, entityName);
     // Only datafields can cause updates
-    if (!isDataField(fullPath, configTree)) return [];
+    if (!entity || !isDataField(fullPath, entityTree)) return [];
 
     const asyncJSFunctionsInvokedInPath = getAsyncJSFunctionInvocationsInPath(
+      entity,
       referencesInPath,
-      unEvalDataTree,
-      configTree,
       fullPath,
     );
+    const pathsToAdd = asyncJSFunctionsInvokedInPath.reduce(
+      (paths: Record<string, true>, currentPath) => {
+        return { ...paths, [currentPath]: true } as const;
+      },
+      { [fullPath]: true } as Record<string, true>,
+    );
+    this.dependencyMap.addNodes(pathsToAdd);
 
-    for (const asyncJSFunc of asyncJSFunctionsInvokedInPath) {
-      updatedAsyncJSFunctionsInMap.add(asyncJSFunc);
-      updateMap(this.asyncFunctionsInDataFieldsMap, asyncJSFunc, [fullPath], {
-        deleteOnEmpty: true,
-      });
-    }
-    return Array.from(updatedAsyncJSFunctionsInMap);
+    const currentNodeDependencies = [
+      ...(this.dependencyMap.getDependencies().get(fullPath) || []),
+    ];
+
+    const updatedDependencies = asyncJSFunctionsInvokedInPath
+      .filter((x) => !currentNodeDependencies.includes(x))
+      .concat(
+        currentNodeDependencies.filter(
+          (x) => !asyncJSFunctionsInvokedInPath.includes(x),
+        ),
+      );
+    this.dependencyMap.addDependency(fullPath, asyncJSFunctionsInvokedInPath);
+    return updatedDependencies;
   }
 
   handlePathDeletion(
     deletedPath: string,
-    unevalTree: DataTree,
-    configTree: ConfigTree,
+    entityTree: TEntityTree,
+    entityTreeWithParsedJS: TEntityTreeWithParsedJS,
   ) {
     if (this.isDisabled) return [];
-    const updatedAsyncJSFunctionsInMap = new Set<string>();
-    const { entityName, propertyPath } =
-      getEntityNameAndPropertyPath(deletedPath);
-    const entity = unevalTree[entityName];
-    const entityConfig = configTree[entityName];
-    if (
-      isWidgetActionOrJsObject(entity) ||
-      isATriggerPath(entityConfig, propertyPath)
-    )
-      return [];
+    const updatedJSFns = new Set<string>();
+    const { entityName } = getEntityNameAndPropertyPath(deletedPath);
+    const entity = find(entityTree, entityName);
+    if (!entity) return [];
 
-    Object.keys(this.asyncFunctionsInDataFieldsMap).forEach((asyncFuncName) => {
-      if (isChildPropertyPath(deletedPath, asyncFuncName)) {
-        this.deleteFunctionFromMap(asyncFuncName);
-      } else {
-        const toRemove: string[] = [];
-        this.asyncFunctionsInDataFieldsMap[asyncFuncName].forEach(
-          (dependantPath) => {
-            if (isChildPropertyPath(deletedPath, dependantPath)) {
-              updatedAsyncJSFunctionsInMap.add(asyncFuncName);
-              toRemove.push(dependantPath);
-            }
-          },
-        );
-        const newAsyncFunctiondependents = difference(
-          this.asyncFunctionsInDataFieldsMap[asyncFuncName],
-          toRemove,
-        );
-        updateMap(
-          this.asyncFunctionsInDataFieldsMap,
-          asyncFuncName,
-          newAsyncFunctiondependents,
-          { replaceValue: true, deleteOnEmpty: true },
-        );
-      }
-    });
-    return Array.from(updatedAsyncJSFunctionsInMap);
+    const allDeletedPaths = getAllPathsFromNode(
+      deletedPath,
+      entityTreeWithParsedJS,
+    );
+
+    for (const path of Object.keys(allDeletedPaths)) {
+      const pathDependencies = this.dependencyMap.getDependencies().get(path);
+      if (!pathDependencies) continue;
+      pathDependencies.forEach((funcName) => updatedJSFns.add(funcName));
+    }
+    this.dependencyMap.removeNodes(allDeletedPaths);
+
+    return Array.from(updatedJSFns);
   }
   handlePathEdit(
     editedPath: string,
     dependenciesInPath: string[],
-    unevalTree: DataTree,
-    inverseDependencyMap: DependencyMap,
-    configTree: ConfigTree,
+    entityTree: TEntityTree,
   ) {
     if (this.isDisabled) return [];
-    const updatedAsyncJSFunctionsInMap = new Set<string>();
-    if (isDataField(editedPath, configTree)) {
-      const asyncJSFunctionInvocationsInPath =
-        getAsyncJSFunctionInvocationsInPath(
-          dependenciesInPath,
-          unevalTree,
-          configTree,
-          editedPath,
-        );
-      asyncJSFunctionInvocationsInPath.forEach((funcName) => {
-        updatedAsyncJSFunctionsInMap.add(funcName);
-        updateMap(this.asyncFunctionsInDataFieldsMap, funcName, [editedPath], {
-          deleteOnEmpty: true,
-        });
-      });
+    let updatedJSFns: string[] = [];
+    const { entityName } = getEntityNameAndPropertyPath(editedPath);
+    const entity = find(entityTree, entityName);
+    if (!entity) return;
 
-      Object.keys(this.asyncFunctionsInDataFieldsMap).forEach(
-        (asyncFuncName) => {
-          const toRemove: string[] = [];
-          this.asyncFunctionsInDataFieldsMap[asyncFuncName].forEach(
-            (dependantPath) => {
-              if (
-                editedPath === dependantPath &&
-                !asyncJSFunctionInvocationsInPath.includes(asyncFuncName)
-              ) {
-                updatedAsyncJSFunctionsInMap.add(asyncFuncName);
-                toRemove.push(dependantPath);
-              }
-            },
-          );
-          const newAsyncFunctiondependents = difference(
-            this.asyncFunctionsInDataFieldsMap[asyncFuncName],
-            toRemove,
-          );
-          updateMap(
-            this.asyncFunctionsInDataFieldsMap,
-            asyncFuncName,
-            newAsyncFunctiondependents,
-            { replaceValue: true, deleteOnEmpty: true },
-          );
-        },
-      );
-    } else if (isJSFunction(configTree, editedPath)) {
-      if (
-        !isAsyncJSFunction(configTree, editedPath) &&
-        Object.keys(this.asyncFunctionsInDataFieldsMap).includes(editedPath)
-      ) {
-        updatedAsyncJSFunctionsInMap.add(editedPath);
-        delete this.asyncFunctionsInDataFieldsMap[editedPath];
-      } else if (isAsyncJSFunction(configTree, editedPath)) {
-        const boundFields = inverseDependencyMap[editedPath];
-        let boundDataFields: string[] = [];
-        if (boundFields) {
-          boundDataFields = boundFields.filter((path) =>
-            isDataField(path, configTree),
-          );
-          for (const dataFieldPath of boundDataFields) {
-            const asyncJSFunctionInvocationsInPath =
-              getAsyncJSFunctionInvocationsInPath(
-                [editedPath],
-                unevalTree,
-                configTree,
-                dataFieldPath,
-              );
-            if (asyncJSFunctionInvocationsInPath) {
-              updatedAsyncJSFunctionsInMap.add(editedPath);
-              updateMap(
-                this.asyncFunctionsInDataFieldsMap,
-                editedPath,
-                [dataFieldPath],
-                { deleteOnEmpty: true },
-              );
-            }
-          }
-        }
+    if (isJSEntity(entity)) {
+      if (isAsyncJSFunction(editedPath)) {
+        this.dependencyMap.addNodes({ [editedPath]: true });
+      } else {
+        this.dependencyMap.removeNodes({ [editedPath]: true });
       }
+    } else {
+      const updatedPaths = this.update(
+        editedPath,
+        dependenciesInPath,
+        entityTree,
+      );
+      updatedJSFns = [...updatedJSFns, ...updatedPaths];
     }
-    return Array.from(updatedAsyncJSFunctionsInMap);
+    return updatedJSFns;
   }
 
   getMap() {
-    return this.asyncFunctionsInDataFieldsMap;
-  }
-  deleteFunctionFromMap(funcName: string) {
-    this.asyncFunctionsInDataFieldsMap[funcName] &&
-      delete this.asyncFunctionsInDataFieldsMap[funcName];
-  }
-  getAsyncFunctionBindingInDataField(fullPath: string): string | undefined {
-    let hasAsyncFunctionInvocation: string | undefined = undefined;
-    Object.keys(this.asyncFunctionsInDataFieldsMap).forEach((path) => {
-      if (this.asyncFunctionsInDataFieldsMap[path].includes(fullPath)) {
-        return (hasAsyncFunctionInvocation = path);
-      }
-    });
-    return hasAsyncFunctionInvocation;
+    return this.dependencyMap.getDependenciesInverse();
   }
 }
 
 function getAsyncJSFunctionInvocationsInPath(
+  entity: TEntity,
   dependencies: string[],
-  unEvalTree: DataTree,
-  configTree: ConfigTree,
   fullPath: string,
 ) {
   const invokedAsyncJSFunctions = new Set<string>();
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  const entity = unEvalTree[entityName];
-  const unevalPropValue = get(entity, propertyPath);
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  const unevalPropValue = get(entity.getRawEntity(), propertyPath);
 
   dependencies.forEach((dependant) => {
     if (
-      isAsyncJSFunction(configTree, dependant) &&
+      isAsyncJSFunction(dependant) &&
       isFunctionInvoked(dependant, unevalPropValue)
     ) {
       invokedAsyncJSFunctions.add(dependant);
@@ -242,6 +165,20 @@ export function isFunctionInvoked(
     if (isInvoked) return true;
   }
   return false;
+}
+
+// TODO: Add dependencies on Entity functions and Setter functions
+export function isAsyncJSFunction(jsFnFullname: string) {
+  const { entityName: jsObjectName, propertyPath } =
+    getEntityNameAndPropertyPath(jsFnFullname);
+  const parsedJSEntity = ParsedJSEntities.getParsedJSEntity(jsObjectName);
+  if (!parsedJSEntity) return false;
+  const propertyConfig = find(parsedJSEntity.getEntityConfig(), propertyPath);
+  if (!propertyConfig || !isJSFunctionProperty(propertyConfig)) return false;
+  return (
+    propertyConfig.isMarkedAsync ||
+    dependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields)
+  );
 }
 
 export const asyncJsFunctionInDataFields = new AsyncJsFunctionInDataField();
