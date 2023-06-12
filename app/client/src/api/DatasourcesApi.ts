@@ -8,7 +8,7 @@ export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
   type?: string;
-  // string representation of environment id
+  // key in the map representation of environment id of type string
   datasourceStorages: Record<string, DatasourceStorage>;
   //Passed for logging purposes.
   appName?: string;
@@ -44,6 +44,7 @@ class DatasourcesApi extends API {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
+  // Api to test current environment datasource
   static testDatasource(
     datasourceConfig: Partial<DatasourceStorage>,
     pluginId: string,

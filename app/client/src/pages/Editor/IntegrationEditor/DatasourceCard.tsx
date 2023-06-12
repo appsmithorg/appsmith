@@ -195,6 +195,8 @@ function DatasourceCard(props: DatasourceCardProps) {
     props.datasource,
     "datasourceStorages.active_env",
   );
+  //When using saved datasource we should update active env to unused env
+  //This is because client uses active_env for editing datasource.
   if (!activeDataStorage && defaultDataStorage)
     set(
       props.datasource as Datasource,

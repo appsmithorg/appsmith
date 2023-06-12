@@ -115,6 +115,7 @@ export interface DatasourceConfiguration {
 
 export interface Datasource extends BaseDatasource {
   id: string;
+  // key in the map representation of environment id of type string
   datasourceStorages: Record<string, DatasourceStorage>;
   success?: boolean;
   isMock?: boolean;

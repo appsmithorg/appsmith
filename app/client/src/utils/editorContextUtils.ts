@@ -9,7 +9,7 @@ import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
-import { isArray } from "lodash";
+import { get, isArray } from "lodash";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -86,18 +86,19 @@ export function isDatasourceAuthorizedForQueryCreation(
 ): boolean {
   const currentEnvironment = getCurrentEnvironment();
   if (!datasource) return false;
-  const authType =
-    datasource &&
-    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
-      ?.authentication?.authenticationType;
+  const authType = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
+  );
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
   if (isGoogleSheetPlugin) {
     const isAuthorized =
       authType === AuthType.OAUTH2 &&
-      datasource?.datasourceStorages[currentEnvironment]
-        ?.datasourceConfiguration?.authentication?.authenticationStatus ===
-        AuthenticationStatus.SUCCESS;
+      get(
+        datasource,
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+      ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
@@ -128,9 +129,10 @@ export function getDatasourcePropertyValue(
     return null;
   }
 
-  const properties =
-    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
-      ?.properties;
+  const properties = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties`,
+  );
   if (!!properties && properties.length > 0) {
     const propertyObj = properties.find((prop) => prop.key === propertyKey);
     if (!!propertyObj) {

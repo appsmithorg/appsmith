@@ -388,10 +388,11 @@ function* updateDatasourceSaga(
     // We do not want to set isConfigured to true immediately on save
     // instead we want to wait for authorisation as well as file selection to be complete
     if (isGoogleSheetPluginDS(pluginPackageName)) {
-      const scopeString: string = (
-        datasourcePayload?.datasourceStorages.active_env.datasourceConfiguration
-          ?.authentication as any
-      )?.scopeString;
+      const value = get(
+        datasourcePayload,
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.scopeString`,
+      );
+      const scopeString: string = value ? value : "";
       if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
         datasourcePayload.datasourceStorages.active_env.isConfigured = false;
       }

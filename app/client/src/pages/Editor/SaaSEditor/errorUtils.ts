@@ -11,6 +11,7 @@ import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { get } from "lodash";
 
 /**
  * Returns true if :
@@ -24,20 +25,21 @@ export function isAuthorisedFilesEmptyGsheet(
   propertyKey: string,
 ): boolean {
   const currentEnvironment = getCurrentEnvironment();
-  const scopeValue: string = (
-    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
-      ?.authentication as any
-  )?.scopeString;
+  const value = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.scopeString`,
+  );
+  const scopeValue: string = value ? value : "";
 
-  //Chandan
   const authorisedFileIds = getDatasourcePropertyValue(
     datasource,
     propertyKey,
     currentEnvironment,
   );
-  const authStatus =
-    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
-      ?.authentication?.authenticationStatus;
+  const authStatus = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+  );
   const isAuthFailure =
     !!authStatus &&
     authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED;
