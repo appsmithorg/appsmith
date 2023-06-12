@@ -65,6 +65,9 @@ export const CONFIG = {
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   autoLayout: {
+    autoDimension: {
+      height: true,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

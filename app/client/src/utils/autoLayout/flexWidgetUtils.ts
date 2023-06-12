@@ -229,13 +229,12 @@ export function hasAutoHeight(type: string): boolean {
 }
 
 export function getWidgetCssWidth(
-  type: string,
+  hasAutoWidth?: boolean,
   responsiveBehavior?: ResponsiveBehavior,
   columns?: number,
 ): string | undefined {
-  if (!type) return;
   if (responsiveBehavior !== ResponsiveBehavior.Fill) {
-    if (hasAutoWidth(type)) return "auto";
+    if (hasAutoWidth) return "auto";
     if (columns)
       return `${(columns / GridDefaults.DEFAULT_GRID_COLUMNS) * 100}%`;
   }
@@ -243,14 +242,13 @@ export function getWidgetCssWidth(
 }
 
 export function getWidgetCssHeight(
-  type: string,
+  hasAutoHeight?: boolean,
   responsiveBehavior?: ResponsiveBehavior,
   rows?: number,
 ): string | undefined {
-  if (!type) return;
-  if (hasAutoHeight(type)) return "auto";
-  if (responsiveBehavior !== ResponsiveBehavior.Fill) {
-    if (rows) return `${rows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
-  }
+  if (hasAutoHeight) return "auto";
+  // if (responsiveBehavior !== ResponsiveBehavior.Fill) {
+  if (rows) return `${rows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
+  // }
   return;
 }

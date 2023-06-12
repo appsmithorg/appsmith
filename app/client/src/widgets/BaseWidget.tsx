@@ -32,7 +32,7 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import { get, memoize } from "lodash";
+import { get, isFunction, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
 import type {
@@ -69,6 +69,7 @@ import {
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
+import WidgetFactory from "utils/WidgetFactory";
 
 /***
  * BaseWidget
@@ -568,6 +569,13 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+    let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+      this.props.type,
+    ).autoDimension;
+    if (isFunction(autoDimensionConfig)) {
+      autoDimensionConfig = autoDimensionConfig(this.props);
+    }
+
     return (
       <FlexComponent
         alignment={this.props.alignment}
@@ -578,6 +586,8 @@ abstract class BaseWidget<
           this.props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
         }
         focused={this.props.focused}
+        hasAutoHeight={autoDimensionConfig?.height}
+        hasAutoWidth={autoDimensionConfig?.width}
         isMobile={this.props.isMobile || false}
         isResizeDisabled={this.props.resizeDisabled}
         mainCanvasWidth={this.props.mainCanvasWidth}

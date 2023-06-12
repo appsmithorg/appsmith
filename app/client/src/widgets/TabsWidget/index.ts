@@ -148,6 +148,9 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
+    autoDimension: {
+      height: true,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,
