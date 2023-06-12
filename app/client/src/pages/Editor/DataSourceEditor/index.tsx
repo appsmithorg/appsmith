@@ -613,10 +613,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       );
       return null;
     }
-    //When using saved datasource we should update active env to unused env
-    //This is because use active_env for editing datasource.
+
     const defaultDataStorage = get(datasource, "datasourceStorages.unused_env");
     const activeDataStorage = get(datasource, "datasourceStorages.active_env");
+    //When using saved datasource we should update active env to unused env
+    //This is because client uses active_env for editing datasource.
     if (
       defaultDataStorage &&
       ((!isNewDatasource &&
@@ -629,6 +630,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         "datasourceStorages.active_env",
         defaultDataStorage,
       );
+
     return (
       <Form
         className="t--json-to-form-wrapper"
@@ -760,7 +762,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
 
-  //Chandan
   const isPluginAuthorized = isGoogleSheetPluginDS(pluginPackageName)
     ? plugin &&
       isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)

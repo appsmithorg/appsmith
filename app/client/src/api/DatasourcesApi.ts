@@ -8,6 +8,7 @@ export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
   type?: string;
+  // string representation of environment id
   datasourceStorages: Record<string, DatasourceStorage>;
   //Passed for logging purposes.
   appName?: string;
@@ -58,6 +59,7 @@ class DatasourcesApi extends API {
     );
   }
 
+  // Api to update datasource name.
   static updateDatasource(
     datasourceConfig: Partial<Datasource>,
     id: string,
@@ -65,6 +67,7 @@ class DatasourcesApi extends API {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
   }
 
+  // Api to update specific datasource storage/environment configuration
   static updateDatasourceStorage(
     datasourceConfig: Partial<DatasourceStorage>,
   ): Promise<any> {
