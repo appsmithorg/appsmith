@@ -2,6 +2,7 @@ const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
@@ -9,7 +10,7 @@ describe("Binding the multiple widgets and validating default data", function ()
   });
 
   it("1. Input widget test with default value from table widget", function () {
-    cy.openPropertyPane("inputwidgetv2");
+    entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
@@ -18,7 +19,7 @@ describe("Binding the multiple widgets and validating default data", function ()
       200,
     );
     //Dropdown widget test with default value from table widget
-    cy.openPropertyPane("selectwidget");
+    entityExplorer.SelectEntityByName("Dropdown1");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
 
     cy.wait("@updateLayout").should(
