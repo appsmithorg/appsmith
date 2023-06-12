@@ -65,8 +65,8 @@ describe("Git Bugs", function () {
     _.agHelper
       .GetText(_.locators._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
-    _.agHelper.ValidateURL("branch=" + repoName); //Validate we are still in Git branch
-    _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
+    _.agHelper.AssertURL("branch=" + repoName); //Validate we are still in Git branch
+    _.agHelper.AssertURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
   it("4. Bug 24206 : Open repository button is not functional in git sync modal", function () {

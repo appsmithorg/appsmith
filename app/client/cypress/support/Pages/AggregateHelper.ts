@@ -1258,7 +1258,7 @@ export class AggregateHelper {
       return this.GetElement(selector, timeout).contains(text).should(exists);
   }
 
-  public ValidateURL(url: string) {
+  public AssertURL(url: string) {
     cy.url().should("include", url);
   }
 
