@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { debounce, isEmpty } from "lodash";
+import { debounce, get, isEmpty, set } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
@@ -187,6 +187,21 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
+
+  const defaultDataStorage = get(
+    props.datasource,
+    "datasourceStorages.unused_env",
+  );
+  const activeDataStorage = get(
+    props.datasource,
+    "datasourceStorages.active_env",
+  );
+  if (!activeDataStorage && defaultDataStorage)
+    set(
+      props.datasource as Datasource,
+      "datasourceStorages.active_env",
+      defaultDataStorage,
+    );
 
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
