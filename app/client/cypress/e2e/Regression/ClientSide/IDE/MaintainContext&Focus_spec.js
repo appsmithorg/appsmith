@@ -82,7 +82,9 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Mongo_Query");
 
     cy.wait(1000);
-    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
+    );
     cy.updateCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
       "TestCollection",

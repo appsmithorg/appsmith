@@ -48,7 +48,14 @@ describe("Mongo Form to Native conversion works", () => {
 
     cy.wait(500);
 
-    _.dataSources.ValidateNSelectDropdown("Collection", "", "modifyCollection");
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
+    );
+    _.agHelper.EnterValue("modifyCollection", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",

@@ -75,7 +75,9 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
     );
 
-    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
+    );
     _.agHelper.EnterValue("listingAndReviews", {
       propFieldName: "",
       directInput: false,
@@ -146,7 +148,9 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Count",
     );
-    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
+    );
     _.agHelper.EnterValue("listingAndReviews", {
       propFieldName: "",
       directInput: false,
@@ -176,7 +180,9 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Distinct",
     );
-    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
+    );
     _.agHelper.EnterValue("listingAndReviews", {
       propFieldName: "",
       directInput: false,
@@ -210,7 +216,9 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Aggregate",
     );
-    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
+    );
     _.agHelper.EnterValue("listingAndReviews", {
       propFieldName: "",
       directInput: false,
@@ -405,7 +413,9 @@ describe("Validate Mongo query commands", function () {
     {"_id":2, "Från" :"Joann" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
-    _.agHelper.GetNClick(".t--actionConfiguration.formData.collection.data-JS");
+    _.agHelper.GetNClick(
+      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
+    );
     _.agHelper.EnterValue("NonAsciiTest", {
       propFieldName: "",
       directInput: false,
