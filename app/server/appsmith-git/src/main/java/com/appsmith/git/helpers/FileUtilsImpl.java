@@ -242,9 +242,7 @@ public class FileUtilsImpl implements FileInterface {
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
-                            Map normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
-                            HashMap<String, Object> hashmap = (HashMap<String, Object>) normalizedDSL.get("entities");
-                            HashMap<String, Object> widgetsFlattened = (HashMap<String, Object>) hashmap.get("canvasWidgets");
+                            HashMap<String, Object> widgetsFlattened = (HashMap<String, Object>) getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
                             widgetsFlattened.forEach((key, val) -> {
                                 // Save Widgets
                                 saveWidgets(
@@ -756,7 +754,7 @@ public class FileUtilsImpl implements FileInterface {
         }
         // Read the page metadata
         Object pageMetadata = readFile(directoryPath.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
-        //De-normalise the Flattened DSL into hierarchical DSL
+        //De-normalise the Flattened DSL into hierarchical DSL after reading from the file system
         // pageBodyMap.put(CommonConstants.CANVAS + keySuffix, gson.toJson(resource.get(CommonConstants.CANVAS)));
         pageBodyMap.put(keySuffix, gson.toJson(resource));
         return pageMetadata;
@@ -927,9 +925,9 @@ public class FileUtilsImpl implements FileInterface {
                     .accept(MediaType.APPLICATION_JSON)
                     .body(BodyInserters.fromValue(dsl))
                     .retrieve()
-                    .bodyToMono(Map.class)
+                    .bodyToMono(String.class)
                     .map(jsonString -> {
-                        return jsonString.toString();
+                        return new JSONObject(jsonString).get("data").toString();
                     })
                     .block();
     }
