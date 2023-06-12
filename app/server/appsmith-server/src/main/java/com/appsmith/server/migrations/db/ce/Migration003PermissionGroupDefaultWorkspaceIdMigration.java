@@ -40,6 +40,10 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
 
     @Execution
     public void defaultWorkspaceIdMigration() {
+        if (mongoTemplate.findOne(new Query(), PermissionGroup.class) == null) {
+            System.out.println("No permissionGroup data to migrate.");
+            return;
+        }
         AggregationOperation matchDocWithWorkspaceIDField = Aggregation.match(where(
                 fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
         AggregationOperation wholeProjection = Aggregation.project(PermissionGroup.class);

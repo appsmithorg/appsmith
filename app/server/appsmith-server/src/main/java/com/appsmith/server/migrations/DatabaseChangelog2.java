@@ -988,122 +988,154 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
     public void migrateOrganizationIdToWorkspaceIdInDomainObjects(MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         // Datasource
-        AggregationOperation wholeDataSoruceProjection = Aggregation.project(Datasource.class);
-        AggregationOperation dataSourceAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QDatasource.datasource.workspaceId)).
-                withValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))).build();
+        if (mongoTemplate.findOne(new Query(), Datasource.class) == null) {
+            System.out.println("No datasource to migrate.");
+        } else {
+            AggregationOperation wholeDataSoruceProjection = Aggregation.project(Datasource.class);
+            AggregationOperation dataSourceAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QDatasource.datasource.workspaceId)).
+                    withValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))).build();
 
-        AggregationOperation outDataSource = Aggregation.out("datasource");
+            AggregationOperation outDataSource = Aggregation.out("datasource");
 
-        Aggregation combinedDataSourceAggregation = Aggregation.newAggregation(
-                wholeDataSoruceProjection,
-                dataSourceAddWorkSpaceID,
-                outDataSource);
+            Aggregation combinedDataSourceAggregation = Aggregation.newAggregation(
+                    wholeDataSoruceProjection,
+                    dataSourceAddWorkSpaceID,
+                    outDataSource);
 
-        mongoTemplate.aggregate(combinedDataSourceAggregation, Datasource.class, Datasource.class);
+            mongoTemplate.aggregate(combinedDataSourceAggregation, Datasource.class, Datasource.class);
+        }
 
         // ActionCollection
-        AggregationOperation wholeActionCollectionProjection = Aggregation.project(ActionCollection.class);
-        AggregationOperation actionCollectionAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QActionCollection.actionCollection.workspaceId)).
-                withValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))).build();
+        if (mongoTemplate.findOne(new Query(), ActionCollection.class) == null) {
+            System.out.println("No actionCollection to migrate.");
+        } else {
+            AggregationOperation wholeActionCollectionProjection = Aggregation.project(ActionCollection.class);
+            AggregationOperation actionCollectionAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QActionCollection.actionCollection.workspaceId)).
+                    withValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))).build();
 
-        AggregationOperation outActionCollection = Aggregation.out("actionCollection");
+            AggregationOperation outActionCollection = Aggregation.out("actionCollection");
 
-        Aggregation combinedActionCollectionAggregation = Aggregation.newAggregation(
-                wholeActionCollectionProjection,
-                actionCollectionAddWorkSpaceID,
-                outActionCollection);
+            Aggregation combinedActionCollectionAggregation = Aggregation.newAggregation(
+                    wholeActionCollectionProjection,
+                    actionCollectionAddWorkSpaceID,
+                    outActionCollection);
 
-        mongoTemplate.aggregate(combinedActionCollectionAggregation, ActionCollection.class, ActionCollection.class);
+            mongoTemplate.aggregate(combinedActionCollectionAggregation, ActionCollection.class, ActionCollection.class);
+        }
 
         // Application
-        AggregationOperation wholeApplicationProjection = Aggregation.project(Application.class);
-        AggregationOperation applicationAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QApplication.application.workspaceId)).
-                withValueOf(Fields.field(fieldName(QApplication.application.organizationId))).build();
+        if (mongoTemplate.findOne(new Query(), Application.class) == null) {
+            System.out.println("No application to migrate.");
+        } else {
+            AggregationOperation wholeApplicationProjection = Aggregation.project(Application.class);
+            AggregationOperation applicationAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QApplication.application.workspaceId)).
+                    withValueOf(Fields.field(fieldName(QApplication.application.organizationId))).build();
 
-        AggregationOperation outApplicationCollection = Aggregation.out("application");
+            AggregationOperation outApplicationCollection = Aggregation.out("application");
 
-        Aggregation combinedApplicationAggregation = Aggregation.newAggregation(
-                wholeApplicationProjection,
-                applicationAddWorkSpaceID,
-                outApplicationCollection);
+            Aggregation combinedApplicationAggregation = Aggregation.newAggregation(
+                    wholeApplicationProjection,
+                    applicationAddWorkSpaceID,
+                    outApplicationCollection);
 
-        mongoTemplate.aggregate(combinedApplicationAggregation, Application.class, Application.class);
+            mongoTemplate.aggregate(combinedApplicationAggregation, Application.class, Application.class);
+        }
 
         // New Action
-        AggregationOperation wholeNewActionProjection = Aggregation.project(NewAction.class);
-        AggregationOperation newActionAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QNewAction.newAction.workspaceId)).
-                withValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))).build();
+        if (mongoTemplate.findOne(new Query(), NewAction.class) == null) {
+            System.out.println("No newAction to migrate.");
+        } else {
+            AggregationOperation wholeNewActionProjection = Aggregation.project(NewAction.class);
+            AggregationOperation newActionAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QNewAction.newAction.workspaceId)).
+                    withValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))).build();
 
-        AggregationOperation outNewActionCollection = Aggregation.out("newAction");
+            AggregationOperation outNewActionCollection = Aggregation.out("newAction");
 
-        Aggregation combinedNewActionAggregation = Aggregation.newAggregation(
-                wholeNewActionProjection,
-                newActionAddWorkSpaceID,
-                outNewActionCollection);
+            Aggregation combinedNewActionAggregation = Aggregation.newAggregation(
+                    wholeNewActionProjection,
+                    newActionAddWorkSpaceID,
+                    outNewActionCollection);
 
-        mongoTemplate.aggregate(combinedNewActionAggregation, NewAction.class, NewAction.class);
+            mongoTemplate.aggregate(combinedNewActionAggregation, NewAction.class, NewAction.class);
+        }
 
         // Theme
-        AggregationOperation wholeThemeProjection = Aggregation.project(Theme.class);
-        AggregationOperation themeAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QTheme.theme.workspaceId)).
-                withValueOf(Fields.field(fieldName(QTheme.theme.organizationId))).build();
+        if (mongoTemplate.findOne(new Query(), Theme.class) == null) {
+            System.out.println("No theme to migrate.");
+        } else {
+            AggregationOperation wholeThemeProjection = Aggregation.project(Theme.class);
+            AggregationOperation themeAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QTheme.theme.workspaceId)).
+                    withValueOf(Fields.field(fieldName(QTheme.theme.organizationId))).build();
 
-        AggregationOperation outThemeCollection = Aggregation.out("theme");
+            AggregationOperation outThemeCollection = Aggregation.out("theme");
 
-        Aggregation combinedThemeAggregation = Aggregation.newAggregation(
-                wholeThemeProjection,
-                themeAddWorkSpaceID,
-                outThemeCollection);
+            Aggregation combinedThemeAggregation = Aggregation.newAggregation(
+                    wholeThemeProjection,
+                    themeAddWorkSpaceID,
+                    outThemeCollection);
 
-        mongoTemplate.aggregate(combinedThemeAggregation, Theme.class, Theme.class);
+            mongoTemplate.aggregate(combinedThemeAggregation, Theme.class, Theme.class);
+        }
 
         // UserData
-        AggregationOperation wholeUserDataProjection = Aggregation.project(UserData.class);
-        AggregationOperation userDataAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).
-                withValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))).build();
+        if (mongoTemplate.findOne(new Query(), UserData.class) == null) {
+            System.out.println("No userData to migrate.");
+        } else {
+            AggregationOperation wholeUserDataProjection = Aggregation.project(UserData.class);
+            AggregationOperation userDataAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).
+                    withValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))).build();
 
-        AggregationOperation outUserDataCollection = Aggregation.out("userData");
+            AggregationOperation outUserDataCollection = Aggregation.out("userData");
 
-        Aggregation combinedUserDataAggregation = Aggregation.newAggregation(
-                wholeUserDataProjection,
-                userDataAddWorkSpaceID,
-                outUserDataCollection);
+            Aggregation combinedUserDataAggregation = Aggregation.newAggregation(
+                    wholeUserDataProjection,
+                    userDataAddWorkSpaceID,
+                    outUserDataCollection);
 
-        mongoTemplate.aggregate(combinedUserDataAggregation, UserData.class, UserData.class);
+            mongoTemplate.aggregate(combinedUserDataAggregation, UserData.class, UserData.class);
+        }
 
         // Workspace
-        AggregationOperation wholeWorkspaceProjection = Aggregation.project(Workspace.class);
-        AggregationOperation workspaceAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).
-                withValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))).build();
+        if (mongoTemplate.findOne(new Query(), Workspace.class) == null) {
+            System.out.println("No workspace to migrate.");
+        } else {
+            AggregationOperation wholeWorkspaceProjection = Aggregation.project(Workspace.class);
+            AggregationOperation workspaceAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).
+                    withValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))).build();
 
-        AggregationOperation outWorkspaceCollection = Aggregation.out("workspace");
+            AggregationOperation outWorkspaceCollection = Aggregation.out("workspace");
 
-        Aggregation combinedWorkspaceAggregation = Aggregation.newAggregation(
-                wholeWorkspaceProjection,
-                workspaceAddWorkSpaceID,
-                outWorkspaceCollection);
+            Aggregation combinedWorkspaceAggregation = Aggregation.newAggregation(
+                    wholeWorkspaceProjection,
+                    workspaceAddWorkSpaceID,
+                    outWorkspaceCollection);
 
-        mongoTemplate.aggregate(combinedWorkspaceAggregation, Workspace.class, Workspace.class);
+            mongoTemplate.aggregate(combinedWorkspaceAggregation, Workspace.class, Workspace.class);
+        }
 
         // User
-        AggregationOperation wholeUserProjection = Aggregation.project(User.class);
-        AggregationOperation userAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QUser.user.workspaceIds)).
-                withValueOf(Fields.field(fieldName(QUser.user.organizationIds))).build();
-        AggregationOperation userAddCurrentWorkspaceID = Aggregation.addFields().addField(fieldName(QUser.user.currentWorkspaceId)).
-                withValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId))).build();
-        AggregationOperation userAddExampleWorkspaceID = Aggregation.addFields().addField(fieldName(QUser.user.examplesWorkspaceId)).
-                withValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))).build();
+        if (mongoTemplate.findOne(new Query(), User.class) == null) {
+            System.out.println("No user to migrate.");
+        } else {
+            AggregationOperation wholeUserProjection = Aggregation.project(User.class);
+            AggregationOperation userAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QUser.user.workspaceIds)).
+                    withValueOf(Fields.field(fieldName(QUser.user.organizationIds))).build();
+            AggregationOperation userAddCurrentWorkspaceID = Aggregation.addFields().addField(fieldName(QUser.user.currentWorkspaceId)).
+                    withValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId))).build();
+            AggregationOperation userAddExampleWorkspaceID = Aggregation.addFields().addField(fieldName(QUser.user.examplesWorkspaceId)).
+                    withValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))).build();
 
-        AggregationOperation outUserCollection = Aggregation.out("user");
+            AggregationOperation outUserCollection = Aggregation.out("user");
 
-        Aggregation combinedUserAggregation = Aggregation.newAggregation(
-                wholeUserProjection,
-                userAddWorkSpaceID,
-                userAddCurrentWorkspaceID,
-                userAddExampleWorkspaceID,
-                outUserCollection);
+            Aggregation combinedUserAggregation = Aggregation.newAggregation(
+                    wholeUserProjection,
+                    userAddWorkSpaceID,
+                    userAddCurrentWorkspaceID,
+                    userAddExampleWorkspaceID,
+                    outUserCollection);
 
-        mongoTemplate.aggregate(combinedUserAggregation, User.class, User.class);
+            mongoTemplate.aggregate(combinedUserAggregation, User.class, User.class);
+        }
 
         // Now sign out all the existing users since this change impacts the user object.
         final String script =
@@ -1191,6 +1223,10 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction-datasource", author = "")
     public void migrateOrganizationIdToWorkspaceIdInNewActionDatasource(MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        if (mongoTemplate.findOne(new Query(), NewAction.class) == null) {
+            System.out.println("No newAction to migrate.");
+            return;
+        }
         AggregationOperation orgIDFieldExists = Aggregation.match(where("unpublishedAction.datasource.organizationId").exists(true));
         AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
         AggregationOperation defaultWorkSpaceIDAddUnpublishedAction = Aggregation.addFields().addField("unpublishedAction.datasource.workspaceId").
