@@ -30,7 +30,7 @@ import {
   isResizingOrDragging,
   showWidgetAsSelected,
 } from "selectors/widgetSelectors";
-import { RESIZE_BORDER_BUFFER } from "resizable/common";
+import { RESIZE_BORDER_BUFFER } from "components/editorComponents/WidgetResizer/resizable/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";

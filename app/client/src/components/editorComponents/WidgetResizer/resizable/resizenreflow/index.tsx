@@ -1,18 +1,23 @@
-import { computeRowCols } from "components/editorComponents/ResizableUtils";
-import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
+import {
+  computeRowCols,
+  isHandleResizeAllowed,
+} from "components/editorComponents/WidgetResizer/ResizableUtils";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Spring } from "react-spring";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useSelector } from "react-redux";
 import type { MovementLimitMap, ReflowedSpace } from "reflow/reflowTypes";
-import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
+import type {
+  DimensionUpdateProps,
+  ResizableProps,
+} from "components/editorComponents/WidgetResizer/resizable/common";
 import {
   getWrapperStyle,
   RESIZE_BORDER_BUFFER,
   ResizableHandle,
   ResizeWrapper,
-} from "resizable/common";
+} from "components/editorComponents/WidgetResizer/resizable/common";
 import { getWidgetByID } from "sagas/selectors";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";

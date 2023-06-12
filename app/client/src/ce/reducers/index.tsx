@@ -77,6 +77,7 @@ import type { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
+import type { AutoLayoutCanvasWidthState } from "reducers/uiReducers/autoLayoutCanvasWidthReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -140,6 +141,7 @@ export interface AppState {
     multiPaneConfig: MultiPaneReduxState;
     layoutConversion: layoutConversionReduxState;
     actionSelector: ActionSelectorReduxState;
+    autoLayoutCanvasMetaWidth: AutoLayoutCanvasWidthState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

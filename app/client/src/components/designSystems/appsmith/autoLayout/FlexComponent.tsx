@@ -20,7 +20,11 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import {
+  getWidgetCssHeight,
+  getWidgetCssWidth,
+  getWidgetMinMaxDimensionsInPixel,
+} from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
 // import { RESIZE_BORDER_BUFFER } from "resizable/common";
 import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
@@ -140,6 +144,7 @@ export function FlexComponent(props: AutoLayoutProps) {
   const isPreviewMode = useSelector(previewModeSelector);
 
   const isResizing = useSelector(getIsResizing);
+  const isCurrentWidgetResizing = isResizing && props.selected;
   // const widgetDimensionsViewCss = {
   //   width: props.componentWidth - WIDGET_PADDING * 2,
   //   height: props.componentHeight - WIDGET_PADDING * 2,
@@ -185,6 +190,20 @@ export function FlexComponent(props: AutoLayoutProps) {
       maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
+      height: isCurrentWidgetResizing
+        ? `${props.componentHeight}px`
+        : getWidgetCssHeight(
+            props.widgetType,
+            props.responsiveBehavior,
+            props.componentHeight,
+          ),
+      width: isCurrentWidgetResizing
+        ? `${props.componentWidth}%`
+        : getWidgetCssWidth(
+            props.widgetType,
+            props.responsiveBehavior,
+            props.componentWidth,
+          ),
     };
   }, [
     props.isMobile,
