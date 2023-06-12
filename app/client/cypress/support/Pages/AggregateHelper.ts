@@ -1357,7 +1357,9 @@ export class AggregateHelper {
 
   public VisitNValidate(url: string, apiToValidate = "") {
     cy.visit(url);
-    apiToValidate && this.AssertNetworkStatus(apiToValidate);
+    if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
+      this.Sleep(2000);
+    } else apiToValidate && this.AssertNetworkStatus(apiToValidate);
   }
 
   //Not used:
