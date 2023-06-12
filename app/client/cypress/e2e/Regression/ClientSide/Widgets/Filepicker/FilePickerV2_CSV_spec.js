@@ -1,5 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const locator = ObjectsRegistry.CommonLocators;
 
 const widgetName = "filepickerwidgetv2";
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value`;
@@ -32,6 +34,9 @@ describe("File picker widget v2", () => {
     cy.get(
       `.t--property-control-dataformat ${commonlocators.helperText}`,
     ).contains(ARRAY_CSV_HELPER_TEXT);
+
+    cy.wait("@updateLayout");
+
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/Test_csv.csv", {
@@ -39,7 +44,7 @@ describe("File picker widget v2", () => {
       });
 
     // wait for file to get uploaded
-    cy.wait(3000);
+    cy.wait("@updateLayout");
 
     cy.readTableV2dataPublish("1", "1").then((tabData) => {
       const tabValue = tabData;
@@ -50,9 +55,11 @@ describe("File picker widget v2", () => {
       expect(tabValue).to.be.equal("1000");
     });
     cy.get(
-      `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${1}][data-colindex=${3}] input`,
+      `${locator._widgetInDeployed(
+        "tablewidgetv2",
+      )} .tbody .td[data-rowindex=${1}][data-colindex=${3}] input`,
     ).should("not.be.checked");
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
 
     // Test for XLSX file
     cy.get(commonlocators.filePickerInput)
@@ -60,7 +67,7 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/TestSpreadsheet.xlsx", { force: true });
 
     // wait for file to get uploaded
-    cy.wait(3000);
+    cy.wait("@updateLayout");
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("Sheet1");
@@ -68,15 +75,12 @@ describe("File picker widget v2", () => {
     cy.readTableV2dataPublish("0", "1").then((tabData) => {
       expect(tabData).contains("Column A");
     });
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
 
     // Test for XLS file
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/SampleXLS.xls", { force: true });
-
-    // wait for file to get uploaded
-    cy.wait(3000);
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("Sheet1");
@@ -84,7 +88,7 @@ describe("File picker widget v2", () => {
     cy.readTableV2dataPublish("0", "1").then((tabData) => {
       expect(tabData).contains("Dulce");
     });
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
 
     // Test for JSON File
     cy.get(commonlocators.filePickerInput)
@@ -92,12 +96,12 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/largeJSONData.json", { force: true });
 
     // wait for file to get uploaded
-    cy.wait(3000);
+    cy.wait("@updateLayout");
 
     cy.readTableV2dataPublish("0", "2").then((tabData) => {
       expect(tabData).to.contain("sunt aut facere");
     });
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
 
     // Test for TSV File
     cy.get(commonlocators.filePickerInput)
@@ -105,12 +109,12 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/Sample.tsv", { force: true });
 
     // wait for file to get uploaded
-    cy.wait(3000);
+    cy.wait("@updateLayout");
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("CONST");
     });
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
 
     // Drag and drop a text widget for binding file data
     cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
@@ -123,27 +127,35 @@ describe("File picker widget v2", () => {
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(".t--widget-textwidget").should(
+    cy.get(locator._widgetInDeployed("textwidget")).should(
       "contain",
       "data:application/json;base64",
     );
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
 
     // Test for Text file
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Text");
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(".t--widget-textwidget").should("contain", "baseUrl");
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
-    cy.wait(3000);
-    cy.get(".t--widget-textwidget").should("have.text", "");
+    cy.get(locator._widgetInDeployed("textwidget")).should(
+      "contain",
+      "baseUrl",
+    );
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+
+    cy.wait("@updateLayout");
+
+    cy.get(locator._widgetInDeployed("textwidget")).should("have.text", "");
 
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Binary");
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(".t--widget-textwidget").should("contain", "baseUrl");
-    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+    cy.get(locator._widgetInDeployed("textwidget")).should(
+      "contain",
+      "baseUrl",
+    );
+    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
   });
 });
