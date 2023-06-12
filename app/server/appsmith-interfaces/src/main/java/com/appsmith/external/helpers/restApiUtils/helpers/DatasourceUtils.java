@@ -25,7 +25,13 @@ public class DatasourceUtils {
         Set<String> invalids = new HashSet<>();
 
         if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
-            invalids.add("Missing URL.");
+            /**
+             * Deliberately skipping adding any invalidity message here because based on the current parsing logic the
+             * client can skip adding a URL to embedded datasource and instead add the entire URL to
+             * `actionConfiguration.path`.
+             * ref: https://theappsmith.slack.com/archives/C040LHZN03V/p1686478370473659?thread_ts=1686300736
+             * .679729&cid=C040LHZN03V
+             */
         }
 
         final String contentTypeError = headerUtils.verifyContentType(datasourceConfiguration.getHeaders());
