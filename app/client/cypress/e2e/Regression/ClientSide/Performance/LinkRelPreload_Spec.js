@@ -31,9 +31,15 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
     cy.addDsl(emptyDSL);
   });
 
-  it("1. In edit & View mode", function () {
+  it("1. In edit mode", function () {
     testLinkRelPreloads("edit-mode");
-    //In view mode", function () {
+  });
+
+  // Note: this must be a separate test from the previous one,
+  // as we’re relying on Cypress resetting intercepts between tests.
+  it("2. In view mode", function () {
+    cy.reload();
+
     cy.PublishtheApp();
 
     testLinkRelPreloads("view-mode");
@@ -87,12 +93,16 @@ function testLinkRelPreloads(viewOrEditMode) {
 
     const links = window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode] || [];
 
-    const uniqueRequests = [...new Set(jsRequests)];
+    const uniqueRequests = [
+      ...new Set(jsRequests.map((request) => new URL(request).pathname)),
+    ];
     const requestsString = `[${uniqueRequests.length} items] ${uniqueRequests
       .sort()
       .join(", ")}`;
 
-    const uniqueLinks = [...new Set(links)];
+    const uniqueLinks = [
+      ...new Set(links.filter((link) => !link.endsWith(".css"))),
+    ];
     const linksString = `[${uniqueLinks.length} items] ${uniqueLinks
       .sort()
       .join(", ")}`;

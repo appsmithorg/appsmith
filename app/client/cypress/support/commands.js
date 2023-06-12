@@ -576,6 +576,9 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
+
+  // Ensure the app editor is fully loaded
+  cy.get("#sidebar").should("be.visible");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
