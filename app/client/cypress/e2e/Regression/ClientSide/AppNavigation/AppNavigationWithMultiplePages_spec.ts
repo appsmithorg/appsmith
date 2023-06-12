@@ -55,7 +55,7 @@ describe("Page orientation and navigation related usecases ", function () {
   });
 
   it("3. Navigate to widget url and validate", () => {
-    agHelper.visitURL(currentUrl);
+    agHelper.VisitNValidate(currentUrl);
     agHelper.Sleep();
     agHelper.AssertElementExist(
       locators._widgetInCanvas(draggableWidgets.INPUT_V2),

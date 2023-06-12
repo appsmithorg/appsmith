@@ -10,7 +10,6 @@ describe("Visual regression tests", () => {
 
   it("1. Layout validation for app page in edit mode", () => {
     _.homePage.NavigateToHome();
-    //cy.visit("/applications");
     //cy.wait(3000);
     _.homePage.CreateNewApplication();
     //cy.get(".createnew").should("be.visible").first().click();

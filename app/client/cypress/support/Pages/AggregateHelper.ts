@@ -1355,8 +1355,9 @@ export class AggregateHelper {
     });
   }
 
-  public visitURL(url: string) {
+  public VisitNValidate(url: string, apiToValidate = "") {
     cy.visit(url);
+    apiToValidate && this.AssertNetworkStatus(apiToValidate);
   }
 
   //Not used:

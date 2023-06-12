@@ -1,4 +1,5 @@
 import adminsSettings from "../../../../locators/AdminsSettings";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 const {
   GITHUB_SIGNUP_SETUP_DOC,
@@ -47,9 +48,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "4. Should test that settings page tab redirects",
     () => {
-      cy.visit("/applications");
-      cy.wait(3000);
-      cy.wait("@getReleaseItems");
+      agHelper.VisitNValidate("/applications", "getReleaseItems");
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");
       cy.get(adminsSettings.generalTab).click();
@@ -98,8 +97,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "5. Should test that authentication page redirects",
     () => {
-      cy.visit("/settings/general");
-      cy.wait("@getEnvVariables");
+      agHelper.VisitNValidate("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", "/settings/authentication");
       cy.get(adminsSettings.googleButton).click();
@@ -119,8 +117,7 @@ describe("Admin settings page", function () {
     "airgap",
     "5. Should test that authentication page redirects and google and github auth doesn't exist - airgap",
     () => {
-      cy.visit("/settings/general");
-      cy.wait("@getEnvVariables");
+      agHelper.VisitNValidate("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", "/settings/authentication");
       cy.get(adminsSettings.googleButton).should("not.exist");
@@ -134,8 +131,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "6. Should test that configure link redirects to google signup setup doc",
     () => {
-      cy.visit("/settings/general");
-      cy.wait("@getEnvVariables");
+      agHelper.VisitNValidate("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", "/settings/authentication");
       cy.get(adminsSettings.googleButton).click();
@@ -154,8 +150,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "7. Should test that configure link redirects to github signup setup doc",
     () => {
-      cy.visit("/settings/general");
-      cy.wait("@getEnvVariables");
+      agHelper.VisitNValidate("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", "/settings/authentication");
       cy.get(adminsSettings.githubButton).click();
@@ -171,8 +166,7 @@ describe("Admin settings page", function () {
   );
 
   it("8. Should test save and clear buttons disabled state", () => {
-    cy.visit("/settings/general");
-    cy.wait("@getEnvVariables");
+    agHelper.VisitNValidate("/settings/general", "getEnvVariables");
     const assertVisibilityAndDisabledState = () => {
       cy.get(adminsSettings.saveButton).should("be.visible");
       cy.get(adminsSettings.saveButton).should("be.disabled");
@@ -191,8 +185,8 @@ describe("Admin settings page", function () {
   });
 
   it("9. Should test saving a setting value", () => {
-    cy.visit("/settings/general");
-    cy.wait("@getEnvVariables");
+    agHelper.VisitNValidate("/settings/general", "getEnvVariables");
+
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
@@ -218,8 +212,7 @@ describe("Admin settings page", function () {
   });
 
   it("10.Should test saving settings value from different tabs", () => {
-    cy.visit("/settings/general");
-    cy.wait("@getEnvVariables");
+    agHelper.VisitNValidate("/settings/general", "getEnvVariables");
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
