@@ -1,4 +1,5 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 let widgets = [
   "codescannerwidget",
   "listwidgetv2",
@@ -20,16 +21,7 @@ let width = {
 
 describe("Validating Mobile Views for Auto Fill Widgets", function () {
   it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
-    cy.wait(2000);
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("codescannerwidget", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("listwidgetv2", { x: 620, y: 820 });
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 620, y: 820 });
