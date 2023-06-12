@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Validating multiple widgets in auto-layout mode with App navigation settings", function () {
   it("1. Drag and Drop multiple widgets in auto-layout mode", function () {
-    _.autoLayout.ConvertToAutoLayout();
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.INPUT_V2,
       100,

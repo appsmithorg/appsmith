@@ -1,11 +1,21 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
-import { CONVERT_TO_AUTO_BUTTON } from "../../../src/ce/constants/messages";
+
+type FixedConversionOptions = "DESKTOP" | "MOBILE";
+
+type Alignments = "START" | "CENTER" | "END";
+
+const alignmentIndex = {
+  START: 0,
+  CENTER: 1,
+  END: 2,
+};
 
 export class AutoLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private propPane = ObjectsRegistry.PropertyPane;
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private locators = ObjectsRegistry.CommonLocators;
 
   _buttonWidgetSelector = getWidgetSelector(WIDGET.BUTTON);
   _buttonComponentSelector = `${getWidgetSelector(WIDGET.BUTTON)} button`;
@@ -14,9 +24,141 @@ export class AutoLayout {
     WIDGET.TEXT,
   )} .t--text-widget-container`;
   _containerWidgetSelector = getWidgetSelector(WIDGET.CONTAINER);
-  private _autoConvert = "#t--layout-conversion-cta";
-  private _convert = "button:contains('Convert layout')";
-  private _refreshApp = "button:contains('Refresh the app')";
+
+  _flexComponentClass = `*[class^="flex-container"]`;
+
+  private autoConvertButton = "#t--layout-conversion-cta";
+
+  private useSnapshotBannerButton = "span:contains('Use snapshot')";
+  private discardSnapshotBannerButton = "span:contains('Discard snapshot')";
+
+  private convertDialogButton = "button:contains('Convert layout')";
+  private refreshAppDialogButton = "button:contains('Refresh the app')";
+  private useSnapshotDialogButton = "button:contains('Use snapshot')";
+  private convertAnywaysDialogButton = "button:contains('Convert anyways')";
+  private discardDialogButton = "button:contains('Discard')";
+
+  private fixedModeConversionOptionButton = (option: FixedConversionOptions) =>
+    `//span[@data-value = '${option}']`;
+
+  private flexMainContainer = ".flex-container-0";
+
+  public ConvertToAutoLayoutAndVerify(isNotNewApp = true) {
+    this.VerifyIsFixedLayout();
+
+    this.agHelper.GetNClick(this.autoConvertButton, 0, true);
+
+    this.agHelper.GetNClick(this.convertDialogButton, 0, true);
+
+    this.agHelper.ValidateNetworkStatus("@updateApplication");
+    if (isNotNewApp) {
+      this.agHelper.ValidateNetworkStatus("@snapshotSuccess", 201);
+    }
+
+    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
+    this.agHelper.Sleep(2000);
+
+    this.VerifyIsAutoLayout();
+  }
+
+  public ConvertToFixedLayoutAndVerify(
+    fixedConversionOption: FixedConversionOptions,
+  ) {
+    this.VerifyIsAutoLayout();
+
+    this.agHelper.GetNClick(this.autoConvertButton, 0, true);
+
+    this.agHelper.GetNClick(
+      this.fixedModeConversionOptionButton(fixedConversionOption),
+      0,
+      true,
+    );
+
+    this.agHelper.GetNClick(this.convertDialogButton, 0, true);
+
+    cy.get("body").then(($body) => {
+      if ($body.find(this.convertAnywaysDialogButton).length) {
+        this.agHelper.GetNClick(this.convertAnywaysDialogButton, 0, true);
+      }
+    });
+
+    this.agHelper.ValidateNetworkStatus("@updateApplication");
+    this.agHelper.ValidateNetworkStatus("@snapshotSuccess", 201);
+
+    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
+    cy.wait(2000);
+
+    this.VerifyIsFixedLayout();
+  }
+
+  public UseSnapshotFromBanner() {
+    this.agHelper.GetNClick(this.useSnapshotBannerButton, 0, true);
+    this.agHelper.GetNClick(this.useSnapshotDialogButton, 0, true);
+
+    cy.wait(2000);
+
+    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
+
+    cy.wait(2000);
+  }
+
+  public DiscardSnapshot() {
+    this.agHelper.GetNClick(this.discardSnapshotBannerButton, 0, true);
+    this.agHelper.GetNClick(this.discardDialogButton, 0, true);
+  }
+
+  public VerifyIsAutoLayout() {
+    this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
+    cy.get(this.autoConvertButton).should("contain", "fixed layout");
+    cy.get(this.flexMainContainer).should("exist");
+  }
+
+  public VerifyIsFixedLayout() {
+    this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
+    cy.get(this.autoConvertButton).should("contain", "auto-layout");
+    cy.get(this.flexMainContainer).should("not.exist");
+  }
+
+  public VerifyCurrentWidgetIsAutolayout(widgetTypeName: string) {
+    if (widgetTypeName === WIDGET.MODAL) {
+      cy.get(`${this.locators._modal} canvas`)
+        .siblings(this._flexComponentClass)
+        .should("exist");
+    } else {
+      this.agHelper.AssertExistingCheckedState;
+      cy.get(`${this.locators._widgetInCanvas(widgetTypeName)} canvas`)
+        .siblings(this._flexComponentClass)
+        .should("exist");
+    }
+  }
+
+  public VerifyCurrentWidgetIsFixedlayout(widgetTypeName: string) {
+    if (widgetTypeName === WIDGET.MODAL) {
+      cy.get(`${this.locators._modal} canvas`)
+        .siblings(this._flexComponentClass)
+        .should("not.exist");
+    } else {
+      cy.get(`${this.locators._widgetInCanvas(widgetTypeName)} canvas`)
+        .siblings(this._flexComponentClass)
+        .should("not.exist");
+    }
+  }
+
+  public VerifyIfChildWidgetPositionInFlexContainer(
+    canvasWrapperSelector: string,
+    childWidgetSelector: string,
+    layerIndex: number,
+    alignment: Alignments,
+  ) {
+    cy.get(`${canvasWrapperSelector} canvas`)
+      .siblings(this._flexComponentClass)
+      .children()
+      .eq(layerIndex)
+      .children()
+      .eq(alignmentIndex[alignment])
+      .find(childWidgetSelector)
+      .should("exist");
+  }
 
   /**
    * Drag and drop a button widget and verify if the bounding box fits perfectly
@@ -150,21 +292,5 @@ export class AutoLayout {
         expect(widgetRect.width).to.be.closeTo(componentRect.width + 4, DELTA);
       });
     });
-  }
-
-  /**
-   * Converts the layout to auto-layout if not already converted
-   */
-  public ConvertToAutoLayout() {
-    this.agHelper
-      .GetElement(this._autoConvert)
-      .invoke("text")
-      .then((text: string) => {
-        if (text === CONVERT_TO_AUTO_BUTTON()) {
-          this.agHelper.GetNClick(this._autoConvert);
-          this.agHelper.GetNClick(this._convert);
-          this.agHelper.GetNClick(this._refreshApp);
-        }
-      });
   }
 }
