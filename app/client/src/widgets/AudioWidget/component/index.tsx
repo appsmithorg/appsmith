@@ -18,14 +18,7 @@ export interface AudioComponentProps {
   onSeek?: () => void;
   onError?: () => void;
   player?: Ref<ReactPlayer>;
-  minHeight?: number;
 }
-
-const StyledReactPlayer = styled(ReactPlayer)`
-  audio {
-    min-height: ${(props) => props.$minHeight}px;
-  }
-`;
 
 const ErrorContainer = styled.div`
   display: flex;
@@ -51,8 +44,7 @@ export default function AudioComponent(props: AudioComponentProps) {
     url,
   } = props;
   return url ? (
-    <StyledReactPlayer
-      $minHeight={props.minHeight}
+    <ReactPlayer
       config={{
         file: {
           attributes: {
