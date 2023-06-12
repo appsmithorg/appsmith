@@ -4,6 +4,7 @@ const dsl = require("../../../../fixtures/navigateTotabledsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/navigateToInputDsl.json");
 const pageid = "MyPage";
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
   before(() => {
@@ -11,7 +12,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
   });
 
   it("1. Table Widget Functionality with multiple page", function () {
-    cy.openPropertyPane("tablewidget");
+    entityExplorer.SelectEntityByName("Table1");
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,
