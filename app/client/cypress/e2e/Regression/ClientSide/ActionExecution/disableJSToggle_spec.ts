@@ -84,7 +84,7 @@ describe("Disable JS toggle when Action selector code is not parsable", () => {
 
     propPane.EnterJSContext("onClick", codeSnippet);
     agHelper.Sleep(200);
-    propPane.AssertJSToggleDisabled("onClick");
+    propPane.AssertJSToggleState("onClick", "disabled");
   });
 
   it("should disable JS toggle when the code can't be parsed into UI", () => {
@@ -98,14 +98,14 @@ describe("Disable JS toggle when Action selector code is not parsable", () => {
     }}`;
     propPane.EnterJSContext("onClick", codeSnippet);
     agHelper.Sleep(200);
-    propPane.AssertJSToggleDisabled("onClick");
+    propPane.AssertJSToggleState("onClick", "disabled");
 
     //Bug 22180
     codeSnippet =
       "{{ (function(){ return Promise.race([ Api1.run({ name: 1 }), Api1.run({ name: 2 }) ]).then((res) => { showAlert(Winner: ${res.args.name}) }); })() }}";
     propPane.EnterJSContext("onClick", codeSnippet);
     agHelper.Sleep(200);
-    propPane.AssertJSToggleDisabled("onClick");
+    propPane.AssertJSToggleState("onClick", "disabled");
 
     // When Api1 is returned
     codeSnippet = `{{Api1.run().then(() => {
@@ -113,7 +113,7 @@ describe("Disable JS toggle when Action selector code is not parsable", () => {
     })}}`;
     propPane.EnterJSContext("onClick", codeSnippet);
     agHelper.Sleep(200);
-    propPane.AssertJSToggleDisabled("onClick");
+    propPane.AssertJSToggleState("onClick", "disabled");
 
     // When Api1.data is returned
     codeSnippet = `{{Api1.run().then(() => {
@@ -121,6 +121,6 @@ describe("Disable JS toggle when Action selector code is not parsable", () => {
     })}}`;
     propPane.EnterJSContext("onClick", codeSnippet);
     agHelper.Sleep(200);
-    propPane.AssertJSToggleDisabled("onClick");
+    propPane.AssertJSToggleState("onClick", "disabled");
   });
 });
