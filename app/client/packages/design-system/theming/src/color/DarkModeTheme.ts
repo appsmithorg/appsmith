@@ -211,12 +211,12 @@ export class DarkModeTheme implements ColorModeTheme {
     color.oklch.c = 0.22;
     color.oklch.h = 27;
 
-    if (this.seedIsRed && color.oklch.c > 0.12) {
+    if (this.seedIsRed && color.oklch.c > 0.07) {
       if (this.seedColor.oklch.h < 27) {
-        color.oklch.h = 35;
+        color.oklch.h = 32;
       }
       if (this.seedColor.oklch.h >= 27) {
-        color.oklch.h = 19;
+        color.oklch.h = 22;
       }
     }
 

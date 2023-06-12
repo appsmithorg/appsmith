@@ -229,10 +229,10 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (this.seedIsRed && color.oklch.c > 0.12) {
       if (this.seedColor.oklch.h < 27) {
-        color.oklch.h = 35;
+        color.oklch.h = 34;
       }
       if (this.seedColor.oklch.h >= 27) {
-        color.oklch.h = 19;
+        color.oklch.h = 20;
       }
     }
 
