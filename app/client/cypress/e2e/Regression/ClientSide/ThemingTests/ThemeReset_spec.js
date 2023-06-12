@@ -1,9 +1,10 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const appSettings = ObjectsRegistry.AppSettings;
+import {
+  entityExplorer,
+  appSettings,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Theme validation usecases", function () {
   it("1. Drag and drop button widget, change value and check reset flow", function () {
@@ -13,7 +14,7 @@ describe("Theme validation usecases", function () {
     cy.get(".t--widget-buttonwidget").should("exist");
 
     // open property pane
-    cy.openPropertyPane("buttonwidget");
+    entityExplorer.SelectEntityByName("Button1")
     cy.moveToStyleTab();
     // change color to red
     cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type("red");

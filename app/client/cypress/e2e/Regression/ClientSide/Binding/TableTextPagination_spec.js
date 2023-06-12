@@ -74,7 +74,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   it("4. Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function () {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.testJsontext("totalrecordcount", 20);
     cy.PublishtheApp();
     cy.wait(500);
@@ -115,7 +115,7 @@ describe("Test Create Api and Bind to Table widget", function () {
       },
     );
     cy.WaitAutoSave();
-    entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.testJsontext("tabledata", "{{Api2.data}}");
     cy.executeDbQuery("Api2", "onPageChange");
   });
@@ -134,7 +134,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     cy.ValidatePaginateResponseUrlData(api.apiPaginationNextTest, true);
   });

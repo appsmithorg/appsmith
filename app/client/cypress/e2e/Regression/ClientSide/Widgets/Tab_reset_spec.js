@@ -28,7 +28,7 @@ describe("Tabs widget resetting", function () {
 
     cy.get(widgetsPage.textWidget).contains("Tab 2");
 
-    entityExplorer.SelectEntityByName("Tabs");
+    entityExplorer.SelectEntityByName("Tabs1");
     cy.get(".t--property-control-defaulttab .CodeMirror .CodeMirror-code")
       .first()
       .should("have.text", "Tab 2");

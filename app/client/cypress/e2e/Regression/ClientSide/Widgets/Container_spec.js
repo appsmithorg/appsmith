@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/containerdsl.json");
-
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 const boxShadowOptions = {
   none: "none",
   S: "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
@@ -17,7 +17,7 @@ describe("Container Widget Functionality", function () {
   });
 
   it("Container Widget Functionality", function () {
-    cy.openPropertyPane("containerwidget");
+    entityExplorer.SelectEntityByName("Container1");
     /**
      * @param{Text} Random Text
      * @param{ContainerWidget}Mouseover
@@ -77,9 +77,9 @@ describe("Container Widget Functionality", function () {
       );
   });
 
-  it("Test border width and verity", function () {
+  it("Test border width and verify", function () {
     cy.get(publish.backToEditor).click();
-    cy.openPropertyPane("containerwidget");
+    entityExplorer.SelectEntityByName("job", "Widgets");
     cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");
     cy.get(

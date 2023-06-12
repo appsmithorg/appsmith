@@ -7,7 +7,7 @@ describe("Property pane js enabled field", function () {
   });
 
   it("1. Ensure text is visible for js enabled field when a section is collapsed by default", function () {
-    entityExplorer.SelectEntityByName("JsonForm1");
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.moveToStyleTab();
     cy.wait(500);
     //cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click({force:true});
@@ -28,7 +28,7 @@ describe("Property pane js enabled field", function () {
     cy.closePropertyPane();
     cy.wait(1000);
 
-    entityExplorer.SelectEntityByName("JsonForm1");
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.moveToStyleTab();
     cy.wait(500);
     cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click();
