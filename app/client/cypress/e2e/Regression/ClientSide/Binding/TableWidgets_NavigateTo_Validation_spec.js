@@ -4,9 +4,11 @@ const testdata = require("../../../../fixtures/testdata.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const propPane = ObjectsRegistry.PropertyPane;
+import {
+  agHelper,
+  propPane,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget and Navigate to functionality validation", function () {
   afterEach(() => {
@@ -26,14 +28,10 @@ describe("Table Widget and Navigate to functionality validation", function () {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
     //Table Widget Functionality with multiple page
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
-    cy.openPropertyPane("tablewidget");
+    entityExplorer.SelectEntityByName("Page1", "Pages");
+    entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,
