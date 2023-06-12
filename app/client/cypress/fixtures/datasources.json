@@ -1,35 +1,35 @@
 {
   "mongo-authenticationAuthtype": "SCRAM-SHA-1",
-  "mongo-host": "host.docker.internal",
+  "mongo-host": "localhost",
   "mongo-port": 28017,
   "mongo-databaseName": "mongo_samples",
   "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
 
-  "postgres-host": "host.docker.internal",
+  "postgres-host": "localhost",
   "postgres-port": 5432,
   "postgres-databaseName": "fakeapi",
   "postgres-username": "docker",
   "postgres-password": "docker",
 
-  "mysql-host": "host.docker.internal",
+  "mysql-host": "localhost",
   "mysql-port": 3306,
   "mysql-databaseName": "fakeapi",
   "mysql-username": "root",
   "mysql-password": "root",
 
-  "mssql-host": "host.docker.internal",
+  "mssql-host": "localhost",
   "mssql-port": 1433,
   "mssql-databaseName": "fakeapi",
   "mssql-username": "SA",
   "mssql-password": "Root@123",
 
-  "arango-host": "host.docker.internal",
+  "arango-host": "localhost",
   "arango-port": 8529,
   "arango-databaseName": "_system",
   "arango-username": "root",
   "arango-password": "Arango",
 
-  "elastic-host": "http://host.docker.internal",
+  "elastic-host": "http://localhost",
   "elastic-port": 9200,
   "elastic-username": "elastic",
   "elastic-password": "docker",
@@ -40,27 +40,27 @@
   "redshift-username": "root",
   "redshift-password": "Redshift$123",
 
-  "smtp-host": "host.docker.internal",
+  "smtp-host": "localhost",
   "smtp-port": "25",
   "smtp-username": "root",
   "smtp-password": "root",
 
-  "redis-host": "host.docker.internal",
+  "redis-host": "localhost",
   "redis-port": "6379",
 
   "OAuth_Username": "testuser@appsmith.com",
   "OAuth_Host": "http://localhost:6001",
-  "OAuth_ApiUrl": "http://host.docker.internal:6001",
-  "OAUth_AccessTokenUrl": "http://host.docker.internal:6001/oauth/token",
+  "OAuth_ApiUrl": "http://localhost:6001",
+  "OAUth_AccessTokenUrl": "http://localhost:6001/oauth/token",
   "OAuth_AuthUrl": "http://localhost:6001/oauth/authorize",
   "OAuth_RedirectUrl": "http://localhost/api/v1/datasources/authorize",
 
   "AirtableBase": "appubHrVbovcudwN6",
   "AirtableTable": "tblsFCQSskVFf7xNd",
 
-  "mockApiUrl": "http://host.docker.internal:5001/v1/mock-api?records=10",
-  "echoApiUrl": "http://host.docker.internal:5001/v1/mock-api/echo",
-  "randomCatfactUrl": "http://host.docker.internal:5001/v1/catfact/random",
+  "mockApiUrl": "http://localhost:5001/v1/mock-api?records=10",
+  "echoApiUrl": "http://localhost:5001/v1/mock-api/echo",
+  "randomCatfactUrl": "http://localhost:5001/v1/catfact/random",
 
   "firestore-database-url": "https://appsmith-22e8b.firebaseio.com",
   "firestore-projectID": "appsmith-22e8b",
@@ -75,8 +75,8 @@
   "readonly": "readonly",
   "authenticatedApiUrl": "https://fakeapi.com",
 
-  "GraphqlApiUrl_TED": "http://host.docker.internal:5000/graphql",
+  "GraphqlApiUrl_TED": "http://localhost:5000/graphql",
   "GITEA_API_BASE_TED": "localhost",
   "GITEA_API_PORT_TED": "3001",
-  "GITEA_API_URL_TED": "git@host.docker.internal:Cypress"
+  "GITEA_API_URL_TED": "git@localhost:Cypress"
 }
