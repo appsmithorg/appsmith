@@ -20,8 +20,13 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import {
+  getWidgetCssHeight,
+  getWidgetCssWidth,
+  getWidgetMinMaxDimensionsInPixel,
+} from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
+import WidgetFactory from "utils/WidgetFactory";
 // import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
@@ -63,6 +68,7 @@ const FlexWidget = styled.div`
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+  const config = WidgetFactory.widgetConfigMap.get(props.widgetType);
   const {
     maxHeight,
     maxWidth,
@@ -168,6 +174,16 @@ export function FlexComponent(props: AutoLayoutProps) {
       maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
+      height: getWidgetCssHeight(
+        props.widgetType,
+        props.responsiveBehavior,
+        config?.rows,
+      ),
+      width: getWidgetCssWidth(
+        props.widgetType,
+        props.responsiveBehavior,
+        config?.columns,
+      ),
     };
   }, [
     props.isMobile,
