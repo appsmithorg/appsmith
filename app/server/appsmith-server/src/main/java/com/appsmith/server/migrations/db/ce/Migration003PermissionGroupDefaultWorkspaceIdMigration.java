@@ -44,34 +44,20 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
             System.out.println("No permissionGroup data to migrate.");
             return;
         }
-        AggregationOperation matchDocWithWorkspaceIDField = Aggregation.match(where(
+        Query defaultWorkspaceIdExistsQuery = query(where(
                 fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
-        AggregationOperation wholeProjection = Aggregation.project(PermissionGroup.class);
-        AggregationOperation defaultWorkSpaceIDAdd = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).
-                withValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))).build();
-        AggregationOperation defaultDomainTypeAdd = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)).
-                withValueOf(Workspace.class.getSimpleName()).build();
-        AggregationOperation defaultWorkspaceIDToNull = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).
-                withValue(null).build();
+        UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
+                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
+                .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
+        UpdateDefinition addWorkspaceAsDomainType = AggregationUpdate.update()
+                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
+                .toValue(Workspace.class.getSimpleName());
+        UpdateDefinition makeWorkspaceIdNull = AggregationUpdate.update()
+                .set(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
+                .toValue(null);
 
-        AggregationOperation out = Aggregation.out("permissionGroup");
-
-        AggregationOperation matchDocWithOutWorkspaceIDField = Aggregation.match(where(
-                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(false));
-        Aggregation combinedAggregationWithMissedEntries = Aggregation.newAggregation(
-                matchDocWithOutWorkspaceIDField,
-                wholeProjection);
-
-        Aggregation combinedAggregation = Aggregation.newAggregation(
-                matchDocWithWorkspaceIDField,
-                wholeProjection,
-                defaultWorkSpaceIDAdd,
-                defaultDomainTypeAdd,
-                defaultWorkspaceIDToNull,
-                out);
-
-        AggregationResults<PermissionGroup> missingResults = mongoTemplate.aggregate(combinedAggregationWithMissedEntries, PermissionGroup.class, PermissionGroup.class);
-        mongoTemplate.aggregate(combinedAggregation, PermissionGroup.class, PermissionGroup.class);
-        mongoTemplate.insertAll(missingResults.getMappedResults());
+        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, copyWorkspaceIdToDomainId, PermissionGroup.class);
+        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, addWorkspaceAsDomainType, PermissionGroup.class);
+        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, makeWorkspaceIdNull, PermissionGroup.class);
     }
 }
