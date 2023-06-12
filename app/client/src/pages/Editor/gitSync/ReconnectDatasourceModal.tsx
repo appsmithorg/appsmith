@@ -543,7 +543,7 @@ function ReconnectDatasourceModal() {
     isConfigFetched &&
     !isLoading &&
     !isEnvironmentConfigured(datasource, currentEnvironment);
-  console.log("ondhu ", datasource);
+
   return (
     <Modal open={isModalOpen}>
       <ModalContentWrapper
