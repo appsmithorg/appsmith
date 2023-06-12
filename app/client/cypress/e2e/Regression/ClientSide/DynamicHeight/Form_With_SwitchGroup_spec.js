@@ -1,16 +1,17 @@
 const dsl = require("../../../../fixtures/dynamicHeightFormSwitchdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for Form/Switch", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
-    cy.openPropertyPane("formwidget");
+    entityExplorer.SelectEntityByName("Form1", "Widgets");
     cy.get(".t--widget-formwidget")
       .invoke("css", "height")
       .then((formheight) => {
         cy.changeLayoutHeight(commonlocators.autoHeight);
-        cy.openPropertyPane("switchgroupwidget");
+        entityExplorer.SelectEntityByName("SwitchGroup1", "Form1");
         cy.changeLayoutHeight(commonlocators.autoHeight);
         cy.get(".t--widget-switchgroupwidget")
           .invoke("css", "height")
