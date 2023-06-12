@@ -32,15 +32,15 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
   });
 
   it("1. In edit & View mode", function () {
-    testLinkRelPreloads();
+    testLinkRelPreloads("edit-mode");
     //In view mode", function () {
     cy.PublishtheApp();
 
-    testLinkRelPreloads();
+    testLinkRelPreloads("view-mode");
   });
 });
 
-function testLinkRelPreloads() {
+function testLinkRelPreloads(viewOrEditMode) {
   // Disable network caching in Chromium, per https://docs.cypress.io/api/commands/intercept#cyintercept-and-request-caching
   // and https://github.com/cypress-io/cypress/issues/14459#issuecomment-768616195
   Cypress.automation("remote:debugger:protocol", {
@@ -81,13 +81,11 @@ function testLinkRelPreloads() {
 
   cy.waitForNetworkIdle("/static/js/*.js", 5000, { timeout: 60 * 1000 });
 
-  cy.document().then((document) => {
+  cy.window().then((window) => {
     // If this line fails, then we failed to intercept any JS requests for some reason
     expect(jsRequests).to.not.be.empty;
 
-    const links = [
-      ...document.querySelectorAll("link[rel=preload][as=script]"),
-    ].map((link) => link.href);
+    const links = window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode] || [];
 
     const uniqueRequests = [...new Set(jsRequests)];
     const requestsString = `[${uniqueRequests.length} items] ${uniqueRequests
