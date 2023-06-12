@@ -139,7 +139,7 @@ import { toast } from "design-system";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
-import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import {
   getFormDiffPaths,
   getFormName,

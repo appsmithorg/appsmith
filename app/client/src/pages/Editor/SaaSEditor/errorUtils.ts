@@ -10,7 +10,7 @@ import {
 import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 /**
  * Returns true if :

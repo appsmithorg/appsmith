@@ -27,7 +27,6 @@ import { WidgetQueryGeneratorFormContext } from "../..";
 import { Binding, DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptionType } from "../../types";
-import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import { invert } from "lodash";
 import { DropdownOption } from "./DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
@@ -36,6 +35,7 @@ import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export function useDatasource() {
   const {

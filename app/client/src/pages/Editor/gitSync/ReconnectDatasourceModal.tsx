@@ -63,7 +63,7 @@ import {
   Button,
   Text,
 } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { keyBy } from "lodash";
 import { isEnvironmentConfigured } from "utils/environments";
 

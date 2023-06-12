@@ -81,7 +81,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayload } from "./ActionSagas";
-import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
