@@ -8,7 +8,7 @@ export class GitSync {
   private hostPort = ObjectsRegistry.DefaultHostPort;
 
   private _connectGitBottomBar = ".t--connect-git-bottom-bar";
-  private _gitSyncModal = ".git-sync-modal";
+  private _gitSyncModal = "[data-testid=t--git-sync-modal]";
   private _closeGitSyncModal =
     "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
   //private _closeGitSyncModal = ".ads-v2-modal__content-header-close-button";
@@ -36,6 +36,7 @@ export class GitSync {
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   private _commitButton = ".t--commit-button";
   private _commitCommentInput = ".t--commit-comment-input textarea";
+  private _discardChanges = ".t--discard-button";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -48,7 +49,7 @@ export class GitSync {
   }
 
   CreateNConnectToGit(
-    repoName = "Test",
+    repoName = "Repo",
     assertConnect = true,
     privateFlag = false,
   ) {
@@ -142,7 +143,7 @@ export class GitSync {
     });
   }
 
-  CreateGitBranch(branch = "Test", toUseNewGuid = false) {
+  CreateGitBranch(branch = "Branch", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
@@ -223,25 +224,21 @@ export class GitSync {
     this.CloseGitSyncModal();
   }
 
-  // public DiscardChanges{
-  //   cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  //   cy.get(gitSyncLocators.discardChanges).should("be.visible");
-  //   //cy.wait(6000);
-  //   cy.get(gitSyncLocators.discardChanges)
-  //     .children()
-  //     .should("have.text", "Discard & pull");
-
-  //   cy.get(gitSyncLocators.discardChanges).click();
-  //   cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
-
-  //   cy.get(gitSyncLocators.discardChanges)
-  //     .children()
-  //     .should("have.text", "Are you sure?");
-  //   cy.get(gitSyncLocators.discardChanges).click();
-  //   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-  //   cy.wait(2000);
-  //   cy.validateToastMessage("Discarded changes successfully.");
-  // };
+  public DiscardChanges() {
+    this.agHelper.GetNClick(this._bottomBarCommit);
+    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    this.agHelper.AssertElementVisible(this._discardChanges);
+    this.agHelper.ClickButton("Discard & pull");
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
+    );
+    this.agHelper.ClickButton("Are you sure?", 0, false);
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
+    );
+    this.agHelper.AssertContains("Discarded changes successfully");
+    this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
+  }
 
   //#region Unused methods
 
