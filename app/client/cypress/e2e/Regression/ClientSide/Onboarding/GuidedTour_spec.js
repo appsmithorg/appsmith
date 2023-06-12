@@ -98,7 +98,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
       "Execute a query",
       "updateCustomerInfo.run",
     ),
-      cy.get(_.propPane._actionCallbacks).click();
+      cy.get(_.propPane._actionCallbacks).first().click();
     cy.get(_.propPane._actionAddCallback("success")).click().wait(500);
     cy.get(_.locators._dropDownValue("Execute a query"))
       .click()
