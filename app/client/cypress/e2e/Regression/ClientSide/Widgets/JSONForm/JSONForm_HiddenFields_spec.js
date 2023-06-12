@@ -1,17 +1,22 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = "[data-testid='t--property-pane-back-btn']";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   // Check if visible
   cy.get(`${fieldPrefix}-${fieldName}`).should("exist");
 
   // Hide field
-  cy.togglebarDisable(".t--property-control-visible input");
+  propPane.TogglePropertyState("Visible", "Off");
 
   /**
    * When the field is hidden, post that we check if the formData has appropriate
@@ -19,7 +24,7 @@ function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
    * This doesn't give the widget and evaluation a chance to set the correct value.
    * cy.wait(2000) gives sufficient amount for the appropriates changes to take place.
    */
-  cy.wait(2000);
+  cy.wait(3000); //wait for text field to alter
 
   // Check if hidden
   cy.get(`${fieldPrefix}-${fieldName}`).should("not.exist");
@@ -40,8 +45,7 @@ function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   // Check if visible
   cy.get(`${fieldPrefix}-${fieldName}`).should("exist");
 
-  // Check previous cy.wait(2000) comment
-  cy.wait(2000);
+  cy.wait(3000); //wait for text field to alter
 
   // Check if key in formData is also hidden
   cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {
@@ -80,14 +84,19 @@ function removeCustomField() {
 
 describe("JSON Form Hidden fields", () => {
   before(() => {
-    cy.addDsl(dslWithSchema);
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+    cy.fixture("jsonFormDslWithSchema").then((val) => {
+      agHelper.AddDsl(val);
+    });
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{JSON.stringify(JSONForm1.formData)}}",
+    );
   });
 
   it("1. can hide Array Field", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("education");
+    entityExplorer.SelectEntityByName("JSONForm1");
+    propPane.OpenJsonFormFieldSettings("Education");
     hideAndVerifyProperties("education", [
       {
         college: "MIT",
@@ -213,7 +222,7 @@ describe("JSON Form Hidden fields", () => {
     cy.togglebarDisable(".t--property-control-visible input");
 
     // publish the app
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.wait(4000);
 
     // Check if name is hidden

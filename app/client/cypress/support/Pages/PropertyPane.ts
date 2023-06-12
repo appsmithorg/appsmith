@@ -22,7 +22,7 @@ export class PropertyPane {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
 
-  _fieldConfig = (fieldName: string) =>
+  _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
     "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
@@ -106,7 +106,7 @@ export class PropertyPane {
   }`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
-    this.agHelper.GetNClick(this._fieldConfig(fieldName));
+    this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
   }
 
   public ChangeJsonFormFieldType(
@@ -165,7 +165,7 @@ export class PropertyPane {
     this.GetJSONFormConfigurationFileds();
     cy.get("@fieldNames").each(($filedName: any) => {
       field = $filedName;
-      this.agHelper.GetNClick(this._fieldConfig(field as string));
+      this.OpenJsonFormFieldSettings(field as string);
       this.agHelper.Sleep(200);
       this.RemoveText("Default value", false);
       this.agHelper
