@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { FlexLayerLayoutData } from "utils/autoLayout/autoLayoutTypes";
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
+import { getAutoLayerId } from "utils/WidgetPositionsObserver/utils";
+import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
 
 /**
  * If FlexLayer hasFillWidget:
@@ -58,10 +60,8 @@ const Alignment = styled.div<{
   flex-wrap: ${({ isMobile }) => (isMobile ? "wrap" : "nowrap")};
   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
   column-gap: ${WIDGET_PADDING}px;
-  border: 1px dashed red;
   flex-grow: 1;
   flex-shrink: 1;
-  border: 1px dotted red;
   flex-basis: ${({ isMobile }) => (isMobile ? "auto" : "0%")};
 `;
 
@@ -78,6 +78,23 @@ const CenterAlignment = styled(Alignment)`
 `;
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    widgetPositionsObserver.observeLayer(
+      getAutoLayerId(props.widgetId, props.index),
+      props.widgetId,
+      props.index,
+      ref,
+    );
+
+    return () => {
+      widgetPositionsObserver.unObserveLayer(
+        getAutoLayerId(props.widgetId, props.index),
+      );
+    };
+  }, []);
+
   const renderChildren = () => {
     const {
       centerChildren,
@@ -108,7 +125,11 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     return arr;
   };
   return (
-    <RowContainer className={`flex-row-${props.widgetId}-${props.index}`}>
+    <RowContainer
+      className={`auto-layout-layer-${props.widgetId}-${props.index}`}
+      id={getAutoLayerId(props.widgetId, props.index)}
+      ref={ref}
+    >
       {renderChildren()}
     </RowContainer>
   );

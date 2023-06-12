@@ -1,11 +1,9 @@
 import type { ReactNode } from "react";
 import React from "react";
-
 import { connect } from "react-redux";
-
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
-import type { UIElementSize } from "components/editorComponents/ResizableUtils";
+import type { UIElementSize } from "components/editorComponents/WidgetResizer/ResizableUtils";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";

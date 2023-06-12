@@ -1,8 +1,8 @@
 import type {
   AlignmentChildren,
-  AlignmentInfo,
   FlexLayer,
   LayerChild,
+  PositionsAlignmentInfo,
   Row,
 } from "./autoLayoutTypes";
 import {
@@ -196,7 +196,7 @@ function calculateWidgetPositions(
  */
 export function placeWidgetsWithoutWrap(
   allWidgets: CanvasWidgetsReduxState,
-  arr: AlignmentInfo[],
+  arr: PositionsAlignmentInfo[],
   topRow: number,
   isMobile = false,
   totalHeight = 0,
@@ -257,12 +257,14 @@ export function placeWidgetsWithoutWrap(
  * @returns AlignmentInfo[]
  */
 function getAlignmentSizes(
-  input: AlignmentInfo[],
+  input: PositionsAlignmentInfo[],
   space: number,
-  sizes: AlignmentInfo[] = [],
-): AlignmentInfo[] {
+  sizes: PositionsAlignmentInfo[] = [],
+): PositionsAlignmentInfo[] {
   if (input.length === 0) return sizes;
-  const arr: AlignmentInfo[] = [...input].sort((a, b) => b.columns - a.columns);
+  const arr: PositionsAlignmentInfo[] = [...input].sort(
+    (a, b) => b.columns - a.columns,
+  );
   if (arr[0].columns > space / arr.length) {
     sizes.push(arr[0]);
     arr.shift();
@@ -310,7 +312,7 @@ export function extractAlignmentInfo(
   mainCanvasWidth: number,
   columnSpace: number,
   firstTimeDSLUpdate: boolean,
-): { info: AlignmentInfo[]; fillWidgetLength: number } {
+): { info: PositionsAlignmentInfo[]; fillWidgetLength: number } {
   const startChildren: AlignmentChildren[] = [],
     centerChildren: AlignmentChildren[] = [],
     endChildren: AlignmentChildren[] = [],
@@ -472,7 +474,7 @@ export function extractAlignmentInfo(
   };
 }
 
-export function getAlignmentSizeInfo(arr: AlignmentInfo[]): {
+export function getAlignmentSizeInfo(arr: PositionsAlignmentInfo[]): {
   startSize: number;
   centerSize: number;
   endSize: number;
@@ -516,10 +518,10 @@ export function getAlignmentSizeInfo(arr: AlignmentInfo[]): {
  * @returns AlignmentInfo[][]
  */
 export function getWrappedAlignmentInfo(
-  arr: AlignmentInfo[],
-  res: AlignmentInfo[][] = [[], [], []],
+  arr: PositionsAlignmentInfo[],
+  res: PositionsAlignmentInfo[][] = [[], [], []],
   resIndex = 0,
-): AlignmentInfo[][] {
+): PositionsAlignmentInfo[][] {
   if (arr.length === 1) {
     res[resIndex].push(arr[0]);
     return res;
@@ -551,13 +553,14 @@ export function getWrappedAlignmentInfo(
  */
 function updatePositionsForFlexWrap(
   allWidgets: CanvasWidgetsReduxState,
-  arr: AlignmentInfo[],
+  arr: PositionsAlignmentInfo[],
   topRow: number,
   isMobile: boolean,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
 
-  const wrappedAlignments: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
+  const wrappedAlignments: PositionsAlignmentInfo[][] =
+    getWrappedAlignmentInfo(arr);
 
   let top = topRow;
   const rowGap =
@@ -613,7 +616,7 @@ export function getStartingPosition(
  */
 export function placeWrappedWidgets(
   allWidgets: CanvasWidgetsReduxState,
-  alignment: AlignmentInfo,
+  alignment: PositionsAlignmentInfo,
   topRow: number,
   isMobile = false,
   rowGap = 0,
@@ -658,7 +661,7 @@ export function placeWrappedWidgets(
  * @returns Row[]
  */
 export function getWrappedRows(
-  arr: AlignmentInfo,
+  arr: PositionsAlignmentInfo,
   rows: Row[],
   isMobile = false,
 ): Row[] {

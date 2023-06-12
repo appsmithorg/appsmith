@@ -10,7 +10,7 @@ import apiPaneSagas from "sagas/ApiPaneSagas";
 import applicationSagas from "@appsmith/sagas/ApplicationSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
-import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
+// import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
 import batchSagas from "sagas/BatchSagas";
 import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
 import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
@@ -49,6 +49,7 @@ import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
+import widgetPositionSagas from "sagas/WidgetPositionSagas";
 
 export const sagas = [
   initSagas,
@@ -97,9 +98,10 @@ export const sagas = [
   tenantSagas,
   JSLibrarySaga,
   LintingSaga,
-  autoLayoutUpdateSagas,
+  // autoLayoutUpdateSagas,
   autoLayoutDraggingSagas,
   layoutConversionSagas,
   snapshotSagas,
   oneClickBindingSaga,
+  widgetPositionSagas,
 ];

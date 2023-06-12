@@ -6,7 +6,6 @@ import {
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
-  setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
 } from "actions/datasourceActions";
@@ -49,6 +48,7 @@ interface Props {
   pluginType: PluginType;
   pluginName: string;
   pluginPackageName: string;
+  setDatasourceViewMode: (viewMode: boolean) => void;
   isSaving: boolean;
   isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
@@ -134,6 +134,7 @@ function DatasourceAuth({
   isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
+  setDatasourceViewMode,
   triggerSave,
   isFormDirty,
   scopeValue,
@@ -321,7 +322,7 @@ function DatasourceAuth({
                 params: getQueryParams(),
               });
               history.push(URL);
-            } else dispatch(setDatasourceViewMode(true));
+            } else setDatasourceViewMode(true);
           }}
           size="md"
         >

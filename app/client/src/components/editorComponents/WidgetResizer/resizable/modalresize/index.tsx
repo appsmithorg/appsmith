@@ -1,10 +1,13 @@
-import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
+import { isHandleResizeAllowed } from "components/editorComponents/WidgetResizer/ResizableUtils";
 import type { CSSProperties, ReactNode } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { getWrapperStyle, ResizeWrapper } from "resizable/common";
+import {
+  getWrapperStyle,
+  ResizeWrapper,
+} from "components/editorComponents/WidgetResizer/resizable/common";
 import type { StyledComponent } from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,
