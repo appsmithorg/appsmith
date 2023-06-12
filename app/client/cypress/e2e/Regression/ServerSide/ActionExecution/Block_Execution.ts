@@ -22,7 +22,7 @@ describe("Block Action Execution when no field is present", () => {
       name = $dsName;
 
       agHelper.Sleep(1000);
-      dataSources.NavigateFromActiveDS(name, true);
+      dataSources.CreateQueryAfterDSSaved();
       agHelper.GetNClick(dataSources._templateMenu);
       dataSources.EnterQuery("SELECT * from users");
       dataSources.AssertRunButtonDisability(false);
@@ -38,7 +38,7 @@ describe("Block Action Execution when no field is present", () => {
       name = $dsName;
 
       agHelper.Sleep(1000);
-      dataSources.NavigateFromActiveDS(name, true);
+      dataSources.CreateQueryAfterDSSaved();
       agHelper.GetNClick(dataSources._templateMenu);
       dataSources.EnterQuery("SELECT * from users");
       dataSources.AssertRunButtonDisability(false);
