@@ -7,7 +7,7 @@ import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexB
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
@@ -23,6 +23,7 @@ import ContainerWidget from "widgets/ContainerWidget/widget";
 import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -168,17 +169,18 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getPageView() {
-    let height = 0;
-    const snapRows = getCanvasSnapRows(
-      this.props.bottomRow,
-      this.props.mobileBottomRow,
-      this.props.isMobile,
-      this.props.appPositioningType === AppPositioningTypes.AUTO,
-    );
-    height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    // const height = 0;
+    // const snapRows = getCanvasSnapRows(
+    //   this.props.bottomRow,
+    //   this.props.mobileBottomRow,
+    //   this.props.isMobile,
+    //   this.props.appPositioningType === AppPositioningTypes.AUTO,
+    // );
+    // height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",
-      height: this.props.isListWidgetCanvas ? "auto" : `${height}px`,
+      // height: this.props.isListWidgetCanvas ? "auto" : `${height}px`,
+      height: "auto",
       background: "none",
       position: "relative",
     };
@@ -192,6 +194,30 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getCanvasView() {
+    if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+      return (
+        <AutoLayoutDropTarget widgetId={this.props.widgetId}>
+          {this.renderAsContainerComponent(this.getCanvasProps())}
+        </AutoLayoutDropTarget>
+      );
+      // const isMainContainer = this.props.widgetId === MAIN_CONTAINER_WIDGET_ID;
+      // const style: CSSProperties = {
+      //   position: "relative",
+      //   zIndex: 1,
+      //   minHeight:
+      //     isMainContainer
+      //       ? "calc(100vh - 110px)"
+      //       : undefined,
+      // };
+      // return (
+      //   <div style={style}>
+      //     {this.renderAsContainerComponent(this.getCanvasProps())}
+      //   {isMainContainer && isDragging && draggedOn === props.widgetId && (
+      //     <div style={{ height: "10px" }} />
+      //   )}
+      //   </div>
+      // );
+    }
     if (!this.props.dropDisabled) {
       return this.renderAsDropTarget();
     }

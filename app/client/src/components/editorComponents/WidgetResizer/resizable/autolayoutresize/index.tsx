@@ -728,19 +728,23 @@ function AutoLayoutResizable(props: any) {
           maxWidth,
           minHeight,
           maxHeight,
-          width: isResizing
+          width: props.hasAutoWidth
+            ? "100%"
+            : isResizing
             ? `calc(${
                 computedWidth < (minWidth || 0) ? minWidth : computedWidth
               }px + ${newDimensions.width}px)`
             : `${computedWidth < (minWidth || 0) ? minWidth : computedWidth}px`,
-          height: `${
-            (isResizing ? newDimensions.height : props.componentHeight) <
-            (minHeight || 0)
-              ? minHeight
-              : isResizing
-              ? newDimensions.height
-              : props.componentHeight
-          }px`,
+          height: props.hasAutoHeight
+            ? "100%"
+            : `${
+                (isResizing ? newDimensions.height : props.componentHeight) <
+                (minHeight || 0)
+                  ? minHeight
+                  : isResizing
+                  ? newDimensions.height
+                  : props.componentHeight
+              }px`,
         },
       }}
     >

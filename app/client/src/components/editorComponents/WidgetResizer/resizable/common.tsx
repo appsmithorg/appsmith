@@ -154,6 +154,8 @@ export function ResizableHandle(props: ResizableHandleProps) {
 }
 
 export type ResizableProps = {
+  hasAutoHeight: boolean;
+  hasAutoWidth: boolean;
   allowResize: boolean;
   handles: {
     left?: StyledComponent<"div", Record<string, unknown>>;

@@ -228,27 +228,23 @@ export function hasAutoHeight(type: string): boolean {
 }
 
 export function getWidgetCssWidth(
-  type: string,
+  hasAutoWidth?: boolean,
   responsiveBehavior?: ResponsiveBehavior,
   columns?: number,
 ): string | undefined {
-  if (!type) return;
   if (responsiveBehavior !== ResponsiveBehavior.Fill) {
-    if (hasAutoWidth(type)) return "auto";
+    if (hasAutoWidth) return "auto";
     if (columns) return `${columns}%`;
   }
   return;
 }
 
 export function getWidgetCssHeight(
-  type: string,
+  hasAutoHeight?: boolean,
   responsiveBehavior?: ResponsiveBehavior,
   rows?: number,
 ): string | undefined {
-  if (!type) return;
-  if (hasAutoHeight(type)) return "auto";
-  if (responsiveBehavior !== ResponsiveBehavior.Fill) {
-    if (rows) return `${rows}px`;
-  }
+  if (hasAutoHeight) return "auto";
+  if (rows) return `${rows}px`;
   return;
 }

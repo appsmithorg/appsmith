@@ -49,6 +49,8 @@ export type AutoLayoutProps = {
   isMobile: boolean;
   renderMode: RenderMode;
   mainCanvasWidth?: number;
+  hasAutoHeight?: boolean;
+  hasAutoWidth?: boolean;
 };
 
 const FlexWidget = styled.div`
@@ -193,14 +195,14 @@ export function FlexComponent(props: AutoLayoutProps) {
       height: isCurrentWidgetResizing
         ? `${props.componentHeight}px`
         : getWidgetCssHeight(
-            props.widgetType,
+            props.hasAutoHeight,
             props.responsiveBehavior,
             props.componentHeight,
           ),
       width: isCurrentWidgetResizing
         ? `${props.componentWidth}%`
         : getWidgetCssWidth(
-            props.widgetType,
+            props.hasAutoWidth,
             props.responsiveBehavior,
             props.componentWidth,
           ),
