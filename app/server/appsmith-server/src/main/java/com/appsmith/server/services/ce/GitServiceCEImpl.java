@@ -83,7 +83,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2230,7 +2229,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 )
                                 .flatMap(applicationJson ->
                                         importExportApplicationService
-                                                .importApplicationInWorkspace(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
+                                                .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
                                 );
                     })
                     .flatMap(application -> releaseFileLock(defaultApplicationId)
