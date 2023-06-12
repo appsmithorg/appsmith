@@ -105,7 +105,7 @@ export const getFilteredAndSortedFileOperations = (
   const fileOperations: ActionOperation[] = [];
   if (!canCreateActions) return fileOperations;
 
-  // Add JS object operation
+  // Add JS Object operation
   fileOperations.push(actionOperations[2]);
   // Add app datasources
   if (appWideDS.length > 0 || otherDS.length > 0) {
