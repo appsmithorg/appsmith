@@ -32,7 +32,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     entityExplorer.ExpandCollapseEntity("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
     //Table Widget V2 Functionality with multiple page
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    entityExplorer.SelectEntityByName("Page1");
     entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.widgetText(
       "Table1",

@@ -10,7 +10,6 @@ describe("Moustache test Functionality", function () {
     cy.addDsl(dsl);
   });
   it("1. Moustache test Functionality", function () {
-    entityExplorer.ExpandCollapseEntity("Aditya");
     entityExplorer.SelectEntityByName("TestTextBox", "Aditya");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror(testdata.methods);

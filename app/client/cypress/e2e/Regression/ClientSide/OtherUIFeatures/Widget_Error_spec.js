@@ -1,7 +1,12 @@
 const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import {
+  entityExplorer,
+  debuggerHelper,
+  table,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget error state", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -11,8 +16,7 @@ describe("Widget error state", function () {
   });
 
   it("1. Check widget error state", function () {
-    cy.openPropertyPane("buttonwidget");
-
+    entityExplorer.SelectEntityByName("Button1");
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
     cy.EnableAllCodeEditors();
 
@@ -22,10 +26,10 @@ describe("Widget error state", function () {
 
     //Check if the current value is shown in the debugger
 
-    _.debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickDebuggerIcon();
     cy.get("[data-testid=t--tab-ERROR]").click();
     //This feature is disabled in updated error log - epic 17720
-    // _.debuggerHelper.LogStateContains("Test");
+    // debuggerHelper.LogStateContains("Test");
   });
 
   it("2. Switch to error tab when clicked on the debug button", function () {
@@ -44,41 +48,41 @@ describe("Widget error state", function () {
 
     // All errors should be expanded by default
     //Updated count to 1 as the decision not to show triggerexecution/uncaughtpromise error in - epic 17720
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(1);
+    debuggerHelper.AssertVisibleErrorMessagesCount(1);
 
     // Recent errors are shown at the top of the list
     cy.testJsontext("label", "{{[]}}");
     //This feature is disabled in updated error log - epic 17720
-    // _.debuggerHelper.LogStateContains("text", 0);
+    // debuggerHelper.LogStateContains("text", 0);
   });
 
   //This feature is disabled in updated error log - epic 17720
   // it("6. Clicking on a message should open the search menu", function() {
-  //   _.debuggerHelper.ClickErrorMessage(0);
-  //   _.debuggerHelper.AssertContextMenuItemVisible();
+  //   debuggerHelper.ClickErrorMessage(0);
+  //   debuggerHelper.AssertContextMenuItemVisible();
   // });
 
   it("3. Undoing widget deletion should show errors if present + Bug 2760", function () {
     cy.deleteWidget();
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(0);
+    debuggerHelper.AssertVisibleErrorMessagesCount(0);
     cy.get("body").type(`{${modifierKey}}z`);
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    debuggerHelper.AssertVisibleErrorMessagesCount(2);
 
     //Bug-2760: Error log on a widget property not clearing out when the widget property is deleted
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);
+    entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);
 
-    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1");
 
-    _.table.AddSampleTableData();
+    table.AddSampleTableData();
 
-    _.table.AddColumn("customColumn1");
-    _.propPane.OpenTableColumnSettings("customColumn1");
-    _.propPane.UpdatePropertyFieldValue("Computed value", "{{test}}");
+    table.AddColumn("customColumn1");
+    propPane.OpenTableColumnSettings("customColumn1");
+    propPane.UpdatePropertyFieldValue("Computed value", "{{test}}");
 
-    _.debuggerHelper.AssertDebugError("test is not defined", "", false, false);
+    debuggerHelper.AssertDebugError("test is not defined", "", false, false);
 
-    _.table.DeleteColumn("customColumn1");
+    table.DeleteColumn("customColumn1");
 
-    _.debuggerHelper.DebuggerListDoesnotContain("test is not defined");
+    debuggerHelper.DebuggerListDoesnotContain("test is not defined");
   });
 });

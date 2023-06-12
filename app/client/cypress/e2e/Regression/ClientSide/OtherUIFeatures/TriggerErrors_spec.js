@@ -1,13 +1,15 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import {
+  entityExplorer,
+  debuggerHelper,
+} from "../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../fixtures/debuggerTableDsl.json");
-const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Trigger errors in the debugger", function () {
   before(() => {
     cy.addDsl(dsl);
   });
   it("1. Trigger errors need to be shown in the errors tab", function () {
-    cy.openPropertyPane("tablewidget");
+    entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("tabledata", `[{"name": 1}, {"name": 2}]`);
     cy.focused().blur();
     cy.get(".t--property-control-onrowselected").find(".t--js-toggle").click();

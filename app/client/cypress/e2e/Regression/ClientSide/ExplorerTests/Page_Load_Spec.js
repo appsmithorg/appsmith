@@ -1,16 +1,18 @@
 const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Page Load tests", () => {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
@@ -23,7 +25,7 @@ describe("Page Load tests", () => {
     //add page within page
     cy.addDsl(dsl);
     // Update the text to be asserted later
-    cy.openPropertyPane("textwidget");
+    entityExplorer.SelectEntityByName("Text1");
     cy.testCodeMirror("This is Page 2");
     // Publish
     cy.PublishtheApp();
@@ -77,7 +79,7 @@ describe("Page Load tests", () => {
 
   it("2. Hide Page and validate published app", () => {
     cy.get(publish.backToEditor).click();
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Hide");
+    entityExplorer.ActionContextMenuByEntityName("Page1", "Hide");
     cy.PublishtheApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
@@ -86,7 +88,7 @@ describe("Page Load tests", () => {
     );
     cy.contains("Page2").should("not.exist");
     cy.get(publish.backToEditor).click();
-    _.entityExplorer.SelectEntityByName("Page2");
+    entityExplorer.SelectEntityByName("Page2");
     cy.PublishtheApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(

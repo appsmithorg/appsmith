@@ -2,9 +2,10 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/basicDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper;
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 // Since we cannot test the root cause as it does not show up on the DOM, we are testing the sideEffects
 // the root cause is when widget has same keys, which are not visible in DOM but confuses React when the list is modified.
@@ -25,7 +26,7 @@ describe("Unique react keys", function () {
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 700 });
 
-    cy.openPropertyPane("chartwidget");
+    entityExplorer.SelectEntityByName("Chart1");
     cy.deleteWidget(widgetsPage.chartWidget);
 
     cy.get(widgetsPage.selectwidget).should("have.length", 2);
@@ -37,7 +38,8 @@ describe("Unique react keys", function () {
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
     //copy and paste
-    cy.openPropertyPane("selectwidget");
+    entityExplorer.SelectEntityByName("Select1");
+
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -51,7 +53,7 @@ describe("Unique react keys", function () {
 
     cy.get(widgetsPage.selectwidget).should("have.length", 2);
 
-    cy.openPropertyPane("chartwidget");
+    entityExplorer.SelectEntityByName("Chart1");
     cy.deleteWidget(widgetsPage.chartWidget);
 
     cy.get(widgetsPage.selectwidget).should("have.length", 2);

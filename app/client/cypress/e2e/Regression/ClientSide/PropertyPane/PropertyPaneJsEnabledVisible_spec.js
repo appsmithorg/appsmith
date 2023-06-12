@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/jsonFormDslWithSchema.json");
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Property pane js enabled field", function () {
   before(() => {
@@ -6,7 +7,7 @@ describe("Property pane js enabled field", function () {
   });
 
   it("1. Ensure text is visible for js enabled field when a section is collapsed by default", function () {
-    cy.openPropertyPane("jsonformwidget");
+    entityExplorer.SelectEntityByName("JsonForm1");
     cy.moveToStyleTab();
     cy.wait(500);
     //cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click({force:true});
@@ -27,7 +28,7 @@ describe("Property pane js enabled field", function () {
     cy.closePropertyPane();
     cy.wait(1000);
 
-    cy.openPropertyPane("jsonformwidget");
+    entityExplorer.SelectEntityByName("JsonForm1");
     cy.moveToStyleTab();
     cy.wait(500);
     cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click();

@@ -28,9 +28,9 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     /**Bind Table with Textwidget with selected row */
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    entityExplorer.SelectEntityByName("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1");
 
     /**Validate Table data on current page(page1) */
     cy.readTabledata("0", "4").then((tabData) => {
@@ -74,7 +74,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   it("4. Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function () {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("totalrecordcount", 20);
     cy.PublishtheApp();
     cy.wait(500);
@@ -115,14 +115,14 @@ describe("Test Create Api and Bind to Table widget", function () {
       },
     );
     cy.WaitAutoSave();
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("tabledata", "{{Api2.data}}");
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
   it("6. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
     /**Validate Response data with Table data in Text Widget */
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1");
 
     cy.ValidatePaginateResponseUrlData(api.apiPaginationPrevTest, false);
     cy.PublishtheApp();
@@ -134,7 +134,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1");
 
     cy.ValidatePaginateResponseUrlData(api.apiPaginationNextTest, true);
   });

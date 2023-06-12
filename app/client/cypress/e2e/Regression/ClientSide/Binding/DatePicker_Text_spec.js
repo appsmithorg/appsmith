@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the Datepicker and Text Widget", function () {
   let nextDay;
@@ -104,7 +105,8 @@ describe("Binding the Datepicker and Text Widget", function () {
     /**
      * Bind the DatePicker1 and DatePicker2 along with hard coded text to Text widget
      */
-    cy.openPropertyPane("textwidget");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Text5", "Container1");
     cy.testJsontext(
       "text",
       "{{DatePicker1.isDisabled}} DatePicker {{DatePicker2.isDisabled}}",

@@ -1,6 +1,7 @@
 const LayoutPage = require("../../../../locators/Layout.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tabsWidgetReset.json");
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Tabs widget resetting", function () {
   before(() => {
@@ -27,7 +28,7 @@ describe("Tabs widget resetting", function () {
 
     cy.get(widgetsPage.textWidget).contains("Tab 2");
 
-    cy.openPropertyPane("tabswidget");
+    entityExplorer.SelectEntityByName("Tabs");
     cy.get(".t--property-control-defaulttab .CodeMirror .CodeMirror-code")
       .first()
       .should("have.text", "Tab 2");

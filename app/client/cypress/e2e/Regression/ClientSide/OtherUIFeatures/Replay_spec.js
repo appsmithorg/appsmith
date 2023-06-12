@@ -4,6 +4,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -75,7 +76,7 @@ describe("Undo/Redo functionality", function () {
   // });
 
   it("2. checks undo/redo for toggle control in property pane", function () {
-    cy.openPropertyPane("checkboxwidget");
+    entityExplorer.SelectEntityByName("Checkbox1");
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
 
     cy.get("body").type(`{${modifierKey}}z`);
