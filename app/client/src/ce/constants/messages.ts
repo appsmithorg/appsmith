@@ -987,22 +987,23 @@ export const SIGNPOSTING_POPUP_SUBTITLE = () =>
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
   bold: () => "Connect your datasource",
-  normal: () => "to start building an application.",
+  normal: () => "to start building your app",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
-  bold: () => "Create a query",
-  normal: () => "of your datasource.",
+  bold: () => "Write a query",
+  normalPrefix: () => "to import your",
+  normal: () => "data into appsmith",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
-  bold: () => "Start visualising your application",
-  normal: () => "using widgets.",
+  bold: () => "Drag & drop a widget,",
+  normal: () => "so you can build a beautiful UI",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
   bold: () => "Connect your data to the widgets",
-  normal: () => "using JavaScript.",
+  normal: () => "using JavaScript bindings",
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
@@ -1036,6 +1037,9 @@ export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
+export const SIGNPOSTING_INFO_MENU = {
+  documentation: () => "Open documentation",
+};
 
 //Statusbar
 export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a datasource";

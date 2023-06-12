@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
@@ -126,9 +127,7 @@ function IntercomConsent({
 function HelpButton() {
   const user = useSelector(getCurrentUser);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
-  const isFirstTimeUserOnboardingEnabled = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
+  const isFirstTimeUserOnboardingEnabled = true;
 
   useEffect(() => {
     bootIntercom(user);
