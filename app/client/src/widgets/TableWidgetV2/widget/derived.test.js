@@ -1083,6 +1083,166 @@ describe("Validates getFilteredTableData Properties", () => {
 
     expect(result).toStrictEqual(expected);
   });
+
+  it("validates generated filtered table data for url columntype with display text", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      processedTableData: [
+        { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
+        { id: 123, name: "John Doe", __originalIndex__: 1 },
+        { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
+        { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
+      ],
+      sortOrder: { column: "name", order: "desc" },
+      columnOrder: ["name", "id", "age"],
+      primaryColumns: {
+        id: {
+          index: 1,
+          width: 150,
+          id: "id",
+          alias: "id",
+          originalId: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [1234, 123, 234, 2345],
+        },
+        name: {
+          index: 0,
+          width: 150,
+          id: "name",
+          alias: "name",
+          originalId: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "url",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["Jim Doe", "John Doe", "Jane Doe", "Jane Doeson"],
+          displayText: [
+            "jimdoe.com",
+            "johndoe.com",
+            "janedoe.com",
+            "janedoeson.com",
+          ],
+        },
+        age: {
+          index: 2,
+          width: 150,
+          id: "age",
+          alias: "age",
+          originalId: "age",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          label: "age",
+          isAscOrder: undefined,
+          computedValue: [28, null, 22, 30],
+          isDerived: true,
+        },
+      },
+      tableColumns: [
+        {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "url",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["Jim Doe", "John Doe", "Jane Doe", "Jane Doeson"],
+          displayText: [
+            "jimdoe.com",
+            "johndoe.com",
+            "janedoe.com",
+            "janedoeson.com",
+          ],
+        },
+        {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [1234, 123, 234],
+        },
+        {
+          index: 2,
+          width: 150,
+          id: "age",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          label: "age",
+          isAscOrder: undefined,
+          computedValue: [28, null, 22, 30],
+          isDerived: true,
+        },
+      ],
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = [
+      { id: 123, name: "John Doe", age: null, __originalIndex__: 1 },
+      { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
+      { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
+      { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
 });
 
 describe("Validate getSelectedRow function", () => {
