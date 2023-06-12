@@ -274,8 +274,6 @@ class ImageComponent extends React.Component<
                   style={{
                     cursor: cursor,
                     transform: `rotate(${imageRotation}deg)`,
-                    minWidth: this.props.minWidth,
-                    minHeight: this.props.minHeight,
                   }}
                 >
                   {/* Used for running onImageError and onImageLoad Functions since Background Image doesn't have the functionality */}
@@ -390,8 +388,6 @@ export interface ImageComponentProps extends ComponentProps {
   showHoverPointer?: boolean;
   maxZoomLevel: number;
   enableRotation?: boolean;
-  minWidth?: number;
-  minHeight?: number;
   enableDownload?: boolean;
   objectFit: string;
   disableDrag: (disabled: boolean) => void;
