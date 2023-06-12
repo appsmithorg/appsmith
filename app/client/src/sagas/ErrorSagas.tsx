@@ -32,7 +32,7 @@ import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
-import { toast } from "design-system";
+import showToast from "sagas/ToastSagas";
 
 /**
  * making with error message with action name
@@ -224,7 +224,8 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.SHOW_ALERT: {
-        showAlertAboutError(message);
+        // This is the toast that is rendered when any page load API fails.
+        yield call(showToast, message, { kind: "error" });
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
@@ -250,10 +251,6 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   log.debug(`Error in action ${action.type}`);
   if (action.payload) log.error(action.payload.error, action);
-}
-
-function showAlertAboutError(message: string) {
-  toast.show(message, { kind: "error" });
 }
 
 /**

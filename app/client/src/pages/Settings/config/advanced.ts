@@ -19,7 +19,7 @@ export const config: AdminConfigType = {
       controlSubType: SettingSubtype.TEXT,
       label: "MongoDB URI",
       subText:
-        "* Appsmith internally uses MongoDB. Change to an external MongoDb for Clustering",
+        "* Appsmith internally uses MongoDB. Change to an external MongoDB for clustering",
     },
     {
       id: "APPSMITH_REDIS_URL",
@@ -28,7 +28,7 @@ export const config: AdminConfigType = {
       controlSubType: SettingSubtype.TEXT,
       label: "Redis URL",
       subText:
-        "* Appsmith internally uses redis for session storage. Change this to an external redis for Clustering",
+        "* Appsmith internally uses redis for session storage. Change this to an external redis for clustering",
     },
     {
       id: "APPSMITH_CUSTOM_DOMAIN",
