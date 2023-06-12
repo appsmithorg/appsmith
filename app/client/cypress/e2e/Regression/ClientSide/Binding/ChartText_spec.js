@@ -16,7 +16,7 @@ describe("Text-Chart Binding Functionality", function () {
 
   it("1. Text-Chart Binding Functionality View", function () {
     entityExplorer.SelectEntityByName("Text1", "Container3");
-    cy.testJsontext("text", JSON.stringify(this.data.chartInputValidate));
+    cy.testJsontext("text", JSON.stringify(this.dataSet.chartInputValidate));
     cy.get(commonlocators.TextInside).should(
       "have.text",
       JSON.stringify(this.dataSet.chartInputValidate),
