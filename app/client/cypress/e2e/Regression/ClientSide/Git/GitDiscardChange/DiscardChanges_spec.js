@@ -4,7 +4,7 @@ import {
   jsEditor,
   gitSync,
   dataSources,
-} from "../../../../support/Objects/ObjectsCore";
+} from "../../../../../support/Objects/ObjectsCore";
 
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
@@ -118,12 +118,11 @@ describe("Git discard changes:", function () {
 
   it("3. Add new JSObject , discard changes verify JSObject is deleted", () => {
     jsEditor.CreateJSObject('return "Success";');
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    // verify jsObject is not duplicated
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.gitDiscardChanges();
     cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     // verify jsObject2 is deleted after discarding changes
     cy.get(`.t--entity-name:contains(${jsObject})`).should("not.exist");
   });
@@ -131,7 +130,7 @@ describe("Git discard changes:", function () {
   it("4. Delete page2 and trigger discard flow, page2 should be available again", () => {
     cy.Deletepage(page2);
     // verify page is deleted
-    cy.CheckAndUnfoldEntityItem("Pages");
+    entityExplorer.ExpandCollapseEntity("Pages");
     cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
     cy.wait(2000);
     cy.gitDiscardChanges();

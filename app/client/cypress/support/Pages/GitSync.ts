@@ -223,6 +223,26 @@ export class GitSync {
     this.CloseGitSyncModal();
   }
 
+  // public DiscardChanges{
+  //   cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  //   cy.get(gitSyncLocators.discardChanges).should("be.visible");
+  //   //cy.wait(6000);
+  //   cy.get(gitSyncLocators.discardChanges)
+  //     .children()
+  //     .should("have.text", "Discard & pull");
+
+  //   cy.get(gitSyncLocators.discardChanges).click();
+  //   cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
+
+  //   cy.get(gitSyncLocators.discardChanges)
+  //     .children()
+  //     .should("have.text", "Are you sure?");
+  //   cy.get(gitSyncLocators.discardChanges).click();
+  //   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
+  //   cy.wait(2000);
+  //   cy.validateToastMessage("Discarded changes successfully.");
+  // };
+
   //#region Unused methods
 
   private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
