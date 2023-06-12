@@ -18,7 +18,7 @@ import type {
   DataTreeEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { TJSEntityState } from "Linting/utils/jsEntity";
+import type { TJSEntityState } from "Linting/utils/parseJSEntity";
 
 enum ENTITY_TYPE {
   ACTION = "ACTION",

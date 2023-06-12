@@ -2,11 +2,10 @@ import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { TEntityTreeWithParsedJS } from "./linter";
 import type { DataTreeDiff } from "./translateEntityTreeDiffs";
 import { getAllPathsFromNode, isDynamicLeaf } from "./entityPath";
-import { dependencyMap } from "./dependencyMap";
-import type { TEntityTree } from "./entityTree";
+import { lintingDependencyMap } from "./lintingDependencyMap";
+import type { TEntityTree, TEntityTreeWithParsedJS } from "./entityTree";
 
 export function generateSortOrder(
   translatedDiffs: DataTreeDiff[],
@@ -25,7 +24,7 @@ export function generateSortOrder(
             entityTreeWithParsedJS,
           );
           const invalidDependenciesInverse =
-            dependencyMap.getInvalidDependenciesInverse();
+            lintingDependencyMap.getInvalidDependenciesInverse();
           for (const deletedNode of Object.keys(allDeletedNodes)) {
             const dependentNodes = invalidDependenciesInverse.get(deletedNode);
             if (!dependentNodes) continue;
@@ -46,7 +45,7 @@ export function generateSortOrder(
             fullPropertyPath,
             entityTreeWithParsedJS,
           );
-          const dependencies = dependencyMap.getDependencies();
+          const dependencies = lintingDependencyMap.getDependencies();
           for (const addedNode of Object.keys(allAddedNodes)) {
             sortOrder.push(addedNode);
             const dependentNodes = dependencies.get(addedNode);

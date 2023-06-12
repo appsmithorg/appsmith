@@ -2,16 +2,15 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { APP_MODE } from "entities/App";
 import { find, get, isString } from "lodash";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { ParsedJSEntities } from "./jsEntity";
 import type { TEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import { isJSFunctionProperty } from "@shared/ast";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
-import type { TEntityTree } from "./entityTree";
+import type { TEntityTree, TEntityTreeWithParsedJS } from "./entityTree";
 import DependencyMap from "entities/DependencyMap";
 import { getAllPathsFromNode } from "./entityPath";
-import type { TEntityTreeWithParsedJS } from "./linter";
-import { dependencyMap } from "./dependencyMap";
+import { lintingDependencyMap } from "./lintingDependencyMap";
+import { getParsedJSEntity } from "./parseJSEntity";
 
 function isDataField(fullPath: string, entityTree: TEntityTree) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
@@ -171,13 +170,16 @@ export function isFunctionInvoked(
 export function isAsyncJSFunction(jsFnFullname: string) {
   const { entityName: jsObjectName, propertyPath } =
     getEntityNameAndPropertyPath(jsFnFullname);
-  const parsedJSEntity = ParsedJSEntities.getParsedJSEntity(jsObjectName);
+  const parsedJSEntity = getParsedJSEntity(jsObjectName);
   if (!parsedJSEntity) return false;
-  const propertyConfig = find(parsedJSEntity.getEntityConfig(), propertyPath);
+  const propertyConfig = find(
+    parsedJSEntity.getParsedEntityConfig(),
+    propertyPath,
+  );
   if (!propertyConfig || !isJSFunctionProperty(propertyConfig)) return false;
   return (
     propertyConfig.isMarkedAsync ||
-    dependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields)
+    lintingDependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields)
   );
 }
 

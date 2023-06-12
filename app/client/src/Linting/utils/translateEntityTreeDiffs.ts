@@ -6,11 +6,10 @@ import {
 import { convertPathToString } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { DataTreeDiffEvent } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
-import type { TEntityTreeWithParsedJS } from "./linter";
 import { isJSEntity } from "Linting/lib/entity";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isNil } from "lodash";
-import type { TEntityTree } from "./entityTree";
+import type { TEntityTree, TEntityTreeWithParsedJS } from "./entityTree";
 
 export type DataTreeDiff = {
   payload: {

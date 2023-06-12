@@ -10,25 +10,24 @@ import { DataTreeDiffEvent } from "@appsmith/workers/Evaluation/evaluationUtils"
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { flatten } from "lodash";
 import DependencyMap from "entities/DependencyMap";
-import type { TEntityTree } from "./entityTree";
+import type { TEntityTree, TEntityTreeWithParsedJS } from "./entityTree";
 import { getAllPathsFromNode, isDynamicLeaf } from "./entityPath";
-import type { TEntityTreeWithParsedJS } from "./linter";
 import type { DataTreeDiff } from "./translateEntityTreeDiffs";
 
-export const dependencyMap = new DependencyMap();
+export const lintingDependencyMap = new DependencyMap();
 export function createDependency(
   entityTree: TEntityTree,
   allPaths: ReturnType<typeof getAllPaths>,
 ) {
   // Create all nodes
-  dependencyMap.addNodes(allPaths);
+  lintingDependencyMap.addNodes(allPaths);
 
   // Create dependency map
   for (const entity of Object.values(entityTree)) {
     const entityDependencies = getEntityDependencies(entity);
     updateDependencies(entityDependencies, allPaths);
   }
-  return dependencyMap.getDependencies();
+  return lintingDependencyMap.getDependencies();
 }
 export function updateDependency(
   translatedDiffs: DataTreeDiff[],
@@ -55,7 +54,10 @@ export function updateDependency(
             fullPropertyPath,
             allPaths,
           );
-          dependencyMap.addDependency(fullPropertyPath, referencesInPath);
+          lintingDependencyMap.addDependency(
+            fullPropertyPath,
+            referencesInPath,
+          );
         }
         break;
       case DataTreeDiffEvent.DELETE:
@@ -64,7 +66,7 @@ export function updateDependency(
             fullPropertyPath,
             entityTreeWithParsedJS,
           );
-          dependencyMap.removeNodes(allDeletedPaths);
+          lintingDependencyMap.removeNodes(allDeletedPaths);
         }
         break;
       case DataTreeDiffEvent.NEW:
@@ -73,7 +75,7 @@ export function updateDependency(
             fullPropertyPath,
             entityTreeWithParsedJS,
           );
-          dependencyMap.addNodes(allAddedPaths);
+          lintingDependencyMap.addNodes(allAddedPaths);
           for (const addedPath of Object.keys(allAddedPaths)) {
             const dependencies = isDynamicLeaf(entity, addedPath)
               ? getEntityPathDependencies(entity, addedPath)
@@ -84,7 +86,7 @@ export function updateDependency(
         break;
     }
   }
-  return dependencyMap.getDependencies();
+  return lintingDependencyMap.getDependencies();
 }
 
 export function addAppsmithGlobalFnsToDependencyMap(
@@ -96,7 +98,7 @@ export function addAppsmithGlobalFnsToDependencyMap(
     },
     {} as Record<string, true>,
   );
-  dependencyMap.addNodes(globalFunctionNodes);
+  lintingDependencyMap.addNodes(globalFunctionNodes);
 }
 function updateDependencies(
   dependencies: TDependencyMap | undefined,
@@ -112,6 +114,6 @@ function updateDependencies(
       ),
     );
 
-    dependencyMap.addDependency(propertyPath, referencesInPropertyPath);
+    lintingDependencyMap.addDependency(propertyPath, referencesInPropertyPath);
   }
 }
