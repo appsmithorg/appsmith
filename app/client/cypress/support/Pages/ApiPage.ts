@@ -219,7 +219,7 @@ export class ApiPage {
     // Asserting Network result
     validateNetworkAssertOptions?.expectedPath &&
       validateNetworkAssertOptions?.expectedRes &&
-      this.agHelper.AssertNetworkData(
+      this.agHelper.AssertNetworkDataNestedProperty(
         "@postExecute",
         validateNetworkAssertOptions.expectedPath,
         validateNetworkAssertOptions.expectedRes,

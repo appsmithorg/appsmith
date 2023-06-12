@@ -389,7 +389,7 @@ export class AggregateHelper {
     // });
   }
 
-  public AssertNetworkData(
+  public AssertNetworkDataNestedProperty(
     aliasName: string,
     expectedPath: string,
     expectedRes: any,
