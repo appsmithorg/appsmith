@@ -214,11 +214,11 @@ export default abstract class GSheets extends BaseQueryGenerator {
       return builtValues;
     }
 
-    const allowedInitalValueKeys = [
+    const allowedInitialValueKeys = [
       ...COMMON_INITIAL_VALUE_KEYS,
       ...(commandKey === "find" ? SELECT_INITAL_VALUE_KEYS : []),
     ];
-    const scrubedOutInitalValues = allowedInitalValueKeys
+    const scrubedOutInitialValues = allowedInitialValueKeys
       .filter((key) => initialValues[key as keyof GSheetsFormData])
       .reduce((acc, key) => {
         acc[key] = initialValues[key as keyof GSheetsFormData];
@@ -229,7 +229,7 @@ export default abstract class GSheets extends BaseQueryGenerator {
 
     return {
       payload: {
-        formData: merge({}, scrubedOutInitalValues, formData),
+        formData: merge({}, scrubedOutInitialValues, formData),
       },
       ...rest,
     };
