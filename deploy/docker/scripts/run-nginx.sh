@@ -90,7 +90,5 @@ apply-env-vars() {
 }
 
 apply-env-vars /opt/appsmith/index.html.original /opt/appsmith/editor/index.html
-apply-env-vars /opt/appsmith/edit.html.original /opt/appsmith/editor/edit.html
-apply-env-vars /opt/appsmith/view.html.original /opt/appsmith/editor/view.html
 
 exec nginx -g "daemon off;error_log stderr info;"
