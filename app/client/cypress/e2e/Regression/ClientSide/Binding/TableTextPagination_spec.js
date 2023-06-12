@@ -7,6 +7,7 @@ import {
   apiPage,
   agHelper,
   deployMode,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {

@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import apiPage from "../../../../locators/ApiEditor";
+const testdata = require("../../../../fixtures/testdata.json");
+import apiPageLocators from "../../../../locators/ApiEditor";
 import {
   entityExplorer,
   apiPage,
@@ -106,13 +107,13 @@ describe("Test Create Api and Bind to Table widget", function () {
     );
     apiPage.RunAPI();
     cy.NavigateToPaginationTab();
-    cy.get(apiLocatorsapiPaginationNextText).type(
+    cy.get(apiPageLocators.apiPaginationNextText).type(
       this.dataSet.paginationUrl + testdata.nextUrl,
       {
         parseSpecialCharSequences: false,
       },
     );
-    cy.get(apiLocatorsapiPaginationPrevText).type(
+    cy.get(apiPageLocators.apiPaginationPrevText).type(
       this.dataSet.paginationUrl + testdata.prevUrl,
       {
         parseSpecialCharSequences: false,
@@ -133,7 +134,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     cy.ValidatePaginateResponseUrlDataV2(
-      apiLocatorsapiPaginationPrevTest,
+      apiPageLocators.apiPaginationPrevTest,
       false,
     );
     deployMode.DeployApp();
@@ -146,7 +147,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.ValidatePaginateResponseUrlDataV2(
-      apiLocatorsapiPaginationNextTest,
+      apiPageLocators.apiPaginationNextTest,
       true,
     );
   });
