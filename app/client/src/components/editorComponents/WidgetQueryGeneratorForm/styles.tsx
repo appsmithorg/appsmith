@@ -15,6 +15,8 @@ export const SelectWrapper = styled.div`
 export const Label = styled.p`
   flex: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Bold = styled.span`
@@ -27,10 +29,6 @@ export const Row = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-`;
-
-export const TooltipWrapper = styled.div`
-  margin-top: 2px;
 `;
 
 export const RowHeading = styled.p`
