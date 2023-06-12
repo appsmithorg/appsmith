@@ -21,7 +21,7 @@ describe("Page orientation and navigation related usecases ", function () {
       appSettings.locators._navigationMenuItem,
       "Page1",
     );
-    agHelper.AssertElementVisible(locators._sidebar, 0, 30000); //Page is loaded, failing in CI - hence incrased timeout
+    agHelper.AssertNetworkStatus("@getWorkspace");
   });
 
   it("2. Validate change with height width for fill widget - Input widget", function () {
