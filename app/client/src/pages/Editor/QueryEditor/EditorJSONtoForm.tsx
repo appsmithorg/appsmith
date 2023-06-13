@@ -434,8 +434,17 @@ export function EditorJSONtoForm(props: Props) {
     getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
   );
 
-  // this gets the url of the current action
-  const actionBody = currentActionConfig?.actionConfiguration?.body || "";
+  let actionBody = "";
+  if (!!currentActionConfig?.actionConfiguration) {
+    if ("formData" in currentActionConfig?.actionConfiguration) {
+      // if the action has a formData (the action is postUQI e.g. Oracle)
+      actionBody =
+        currentActionConfig.actionConfiguration.formData?.body?.data || "";
+    } else {
+      // if the action is pre UQI, the path is different e.g. mySQL
+      actionBody = currentActionConfig.actionConfiguration?.body || "";
+    }
+  }
 
   // if (the body is empty and the action is an sql datasource) or the user does not have permission, block action execution.
   const blockExecution =
