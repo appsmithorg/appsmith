@@ -1,35 +1,53 @@
 import type { TParsedJSProperty } from "@shared/ast";
+import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
 import type { JSEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
-import { mapValues } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 import type { createEntityTree } from "./entityTree";
 
 export const parsedJSEntitiesCache: Record<string, ParsedJSEntity> = {};
 
-export type TJSEntityState = { body: string } & Record<string, string>;
-type TJSEntityStateConfig = Record<string, TParsedJSProperty>;
-
 class ParsedJSEntity {
-  private entity: TJSEntityState = { body: "" };
-  private entityConfig: TJSEntityStateConfig = {};
+  private entity: Record<string, string> = { body: "" };
+  private entityConfig: Record<string, TParsedJSProperty> = {};
 
   constructor(
     jsObjectBody: string,
-    parsedJSObject: Record<string, TParsedJSProperty>,
+    jsObjectProperties: Record<string, TParsedJSProperty>,
   ) {
-    const JSEntityState: TJSEntityState = {
+    const parsedJS: Record<string, string> = {
       body: jsObjectBody,
-      ...convertParsedJSObjectPropertiesToValues(parsedJSObject),
     };
-    this.entity = JSEntityState;
-    this.entityConfig = parsedJSObject;
+    const parsedJSConfig: Record<string, Partial<TParsedJSProperty>> = {};
+
+    for (const [propertyName, parsedPropertyDetails] of Object.entries(
+      jsObjectProperties,
+    )) {
+      const { position, rawContent, type, value } = parsedPropertyDetails;
+      parsedJS[propertyName] = value;
+      if (isJSFunctionProperty(parsedPropertyDetails)) {
+        parsedJSConfig[propertyName] = {
+          isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
+          position,
+          value: rawContent,
+        };
+      } else if (type !== "literal") {
+        parsedJSConfig[propertyName] = {
+          position: position,
+          value: rawContent,
+        };
+      }
+    }
+
+    this.entity = parsedJS;
+    this.entityConfig = parsedJSConfig as any; // Fix type during eval-linting split
   }
-  getParsedEntity(): TJSEntityState {
+
+  getParsedEntity() {
     return this.entity;
   }
-  getParsedEntityConfig(): TJSEntityStateConfig {
+  getParsedEntityConfig() {
     return this.entityConfig;
   }
 }
@@ -101,11 +119,4 @@ function parseJSObjectBody(jsBody: string) {
 
 export function getParsedJSEntity(jsObjectName: string) {
   return parsedJSEntitiesCache[jsObjectName];
-}
-function convertParsedJSObjectPropertiesToValues(
-  parsedJSObject: Record<string, TParsedJSProperty>,
-) {
-  return mapValues(parsedJSObject, (parsedProperty) => {
-    return parsedProperty.value;
-  });
 }

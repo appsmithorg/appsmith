@@ -1,9 +1,8 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { find, get, isString } from "lodash";
+import { get, isString } from "lodash";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import type { TEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
-import { isJSFunctionProperty } from "@shared/ast";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import type { TEntityTree } from "./entityTree";
 import { getUnevalEntityTree } from "./entityTree";
@@ -117,7 +116,13 @@ export class JSActionsInDataField {
   }
 
   getMap() {
-    return this.dependencyMap?.getDependenciesInverse() || {};
+    const inverseMap: Map<string, string> =
+      this.dependencyMap?.getDependenciesInverse() || new Map();
+    const map: Record<string, string[]> = {};
+    for (const [jsfn, boundDataFields] of inverseMap.entries()) {
+      map[jsfn] = [...boundDataFields];
+    }
+    return map;
   }
   clear() {
     this.dependencyMap = undefined;
@@ -169,13 +174,11 @@ export function isAsyncJSFunction(jsFnFullname: string) {
     getEntityNameAndPropertyPath(jsFnFullname);
   const parsedJSEntity = getParsedJSEntity(jsObjectName);
   if (!parsedJSEntity) return false;
-  const propertyConfig = find(
-    parsedJSEntity.getParsedEntityConfig(),
-    propertyPath,
-  );
-  if (!propertyConfig || !isJSFunctionProperty(propertyConfig)) return false;
+  const config = parsedJSEntity.getParsedEntityConfig();
+  const propertyConfig = config[propertyPath];
+  if (!propertyConfig) return false;
   return (
-    propertyConfig.isMarkedAsync ||
+    ("isMarkedAsync" in propertyConfig && propertyConfig.isMarkedAsync) ||
     lintingDependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields)
   );
 }

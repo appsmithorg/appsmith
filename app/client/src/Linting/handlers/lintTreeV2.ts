@@ -52,12 +52,14 @@ export function lintTreeV2({
   };
 
   try {
+    const jsPropertiesState = mapValues(
+      parsedJSEntitiesCache,
+      (parsedJSEntity) => parsedJSEntity.getParsedEntityConfig(),
+    ) as TJSPropertiesState;
     const { errors: lintErrors, updatedJSEntities } = getLintErrorsFromTree({
       pathsToLint,
       unEvalTree: getUnevalEntityTree(cachedEntityTree),
-      jsPropertiesState: mapValues(parsedJSEntitiesCache, (parsedJSEntity) =>
-        parsedJSEntity.getParsedEntityConfig(),
-      ) as TJSPropertiesState,
+      jsPropertiesState,
       cloudHosting,
       asyncJSFunctionsInDataFields: jsActionsInDataField.getMap(),
       configTree,
@@ -150,13 +152,12 @@ function lintUpdatedTree(
       pathString,
       unevalEntityTree,
     );
+    lintingDependencyMap.addDependency(pathString, references);
     const updatedPaths = jsActionsInDataField.handlePathEdit(
       pathString,
       references,
       entityTree,
     );
-
-    lintingDependencyMap.addDependency(pathString, references);
     pathsToLint.push(...updatedPaths, pathString);
   }
 
