@@ -1,5 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { BUTTON_VARIANTS } from "@design-system/widgets";
 
 export const propertyPaneStyleConfig = [
   {
@@ -14,15 +15,15 @@ export const propertyPaneStyleConfig = [
         options: [
           {
             label: "Primary",
-            value: "PRIMARY",
+            value: BUTTON_VARIANTS.primary.toUpperCase(),
           },
           {
             label: "Secondary",
-            value: "SECONDARY",
+            value: BUTTON_VARIANTS.secondary.toUpperCase(),
           },
           {
             label: "Tertiary",
-            value: "TERTIARY",
+            value: BUTTON_VARIANTS.tertiary.toUpperCase(),
           },
         ],
         isJSConvertible: true,
