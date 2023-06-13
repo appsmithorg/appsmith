@@ -4,7 +4,6 @@ import {
   jsEditor,
   apiPage,
 } from "../../../support/Objects/ObjectsCore";
-import homePage from "../../../locators/HomePage";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("JSEditor tests", function () {
@@ -68,10 +67,7 @@ describe("JSEditor tests", function () {
       cy.get(".t--switch-widget-active .bp3-control-indicator").click({
         force: true,
       });
-      cy.get(homePage.toastMessage).should(
-        "contain",
-        "Switch widget has changed",
-      );
+      agHelper.AssertContains("Switch widget has changed");
 
       // select an option from select widget
       cy.get(".bp3-button.select-button").click({ force: true });
@@ -112,7 +108,7 @@ describe("JSEditor tests", function () {
      cy.get('.t--table-widget-page-input').within(()=>{
        cy.get('input.bp3-input').should('have.value', '1')
      })
-    cy.get(homePage.toastMessage).should(
+    cy.get(homePageLocators.toastMessage).should(
       "contain",
       "Success running API query",
       "GREEN",
