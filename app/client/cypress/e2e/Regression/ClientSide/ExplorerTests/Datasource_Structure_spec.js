@@ -1,14 +1,11 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let ee = ObjectsRegistry.EntityExplorer;
-let datasourceName;
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer datasource structure", function () {
+  let datasourceName;
+
   beforeEach(() => {
     //cy.ClearSearch();
     cy.startRoutesForDatasource();
@@ -32,8 +29,8 @@ describe("Entity explorer datasource structure", function () {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName({
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: datasourceName,
       action: "Refresh",
     });
@@ -65,8 +62,8 @@ describe("Entity explorer datasource structure", function () {
     );
 
     cy.deleteQueryUsingContext();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName({
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "MyQuery",
     });
     cy.deleteDatasource(datasourceName);
@@ -106,8 +103,8 @@ describe("Entity explorer datasource structure", function () {
     // cy.xpath(explorer.datsourceEntityPopover)
     //   .last()
     //   .click({ force: true });
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName({
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: datasourceName,
       action: "Refresh",
     });
@@ -121,7 +118,7 @@ describe("Entity explorer datasource structure", function () {
     //   .find(explorer.collapse)
     //   .first()
     //   .click();
-    cy.xpath("//div[text()='public." + tableName + "']").should("exist");
+    entityExplorer.AssertEntityPresenceInExplorer(`public.${tableName}`);
 
     // cy.get(explorer.refreshStructure).click({ force: true });
     // TODO (Akash): Check for new table name to be visible in UI as well
@@ -131,8 +128,8 @@ describe("Entity explorer datasource structure", function () {
 
     cy.typeValueNValidate(`DROP TABLE public.${tableName}`);
     cy.runQuery();
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName({
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: datasourceName,
       action: "Refresh",
     });
@@ -141,7 +138,7 @@ describe("Entity explorer datasource structure", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.xpath("//div[text()='public." + tableName + "']").should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer(`public.${tableName}`);
     cy.deleteQueryUsingContext();
     cy.deleteDatasource(datasourceName);
   });
