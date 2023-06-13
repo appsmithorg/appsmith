@@ -9,7 +9,7 @@ describe("Mongo Form to Native conversion works", () => {
     _.dataSources.CreateQueryAfterDSSaved();
     _.agHelper.ValidateNetworkStatus("@trigger");
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });

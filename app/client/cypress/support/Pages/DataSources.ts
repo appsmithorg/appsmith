@@ -204,6 +204,7 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
+  public mongoCollectionPath = "t--actionConfiguration.formData.collection";
   private getJSONswitchLocator = (fieldLocator: string) =>
     `[data-testid='${fieldLocator}.data-JS']`;
   _nestedWhereClauseKey = (index: number) =>

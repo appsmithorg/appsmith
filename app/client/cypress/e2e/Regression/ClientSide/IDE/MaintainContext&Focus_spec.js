@@ -84,7 +84,7 @@ describe("MaintainContext&Focus", function () {
 
     cy.wait(1000);
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "TestCollection",
     });

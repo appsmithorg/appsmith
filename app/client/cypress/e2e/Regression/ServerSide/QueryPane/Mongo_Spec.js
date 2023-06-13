@@ -76,7 +76,7 @@ describe("Validate Mongo query commands", function () {
     );
 
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -146,7 +146,7 @@ describe("Validate Mongo query commands", function () {
       "Count",
     );
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -175,7 +175,7 @@ describe("Validate Mongo query commands", function () {
       "Distinct",
     );
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -208,7 +208,7 @@ describe("Validate Mongo query commands", function () {
       "Aggregate",
     );
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -403,7 +403,7 @@ describe("Validate Mongo query commands", function () {
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "NonAsciiTest",
     });

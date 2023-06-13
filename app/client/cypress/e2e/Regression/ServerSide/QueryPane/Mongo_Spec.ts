@@ -278,7 +278,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "AuthorNAwards",
     });
@@ -743,7 +743,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     _.agHelper.RenameWithInPane("InsertBirthNDeath");
     _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: formControls.mongoCollectionPath,
+      fieldProperty: _.dataSources.mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "BirthNDeath",
     });
