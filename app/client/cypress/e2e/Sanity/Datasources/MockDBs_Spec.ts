@@ -9,7 +9,7 @@ describe(
       _.dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
         _.dataSources.CreateQueryFromActiveTab(mockDBName, false);
-        cy.wait("@trigger");
+        _.agHelper.ValidateNetworkStatus("@trigger");
         _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         _.dataSources.ValidateNSelectDropdown("Collection", "", "movies");
         _.dataSources.RunQueryNVerifyResponseViews(10, false);

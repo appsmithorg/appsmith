@@ -7,7 +7,7 @@ describe("Mongo Form to Native conversion works", () => {
 
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
     _.dataSources.updateJSFieldWithInputValue({
       fieldProperty: formControls.mongoCollectionPath,
       fieldLabel: "Collection",

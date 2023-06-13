@@ -69,7 +69,7 @@ describe("Validate Mongo query commands", function () {
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
 
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -139,7 +139,7 @@ describe("Validate Mongo query commands", function () {
 
   it("3. Validate Count command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -168,7 +168,7 @@ describe("Validate Mongo query commands", function () {
 
   it("4. Validate Distinct command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -201,7 +201,7 @@ describe("Validate Mongo query commands", function () {
 
   it("5. Validate Aggregate command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -389,7 +389,7 @@ describe("Validate Mongo query commands", function () {
       cy.NavigateToActiveDSQueryPane(dbName);
     });
 
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
 
     _.dataSources.SetQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(

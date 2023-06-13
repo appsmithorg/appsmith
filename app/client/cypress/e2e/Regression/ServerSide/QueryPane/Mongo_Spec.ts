@@ -269,7 +269,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     _.dataSources.NavigateFromActiveDS(dsName, true);
 
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
@@ -733,7 +733,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     _.dataSources.NavigateFromActiveDS(dsName, true);
 
-    cy.wait("@trigger");
+    _.agHelper.ValidateNetworkStatus("@trigger");
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
