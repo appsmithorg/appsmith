@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
-import { entityItems } from "../Objects/ObjectsCore";
+import { EntityItems } from "./AssertHelper";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -694,7 +694,7 @@ export class DataSources {
     this.ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
       action: "Delete",
-      entityType: entityItems.Datasource,
+      entityType: EntityItems.Datasource,
     });
     this.ValidateDSDeletion(expectedRes);
   }
@@ -802,7 +802,7 @@ export class DataSources {
     this.ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",
-      entityType: entityItems.Query,
+      entityType: EntityItems.Query,
     });
   }
 
