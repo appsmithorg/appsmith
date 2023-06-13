@@ -18,15 +18,13 @@ declare global {
 
 const currentMode = getModeForPathname(window.location.pathname);
 if (window.__APPSMITH_CHUNKS_TO_PRELOAD && currentMode) {
-  window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode]
-    // `fetchpriority="low"` ensures preloads don’t compete for bandwidth with the main script: https://3perf.slack.com/archives/C01SGCF8PM0/p1684511126862229?thread_ts=1684466888.430869&cid=C01SGCF8PM0
-    .forEach((url) => {
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = getPreloadValueForFile(url);
-      link.href = url;
-      document.head.appendChild(link);
-    });
+  window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode].forEach((url) => {
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = getPreloadValueForFile(url);
+    link.href = url;
+    document.head.appendChild(link);
+  });
 }
 
 function getPreloadValueForFile(fileName: string) {
