@@ -8,6 +8,7 @@ import {
   entityExplorer,
   homePage,
   dataSources,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -356,7 +357,11 @@ describe("Validate Mongo query commands", function () {
       );
     });
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    entityExplorer.ActionContextMenuByEntityName("Query1", "Delete");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Query1",
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
@@ -419,7 +424,11 @@ describe("Validate Mongo query commands", function () {
 
     cy.get("@dSName").then((dbName) => {
       //cy.CheckAndUnfoldEntityItem("Datasources");
-      entityExplorer.ActionContextMenuByEntityName(dbName, "Refresh");
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: dbName,
+        action: "Refresh",
+        entityType: entityItems.Datasource,
+      });
       // cy.get(`.t--entity.datasource:contains(${dbName})`)
       //   .find(explorer.collapse)
       //   .first()
@@ -554,9 +563,13 @@ describe("Validate Mongo query commands", function () {
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
     cy.wait(1000); //Waiting a bit before runing the command
     dataSources.RunQuery({ waitTimeInterval: 2000 });
-    cy.CheckAndUnfoldEntityItem("Datasources");
+    entityExplorer.ExpandCollapseEntity("Datasources");
     cy.get("@dSName").then((dbName) => {
-      entityExplorer.ActionContextMenuByEntityName(dbName, "Refresh");
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: dbName,
+        action: "Refresh",
+        entityType: entityItems.Datasource,
+      });
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();

@@ -5,6 +5,7 @@ import {
   dataSources,
   entityExplorer,
   agHelper,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -276,7 +277,11 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("9. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
     dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
-    entityExplorer.ActionContextMenuByEntityName("Public.users_crud", "Delete");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Public.users_crud",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
     entityExplorer.SelectEntityByName("Page1");
   });
 
@@ -287,7 +292,10 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     dataSources.EnterQuery(deleteTblQuery);
     dataSources.RunQuery();
     entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();
   });

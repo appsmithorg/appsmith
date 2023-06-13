@@ -8,6 +8,7 @@ import {
   agHelper,
   entityExplorer,
   dataSources,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -484,10 +485,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
     dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 409);
-    entityExplorer.ActionContextMenuByEntityName(
-      "Assets-test.appsmith.com",
-      "Delete",
-    );
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Assets-test.appsmith.com",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
   });
 
   after("Deletes the datasource", () => {
