@@ -15,9 +15,9 @@ const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 
-let repoName;
-
 describe("Git sync Bug #10773", function () {
+  let repoName;
+
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

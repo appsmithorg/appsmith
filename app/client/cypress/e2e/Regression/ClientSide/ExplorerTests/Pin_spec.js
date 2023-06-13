@@ -3,6 +3,7 @@ import {
   entityExplorer,
   locators,
   draggableWidgets,
+  installer,
 } from "../../../../support/Objects/ObjectsCore";
 
 const ExplorerMenu = {
@@ -86,7 +87,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       entityExplorer.PinUnpinEntityExplorer(true);
       const menu = Object.keys(ExplorerMenu);
 
-      Cypress.times(menu.length, (index) => {
+      Cypress._.times(menu.length, (index) => {
         OpenExplorerMenu(menu[index]);
         agHelper.Sleep();
         cy.get("[data-testid=sidebar-active]").should("exist");
@@ -110,7 +111,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       entityExplorer.PinUnpinEntityExplorer(true);
       const menu = Object.keys(ExplorerMenu);
 
-      Cypress.times(menu.length - 1, (index) => {
+      Cypress._.times(menu.length - 1, (index) => {
         OpenExplorerMenu(menu[index]);
         agHelper.Sleep();
         cy.get("[data-testid=sidebar-active]").should("exist");
