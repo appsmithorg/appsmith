@@ -91,7 +91,10 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on toggling visibility of tabs header", () => {
     // Hide tabs header.
-    tabs.toggleShowTabHeader(false);
+    tabs.toggleShowTabHeader(
+      false,
+      tabs.getTabSelectorByWidgetName("Tabs1", "tab1"),
+    );
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
@@ -103,7 +106,10 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
 
     // Show tabs header.
-    tabs.toggleShowTabHeader();
+    tabs.toggleShowTabHeader(
+      true,
+      tabs.getWidgetSelectorByNameComponent("Tabs1"),
+    );
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
       .then((newHeight) => {
@@ -117,7 +123,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on switching tabs", () => {
     // Switch to tab 2.
-    tabs.selectTab("tab2");
+    agHelper.GetNClick(tabs.getTabSelectorByWidgetName("Tabs1", "tab2"));
 
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
@@ -130,7 +136,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
 
     // Switch to tab 1.
-    tabs.selectTab("tab1");
+    agHelper.GetNClick(tabs.getTabSelectorByWidgetName("Tabs1", "tab1"));
 
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
@@ -177,7 +183,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("should update height on switching tabs at mobile viewport", () => {
     // Switch to tab 2.
-    tabs.selectTab("tab2");
+    agHelper.GetNClick(tabs.getTabSelectorByWidgetName("Tabs1", "tab2"));
 
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
@@ -190,7 +196,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
 
     // Switch to tab 1.
-    tabs.selectTab("tab1");
+    agHelper.GetNClick(tabs.getTabSelectorByWidgetName("Tabs1", "tab1"));
 
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))

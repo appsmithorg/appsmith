@@ -37,7 +37,8 @@ describe("validate auto height for modal widget on auto layout canvas", () => {
     });
 
     agHelper.GetModalDropTargetId().then((id) => {
-      dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
+      cy.log("id", id);
+      dropTargetClass = `.drop-target-${id}`;
       // add an input widget to the container.
       entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.INPUT_V2,
