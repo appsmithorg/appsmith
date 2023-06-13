@@ -52,7 +52,9 @@ describe("Create new workspace and share with a user", function () {
     cy.get(homePageLocators.applicationCard).trigger("mouseover");
     cy.get(homePageLocators.appEditIcon).should("not.exist");
     cy.launchApp(appid);
+    cy.wait(2000); //for CI
     cy.LogOut();
+    cy.wait(2000); //for CI
   });
 
   it("3. Enable public access to Application", function () {
