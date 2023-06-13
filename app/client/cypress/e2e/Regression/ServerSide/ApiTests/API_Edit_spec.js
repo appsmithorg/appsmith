@@ -1,11 +1,16 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  entityExplorer,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel Test Functionality", function () {
   before(() => {
     cy.fixture("uiBindDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
   it("1. Test Search API fetaure", function () {
@@ -26,10 +31,13 @@ describe("API Panel Test Functionality", function () {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    _.entityExplorer.SelectEntityByName("FirstAPI", "Queries/JS");
-    _.entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
+    entityExplorer.SelectEntityByName("FirstAPI", "Queries/JS");
+    entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
+    entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
   });
 
   it("2. Should update loading state after cancellation of confirmation for run query", function () {
