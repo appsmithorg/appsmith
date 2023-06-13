@@ -1,6 +1,6 @@
 import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import type { TEntityTree } from "../utils/entityTree";
-import { getEntityTreeWithParsedJS } from "../utils/entityTree";
+import { getUnevalEntityTree } from "../utils/entityTree";
 import { createEntityTree } from "../utils/entityTree";
 import { isEmpty, mapValues } from "lodash";
 import {
@@ -20,7 +20,10 @@ import { sortDifferencesByType } from "Linting/utils/sortDifferencesByType";
 import { getAllPathsFromNode, isDynamicLeaf } from "Linting/utils/entityPath";
 import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
 import { getLintErrorsFromTree } from "Linting/utils/lintTree";
-import { parsedJSEntitiesCache } from "Linting/utils/parseJSEntity";
+import {
+  parsedJSEntitiesCache,
+  updateTreeWithParsedJS,
+} from "Linting/utils/parseJSEntity";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 
 let cachedEntityTree: TEntityTree = {};
@@ -66,16 +69,17 @@ export function lintTreeV2({
 
 function preProcessTree(unEvalTree: UnEvalTree, configTree: ConfigTree) {
   const entityTree = createEntityTree(unEvalTree, configTree);
-  const entityTreeWithParsedJS = getEntityTreeWithParsedJS(entityTree);
+  updateTreeWithParsedJS(entityTree);
+  const unevalEntityTree = getUnevalEntityTree(entityTree);
 
-  return { entityTree, entityTreeWithParsedJS };
+  return { entityTree, unevalEntityTree };
 }
 
 function lintFirstTree(
   unEvalTree: UnEvalTree,
   configTree: ConfigTree,
 ): { pathsToLint: string[]; entityTree: TEntityTree } {
-  const { entityTree, entityTreeWithParsedJS } = preProcessTree(
+  const { entityTree, unevalEntityTree } = preProcessTree(
     unEvalTree,
     configTree,
   );
@@ -89,7 +93,7 @@ function lintFirstTree(
       const references = extractReferencesFromPath(
         entity,
         path,
-        entityTreeWithParsedJS,
+        unevalEntityTree,
       );
       const updatedPaths = jsActionsInDataField.update(
         path,
@@ -118,22 +122,19 @@ function lintUpdatedTree(
   unEvalTree: UnEvalTree,
   configTree: ConfigTree,
 ): { pathsToLint: string[]; entityTree: TEntityTree } {
-  const { entityTree, entityTreeWithParsedJS } = preProcessTree(
+  const { entityTree, unevalEntityTree } = preProcessTree(
     unEvalTree,
     configTree,
   );
 
   const pathsToLint: string[] = [];
-  const cachedEntityTreeWithParsedJS =
-    getEntityTreeWithParsedJS(cachedEntityTree);
+  const cachedUnevalEntityTree = getUnevalEntityTree(cachedEntityTree);
+
   const NOOP = {
     pathsToLint: [],
     entityTree,
   };
-  const entityTreeDiff = diff(
-    cachedEntityTreeWithParsedJS,
-    entityTreeWithParsedJS,
-  );
+  const entityTreeDiff = diff(cachedUnevalEntityTree, unevalEntityTree);
 
   if (!entityTreeDiff) return NOOP;
   const { additions, deletions, edits } = sortDifferencesByType(entityTreeDiff);
@@ -156,7 +157,7 @@ function lintUpdatedTree(
     const references = extractReferencesFromPath(
       entity,
       pathString,
-      entityTreeWithParsedJS,
+      unevalEntityTree,
     );
     const updatedPaths = jsActionsInDataField.handlePathEdit(
       pathString,
@@ -176,17 +177,14 @@ function lintUpdatedTree(
     const entity = entityTree[entityName];
     if (!entity) continue;
 
-    const allAddedPaths = getAllPathsFromNode(
-      pathString,
-      entityTreeWithParsedJS,
-    );
+    const allAddedPaths = getAllPathsFromNode(pathString, unevalEntityTree);
 
     for (const path of Object.keys(allAddedPaths)) {
       if (!isDynamicLeaf(entity, path)) continue;
       const references = extractReferencesFromPath(
         entity,
         pathString,
-        entityTreeWithParsedJS,
+        unevalEntityTree,
       );
       jsActionsInDataField.update(path, references, entityTree);
       nodesToAdd[path] = true;
@@ -203,10 +201,7 @@ function lintUpdatedTree(
     const entity = entityTree[entityName];
     if (!entity) continue;
 
-    const allDeletedPaths = getAllPathsFromNode(
-      pathString,
-      entityTreeWithParsedJS,
-    );
+    const allDeletedPaths = getAllPathsFromNode(pathString, unevalEntityTree);
 
     for (const path of Object.keys(allDeletedPaths)) {
       const updatedPaths = jsActionsInDataField.handlePathDeletion(

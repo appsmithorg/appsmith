@@ -6,7 +6,7 @@ import { isJSEntity } from "Linting/lib/entity";
 import { isJSFunctionProperty } from "@shared/ast";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import type { TEntityTree } from "./entityTree";
-import { getEntityTreeWithParsedJS } from "./entityTree";
+import { getUnevalEntityTree } from "./entityTree";
 import DependencyMap from "entities/DependencyMap";
 import { getAllPathsFromNode } from "./entityPath";
 import { lintingDependencyMap } from "./lintingDependencyMap";
@@ -76,7 +76,7 @@ export class JSActionsInDataField {
 
     const allDeletedPaths = getAllPathsFromNode(
       deletedPath,
-      getEntityTreeWithParsedJS(entityTree),
+      getUnevalEntityTree(entityTree),
     );
 
     for (const path of Object.keys(allDeletedPaths)) {

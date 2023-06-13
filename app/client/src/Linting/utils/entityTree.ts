@@ -1,7 +1,6 @@
-import EntityFactory, { isJSEntity } from "Linting/lib/entity";
+import EntityFactory from "Linting/lib/entity";
 import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { mapValues } from "lodash";
-import { setParsedJSEntities } from "./parseJSEntity";
 
 export function createEntityTree(
   unEvalTree: UnEvalTree,
@@ -16,16 +15,10 @@ export function createEntityTree(
   return tree;
 }
 
-export function getEntityTreeWithParsedJS(entityTree: TEntityTree) {
-  setParsedJSEntities(entityTree);
+export function getUnevalEntityTree(entityTree: TEntityTree) {
   return mapValues(entityTree, (entity) => {
-    return isJSEntity(entity)
-      ? entity.getParsedEntity()
-      : entity.getRawEntity();
+    return entity.getRawEntity();
   });
 }
 
 export type TEntityTree = ReturnType<typeof createEntityTree>;
-export type TEntityTreeWithParsedJS = ReturnType<
-  typeof getEntityTreeWithParsedJS
->;

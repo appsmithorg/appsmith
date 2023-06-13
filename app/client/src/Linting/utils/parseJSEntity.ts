@@ -34,13 +34,17 @@ class ParsedJSEntity {
   }
 }
 
-export function setParsedJSEntities(
+export function updateTreeWithParsedJS(
   entityTree: ReturnType<typeof createEntityTree>,
 ) {
   for (const entity of Object.values(entityTree)) {
     if (!isJSEntity(entity)) continue;
-    const parsedEntity = parseJSEntity(entity);
-    entity.setParsedEntity(parsedEntity.getParsedEntity());
+    const parsedJSEntity = parseJSEntity(entity).getParsedEntity();
+    const rawEntity = entity.getRawEntity();
+    for (const [key, value] of Object.entries(parsedJSEntity)) {
+      rawEntity[key] = value;
+    }
+    entity.setParsedEntity(parsedJSEntity);
   }
   return entityTree;
 }
