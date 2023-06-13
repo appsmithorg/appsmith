@@ -15,10 +15,12 @@ export const SelectWrapper = styled.div`
 export const Label = styled.p`
   flex: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Bold = styled.span`
-  font-weight: 700;
+  font-weight: 500;
 `;
 
 export const Section = styled.div``;
@@ -29,10 +31,6 @@ export const Row = styled.div`
   justify-content: flex-start;
 `;
 
-export const TooltipWrapper = styled.div`
-  margin-top: 2px;
-`;
-
 export const RowHeading = styled.p`
   margin-right: 10px;
 `;
@@ -40,13 +38,6 @@ export const RowHeading = styled.p`
 export const StyledButton = styled(Button)`
   &&& {
     width: 100%;
-    height: 50px !important;
-    border-radius: 1px !important;
-
-    & > div {
-      padding: 10px 0px;
-      height: 36px;
-    }
   }
 `;
 
