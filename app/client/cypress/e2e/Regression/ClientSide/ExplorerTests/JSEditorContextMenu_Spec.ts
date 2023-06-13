@@ -23,6 +23,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       entityNameinLeftSidebar: "RenamedJSObject",
       action: "Copy to page",
       subAction: pageId,
+      toastToValidate: "copied to page",
     });
     cy.wait("@createNewJSCollection").should(
       "have.nested.property",
@@ -47,7 +48,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       entityNameinLeftSidebar: "RenamedJSObjectCopy",
       action: "Move to page",
       subAction: newPageId,
-      toastToValidate: "action moved to page",
+      toastToValidate: "moved to page",
     });
     entityExplorer.SelectEntityByName(newPageId);
     entityExplorer.ExpandCollapseEntity("Queries/JS");

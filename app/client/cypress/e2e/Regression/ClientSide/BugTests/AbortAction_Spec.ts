@@ -3,6 +3,7 @@ import {
   locators,
   apiPage,
   dataSources,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   ACTION_EXECUTION_CANCELLED,
@@ -21,7 +22,10 @@ describe("Abort Action Execution", function () {
       createMessage(ACTION_EXECUTION_CANCELLED, "AbortApi"),
     );
     agHelper.AssertElementAbsence(locators._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
-    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   // Queries were resolving quicker than we could cancel them
@@ -41,7 +45,10 @@ describe("Abort Action Execution", function () {
         createMessage(ACTION_EXECUTION_CANCELLED, "AbortQuery"),
       );
       agHelper.AssertElementAbsence(locators._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
-      agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
       dataSources.DeleteDatasouceFromWinthinDS($dsName as unknown as string);
     });
   });

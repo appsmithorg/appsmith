@@ -44,11 +44,11 @@ describe("Table Widget V2 property pane feature validation", function () {
       "onClick",
       "{{showAlert('Successful ' + currentRow.email).then(() => showAlert('second alert')) }}",
     );
+    agHelper.Sleep();
 
     // Validating the button action by clicking
     cy.get(widgetsPage.tableV2Btn).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
     agHelper.AssertContains("Successful tobias.funke@reqres.in");
     agHelper.AssertContains("second alert");
   });
