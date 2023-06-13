@@ -478,6 +478,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
       });
+      cy.wait(2000);
       cy.get("span:contains('" + fileName + "')").should("not.exist"); //verify Deletion of file is success from UI also
     });
   });

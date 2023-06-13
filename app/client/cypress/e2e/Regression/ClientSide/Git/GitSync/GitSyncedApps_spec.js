@@ -16,7 +16,6 @@ import {
   homePage,
   gitSync,
   dataSources,
-  entityItems,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const newPage = "ApiCalls_1";
@@ -274,8 +273,7 @@ describe("Git sync apps", function () {
       .last()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    deployMode.NavigateBacktoEditor();
   });
   it("4. Create a new branch tempBranch, add jsObject and datasource query, move them to new page i.e. Child_Page and bind to widgets", () => {
     //cy.createGitBranch(tempBranch);
@@ -306,7 +304,7 @@ describe("Git sync apps", function () {
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
       subAction: "Child_Page",
-      toastToValidate: "action moved to page",
+      toastToValidate: "moved to page",
     });
     cy.runQuery();
     cy.wait(2000);
@@ -319,7 +317,7 @@ describe("Git sync apps", function () {
       entityNameinLeftSidebar: "JSObject1",
       action: "Move to page",
       subAction: "Child_Page",
-      toastToValidate: "action moved to page",
+      toastToValidate: "moved to page",
     });
     cy.wait(2000);
     entityExplorer.NavigateToSwitcher("Widgets");
