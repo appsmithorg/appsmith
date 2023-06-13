@@ -306,6 +306,7 @@ describe("Git sync apps", function () {
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
       subAction: "Child_Page",
+      toastToValidate: "action moved to page",
     });
     cy.runQuery();
     cy.wait(2000);
@@ -318,6 +319,7 @@ describe("Git sync apps", function () {
       entityNameinLeftSidebar: "JSObject1",
       action: "Move to page",
       subAction: "Child_Page",
+      toastToValidate: "action moved to page",
     });
     cy.wait(2000);
     entityExplorer.NavigateToSwitcher("Widgets");

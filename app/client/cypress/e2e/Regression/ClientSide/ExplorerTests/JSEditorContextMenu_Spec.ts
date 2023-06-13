@@ -47,6 +47,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       entityNameinLeftSidebar: "RenamedJSObjectCopy",
       action: "Move to page",
       subAction: newPageId,
+      toastToValidate: "action moved to page",
     });
     entityExplorer.SelectEntityByName(newPageId);
     entityExplorer.ExpandCollapseEntity("Queries/JS");

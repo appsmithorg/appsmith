@@ -77,6 +77,7 @@ describe("Entity explorer API pane related testcases", function () {
       entityNameinLeftSidebar: "SecondAPI",
       action: "Move to page",
       subAction: pageid,
+      toastToValidate: "action moved to page",
     });
     cy.wait(500);
     ee.ExpandCollapseEntity("Queries/JS");

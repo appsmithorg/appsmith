@@ -8,6 +8,7 @@ import {
   dataSources,
   entityExplorer,
   agHelper,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
@@ -106,9 +107,10 @@ describe("Entity explorer tests related to query and datasource", function () {
     });
     cy.EditApiNameFromExplorer("MyQuery");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "My Query",
+      entityNameinLeftSidebar: "MyQuery",
       action: "Move to page",
       subAction: pageid,
+      toastToValidate: "action moved to page",
     });
     cy.wait(2000);
     entityExplorer.ExpandCollapseEntity("Queries/JS");
@@ -117,7 +119,10 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.runQuery();
 
     //deleteQuery & DS
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
     dataSources.DeleteDatasouceFromActiveTab(datasourceName);
   });
 });
