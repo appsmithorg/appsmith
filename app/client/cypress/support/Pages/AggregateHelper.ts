@@ -876,7 +876,7 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public DeleteEntityNAssert(entityType: EntityItems, toAssertAction = false) {
+  public DeleteEntityNAssert(entityType: EntityItems, toAssertAction = true) {
     if (entityType != EntityItems.Widget)
       this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
     toAssertAction && this.assertHelper.AssertDelete(entityType);

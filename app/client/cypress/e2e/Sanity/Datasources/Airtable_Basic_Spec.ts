@@ -1,9 +1,15 @@
-import * as _ from "../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  entityItems,
+  dataSources,
+  hostPort,
+} from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe("excludeForAirgap", "Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
-    _.dataSources.CreateDataSource("Airtable", true, false);
+    dataSources.CreateDataSource("Airtable", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -11,27 +17,27 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
 
   it("1. Validate List Records", () => {
     let specieslist = new Array();
-    _.dataSources.CreateQueryAfterDSSaved();
+    dataSources.CreateQueryAfterDSSaved();
 
     //List all records
-    _.dataSources.ValidateNSelectDropdown(
+    dataSources.ValidateNSelectDropdown(
       "Commands",
       "Please select an option",
       "List records",
     );
 
-    _.agHelper.EnterValue(_.hostPort.AirtableBase, {
+    agHelper.EnterValue(hostPort.AirtableBase, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Base ID ",
     });
-    _.agHelper.EnterValue(_.hostPort.AirtableTable, {
+    agHelper.EnterValue(hostPort.AirtableTable, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Table name",
     });
 
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
       jsonSpecies.records.forEach((record: { fields: any }) => {
@@ -41,7 +47,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     });
 
     //Filter Species_ID & Species fields only
-    _.agHelper.EnterValue(
+    agHelper.EnterValue(
       "fields%5B%5D=Species_ID&fields%5B%5D=Species&fields%5B%5D=Taxa",
       {
         propFieldName: "",
@@ -50,7 +56,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       },
     );
 
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
       const hasOnlyAllowedKeys = jsonSpecies.records.every((record: any) => {
@@ -66,41 +72,41 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     });
 
     //Validate Max records
-    _.agHelper.EnterValue("11", {
+    agHelper.EnterValue("11", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Max records",
     });
-    _.agHelper.EnterValue("", {
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Page size",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
       expect(jsonSpecies.records.length).to.eq(11); //making sure only 11 record fields are returned
     });
 
     //Validate Page Size
-    _.agHelper.EnterValue("6", {
+    agHelper.EnterValue("6", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Page size",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
       expect(jsonSpecies.records.length).to.eq(6); //making sure only 6 record fields are returned, honouring the PageSize
 
       //Validating offset
       offset = jsonSpecies.offset;
-      _.agHelper.EnterValue(offset, {
+      agHelper.EnterValue(offset, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Offset",
       });
-      _.dataSources.RunQuery();
+      dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = resObj.response.body.data.body;
@@ -110,17 +116,17 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
 
     //Validate Filter by Formula
     //let asc_specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
-    _.agHelper.EnterValue("", {
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Offset",
     }); //Removing Offset
-    _.agHelper.EnterValue('NOT({Taxa} = "Rodent")', {
+    agHelper.EnterValue('NOT({Taxa} = "Rodent")', {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Filter by formula",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
@@ -133,28 +139,28 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
 
     //Validate Sort - asc
     let asc_specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
-    _.agHelper.EnterValue("", {
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Page size",
     }); //Removing Page Size
-    _.agHelper.EnterValue("", {
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Filter by formula",
     }); //Removing Filter by Formula
-    _.agHelper.EnterValue("10", {
+    agHelper.EnterValue("10", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Max records",
     });
-    _.agHelper.EnterValue("sort%5B0%5D%5Bfield%5D=Species_ID", {
+    agHelper.EnterValue("sort%5B0%5D%5Bfield%5D=Species_ID", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Sort",
     }); //Sort by default ascending, descneding is thrown error, checking with Felix
 
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
@@ -180,7 +186,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
 
     //Validate Sort - desc
     let desc_specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
-    _.agHelper.EnterValue(
+    agHelper.EnterValue(
       "sort%5B0%5D%5Bfield%5D=Species_ID&sort%5B0%5D%5Bdirection%5D=desc",
       {
         propFieldName: "",
@@ -189,7 +195,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       },
     ); //Sort by descending
 
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
@@ -216,19 +222,19 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     //Validate View - desc
     let view_specieslist = new Array();
     const isValidSpeciesID = (id: string) => ["EO", "PE"].includes(id);
-    _.agHelper.EnterValue("", {
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Sort",
     }); //Removing Sort
 
-    _.agHelper.EnterValue("GridView_CI", {
+    agHelper.EnterValue("GridView_CI", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "View",
     });
 
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
@@ -253,19 +259,19 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     }}]`;
 
     //Create
-    _.dataSources.ValidateNSelectDropdown(
+    dataSources.ValidateNSelectDropdown(
       "Commands",
       "List records",
       "Create records",
     );
-    _.agHelper.EnterValue(createReq, {
+    agHelper.EnterValue(createReq, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Records",
     });
-    _.agHelper.Sleep(500); // for the Records field to settle
+    agHelper.Sleep(500); // for the Records field to settle
 
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = resObj.response.body.data.body;
@@ -274,18 +280,18 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
 
       //Retrieve a record
       insertedRecordId = jsonSpecies.records[0].id;
-      _.dataSources.ValidateNSelectDropdown(
+      dataSources.ValidateNSelectDropdown(
         "Commands",
         "Create records",
         "Retrieve a record",
       );
-      _.agHelper.EnterValue(insertedRecordId, {
+      agHelper.EnterValue(insertedRecordId, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Record ID ",
       });
 
-      _.dataSources.RunQuery();
+      dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = resObj.response.body.data.body;
@@ -301,12 +307,12 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       });
 
       //Update Records
-      _.dataSources.ValidateNSelectDropdown(
+      dataSources.ValidateNSelectDropdown(
         "Commands",
         "Retrieve a record",
         "Update records",
       );
-      _.agHelper.EnterValue(
+      agHelper.EnterValue(
         `[{ "id" : ${insertedRecordId},
         fields: {
           Species_ID: "SG",
@@ -321,7 +327,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
         },
       );
 
-      _.dataSources.RunQuery();
+      dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = resObj.response.body.data.body;
@@ -338,13 +344,13 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
 
       //Delete A record
       //insertedRecordId = jsonSpecies.id;
-      _.dataSources.ValidateNSelectDropdown(
+      dataSources.ValidateNSelectDropdown(
         "Commands",
         "Update records",
         "Delete a record",
       );
 
-      _.dataSources.RunQuery();
+      dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = resObj.response.body.data.body;
@@ -354,13 +360,16 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
   });
 
   after("Delete the query & datasource", () => {
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      dsName,
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.AssertNetworkStatus("@deleteDatasource", 200);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.SelectEntityByName(dsName, "Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: entityItems.Datasource,
+    });
+    agHelper.AssertNetworkStatus("@deleteDatasource", 200);
   });
 });

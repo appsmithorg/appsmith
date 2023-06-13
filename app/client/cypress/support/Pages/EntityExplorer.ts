@@ -227,7 +227,7 @@ export class EntityExplorer {
     action = "Delete",
     subAction = "",
     entityType = EntityItems.Query,
-    toAssertAction = false,
+    toAssertAction = true,
     toastToValidate = "",
   }: EntityActionParams) {
     this.SelectEntityByName(entityNameinLeftSidebar);
@@ -239,14 +239,13 @@ export class EntityExplorer {
     cy.xpath(this.locator._contextMenuItem(action)).click({ force: true });
     this.agHelper.Sleep(1000);
     if (action == "Delete") {
-      this.agHelper.DeleteEntityNAssert(entityType);
+      this.agHelper.DeleteEntityNAssert(entityType, toAssertAction);
     } else if (subAction) {
       this.agHelper.ActionContextMenuSubItem({
         subAction: subAction,
         force: true,
         toastToValidate: toastToValidate,
       });
-      toAssertAction && this.agHelper.AssertContains(toastToValidate);
     }
   }
 
