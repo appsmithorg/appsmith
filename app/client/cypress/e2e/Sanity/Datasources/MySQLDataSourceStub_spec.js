@@ -3,11 +3,6 @@ import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("MySQL datasource test cases", function () {
   let datasourceName;
-
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
   it("1. Create, test, save then delete a MySQL datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MySQL).click();

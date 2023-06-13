@@ -1,12 +1,8 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { dataSources } from "../../../../support/Objects/ObjectsCore";
-
-let datasourceName;
+import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("MsSQL datasource test cases", function () {
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
+  let datasourceName;
 
   it("1. Create, test, save then delete a MsSQL datasource", function () {
     cy.NavigateToDatasourceEditor();
