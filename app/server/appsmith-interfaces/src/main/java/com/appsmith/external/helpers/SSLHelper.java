@@ -7,6 +7,8 @@ import com.appsmith.external.models.UploadedFile;
 import reactor.netty.tcp.DefaultSslContextSpec;
 import reactor.netty.tcp.SslProvider;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +20,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.function.Consumer;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 
 public class SSLHelper {
 

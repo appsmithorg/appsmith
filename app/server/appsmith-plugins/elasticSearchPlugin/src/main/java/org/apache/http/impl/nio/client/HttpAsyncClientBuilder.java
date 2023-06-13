@@ -76,6 +76,8 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 import org.apache.http.util.VersionInfo;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.ProxySelector;
 import java.net.UnknownHostException;
@@ -84,9 +86,6 @@ import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 
 /**
  * Builder for {@link CloseableHttpAsyncClient} instances.

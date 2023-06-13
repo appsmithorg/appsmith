@@ -147,7 +147,7 @@
                         <!-- apply a specific flavor of google-java-format and reflow long strings -->
                         <palantirJavaFormat/>
                         <importOrder>
-                            <order>,java,javax,\#</order>
+                            <order>,javax|java,\#</order>
                         </importOrder>
                         <removeUnusedImports/>
                         <formatAnnotations/>

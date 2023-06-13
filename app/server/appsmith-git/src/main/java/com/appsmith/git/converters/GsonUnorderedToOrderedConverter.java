@@ -7,14 +7,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.springframework.util.CollectionUtils;
 
+import javax.lang.model.type.PrimitiveType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
-import javax.lang.model.type.PrimitiveType;
 
 public class GsonUnorderedToOrderedConverter<T> implements JsonSerializer<T> {
     @Override
