@@ -1,5 +1,5 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { dataSources } from "../../../../support/Objects/ObjectsCore";
+import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
