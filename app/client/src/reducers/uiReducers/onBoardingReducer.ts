@@ -84,8 +84,6 @@ const onboardingReducer = createReducer(initialState, {
     } else {
       newArray.push(action.payload);
     }
-    console.log(newArray, "newArray-SIGNPOSTING");
-    console.log(action.payload, "action-SIGNPOSTING");
     return {
       ...state,
       stepState: newArray,
