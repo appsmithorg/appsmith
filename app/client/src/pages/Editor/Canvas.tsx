@@ -28,6 +28,7 @@ const Container = styled.section<{
   background: ${({ background }) => background};
   width: ${({ $isAutoLayout, width }) =>
     $isAutoLayout ? `100%` : `${width}px`};
+  height: ${({ $isAutoLayout }) => ($isAutoLayout ? `100%` : undefined)};
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;

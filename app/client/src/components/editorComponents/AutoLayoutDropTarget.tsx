@@ -11,12 +11,9 @@ type AutoLayoutDropTargetProps = {
   widgetId: string;
 };
 
-const StyledDiv = styled.div<{ $isMainContainer: boolean }>`
+const StyledDiv = styled.div`
   position: relative;
   z-index: 1;
-  min-height: ${(props) =>
-    // TODO(aswathkk): Find some ways to not hardcode this
-    props.$isMainContainer ? "calc(100vh - 2rem - 40px - 37px)" : undefined};
 `;
 
 export function AutoLayoutDropTarget(props: AutoLayoutDropTargetProps) {
@@ -27,7 +24,7 @@ export function AutoLayoutDropTarget(props: AutoLayoutDropTargetProps) {
   const isMainCanvas = props.widgetId === MAIN_CONTAINER_WIDGET_ID;
 
   return (
-    <StyledDiv $isMainContainer={isMainCanvas}>
+    <StyledDiv>
       {props.children}
       {/* A dummy div which will helps to show the highlights at the bottom of MainCanvas */}
       {isMainCanvas && isDragging && isDraggingInCurrentCanvas && (
