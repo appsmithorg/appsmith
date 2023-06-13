@@ -2,7 +2,7 @@ import {
   agHelper,
   entityExplorer,
   locators,
-  draggableWidgets
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 const ExplorerMenu = {
