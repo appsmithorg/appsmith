@@ -3,7 +3,14 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let queryName = "Query1";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 /*
 Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:
@@ -22,7 +29,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     //appId = localStorage.getItem("applicationId");
     //cy.log("appID:" + appId);
     cy.fixture("inputdsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -31,12 +38,12 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     "1. Create Users Sample DB Query & Simulate cyclic depedency",
     () => {
       //Step1 : Create Mock Users DB
-      _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
-        _.dataSources.ToggleUsePreparedStatement(false);
+      dataSources.CreateMockDB("Users").then((dbName) => {
+        dataSources.CreateQueryFromActiveTab(dbName, false);
+        agHelper.GetNClick(dataSources._templateMenuOption("Select"));
+        dataSources.ToggleUsePreparedStatement(false);
       });
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",
@@ -55,15 +62,15 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     "1. Create Users Sample DB Query & Simulate cyclic depedency - airgap",
     () => {
       //Step1 : Create postgres DB
-      _.dataSources.CreateDataSource("Postgres");
+      dataSources.CreateDataSource("Postgres");
       cy.get("@saveDatasource").then((httpResponse) => {
         dsname = httpResponse.response.body.data.name;
       });
       cy.wait(1000);
       cy.get(datasource.createQuery).click();
-      _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
-      _.dataSources.ToggleUsePreparedStatement(false);
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      agHelper.GetNClick(dataSources._templateMenuOption("Select"));
+      dataSources.ToggleUsePreparedStatement(false);
+      entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",
@@ -99,7 +106,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
 
   it("3. Add JSObject and update its name, content and check for no errors", () => {
     // Case 3: When updating JS Object name
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
       fun: async () => {
         showAlert("New Js Object");
@@ -112,7 +119,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    _.jsEditor.RenameJSObjFromPane("newName");
+    jsEditor.RenameJSObjFromPane("newName");
 
     cy.wait("@renameJsAction").should(
       "have.nested.property",
@@ -126,7 +133,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
         return "yes";
       }
     }`;
-    _.jsEditor.EditJSObj(syncJSCode, false);
+    jsEditor.EditJSObj(syncJSCode, false);
 
     cy.wait("@jsCollections").should(
       "have.nested.property",
@@ -139,7 +146,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
   it("4. Update Widget Name and check for no errors & Update Query and check for errors", () => {
     let entityName = "gender";
     let newEntityName = "newInput";
-    _.propPane.RenameWidget(entityName, newEntityName);
+    propPane.RenameWidget(entityName, newEntityName);
     cy.get("@updateWidgetName").should(
       "have.nested.property",
       "response.body.data.layoutOnLoadActionErrors.length",
@@ -147,7 +154,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     );
 
     // Case 6: When updating Datasource query
-    _.entityExplorer.SelectEntityByName(queryName, "Queries/JS");
+    entityExplorer.SelectEntityByName(queryName, "Queries/JS");
     // update query and check no cyclic dependency issue should occur
     cy.xpath(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea").first().focus().type(" ", {
