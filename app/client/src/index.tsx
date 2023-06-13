@@ -1,4 +1,4 @@
-// This file must be executed first to ensure the preloads are triggered ASAP
+// This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
 
 import React from "react";
