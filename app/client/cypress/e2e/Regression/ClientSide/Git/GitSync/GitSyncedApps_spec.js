@@ -302,7 +302,10 @@ describe("Git sync apps", function () {
       .click({ force: true });
     cy.wait(2000); // adding wait for query to load
     entityExplorer.SelectEntityByName("get_users", "Queries/JS");
-    agHelper.ActionContextMenuWithInPane("Move to page", "Child_Page");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Move to page",
+      subAction: "Child_Page",
+    });
     cy.runQuery();
     cy.wait(2000);
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
