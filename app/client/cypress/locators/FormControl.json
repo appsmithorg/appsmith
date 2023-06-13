@@ -29,6 +29,7 @@
   "mongoFindSkip": ".t--actionConfiguration\\.formData\\.find\\.skip\\.data",
   "mongoFindProjection": ".t--actionConfiguration\\.formData\\.find\\.projection\\.data",
   "mongoCollection": ".t--actionConfiguration\\.formData\\.collection\\.data",
+  "mongoCollectionJSONswitch": "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
   "mongoCountQuery": ".t--actionConfiguration\\.formData\\.count\\.query\\.data",
   "mongoDistinctQuery": ".t--actionConfiguration\\.formData\\.distinct\\.query\\.data",
   "mongoDistinctKey": ".t--actionConfiguration\\.formData\\.distinct\\.key\\.data",

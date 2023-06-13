@@ -8,9 +8,7 @@ describe("Mongo Form to Native conversion works", () => {
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
     cy.wait("@trigger");
-    _.agHelper.GetNClick(
-      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
-    );
+    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
     _.agHelper.EnterValue("listingAndReviews", {
       propFieldName: "",
       directInput: false,

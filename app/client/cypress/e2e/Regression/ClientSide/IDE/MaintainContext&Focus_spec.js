@@ -1,5 +1,6 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import formControls from "../../../../locators/FormControl.json";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
@@ -82,9 +83,7 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Mongo_Query");
 
     cy.wait(1000);
-    _.agHelper.GetNClick(
-      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
-    );
+    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
     cy.updateCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
       "TestCollection",

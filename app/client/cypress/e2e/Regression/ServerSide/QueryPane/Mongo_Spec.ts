@@ -1,5 +1,6 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import formControls from "../../../../locators/FormControl.json";
 
 let dsName: any;
 
@@ -276,9 +277,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       "Insert document(s)",
     );
 
-    _.agHelper.GetNClick(
-      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
-    );
+    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
     _.agHelper.EnterValue("AuthorNAwards", {
       propFieldName: "",
       directInput: false,
@@ -744,9 +743,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     _.agHelper.RenameWithInPane("InsertBirthNDeath");
-    _.agHelper.GetNClick(
-      "[data-testid='t--actionConfiguration.formData.collection.data-JS']",
-    );
+    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
     _.agHelper.EnterValue("BirthNDeath", {
       propFieldName: "",
       directInput: false,
