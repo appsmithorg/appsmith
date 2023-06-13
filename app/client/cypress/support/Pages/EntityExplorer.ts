@@ -112,6 +112,9 @@ export class EntityExplorer {
     this.agHelper.GetNClick(this._newPageOptions(option));
     if (option === "New blank page") {
       this.agHelper.AssertNetworkStatus("@createPage", 201);
+      return cy
+        .get("@createPage")
+        .then(($pageName: any) => $pageName.response?.body.data.name);
     }
   }
 
