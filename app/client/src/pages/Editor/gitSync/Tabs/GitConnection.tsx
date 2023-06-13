@@ -404,7 +404,7 @@ function GitConnection({ isImport }: Props) {
               value={remoteUrl}
             />
             {SSHKeyPair && isGitConnected && (
-              <Tooltip content="Disconnect git">
+              <Tooltip content="Disconnect Git">
                 <Button
                   className="t--git-disconnect-icon"
                   isIconButton
