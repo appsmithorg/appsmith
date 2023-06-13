@@ -297,7 +297,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         String environmentId = datasourceStorageDTO.getEnvironmentId();
 
         if (!hasText(datasourceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE_ID));
         }
 
         if (!hasText(environmentId)) {

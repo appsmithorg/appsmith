@@ -9,7 +9,6 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.OAuth2ResponseDTO;
@@ -153,8 +152,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .flatMap((datasource -> {
-                    OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
+                .flatMap((datasourceStorage -> {
+                    OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
@@ -535,27 +534,19 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                                         .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
                                                 .getDatasourceMetadata(datasourceStorage.getDatasourceConfiguration()))
-                                        .then(Mono.zip(Mono.just(datasourceStorage), accessTokenMono, projectIdMono, datasourceMonoCache));
+                                        .then(Mono.zip(Mono.just(datasourceStorage), accessTokenMono, projectIdMono));
                             });
                 })
                 .flatMap(tuple -> {
                     DatasourceStorage datasourceStorage = tuple.getT1();
+                    datasourceStorage.setUserPermissions(null);
+                    datasourceStorage.setPolicies(null);
                     String accessToken = tuple.getT2();
                     String projectID = tuple.getT3();
-                    // This datasource is coming fresh from db which has all the metadata and permissions,
-                    // which is required by client side in order to allow users to generate queries otherwise the
-                    // buttons are disabled. we will be sending this datasource itself which has the permissions as a fix
-                    // ref: https://github.com/appsmithorg/appsmith/issues/23840
-                    Datasource datasource = tuple.getT4();
                     OAuth2ResponseDTO response = new OAuth2ResponseDTO();
                     response.setToken(accessToken);
                     response.setProjectID(projectID);
-                    response.setDatasource(datasource);
-
-                    //since we are fetching our datasource fresh from db we are guaranteed that datasource won't have any storages
-                    datasource.getDatasourceStorages()
-                            .put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
-
+                    response.setDatasource(datasourceStorage);
                     return datasourceStorageService.save(datasourceStorage).thenReturn(response);
 
                 })
