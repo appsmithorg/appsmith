@@ -266,12 +266,13 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
-
+  cy.wait(4000);
+  cy.get("#loading").should("not.exist");
+  cy.get("#sidebar").should("be.visible");
   cy.wait("@updateLayout")
     .its("response.body.responseMeta.status")
     .should("eq", 200);
-  cy.get("#loading").should("not.exist");
-  cy.get("#sidebar").should("be.visible");
+
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
