@@ -1,12 +1,12 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { APP_MODE } from "entities/App";
 import { find, get, isString } from "lodash";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import type { TEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import { isJSFunctionProperty } from "@shared/ast";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
-import type { TEntityTree, TEntityTreeWithParsedJS } from "./entityTree";
+import type { TEntityTree } from "./entityTree";
+import { getEntityTreeWithParsedJS } from "./entityTree";
 import DependencyMap from "entities/DependencyMap";
 import { getAllPathsFromNode } from "./entityPath";
 import { lintingDependencyMap } from "./lintingDependencyMap";
@@ -14,7 +14,7 @@ import { getParsedJSEntity } from "./parseJSEntity";
 
 function isDataField(fullPath: string, entityTree: TEntityTree) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  const entity = find(entityTree, entityName);
+  const entity = entityTree[entityName];
   if (!entity) return false;
   const entityConfig = entity.getConfig();
   if (entityConfig && "triggerPaths" in entityConfig) {
@@ -22,26 +22,24 @@ function isDataField(fullPath: string, entityTree: TEntityTree) {
   }
   return false;
 }
-export class AsyncJsFunctionInDataField {
-  private dependencyMap = new DependencyMap();
-  private isDisabled = true;
-  initialize(appMode: APP_MODE | undefined) {
-    this.isDisabled = !(appMode === APP_MODE.EDIT);
+export class JSActionsInDataField {
+  private dependencyMap: DependencyMap | undefined = undefined;
+  initialize() {
+    this.dependencyMap = new DependencyMap();
   }
-
   update(
     fullPath: string,
     referencesInPath: string[],
     entityTree: TEntityTree,
   ) {
-    if (this.isDisabled) return [];
+    if (!this.dependencyMap) return [];
 
     const { entityName } = getEntityNameAndPropertyPath(fullPath);
-    const entity = find(entityTree, entityName);
+    const entity = entityTree[entityName];
     // Only datafields can cause updates
     if (!entity || !isDataField(fullPath, entityTree)) return [];
 
-    const asyncJSFunctionsInvokedInPath = getAsyncJSFunctionInvocationsInPath(
+    const asyncJSFunctionsInvokedInPath = getJSActionInvocationsInPath(
       entity,
       referencesInPath,
       fullPath,
@@ -69,20 +67,16 @@ export class AsyncJsFunctionInDataField {
     return updatedDependencies;
   }
 
-  handlePathDeletion(
-    deletedPath: string,
-    entityTree: TEntityTree,
-    entityTreeWithParsedJS: TEntityTreeWithParsedJS,
-  ) {
-    if (this.isDisabled) return [];
+  handlePathDeletion(deletedPath: string, entityTree: TEntityTree) {
+    if (!this.dependencyMap) return [];
     const updatedJSFns = new Set<string>();
     const { entityName } = getEntityNameAndPropertyPath(deletedPath);
-    const entity = find(entityTree, entityName);
+    const entity = entityTree[entityName];
     if (!entity) return [];
 
     const allDeletedPaths = getAllPathsFromNode(
       deletedPath,
-      entityTreeWithParsedJS,
+      getEntityTreeWithParsedJS(entityTree),
     );
 
     for (const path of Object.keys(allDeletedPaths)) {
@@ -99,11 +93,11 @@ export class AsyncJsFunctionInDataField {
     dependenciesInPath: string[],
     entityTree: TEntityTree,
   ) {
-    if (this.isDisabled) return [];
+    if (!this.dependencyMap) return [];
     let updatedJSFns: string[] = [];
     const { entityName } = getEntityNameAndPropertyPath(editedPath);
-    const entity = find(entityTree, entityName);
-    if (!entity) return;
+    const entity = entityTree[entityName];
+    if (!entity) return [];
 
     if (isJSEntity(entity)) {
       if (isAsyncJSFunction(editedPath)) {
@@ -123,11 +117,14 @@ export class AsyncJsFunctionInDataField {
   }
 
   getMap() {
-    return this.dependencyMap.getDependenciesInverse();
+    return this.dependencyMap?.getDependenciesInverse() || {};
+  }
+  clear() {
+    this.dependencyMap = undefined;
   }
 }
 
-function getAsyncJSFunctionInvocationsInPath(
+function getJSActionInvocationsInPath(
   entity: TEntity,
   dependencies: string[],
   fullPath: string,
@@ -183,4 +180,4 @@ export function isAsyncJSFunction(jsFnFullname: string) {
   );
 }
 
-export const asyncJsFunctionInDataFields = new AsyncJsFunctionInDataField();
+export const jsActionsInDataField = new JSActionsInDataField();

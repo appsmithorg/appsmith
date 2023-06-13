@@ -175,4 +175,8 @@ export default class DependencyMap {
   getDependenciesInverse() {
     return this.#dependenciesInverse;
   }
+  getIncomingDependencies(node: string) {
+    const nodes = this.#dependenciesInverse.get(node);
+    return Array.from(nodes || []);
+  }
 }

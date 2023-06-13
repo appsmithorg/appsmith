@@ -2,11 +2,11 @@ import type { TParsedJSProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
 import type { JSEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
-import { find, mapValues } from "lodash";
+import { mapValues } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 import type { createEntityTree } from "./entityTree";
 
-const parsedJSEntitiesCache: Record<string, ParsedJSEntity> = {};
+export const parsedJSEntitiesCache: Record<string, ParsedJSEntity> = {};
 
 export type TJSEntityState = { body: string } & Record<string, string>;
 type TJSEntityStateConfig = Record<string, TParsedJSProperty>;
@@ -96,7 +96,7 @@ function parseJSObjectBody(jsBody: string) {
 }
 
 export function getParsedJSEntity(jsObjectName: string) {
-  return find(parsedJSEntitiesCache, jsObjectName);
+  return parsedJSEntitiesCache[jsObjectName];
 }
 function convertParsedJSObjectPropertiesToValues(
   parsedJSObject: Record<string, TParsedJSProperty>,

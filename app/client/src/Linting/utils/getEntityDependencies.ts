@@ -16,7 +16,7 @@ import { getPropertyPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import { mergeMaps } from "./mergeMaps";
-import { flatten, get, isString, toPath, union, uniq } from "lodash";
+import { flatten, get, has, isString, toPath, union, uniq } from "lodash";
 import { isDynamicLeaf } from "./entityPath";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 
@@ -234,7 +234,7 @@ function getActionPropertyPathDependencies(
 export function extractReferencesFromPath(
   entity: TEntity,
   fullPropertyPath: string,
-  allPaths: Record<string, true>,
+  tree: Record<string, unknown>,
 ) {
   if (!isDynamicLeaf(entity, fullPropertyPath)) return [];
   const entityPropertyPath = getPropertyPath(fullPropertyPath);
@@ -249,7 +249,7 @@ export function extractReferencesFromPath(
 
   const referencesInPropertyPath = flatten(
     validJSSnippets.map((jsSnippet) =>
-      extractReferencesFromJSSnippet(jsSnippet, allPaths),
+      extractReferencesFromJSSnippet(jsSnippet, tree),
     ),
   );
   return referencesInPropertyPath;
@@ -257,20 +257,20 @@ export function extractReferencesFromPath(
 
 export function extractReferencesFromJSSnippet(
   jsSnippet: string,
-  allPaths: Record<string, true>,
+  tree: Record<string, unknown>,
 ) {
   const { references } = extractIdentifierInfoFromCode(jsSnippet, 2);
   const prunedReferences = references.map((reference) =>
-    getPrunedReference(reference, allPaths),
+    getPrunedReference(reference, tree),
   );
   return uniq(prunedReferences);
 }
 
 function getPrunedReference(
   reference: string,
-  allPaths: Record<string, true>,
+  tree: Record<string, unknown>,
 ): string {
-  if (allPaths.hasOwnProperty(reference)) {
+  if (has(tree, reference)) {
     return reference;
   }
   const subpaths = toPath(reference);
@@ -281,7 +281,7 @@ function getPrunedReference(
   while (subpaths.length > 1) {
     currentString = convertPathToString(subpaths);
     // We've found the dep, add it and return
-    if (allPaths.hasOwnProperty(currentString)) {
+    if (has(tree, currentString)) {
       return currentString;
     }
     subpaths.pop();
