@@ -101,7 +101,11 @@ function testLinkRelPreloads(viewOrEditMode) {
       .join(", ")}`;
 
     const uniqueLinks = [
-      ...new Set(links.filter((link) => !link.endsWith(".css"))),
+      ...new Set(
+        links
+          .map((link) => (window.CDN_URL ?? "/") + link)
+          .filter((link) => !link.endsWith(".css")),
+      ),
     ];
     const linksString = `[${uniqueLinks.length} items] ${uniqueLinks
       .sort()

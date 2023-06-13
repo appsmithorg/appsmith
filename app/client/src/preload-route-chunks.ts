@@ -18,13 +18,16 @@ declare global {
 
 const currentMode = getModeForPathname(window.location.pathname);
 if (window.__APPSMITH_CHUNKS_TO_PRELOAD && currentMode) {
-  window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode].forEach((url) => {
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = getPreloadValueForFile(url);
-    link.href = url;
-    document.head.appendChild(link);
-  });
+  window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode]
+    // __webpack_public_path__ might be set on runtime when the CDN is used in EE
+    .map((url) => __webpack_public_path__ + url)
+    .forEach((url) => {
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = getPreloadValueForFile(url);
+      link.href = url;
+      document.head.appendChild(link);
+    });
 }
 
 function getPreloadValueForFile(fileName: string) {

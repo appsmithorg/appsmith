@@ -50,9 +50,7 @@
       return JSON.stringify(chunksToPreload);
 
       function getChunkUrls(chunkName) {
-        return compilation.namedChunkGroups.get(chunkName).chunks
-          .flatMap(chunk => [...chunk.files])
-          .map(url => webpackConfig.output.publicPath + url);
+        return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
       }
     })()
       %>
