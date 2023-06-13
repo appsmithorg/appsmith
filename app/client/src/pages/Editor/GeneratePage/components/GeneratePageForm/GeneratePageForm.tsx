@@ -70,7 +70,6 @@ import { getPluginImages } from "selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
-import { isEnvironmentValid } from "@appsmith/utils/Environments";
 
 //  ---------- Styles ----------
 
@@ -602,7 +601,7 @@ function GeneratePageForm() {
   };
 
   // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
-  const isValidDatasourceConfig = isEnvironmentValid(selectedDatasource.data);
+  const isValidDatasourceConfig = selectedDatasource.data?.isValid;
 
   const pluginField: {
     TABLE: string;
@@ -656,7 +655,7 @@ function GeneratePageForm() {
 
   const submitButtonDisable =
     !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
-
+  console.log("ondhu ", fetchingDatasourceConfigError);
   return (
     <div>
       <Wrapper>
@@ -761,6 +760,7 @@ function GeneratePageForm() {
               virtual={false}
             >
               {datasourceTableOptions.map((table) => {
+                console.log("ondhu ", table);
                 return (
                   <Option key={table.value} value={table.value}>
                     <OptionWrapper>
