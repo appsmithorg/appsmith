@@ -117,7 +117,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
               label={option.label}
               value={option.value}
             >
-              <div className="flex flex-row">
+              <div className="flex flex-row w-full">
                 {/* Show Flag if present */}
                 {option.leftElement && (
                   <FlagWrapper>{option.leftElement}</FlagWrapper>
