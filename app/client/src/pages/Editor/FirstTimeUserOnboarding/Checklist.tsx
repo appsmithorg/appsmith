@@ -293,7 +293,15 @@ function CheckListItem(props: {
             </Text>
           </div>
         </div>
-        <Menu>
+        <Menu
+          onOpenChange={(open) => {
+            if (open) {
+              AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
+                step: props.step,
+              });
+            }
+          }}
+        >
           <MenuTrigger disabled={props.disabled}>
             <Button
               isDisabled={props.disabled}
@@ -357,7 +365,7 @@ export default function OnboardingChecklist() {
     } else {
       history.push(builderURL({ pageId }));
     }
-    AnalyticsUtil.logEvent("SIGNPOSTING_CONNECT_WIDGET_CLICK");
+    AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CONNECT_WIDGET_CLICK");
   };
 
   useEffect(() => {
@@ -413,6 +421,7 @@ export default function OnboardingChecklist() {
           isIconButton
           kind="tertiary"
           onClick={() => {
+            AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CLOSE_CLICK");
             dispatch(showSignpostingModal(false));
           }}
           startIcon={"close-line"}
@@ -436,7 +445,7 @@ export default function OnboardingChecklist() {
           ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal,
         )}
         onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
+          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_DATASOURCE_CLICK", {
             from: "CHECKLIST",
           });
           history.push(
@@ -457,7 +466,7 @@ export default function OnboardingChecklist() {
         )}
         normalText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
         onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
+          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_QUERY_CLICK", {
             from: "CHECKLIST",
           });
           history.push(
@@ -480,7 +489,7 @@ export default function OnboardingChecklist() {
         disabled={false}
         normalText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
         onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
+          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_ADD_WIDGET_CLICK", {
             from: "CHECKLIST",
           });
           dispatch(toggleInOnboardingWidgetSelection(true));
@@ -509,7 +518,7 @@ export default function OnboardingChecklist() {
           ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal,
         )}
         onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
+          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_PUBLISH_CLICK", {
             from: "CHECKLIST",
           });
           dispatch({

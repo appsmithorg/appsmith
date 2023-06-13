@@ -13,6 +13,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { IntercomConsent } from "../HelpButton";
 import classNames from "classnames";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 type HelpItem = {
@@ -82,7 +83,10 @@ function HelpMenu(props: {
           <div className="flex gap-2 flex-wrap mt-2">
             <Button
               kind="secondary"
-              onClick={() => triggerWelcomeTour(dispatch, applicationId)}
+              onClick={() => {
+                triggerWelcomeTour(dispatch, applicationId);
+                AnalyticsUtil.logEvent("SIGNPOSTING_WELCOME_TOUR_CLICK");
+              }}
               startIcon={"guide"}
             >
               Try guided tour

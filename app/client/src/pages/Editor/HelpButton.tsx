@@ -187,7 +187,10 @@ function HelpButton() {
           isFirstTimeUserOnboardingEnabled &&
             dispatch(showSignpostingModal(true));
           setShowIntercomConsent(false);
-          AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
+          AnalyticsUtil.logEvent("OPEN_HELP", {
+            page: "Editor",
+            signpostingActive: isFirstTimeUserOnboardingEnabled,
+          });
         }
       }}
       {...menuProps}
@@ -232,9 +235,10 @@ function HelpButton() {
               {!isAirgappedInstance && (
                 <>
                   <MenuItem
-                    onSelect={() =>
-                      triggerWelcomeTour(dispatch, currentApplicationId)
-                    }
+                    onSelect={() => {
+                      triggerWelcomeTour(dispatch, currentApplicationId);
+                      AnalyticsUtil.logEvent("HELP_MENU_WELCOME_TOUR_CLICK");
+                    }}
                     startIcon="guide"
                   >
                     Try guided tour
