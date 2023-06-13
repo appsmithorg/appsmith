@@ -145,7 +145,7 @@ export const GoogleAuth: AdminConfigType = {
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Github authentication",
+  title: "GitHub authentication",
   subText: createMessage(GITHUB_AUTH_DESC),
   canSave: true,
   settings: [
@@ -167,8 +167,8 @@ export const GithubAuth: AdminConfigType = {
       fieldName: "homepage-url-form",
       value: "",
       tooltip:
-        "This URL will be used while configuring the Github OAuth Client ID's homepage URL",
-      helpText: "Paste this URL in your Github developer settings.",
+        "This URL will be used while configuring the GitHub OAuth Client ID's homepage URL",
+      helpText: "Paste this URL in your GitHub developer settings.",
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_REDIRECT_URL",
@@ -180,8 +180,8 @@ export const GithubAuth: AdminConfigType = {
       fieldName: "callback-url-form",
       value: "/login/oauth2/code/github",
       tooltip:
-        "This URL will be used while configuring the Github OAuth Client ID's authorized callback URL",
-      helpText: "Paste this URL in your Github developer settings.",
+        "This URL will be used while configuring the GitHub OAuth Client ID's Authorization callback URL",
+      helpText: "Paste this URL in your GitHub developer settings.",
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
@@ -224,7 +224,7 @@ export const GoogleAuthCallout: AuthMethodType = {
 export const GithubAuthCallout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
-  label: "Github",
+  label: "GitHub",
   subText: createMessage(GITHUB_AUTH_DESC),
   image: Github,
 };
