@@ -30,7 +30,8 @@ export type EventLocation =
   | "KEYBOARD_SHORTCUT"
   | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
   | "JS_OBJECT_MAIN_RUN_BUTTON"
-  | "JS_OBJECT_RESPONSE_RUN_BUTTON";
+  | "JS_OBJECT_RESPONSE_RUN_BUTTON"
+  | "ONE_CLICK_BINDING";
 
 export type EventName =
   | "APP_CRASH"
@@ -300,7 +301,6 @@ export type EventName =
   | "CONVERT_AUTO_TO_FIXED"
   | "CONVERT_FIXED_TO_AUTO"
   | "DATASOURCE_AUTHORIZE_CLICK"
-  | "DATASOURCE_AUTHORIZE_RESULT"
   | "NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE"
   | "EDIT_DATASOURCE_CLICK"
   | "DISCARD_DATASOURCE_CHANGES"
@@ -315,7 +315,13 @@ export type EventName =
   | "RUN_SAAS_API_FAILURE"
   | "EXECUTE_ACTION_SUCCESS"
   | "EXECUTE_ACTION_FAILURE"
-  | AI_EVENTS;
+  | "GOOGLE_SHEET_FILE_PICKER_INITIATED"
+  | "GOOGLE_SHEET_FILE_PICKER_FILES_LISTED"
+  | "GOOGLE_SHEET_FILE_PICKER_CANCEL"
+  | "GOOGLE_SHEET_FILE_PICKER_PICKED"
+  | "TELEMETRY_DISABLED"
+  | AI_EVENTS
+  | ONE_CLICK_BINDING_EVENT_NAMES;
 
 export type AI_EVENTS =
   | "AI_QUERY_SENT"
@@ -360,6 +366,18 @@ export type ACTION_SELECTOR_EVENT_NAMES =
   | "ACTION_DELETED"
   | "ACTION_MODIFIED";
 
+export type ONE_CLICK_BINDING_EVENT_NAMES =
+  | "BIND_EXISTING_QUERY_TO_WIDGET"
+  | "GENERATE_QUERY_FOR_WIDGET"
+  | "BIND_OTHER_ACTIONS"
+  | "GENERATE_QUERY_SELECT_DATA_TABLE"
+  | "GENERATE_QUERY_SET_COLUMN"
+  | "GENERATE_QUERY_CONNECT_DATA_CLICK"
+  | "QUERY_GENERATION_BINDING_SUCCESS"
+  | "1_CLICK_BINDING_SUCCESS"
+  | "WIDGET_CONNECT_DATA_CLICK"
+  | "GENERATE_QUERY_SELECT_SHEET_GSHEET";
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -375,6 +393,7 @@ class AnalyticsUtil {
   static cachedUserId: string;
   static user?: User = undefined;
   static blockTrackEvent: boolean | undefined;
+  static instanceId?: string = "";
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -468,6 +487,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
+    const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
@@ -493,6 +513,7 @@ class AnalyticsUtil {
       finalEventData = {
         ...eventData,
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
+        instanceId,
       };
     }
 
@@ -563,6 +584,10 @@ class AnalyticsUtil {
     }
 
     AnalyticsUtil.blockTrackEvent = false;
+  }
+
+  static initInstanceId(instanceId: string) {
+    AnalyticsUtil.instanceId = instanceId;
   }
 
   static getAnonymousId() {

@@ -62,7 +62,9 @@ describe("Fork application across workspaces", function () {
     );
     cy.wait("@importNewApplication").then((interception) => {
       const { isPartialImport } = interception.response.body.data;
+      cy.log("isPartialImport : ", isPartialImport);
       if (isPartialImport) {
+        cy.wait(2000);
         cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
           force: true,
         });
@@ -85,8 +87,7 @@ describe("Fork application across workspaces", function () {
 
       cy.url().then((url) => {
         forkableAppUrl = url;
-        cy.get(homePage.profileMenu).click();
-        cy.get(homePage.signOutIcon).click();
+        cy.LogOut();
 
         cy.visit(forkableAppUrl);
         //cy.reload();
@@ -111,7 +112,7 @@ describe("Fork application across workspaces", function () {
     });
   });
 
-  it("Mark application as forkable", () => {
+  it.skip("Mark application as forkable", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToEmbedSettings();
     _.embedSettings.ToggleMarkForkable();

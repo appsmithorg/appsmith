@@ -1446,6 +1446,7 @@ Cypress.Commands.add("editTableCell", (x, y) => {
   cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
     .invoke("show")
     .click({ force: true });
+  cy.wait(500);
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
   ).should("exist");
@@ -1478,7 +1479,8 @@ Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
       `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
     )
       .focus()
-      .type(text);
+      .type(text)
+      .wait(500);
   }
 });
 
@@ -1498,6 +1500,16 @@ Cypress.Commands.add("saveTableRow", (x, y) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
   ).click({ force: true });
+});
+
+Cypress.Commands.add("AssertTableRowSavable", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
+  ).should("exist");
+
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
+  ).should("not.be.disabled");
 });
 
 Cypress.Commands.add("discardTableRow", (x, y) => {

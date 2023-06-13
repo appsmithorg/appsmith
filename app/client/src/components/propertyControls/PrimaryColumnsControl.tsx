@@ -156,7 +156,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
               DraggableListCard({
                 ...props,
                 isDelete: false,
-                placeholder: "Column Title",
+                placeholder: "Column title",
               })
             }
             toggleVisibility={this.toggleVisibility}

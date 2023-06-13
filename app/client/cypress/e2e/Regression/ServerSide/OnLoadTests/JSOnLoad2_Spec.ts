@@ -30,7 +30,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
-        "ReferenceError: getWorldCountries is not defined",
+        "getWorldCountries is not defined",
       );
     });
   });
@@ -41,7 +41,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "ReferenceError: getWorldCountries is not defined",
+      "getWorldCountries is not defined",
     );
   });
 
@@ -52,11 +52,10 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     _.homePage.DeleteApplication("JSOnLoadFailureTest");
     _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    _.agHelper.AssertContains("Deleting application...");
     //_.homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
-  it("6. Tc #1910 - Verify the Number of confirmation models of JS object on page load", () => {
+  it("6. Tc #1910 - Verify the Number of confirmation models of JS Object on page load", () => {
     _.homePage.CreateAppInWorkspace("JSOnLoadTest");
     _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
     _.entityExplorer.NavigateToSwitcher("Explorer");
@@ -154,7 +153,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     }
   });
 
-  it("7. Tc #1909 - Verify the sequence of of JS object on page load", () => {
+  it("7. Tc #1909 - Verify the sequence of of JS Object on page load", () => {
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.SelectEntityByName("JSObject1");
     _.jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);

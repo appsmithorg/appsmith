@@ -44,6 +44,12 @@ Cypress.Commands.add("fillGithubFormPartly", () => {
 });
 
 Cypress.Commands.add("fillGithubForm", () => {
+  const baseUrl = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
+  cy.get(githubForm.githubHomepageUrl).should("have.value", `${baseUrl}`);
+  cy.get(githubForm.githubCallbackUrl).should(
+    "have.value",
+    `${baseUrl}/login/oauth2/code/github`,
+  );
   cy.get(githubForm.githubClientId).type(
     Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"),
   );

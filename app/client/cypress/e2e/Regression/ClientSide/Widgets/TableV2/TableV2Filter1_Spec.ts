@@ -4,7 +4,6 @@ let dataSet: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
-  homePage = ObjectsRegistry.HomePage,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
@@ -18,6 +17,8 @@ describe("Verify various Table_Filter combinations", function () {
   it("1. Adding Data to Table Widget", function () {
     ee.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
     //propPane.EnterJSContext("Table data", JSON.stringify(dataSet.TableInput));
+    table.AddSampleTableData();
+    //propPane.EnterJSContext("Table Data", JSON.stringify(dataSet.TableInput));
     propPane.UpdatePropertyFieldValue(
       "Table data",
       JSON.stringify(dataSet.TableInput),
@@ -25,9 +26,9 @@ describe("Verify various Table_Filter combinations", function () {
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     cy.get("body").type("{esc}");
     /*
-      Changing id and orderAmount to "Plain Text" column type
+      Changing id and orderAmount to "Plain text" column type
       so that the tests that depend on id and orderAmount
-      being "Plain Text" type do not fail.
+      being "Plain text" type do not fail.
       From this PR onwards columns with number data (like id and orderAmount here)
       will be auto-assigned as "NUMBER" type column
     */
