@@ -34,7 +34,9 @@ function TableOrSpreadsheetDropdown() {
           isLoading={isLoading}
           isValid={!error}
           onSelect={(value: string, selectedOption: DefaultOptionType) => {
-            const option = options.find((d) => d.id === selectedOption.key);
+            const option = options.find(
+              (d: DefaultOptionType) => d.id === selectedOption.key,
+            );
 
             if (option) {
               onSelect(value, option);
