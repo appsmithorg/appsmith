@@ -19,7 +19,7 @@ describe("API Panel Test Functionality ", function () {
       entityNameinLeftSidebar: "FirstAPI",
       action: "Copy to page",
       subAction: "SecondPage",
-      toastToValidate: "actioncopied to page",
+      toastToValidate: "action copied to page",
     });
     // assert GET API is present.
     apiPage.AssertAPIVerb("GET");
