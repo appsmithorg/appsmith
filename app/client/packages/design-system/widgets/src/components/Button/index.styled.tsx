@@ -1,6 +1,84 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Button as HeadlessButton } from "@design-system/headless";
+
 import type { ButtonProps } from "./Button";
+
+export const BUTTON_ICON_POSITIONS = ["start", "end"] as const;
+
+export type ButtonIconPosition = (typeof BUTTON_ICON_POSITIONS)[number];
+
+export const BUTTON_VARIANT = {
+  filled: "filled",
+  outlined: "outlined",
+  ghost: "ghost",
+} as const;
+
+export type ButtonVariant =
+  (typeof BUTTON_VARIANT)[keyof typeof BUTTON_VARIANT];
+
+export const BUTTON_COLOR = {
+  accent: "accent",
+  neutral: "neutral",
+  positive: "positive",
+  negative: "negative",
+  warning: "warning",
+} as const;
+
+export type ButtonColor = (typeof BUTTON_COLOR)[keyof typeof BUTTON_COLOR];
+
+export const buttonStyles = css<ButtonProps>`
+  ${({ color = "accent", variant = "filled" }) => {
+    if (variant === "filled") {
+      return css`
+        background-color: var(--color-bg-${color});
+        color: var(--color-fg-on-${color});
+        border-color: transparent;
+
+        &[data-hovered] {
+          background-color: var(--color-bg-${color}-hover);
+        }
+
+        &[data-active] {
+          background-color: var(--color-bg-${color}-active);
+        }
+      `;
+    }
+
+    if (variant === "outlined") {
+      return css`
+        background-color: transparent;
+        color: var(--color-fg-${color});
+        border-color: var(--color-bd-${color});
+        border-width: var(--border-width-1);
+
+        &[data-hovered] {
+          background-color: var(--color-bg-${color}-subtle-hover);
+        }
+
+        &[data-active] {
+          background-color: var(--color-bg-${color}-subtle-active);
+        }
+      `;
+    }
+
+    if (variant === "ghost") {
+      return css`
+        background: transparent;
+        color: var(--color-fg-${color});
+        border-color: transparent;
+        border-width: 0;
+
+        &[data-hovered] {
+          background: var(--color-bg-${color}-subtle-hover);
+        }
+
+        &[data-active] {
+          background: var(--color-bg-${color}-subtle-active);
+        }
+      `;
+    }
+  }}
+`;
 
 export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   display: flex;
@@ -14,55 +92,15 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   border-radius: var(--border-radius-1);
   user-select: none;
   min-width: calc(var(--root-unit) * 7.5);
+  text-align: center;
+  position: relative;
 
-  // TODO: remove this when we use only flex layout
+  ${buttonStyles}
+
+  // TODO(Valera): remove this when we use only flex layout
   &[data-fit-container] {
     width: 100%;
     height: 100%;
-  }
-
-  &[data-variant="primary"] {
-    background-color: var(--color-bg-accent);
-    color: var(--color-fg-on-accent);
-    border-color: transparent;
-
-    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
-      background-color: var(--color-bg-accent-hover);
-    }
-
-    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
-      background-color: var(--color-bg-accent-active);
-    }
-  }
-
-  &[data-variant="secondary"] {
-    background-color: transparent;
-    color: var(--color-fg-accent);
-    border-color: var(--color-bd-accent);
-    border-width: var(--border-width-1);
-
-    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
-      background-color: var(--color-bg-accent-subtle-hover);
-    }
-
-    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
-      background-color: var(--color-bg-accent-subtle-active);
-    }
-  }
-
-  &[data-variant="tertiary"] {
-    background: transparent;
-    color: var(--color-fg-accent);
-    border-color: transparent;
-    border-width: 0;
-
-    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
-      background: var(--color-bg-accent-subtle-hover);
-    }
-
-    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
-      background: var(--color-bg-accent-subtle-active);
-    }
   }
 
   &[data-focused] {
@@ -80,12 +118,33 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     cursor: default;
   }
 
-  & [data-icon] {
-    height: calc(var(--root-unit) * 5);
-    width: calc(var(--root-unit) * 5);
-  }
-
   &[data-icon-position="end"] {
     flex-direction: row-reverse;
+  }
+
+  /** Note: adding direct selector ">" here because blueprint also has data-icon attribute on their icons */
+  & > [data-icon] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(var(--sizing-root-unit) * 5);
+    width: calc(var(--sizing-root-unit) * 5);
+  }
+`;
+
+/**
+ * We have this Bug in Firefox where we are unable to drag
+ * buttons - https://bugzilla.mozilla.org/show_bug.cgi?id=568313
+ *
+ * We found a solution here - https://stackoverflow.com/a/43888410
+ */
+export const DragContainer = styled.div`
+  &:after {
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
   }
 `;

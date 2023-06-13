@@ -30,27 +30,79 @@ There are 3 variants of the button component.
 
 <Canvas>
   <Story
-    name="Primary"
+    name="Fileld"
     args={{
-      children: "Primary",
+      children: "Filled",
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Secondary"
+    name="Outlined"
     args={{
-      variant: "secondary",
-      children: "Secondary",
+      variant: "outlined",
+      children: "Outlined",
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Tertiary"
+    name="Ghost"
     args={{
-      variant: "tertiary",
-      children: "Tertiary",
+      variant: "ghost",
+      children: "Ghost",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+# Semantic Variants
+
+There are 4 variants of the button component.
+
+<Canvas>
+  <Story
+    name="Accent"
+    args={{
+      color: "accent",
+      children: "Accent",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Positive"
+    args={{
+      color: "positive",
+      children: "Positive",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Negative"
+    args={{
+      color: "negative",
+      children: "Negative",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Warning"
+    args={{
+      color: "warning",
+      children: "Warning",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Neutral"
+    args={{
+      color: "neutral",
+      children: "Neutral",
     }}
   >
     {Template.bind({})}
