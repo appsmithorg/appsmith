@@ -233,7 +233,6 @@ export class EntityExplorer {
     toAssertAction,
     toastToValidate = "",
   }: EntityActionParams) {
-    this.SelectEntityByName(entityNameinLeftSidebar);
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
@@ -275,7 +274,7 @@ export class EntityExplorer {
         .invoke("text")
         .then(($query) => {
           this.ActionContextMenuByEntityName({
-            entityNameinLeftSidebar: $query,
+            entityNameinLeftSidebar: $query as string,
             action: "Delete",
             entityType: EntityItems.Query,
           });
