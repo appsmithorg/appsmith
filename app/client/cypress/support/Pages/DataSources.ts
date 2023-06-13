@@ -204,6 +204,8 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
+  private getJSONswitchLocator = (fieldLocator: string) =>
+    `[data-testid='${fieldLocator}.data-JS']`;
   _nestedWhereClauseKey = (index: number) =>
     ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
     index +
@@ -1319,5 +1321,22 @@ export class DataSources {
         );
         break;
     }
+  }
+
+  public updateJSFieldWithInputValue({
+    fieldLabel,
+    fieldProperty,
+    fieldValue,
+  }: {
+    fieldProperty: string;
+    fieldValue: string;
+    fieldLabel: string;
+  }) {
+    this.agHelper.GetNClick(this.getJSONswitchLocator(fieldProperty));
+    this.agHelper.EnterValue(fieldValue, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: fieldLabel,
+    });
   }
 }

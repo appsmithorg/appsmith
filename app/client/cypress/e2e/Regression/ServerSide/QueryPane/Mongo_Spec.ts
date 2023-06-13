@@ -277,11 +277,10 @@ describe("Validate Mongo Query Pane Validations", () => {
       "Insert document(s)",
     );
 
-    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
-    _.agHelper.EnterValue("AuthorNAwards", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    _.dataSources.updateJSFieldWithInputValue({
+      fieldProperty: formControls.mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "AuthorNAwards",
     });
 
     _.agHelper.EnterValue(authorNAwardsArray, {
@@ -743,11 +742,10 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     _.agHelper.RenameWithInPane("InsertBirthNDeath");
-    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
-    _.agHelper.EnterValue("BirthNDeath", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    _.dataSources.updateJSFieldWithInputValue({
+      fieldProperty: formControls.mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "BirthNDeath",
     });
 
     _.agHelper.EnterValue(birthNDeathArray, {

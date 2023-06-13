@@ -8,11 +8,10 @@ describe("Mongo Form to Native conversion works", () => {
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
     cy.wait("@trigger");
-    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
-    _.agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    _.dataSources.updateJSFieldWithInputValue({
+      fieldProperty: formControls.mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "listingAndReviews",
     });
     // _.dataSources.ValidateNSelectDropdown(
     //   "Collection",

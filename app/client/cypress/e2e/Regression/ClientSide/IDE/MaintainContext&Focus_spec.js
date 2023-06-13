@@ -83,11 +83,11 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Mongo_Query");
 
     cy.wait(1000);
-    _.agHelper.GetNClick(formControls.mongoCollectionJSONswitch);
-    cy.updateCodeInput(
-      ".t--actionConfiguration\\.formData\\.collection\\.data",
-      "TestCollection",
-    );
+    _.dataSources.updateJSFieldWithInputValue({
+      fieldProperty: formControls.mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "TestCollection",
+    });
     cy.wait("@saveAction");
   });
 
