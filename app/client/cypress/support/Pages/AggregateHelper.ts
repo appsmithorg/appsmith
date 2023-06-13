@@ -1384,7 +1384,7 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public VisitNValidate(url: string, apiToValidate = "") {
+  public VisitNAssert(url: string, apiToValidate = "") {
     cy.visit(url);
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);

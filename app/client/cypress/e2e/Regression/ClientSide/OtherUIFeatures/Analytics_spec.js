@@ -6,7 +6,7 @@ describe(
   "Checks for analytics for enableTelemtry",
   function () {
     before(() => {
-      agHelper.VisitNValidate("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.get(".admin-settings-menu-option").click();
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").should("be.checked"); //Bug 21191
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").uncheck({
@@ -21,7 +21,7 @@ describe(
     });
 
     it("1. Should check analytics is not initialised when enableTelemtry is false", function () {
-      agHelper.VisitNValidate("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
       // agHelper.RefreshPage();
       // cy.wait(3000);
       // cy.wait("@getMe")
@@ -52,7 +52,7 @@ describe(
     });
 
     it("2. Should check smartlook is not initialised when enableTelemtry is false", function () {
-      agHelper.VisitNValidate("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {
@@ -75,7 +75,7 @@ describe(
     });
 
     it("3. Should check Sentry is not initialised when enableTelemtry is false", function () {
-      agHelper.VisitNValidate("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {

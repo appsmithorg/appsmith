@@ -34,6 +34,7 @@ export class HomePage {
       ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
       : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
+  _newWorkSpaceLink = this._visibleTextSpan("New workspace") + "/ancestor::a";
   private _userRole = (role: string) =>
     "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
     role +
@@ -93,9 +94,7 @@ export class HomePage {
     ".ads-v2-menu__menu-item-children:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
   private _workSpaceByName = (wsName: string) =>
-    "//div[contains(@class, 't--applications-container')]//span[text()='" +
-    wsName +
-    "']";
+    `//div[contains(@class, 't--applications-container')]//span[text()='${wsName}']`;
   _welcomeTour = ".t--welcome-tour";
   _welcomeTourBuildingButton = ".t--start-building";
   _reconnectDataSourceModal = "[data-testid='reconnect-datasource-modal']";
@@ -112,11 +111,8 @@ export class HomePage {
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName = "";
-    cy.xpath(this._visibleTextSpan("New workspace"))
-      .should("be.visible")
-      .first()
-      .click({ force: true });
-    cy.wait("@createWorkspace");
+    this.agHelper.GetNClick(this._newWorkSpaceLink);
+    this.agHelper.AssertNetworkStatus("createWorkspace", 201);
     this.agHelper.Sleep(2000);
     cy.xpath(this._lastWorkspaceInHomePage)
       .first()
@@ -314,7 +310,7 @@ export class HomePage {
     this.agHelper.Sleep(); //waiting for window to load
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
-    this.agHelper.VisitNValidate("/user/login", "signUpLogin");
+    this.agHelper.VisitNAssert("/user/login", "signUpLogin");
     cy.get(this._username).should("be.visible").type(uname);
     cy.get(this._password).type(pswd, { log: false });
     cy.get(this._submitBtn).click();
