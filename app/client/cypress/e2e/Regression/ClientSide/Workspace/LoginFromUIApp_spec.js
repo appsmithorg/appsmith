@@ -1,4 +1,7 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 let pageid;
 
 describe("Login from UI and check the functionality", function () {
@@ -12,11 +15,11 @@ describe("Login from UI and check the functionality", function () {
       pageid = uid;
       cy.Createpage(pageid);
       cy.get(`.t--entity-name`).contains(pageid).trigger("mouseover");
-      _.entityExplorer.ActionContextMenuByEntityName(
-        pageid,
-        "Delete",
-        "Are you sure?",
-      );
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: pageid,
+        action: "Delete",
+        entityType: entityItems.Page,
+      });
       cy.wait(2000);
     });
     cy.wait("@deletePage")

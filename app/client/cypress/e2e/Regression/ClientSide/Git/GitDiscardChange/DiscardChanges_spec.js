@@ -1,6 +1,7 @@
 import {
   agHelper,
   entityExplorer,
+  entityItems,
   jsEditor,
   gitSync,
   dataSources,
@@ -109,6 +110,7 @@ describe("Git discard changes:", function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: query1,
       action: "Delete",
+      entityType: entityItems.Query,
     });
     // verify Query1 is deleted
     entityExplorer.AssertEntityAbsenceInExplorer(query1);

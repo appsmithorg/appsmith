@@ -2,6 +2,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 import {
   apiPage,
   entityExplorer,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 const firstApiName = "First";
@@ -27,10 +28,12 @@ describe("Api Naming conflict on a page test", function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: secondApiName,
       action: "Delete",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: firstApiName,
       action: "Delete",
+      entityType: entityItems.Api,
     });
   });
 });

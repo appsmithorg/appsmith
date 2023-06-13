@@ -1,7 +1,7 @@
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Suite to validate copy/paste table Widget V2", function () {
   before(() => {
@@ -35,10 +35,10 @@ describe("Test Suite to validate copy/paste table Widget V2", function () {
       "not.exist",
     );
     cy.CheckAndUnfoldWidgets();
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Table1Copy",
-      "Show bindings",
-    );
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Table1Copy",
+      action: "Show bindings",
+    });
     cy.wait(200);
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(22);
