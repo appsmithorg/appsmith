@@ -13,6 +13,8 @@ import {
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { SIGNPOSTING_STEP } from "./Utils";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const ProgressContainer = styled.div<StatusProgressbarContainerType>`
   background-color: ${(props) =>
@@ -63,7 +65,32 @@ const useStatusListener = () => {
     deps,
   );
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
+  );
   const dispatch = useDispatch();
+
+  let percentage = 0;
+
+  if (datasources.length || actions.length) {
+    percentage += 20;
+  }
+
+  if (actions.length) {
+    percentage += 20;
+  }
+
+  if (Object.keys(widgets).length > 1) {
+    percentage += 20;
+  }
+
+  if (isConnectionPresent) {
+    percentage += 20;
+  }
+
+  if (isDeployed) {
+    percentage += 20;
+  }
 
   useEffect(() => {
     if (!!(datasources.length || actions.length)) {
@@ -164,6 +191,15 @@ const useStatusListener = () => {
       });
     }
   }, [isDeployed]);
+
+  useEffect(() => {
+    if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
+      dispatch({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
+        payload: true,
+      });
+    }
+  }, [percentage, isFirstTimeUserOnboardingComplete]);
 };
 
 export function OnboardingStatusbar() {
