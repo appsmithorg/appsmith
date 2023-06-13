@@ -159,7 +159,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: false,
+            fullWidth: true,
             hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },

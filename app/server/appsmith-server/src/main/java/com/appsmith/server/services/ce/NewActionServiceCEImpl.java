@@ -1523,5 +1523,29 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return analyticsProperties;
     }
 
+    @Override
+    public void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName) {
+        DefaultResources defaultResources = branchedAction.getDefaultResources();
+        // Create new action but keep defaultApplicationId and defaultActionId same for both the actions
+        defaultResources.setBranchName(branchName);
+        newAction.setDefaultResources(defaultResources);
 
+        String defaultPageId = branchedAction.getUnpublishedAction() != null
+                ? branchedAction.getUnpublishedAction().getDefaultResources().getPageId()
+                : branchedAction.getPublishedAction().getDefaultResources().getPageId();
+        DefaultResources defaultsDTO = new DefaultResources();
+        defaultsDTO.setPageId(defaultPageId);
+        if (newAction.getUnpublishedAction() != null) {
+            newAction.getUnpublishedAction().setDefaultResources(defaultsDTO);
+        }
+        if (newAction.getPublishedAction() != null) {
+            newAction.getPublishedAction().setDefaultResources(defaultsDTO);
+        }
+
+        newAction.getUnpublishedAction().setDeletedAt(branchedAction.getUnpublishedAction().getDeletedAt());
+        newAction.setDeletedAt(branchedAction.getDeletedAt());
+        newAction.setDeleted(branchedAction.getDeleted());
+        // Set policies from existing branch object
+        newAction.setPolicies(branchedAction.getPolicies());
+    }
 }

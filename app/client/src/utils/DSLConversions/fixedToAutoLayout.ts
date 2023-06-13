@@ -28,7 +28,7 @@ const specialCaseWidgets = ["LIST_WIDGET_V2"];
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
 
 /**
- * This method converts the fixed to Auto layout and updates the positions
+ * This method converts the fixed to auto-layout and updates the positions
  * @param dsl DSL to be Converted
  * @returns dsl in an AutoLayout dsl format
  */
@@ -90,7 +90,7 @@ export function convertDSLtoAuto(dsl: DSLWidget) {
 /**
  * This is specifically for Auto widget
  * @param dsl
- * @returns auto layout converted Auto Widget
+ * @returns auto-layout converted Auto Widget
  */
 export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
   const { calculatedBottomRow, children, flexLayers } =
