@@ -220,16 +220,9 @@ export class EntityExplorer {
     cy.xpath(this.locator._contextMenuItem(action)).click({ force: true });
     this.agHelper.Sleep(1000);
     if (action == "Delete") {
-      subAction = "Are you sure?";
-    }
-    if (subAction) {
-      cy.xpath(this.locator._contextMenuItem(subAction)).click({ force: true });
-      this.agHelper.Sleep(300);
-    }
-    if (action == "Delete") {
-      jsDelete &&
-        this.agHelper.AssertContains("deleted successfully") &&
-        this.agHelper.AssertNetworkStatus("@deleteJSCollection");
+      this.agHelper.DeleteEntityNAssert(jsDelete);
+    } else if (subAction) {
+      this.agHelper.ActionContextMenuSubItem(subAction, 0, true);
     }
   }
 

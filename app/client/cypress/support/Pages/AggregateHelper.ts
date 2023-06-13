@@ -850,18 +850,24 @@ export class AggregateHelper {
     this.GetNClick(this.locator._contextMenuItem(action));
 
     if (action == "Delete") {
-      subAction = "Are you sure?";
+      this.DeleteEntityNAssert(jsDelete);
+    } else if (subAction) {
+      this.ActionContextMenuSubItem(subAction);
     }
-    if (subAction) {
-      this.GetNClick(this.locator._contextMenuItem(subAction));
-      this.Sleep(1000);
-    }
-    if (action == "Delete") {
-      !jsDelete && this.AssertNetworkStatus("@deleteAction");
-      jsDelete &&
-        this.AssertContains("deleted successfully") &&
-        this.AssertNetworkStatus("@deleteJSCollection");
-    }
+  }
+
+  public ActionContextMenuSubItem(subAction = "", index = 0, force = false) {
+    this.GetNClick(this.locator._contextMenuItem(subAction), index, force);
+    this.Sleep();
+  }
+
+  public DeleteEntityNAssert(jsDelete = false) {
+    this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
+    this.Sleep();
+    !jsDelete && this.AssertNetworkStatus("@deleteAction");
+    jsDelete &&
+      this.AssertContains("deleted successfully") &&
+      this.AssertNetworkStatus("@deleteJSCollection");
   }
 
   public EnterValueNValidate(valueToType: string, fieldName = "") {
