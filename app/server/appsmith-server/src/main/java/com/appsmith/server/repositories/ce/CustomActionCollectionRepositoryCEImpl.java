@@ -7,17 +7,23 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -152,6 +158,13 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
+    public Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        return queryAll(List.of(defaultAppIdCriteria), permission);
+    }
+
+    @Override
     public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
         Criteria pageIdCriteria = where(
                 fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." +
@@ -165,5 +178,45 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." +
                         fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId)).in(pageIds);
         return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Mono<List<ActionCollection>> bulkInsert(List<ActionCollection> actionCollectionList) {
+        if(CollectionUtils.isEmpty(actionCollectionList)) {
+            return Mono.just(actionCollectionList);
+        }
+
+        // convert the list of action collections to a list of DBObjects
+        List<Document> dbObjects = actionCollectionList.stream().map(actionCollection -> {
+            Document document = new Document();
+            mongoOperations.getConverter().write(actionCollection, document);
+            return document;
+        }).collect(Collectors.toList());
+
+        return mongoOperations.getCollection(mongoOperations.getCollectionName(ActionCollection.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
+                .then(Mono.just(actionCollectionList));
+    }
+
+    @Override
+    public Mono<List<ActionCollection>> bulkUpdate(List<ActionCollection> actionCollections) {
+        if(CollectionUtils.isEmpty(actionCollections)) {
+            return Mono.just(actionCollections);
+        }
+
+        // convert the list of new actions to a list of DBObjects
+        List<WriteModel<Document>> dbObjects = actionCollections.stream().map(actionCollection -> {
+            assert actionCollection.getId() != null;
+            Document document = new Document();
+            mongoOperations.getConverter().write(actionCollection, document);
+            document.remove("_id");
+            return (WriteModel<Document>) new UpdateOneModel<Document>(
+                    new Document("_id", new ObjectId(actionCollection.getId())), new Document("$set", document)
+            );
+        }).collect(Collectors.toList());
+
+        return mongoOperations.getCollection(mongoOperations.getCollectionName(ActionCollection.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
+                .then(Mono.just(actionCollections));
     }
 }
