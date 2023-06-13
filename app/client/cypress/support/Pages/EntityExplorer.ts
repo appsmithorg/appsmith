@@ -25,7 +25,8 @@ interface EntityActionParams {
     | "Delete"
     | "Clone"
     | "Settings"
-    | "Copy to page";
+    | "Copy to page"
+    | "Refresh";
   subAction?: string;
   entityType?: EntityItems;
   toAssertAction?: boolean;
@@ -227,7 +228,7 @@ export class EntityExplorer {
     action = "Delete",
     subAction = "",
     entityType = EntityItems.Query,
-    toAssertAction = true,
+    toAssertAction,
     toastToValidate = "",
   }: EntityActionParams) {
     this.SelectEntityByName(entityNameinLeftSidebar);
@@ -239,6 +240,7 @@ export class EntityExplorer {
     cy.xpath(this.locator._contextMenuItem(action)).click({ force: true });
     this.agHelper.Sleep(1000);
     if (action == "Delete") {
+      toAssertAction = toAssertAction === false ? false : true;
       this.agHelper.DeleteEntityNAssert(entityType, toAssertAction);
     } else if (subAction) {
       this.agHelper.ActionContextMenuSubItem({
