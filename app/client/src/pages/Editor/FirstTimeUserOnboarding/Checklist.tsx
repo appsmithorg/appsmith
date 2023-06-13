@@ -243,7 +243,13 @@ function CheckListItem(props: {
           "flex items-center justify-between": true,
         })}
         disabled={props.disabled}
-        onClick={props.completed ? () => null : props.onClick}
+        onClick={
+          props.completed
+            ? () => null
+            : () => {
+                props.onClick();
+              }
+        }
       >
         <div className="flex items-center gap-2.5">
           {props.completed ? (
@@ -354,6 +360,7 @@ export default function OnboardingChecklist() {
   );
   const onconnectYourWidget = () => {
     const action = actions[0];
+    dispatch(showSignpostingModal(false));
     if (action && applicationId && pageId) {
       dispatch(
         bindDataOnCanvas({
@@ -448,6 +455,7 @@ export default function OnboardingChecklist() {
           AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_DATASOURCE_CLICK", {
             from: "CHECKLIST",
           });
+          dispatch(showSignpostingModal(false));
           history.push(
             integrationEditorURL({
               pageId,
@@ -469,6 +477,7 @@ export default function OnboardingChecklist() {
           AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_QUERY_CLICK", {
             from: "CHECKLIST",
           });
+          dispatch(showSignpostingModal(false));
           history.push(
             integrationEditorURL({
               pageId,
@@ -492,6 +501,7 @@ export default function OnboardingChecklist() {
           AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_ADD_WIDGET_CLICK", {
             from: "CHECKLIST",
           });
+          dispatch(showSignpostingModal(false));
           dispatch(toggleInOnboardingWidgetSelection(true));
           dispatch(forceOpenWidgetPanel(true));
           history.push(builderURL({ pageId }));
@@ -521,6 +531,7 @@ export default function OnboardingChecklist() {
           AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_PUBLISH_CLICK", {
             from: "CHECKLIST",
           });
+          dispatch(showSignpostingModal(false));
           dispatch({
             type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
             payload: {

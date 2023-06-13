@@ -40,6 +40,7 @@ import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
 import { Spinner } from "design-system";
+import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -187,6 +188,7 @@ class Editor extends Component<Props> {
             <TemplatesModal />
             <ImportedApplicationSuccessModal />
             <ReconnectDatasourceModal />
+            <SignpostingOverlay />
           </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />

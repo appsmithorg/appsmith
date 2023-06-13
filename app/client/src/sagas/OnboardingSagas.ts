@@ -413,16 +413,24 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: action.payload.applicationId,
   });
-  yield put({
-    type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
-    payload: true,
-  });
   yield put(setSignpostingOverlay(true));
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
     }),
   );
+
+  const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+  if (!isEditorInitialised) {
+    yield take(ReduxActionTypes.RESTORE_RECENT_ENTITIES_SUCCESS);
+  }
+  // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
+  // is loaded
+  yield delay(1000);
+  yield put({
+    type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+    payload: true,
+  });
 }
 
 function* setFirstTimeUserOnboardingCompleteSaga(action: ReduxAction<boolean>) {

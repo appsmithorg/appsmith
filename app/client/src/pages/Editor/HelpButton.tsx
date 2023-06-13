@@ -172,7 +172,6 @@ function HelpButton() {
   const menuProps = isFirstTimeUserOnboardingEnabled
     ? {
         open: onboardingModalOpen,
-        modal: setOverlay,
       }
     : {};
 

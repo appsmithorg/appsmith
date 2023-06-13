@@ -26,10 +26,7 @@ function OnboardingModal(props: {
     <StyledMenuContent
       collisionPadding={10}
       onInteractOutside={() => {
-        // We initially set the menu to modal mode, so we need to handle on click outside
-        if (props.setOverlay) {
-          dispatch(showSignpostingModal(false));
-        }
+        dispatch(showSignpostingModal(false));
       }}
       width={SIGNPOSTING_POPUP_WIDTH}
     >
