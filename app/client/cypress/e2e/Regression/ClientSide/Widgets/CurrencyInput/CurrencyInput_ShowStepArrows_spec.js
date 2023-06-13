@@ -1,21 +1,18 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "currencyinputwidget";
 
 describe("Currency Widget showStepArrows Functionality - ", function () {
   it("1. Validate that For new currency input widgets being dragged, the value for showStepArrows should be set to false", () => {
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });
-    cy.openPropertyPane(widgetName);
-
+    entityExplorer.SelectEntityByName("CurrencyInput1");
     cy.get(widgetsPage.showStepArrowsToggleCheckBox).should("not.be.checked");
-
     cy.get(widgetsPage.inputStepArrows).should("not.exist"); // This is the step arrows
   });
 
   it("2. Validate that currency input widget, stepArrows should be visible when showStepArrows is set to true", () => {
     // Enable showStepArrows to true
     cy.togglebar(widgetsPage.showStepArrowsToggleCheckBox);
-
     cy.get(widgetsPage.inputStepArrows).should("exist"); // step arrows should be visible
   });
 

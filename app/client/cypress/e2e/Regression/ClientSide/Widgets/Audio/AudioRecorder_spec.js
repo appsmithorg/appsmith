@@ -1,14 +1,14 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
-
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "audiorecorderwidget";
 
 describe("AudioRecorder Widget", () => {
   it("Drag & drop AudioRecorder and Text widgets", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
-    cy.get(`.t--widget-${widgetName}`).should("exist");
+    entityExplorer.SelectEntityByName("AudioRecorder1");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-    cy.openPropertyPane("textwidget");
+    entityExplorer.SelectEntityByName("Text1");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{AudioRecorder1.isDirty}}`,

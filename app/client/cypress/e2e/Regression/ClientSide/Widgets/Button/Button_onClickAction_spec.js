@@ -3,7 +3,10 @@ const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Button Widget Functionality", function () {
   before(() => {
@@ -11,7 +14,8 @@ describe("Button Widget Functionality", function () {
   });
 
   beforeEach(() => {
-    cy.openPropertyPane("buttonwidget");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Container3");
   });
 
   it("1. Button-Modal Validation", function () {
@@ -30,7 +34,7 @@ describe("Button Widget Functionality", function () {
   it("2. Button-CallAnApi Validation", function () {
     //creating an api and calling it from the onClickAction of the button widget.
     // Creating the api
-    _.propPane.ClearActionField("onClick");
+    propPane.ClearActionField("onClick");
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");
@@ -41,9 +45,8 @@ describe("Button Widget Functionality", function () {
     cy.SaveAndRunAPI();
 
     // Going to HomePage where the button widget is located and opening it's property pane.
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("Button1");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Container3");
 
     // Adding the api in the onClickAction of the button widget.
     cy.executeDbQuery("buttonApi", "onClick");
@@ -95,7 +98,7 @@ describe("Button Widget Functionality", function () {
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get(widgetsPage.NavHomePage).click({ force: true });
     cy.reload();
-    cy.openPropertyPane("buttonwidget");
+    entityExplorer.SelectEntityByName("Button1", "Container3");
 
     // Adding the query in the onClickAction of the button widget.
     cy.executeDbQuery("Query1", "onClick");
@@ -118,7 +121,7 @@ describe("Button Widget Functionality", function () {
     //creating an api and calling it from the onClickAction of the button widget.
     // calling the existing api
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "onClick",
       "{{buttonApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
@@ -138,7 +141,7 @@ describe("Button Widget Functionality", function () {
   it("5. Toggle JS - Button-Call-Query Validation", function () {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "onClick",
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
@@ -159,7 +162,7 @@ describe("Button Widget Functionality", function () {
   it("6. Toggle JS - Button-Call-SetTimeout Validation", function () {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "onClick",
       "{{setTimeout(() => showAlert('Hello from setTimeout after 3 seconds'), 3000)}}",
     );

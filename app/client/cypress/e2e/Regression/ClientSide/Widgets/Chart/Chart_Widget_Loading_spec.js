@@ -1,7 +1,10 @@
 const dsl = require("../../../../../fixtures/ChartLoadingDsl.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  dataSources,
+  agHelper,
+} from "../../../../../support/Objects/ObjectsCore";
 
 let dsname;
 describe("Chart Widget Skeleton Loading Functionality", function () {
@@ -32,10 +35,10 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       //Step1
       cy.wait(2000);
-      _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
-        _.dataSources.ToggleUsePreparedStatement(false);
+      dataSources.CreateMockDB("Users").then((dbName) => {
+        dataSources.CreateQueryFromActiveTab(dbName, false);
+        agHelper.GetNClick(dataSources._templateMenuOption("Select"));
+        dataSources.ToggleUsePreparedStatement(false);
       });
 
       // Step6.2: writing query to get the schema
@@ -106,7 +109,7 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
     "1. Test case while reloading and on submission - airgap",
     function () {
       cy.wait(2000);
-      _.dataSources.CreateDataSource("Postgres");
+      dataSources.CreateDataSource("Postgres");
       cy.get("@saveDatasource").then((httpResponse) => {
         dsname = httpResponse.response.body.data.name;
       });

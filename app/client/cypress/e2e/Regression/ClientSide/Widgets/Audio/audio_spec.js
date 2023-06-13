@@ -1,6 +1,7 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/audioWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Audio Widget Functionality", function () {
   before(() => {
@@ -8,7 +9,7 @@ describe("Audio Widget Functionality", function () {
   });
 
   it("1. Audio Widget play functionality validation", function () {
-    cy.openPropertyPane("audiowidget");
+    entityExplorer.SelectEntityByName("Audio1");
     cy.widgetText(
       "Audio1",
       widgetsPage.audioWidget,
@@ -50,7 +51,7 @@ describe("Audio Widget Functionality", function () {
 
   it("3. Checks if audio widget is reset on button click", function () {
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-    cy.openPropertyPane("buttonwidget");
+    entityExplorer.SelectEntityByName("Button1");
     cy.widgetText(
       "Button1",
       widgetsPage.buttonWidget,
@@ -60,7 +61,7 @@ describe("Audio Widget Functionality", function () {
     cy.selectWidgetForReset("Audio1");
 
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-    cy.openPropertyPane("textwidget");
+    entityExplorer.SelectEntityByName("Text1");
     cy.updateCodeInput(".t--property-control-text", `{{Audio1.playState}}`);
 
     cy.openPropertyPane("audiowidget");

@@ -4,6 +4,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality", function () {
   before(() => {
@@ -11,7 +12,8 @@ describe("Chart Widget Functionality", function () {
   });
 
   beforeEach(() => {
-    cy.openPropertyPane("chartwidget");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Test", "Container3");
   });
 
   it("1. Fill the Chart Widget Properties.", function () {

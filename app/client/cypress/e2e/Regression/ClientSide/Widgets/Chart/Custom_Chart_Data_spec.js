@@ -1,4 +1,5 @@
 const dsl = require("../../../../../fixtures/chartCustomDataDsl.json");
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality around custom chart data", function () {
   before(() => {
@@ -7,7 +8,8 @@ describe("Chart Widget Functionality around custom chart data", function () {
 
   it("1. change chart type to custom chart", function () {
     const value1 = 40;
-    cy.openPropertyPane("chartwidget");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Test", "Container3");
     cy.UpdateChartType("Custom chart");
     //change chart value via input widget and validate
     enterAndTest("inputwidgetv2", value1, value1);

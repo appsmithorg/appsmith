@@ -5,6 +5,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const widgetName = "codescannerwidget";
 const codeScannerVideoOnPublishPage = `${publish.codescannerwidget} ${commonlocators.codeScannerVideo}`;
 const codeScannerDisabledSVGIconOnPublishPage = `${publish.codescannerwidget} ${commonlocators.codeScannerDisabledSVGIcon}`;
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Code Scanner widget's functionality", () => {
   it("1 => Check if code scanner widget can be dropped on the canvas", () => {
@@ -19,7 +20,7 @@ describe("Code Scanner widget's functionality", () => {
   it("2 => Check if the default scanner layout is ALWAYS_ON", () => {
     // Drop a text widget to test the code scanner value binding
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
-    cy.openPropertyPane("textwidget");
+    entityExplorer.SelectEntityByName("Text1");
     cy.moveToContentTab();
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -36,7 +37,7 @@ describe("Code Scanner widget's functionality", () => {
     describe("3.1 => Checks for the disabled property", () => {
       describe("3.1.1 => Check if the scanner can be disabled", () => {
         it("3.1.1.1 => Disabled icon should be visible", () => {
-          cy.openPropertyPane(widgetName);
+          entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
           cy.moveToContentTab();
 
           // Disable and publish
@@ -59,7 +60,7 @@ describe("Code Scanner widget's functionality", () => {
 
       describe("3.1.2 => Check if the scanner can be enabled", () => {
         it("3.1.2.1 => Disabled icon should not be visible", () => {
-          cy.openPropertyPane(widgetName);
+          entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
           cy.moveToContentTab();
 
           // Enable and publish
@@ -82,7 +83,7 @@ describe("Code Scanner widget's functionality", () => {
 
     describe("3.2 => Checks for the visible property", () => {
       it("3.2.1 => Widget should be invisible on the canvas", () => {
-        cy.openPropertyPane(widgetName);
+        entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
         cy.moveToContentTab();
 
         // Visibilty OFF and publish
@@ -97,7 +98,7 @@ describe("Code Scanner widget's functionality", () => {
       });
 
       it("3.2.2 => Widget should be visible on the canvas", () => {
-        cy.openPropertyPane(widgetName);
+        entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
         cy.moveToContentTab();
 
         // Visibilty ON and publish
@@ -115,7 +116,7 @@ describe("Code Scanner widget's functionality", () => {
 
   describe("4 => Checks for 'Click to Scan' Scanner Layout", () => {
     it("4.1 => Check if scanner layout can be changed from Always On to Click to Scan", () => {
-      cy.openPropertyPane(widgetName);
+      entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
       cy.moveToContentTab();
 
       // Select scanner layout as CLICK_TO_SCAN
@@ -148,7 +149,7 @@ describe("Code Scanner widget's functionality", () => {
 
     describe("4.2 => Checks for the disabled property", () => {
       it("4.2.1 => Button on the canvas should be disabled", () => {
-        cy.openPropertyPane(widgetName);
+        entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
         cy.moveToContentTab();
 
         // Disable and publish
@@ -165,7 +166,7 @@ describe("Code Scanner widget's functionality", () => {
       });
 
       it("4.2.2 => Button on the canvas should be enabled again", () => {
-        cy.openPropertyPane(widgetName);
+        entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
         cy.moveToContentTab();
 
         // Enable and publish
@@ -182,7 +183,7 @@ describe("Code Scanner widget's functionality", () => {
 
     describe("4.3 => Checks for the visible property", () => {
       it("4.3.1 => Button on the canvas should be invisible", () => {
-        cy.openPropertyPane(widgetName);
+        entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
         cy.moveToContentTab();
 
         // Visibilty OFF and publish
@@ -197,7 +198,7 @@ describe("Code Scanner widget's functionality", () => {
       });
 
       it("4.3.2 => Button on the canvas should be visible again", () => {
-        cy.openPropertyPane(widgetName);
+        entityExplorer.SelectEntityByName("CodeScanner1", "Widgets");
         cy.moveToContentTab();
 
         // Visibilty ON and publish

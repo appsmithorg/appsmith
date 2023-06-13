@@ -2,8 +2,10 @@ const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality around custom chart feature", function () {
   before(() => {
@@ -11,7 +13,8 @@ describe("Chart Widget Functionality around custom chart feature", function () {
   });
 
   beforeEach(() => {
-    cy.openPropertyPane("chartwidget");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Test", "Container3");
   });
 
   it("1. Fill the Chart Widget Properties.", function () {
@@ -117,15 +120,15 @@ describe("Chart Widget Functionality around custom chart feature", function () {
   it("4. Chart-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
     cy.wait(1000);
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.propPane.CopyWidgetFromPropertyPane("Test");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3");
+    propPane.CopyWidgetFromPropertyPane("Test");
     cy.PublishtheApp();
     //Chart-Delete Verification"
     cy.get(publish.backToEditor).click({ force: true });
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3");
+    propPane.DeleteWidgetFromPropertyPane("TestCopy");
     cy.PublishtheApp();
     cy.get(viewWidgetsPage.chartWidget).should("not.exist");
   });

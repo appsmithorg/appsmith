@@ -1,6 +1,6 @@
 const dynamicDSL = require("../../../../../fixtures/CurrencyInputDynamic.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "currencyinputwidget";
 
 describe("Currency input widget - ", () => {
@@ -9,8 +9,7 @@ describe("Currency input widget - ", () => {
   });
 
   it("1. Should show empty dropdown for a typo", () => {
-    cy.openPropertyPane(widgetName);
-
+    entityExplorer.SelectEntityByName("CurrencyInput1");
     // Turn on allowCurrencyChange
     cy.get(".t--property-control-allowcurrencychange label")
       .last()
@@ -36,7 +35,7 @@ describe("Currency input widget - ", () => {
   });
 
   it("2. should check that widget can be used with dynamic default currency code", () => {
-    cy.openPropertyPane(widgetName);
+    entityExplorer.SelectEntityByName("CurrencyInput1");
     cy.get(".t--property-control-currency .CodeMirror-code").should(
       "contain",
       "{{appsmith.store.test}}",

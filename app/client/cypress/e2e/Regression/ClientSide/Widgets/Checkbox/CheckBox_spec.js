@@ -3,13 +3,14 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
   it("Checkbox Widget Functionality", function () {
-    cy.openPropertyPane("checkboxwidget");
+    entityExplorer.SelectEntityByName("Checkbox1", "Widgets");
     /**
      * @param{Text} Random Text
      * @param{CheckboxWidget}Mouseover
@@ -43,28 +44,28 @@ describe("Checkbox Widget Functionality", function () {
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Disabled Widget", function () {
-    cy.openPropertyPane("checkboxwidget");
+    entityExplorer.SelectEntityByName("Checkbox1", "Widgets");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("be.disabled");
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Enabled Widget", function () {
-    cy.openPropertyPane("checkboxwidget");
+    entityExplorer.SelectEntityByName("Checkbox1", "Widgets");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("be.enabled");
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Unchecked Visible Widget", function () {
-    cy.openPropertyPane("checkboxwidget");
+    entityExplorer.SelectEntityByName("Checkbox1", "Widgets");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Visible Widget", function () {
-    cy.openPropertyPane("checkboxwidget");
+    entityExplorer.SelectEntityByName("Checkbox1", "Widgets");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("be.checked");
@@ -72,7 +73,7 @@ describe("Checkbox Widget Functionality", function () {
   });
 
   it("Check isDirty meta property", function () {
-    cy.openPropertyPane("textwidget");
+    entityExplorer.SelectEntityByName("Text1", "Widgets");
     cy.updateCodeInput(".t--property-control-text", `{{checker.isDirty}}`);
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
@@ -81,7 +82,7 @@ describe("Checkbox Widget Functionality", function () {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultCheckedState property
-    cy.openPropertyPane("checkboxwidget");
+    entityExplorer.SelectEntityByName("Checkbox1", "Widgets");
     cy.get(".t--property-control-defaultstate label").last().click();
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");

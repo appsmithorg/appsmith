@@ -1,5 +1,6 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("checkboxgroupwidget Widget Functionality", function () {
   before(() => {
@@ -13,7 +14,7 @@ describe("checkboxgroupwidget Widget Functionality", function () {
   });
 
   it("should check that prefilled option is added and empty value is allowed in options", () => {
-    cy.openPropertyPane("checkboxgroupwidget");
+    entityExplorer.SelectEntityByName("CheckboxGroup1");
     cy.get(".t--property-control-options-add").click({ force: true });
     cy.get(".t--property-control-options")
       .find(".t--js-toggle")
@@ -41,7 +42,7 @@ describe("checkboxgroupwidget Widget Functionality", function () {
   });
 
   it("should check that more thatn empty value is not allowed in options", () => {
-    cy.openPropertyPane("checkboxgroupwidget");
+    entityExplorer.SelectEntityByName("CheckboxGroup1");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
