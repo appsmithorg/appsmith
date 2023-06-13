@@ -5,6 +5,7 @@ import { createEntityTree } from "../utils/entityTree";
 import { isEmpty, mapValues } from "lodash";
 import {
   convertPathToString,
+  getAllPaths,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { diff } from "deep-diff";
@@ -17,7 +18,7 @@ import { PathUtils } from "Linting/utils/pathUtils";
 import { extractReferencesFromPath } from "Linting/utils/getEntityDependencies";
 import { jsActionsInDataField } from "Linting/utils/jsActionsInDataFields";
 import { sortDifferencesByType } from "Linting/utils/sortDifferencesByType";
-import { getAllPathsFromNode, isDynamicLeaf } from "Linting/utils/entityPath";
+import { getAllPathsFromNode } from "Linting/utils/entityPath";
 import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
 import { getLintErrorsFromTree } from "Linting/utils/lintTree";
 import {
@@ -25,6 +26,7 @@ import {
   updateTreeWithParsedJS,
 } from "Linting/utils/parseJSEntity";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import { isDynamicLeaf } from "Linting/utils/entityPath";
 
 let cachedEntityTree: TEntityTree = {};
 
@@ -52,7 +54,7 @@ export function lintTreeV2({
   try {
     const { errors: lintErrors, updatedJSEntities } = getLintErrorsFromTree({
       pathsToLint,
-      unEvalTree,
+      unEvalTree: getUnevalEntityTree(cachedEntityTree),
       jsPropertiesState: mapValues(parsedJSEntitiesCache, (parsedJSEntity) =>
         parsedJSEntity.getParsedEntityConfig(),
       ) as TJSPropertiesState,
@@ -84,8 +86,8 @@ function lintFirstTree(
     configTree,
   );
   const pathsToLint: Array<string> = [];
-  const nodes: Record<string, true> = {};
-  const dependencies: Record<string, string[]> = {};
+  const allNodes: Record<string, true> = getAllPaths(unevalEntityTree);
+  lintingDependencyMap.addNodes(allNodes);
 
   for (const entity of Object.values(entityTree)) {
     const dynamicPaths = PathUtils.getDynamicPaths(entity);
@@ -100,19 +102,13 @@ function lintFirstTree(
         references,
         entityTree,
       );
-      nodes[path] = true;
-      dependencies[path] = references;
+
+      lintingDependencyMap.addDependency(path, references);
       pathsToLint.push(...updatedPaths, path);
     }
   }
 
-  lintingDependencyMap.addNodes(nodes);
-  for (const [path, references] of Object.entries(dependencies)) {
-    lintingDependencyMap.addDependency(path, references);
-  }
-
   cachedEntityTree = entityTree;
-
   return {
     pathsToLint,
     entityTree,
@@ -139,11 +135,6 @@ function lintUpdatedTree(
   if (!entityTreeDiff) return NOOP;
   const { additions, deletions, edits } = sortDifferencesByType(entityTreeDiff);
 
-  const nodesToAdd: Record<string, true> = {};
-  const nodesToRemove: Record<string, true> = {};
-  const dependencies: Record<string, string[]> = {};
-  const nodesToLintDependants: Record<string, true> = {};
-
   for (const edit of edits) {
     const pathString = convertPathToString(edit?.path || []);
     if (!pathString) continue;
@@ -164,8 +155,8 @@ function lintUpdatedTree(
       references,
       entityTree,
     );
-    dependencies[pathString] = references;
-    nodesToAdd[pathString] = true;
+
+    lintingDependencyMap.addDependency(pathString, references);
     pathsToLint.push(...updatedPaths, pathString);
   }
 
@@ -178,19 +169,24 @@ function lintUpdatedTree(
     if (!entity) continue;
 
     const allAddedPaths = getAllPathsFromNode(pathString, unevalEntityTree);
-
+    lintingDependencyMap.addNodes(allAddedPaths);
     for (const path of Object.keys(allAddedPaths)) {
-      if (!isDynamicLeaf(entity, path)) continue;
       const references = extractReferencesFromPath(
         entity,
         pathString,
         unevalEntityTree,
       );
-      jsActionsInDataField.update(path, references, entityTree);
-      nodesToAdd[path] = true;
-      dependencies[path] = references;
-      nodesToLintDependants[path] = true;
-      pathsToLint.push(path);
+      if (isDynamicLeaf(entity, path)) {
+        lintingDependencyMap.addDependency(path, references);
+        pathsToLint.push(path);
+      }
+      const updatedPaths = jsActionsInDataField.update(
+        path,
+        references,
+        entityTree,
+      );
+      const incomingDeps = lintingDependencyMap.getIncomingDependencies(path);
+      pathsToLint.push(...updatedPaths, ...incomingDeps);
     }
   }
   for (const deletion of deletions) {
@@ -198,7 +194,7 @@ function lintUpdatedTree(
     if (!pathString) continue;
     const { entityName } = getEntityNameAndPropertyPath(pathString);
     if (!entityName) continue;
-    const entity = entityTree[entityName];
+    const entity = cachedEntityTree[entityName]; // Use previous tree in a DELETE EVENT
     if (!entity) continue;
 
     const allDeletedPaths = getAllPathsFromNode(pathString, unevalEntityTree);
@@ -208,22 +204,12 @@ function lintUpdatedTree(
         path,
         entityTree,
       );
-      nodesToRemove[path] = true;
-      nodesToLintDependants[path] = true;
-      pathsToLint.push(...updatedPaths);
+      const incomingDeps = lintingDependencyMap.getIncomingDependencies(path);
+      pathsToLint.push(...updatedPaths, ...incomingDeps);
     }
+    lintingDependencyMap.removeNodes(allDeletedPaths);
   }
 
-  lintingDependencyMap.addNodes(nodesToAdd);
-  lintingDependencyMap.removeNodes(nodesToRemove);
-  for (const [path, pathDependencies] of Object.entries(dependencies)) {
-    lintingDependencyMap.addDependency(path, pathDependencies);
-  }
-  for (const path of Object.keys(nodesToLintDependants)) {
-    const pathsDependingOnNode =
-      lintingDependencyMap.getIncomingDependencies(path);
-    pathsToLint.push(...pathsDependingOnNode);
-  }
   cachedEntityTree = entityTree;
   return {
     pathsToLint,
