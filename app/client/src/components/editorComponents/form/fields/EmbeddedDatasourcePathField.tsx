@@ -26,10 +26,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelper
 import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
-import {
-  DATASOURCE_PATH_EXACT_MATCH_REGEX,
-  DATASOURCE_PATH_PARTIAL_MATCH_REGEX,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { DATASOURCE_URL_EXACT_MATCH_REGEX } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
@@ -258,18 +255,9 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     let datasourceUrl = "";
     let path = "";
-    const isCorrectFullPath = DATASOURCE_PATH_EXACT_MATCH_REGEX.test(value);
-    const isSlightlyIncorrectFullPath =
-      DATASOURCE_PATH_PARTIAL_MATCH_REGEX.test(value);
-
-    if (isCorrectFullPath) {
-      const matches = value.match(DATASOURCE_PATH_EXACT_MATCH_REGEX);
-      if (matches && matches.length) {
-        datasourceUrl = matches[1];
-        path = `${matches[2] || ""}${matches[3] || ""}`;
-      }
-    } else if (isSlightlyIncorrectFullPath && !isCorrectFullPath) {
-      const matches = value.match(DATASOURCE_PATH_PARTIAL_MATCH_REGEX);
+    const isCorrectFullURL = DATASOURCE_URL_EXACT_MATCH_REGEX.test(value);
+    if (isCorrectFullURL) {
+      const matches = value.match(DATASOURCE_URL_EXACT_MATCH_REGEX);
       if (matches && matches.length) {
         datasourceUrl = matches[1];
         path = `${matches[2] || ""}${matches[3] || ""}`;
