@@ -77,12 +77,13 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
-    const { applicationId, toLoadPageId } = yield call(
-      engine.loadAppData,
-      action.payload,
-    );
+    const applicationId = "648814b904646200a8d2a88f";
+    const toLoadPageId = "648814b904646200a8d2a892";
+    yield all([
+      call(engine.loadAppData, action.payload),
+      call(engine.loadAppEntities, toLoadPageId, applicationId),
+    ]);
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
-    yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
