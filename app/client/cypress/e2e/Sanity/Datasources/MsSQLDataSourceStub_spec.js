@@ -1,7 +1,6 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { dataSources } from "../../../../support/Objects/ObjectsCore";
 
-let dataSource = ObjectsRegistry.DataSources;
 let datasourceName;
 
 describe("MsSQL datasource test cases", function () {
@@ -20,7 +19,7 @@ describe("MsSQL datasource test cases", function () {
         fixture: "testAction.json",
       }).as("testDatasource");
       cy.testSaveDatasource(false);
-      dataSource.DeleteDatasouceFromActiveTab(datasourceName);
+      dataSources.DeleteDatasouceFromActiveTab(datasourceName);
     });
   });
 

@@ -1,6 +1,6 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
-import * as _ from "../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../support/Objects/ObjectsCore";
 let datasourceName;
 
 describe("SMTP datasource test cases using ted", function () {
@@ -10,7 +10,7 @@ describe("SMTP datasource test cases using ted", function () {
   });
   before(() => {
     cy.fixture("SMTPTestdsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 

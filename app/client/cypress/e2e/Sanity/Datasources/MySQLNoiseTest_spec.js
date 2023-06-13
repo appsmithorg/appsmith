@@ -1,6 +1,6 @@
 const queryLocators = require("../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
-import * as _ from "../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("MySQL noise test", function () {
@@ -8,7 +8,7 @@ describe("MySQL noise test", function () {
 
   beforeEach(() => {
     cy.fixture("noiseDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     cy.startRoutesForDatasource();
   });
