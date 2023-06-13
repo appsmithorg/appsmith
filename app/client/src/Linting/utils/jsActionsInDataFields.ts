@@ -2,6 +2,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { get, isString } from "lodash";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import type { TEntity } from "Linting/lib/entity";
+import { isDynamicEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import type { TEntityTree } from "./entityTree";
@@ -10,6 +11,7 @@ import DependencyMap from "entities/DependencyMap";
 import { getAllPathsFromNode } from "./entityPath";
 import { lintingDependencyMap } from "./lintingDependencyMap";
 import { getParsedJSEntity } from "./parseJSEntity";
+import { entityFns } from "workers/Evaluation/fns";
 
 function isDataField(fullPath: string, entityTree: TEntityTree) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
@@ -42,6 +44,7 @@ export class JSActionsInDataField {
       entity,
       referencesInPath,
       fullPath,
+      entityTree,
     );
     const pathsToAdd = asyncJSFunctionsInvokedInPath.reduce(
       (paths: Record<string, true>, currentPath) => {
@@ -99,7 +102,7 @@ export class JSActionsInDataField {
     if (!entity) return [];
 
     if (isJSEntity(entity)) {
-      if (isAsyncJSFunction(editedPath)) {
+      if (isAsyncJSFunction(editedPath, entityTree)) {
         this.dependencyMap.addNodes({ [editedPath]: true });
       } else {
         this.dependencyMap.removeNodes({ [editedPath]: true });
@@ -133,6 +136,7 @@ function getJSActionInvocationsInPath(
   entity: TEntity,
   dependencies: string[],
   fullPath: string,
+  entityTree: TEntityTree,
 ) {
   const invokedAsyncJSFunctions = new Set<string>();
   const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
@@ -140,7 +144,7 @@ function getJSActionInvocationsInPath(
 
   dependencies.forEach((dependant) => {
     if (
-      isAsyncJSFunction(dependant) &&
+      isAsyncJSFunction(dependant, entityTree) &&
       isFunctionInvoked(dependant, unevalPropValue)
     ) {
       invokedAsyncJSFunctions.add(dependant);
@@ -168,8 +172,10 @@ export function isFunctionInvoked(
   return false;
 }
 
-// TODO: Add dependencies on Entity functions and Setter functions
-export function isAsyncJSFunction(jsFnFullname: string) {
+export function isAsyncJSFunction(
+  jsFnFullname: string,
+  entityTree: TEntityTree,
+) {
   const { entityName: jsObjectName, propertyPath } =
     getEntityNameAndPropertyPath(jsFnFullname);
   const parsedJSEntity = getParsedJSEntity(jsObjectName);
@@ -179,8 +185,29 @@ export function isAsyncJSFunction(jsFnFullname: string) {
   if (!propertyConfig) return false;
   return (
     ("isMarkedAsync" in propertyConfig && propertyConfig.isMarkedAsync) ||
-    lintingDependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields)
+    lintingDependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields) ||
+    lintingDependencyMap.isRelated(
+      jsFnFullname,
+      getAllEntityActions(entityTree),
+    )
   );
 }
 
 export const jsActionsInDataField = new JSActionsInDataField();
+
+function getAllEntityActions(entityTree: TEntityTree) {
+  const allEntityActions = new Set<string>();
+  for (const [entityName, entity] of Object.entries(entityTree)) {
+    if (!isDynamicEntity(entity)) continue;
+    for (const entityFnDescription of entityFns) {
+      if (entityFnDescription.qualifier(entity.getRawEntity())) {
+        const fullPath = `${
+          entityFnDescription.path ||
+          `${entityName}.${entityFnDescription.name}`
+        }`;
+        allEntityActions.add(fullPath);
+      }
+    }
+  }
+  return [...allEntityActions];
+}
