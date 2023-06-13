@@ -37,7 +37,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         this.props.propertyName
       ];
 
-    if (errorObj && errorObj.length && errorObj[0].errorMessage) {
+    if (errorObj?.[0]?.errorMessage) {
       return errorObj[0].errorMessage.message;
     } else {
       return "";

@@ -308,7 +308,7 @@ describe("DateTime Datatype tests", function () {
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("12. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("12. Verify Deletion of the datasource after all created queries are deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     ee.DeleteAllQueriesForDB(dsName);

@@ -364,7 +364,7 @@ describe("Character Datatype tests", function () {
     _.entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("15. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
     _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.DeleteAllQueriesForDB(dsName);

@@ -23,5 +23,8 @@ describe("SQL Autocompletion", () => {
     cy.get(locator._hints).should("exist");
     // "select" should be parsed as a keyword and should not be capitalised
     cy.get(locator._sqlKeyword).contains("select");
+    // Hints should disappear on mouse down
+    cy.get(locator._codeMirrorTextArea).realMouseDown();
+    cy.get(locator._hints).should("not.exist");
   });
 });

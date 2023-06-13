@@ -1,6 +1,6 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
@@ -19,18 +19,8 @@ describe("Add widget - Postgress DataSource", function () {
   it("1. Validate Snipping with query and table widget on canvas", () => {
     cy.get(".t--close-editor span:contains('Back')").click({ force: true });
     cy.get(".t--back-button span:contains('Back')").click({ force: true });
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.wait(2000);
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.wait(2000);
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
-    cy.wait(2000);
+
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // Resetting the default query and rewriting a new one
     dataSources.EnterQuery("");

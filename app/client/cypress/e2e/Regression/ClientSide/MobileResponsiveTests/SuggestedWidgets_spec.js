@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
-describe("Check Suggested Widgets Feature in Auto Layout", function () {
+describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
     cy.get(commonlocators.autoConvert).click({
       force: true,
@@ -38,7 +38,7 @@ describe("Check Suggested Widgets Feature in Auto Layout", function () {
       .focus()
       .type("SELECT * FROM configs LIMIT 10;");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
+    cy.wait(1000);
     // Mock the response for this test
     cy.intercept("/api/v1/actions/execute", {
       fixture: "addWidgetTable-mock",
