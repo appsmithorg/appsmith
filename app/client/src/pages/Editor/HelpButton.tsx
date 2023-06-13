@@ -1,14 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import bootIntercom from "utils/bootIntercom";
+import bootIntercom, { updateIntercomProperties } from "utils/bootIntercom";
 import {
   APPSMITH_DISPLAY_VERSION,
+  CONTINUE,
   createMessage,
   HELP_RESOURCE_TOOLTIP,
+  INTERCOM_CONSENT_MESSAGE,
 } from "@appsmith/constants/messages";
 import {
   Button,
@@ -18,6 +20,7 @@ import {
   MenuTrigger,
   Tooltip,
   MenuSeparator,
+  Text,
 } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import moment from "moment/moment";
@@ -33,6 +36,8 @@ import { triggerWelcomeTour } from "./FirstTimeUserOnboarding/Utils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -50,6 +55,15 @@ const UnreadSteps = styled.div`
   top: 10px;
   left: 22px;
   background-color: var(--ads-v2-color-fg-error);
+`;
+const ConsentContainer = styled.div`
+  padding: 10px;
+`;
+const ActionsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 `;
 
 type HelpItem = {
@@ -85,6 +99,49 @@ if (intercomAppID && window.Intercom) {
   });
 }
 
+export function IntercomConsent({
+  showIntercomConsent,
+}: {
+  showIntercomConsent: (val: boolean) => void;
+}) {
+  const user = useSelector(getCurrentUser);
+  const instanceId = useSelector(getInstanceId);
+  const dispatch = useDispatch();
+
+  const sendUserDataToIntercom = () => {
+    updateIntercomProperties(instanceId, user);
+    dispatch(
+      updateUserDetails({
+        intercomConsentGiven: true,
+      }),
+    );
+    dispatch(updateIntercomConsent());
+    showIntercomConsent(false);
+    window.Intercom("show");
+  };
+  return (
+    <ConsentContainer>
+      <ActionsRow>
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() => showIntercomConsent(false)}
+          size="sm"
+          startIcon="arrow-left"
+        />
+      </ActionsRow>
+      <div className="mb-3" data-testid="t--intercom-consent-text">
+        <Text kind="body-s" renderAs="p">
+          {createMessage(INTERCOM_CONSENT_MESSAGE)}
+        </Text>
+      </div>
+      <Button kind="primary" onClick={sendUserDataToIntercom} size="sm">
+        {createMessage(CONTINUE)}
+      </Button>
+    </ConsentContainer>
+  );
+}
+
 function HelpButtonTooltip(props: {
   isFirstTimeUserOnboardingEnabled: boolean;
 }) {
@@ -96,6 +153,7 @@ function HelpButtonTooltip(props: {
 }
 
 function HelpButton() {
+  const [showIntercomConsent, setShowIntercomConsent] = useState(false);
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
   const isFirstTimeUserOnboardingEnabled = useSelector(
@@ -126,7 +184,7 @@ function HelpButton() {
         if (open) {
           isFirstTimeUserOnboardingEnabled &&
             dispatch(showSignpostingModal(true));
-          // setShowIntercomConsent(false);
+          setShowIntercomConsent(false);
           AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
         }
       }}
@@ -157,50 +215,55 @@ function HelpButton() {
         </div>
       </MenuTrigger>
       {isFirstTimeUserOnboardingEnabled ? (
-        <SignpostingPopup />
+        <SignpostingPopup
+          setShowIntercomConsent={setShowIntercomConsent}
+          showIntercomConsent={showIntercomConsent}
+        />
       ) : (
         <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
-          {/* TODO: Intercom consent */}
-          {/* {showIntercomConsent ? (
+          {showIntercomConsent ? (
             <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
-          ) : ( */}
-          {!isAirgappedInstance && (
+          ) : (
             <>
-              <MenuItem
-                onSelect={() =>
-                  triggerWelcomeTour(dispatch, currentApplicationId)
-                }
-                startIcon="guide"
-              >
-                Try guided tour
-              </MenuItem>
-              <MenuSeparator />
+              {!isAirgappedInstance && (
+                <>
+                  <MenuItem
+                    onSelect={() =>
+                      triggerWelcomeTour(dispatch, currentApplicationId)
+                    }
+                    startIcon="guide"
+                  >
+                    Try guided tour
+                  </MenuItem>
+                  <MenuSeparator />
+                </>
+              )}
+              {HELP_MENU_ITEMS.map((item) => (
+                <MenuItem
+                  id={item.id}
+                  key={item.label}
+                  onSelect={(e) => {
+                    if (item.link) {
+                      window.open(item.link, "_blank");
+                    }
+                    if (item.id === "intercom-trigger") {
+                      e?.preventDefault();
+                      if (intercomAppID && window.Intercom) {
+                        if (user?.isIntercomConsentGiven || cloudHosting) {
+                          window.Intercom("show");
+                        } else {
+                          setShowIntercomConsent(true);
+                        }
+                      }
+                    }
+                  }}
+                  startIcon={item.icon}
+                >
+                  {item.label}
+                </MenuItem>
+              ))}
             </>
           )}
-          {HELP_MENU_ITEMS.map((item) => (
-            <MenuItem
-              id={item.id}
-              key={item.label}
-              onSelect={(e) => {
-                if (item.link) {
-                  window.open(item.link, "_blank");
-                }
-                if (item.id === "intercom-trigger") {
-                  e?.preventDefault();
-                  if (intercomAppID && window.Intercom) {
-                    if (user?.isIntercomConsentGiven || cloudHosting) {
-                      window.Intercom("show");
-                    } else {
-                      // setShowIntercomConsent(true);
-                    }
-                  }
-                }
-              }}
-              startIcon={item.icon}
-            >
-              {item.label}
-            </MenuItem>
-          ))}
 
           {appVersion.id && (
             <>

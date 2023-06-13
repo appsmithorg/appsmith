@@ -58,11 +58,6 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
-import HelpMenu from "./HelpMenu";
-
-const Wrapper = styled.div`
-  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
-`;
 
 const StyledDivider = styled(Divider)`
   display: block;
@@ -370,167 +365,151 @@ export default function OnboardingChecklist() {
     };
   }, []);
 
-  return (
-    <Wrapper>
-      {isFirstTimeUserOnboardingComplete ? (
-        <>
-          <div className="flex justify-between pb-4 gap-6">
-            <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
-              {createMessage(SIGNPOSTING_SUCCESS_POPUP.title)}
-            </Text>
-            <Button
-              UNSAFE_width="24px"
-              isIconButton
-              kind="tertiary"
-              onClick={() => {
-                dispatch(showSignpostingModal(false));
-              }}
-              startIcon={"close-line"}
-            />
-          </div>
-          <Text
-            color="var(--ads-v2-color-bg-brand-secondary)"
-            kind="heading-xs"
-          >
-            {createMessage(SIGNPOSTING_SUCCESS_POPUP.subtitle)}
+  // Success UI
+  if (isFirstTimeUserOnboardingComplete) {
+    return (
+      <>
+        <div className="flex justify-between pb-4 gap-6">
+          <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
+            {createMessage(SIGNPOSTING_SUCCESS_POPUP.title)}
           </Text>
-          <StyledDivider className="mt-4" />
-        </>
-      ) : (
-        <>
-          <div className="flex justify-between pb-4">
-            <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
-              {createMessage(ONBOARDING_CHECKLIST_HEADER)}
-            </Text>
-            {/* TODO: size looks small */}
-            <Button
-              isIconButton
-              kind="tertiary"
-              onClick={() => {
-                dispatch(showSignpostingModal(false));
-              }}
-              startIcon={"close-line"}
-            />
-          </div>
-          <Text
-            color="var(--ads-v2-color-bg-brand-secondary)"
-            kind="heading-xs"
-          >
-            {createMessage(SIGNPOSTING_POPUP_SUBTITLE)}
-          </Text>
-          <div className="mt-5">
-            <Text
-              color="var(--ads-v2-color-bg-brand-secondary)"
-              kind="heading-xs"
-            >
-              {completedTasks} of 5{" "}
-            </Text>
-            <Text>complete</Text>
-          </div>
-          <StyledDivider className="mt-1" />
-          <CheckListItem
-            boldText={createMessage(
-              ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold,
-            )}
-            completed={!!(datasources.length || actions.length)}
-            disabled={false}
-            normalText={createMessage(
-              ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal,
-            )}
+          <Button
+            UNSAFE_width="24px"
+            isIconButton
+            kind="tertiary"
             onClick={() => {
-              AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
-                from: "CHECKLIST",
-              });
-              history.push(
-                integrationEditorURL({
-                  pageId,
-                  selectedTab: INTEGRATION_TABS.NEW,
-                }),
-              );
+              dispatch(showSignpostingModal(false));
             }}
-            step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
+            startIcon={"close-line"}
           />
-          <CheckListItem
-            boldText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
-            completed={!!actions.length}
-            disabled={!datasources.length}
-            normalPrefixText={createMessage(
-              ONBOARDING_CHECKLIST_CREATE_A_QUERY.normalPrefix,
-            )}
-            normalText={createMessage(
-              ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal,
-            )}
-            onClick={() => {
-              AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
-                from: "CHECKLIST",
-              });
-              history.push(
-                integrationEditorURL({
-                  pageId,
-                  selectedTab: INTEGRATION_TABS.ACTIVE,
-                }),
-              );
-              // Event for datasource creation click
-              const entryPoint = DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
-              AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-                entryPoint,
-              });
-            }}
-            step={SIGNPOSTING_STEP.CREATE_A_QUERY}
-          />
-          <CheckListItem
-            boldText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}
-            completed={Object.keys(widgets).length > 1}
-            disabled={false}
-            normalText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
-            onClick={() => {
-              AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
-                from: "CHECKLIST",
-              });
-              dispatch(toggleInOnboardingWidgetSelection(true));
-              dispatch(forceOpenWidgetPanel(true));
-              history.push(builderURL({ pageId }));
-            }}
-            step={SIGNPOSTING_STEP.ADD_WIDGETS}
-          />
-          <CheckListItem
-            boldText={createMessage(
-              ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.bold,
-            )}
-            completed={isConnectionPresent}
-            disabled={Object.keys(widgets).length === 1 || !actions.length}
-            normalText={createMessage(
-              ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal,
-            )}
-            onClick={onconnectYourWidget}
-            step={SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET}
-          />
-          <CheckListItem
-            boldText={createMessage(
-              ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.bold,
-            )}
-            completed={isDeployed}
-            disabled={false}
-            normalText={createMessage(
-              ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal,
-            )}
-            onClick={() => {
-              AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
-                from: "CHECKLIST",
-              });
-              dispatch({
-                type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-                payload: {
-                  applicationId,
-                },
-              });
-            }}
-            step={SIGNPOSTING_STEP.DEPLOY_APPLICATIONS}
-          />
-        </>
-      )}
+        </div>
+        <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
+          {createMessage(SIGNPOSTING_SUCCESS_POPUP.subtitle)}
+        </Text>
+        <StyledDivider className="mt-4" />
+      </>
+    );
+  }
 
-      <HelpMenu />
-    </Wrapper>
+  return (
+    <>
+      <div className="flex justify-between pb-4">
+        <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
+          {createMessage(ONBOARDING_CHECKLIST_HEADER)}
+        </Text>
+        {/* TODO: size looks small */}
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() => {
+            dispatch(showSignpostingModal(false));
+          }}
+          startIcon={"close-line"}
+        />
+      </div>
+      <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
+        {createMessage(SIGNPOSTING_POPUP_SUBTITLE)}
+      </Text>
+      <div className="mt-5">
+        <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
+          {completedTasks} of 5{" "}
+        </Text>
+        <Text>complete</Text>
+      </div>
+      <StyledDivider className="mt-1" />
+      <CheckListItem
+        boldText={createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold)}
+        completed={!!(datasources.length || actions.length)}
+        disabled={false}
+        normalText={createMessage(
+          ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal,
+        )}
+        onClick={() => {
+          AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
+            from: "CHECKLIST",
+          });
+          history.push(
+            integrationEditorURL({
+              pageId,
+              selectedTab: INTEGRATION_TABS.NEW,
+            }),
+          );
+        }}
+        step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
+      />
+      <CheckListItem
+        boldText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
+        completed={!!actions.length}
+        disabled={!datasources.length}
+        normalPrefixText={createMessage(
+          ONBOARDING_CHECKLIST_CREATE_A_QUERY.normalPrefix,
+        )}
+        normalText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
+        onClick={() => {
+          AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
+            from: "CHECKLIST",
+          });
+          history.push(
+            integrationEditorURL({
+              pageId,
+              selectedTab: INTEGRATION_TABS.ACTIVE,
+            }),
+          );
+          // Event for datasource creation click
+          const entryPoint = DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
+          AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+            entryPoint,
+          });
+        }}
+        step={SIGNPOSTING_STEP.CREATE_A_QUERY}
+      />
+      <CheckListItem
+        boldText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}
+        completed={Object.keys(widgets).length > 1}
+        disabled={false}
+        normalText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
+        onClick={() => {
+          AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
+            from: "CHECKLIST",
+          });
+          dispatch(toggleInOnboardingWidgetSelection(true));
+          dispatch(forceOpenWidgetPanel(true));
+          history.push(builderURL({ pageId }));
+        }}
+        step={SIGNPOSTING_STEP.ADD_WIDGETS}
+      />
+      <CheckListItem
+        boldText={createMessage(
+          ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.bold,
+        )}
+        completed={isConnectionPresent}
+        disabled={Object.keys(widgets).length === 1 || !actions.length}
+        normalText={createMessage(
+          ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal,
+        )}
+        onClick={onconnectYourWidget}
+        step={SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET}
+      />
+      <CheckListItem
+        boldText={createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.bold)}
+        completed={isDeployed}
+        disabled={false}
+        normalText={createMessage(
+          ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal,
+        )}
+        onClick={() => {
+          AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
+            from: "CHECKLIST",
+          });
+          dispatch({
+            type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
+            payload: {
+              applicationId,
+            },
+          });
+        }}
+        step={SIGNPOSTING_STEP.DEPLOY_APPLICATIONS}
+      />
+    </>
   );
 }
