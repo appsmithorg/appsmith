@@ -127,13 +127,17 @@ export class ApiPage {
     cy.get(this._apiRunBtn).should(query);
   }
 
-  EnterURL(url: string) {
+  EnterURL(url: string, validateEvaluatedValue = false, evaluatedValue = "") {
     this.agHelper.EnterValue(url, {
       propFieldName: this._resourceUrl,
       directInput: true,
       inputFieldName: "",
     });
     this.agHelper.AssertAutoSave();
+
+    if (validateEvaluatedValue) {
+      this.agHelper.VerifyEvaluatedValue(evaluatedValue);
+    }
   }
 
   EnterHeader(hKey: string, hValue: string, index = 0) {

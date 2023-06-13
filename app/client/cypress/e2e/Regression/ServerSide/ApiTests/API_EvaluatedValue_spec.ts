@@ -1,11 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const apiPage = ObjectsRegistry.ApiPage,
-  aghelper = ObjectsRegistry.AggregateHelper;
+const apiPage = ObjectsRegistry.ApiPage;
 
-describe("Validate API Auto generated headers", () => {
-  it("1. Check whether auto generated header is set and overidden", () => {
+describe("Validate API URL Evaluated value", () => {
+  it("1. Check if url object does not crash App", () => {
     apiPage.CreateApi("FirstAPI");
-    aghelper.EnterValueNValidate(`{{{"key": "balue"}}}`, apiPage._resourceUrl);
+    apiPage.EnterURL(`{{{"key": "value"}}}`, true, `{"key":"value"}`);
   });
 });
