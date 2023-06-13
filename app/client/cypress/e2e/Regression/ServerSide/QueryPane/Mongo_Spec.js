@@ -75,8 +75,8 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
     );
 
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -145,8 +145,8 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Count",
     );
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -174,8 +174,8 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Distinct",
     );
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -207,8 +207,8 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Aggregate",
     );
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -402,8 +402,8 @@ describe("Validate Mongo query commands", function () {
     {"_id":2, "Från" :"Joann" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "NonAsciiTest",
     });

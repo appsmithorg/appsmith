@@ -83,8 +83,8 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Mongo_Query");
 
     cy.wait(1000);
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "TestCollection",
     });

@@ -204,8 +204,8 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
-  public mongoCollectionPath = "t--actionConfiguration.formData.collection";
-  private getJSONswitchLocator = (fieldLocator: string) =>
+  public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
+  private _getJSONswitchLocator = (fieldLocator: string) =>
     `[data-testid='${fieldLocator}.data-JS']`;
   _nestedWhereClauseKey = (index: number) =>
     ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
@@ -1324,7 +1324,7 @@ export class DataSources {
     }
   }
 
-  public updateJSFieldWithInputValue({
+  public EnterJSContext({
     fieldLabel,
     fieldProperty,
     fieldValue,
@@ -1333,7 +1333,7 @@ export class DataSources {
     fieldValue: string;
     fieldLabel: string;
   }) {
-    this.agHelper.GetNClick(this.getJSONswitchLocator(fieldProperty));
+    this.agHelper.GetNClick(this._getJSONswitchLocator(fieldProperty));
     this.agHelper.EnterValue(fieldValue, {
       propFieldName: "",
       directInput: false,

@@ -277,8 +277,8 @@ describe("Validate Mongo Query Pane Validations", () => {
       "Insert document(s)",
     );
 
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "AuthorNAwards",
     });
@@ -742,8 +742,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     _.agHelper.RenameWithInPane("InsertBirthNDeath");
-    _.dataSources.updateJSFieldWithInputValue({
-      fieldProperty: _.dataSources.mongoCollectionPath,
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "BirthNDeath",
     });
