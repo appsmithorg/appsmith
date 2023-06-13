@@ -987,7 +987,7 @@ export const SIGNPOSTING_POPUP_SUBTITLE = () =>
 export const SIGNPOSTING_SUCCESS_POPUP = {
   title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
   subtitle: () =>
-    "You can carry on here, or explore templates to build app quickly. If you are still not sure, checkout our documentation.",
+    "You can carry on here, or explore templates to build applications quickly. If you are still not sure, checkout our documentation.",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
@@ -1014,6 +1014,32 @@ export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
   bold: () => "Deploy your application,",
   normal: () => "and see your creation live.",
+};
+
+export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
+export const SIGNPOSTING_TOOLTIP = {
+  DEFAULT: {
+    content: () =>
+      "Finish these 5 steps in learn the basics in-order to build an app & deploy it. This would take 5 min of your time.",
+  },
+  CONNECT_A_DATASOURCE: {
+    content: () => "Let's add a datasource",
+  },
+  CREATE_QUERY: {
+    content: () =>
+      "You successfully connected a datasource. Now try to create a query.",
+  },
+  ADD_WIDGET: {
+    content: () =>
+      "You successfully created a query. Now its time to drag & drop a widget to bind data.",
+  },
+  CONNECT_DATA_TO_WIDGET: {
+    content: () =>
+      "You have a widget on the canvas now, its time to bind the data with it.",
+  },
+  DEPLOY_APPLICATION: {
+    content: () => "Deploy you application to see what you’ve built.",
+  },
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>

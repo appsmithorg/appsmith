@@ -32,6 +32,7 @@ import { showSignpostingModal } from "actions/onboardingActions";
 import { triggerWelcomeTour } from "./FirstTimeUserOnboarding/Utils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -84,6 +85,16 @@ if (intercomAppID && window.Intercom) {
   });
 }
 
+function HelpButtonTooltip(props: {
+  isFirstTimeUserOnboardingEnabled: boolean;
+}) {
+  if (props.isFirstTimeUserOnboardingEnabled) {
+    return <TooltipContent />;
+  }
+
+  return <>{createMessage(HELP_RESOURCE_TOOLTIP)}</>;
+}
+
 function HelpButton() {
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
@@ -124,21 +135,25 @@ function HelpButton() {
       <MenuTrigger>
         <div className="relative">
           <Tooltip
-            content={createMessage(HELP_RESOURCE_TOOLTIP)}
+            content={
+              <HelpButtonTooltip
+                isFirstTimeUserOnboardingEnabled={
+                  isFirstTimeUserOnboardingEnabled
+                }
+              />
+            }
             placement="bottomRight"
           >
-            <>
-              <Button
-                data-testid="t--help-button"
-                kind="tertiary"
-                size="md"
-                startIcon="question-line"
-              >
-                Help
-              </Button>
-              {showUnroadSteps && <UnreadSteps className="unread" />}
-            </>
+            <Button
+              data-testid="t--help-button"
+              kind="tertiary"
+              size="md"
+              startIcon="question-line"
+            >
+              Help
+            </Button>
           </Tooltip>
+          {showUnroadSteps && <UnreadSteps className="unread" />}
         </div>
       </MenuTrigger>
       {isFirstTimeUserOnboardingEnabled ? (
