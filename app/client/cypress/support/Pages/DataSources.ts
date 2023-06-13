@@ -13,6 +13,7 @@ const DataSourceKVP = {
   Firestore: "Firestore",
   Elasticsearch: "Elasticsearch",
   Redis: "Redis",
+  Oracle: "Oracle",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -242,7 +243,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 0);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.Sleep(500);
+    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("public.users")`,
@@ -430,6 +431,32 @@ export class DataSources {
     );
     cy.get(this._password).type(
       password == "" ? datasourceFormData["postgres-password"] : password,
+    );
+  }
+
+  public FillOracleDSForm(
+    shouldAddTrailingSpaces = false,
+    username = "",
+    password = "",
+  ) {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["oracle-host"] + "  "
+      : datasourceFormData["oracle-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["oracle-name"] + "  "
+      : datasourceFormData["oracle-name"];
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["oracle-port"].toString(),
+    );
+    cy.get(this._databaseName).clear().type(databaseName);
+    this.ExpandSectionByName("Authentication");
+    cy.get(this._username).type(
+      username == "" ? datasourceFormData["oracle-username"] : username,
+    );
+    cy.get(this._password).type(
+      password == "" ? datasourceFormData["oracle-password"] : password,
     );
   }
 
@@ -927,7 +954,8 @@ export class DataSources {
       | "Arango"
       | "Firestore"
       | "Elasticsearch"
-      | "Redis",
+      | "Redis"
+      | "Oracle",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -943,6 +971,7 @@ export class DataSources {
         dataSourceName = dsType + " " + guid;
         this.agHelper.RenameWithInPane(dataSourceName, false);
         if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
+        else if (DataSourceKVP[dsType] == "Oracle") this.FillOracleDSForm();
         else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
         else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
