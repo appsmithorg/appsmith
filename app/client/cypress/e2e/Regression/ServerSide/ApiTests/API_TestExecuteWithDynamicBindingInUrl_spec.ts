@@ -11,7 +11,7 @@ describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
         myVar1: [],
         myVar2: {},
         myFun1 () {
-          storeValue("api_url", ${datasourceFormData["mockApiUrl"]});
+          storeValue("api_url", "${datasourceFormData["mockApiUrl"]}");
         },
         myFun2: async function() {
         }
