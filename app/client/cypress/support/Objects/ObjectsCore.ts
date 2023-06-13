@@ -1,5 +1,6 @@
 import { WIDGET } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
+import { EntityItems } from "../Pages/AssertHelper";
 
 export const agHelper = ObjectsRegistry.AggregateHelper;
 export const assertHelper = ObjectsRegistry.AssertHelper;
@@ -29,3 +30,4 @@ export const autoLayout = ObjectsRegistry.AutoLayout;
 export const draggableWidgets = WIDGET;
 export const fakerHelper = ObjectsRegistry.FakerHelper;
 export const hostPort = ObjectsRegistry.DefaultHostPort;
+export const entityItems = EntityItems;

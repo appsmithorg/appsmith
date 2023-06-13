@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { EntityItems } from "./AssertHelper";
 
 type templateActions =
   | "SELECT"
@@ -15,6 +16,21 @@ type templateActions =
   | "Aggregate"
   | "Select"
   | "Create";
+
+interface EntityActionParams {
+  entityNameinLeftSidebar: string;
+  action?:
+    | "Show bindings"
+    | "Edit name"
+    | "Delete"
+    | "Clone"
+    | "Settings"
+    | "Copy to page";
+  subAction?: string;
+  entityType?: EntityItems;
+  toAssertAction?: boolean;
+  toastToValidate?: string;
+}
 
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -206,12 +222,15 @@ export class EntityExplorer {
       });
   }
 
-  public ActionContextMenuByEntityName(
-    entityNameinLeftSidebar: string,
+  public ActionContextMenuByEntityName({
+    entityNameinLeftSidebar,
     action = "Delete",
     subAction = "",
-    jsDelete = false,
-  ) {
+    entityType = EntityItems.Query,
+    toAssertAction = false,
+    toastToValidate = "",
+  }: EntityActionParams) {
+    this.SelectEntityByName(entityNameinLeftSidebar);
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
@@ -220,9 +239,14 @@ export class EntityExplorer {
     cy.xpath(this.locator._contextMenuItem(action)).click({ force: true });
     this.agHelper.Sleep(1000);
     if (action == "Delete") {
-      this.agHelper.DeleteEntityNAssert(jsDelete);
+      this.agHelper.DeleteEntityNAssert(entityType);
     } else if (subAction) {
-      this.agHelper.ActionContextMenuSubItem(subAction, 0, true);
+      this.agHelper.ActionContextMenuSubItem({
+        subAction: subAction,
+        force: true,
+        toastToValidate: toastToValidate,
+      });
+      toAssertAction && this.agHelper.AssertContains(toastToValidate);
     }
   }
 
@@ -247,7 +271,11 @@ export class EntityExplorer {
       cy.wrap($el)
         .invoke("text")
         .then(($query) => {
-          this.ActionContextMenuByEntityName($query, "Delete", "Are you sure?");
+          this.ActionContextMenuByEntityName({
+            entityNameinLeftSidebar: $query,
+            action: "Delete",
+            entityType: EntityItems.Query,
+          });
         });
     });
   }
@@ -313,7 +341,10 @@ export class EntityExplorer {
 
   public ClonePage(pageName = "Page1") {
     this.SelectEntityByName(pageName, "Pages");
-    this.ActionContextMenuByEntityName(pageName, "Clone");
+    this.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: pageName,
+      action: "Clone",
+    });
     this.agHelper.AssertNetworkStatus("@clonePage", 201);
   }
 
@@ -355,7 +386,11 @@ export class EntityExplorer {
     renameVal: string,
     viaMenu = false,
   ) {
-    if (viaMenu) this.ActionContextMenuByEntityName(entityName, "Edit name");
+    if (viaMenu)
+      this.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: entityName,
+        action: "Edit name",
+      });
     else cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",

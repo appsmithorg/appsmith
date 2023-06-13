@@ -2,8 +2,23 @@ import "cypress-wait-until";
 import { v4 as uuidv4 } from "uuid";
 import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
+import { ReusableHelper } from "../Objects/ReusableHelper";
+import { EntityItems } from "./AssertHelper";
 
 type ElementType = string | JQuery<HTMLElement>;
+
+interface DeleteParams {
+  action: "Copy to page" | "Move to page" | "Delete" | "Prettify code";
+  subAction?: string;
+  entityType?: EntityItems;
+  toastToValidate?: string;
+}
+interface SubActionParams {
+  subAction: string;
+  index?: number;
+  force?: boolean;
+  toastToValidate?: string;
+}
 
 let LOCAL_STORAGE_MEMORY: any = {};
 export interface IEnterValue {
@@ -17,7 +32,8 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
   directInput: false,
   inputFieldName: "",
 };
-export class AggregateHelper {
+
+export class AggregateHelper extends ReusableHelper {
   private locator = ObjectsRegistry.CommonLocators;
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
@@ -841,33 +857,40 @@ export class AggregateHelper {
     this.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
   }
 
-  public ActionContextMenuWithInPane(
-    action: "Copy to page" | "Move to page" | "Delete" | "Prettify code",
+  public ActionContextMenuWithInPane({
+    action = "Delete",
     subAction = "",
-    jsDelete = false,
-  ) {
+    entityType = EntityItems.JSObject,
+    toastToValidate = "",
+  }: DeleteParams) {
     cy.get(this.locator._contextMenuInPane).click();
     this.GetNClick(this.locator._contextMenuItem(action));
-
     if (action == "Delete") {
-      this.DeleteEntityNAssert(jsDelete);
+      this.DeleteEntityNAssert(entityType);
     } else if (subAction) {
-      this.ActionContextMenuSubItem(subAction);
+      this.ActionContextMenuSubItem({
+        subAction: subAction,
+        toastToValidate: toastToValidate,
+      });
+      toastToValidate && this.AssertContains(toastToValidate);
     }
   }
 
-  public ActionContextMenuSubItem(subAction = "", index = 0, force = false) {
-    this.GetNClick(this.locator._contextMenuItem(subAction), index, force);
-    this.Sleep();
+  public DeleteEntityNAssert(entityType: EntityItems, toAssertAction = false) {
+    if (entityType != EntityItems.Widget)
+      this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
+    toAssertAction && this.assertHelper.AssertDelete(entityType);
   }
 
-  public DeleteEntityNAssert(jsDelete = false) {
-    this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
-    this.Sleep();
-    !jsDelete && this.AssertNetworkStatus("@deleteAction");
-    jsDelete &&
-      this.AssertContains("deleted successfully") &&
-      this.AssertNetworkStatus("@deleteJSCollection");
+  public ActionContextMenuSubItem({
+    force = false,
+    index = 0,
+    subAction,
+    toastToValidate = "",
+  }: SubActionParams) {
+    this.GetNClick(this.locator._contextMenuItem(subAction), index, force);
+    this.Sleep(500);
+    toastToValidate && this.AssertContains(toastToValidate);
   }
 
   public EnterValueNValidate(valueToType: string, fieldName = "") {

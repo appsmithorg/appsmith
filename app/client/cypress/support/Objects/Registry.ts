@@ -25,6 +25,7 @@ import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
 import { DefaultHostPort } from "./Hostport";
 import { AssertHelper } from "../Pages/AssertHelper";
+import { ReusableHelper } from "./ReusableHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -41,6 +42,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.assertHelper__ = new AssertHelper();
     }
     return ObjectsRegistry.assertHelper__;
+  }
+
+  private static reusableHelper__: ReusableHelper;
+  static get ReusableHelper(): ReusableHelper {
+    if (ObjectsRegistry.reusableHelper__ === undefined) {
+      ObjectsRegistry.reusableHelper__ = new ReusableHelper();
+    }
+    return ObjectsRegistry.reusableHelper__;
   }
 
   private static jsEditor__: JSEditor;
