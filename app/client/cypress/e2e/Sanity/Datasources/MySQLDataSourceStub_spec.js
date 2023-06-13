@@ -1,10 +1,9 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-
-import { dataSources } from "../../../../support/Objects/ObjectsCore";
-
-let datasourceName;
+import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("MySQL datasource test cases", function () {
+  let datasourceName;
+
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
