@@ -180,7 +180,7 @@ export class JSEditor {
 
     this.agHelper.AssertAutoSave();
     if (prettify) {
-      this.agHelper.ActionContextMenuWithInPane("Prettify code");
+      this.agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
       this.agHelper.AssertAutoSave();
     }
 
@@ -211,7 +211,8 @@ export class JSEditor {
         this.agHelper.Paste(el, newContent);
       });
     this.agHelper.Sleep(2000); //Settling time for edited js code
-    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify code");
+    toPrettify &&
+      this.agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
   }
 
@@ -243,7 +244,10 @@ export class JSEditor {
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
-    this.ee.ActionContextMenuByEntityName("RenamedJSObject", "Edit name");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: entityName,
+      action: "Edit name",
+    });
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
@@ -258,7 +262,10 @@ export class JSEditor {
   }
 
   public ValidateDefaultJSObjProperties(jsObjName: string) {
-    this.ee.ActionContextMenuByEntityName(jsObjName, "Show bindings");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: jsObjName,
+      action: "Show bindings",
+    });
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
