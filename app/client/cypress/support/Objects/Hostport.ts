@@ -46,6 +46,12 @@ export class DefaultHostPort {
   smtp_username = "root";
   smtp_password = "root";
 
+  oracle_host = "random-data";
+  oracle_port = 40;
+  oracle_name = "random-name";
+  oracle_username = "random-username";
+  oracle_password = "random-password";
+
   redis_host = "host.docker.internal";
   redis_port = "6379";
 

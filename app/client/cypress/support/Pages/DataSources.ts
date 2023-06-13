@@ -443,23 +443,20 @@ export class DataSources {
     password = "",
   ) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["oracle-host"] + "  "
-      : datasourceFormData["oracle-host"];
+      ? this.hp.oracle_host + "  "
+      : this.hp.oracle_host;
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["oracle-name"] + "  "
-      : datasourceFormData["oracle-name"];
+      ? this.hp.oracle_name + "  "
+      : this.hp.oracle_name;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["oracle-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._port, this.hp.oracle_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
-      username == "" ? datasourceFormData["oracle-username"] : username,
+      username == "" ? this.hp.oracle_username : username,
     );
     cy.get(this._password).type(
-      password == "" ? datasourceFormData["oracle-password"] : password,
+      password == "" ? this.hp.oracle_password : password,
     );
   }
 
