@@ -4,7 +4,10 @@ const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 let datasourceName;
 
 describe("Addwidget from Query and bind with other widgets", function () {
@@ -26,7 +29,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
   it("2. Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
+    dataSources.EnterQuery("");
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

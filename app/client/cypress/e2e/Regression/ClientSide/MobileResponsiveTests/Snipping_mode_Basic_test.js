@@ -4,9 +4,6 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let dataSources = ObjectsRegistry.dataSources;
-
 describe("Add widget - Postgress DataSource", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
@@ -23,7 +20,7 @@ describe("Add widget - Postgress DataSource", function () {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
+    _.dataSources.EnterQuery("");
     cy.wait(500);
     cy.get(".CodeMirror textarea")
       .first()

@@ -1,7 +1,7 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dataSources = ObjectsRegistry.DataSources;
 
