@@ -24,7 +24,6 @@ import type {
   RenderMode,
   WidgetType,
 } from "constants/WidgetConstants";
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import {
   GridDefaults,
   RenderModes,
@@ -378,7 +377,6 @@ abstract class BaseWidget<
   };
 
   getComponentDimensions = () => {
-    if (this.props.isFlexChild) return this.getAutoLayoutComponentDimensions();
     return this.calculateWidgetBounds(
       this.props.rightColumn,
       this.props.leftColumn,
@@ -496,7 +494,9 @@ abstract class BaseWidget<
    * @param showControls
    */
   showWidgetName(content: ReactNode, showControls = false) {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.isAutoLayoutMode
+      ? this.getAutoLayoutComponentDimensions()
+      : this.getComponentDimensions();
 
     return !this.props.disablePropertyPane ? (
       <>
@@ -710,57 +710,10 @@ abstract class BaseWidget<
     }
     if (this.props.isFlexChild && !this.props.detachFromLayout) {
       return content;
-      // const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-      //   this.props.type,
-      // ).autoDimension;
-
-      // const shouldObserveWidth = isFunction(autoDimensionConfig)
-      //   ? autoDimensionConfig(this.props).width
-      //   : autoDimensionConfig?.width;
-      // const shouldObserveHeight = isFunction(autoDimensionConfig)
-      //   ? autoDimensionConfig(this.props).height
-      //   : autoDimensionConfig?.height;
-
-      // if (!shouldObserveHeight && !shouldObserveWidth) return content;
-
-      // const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-      // const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
-      //   this.props,
-      //   this.props.mainCanvasWidth || 0,
-      // );
-
-      // return (
-      //   <AutoLayoutDimensionObserver
-      //     height={componentHeight}
-      //     isFillWidget={
-      //       this.props.responsiveBehavior === ResponsiveBehavior.Fill
-      //     }
-      //     minHeight={minHeight ?? 0}
-      //     minWidth={minWidth ?? 0}
-      //     onDimensionUpdate={this.updateWidgetDimensions}
-      //     shouldObserveHeight={shouldObserveHeight || false}
-      //     shouldObserveWidth={shouldObserveWidth || false}
-      //     type={this.props.type}
-      //     width={componentWidth}
-      //   >
-      //     {content}
-      //   </AutoLayoutDimensionObserver>
-      // );
     }
 
     content = this.addWidgetComponentBoundary(content, this.props);
     return this.addErrorBoundary(content);
-  };
-
-  private updateWidgetDimensions = (width: number, height: number) => {
-    const { updateWidgetDimension } = this.context;
-    if (!updateWidgetDimension) return;
-    updateWidgetDimension(
-      this.props.widgetId,
-      width + 2 * FLEXBOX_PADDING,
-      height + 2 * FLEXBOX_PADDING,
-    );
   };
 
   private getWidgetView(): ReactNode {
@@ -791,7 +744,6 @@ abstract class BaseWidget<
 
         return content;
 
-      // return this.getCanvasView();
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
         if (!this.props.detachFromLayout) {

@@ -196,22 +196,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     isAutoLayout,
   ]);
 
-  // const positionStyle: CSSProperties = useMemo(() => {
-  //   return {
-  //     top:
-  //       props.topRow > 2
-  //         ? `${-1 * WidgetNameComponentHeight + 1 + positionOffset[0]}px`
-  //         : `calc(100% - ${1 + positionOffset[0]}px)`,
-  //     height: WidgetNameComponentHeight + "px",
-  //     marginLeft: positionOffset[1] + "px",
-  //     zIndex: Layers.widgetName,
-  //   };
-  // }, [
-  //   Layers?.widgetName,
-  //   props.topRow,
-  //   positionOffset,
-  //   WidgetNameComponentHeight,
-  // ]);
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}

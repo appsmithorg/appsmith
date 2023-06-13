@@ -6,7 +6,6 @@ import { get, omit } from "lodash";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ReflowResizable as AutoLayoutResizable } from "components/editorComponents/WidgetResizer/resizable/autolayoutresize";
-import { ReflowResizable as FixedLayoutResizable } from "components/editorComponents/WidgetResizer/resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -28,13 +27,11 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import { DropTargetContext } from "../DropTargetComponent";
 import type { UIElementSize } from "./ResizableUtils";
 import {
   BottomHandleStyles,
@@ -48,19 +45,16 @@ import {
   VisibilityContainer,
 } from "./ResizeStyledComponents";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-
-export type ResizableComponentProps = WidgetProps & {
-  paddingOffset: number;
-};
+import type { ResizableComponentProps } from "./ResizableComponent";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 export const AutoLayoutResizableComponent = memo(function ResizableComponent(
-  props: any,
+  props: ResizableComponentProps,
 ) {
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
   const dispatch = useDispatch();
   const isAutoLayout = useSelector(getIsAutoLayout);
-  const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -207,14 +201,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     !isSnipingMode &&
     !isPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen;
-  const { updateDropTargetRows } = useContext(DropTargetContext);
-
-  const gridProps = {
-    parentColumnSpace: props.parentColumnSpace,
-    parentRowSpace: props.parentRowSpace,
-    paddingOffset: props.paddingOffset,
-    maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
-  };
 
   const originalPositions = {
     id: props.widgetId,
@@ -222,11 +208,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     top: props.topRow,
     bottom: props.bottomRow,
     right: props.rightColumn,
-  };
-  const updateBottomRow = (bottom: number) => {
-    if (props.parentId) {
-      updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
-    }
   };
 
   const snapGrid = {
@@ -249,11 +230,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   }
 
-  // Is auto height enabled for widget (without limits)
-  const autoHeight =
-    isAutoHeightEnabledForWidget(props) &&
-    !isAutoHeightEnabledForWidgetWithLimits(props);
-
   const allowResize: boolean =
     !isMultiSelected || (isAutoLayout && !props.isFlexChild);
 
@@ -266,19 +242,23 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     (isHovered || isSelected);
 
   return (
-    <Resizable
+    <AutoLayoutResizable
       allowResize={allowResize}
-      autoHeight={autoHeight}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}
       enableHorizontalResize={isEnabled}
       enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
-      gridProps={gridProps}
       handles={handles}
-      hasAutoHeight={props.hasAutoHeight}
-      hasAutoWidth={props.hasAutoWidth}
+      hasAutoHeight={
+        props.hasAutoHeight ||
+        props.responsiveBehavior === ResponsiveBehavior.Fill
+      }
+      hasAutoWidth={
+        props.hasAutoWidth ||
+        props.responsiveBehavior === ResponsiveBehavior.Fill
+      }
       isFlexChild={props.isFlexChild}
       isHovered={isHovered}
       isMobile={props.isMobile || false}
@@ -291,8 +271,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       responsiveBehavior={props.responsiveBehavior}
       showResizeBoundary={showResizeBoundary}
       snapGrid={snapGrid}
-      topRow={props.topRow}
-      updateBottomRow={updateBottomRow}
       // Used only for performance tracking, can be removed after optimization.
       widgetId={props.widgetId}
       zWidgetId={props.widgetId}
@@ -305,7 +283,7 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       >
         {props.children}
       </VisibilityContainer>
-    </Resizable>
+    </AutoLayoutResizable>
   );
 });
 export default AutoLayoutResizableComponent;

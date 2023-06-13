@@ -12,7 +12,6 @@ import { get, omit } from "lodash";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ReflowResizable as AutoLayoutResizable } from "components/editorComponents/WidgetResizer/resizable/autolayoutresize";
 import { ReflowResizable as FixedLayoutResizable } from "components/editorComponents/WidgetResizer/resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
@@ -75,7 +74,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { updateWidget } = useContext(EditorContext);
   const dispatch = useDispatch();
   const isAutoLayout = useSelector(getIsAutoLayout);
-  const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -388,7 +386,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     (isHovered || isSelected);
 
   return (
-    <Resizable
+    <FixedLayoutResizable
       allowResize={allowResize}
       autoHeight={autoHeight}
       componentHeight={dimensions.height}
@@ -425,7 +423,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       >
         {props.children}
       </VisibilityContainer>
-    </Resizable>
+    </FixedLayoutResizable>
   );
 });
 export default ResizableComponent;
