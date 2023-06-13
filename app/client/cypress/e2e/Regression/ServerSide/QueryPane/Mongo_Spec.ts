@@ -1,6 +1,5 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import formControls from "../../../../locators/FormControl.json";
 
 let dsName: any;
 

@@ -1,6 +1,5 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import formControls from "../../../../locators/FormControl.json";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
