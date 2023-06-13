@@ -2,6 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const locator = ObjectsRegistry.CommonLocators;
+import { agHelper, locators } from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "filepickerwidgetv2";
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value`;
@@ -35,7 +36,7 @@ describe("File picker widget v2", () => {
       `.t--property-control-dataformat ${commonlocators.helperText}`,
     ).contains(ARRAY_CSV_HELPER_TEXT);
 
-    cy.wait("@updateLayout");
+    agHelper.ValidateNetworkStatus("@updateLayout");
 
     cy.get(commonlocators.filePickerInput)
       .first()
@@ -44,7 +45,10 @@ describe("File picker widget v2", () => {
       });
 
     // wait for file to get uploaded
-    cy.wait("@updateLayout");
+    agHelper.ValidateNetworkStatus("@updateLayout");
+
+    // The table takes a bit of time to load the values in the cells
+    cy.wait(2000);
 
     cy.readTableV2dataPublish("1", "1").then((tabData) => {
       const tabValue = tabData;
@@ -55,7 +59,7 @@ describe("File picker widget v2", () => {
       expect(tabValue).to.be.equal("1000");
     });
     cy.get(
-      `${locator._widgetInDeployed(
+      `${locators._widgetInDeployed(
         "tablewidgetv2",
       )} .tbody .td[data-rowindex=${1}][data-colindex=${3}] input`,
     ).should("not.be.checked");
@@ -67,7 +71,10 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/TestSpreadsheet.xlsx", { force: true });
 
     // wait for file to get uploaded
-    cy.wait("@updateLayout");
+    agHelper.ValidateNetworkStatus("@updateLayout");
+
+    // The table takes a bit of time to load the values in the cells
+    cy.wait(2000);
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("Sheet1");
@@ -96,7 +103,10 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/largeJSONData.json", { force: true });
 
     // wait for file to get uploaded
-    cy.wait("@updateLayout");
+    agHelper.ValidateNetworkStatus("@updateLayout");
+
+    // The table takes a bit of time to load the values in the cells
+    cy.wait(2000);
 
     cy.readTableV2dataPublish("0", "2").then((tabData) => {
       expect(tabData).to.contain("sunt aut facere");
@@ -109,7 +119,10 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/Sample.tsv", { force: true });
 
     // wait for file to get uploaded
-    cy.wait("@updateLayout");
+    agHelper.ValidateNetworkStatus("@updateLayout");
+
+    // The table takes a bit of time to load the values in the cells
+    cy.wait(2000);
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("CONST");
@@ -127,7 +140,7 @@ describe("File picker widget v2", () => {
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(locator._widgetInDeployed("textwidget")).should(
+    cy.get(locators._widgetInDeployed("textwidget")).should(
       "contain",
       "data:application/json;base64",
     );
@@ -138,21 +151,24 @@ describe("File picker widget v2", () => {
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(locator._widgetInDeployed("textwidget")).should(
+    cy.get(locators._widgetInDeployed("textwidget")).should(
       "contain",
       "baseUrl",
     );
     cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
 
-    cy.wait("@updateLayout");
+    agHelper.ValidateNetworkStatus("@updateLayout");
 
-    cy.get(locator._widgetInDeployed("textwidget")).should("have.text", "");
+    // The table takes a bit of time to load the values in the cells
+    cy.wait(2000);
+
+    cy.get(locators._widgetInDeployed("textwidget")).should("have.text", "");
 
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Binary");
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(locator._widgetInDeployed("textwidget")).should(
+    cy.get(locators._widgetInDeployed("textwidget")).should(
       "contain",
       "baseUrl",
     );
