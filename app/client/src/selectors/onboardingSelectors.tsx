@@ -3,11 +3,7 @@ import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsWorkspaces } from "@appsmith/selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
-import {
-  getActionResponses,
-  getActions,
-  getCanvasWidgets,
-} from "./entitiesSelector";
+import { getActionResponses, getActions } from "./entitiesSelector";
 import { getLastSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
@@ -40,30 +36,6 @@ export const getInOnboardingWidgetSelection = (state: AppState) =>
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 
-const previewModeSelector = (state: AppState) => {
-  return state.ui.editor.isPreviewMode;
-};
-
-export const getIsOnboardingTasksView = createSelector(
-  getCanvasWidgets,
-  getIsFirstTimeUserOnboardingEnabled,
-  getIsOnboardingWidgetSelection,
-  previewModeSelector,
-  (
-    widgets,
-    enableFirstTimeUserOnboarding,
-    isOnboardingWidgetSelection,
-    inPreviewMode,
-  ) => {
-    return (
-      Object.keys(widgets).length == 1 &&
-      enableFirstTimeUserOnboarding &&
-      !isOnboardingWidgetSelection &&
-      !inPreviewMode
-    );
-  },
-);
-
 export const getSignpostingStepState = (state: AppState) =>
   state.ui.onBoarding.stepState;
 export const getSignpostingStepStateByStep = createSelector(
@@ -80,6 +52,8 @@ export const getSignpostingUnreadSteps = createSelector(
     return stepState.filter((state) => isBoolean(state.read) && !state.read);
   },
 );
+export const getSignpostingSetOverlay = (state: AppState) =>
+  state.ui.onBoarding.setOverlay;
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>

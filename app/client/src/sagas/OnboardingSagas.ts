@@ -13,7 +13,6 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
-  fetchSignpostingAppState,
   getFirstTimeUserOnboardingApplicationIds,
   removeAllFirstTimeUserOnboardingApplicationIds,
   removeFirstTimeUserOnboardingApplicationId,
@@ -40,8 +39,8 @@ import {
   enableGuidedTour,
   focusWidgetProperty,
   loadGuidedTour,
-  removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
   setCurrentStep,
+  setSignpostingOverlay,
   toggleLoader,
 } from "actions/onboardingActions";
 import {
@@ -80,13 +79,7 @@ import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
-import store from "store";
-import {
-  createMessage,
-  ONBOARDING_SKIPPED_FIRST_TIME_USER,
-} from "@appsmith/constants/messages";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "design-system";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 
@@ -412,36 +405,6 @@ function* setFirstTimeUserOnboardingIntroModalVisibility(
   yield storeFirstTimeUserOnboardingIntroModalVisibility(action.payload);
 }
 
-function* endFirstTimeUserOnboardingSaga() {
-  const firstTimeUserExperienceAppId: string = yield select(
-    getCurrentApplicationId,
-  );
-  yield put(
-    removeFirstTimeUserOnboardingApplicationIdAction(
-      firstTimeUserExperienceAppId,
-    ),
-  );
-  toast.show(createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER), {
-    kind: "success",
-    action: {
-      text: "undo",
-      effect: () => {
-        store.dispatch({
-          type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
-          payload: firstTimeUserExperienceAppId,
-        });
-      },
-    },
-  });
-}
-
-function* undoEndFirstTimeUserOnboardingSaga(action: ReduxAction<string>) {
-  yield put({
-    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-    payload: action.payload,
-  });
-}
-
 function* firstTimeUserOnboardingInitSaga(
   action: ReduxAction<{ applicationId: string; pageId: string }>,
 ) {
@@ -454,18 +417,7 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
   });
-  const appState: Record<string, any> = yield call(
-    fetchSignpostingAppState,
-    action.payload.applicationId,
-  );
-  if (appState && appState.stepState) {
-    yield put({
-      type: "SIGNPOSTING_STEP_UPDATE",
-      payload: {
-        ...appState.stepState,
-      },
-    });
-  }
+  yield put(setSignpostingOverlay(true));
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
@@ -540,14 +492,6 @@ export default function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
       setFirstTimeUserOnboardingIntroModalVisibility,
-    ),
-    takeLatest(
-      ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
-      endFirstTimeUserOnboardingSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
-      undoEndFirstTimeUserOnboardingSaga,
     ),
     takeLatest(
       ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,

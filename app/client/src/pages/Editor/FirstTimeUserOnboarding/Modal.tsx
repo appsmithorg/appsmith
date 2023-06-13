@@ -3,6 +3,8 @@ import { MenuContent } from "design-system";
 import styled from "styled-components";
 import Checklist from "./Checklist";
 import HelpMenu from "./HelpMenu";
+import { useDispatch } from "react-redux";
+import { showSignpostingModal } from "actions/onboardingActions";
 
 const SIGNPOSTING_POPUP_WIDTH = "360px";
 
@@ -14,11 +16,23 @@ const Wrapper = styled.div`
 `;
 
 function OnboardingModal(props: {
+  setOverlay: boolean;
   showIntercomConsent: boolean;
   setShowIntercomConsent: (val: boolean) => void;
 }) {
+  const dispatch = useDispatch();
+
   return (
-    <StyledMenuContent collisionPadding={10} width={SIGNPOSTING_POPUP_WIDTH}>
+    <StyledMenuContent
+      collisionPadding={10}
+      onInteractOutside={() => {
+        // We initially set the menu to modal mode, so we need to handle on click outside
+        if (props.setOverlay) {
+          dispatch(showSignpostingModal(false));
+        }
+      }}
+      width={SIGNPOSTING_POPUP_WIDTH}
+    >
       <Wrapper>
         {!props.showIntercomConsent && <Checklist />}
         <HelpMenu

@@ -10,6 +10,7 @@ const initialState: OnboardingState = {
   firstTimeUserOnboardingApplicationIds: [],
   firstTimeUserOnboardingComplete: false,
   showFirstTimeUserOnboardingModal: false,
+  setOverlay: false,
   stepState: [],
 };
 
@@ -26,6 +27,7 @@ export interface OnboardingState {
   firstTimeUserOnboardingComplete: boolean;
   showFirstTimeUserOnboardingModal: boolean;
   stepState: StepState[];
+  setOverlay: boolean;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -101,6 +103,15 @@ const onboardingReducer = createReducer(initialState, {
         }
         return step;
       }),
+    };
+  },
+  [ReduxActionTypes.SET_SIGNPOSTING_OVERLAY]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      setOverlay: action.payload,
     };
   },
 });

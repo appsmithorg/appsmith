@@ -25,6 +25,7 @@ import {
 } from "selectors/editorSelectors";
 import history from "utils/history";
 import {
+  setSignpostingOverlay,
   showSignpostingModal,
   toggleInOnboardingWidgetSelection,
 } from "actions/onboardingActions";
@@ -371,6 +372,7 @@ export default function OnboardingChecklist() {
       dispatch({
         type: "SIGNPOSTING_MARK_ALL_READ",
       });
+      dispatch(setSignpostingOverlay(false));
     };
   }, []);
 

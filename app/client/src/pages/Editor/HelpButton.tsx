@@ -28,6 +28,7 @@ import styled from "styled-components";
 import {
   getFirstTimeUserOnboardingModal,
   getIsFirstTimeUserOnboardingEnabled,
+  getSignpostingSetOverlay,
   getSignpostingUnreadSteps,
 } from "selectors/onboardingSelectors";
 import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
@@ -161,6 +162,7 @@ function HelpButton() {
   );
   const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
   const unreadSteps = useSelector(getSignpostingUnreadSteps);
+  const setOverlay = useSelector(getSignpostingSetOverlay);
   const currentApplicationId = useSelector(getCurrentApplicationId);
   const isAirgappedInstance = isAirgapped();
   const showUnroadSteps =
@@ -170,7 +172,7 @@ function HelpButton() {
   const menuProps = isFirstTimeUserOnboardingEnabled
     ? {
         open: onboardingModalOpen,
-        modal: false,
+        modal: setOverlay,
       }
     : {};
 
@@ -200,6 +202,7 @@ function HelpButton() {
                 }
               />
             }
+            isDisabled={onboardingModalOpen}
             placement="bottomRight"
           >
             <Button
@@ -216,6 +219,7 @@ function HelpButton() {
       </MenuTrigger>
       {isFirstTimeUserOnboardingEnabled ? (
         <SignpostingPopup
+          setOverlay={setOverlay}
           setShowIntercomConsent={setShowIntercomConsent}
           showIntercomConsent={showIntercomConsent}
         />

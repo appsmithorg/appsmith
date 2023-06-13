@@ -52,6 +52,13 @@ export const firstTimeUserOnboardingInit = (
   };
 };
 
+export const setSignpostingOverlay = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SIGNPOSTING_OVERLAY,
+    payload,
+  };
+};
+
 export const markStepComplete = () => {
   return {
     type: ReduxActionTypes.GUIDED_TOUR_MARK_STEP_COMPLETED,
