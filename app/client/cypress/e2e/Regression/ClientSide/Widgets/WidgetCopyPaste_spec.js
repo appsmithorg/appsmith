@@ -147,4 +147,22 @@ describe("Widget Copy paste", function () {
     //verify a pasted list widget
     cy.get(widgetsPage.listWidgetv2).should("have.length", 1);
   });
+
+  it("8. Should not be able to copy/cut canvas widgets (i.e. Individual Tabs) of tabs widget", function () {
+    _.entityExplorer.AddNewPage("New blank page");
+
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 400, 200);
+
+    _.entityExplorer.SelectEntityByName("Tab 1", "Tabs1");
+
+    cy.get("body").type(`{${modifierKey}}{c}`);
+
+    _.agHelper.ValidateToastMessage("This selected widget cannot be copied.");
+
+    _.agHelper.WaitUntilAllToastsDisappear();
+
+    cy.get("body").type(`{${modifierKey}}{x}`);
+
+    _.agHelper.ValidateToastMessage("This selected widget cannot be cut.");
+  });
 });
