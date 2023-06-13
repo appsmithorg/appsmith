@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ff4j>
+    <autocreate>false</autocreate>
+    <audit>false</audit>
+    <features>
+        <feature uid="DATASOURCE_ENVIRONMENTS" enable="true"
+                 description="Introducing multiple execution environments for datasources">
+            <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
+                <param name="emails"
+                       value="me-eng1@appsmith.com,me-eng2@appsmith.com,me-qa1@appsmith.com,me-qa2@appsmith.com,me-demo@appsmith.com"/>
+            </flipstrategy>
+        </feature>
+        <feature uid="MULTIPLE_PANES" enable="true" description="Have multiple panes in the Appsmith IDE">
+            <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
+                <param name="emails" value="multipanes@appsmith.com,ndx@appsmith.com"/>
+            </flipstrategy>
+        </feature>
+        <feature uid="AUTO_LAYOUT" enable="true" description="Enable auto layout editor for everyone">
+            <flipstrategy class="org.ff4j.strategy.PonderationStrategy">
+                <param name="weight" value="1"/>
+            </flipstrategy>
+        </feature>
+        <feature uid="APP_NAVIGATION_LOGO_UPLOAD" enable="true"
+                 description="Logo upload feature for app viewer navigation">
+            <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
+                <param name="emailDomains" value="appsmith.com,moolya.com"/>
+            </flipstrategy>
+        </feature>
+    </features>
+</ff4j>

@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let testHeight;
 
-describe("Auto conversion algorithm usecases for Autolayout", function () {
+describe("Auto conversion algorithm usecases for auto-layout", function () {
   it("1. Validate basic conversion algorithm usecases", function () {
     cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
       _.agHelper.AddDsl(val);
@@ -224,6 +224,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     canvasTypeWidgets.forEach((canvasWidget, index) => {
       _.entityExplorer.DragDropWidgetNVerify(canvasWidget, x, y);
 
+      //Logic to add widgets without overlapping each other on the canvas
       if (index % 2 === 0) {
         x += 400;
       } else {
