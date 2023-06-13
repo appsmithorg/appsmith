@@ -56,7 +56,7 @@ export class AutoLayout {
     }
 
     this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
-    cy.wait(2000);
+    this.agHelper.Sleep(2000);
 
     this.VerifyIsAutoLayout();
   }

@@ -10,19 +10,21 @@ export interface ColorModeTheme {
     bgAccentActive: string;
     bgAccentSubtleHover: string;
     bgAccentSubtleActive: string;
+    bgAssistive: string;
+    bgNegative: string;
     fg: string;
+    fgAccent: string;
+    fgNegative: string;
     fgNeutral: string;
+    fgOnAccent: string;
+    fgOnAssistive: string;
     fgPositive: string;
     fgWarn: string;
-    fgAccent: string;
-    fgOnAccent: string;
     bdAccent: string;
     bdFocus: string;
-    bdNeutral: string;
-    bdNeutralHover: string;
     bdNegative: string;
     bdNegativeHover: string;
-    fgOnAssistive: string;
-    bgAssistive: string;
+    bdNeutral: string;
+    bdNeutralHover: string;
   };
 }
