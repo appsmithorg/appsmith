@@ -1,9 +1,10 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 import {
   apiPage,
-  entityExplorer,
   agHelper,
+  entityExplorer,
   entityItems,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 
 const firstApiName = "First";

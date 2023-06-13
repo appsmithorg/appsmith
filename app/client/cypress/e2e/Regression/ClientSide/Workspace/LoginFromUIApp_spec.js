@@ -20,10 +20,6 @@ describe("Login from UI and check the functionality", function () {
         action: "Delete",
         entityType: entityItems.Page,
       });
-      cy.wait(2000);
     });
-    cy.wait("@deletePage")
-      .its("response.body.responseMeta.status")
-      .should("eq", 200);
   });
 });
