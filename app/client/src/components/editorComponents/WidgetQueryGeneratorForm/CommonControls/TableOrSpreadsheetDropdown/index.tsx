@@ -1,7 +1,7 @@
 import React, { memo } from "react";
-import { ErrorMessage, SelectWrapper } from "../../styles";
+import { ErrorMessage, Label, SelectWrapper } from "../../styles";
 import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
-import { Select, Option } from "design-system";
+import { Select, Option, Tooltip } from "design-system";
 import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
@@ -11,6 +11,7 @@ function TableOrSpreadsheetDropdown() {
     error,
     isLoading,
     label,
+    labelText,
     onSelect,
     options,
     selected,
@@ -20,7 +21,9 @@ function TableOrSpreadsheetDropdown() {
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
-        {label}
+        <Tooltip content={labelText}>
+          <Label>{label}</Label>
+        </Tooltip>
         <Select
           data-testid="t--one-click-binding-table-selector"
           dropdownStyle={{
