@@ -2213,9 +2213,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Path repoSuffix = Paths.get(branchedApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
                     return gitExecutor.rebaseBranch(repoSuffix, branchName)
                             .flatMap(rebaseStatus -> {
-                                if (rebaseStatus.equals(Boolean.FALSE)) {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "rebase branch", "Unable to rebase branch - " + branchName));
-                                }
                                 return fileUtils.reconstructApplicationJsonFromGitRepo(
                                         branchedApplication.getWorkspaceId(),
                                         branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
