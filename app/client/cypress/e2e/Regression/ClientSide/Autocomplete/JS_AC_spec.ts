@@ -1,4 +1,13 @@
-import {agHelper,apiPage,dataSources,draggableWidgets, entityExplorer, jsEditor,locators  } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  entityItems,
+  jsEditor,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 let jsName: any;
 
@@ -59,8 +68,7 @@ describe("Autocomplete tests", () => {
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",
-        subAction: "Are you sure?",
-        toAssertAction: true,
+        entityType: entityItems.JSObject,
       });
     });
   });
@@ -80,11 +88,7 @@ describe("Autocomplete tests", () => {
     // focus on 5th line
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "D");
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "docUrl",
-      "not.have.text",
-    );
+    agHelper.GetNAssertElementText(locators._hints, "docUrl", "not.have.text");
     agHelper.TypeText(locators._codeMirrorTextArea, "ocumentViewer.docUrl");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
@@ -92,8 +96,7 @@ describe("Autocomplete tests", () => {
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",
-        subAction: "Are you sure?",
-        toAssertAction: true,
+        entityType: entityItems.JSObject,
       });
     });
   });
@@ -189,8 +192,7 @@ describe("Autocomplete tests", () => {
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
         action: "Delete",
-        subAction: "Are you sure?",
-        toAssertAction: true,
+        entityType: entityItems.JSObject,
       });
     });
   });
@@ -233,12 +235,7 @@ describe("Autocomplete tests", () => {
     agHelper.Sleep();
     agHelper.TypeText(locators._codeMirrorTextArea, "users[0].");
     agHelper.GetNAssertElementText(locators._hints, "label");
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "value",
-      "have.text",
-      1,
-    );
+    agHelper.GetNAssertElementText(locators._hints, "value", "have.text", 1);
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
@@ -246,8 +243,7 @@ describe("Autocomplete tests", () => {
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",
-        subAction: "Are you sure?",
-        toAssertAction: true,
+        entityType: entityItems.JSObject,
       });
     });
     entityExplorer.ActionContextMenuByEntityName({
@@ -340,12 +336,7 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "myFun1()",
-      "have.text",
-      4,
-    );
+    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
 
     // Same check in JSObject1
     entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
@@ -361,23 +352,16 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "myFun1()",
-      "have.text",
-      4,
-    );
+    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
-      subAction: "Are you sure?",
-      toAssertAction: true,
+      entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
-      subAction: "Are you sure?",
-      toAssertAction: true,
+      entityType: entityItems.JSObject,
     });
   });
 
@@ -394,28 +378,17 @@ describe("Autocomplete tests", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "aw");
 
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "await",
-      "have.text",
-      0,
-    );
+    agHelper.GetNAssertElementText(locators._hints, "await", "have.text", 0);
 
     agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 2, "as");
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "async",
-      "have.text",
-      0,
-    );
+    agHelper.GetNAssertElementText(locators._hints, "async", "have.text", 0);
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
       entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",
-        subAction: "Are you sure?",
-        toAssertAction: true,
+        entityType: entityItems.JSObject,
       });
     });
   });
@@ -423,7 +396,7 @@ describe("Autocomplete tests", () => {
   it("10. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
     // create js object
     jsEditor.CreateJSObject(
-      `export default 
+      `export default
       myFunc1() {
         showAlert("Hello world");
 
@@ -451,7 +424,7 @@ describe("Autocomplete tests", () => {
 
     //Paste the code and assert that the hints are not present
     jsEditor.CreateJSObject(
-      `export default 
+      `export default
       myFunc1() {
         showAlert("Hello world");
 
@@ -491,8 +464,7 @@ describe("Autocomplete tests", () => {
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",
-        subAction: "Are you sure?",
-        toAssertAction: true,
+        entityType: entityItems.JSObject,
       });
     });
   });

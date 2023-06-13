@@ -8,6 +8,7 @@ import {
   entityExplorer,
   table,
   locators,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any, query: string;
@@ -119,8 +120,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
         action: "Delete",
-        subAction: "Are you sure?",
-        toAssertAction: true,
+        entityType: entityItems.JSObject,
       });
       entityExplorer.DeleteAllQueriesForDB(dsName);
       agHelper.WaitUntilAllToastsDisappear();
