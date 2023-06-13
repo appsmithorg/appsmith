@@ -50,7 +50,6 @@ export function lintTreeV2({
     errors: {},
     updatedJSEntities: [],
   };
-
   try {
     const jsPropertiesState = mapValues(
       parsedJSEntitiesCache,

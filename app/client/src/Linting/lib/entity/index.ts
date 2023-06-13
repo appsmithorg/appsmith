@@ -18,7 +18,6 @@ import type {
   DataTreeEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { TJSEntityState } from "Linting/utils/parseJSEntity";
 
 enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -115,7 +114,7 @@ export class JSEntity
 {
   private entity: TJSActionEntity;
   private config: TJSActionEntityConfig;
-  private parsedEntity: TJSEntityState;
+  private parsedEntity: Record<string, string>;
   constructor(entity: TJSActionEntity, config: TJSActionEntityConfig) {
     this.entity = entity;
     this.config = config;
@@ -139,7 +138,7 @@ export class JSEntity
   isEqual(body: string) {
     return body === this.getRawEntity().body;
   }
-  setParsedEntity(parsedEntity: TJSEntityState) {
+  setParsedEntity(parsedEntity: Record<string, string>) {
     this.parsedEntity = parsedEntity;
   }
   getParsedEntity() {
