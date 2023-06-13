@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.domains.NewPage;
@@ -27,8 +28,7 @@ public class Migration004ResetOnPageLoadEdgesInLayouts {
     }
 
     @RollbackExecution
-    public void demoRollbackExecution() {
-    }
+    public void demoRollbackExecution() {}
 
     @Execution
     public void executeMigration() {

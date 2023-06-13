@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
@@ -21,7 +22,10 @@ public class JSPlugin extends BasePlugin {
     @Extension
     public static class JSPluginExecutor implements PluginExecutor<Void>, SmartSubstitutionInterface {
         @Override
-        public Mono<ActionExecutionResult> execute(Void connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(
+                Void connection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
             return Mono.empty();
         }
 
@@ -31,13 +35,11 @@ public class JSPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(Void connection) {
-        }
+        public void datasourceDestroy(Void connection) {}
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             return Set.of();
         }
     }
-
 }

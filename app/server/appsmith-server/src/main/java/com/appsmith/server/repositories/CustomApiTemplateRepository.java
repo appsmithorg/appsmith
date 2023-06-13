@@ -1,6 +1,6 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomApiTemplateRepositoryCE;
 
-public interface CustomApiTemplateRepository extends CustomApiTemplateRepositoryCE {
-}
+public interface CustomApiTemplateRepository extends CustomApiTemplateRepositoryCE {}

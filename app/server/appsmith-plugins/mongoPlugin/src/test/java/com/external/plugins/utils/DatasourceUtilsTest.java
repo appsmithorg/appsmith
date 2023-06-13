@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.utils;
 
 import com.appsmith.external.models.DBAuth;
@@ -22,14 +23,10 @@ public class DatasourceUtilsTest {
         final DBAuth dbAuth = new DBAuth();
         dbAuth.setPassword("newPass");
         datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
+        datasourceConfiguration.setProperties(List.of(new Property("0", "Yes"), new Property("1", testUri)));
         final String clientURI = buildClientURI(datasourceConfiguration);
         assertEquals(resultUri, clientURI);
     }
-
 
     @Test
     public void testBuildClientURI_withoutUserInfoAndAuthSource() {
@@ -40,10 +37,7 @@ public class DatasourceUtilsTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         final DBAuth dbAuth = new DBAuth();
         datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
+        datasourceConfiguration.setProperties(List.of(new Property("0", "Yes"), new Property("1", testUri)));
         final String clientURI = buildClientURI(datasourceConfiguration);
         assertEquals(resultUri, clientURI);
     }
@@ -58,12 +52,8 @@ public class DatasourceUtilsTest {
         final DBAuth dbAuth = new DBAuth();
         dbAuth.setPassword("newPass");
         datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
+        datasourceConfiguration.setProperties(List.of(new Property("0", "Yes"), new Property("1", testUri)));
         final String clientURI = buildClientURI(datasourceConfiguration);
         assertEquals(resultUri, clientURI);
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

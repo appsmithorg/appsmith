@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.OAuth2ResponseDTO;
@@ -31,15 +32,18 @@ public class SaasControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{datasourceId}/pages/{pageId}/oauth")
-    public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId,
-                                                      @PathVariable String pageId,
-                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                      @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
-                                                      @RequestParam(required = false) String importForGit,
-                                                      ServerWebExchange serverWebExchange) {
+    public Mono<ResponseDTO<String>> getAppsmithToken(
+            @PathVariable String datasourceId,
+            @PathVariable String pageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
+            @RequestParam(required = false) String importForGit,
+            ServerWebExchange serverWebExchange) {
 
-        log.debug("Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
-        return authenticationService.getAppsmithToken(
+        log.debug(
+                "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
+        return authenticationService
+                .getAppsmithToken(
                         datasourceId,
                         environmentId,
                         pageId,
@@ -52,14 +56,15 @@ public class SaasControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/{datasourceId}/token")
-    public Mono<ResponseDTO<OAuth2ResponseDTO>> getAccessToken(@PathVariable String datasourceId,
-                                                               @RequestParam String appsmithToken,
-                                                               @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
-                                                               ServerWebExchange serverWebExchange) {
+    public Mono<ResponseDTO<OAuth2ResponseDTO>> getAccessToken(
+            @PathVariable String datasourceId,
+            @RequestParam String appsmithToken,
+            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
+            ServerWebExchange serverWebExchange) {
 
         log.debug("Received callback for an OAuth2 authorization request");
-        return authenticationService.getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken, Boolean.TRUE)
+        return authenticationService
+                .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken, Boolean.TRUE)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
-
 }

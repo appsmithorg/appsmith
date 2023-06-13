@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.constants;
 
 public class PatternConstants {
@@ -21,7 +22,7 @@ public class PatternConstants {
      * - www
      * - www.
      */
-    public final static String WEBSITE_PATTERN = "^(http://|https://)?(www.)?(([a-z0-9\\-]+)\\.)+([a-z]+)(/)?$";
+    public static final String WEBSITE_PATTERN = "^(http://|https://)?(www.)?(([a-z0-9\\-]+)\\.)+([a-z]+)(/)?$";
     /**
      * Valid Email Patterns:
      * - valid@email.com
@@ -31,6 +32,6 @@ public class PatternConstants {
      * - invalid@.com
      * - @invalid.com
      */
-    public final static String EMAIL_PATTERN = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
+    public static final String EMAIL_PATTERN = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 }

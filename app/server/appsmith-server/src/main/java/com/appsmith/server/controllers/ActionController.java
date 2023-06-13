@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -15,13 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ActionController extends ActionControllerCE {
 
-    public ActionController(LayoutActionService layoutActionService,
-                            NewActionService newActionService,
-                            RefactoringSolution refactoringSolution,
-                            ActionExecutionSolution actionExecutionSolution) {
+    public ActionController(
+            LayoutActionService layoutActionService,
+            NewActionService newActionService,
+            RefactoringSolution refactoringSolution,
+            ActionExecutionSolution actionExecutionSolution) {
 
         super(layoutActionService, newActionService, refactoringSolution, actionExecutionSolution);
-
     }
-
 }

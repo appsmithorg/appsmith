@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -11,10 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.ACTION_COLLECTION_URL)
 public class ActionCollectionController extends ActionCollectionControllerCE {
 
-    public ActionCollectionController(ActionCollectionService actionCollectionService,
-                                      LayoutCollectionService layoutCollectionService) {
+    public ActionCollectionController(
+            ActionCollectionService actionCollectionService, LayoutCollectionService layoutCollectionService) {
 
         super(actionCollectionService, layoutCollectionService);
     }
-
 }

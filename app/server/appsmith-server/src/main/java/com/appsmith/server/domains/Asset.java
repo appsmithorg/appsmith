@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -18,5 +19,4 @@ public class Asset extends BaseDomain {
     String contentType;
 
     byte[] data;
-
 }

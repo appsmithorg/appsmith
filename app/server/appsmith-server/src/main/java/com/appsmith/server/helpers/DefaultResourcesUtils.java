@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionDTO;
@@ -84,7 +85,8 @@ public class DefaultResourcesUtils {
             // Copy layoutOnLoadAction Ids to defaultPageId
             updateOnLoadActionAndCollectionIds(page.getUnpublishedPage(), updateOnLoadAction);
 
-            if (page.getPublishedPage() != null && !CollectionUtils.isNullOrEmpty(page.getPublishedPage().getLayouts())) {
+            if (page.getPublishedPage() != null
+                    && !CollectionUtils.isNullOrEmpty(page.getPublishedPage().getLayouts())) {
                 updateOnLoadActionAndCollectionIds(page.getPublishedPage(), updateOnLoadAction);
             }
             page.setDefaultResources(pageDefaultResources);
@@ -100,9 +102,10 @@ public class DefaultResourcesUtils {
                     ? actionCollection.getApplicationId()
                     : actionCollectionDefaultResources.getApplicationId();
 
-            final String defaultActionCollectionId = StringUtils.isEmpty(actionCollectionDefaultResources.getCollectionId())
-                    ? actionCollection.getId()
-                    : actionCollectionDefaultResources.getCollectionId();
+            final String defaultActionCollectionId =
+                    StringUtils.isEmpty(actionCollectionDefaultResources.getCollectionId())
+                            ? actionCollection.getId()
+                            : actionCollectionDefaultResources.getCollectionId();
             actionCollectionDefaultResources.setApplicationId(defaultApplicationId);
             actionCollectionDefaultResources.setCollectionId(defaultActionCollectionId);
             actionCollectionDefaultResources.setPageId(null);
@@ -135,7 +138,8 @@ public class DefaultResourcesUtils {
             if (updateActionIds) {
                 Map<String, String> updatedActionIds = new HashMap<>();
                 if (!CollectionUtils.isNullOrEmpty(collectionDTO.getDefaultToBranchedActionIdsMap())) {
-                    collectionDTO.getDefaultToBranchedActionIdsMap()
+                    collectionDTO
+                            .getDefaultToBranchedActionIdsMap()
                             .values()
                             .forEach(val -> updatedActionIds.put(val, val));
                     collectionDTO.setDefaultToBranchedActionIdsMap(updatedActionIds);
@@ -147,18 +151,17 @@ public class DefaultResourcesUtils {
     }
 
     static void updateOnLoadActionAndCollectionIds(PageDTO page, boolean shouldUpdate) {
-        page.getLayouts()
-                .forEach(layout -> {
-                    if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-                        for (Set<DslActionDTO> layoutOnLoadAction : layout.getLayoutOnLoadActions()) {
-                            for (DslActionDTO dslActionDTO : layoutOnLoadAction) {
-                                if (shouldUpdate || StringUtils.isEmpty(dslActionDTO.getDefaultActionId())) {
-                                    dslActionDTO.setDefaultActionId(dslActionDTO.getId());
-                                    dslActionDTO.setDefaultCollectionId(dslActionDTO.getCollectionId());
-                                }
-                            }
+        page.getLayouts().forEach(layout -> {
+            if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
+                for (Set<DslActionDTO> layoutOnLoadAction : layout.getLayoutOnLoadActions()) {
+                    for (DslActionDTO dslActionDTO : layoutOnLoadAction) {
+                        if (shouldUpdate || StringUtils.isEmpty(dslActionDTO.getDefaultActionId())) {
+                            dslActionDTO.setDefaultActionId(dslActionDTO.getId());
+                            dslActionDTO.setDefaultCollectionId(dslActionDTO.getCollectionId());
                         }
                     }
-                });
+                }
+            }
+        });
     }
 }

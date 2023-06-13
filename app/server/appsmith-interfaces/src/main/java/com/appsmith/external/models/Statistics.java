@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class Statistics {
-    Long imports; //No of times any of the provider's apis have been imported
-    Long averageLatency; //Average latency of the APIs provided by this provider in milli second
-    Double successRate; //Percentage of successful responses.
+    Long imports; // No of times any of the provider's apis have been imported
+    Long averageLatency; // Average latency of the APIs provided by this provider in milli second
+    Double successRate; // Percentage of successful responses.
 }

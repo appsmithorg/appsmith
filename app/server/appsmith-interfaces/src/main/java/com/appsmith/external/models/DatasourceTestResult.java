@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -30,10 +31,9 @@ public class DatasourceTestResult {
      */
     public DatasourceTestResult(String... invalids) {
         if (invalids == null) {
-            invalids = new String[]{AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()};
+            invalids = new String[] {AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()};
         } else {
-            invalids = Arrays
-                    .stream(invalids)
+            invalids = Arrays.stream(invalids)
                     .map(x -> x == null ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage() : x)
                     .toArray(String[]::new);
         }
@@ -49,5 +49,4 @@ public class DatasourceTestResult {
         // This method exists so that a `"success"` boolean key is present in the JSON response to the frontend.
         return CollectionUtils.isEmpty(invalids);
     }
-
 }

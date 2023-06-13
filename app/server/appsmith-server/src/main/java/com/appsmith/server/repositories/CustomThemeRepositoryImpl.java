@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomThemeRepositoryCEImpl;
@@ -9,7 +10,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CustomThemeRepositoryImpl extends CustomThemeRepositoryCEImpl implements CustomThemeRepository {
-    public CustomThemeRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomThemeRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

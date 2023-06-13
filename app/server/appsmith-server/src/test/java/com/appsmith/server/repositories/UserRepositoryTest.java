@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.User;
@@ -47,9 +48,11 @@ public class UserRepositoryTest {
 
         Mono<User> findUserMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
 
-        StepVerifier.create(findUserMono).assertNext(u -> {
-            assertEquals(savedUser.getEmail(), u.getEmail());
-        }).verifyComplete();
+        StepVerifier.create(findUserMono)
+                .assertNext(u -> {
+                    assertEquals(savedUser.getEmail(), u.getEmail());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -61,9 +64,11 @@ public class UserRepositoryTest {
 
         Mono<User> findUserByEmailMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
 
-        StepVerifier.create(findUserByEmailMono).assertNext(u -> {
-            assertEquals(savedUser.getEmail(), u.getEmail());
-        }).verifyComplete();
+        StepVerifier.create(findUserByEmailMono)
+                .assertNext(u -> {
+                    assertEquals(savedUser.getEmail(), u.getEmail());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -80,9 +85,11 @@ public class UserRepositoryTest {
 
         Mono<User> findUserByEmailMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
 
-        StepVerifier.create(findUserByEmailMono).assertNext(u -> {
-            assertEquals(savedUser2.getEmail(), u.getEmail());
-        }).verifyComplete();
+        StepVerifier.create(findUserByEmailMono)
+                .assertNext(u -> {
+                    assertEquals(savedUser2.getEmail(), u.getEmail());
+                })
+                .verifyComplete();
     }
 
     @Test

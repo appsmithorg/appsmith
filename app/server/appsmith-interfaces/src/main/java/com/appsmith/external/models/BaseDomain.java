@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.helpers.Identifiable;
@@ -20,7 +21,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
 
 /**
  * TODO :

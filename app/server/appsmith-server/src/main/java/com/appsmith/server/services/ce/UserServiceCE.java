@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
@@ -33,8 +34,8 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 
-    Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                         Workspace workspace, User inviter, String role);
+    Mono<? extends User> createNewUserAndSendInviteEmail(
+            String email, String originHeader, Workspace workspace, User inviter, String role);
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 

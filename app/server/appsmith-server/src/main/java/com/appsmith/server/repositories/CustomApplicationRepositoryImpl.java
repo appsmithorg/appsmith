@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
@@ -15,11 +16,11 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
         implements CustomApplicationRepository {
 
     @Autowired
-    public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           @NonNull MongoConverter mongoConverter,
-                                           CacheableRepositoryHelper cacheableRepositoryHelper,
-                                           ApplicationPermission applicationPermission) {
+    public CustomApplicationRepositoryImpl(
+            @NonNull ReactiveMongoOperations mongoOperations,
+            @NonNull MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            ApplicationPermission applicationPermission) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.EntityDependencyNode;
@@ -32,7 +33,10 @@ public class ActionDependencyEdge {
         if (obj instanceof ActionDependencyEdge) {
             final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
 
-            if (sourceNode == null || targetNode == null || actionDependencyEdge.sourceNode == null || actionDependencyEdge.targetNode == null) {
+            if (sourceNode == null
+                    || targetNode == null
+                    || actionDependencyEdge.sourceNode == null
+                    || actionDependencyEdge.targetNode == null) {
                 return false;
             }
 

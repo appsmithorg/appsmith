@@ -1,11 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.repositories.AppsmithRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
-
-public interface CustomDatasourceStorageRepositoryCE extends AppsmithRepository<DatasourceStorage> {
-}
+public interface CustomDatasourceStorageRepositoryCE extends AppsmithRepository<DatasourceStorage> {}

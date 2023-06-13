@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,5 +22,4 @@ public class SmartSubstitutionHelper {
 
         return updatedQuery;
     }
-
 }

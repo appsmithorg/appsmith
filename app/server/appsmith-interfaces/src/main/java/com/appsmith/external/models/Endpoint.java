@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -20,5 +21,4 @@ public class Endpoint {
     String host;
 
     Long port;
-
 }

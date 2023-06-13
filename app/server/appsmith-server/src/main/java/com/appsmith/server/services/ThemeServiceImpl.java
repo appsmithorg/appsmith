@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
@@ -15,17 +16,27 @@ import reactor.core.scheduler.Scheduler;
 @Slf4j
 @Service
 public class ThemeServiceImpl extends ThemeServiceCEImpl implements ThemeService {
-    public ThemeServiceImpl(Scheduler scheduler,
-                            Validator validator,
-                            MongoConverter mongoConverter,
-                            ReactiveMongoTemplate reactiveMongoTemplate,
-                            ThemeRepository repository,
-                            AnalyticsService analyticsService,
-                            ApplicationRepository applicationRepository,
-                            ApplicationService applicationService,
-                            PolicyGenerator policyGenerator,
-                            ApplicationPermission applicationPermission) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                applicationRepository, applicationService, policyGenerator, applicationPermission);
+    public ThemeServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            ThemeRepository repository,
+            AnalyticsService analyticsService,
+            ApplicationRepository applicationRepository,
+            ApplicationService applicationService,
+            PolicyGenerator policyGenerator,
+            ApplicationPermission applicationPermission) {
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                applicationRepository,
+                applicationService,
+                policyGenerator,
+                applicationPermission);
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
@@ -90,6 +91,7 @@ public class DatasourceStructure {
     public static class PrimaryKey implements Key {
         String name;
         List<String> columnNames;
+
         public String getType() {
             return "primary key";
         }
@@ -101,6 +103,7 @@ public class DatasourceStructure {
         String name;
         List<String> fromColumns;
         List<String> toColumns;
+
         public String getType() {
             return "foreign key";
         }
@@ -153,10 +156,10 @@ public class DatasourceStructure {
         this.error.setMessage(error.getMessage());
 
         if (error instanceof BaseException) {
-            this.error.setCode(((BaseException)error).getAppErrorCode());
+            this.error.setCode(((BaseException) error).getAppErrorCode());
         }
     }
-    
+
     /**
      * Instance creator is required while de-serialising using Gson as key instance can't be invoked with
      * no-args constructor
@@ -173,5 +176,4 @@ public class DatasourceStructure {
             return key;
         }
     }
-    
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Data;
@@ -23,5 +24,4 @@ public class UserUpdateDTO {
     public boolean hasUserDataUpdates() {
         return role != null || useCase != null || isIntercomConsentGiven;
     }
-
 }

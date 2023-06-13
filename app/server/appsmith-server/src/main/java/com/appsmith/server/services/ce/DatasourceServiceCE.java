@@ -1,10 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.models.DatasourceDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -70,7 +71,8 @@ public interface DatasourceServiceCE {
 
     Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId);
 
-    Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate);
+    Mono<DatasourceDTO> update(
+            String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId);
 

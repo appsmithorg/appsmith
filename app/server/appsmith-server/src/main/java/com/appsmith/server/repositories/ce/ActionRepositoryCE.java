@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Action;
@@ -15,8 +16,7 @@ public interface ActionRepositoryCE extends BaseRepository<Action, String>, Cust
     Flux<Action> findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethodAndUserSetOnLoad(
             Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad);
 
-    Flux<Action> findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(
-            Set<String> names, String pageId);
+    Flux<Action> findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(Set<String> names, String pageId);
 
     Mono<Long> countByDatasourceId(String datasourceId);
 

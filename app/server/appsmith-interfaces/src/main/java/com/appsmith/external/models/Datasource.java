@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
@@ -41,7 +42,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
     @JsonView(Views.Public.class)
     String pluginName;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     String organizationId;
@@ -58,7 +59,6 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
     @Transient
     @JsonView(Views.Internal.class)
     Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
-
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)

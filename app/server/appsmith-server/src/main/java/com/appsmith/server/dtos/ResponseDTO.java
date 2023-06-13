@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.exceptions.ErrorDTO;
@@ -48,5 +49,4 @@ public class ResponseDTO<T> implements Serializable {
 
         return error.getCode() + ": " + error.getMessage();
     }
-
 }

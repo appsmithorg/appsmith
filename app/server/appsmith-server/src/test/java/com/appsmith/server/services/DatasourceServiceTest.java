@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
@@ -78,6 +79,7 @@ public class DatasourceServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
     @Autowired
     DatasourceStorageService datasourceStorageService;
 
@@ -122,34 +124,40 @@ public class DatasourceServiceTest {
         toCreate.setName("DatasourceServiceTest");
 
         if (!StringUtils.hasLength(workspaceId)) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void datasourceDefaultNameCounterAsPerWorkspaceId() {
-        //Create new workspace
+        // Create new workspace
         Workspace workspace11 = new Workspace();
         workspace11.setId("random-org-id-1");
         workspace11.setName("Random Org 1");
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
+                .thenReturn(Mono.just(new MockPluginExecutor()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        StepVerifier.create(workspaceService.create(workspace11)
+        StepVerifier.create(workspaceService
+                        .create(workspace11)
                         .zipWith(pluginService.findByPackageName("restapi-plugin"))
                         .flatMap(tuple2 -> {
                             Workspace workspace = tuple2.getT1();
                             Plugin plugin = tuple2.getT2();
-                            return workspaceService.getDefaultEnvironmentId(workspace.getId())
+                            return workspaceService
+                                    .getDefaultEnvironmentId(workspace.getId())
                                     .flatMap(environmentId -> {
                                         Datasource datasource = new Datasource();
                                         datasource.setWorkspaceId(workspace.getId());
                                         datasource.setPluginId(plugin.getId());
-                                        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+                                        DatasourceStorage datasourceStorage =
+                                                new DatasourceStorage(datasource, environmentId);
                                         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
                                         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
                                         datasource.setDatasourceStorages(storages);
@@ -165,16 +173,19 @@ public class DatasourceServiceTest {
                         .flatMap(tuple2 -> {
                             Datasource datasource1 = tuple2.getT1();
                             final Workspace workspace2 = tuple2.getT2();
-                            return workspaceService.getDefaultEnvironmentId(workspace2.getId())
+                            return workspaceService
+                                    .getDefaultEnvironmentId(workspace2.getId())
                                     .flatMap(environmentId -> {
                                         Datasource datasource2 = new Datasource();
                                         datasource2.setWorkspaceId(workspace2.getId());
                                         datasource2.setPluginId(datasource1.getPluginId());
-                                        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource2, environmentId);
+                                        DatasourceStorage datasourceStorage =
+                                                new DatasourceStorage(datasource2, environmentId);
                                         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
                                         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
                                         datasource2.setDatasourceStorages(storages);
-                                        return Mono.zip(Mono.just(tuple2.getT1()), datasourceService.create(datasource2));
+                                        return Mono.zip(
+                                                Mono.just(tuple2.getT1()), datasourceService.create(datasource2));
                                     });
                         }))
                 .assertNext(datasource -> {
@@ -197,10 +208,12 @@ public class DatasourceServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceWithNullPluginId");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-pluginId");
@@ -210,10 +223,11 @@ public class DatasourceServiceTest {
         storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
-        StepVerifier
-                .create(datasourceService.create(datasource))
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID)))
+        StepVerifier.create(datasourceService.create(datasource))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID)))
                 .verify();
     }
 
@@ -228,8 +242,7 @@ public class DatasourceServiceTest {
         storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
-        StepVerifier
-                .create(datasourceService.validateDatasource(datasource))
+        StepVerifier.create(datasourceService.validateDatasource(datasource))
                 .assertNext(datasource1 -> {
                     assertThat(datasource1.getName()).isEqualTo(datasource.getName());
                     assertThat(datasource1.getIsValid()).isFalse();
@@ -249,26 +262,28 @@ public class DatasourceServiceTest {
         storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
-        StepVerifier
-                .create(datasourceService.create(datasource))
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
+        StepVerifier.create(datasourceService.create(datasource))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void createDatasourceNotInstalledPlugin() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceNotInstalledPlugin");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
@@ -289,15 +304,15 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
                     assertThat(createdDatasource.getIsValid()).isFalse();
-                    assertThat(createdDatasource.getInvalids()).contains("Plugin " + datasource.getPluginId() + " not installed");
+                    assertThat(createdDatasource.getInvalids())
+                            .contains("Plugin " + datasource.getPluginId() + " not installed");
                 })
                 .verifyComplete();
     }
@@ -306,16 +321,19 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void createDatasourceValid() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceValid");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -330,15 +348,18 @@ public class DatasourceServiceTest {
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -359,29 +380,39 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder()
+                            .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder()
+                            .permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy executeDatasourcePolicy = Policy.builder()
+                            .permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
-                    Policy deleteDatasourcesPolicy = Policy.builder().permission(DELETE_DATASOURCES.getValue())
+                    Policy deleteDatasourcesPolicy = Policy.builder()
+                            .permission(DELETE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
 
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
-                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy,
-                            executeDatasourcePolicy, deleteDatasourcesPolicy));
+                    assertThat(createdDatasource.getPolicies())
+                            .containsAll(Set.of(
+                                    manageDatasourcePolicy,
+                                    readDatasourcePolicy,
+                                    executeDatasourcePolicy,
+                                    deleteDatasourcesPolicy));
 
                     Assertions.assertNull(createdDatasource.getIsMock());
                     Assertions.assertNull(createdDatasource.getIsTemplate());
@@ -392,16 +423,19 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createAndUpdateDatasourceValidDB() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createAndUpdateDatasourceValidDB");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Datasource datasource = new Datasource();
@@ -431,7 +465,8 @@ public class DatasourceServiceTest {
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
                     return datasource;
-                }).flatMap(datasourceService::create)
+                })
+                .flatMap(datasourceService::create)
                 .flatMap(datasource1 -> {
                     DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
                     Connection connection1 = new Connection();
@@ -440,29 +475,34 @@ public class DatasourceServiceTest {
                     ssl.getKeyFile().setName("ssl_key_file_id2");
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
-                    datasource1.getDatasourceStorages().get(defaultEnvironmentId)
+                    datasource1
+                            .getDatasourceStorages()
+                            .get(defaultEnvironmentId)
                             .setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService
-                            .updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+                    return datasourceService.updateByEnvironmentId(
+                            datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getDatasourceStorages()).containsKey(defaultEnvironmentId);
-                    assertThat(createdDatasource.getDatasourceStorages().get(defaultEnvironmentId)
-                            .getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName())
+                    assertThat(createdDatasource
+                                    .getDatasourceStorages()
+                                    .get(defaultEnvironmentId)
+                                    .getDatasourceConfiguration()
+                                    .getConnection()
+                                    .getSsl()
+                                    .getKeyFile()
+                                    .getName())
                             .isEqualTo("ssl_key_file_id2");
                     assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
-                    assertThat(createdDatasource.getUserPermissions()).containsAll(
-                            Set.of(
+                    assertThat(createdDatasource.getUserPermissions())
+                            .containsAll(Set.of(
                                     READ_DATASOURCES.getValue(), EXECUTE_DATASOURCES.getValue(),
-                                    MANAGE_DATASOURCES.getValue(), DELETE_DATASOURCES.getValue()
-                            )
-                    );
+                                    MANAGE_DATASOURCES.getValue(), DELETE_DATASOURCES.getValue()));
                 })
                 .verifyComplete();
     }
@@ -470,14 +510,16 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createAndUpdateDatasourceDifferentAuthentication() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createAndUpdateDatasourceDifferentAuthentication");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
 
@@ -528,17 +570,24 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     datasource1.setDatasourceConfiguration(datasourceConfiguration1);
 
-                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+                    return datasourceService.updateByEnvironmentId(
+                            datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2).isTrue();
+                    assertThat(createdDatasource
+                                    .getDatasourceConfiguration()
+                                    .getConnection()
+                                    .getSsl()
+                                    .getKeyFile()
+                                    .getName())
+                            .isEqualTo("ssl_key_file_id2");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)
+                            .isTrue();
                 })
                 .verifyComplete();
     }
@@ -546,16 +595,19 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createNamelessDatasource() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createNamelessDatasource");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
 
@@ -585,8 +637,7 @@ public class DatasourceServiceTest {
                 })
                 .zipWhen(datasource -> datasourceService.create(datasource2));
 
-        StepVerifier
-                .create(datasourcesMono)
+        StepVerifier.create(datasourcesMono)
                 .assertNext(tuple2 -> {
                     final Datasource ds1 = tuple2.getT1();
                     assertThat(ds1.getId()).isNotEmpty();
@@ -601,7 +652,6 @@ public class DatasourceServiceTest {
                 .verifyComplete();
     }
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceValid() {
@@ -611,9 +661,11 @@ public class DatasourceServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testDatasourceValid");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -637,13 +689,13 @@ public class DatasourceServiceTest {
                 .flatMap(datasourceService::create)
                 .flatMap(datasource2 -> datasourceService.convertToDatasourceDTO(datasource2));
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
-                .flatMap(datasource1 -> datasourceService.testDatasource(datasource1, defaultEnvironmentId));
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(
+                datasource1 -> datasourceService.testDatasource(datasource1, defaultEnvironmentId));
 
-        StepVerifier
-                .create(testResultMono)
+        StepVerifier.create(testResultMono)
                 .assertNext(testResult -> {
                     assertThat(testResult).isNotNull();
                     assertThat(testResult.getInvalids()).isEmpty();
@@ -660,9 +712,11 @@ public class DatasourceServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testDatasourceEmptyFields");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -700,16 +754,15 @@ public class DatasourceServiceTest {
                 .flatMap(datasourceService::create)
                 .flatMap(datasource2 -> datasourceService.convertToDatasourceDTO(datasource2));
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
-                .flatMap(datasource1 -> {
-                    ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
-                    return datasourceService.testDatasource(datasource1, defaultEnvironmentId);
-                });
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(datasource1 -> {
+            ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+            return datasourceService.testDatasource(datasource1, defaultEnvironmentId);
+        });
 
-        StepVerifier
-                .create(testResultMono)
+        StepVerifier.create(testResultMono)
                 .assertNext(testResult -> {
                     assertThat(testResult).isNotNull();
                     assertThat(testResult.getInvalids()).isEmpty();
@@ -720,16 +773,19 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteDatasourceWithoutActions() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-deleteDatasourceWithoutActions");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -751,8 +807,7 @@ public class DatasourceServiceTest {
                 .flatMap(datasourceService::create)
                 .flatMap(datasource1 -> datasourceService.archiveById(datasource1.getId()));
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
@@ -765,7 +820,8 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteDatasourceWithActions() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         String name = "DatasourceServiceTest-deleteDatasourceWithActions";
 
@@ -773,15 +829,15 @@ public class DatasourceServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName(name);
 
-        Workspace createdWorkspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace createdWorkspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = createdWorkspace.getId();
-        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId =
+                workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
-        Mono<Datasource> datasourceMono = Mono
-                .zip(
+        Mono<Datasource> datasourceMono = Mono.zip(
                         workspaceRepository.findByName(name, AclPermission.READ_WORKSPACES),
-                        pluginService.findByPackageName("restapi-plugin")
-                )
+                        pluginService.findByPackageName("restapi-plugin"))
                 .flatMap(objects -> {
                     final Workspace workspace = objects.getT1();
                     final Plugin plugin = objects.getT2();
@@ -805,7 +861,8 @@ public class DatasourceServiceTest {
                             Mono.just(workspace),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationPageService.createApplication(application, workspace.getId())
+                            applicationPageService
+                                    .createApplication(application, workspace.getId())
                                     .flatMap(application1 -> {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
@@ -813,11 +870,9 @@ public class DatasourceServiceTest {
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
                                                 .users(Set.of("api_user"))
-                                                .build()
-                                        )));
+                                                .build())));
                                         return applicationPageService.createPage(page);
-                                    })
-                    );
+                                    }));
                 })
                 .flatMap(objects -> {
                     final Datasource datasource = objects.getT3();
@@ -833,34 +888,35 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return layoutActionService.createSingleAction(action, Boolean.FALSE).thenReturn(datasource);
+                    return layoutActionService
+                            .createSingleAction(action, Boolean.FALSE)
+                            .thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.archiveById(datasource.getId()));
 
-        StepVerifier
-                .create(datasourceMono)
-                .verifyErrorMessage(AppsmithError.DATASOURCE_HAS_ACTIONS.getMessage("1"));
+        StepVerifier.create(datasourceMono).verifyErrorMessage(AppsmithError.DATASOURCE_HAS_ACTIONS.getMessage("1"));
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteDatasourceWithDeletedActions() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         String name = "DatasourceServiceTest-deleteDatasourceWithDeletedActions";
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName(name);
 
-        Workspace createdWorkspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace createdWorkspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = createdWorkspace.getId();
-        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId =
+                workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
-        Mono<Datasource> datasourceMono = Mono
-                .zip(
+        Mono<Datasource> datasourceMono = Mono.zip(
                         workspaceRepository.findByName(name, AclPermission.READ_WORKSPACES),
-                        pluginService.findByPackageName("restapi-plugin")
-                )
+                        pluginService.findByPackageName("restapi-plugin"))
                 .flatMap(objects -> {
                     final Workspace workspace = objects.getT1();
                     final Plugin plugin = objects.getT2();
@@ -884,7 +940,8 @@ public class DatasourceServiceTest {
                             Mono.just(workspace),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationPageService.createApplication(application, workspace.getId())
+                            applicationPageService
+                                    .createApplication(application, workspace.getId())
                                     .zipWhen(application1 -> {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
@@ -892,11 +949,9 @@ public class DatasourceServiceTest {
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
                                                 .users(Set.of("api_user"))
-                                                .build()
-                                        )));
+                                                .build())));
                                         return applicationPageService.createPage(page);
-                                    })
-                    );
+                                    }));
                 })
                 .flatMap(objects -> {
                     final Datasource datasource = objects.getT3();
@@ -913,17 +968,18 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return layoutActionService.createSingleAction(action, Boolean.FALSE)
+                    return layoutActionService
+                            .createSingleAction(action, Boolean.FALSE)
                             .then(applicationPageService.deleteApplication(application.getId()))
                             .thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.archiveById(datasource.getId()));
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
-                    assertThat(createdDatasource.getName()).isEqualTo("test datasource name for deletion with deleted actions");
+                    assertThat(createdDatasource.getName())
+                            .isEqualTo("test datasource name for deletion with deleted actions");
                     assertThat(createdDatasource.getDeletedAt()).isNotNull();
                 })
                 .verifyComplete();
@@ -934,16 +990,19 @@ public class DatasourceServiceTest {
     public void checkEncryptionOfAuthenticationDTOTest() {
         // For this test, simply inserting a new datasource with authentication should immediately
         // set the authentication object as encrypted
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTOTest");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -971,13 +1030,15 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
-                    DBAuth authentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DBAuth authentication = (DBAuth)
+                            datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(encryptionService.decryptString(authentication.getPassword())).isEqualTo(password);
+                    assertThat(encryptionService.decryptString(authentication.getPassword()))
+                            .isEqualTo(password);
                 })
                 .verifyComplete();
     }
@@ -985,16 +1046,19 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTONullPassword() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTONullPassword");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -1018,12 +1082,13 @@ public class DatasourceServiceTest {
                     return datasource;
                 })
                 .flatMap(datasourceService::create)
-                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId));
+                .flatMap(datasource1 ->
+                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId));
 
-        StepVerifier
-                .create(datasourceStorageMono)
+        StepVerifier.create(datasourceStorageMono)
                 .assertNext(savedDatasource -> {
-                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth)
+                            savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isNull();
                     assertThat(authentication.getPassword()).isNull();
                 })
@@ -1035,16 +1100,19 @@ public class DatasourceServiceTest {
     public void checkEncryptionOfAuthenticationDTOAfterUpdate() {
         // Here, we're replacing an existing encrypted field with another
         // Encyption state would stay the same, that is, as true
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTOAfterUpdate");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -1073,22 +1141,24 @@ public class DatasourceServiceTest {
                 .flatMap(datasourceService::create)
                 .block();
 
-        Mono<Datasource> datasourceMono = Mono.just(createdDatasource)
-                .flatMap(original -> {
-                    // Here we still need to send some object of authentication type to make sure that the entire object is not replaced by null
-                    DBAuth partialAuthenticationDTO = new DBAuth();
-                    partialAuthenticationDTO.setUsername(username);
-                    datasourceConfiguration.setAuthentication(partialAuthenticationDTO);
-                    original.getDatasourceStorages().get(defaultEnvironmentId)
-                            .setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.updateByEnvironmentId(original.getId(), original, defaultEnvironmentId);
-                });
+        Mono<Datasource> datasourceMono = Mono.just(createdDatasource).flatMap(original -> {
+            // Here we still need to send some object of authentication type to make sure that the entire object is not
+            // replaced by null
+            DBAuth partialAuthenticationDTO = new DBAuth();
+            partialAuthenticationDTO.setUsername(username);
+            datasourceConfiguration.setAuthentication(partialAuthenticationDTO);
+            original.getDatasourceStorages()
+                    .get(defaultEnvironmentId)
+                    .setDatasourceConfiguration(datasourceConfiguration);
+            return datasourceService.updateByEnvironmentId(original.getId(), original, defaultEnvironmentId);
+        });
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
-                    DBAuth authentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DBAuth authentication = (DBAuth)
+                            datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(password).isEqualTo(encryptionService.decryptString(authentication.getPassword()));
@@ -1100,17 +1170,21 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTOAfterRemoval() {
         // Here is when authentication is removed from a datasource
-        // We want the entire authentication object to be discarded here to avoid reusing any sensitive data across types
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        // We want the entire authentication object to be discarded here to avoid reusing any sensitive data across
+        // types
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTOAfterRemoval");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("postgres-plugin");
@@ -1136,23 +1210,23 @@ public class DatasourceServiceTest {
                     datasource.setPluginId(plugin.getId());
                     return datasource;
                 })
-                .flatMap(datasourceService::create).block();
+                .flatMap(datasourceService::create)
+                .block();
 
-        Mono<Datasource> datasourceMono = Mono.just(createdDatasource)
-                .flatMap(original -> {
-                    Datasource datasource1 = new Datasource();
-                    // Here we abstain from sending an authentication object to remove the field from datasourceConfiguration
-                    DatasourceConfiguration datasourceConfiguration2 = new DatasourceConfiguration();
-                    datasourceConfiguration2.setUrl("http://test.com");
-                    datasource1.setDatasourceConfiguration(datasourceConfiguration2);
-                    datasource1.setName("New Name for update to test that encryption is now gone");
-                    return datasourceService.save(datasource1);
-                });
+        Mono<Datasource> datasourceMono = Mono.just(createdDatasource).flatMap(original -> {
+            Datasource datasource1 = new Datasource();
+            // Here we abstain from sending an authentication object to remove the field from datasourceConfiguration
+            DatasourceConfiguration datasourceConfiguration2 = new DatasourceConfiguration();
+            datasourceConfiguration2.setUrl("http://test.com");
+            datasource1.setDatasourceConfiguration(datasourceConfiguration2);
+            datasource1.setName("New Name for update to test that encryption is now gone");
+            return datasourceService.save(datasource1);
+        });
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    assertThat(updatedDatasource.getDatasourceConfiguration().getAuthentication()).isNull();
+                    assertThat(updatedDatasource.getDatasourceConfiguration().getAuthentication())
+                            .isNull();
                 })
                 .verifyComplete();
     }
@@ -1160,15 +1234,18 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createDatasourceWithInvalidCharsInHost() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest-createDatasourceWithInvalidCharsInHost");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId =
+                workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
@@ -1182,15 +1259,18 @@ public class DatasourceServiceTest {
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("postgres-plugin");
         Datasource datasource = new Datasource();
@@ -1213,27 +1293,32 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getInvalids()).isEmpty();
 
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder()
+                            .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder()
+                            .permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                    Policy executeDatasourcePolicy = Policy.builder()
+                            .permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
-                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+                    assertThat(createdDatasource.getPolicies())
+                            .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                 })
                 .verifyComplete();
     }
@@ -1241,16 +1326,19 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createDatasourceWithHostnameStartingWithSpace() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceWithHostnameStartingWithSpace");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -1272,15 +1360,16 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getInvalids()).isEmpty();
-                    assertThat(datasourceStorageDTO.getDatasourceConfiguration().getEndpoints()).isEqualTo(List.of(new Endpoint("hostname", 5432L)));
+                    assertThat(datasourceStorageDTO.getDatasourceConfiguration().getEndpoints())
+                            .isEqualTo(List.of(new Endpoint("hostname", 5432L)));
                 })
                 .verifyComplete();
     }
@@ -1288,16 +1377,19 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testHintMessageOnLocalhostUrlOnTestDatasourceEvent() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostUrlOnTestDatasourceEvent");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -1323,26 +1415,24 @@ public class DatasourceServiceTest {
                 .flatMap(datasourceService::create)
                 .flatMap(datasource2 -> datasourceService.convertToDatasourceDTO(datasource2));
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
-                .flatMap(datasource1 -> datasourceService.testDatasource(datasource1, defaultEnvironmentId));
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(
+                datasource1 -> datasourceService.testDatasource(datasource1, defaultEnvironmentId));
 
-        StepVerifier
-                .create(testResultMono)
+        StepVerifier.create(testResultMono)
                 .assertNext(testResult -> {
                     assertThat(testResult).isNotNull();
                     assertThat(testResult.getInvalids()).isEmpty();
                     assertThat(testResult.getMessages()).isNotEmpty();
 
-                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
-                            "inside a docker container or on the cloud. To enable access to your localhost you may use " +
-                            "ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
-                            "documentation to understand more.";
-                    assertThat(
-                            testResult.getMessages().stream()
-                                    .anyMatch(message -> expectedMessage.equals(message))
-                    ).isTrue();
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running "
+                            + "inside a docker container or on the cloud. To enable access to your localhost you may use "
+                            + "ngrok to expose your local endpoint to the internet. Please check out Appsmith's "
+                            + "documentation to understand more.";
+                    assertThat(testResult.getMessages().stream().anyMatch(message -> expectedMessage.equals(message)))
+                            .isTrue();
                 })
                 .verifyComplete();
     }
@@ -1351,16 +1441,19 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void testHintMessageOnLocalhostUrlOnCreateEventOnApiDatasource() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostUrlOnCreateEventOnApiDatasource");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -1381,17 +1474,16 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages()
-                            .get(defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages()).isNotEmpty();
 
-                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
-                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
-                            "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
-                            "documentation to understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running "
+                            + "inside a docker container or on the cloud. To enable access to your localhost you may "
+                            + "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's "
+                            + "documentation to understand more.";
                     assertThat(datasourceStorageDTO.getMessages()).containsExactly(expectedMessage);
                 })
                 .verifyComplete();
@@ -1400,16 +1492,19 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testHintMessageOnLocalhostUrlOnUpdateEventOnApiDatasource() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostUrlOnUpdateEventOnApiDatasource");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
 
@@ -1440,19 +1535,23 @@ public class DatasourceServiceTest {
                     Connection connection1 = new Connection();
                     datasourceConfiguration1.setConnection(connection1);
                     datasourceConfiguration1.setUrl("http://localhost");
-                    datasource1.getDatasourceStorages().get(defaultEnvironmentId).setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+                    datasource1
+                            .getDatasourceStorages()
+                            .get(defaultEnvironmentId)
+                            .setDatasourceConfiguration(datasourceConfiguration1);
+                    return datasourceService.updateByEnvironmentId(
+                            datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages().size()).isNotZero();
-                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
-                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
-                            "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
-                            "documentation to understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running "
+                            + "inside a docker container or on the cloud. To enable access to your localhost you may "
+                            + "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's "
+                            + "documentation to understand more.";
                     assertThat(datasourceStorageDTO.getMessages()).containsExactly(expectedMessage);
                 })
                 .verifyComplete();
@@ -1462,7 +1561,8 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void testHintMessageOnLocalhostUrlOnCreateEventOnNonApiDatasource() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
@@ -1485,16 +1585,16 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages()).isNotEmpty();
 
-                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
-                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
-                            "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
-                            "documentation to understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running "
+                            + "inside a docker container or on the cloud. To enable access to your localhost you may "
+                            + "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's "
+                            + "documentation to understand more.";
                     assertThat(datasourceStorageDTO.getMessages()).containsExactly(expectedMessage);
                 })
                 .verifyComplete();
@@ -1503,16 +1603,20 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testHintMessageOnLocalhostIPAddressOnUpdateEventOnNonApiDatasource() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
-            toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostIPAddressOnUpdateEventOnNonApiDatasource");
+            toCreate.setName(
+                    "DatasourceServiceTest-testHintMessageOnLocalhostIPAddressOnUpdateEventOnNonApiDatasource");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Datasource datasource = new Datasource();
@@ -1546,23 +1650,24 @@ public class DatasourceServiceTest {
                     Endpoint endpoint = new Endpoint("http://127.0.0.1/xyz", 0L);
                     datasourceConfiguration1.setEndpoints(new ArrayList<>());
                     datasourceConfiguration1.getEndpoints().add(endpoint);
-                    datasource1.getDatasourceStorages().get(defaultEnvironmentId)
+                    datasource1
+                            .getDatasourceStorages()
+                            .get(defaultEnvironmentId)
                             .setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService
-                            .updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
+                    return datasourceService.updateByEnvironmentId(
+                            datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages().size()).isNotZero();
-                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
-                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
-                            "use ngrok to expose your local endpoint to the internet. Please check out " +
-                            "Appsmith's documentation to understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running "
+                            + "inside a docker container or on the cloud. To enable access to your localhost you may "
+                            + "use ngrok to expose your local endpoint to the internet. Please check out "
+                            + "Appsmith's documentation to understand more.";
                     assertThat(datasourceStorageDTO.getMessages()).containsExactly(expectedMessage);
-
                 })
                 .verifyComplete();
     }
@@ -1571,16 +1676,19 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void testHintMessageNPE() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageNPE");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -1606,8 +1714,7 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getMessages()).isEmpty();
                 })
@@ -1617,7 +1724,8 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest : get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet");
@@ -1629,20 +1737,21 @@ public class DatasourceServiceTest {
                 createDatasource("D", workspaceId), // should have isRecentlyCreated=false
                 createDatasource("C", workspaceId), // should have isRecentlyCreated=true
                 createDatasource("B", workspaceId), // should have isRecentlyCreated=true
-                createDatasource("A", workspaceId)  // should have isRecentlyCreated=true
-        );
+                createDatasource("A", workspaceId) // should have isRecentlyCreated=true
+                );
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
-        Mono<List<DatasourceDTO>> listMono = datasourceService.getAllWithStorages(params).collectList();
+        Mono<List<DatasourceDTO>> listMono =
+                datasourceService.getAllWithStorages(params).collectList();
 
         StepVerifier.create(listMono)
                 .assertNext(datasources -> {
                     assertThat(datasources.size()).isEqualTo(4);
 
-                    assertThat(datasources)
-                            .allMatch(datasourceDTO -> Set.of("A", "B", "C", "D").contains(datasourceDTO.getName()));
+                    assertThat(datasources).allMatch(datasourceDTO -> Set.of("A", "B", "C", "D")
+                            .contains(datasourceDTO.getName()));
 
                     datasources.stream().forEach(datasourceDTO -> {
                         if (Set.of("A", "B", "C").contains(datasourceDTO.getName())) {
@@ -1658,7 +1767,8 @@ public class DatasourceServiceTest {
     private Datasource createDatasource(String name, String workspaceId) {
 
         Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
-        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId =
+                workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Datasource datasource = new Datasource();
         datasource.setPluginId(plugin.getId());

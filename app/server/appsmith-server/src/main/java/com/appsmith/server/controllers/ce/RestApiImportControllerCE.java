@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -26,7 +27,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-
 @RequestMapping(Url.IMPORT_URL)
 @Slf4j
 public class RestApiImportControllerCE {
@@ -34,8 +34,8 @@ public class RestApiImportControllerCE {
     private final CurlImporterService curlImporterService;
     private final PostmanImporterService postmanImporterService;
 
-    public RestApiImportControllerCE(CurlImporterService curlImporterService,
-                                     PostmanImporterService postmanImporterService) {
+    public RestApiImportControllerCE(
+            CurlImporterService curlImporterService, PostmanImporterService postmanImporterService) {
         this.curlImporterService = curlImporterService;
         this.postmanImporterService = postmanImporterService;
     }
@@ -43,14 +43,14 @@ public class RestApiImportControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ActionDTO>> create(@RequestBody(required = false) Object input,
-                                               @RequestParam RestApiImporterType type,
-                                               @RequestParam String pageId,
-                                               @RequestParam String name,
-                                               @RequestParam String workspaceId,
-                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                               @RequestHeader(name = "Origin", required = false) String originHeader
-    ) {
+    public Mono<ResponseDTO<ActionDTO>> create(
+            @RequestBody(required = false) Object input,
+            @RequestParam RestApiImporterType type,
+            @RequestParam String pageId,
+            @RequestParam String name,
+            @RequestParam String workspaceId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestHeader(name = "Origin", required = false) String originHeader) {
         log.debug("Going to import API");
         ApiImporter service;
 
@@ -69,8 +69,8 @@ public class RestApiImportControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/postman")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(@RequestBody Object input,
-                                                                         @RequestParam String type) {
+    public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(
+            @RequestBody Object input, @RequestParam String type) {
         return Mono.just(postmanImporterService.importPostmanCollection(input))
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
@@ -88,5 +88,4 @@ public class RestApiImportControllerCE {
         return Mono.just(postmanImporterService.deletePostmanCollection(id))
                 .map(deleted -> new ResponseDTO<>(HttpStatus.OK.value(), deleted, null));
     }
-
 }

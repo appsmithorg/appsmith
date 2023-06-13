@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -16,18 +17,15 @@ import java.util.Set;
 @Document
 public class Group extends BaseDomain {
 
-    @NotNull
-    private String name;
+    @NotNull private String name;
 
     private String displayName;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
-    @NotNull
-    private String organizationId;
+    @NotNull private String organizationId;
 
-    @NotNull
-    String workspaceId;
+    @NotNull String workspaceId;
 
     /**
      * This is a list of name of permissions. We will query with permission collection by name

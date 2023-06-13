@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -45,18 +46,16 @@ public class MssqlDatasourceUtils {
      * +------------+-----------+--------------+--------------+
      * </pre>
      */
-    private static final String QUERY_TO_GET_ALL_TABLE_COLUMN_TYPE = "SELECT \n" +
-            "   col.name AS column_name,\n" +
-            "   typ.name AS column_type,\n" +
-            "   tbl.name AS table_name,\n" +
-            "   sch.name AS schema_name\n" +
-            "FROM sys.columns col\n" +
-            "   INNER JOIN sys.tables tbl ON col.object_id = tbl.object_id\n" +
-            "   INNER JOIN sys.types typ ON col.user_type_id = typ.user_type_id\n" +
-            "   INNER JOIN sys.schemas sch ON tbl.schema_id = sch.schema_id\n" +
-            "WHERE tbl.is_ms_shipped = 0\n" +
-            "ORDER BY tbl.name, col.column_id;\n";
-
+    private static final String QUERY_TO_GET_ALL_TABLE_COLUMN_TYPE = "SELECT \n" + "   col.name AS column_name,\n"
+            + "   typ.name AS column_type,\n"
+            + "   tbl.name AS table_name,\n"
+            + "   sch.name AS schema_name\n"
+            + "FROM sys.columns col\n"
+            + "   INNER JOIN sys.tables tbl ON col.object_id = tbl.object_id\n"
+            + "   INNER JOIN sys.types typ ON col.user_type_id = typ.user_type_id\n"
+            + "   INNER JOIN sys.schemas sch ON tbl.schema_id = sch.schema_id\n"
+            + "WHERE tbl.is_ms_shipped = 0\n"
+            + "ORDER BY tbl.name, col.column_id;\n";
 
     /**
      * Example output:
@@ -69,25 +68,25 @@ public class MssqlDatasourceUtils {
      * +------------+-----------+-----------------+-----------------+-------------+
      * </pre>
      */
-    private static final String QUERY_TO_GET_ALL_TABLE_COLUMN_KEY_CONSTRAINTS = "SELECT \n" +
-            "    cols.table_name,\n" +
-            "    cols.column_name,\n" +
-            "    cols.constraint_schema as schema_name,\n" +
-            "    cons.constraint_type,\n" +
-            "    cons.constraint_name\n" +
-            "FROM \n" +
-            "    INFORMATION_SCHEMA.KEY_COLUMN_USAGE cols\n" +
-            "    JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS cons\n" +
-            "        ON cols.CONSTRAINT_SCHEMA = cons.CONSTRAINT_SCHEMA\n" +
-            "        AND cols.CONSTRAINT_NAME = cons.CONSTRAINT_NAME\n" +
-            "WHERE \n" +
-            "    cons.constraint_type IN ('PRIMARY KEY', 'FOREIGN KEY')\n" +
-            "    AND cols.CONSTRAINT_SCHEMA = 'dbo'\n" +
-            "ORDER BY \n" +
-            "    cols.table_name,\n" +
-            "    cols.ordinal_position\n";
+    private static final String QUERY_TO_GET_ALL_TABLE_COLUMN_KEY_CONSTRAINTS = "SELECT \n" + "    cols.table_name,\n"
+            + "    cols.column_name,\n"
+            + "    cols.constraint_schema as schema_name,\n"
+            + "    cons.constraint_type,\n"
+            + "    cons.constraint_name\n"
+            + "FROM \n"
+            + "    INFORMATION_SCHEMA.KEY_COLUMN_USAGE cols\n"
+            + "    JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS cons\n"
+            + "        ON cols.CONSTRAINT_SCHEMA = cons.CONSTRAINT_SCHEMA\n"
+            + "        AND cols.CONSTRAINT_NAME = cons.CONSTRAINT_NAME\n"
+            + "WHERE \n"
+            + "    cons.constraint_type IN ('PRIMARY KEY', 'FOREIGN KEY')\n"
+            + "    AND cols.CONSTRAINT_SCHEMA = 'dbo'\n"
+            + "ORDER BY \n"
+            + "    cols.table_name,\n"
+            + "    cols.ordinal_position\n";
 
-    public static Mono<DatasourceStructure> getStructure(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
+    public static Mono<DatasourceStructure> getStructure(
+            HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
         final DatasourceStructure structure = new DatasourceStructure();
         final Map<String, DatasourceStructure.Table> tableNameToTableMap = new LinkedHashMap<>();
 
@@ -113,13 +112,16 @@ public class MssqlDatasourceUtils {
                         setPrimaryAndForeignKeyInfoInTables(statement, tableNameToTableMap);
 
                     } catch (SQLException throwable) {
-                        return Mono.error(new AppsmithPluginException( AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                MssqlErrorMessages.GET_STRUCTURE_ERROR_MSG, throwable.getCause(),
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                MssqlErrorMessages.GET_STRUCTURE_ERROR_MSG,
+                                throwable.getCause(),
                                 "SQLSTATE: " + throwable.getSQLState()));
                     } finally {
                         logHikariCPStatus("After getting Oracle DB schema", connection);
-                        safelyCloseSingleConnectionFromHikariCP(connectionFromPool, "Error returning Oracle connection to pool " +
-                                "during get structure");
+                        safelyCloseSingleConnectionFromHikariCP(
+                                connectionFromPool,
+                                "Error returning Oracle connection to pool " + "during get structure");
                     }
 
                     // Set SQL query templates
@@ -140,9 +142,12 @@ public class MssqlDatasourceUtils {
      * @param hikariDSConnectionPool
      * @return SQL Connection
      */
-    public static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool) throws SQLException {
+    public static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool)
+            throws SQLException {
 
-        if (hikariDSConnectionPool == null || hikariDSConnectionPool.isClosed() || !hikariDSConnectionPool.isRunning()) {
+        if (hikariDSConnectionPool == null
+                || hikariDSConnectionPool.isClosed()
+                || !hikariDSConnectionPool.isRunning()) {
             log.debug("Encountered stale connection pool in SQL Server plugin. Reporting back.");
             throw new StaleConnectionException();
         }
@@ -158,7 +163,8 @@ public class MssqlDatasourceUtils {
         int activeConnections = poolProxy.getActiveConnections();
         int totalConnections = poolProxy.getTotalConnections();
         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-        log.debug(MessageFormat.format("{0}: Hikari Pool stats : active - {1} , idle - {2}, awaiting - {3} , total - {4}",
+        log.debug(MessageFormat.format(
+                "{0}: Hikari Pool stats : active - {1} , idle - {2}, awaiting - {3} , total - {4}",
                 logPrefix, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
     }
 
@@ -177,19 +183,20 @@ public class MssqlDatasourceUtils {
                 final String schemaName = columnsResultSet.getString("schema_name");
                 final String fullTableName = schemaName + "." + tableName;
                 if (!tableNameToTableMap.containsKey(fullTableName)) {
-                    tableNameToTableMap.put(fullTableName, new DatasourceStructure.Table(
-                            DatasourceStructure.TableType.TABLE,
-                            schemaName,
+                    tableNameToTableMap.put(
                             fullTableName,
-                            new ArrayList<>(),
-                            new ArrayList<>(),
-                            new ArrayList<>()));
+                            new DatasourceStructure.Table(
+                                    DatasourceStructure.TableType.TABLE,
+                                    schemaName,
+                                    fullTableName,
+                                    new ArrayList<>(),
+                                    new ArrayList<>(),
+                                    new ArrayList<>()));
                 }
 
                 final DatasourceStructure.Table table = tableNameToTableMap.get(fullTableName);
 
-                table.getColumns().add(
-                        new DatasourceStructure.Column(columnName, columnType, null, false));
+                table.getColumns().add(new DatasourceStructure.Column(columnName, columnType, null, false));
             }
         }
     }
@@ -199,7 +206,7 @@ public class MssqlDatasourceUtils {
      * primary or foreign key.
      * Please check the SQL query macro definition to find a sample response as comment.
      */
-    private static void setPrimaryAndForeignKeyInfoInTables (
+    private static void setPrimaryAndForeignKeyInfoInTables(
             Statement statement, Map<String, DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
         Map<String, String> primaryKeyConstraintNameToTableNameMap = new HashMap<>();
         Map<String, String> primaryKeyConstraintNameToColumnNameMap = new HashMap<>();
@@ -233,8 +240,7 @@ public class MssqlDatasourceUtils {
                     String tableName = primaryKeyConstraintNameToTableNameMap.get(constraintName);
                     DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
                     String columnName = primaryKeyConstraintNameToColumnNameMap.get(constraintName);
-                    table.getKeys().add(new DatasourceStructure.PrimaryKey(constraintName,
-                            List.of(columnName)));
+                    table.getKeys().add(new DatasourceStructure.PrimaryKey(constraintName, List.of(columnName)));
                 });
 
         foreignKeyConstraintNameToColumnNameMap.keySet().stream()
@@ -246,38 +252,39 @@ public class MssqlDatasourceUtils {
                     String tableName = foreignKeyConstraintNameToTableNameMap.get(constraintName);
                     DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
                     String columnName = foreignKeyConstraintNameToColumnNameMap.get(constraintName);
-                    table.getKeys().add(new DatasourceStructure.ForeignKey(constraintName,
-                            List.of(columnName), new ArrayList<>()));
+                    table.getKeys()
+                            .add(new DatasourceStructure.ForeignKey(
+                                    constraintName, List.of(columnName), new ArrayList<>()));
                 });
     }
 
     private static void setSQLQueryTemplates(Map<String, DatasourceStructure.Table> tableNameToTableMap) {
-        tableNameToTableMap.values()
-                .forEach(table -> {
-                    LinkedHashMap<String, String> columnNameToSampleColumnDataMap =
-                            new LinkedHashMap<>();
-                    table.getColumns()
-                            .forEach(column -> columnNameToSampleColumnDataMap.put(column.getName(),
-                                    getSampleColumnData(column.getType())));
+        tableNameToTableMap.values().forEach(table -> {
+            LinkedHashMap<String, String> columnNameToSampleColumnDataMap = new LinkedHashMap<>();
+            table.getColumns()
+                    .forEach(column -> columnNameToSampleColumnDataMap.put(
+                            column.getName(), getSampleColumnData(column.getType())));
 
-                    String selectQueryTemplate = MessageFormat.format("SELECT TOP 10 * FROM {0}", table.getName());
-                    String insertQueryTemplate = MessageFormat.format("INSERT INTO {0} ({1}) " +
-                                    "VALUES ({2})", table.getName(),
-                            getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
-                            getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
-                    String updateQueryTemplate = MessageFormat.format("UPDATE {0} SET {1} WHERE " +
-                                    "1=0 -- Specify a valid condition here. Removing the condition may " +
-                                    "update every row in the table!", table.getName(),
-                            getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
-                    String deleteQueryTemplate = MessageFormat.format("DELETE FROM {0} WHERE 1=0" +
-                            " -- Specify a valid condition here. Removing the condition may " +
-                            "delete everything in the table!", table.getName());
+            String selectQueryTemplate = MessageFormat.format("SELECT TOP 10 * FROM {0}", table.getName());
+            String insertQueryTemplate = MessageFormat.format(
+                    "INSERT INTO {0} ({1}) " + "VALUES ({2})",
+                    table.getName(),
+                    getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
+                    getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
+            String updateQueryTemplate = MessageFormat.format(
+                    "UPDATE {0} SET {1} WHERE " + "1=0 -- Specify a valid condition here. Removing the condition may "
+                            + "update every row in the table!",
+                    table.getName(), getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
+            String deleteQueryTemplate = MessageFormat.format(
+                    "DELETE FROM {0} WHERE 1=0" + " -- Specify a valid condition here. Removing the condition may "
+                            + "delete everything in the table!",
+                    table.getName());
 
-                    table.getTemplates().add(new DatasourceStructure.Template("SELECT", selectQueryTemplate));
-                    table.getTemplates().add(new DatasourceStructure.Template("INSERT", insertQueryTemplate));
-                    table.getTemplates().add(new DatasourceStructure.Template("UPDATE", updateQueryTemplate));
-                    table.getTemplates().add(new DatasourceStructure.Template("DELETE", deleteQueryTemplate));
-                });
+            table.getTemplates().add(new DatasourceStructure.Template("SELECT", selectQueryTemplate));
+            table.getTemplates().add(new DatasourceStructure.Template("INSERT", insertQueryTemplate));
+            table.getTemplates().add(new DatasourceStructure.Template("UPDATE", updateQueryTemplate));
+            table.getTemplates().add(new DatasourceStructure.Template("DELETE", deleteQueryTemplate));
+        });
     }
 
     private static String getSampleColumnData(String type) {
@@ -301,8 +308,11 @@ public class MssqlDatasourceUtils {
         return String.join(", ", columnNameToSampleColumnDataMap.values());
     }
 
-    private static String getSampleOneColumnUpdateString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
-        return MessageFormat.format("{0}={1}", columnNameToSampleColumnDataMap.keySet().stream().findFirst().orElse(
-                "id"), columnNameToSampleColumnDataMap.values().stream().findFirst().orElse("'uid'"));
+    private static String getSampleOneColumnUpdateString(
+            LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
+        return MessageFormat.format(
+                "{0}={1}",
+                columnNameToSampleColumnDataMap.keySet().stream().findFirst().orElse("id"),
+                columnNameToSampleColumnDataMap.values().stream().findFirst().orElse("'uid'"));
     }
 }

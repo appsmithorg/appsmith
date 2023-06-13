@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.annotations.encryption;
 
 import java.lang.annotation.ElementType;
@@ -12,5 +13,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface Encrypted {
-}
+public @interface Encrypted {}

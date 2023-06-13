@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
@@ -80,9 +81,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
     private final PagePermission pagePermission;
 
     public Mono<Workspace> forkExamplesWorkspace() {
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(this::forkExamplesWorkspace);
+        return sessionUserService.getCurrentUser().flatMap(this::forkExamplesWorkspace);
     }
 
     /**
@@ -100,14 +99,14 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
             return Mono.empty();
         }
 
-        return configService.getTemplateWorkspaceId()
+        return configService
+                .getTemplateWorkspaceId()
                 .doOnError(error -> log.error("Error loading template workspace id config.", error))
                 .flatMap(templateWorkspaceId -> forkWorkspaceForUser(
                         templateWorkspaceId,
                         user,
                         configService.getTemplateApplications(),
-                        configService.getTemplateDatasources()
-                ));
+                        configService.getTemplateDatasources()));
     }
 
     /**
@@ -120,11 +119,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
      * @return Publishes the newly created workspace.
      */
     public Mono<Workspace> forkWorkspaceForUser(
-            String templateWorkspaceId,
-            User user,
-            Flux<Application> applicationFlux,
-            Flux<Datasource> datasourceFlux
-    ) {
+            String templateWorkspaceId, User user, Flux<Application> applicationFlux, Flux<Datasource> datasourceFlux) {
 
         log.info("Cloning workspace id {}", templateWorkspaceId);
 
@@ -138,8 +133,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     if (workspace == null) {
                         log.error(
                                 "Template examples workspace not found. Not creating a clone for user {}.",
-                                user.getEmail()
-                        );
+                                user.getEmail());
                     }
                 })
                 .flatMap(workspace -> {
@@ -161,19 +155,17 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     userUpdate.setSource(user.getSource());
                     userUpdate.setGroupIds(null);
                     userUpdate.setPolicies(null);
-                    return Mono
-                            .when(
+                    return Mono.when(
                                     userService.update(user.getId(), userUpdate),
-                                    forkApplications(newWorkspace.getId(), applicationFlux, datasourceFlux, targetEnvironmentId)
-                            )
+                                    forkApplications(
+                                            newWorkspace.getId(), applicationFlux, datasourceFlux, targetEnvironmentId))
                             .thenReturn(newWorkspace);
                 })
                 .doOnError(error -> log.error("Error cloning examples workspace.", error));
     }
 
-    public Mono<List<String>> forkApplications(String toWorkspaceId,
-                                               Flux<Application> applicationFlux,
-                                               String sourceEnvironmentId) {
+    public Mono<List<String>> forkApplications(
+            String toWorkspaceId, Flux<Application> applicationFlux, String sourceEnvironmentId) {
         return forkApplications(toWorkspaceId, applicationFlux, Flux.empty(), sourceEnvironmentId);
     }
 
@@ -186,10 +178,11 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
      * @param sourceEnvironmentId
      * @return Empty Mono.
      */
-    public Mono<List<String>> forkApplications(String toWorkspaceId,
-                                               Flux<Application> applicationFlux,
-                                               Flux<Datasource> datasourceFlux,
-                                               String sourceEnvironmentId) {
+    public Mono<List<String>> forkApplications(
+            String toWorkspaceId,
+            Flux<Application> applicationFlux,
+            Flux<Datasource> datasourceFlux,
+            String sourceEnvironmentId) {
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
 
@@ -207,7 +200,8 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
 
                     // The use case for this is: In the example workspace, we need a welcome tour which is based on
                     // one of the datasource, to get the credentials of that datasource, we have set this value as True
-                    final Mono<Datasource> clonerMono = forkDatasource(datasourceId, toWorkspaceId, Boolean.TRUE, sourceEnvironmentId);
+                    final Mono<Datasource> clonerMono =
+                            forkDatasource(datasourceId, toWorkspaceId, Boolean.TRUE, sourceEnvironmentId);
                     clonedDatasourceMonos.put(datasourceId, clonerMono.cache());
                     return clonerMono;
                 })
@@ -228,21 +222,18 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     application.setExportWithConfiguration(null);
                     application.setForkingEnabled(null);
 
-                    final String defaultPageId = application.getPages()
-                            .stream()
+                    final String defaultPageId = application.getPages().stream()
                             .filter(ApplicationPage::isDefault)
                             .map(ApplicationPage::getId)
                             .findFirst()
                             .orElse("");
 
-                    return doOnlyForkApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(application, newApplicationIds)
-                            .flatMap(page ->
-                                    Mono.zip(
-                                            Mono.just(page),
-                                            Mono.just(defaultPageId.equals(page.getId())),
-                                            Mono.just(forkWithConfig)
-                                    )
-                            );
+                    return doOnlyForkApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(
+                                    application, newApplicationIds)
+                            .flatMap(page -> Mono.zip(
+                                    Mono.just(page),
+                                    Mono.just(defaultPageId.equals(page.getId())),
+                                    Mono.just(forkWithConfig)));
                 })
                 .flatMap(tuple -> {
                     final NewPage newPage = tuple.getT1();
@@ -265,10 +256,11 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     page.setDefaultResources(defaults);
                     return applicationPageService
                             .createPage(page)
-                            .flatMap(savedPage ->
-                                    isDefault
-                                            ? applicationPageService.makePageDefault(savedPage).thenReturn(savedPage)
-                                            : Mono.just(savedPage))
+                            .flatMap(savedPage -> isDefault
+                                    ? applicationPageService
+                                            .makePageDefault(savedPage)
+                                            .thenReturn(savedPage)
+                                    : Mono.just(savedPage))
                             .flatMap(savedPage -> newPageRepository.findById(savedPage.getId()))
                             .flatMap(savedPage -> {
                                 clonedPages.add(savedPage);
@@ -276,7 +268,10 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                         .findByPageId(templatePageId)
                                         .map(newAction -> {
                                             ActionDTO action = newAction.getUnpublishedAction();
-                                            log.info("Preparing action for cloning {} {}.", action.getName(), newAction.getId());
+                                            log.info(
+                                                    "Preparing action for cloning {} {}.",
+                                                    action.getName(),
+                                                    newAction.getId());
                                             action.setPageId(savedPage.getId());
                                             action.setDefaultResources(null);
                                             return newAction;
@@ -295,31 +290,42 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                                 if (datasourceInsideAction.getId() != null) {
                                                     final String datasourceId = datasourceInsideAction.getId();
                                                     if (!clonedDatasourceMonos.containsKey(datasourceId)) {
-                                                        Mono<Datasource> datasourceMono =
-                                                                forkDatasource(datasourceId, toWorkspaceId, forkWithConfig, sourceEnvironmentId)
-                                                                        .cache();
+                                                        Mono<Datasource> datasourceMono = forkDatasource(
+                                                                        datasourceId,
+                                                                        toWorkspaceId,
+                                                                        forkWithConfig,
+                                                                        sourceEnvironmentId)
+                                                                .cache();
                                                         clonedDatasourceMonos.put(datasourceId, datasourceMono);
                                                     }
-                                                    actionMono = clonedDatasourceMonos.get(datasourceId)
+                                                    actionMono = clonedDatasourceMonos
+                                                            .get(datasourceId)
                                                             .map(newDatasource -> {
                                                                 action.setDatasource(newDatasource);
                                                                 return action;
                                                             });
                                                 } else {
-                                                    // If this is an embedded datasource, the config will get forked along with the action
+                                                    // If this is an embedded datasource, the config will get forked
+                                                    // along with the action
                                                     datasourceInsideAction.setWorkspaceId(toWorkspaceId);
                                                 }
                                             }
-                                            return Mono.zip(actionMono
+                                            return Mono.zip(
+                                                    actionMono
                                                             .flatMap(actionDTO -> layoutActionService.createAction(
-                                                                    actionDTO, new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE), Boolean.FALSE)
-                                                            )
+                                                                    actionDTO,
+                                                                    new AppsmithEventContext(
+                                                                            AppsmithEventContextType.CLONE_PAGE),
+                                                                    Boolean.FALSE))
                                                             .map(ActionDTO::getId),
                                                     Mono.justOrEmpty(originalActionId));
                                         })
-                                        // This call to `collectMap` will wait for all actions in all pages to have been processed, and so the
+                                        // This call to `collectMap` will wait for all actions in all pages to have been
+                                        // processed, and so the
                                         // `clonedPages` list will also contain all pages cloned.
-                                        .collect(HashMap<String, String>::new, (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
+                                        .collect(
+                                                HashMap<String, String>::new,
+                                                (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
                                         .flatMap(actionIdsMap -> {
                                             // Map of <originalCollectionId, clonedActionCollectionIds>
                                             HashMap<String, String> collectionIdsMap = new HashMap<>();
@@ -329,11 +335,14 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                                     .flatMap(actionCollection -> {
                                                         // Keep a record of the original collection id
                                                         final String originalCollectionId = actionCollection.getId();
-                                                        log.info("Creating clone of action collection {}", originalCollectionId);
+                                                        log.info(
+                                                                "Creating clone of action collection {}",
+                                                                originalCollectionId);
                                                         // Sanitize them
                                                         actionCollection.makePristine();
                                                         actionCollection.setPublishedCollection(null);
-                                                        final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+                                                        final ActionCollectionDTO unpublishedCollection =
+                                                                actionCollection.getUnpublishedCollection();
                                                         unpublishedCollection.setPageId(savedPage.getId());
 
                                                         DefaultResources defaultResources = new DefaultResources();
@@ -344,58 +353,88 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                                         actionCollection.setApplicationId(savedPage.getApplicationId());
 
                                                         DefaultResources defaultResources1 = new DefaultResources();
-                                                        defaultResources1.setApplicationId(savedPage.getApplicationId());
+                                                        defaultResources1.setApplicationId(
+                                                                savedPage.getApplicationId());
                                                         actionCollection.setDefaultResources(defaultResources1);
 
-                                                        actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
+                                                        actionCollectionService.generateAndSetPolicies(
+                                                                savedPage, actionCollection);
 
-                                                        // Replace all action Ids from map and replace with newly created actionIds
+                                                        // Replace all action Ids from map and replace with newly
+                                                        // created actionIds
                                                         final Map<String, String> newActionIds = new HashMap<>();
                                                         unpublishedCollection
                                                                 .getDefaultToBranchedActionIdsMap()
                                                                 .forEach((defaultActionId, oldActionId) -> {
                                                                     if (StringUtils.hasLength(oldActionId)
-                                                                            && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+                                                                            && StringUtils.hasLength(
+                                                                                    actionIdsMap.get(oldActionId))) {
 
-                                                                        // As this is a new application and not connected
+                                                                        // As this is a new application and not
+                                                                        // connected
                                                                         // through git branch, the default and newly
                                                                         // created actionId will be same
-                                                                        newActionIds.put(actionIdsMap.get(oldActionId),
+                                                                        newActionIds.put(
+                                                                                actionIdsMap.get(oldActionId),
                                                                                 actionIdsMap.get(oldActionId));
                                                                     } else {
-                                                                        log.debug("Unable to find action {} while forking inside ID map: {}",
-                                                                                oldActionId, actionIdsMap);
+                                                                        log.debug(
+                                                                                "Unable to find action {} while forking inside ID map: {}",
+                                                                                oldActionId,
+                                                                                actionIdsMap);
                                                                     }
                                                                 });
 
-                                                        unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
+                                                        unpublishedCollection.setDefaultToBranchedActionIdsMap(
+                                                                newActionIds);
 
-                                                        return actionCollectionService.create(actionCollection)
+                                                        return actionCollectionService
+                                                                .create(actionCollection)
                                                                 .flatMap(clonedActionCollection -> {
-                                                                    if (StringUtils.isEmpty(clonedActionCollection.getDefaultResources().getCollectionId())) {
-                                                                        ActionCollection updates = new ActionCollection();
-                                                                        DefaultResources defaultResources2 = clonedActionCollection.getDefaultResources();
-                                                                        defaultResources2.setCollectionId(clonedActionCollection.getId());
+                                                                    if (StringUtils.isEmpty(clonedActionCollection
+                                                                            .getDefaultResources()
+                                                                            .getCollectionId())) {
+                                                                        ActionCollection updates =
+                                                                                new ActionCollection();
+                                                                        DefaultResources defaultResources2 =
+                                                                                clonedActionCollection
+                                                                                        .getDefaultResources();
+                                                                        defaultResources2.setCollectionId(
+                                                                                clonedActionCollection.getId());
                                                                         updates.setDefaultResources(defaultResources2);
-                                                                        return actionCollectionService.update(clonedActionCollection.getId(), updates);
+                                                                        return actionCollectionService.update(
+                                                                                clonedActionCollection.getId(),
+                                                                                updates);
                                                                     }
                                                                     return Mono.just(clonedActionCollection);
                                                                 })
                                                                 .flatMap(clonedActionCollection -> {
-                                                                    collectionIdsMap.put(originalCollectionId, clonedActionCollection.getId());
+                                                                    collectionIdsMap.put(
+                                                                            originalCollectionId,
+                                                                            clonedActionCollection.getId());
                                                                     return Flux.fromIterable(newActionIds.values())
                                                                             .flatMap(newActionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
-                                                                                ActionDTO unpublishedAction = newlyCreatedAction.getUnpublishedAction();
-                                                                                unpublishedAction.setCollectionId(clonedActionCollection.getId());
-                                                                                unpublishedAction.getDefaultResources().setCollectionId(clonedActionCollection.getId());
-                                                                                return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
+                                                                                ActionDTO unpublishedAction =
+                                                                                        newlyCreatedAction
+                                                                                                .getUnpublishedAction();
+                                                                                unpublishedAction.setCollectionId(
+                                                                                        clonedActionCollection.getId());
+                                                                                unpublishedAction
+                                                                                        .getDefaultResources()
+                                                                                        .setCollectionId(
+                                                                                                clonedActionCollection
+                                                                                                        .getId());
+                                                                                return newActionService.update(
+                                                                                        newlyCreatedAction.getId(),
+                                                                                        newlyCreatedAction);
                                                                             })
                                                                             .collectList();
                                                                 });
                                                     })
                                                     .collectList()
-                                                    .then(Mono.zip(Mono.just(actionIdsMap), Mono.just(collectionIdsMap)));
+                                                    .then(Mono.zip(
+                                                            Mono.just(actionIdsMap), Mono.just(collectionIdsMap)));
                                         });
                             });
                 })
@@ -408,9 +447,8 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                 .collectList();
     }
 
-    private Flux<NewPage> updateActionAndCollectionsIdsInForkedPages(List<NewPage> clonedPages,
-                                                                     Map<String, String> actionIdsMap,
-                                                                     Map<String, String> actionCollectionIdsMap) {
+    private Flux<NewPage> updateActionAndCollectionsIdsInForkedPages(
+            List<NewPage> clonedPages, Map<String, String> actionIdsMap, Map<String, String> actionCollectionIdsMap) {
         final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
 
         for (final NewPage page : clonedPages) {
@@ -424,7 +462,8 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
 
             for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
                 if (layout.getLayoutOnLoadActions() != null) {
-                    shouldSave = updateOnLoadActionsWithNewActionAndCollectionIds(actionIdsMap, actionCollectionIdsMap, page.getId(), shouldSave, layout);
+                    shouldSave = updateOnLoadActionsWithNewActionAndCollectionIds(
+                            actionIdsMap, actionCollectionIdsMap, page.getId(), shouldSave, layout);
                 }
             }
 
@@ -436,11 +475,12 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
         return Flux.concat(pageSaveMonos);
     }
 
-    private boolean updateOnLoadActionsWithNewActionAndCollectionIds(Map<String, String> actionIdsMap,
-                                                                     Map<String, String> collectionIdsMap,
-                                                                     String pageId,
-                                                                     boolean shouldSave,
-                                                                     Layout layout) {
+    private boolean updateOnLoadActionsWithNewActionAndCollectionIds(
+            Map<String, String> actionIdsMap,
+            Map<String, String> collectionIdsMap,
+            String pageId,
+            boolean shouldSave,
+            Layout layout) {
         for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
             for (final DslActionDTO actionDTO : actionSet) {
                 if (actionIdsMap.containsKey(actionDTO.getId())) {
@@ -457,8 +497,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     log.error(
                             "Couldn't find cloned action ID for publishedLayoutOnLoadAction {} in page {}",
                             actionDTO.getId(),
-                            pageId
-                    );
+                            pageId);
                 }
             }
         }
@@ -473,42 +512,39 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
      * @param applicationIds : List where the cloned new application's id would be stored
      * @return A flux that yields all the pages in the template application
      */
-    private Flux<NewPage> doOnlyForkApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(Application application, List<String> applicationIds) {
+    private Flux<NewPage> doOnlyForkApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(
+            Application application, List<String> applicationIds) {
         final String templateApplicationId = application.getId();
-        return forkApplicationDocument(application)
-                .flatMapMany(
-                        savedApplication -> {
-                            applicationIds.add(savedApplication.getId());
-                            return forkThemes(application, savedApplication)
-                                    .thenMany(newPageRepository
-                                            .findByApplicationIdAndNonDeletedEditMode(
-                                                    templateApplicationId,
-                                                    pagePermission.getReadPermission())
-                                            .map(newPage -> {
-                                                log.info("Preparing page for cloning {} {}.",
-                                                        newPage.getUnpublishedPage().getName(), newPage.getId());
-                                                newPage.setApplicationId(savedApplication.getId());
-                                                return newPage;
-                                            })
-                                    );
-                        }
-                );
+        return forkApplicationDocument(application).flatMapMany(savedApplication -> {
+            applicationIds.add(savedApplication.getId());
+            return forkThemes(application, savedApplication)
+                    .thenMany(newPageRepository
+                            .findByApplicationIdAndNonDeletedEditMode(
+                                    templateApplicationId, pagePermission.getReadPermission())
+                            .map(newPage -> {
+                                log.info(
+                                        "Preparing page for cloning {} {}.",
+                                        newPage.getUnpublishedPage().getName(),
+                                        newPage.getId());
+                                newPage.setApplicationId(savedApplication.getId());
+                                return newPage;
+                            }));
+        });
     }
 
     private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
         return Mono.zip(
-                themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
-                themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication)
-        ).flatMap(themes -> {
-            Theme editModeTheme = themes.getT1();
-            Theme publishedModeTheme = themes.getT2();
-            return applicationService.setAppTheme(
-                    destApplication.getId(),
-                    editModeTheme.getId(),
-                    publishedModeTheme.getId(),
-                    applicationPermission.getEditPermission()
-            );
-        });
+                        themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
+                        themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication))
+                .flatMap(themes -> {
+                    Theme editModeTheme = themes.getT1();
+                    Theme publishedModeTheme = themes.getT2();
+                    return applicationService.setAppTheme(
+                            destApplication.getId(),
+                            editModeTheme.getId(),
+                            publishedModeTheme.getId(),
+                            applicationPermission.getEditPermission());
+                });
     }
 
     private Mono<Application> forkApplicationDocument(Application application) {
@@ -531,15 +567,15 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        return applicationPageService.setApplicationPolicies(userMono, workspaceId, application)
+        return applicationPageService
+                .setApplicationPolicies(userMono, workspaceId, application)
                 .flatMap(applicationService::createDefaultApplication);
     }
 
-    // forkWithConfiguration parameter if TRUE, returns the datasource with credentials else returns datasources without credentials
-    public Mono<Datasource> forkDatasource(String datasourceId,
-                                           String toWorkspaceId,
-                                           Boolean forkWithConfiguration,
-                                           String sourceEnvironmentId) {
+    // forkWithConfiguration parameter if TRUE, returns the datasource with credentials else returns datasources without
+    // credentials
+    public Mono<Datasource> forkDatasource(
+            String datasourceId, String toWorkspaceId, Boolean forkWithConfiguration, String sourceEnvironmentId) {
 
         final Mono<String> destinationEnvironmentIdMono = workspaceService.getDefaultEnvironmentId(toWorkspaceId);
 
@@ -548,7 +584,8 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                 .collectList();
 
         // this datasource is in workspace from which it's getting forked
-        Mono<Datasource> datasourceToForkMono = datasourceService.findByIdAndEnvironmentId(datasourceId, sourceEnvironmentId);
+        Mono<Datasource> datasourceToForkMono =
+                datasourceService.findByIdAndEnvironmentId(datasourceId, sourceEnvironmentId);
 
         return Mono.zip(datasourceToForkMono, existingDatasourcesInNewWorkspaceMono)
                 .flatMap(tuple -> {
@@ -559,47 +596,52 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                         return Mono.just(datasourceToFork);
                     }
 
-                    DatasourceStorageDTO storageDTOToFork = datasourceToFork.getDatasourceStorages().get(sourceEnvironmentId);
+                    DatasourceStorageDTO storageDTOToFork =
+                            datasourceToFork.getDatasourceStorages().get(sourceEnvironmentId);
 
                     final AuthenticationDTO authentication = storageDTOToFork.getDatasourceConfiguration() == null
-                            ? null : storageDTOToFork.getDatasourceConfiguration().getAuthentication();
+                            ? null
+                            : storageDTOToFork.getDatasourceConfiguration().getAuthentication();
                     if (authentication != null) {
                         authentication.setIsAuthorized(null);
                     }
 
-                    return destinationEnvironmentIdMono
-                            .flatMap(destinationEnvironmentId ->
-                                    Flux.fromIterable(existingDatasourcesWithoutStorages)
-                                            .filter(datasourceToFork::softEquals)
-                                            .filterWhen(existingDatasource -> {
-                                                Mono<DatasourceStorage> datasourceStorageMono = datasourceStorageService
-                                                        .findStrictlyByDatasourceIdAndEnvironmentId(
-                                                                existingDatasource.getId(),
-                                                                destinationEnvironmentId);
+                    return destinationEnvironmentIdMono.flatMap(
+                            destinationEnvironmentId -> Flux.fromIterable(existingDatasourcesWithoutStorages)
+                                    .filter(datasourceToFork::softEquals)
+                                    .filterWhen(existingDatasource -> {
+                                        Mono<DatasourceStorage> datasourceStorageMono =
+                                                datasourceStorageService.findStrictlyByDatasourceIdAndEnvironmentId(
+                                                        existingDatasource.getId(), destinationEnvironmentId);
 
-                                                return datasourceStorageMono
-                                                        .map(existingStorage -> {
-                                                            final AuthenticationDTO auth = existingStorage.getDatasourceConfiguration() == null
-                                                                    ? null : existingStorage.getDatasourceConfiguration().getAuthentication();
-                                                            if (auth != null) {
-                                                                auth.setIsAuthorized(null);
-                                                            }
-                                                            return storageDTOToFork.softEquals(new DatasourceStorageDTO(existingStorage));
-                                                        })
-                                                        .switchIfEmpty(Mono.just(false));
-                                            })
-                                            .next()  // Get the first matching datasource, we don't need more than one here.
-                                            .switchIfEmpty(Mono.defer(() -> {
-                                                // No matching existing datasource found, so create a new one.
-                                                Datasource newDs = datasourceToFork.fork(forkWithConfiguration, toWorkspaceId);
-                                                DatasourceStorageDTO storageDTO = datasourceToFork.getDatasourceStorages()
-                                                        .get(sourceEnvironmentId)
-                                                        .fork(forkWithConfiguration, toWorkspaceId);
-                                                storageDTO.setEnvironmentId(destinationEnvironmentId);
-                                                newDs.getDatasourceStorages().put(destinationEnvironmentId, storageDTO);
-                                                return createSuffixedDatasource(newDs);
-                                            }))
-                            );
+                                        return datasourceStorageMono
+                                                .map(existingStorage -> {
+                                                    final AuthenticationDTO auth =
+                                                            existingStorage.getDatasourceConfiguration() == null
+                                                                    ? null
+                                                                    : existingStorage
+                                                                            .getDatasourceConfiguration()
+                                                                            .getAuthentication();
+                                                    if (auth != null) {
+                                                        auth.setIsAuthorized(null);
+                                                    }
+                                                    return storageDTOToFork.softEquals(
+                                                            new DatasourceStorageDTO(existingStorage));
+                                                })
+                                                .switchIfEmpty(Mono.just(false));
+                                    })
+                                    .next() // Get the first matching datasource, we don't need more than one here.
+                                    .switchIfEmpty(Mono.defer(() -> {
+                                        // No matching existing datasource found, so create a new one.
+                                        Datasource newDs = datasourceToFork.fork(forkWithConfiguration, toWorkspaceId);
+                                        DatasourceStorageDTO storageDTO = datasourceToFork
+                                                .getDatasourceStorages()
+                                                .get(sourceEnvironmentId)
+                                                .fork(forkWithConfiguration, toWorkspaceId);
+                                        storageDTO.setEnvironmentId(destinationEnvironmentId);
+                                        newDs.getDatasourceStorages().put(destinationEnvironmentId, storageDTO);
+                                        return createSuffixedDatasource(newDs);
+                                    })));
                 });
     }
 
@@ -619,14 +661,13 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
     private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
-        return datasourceService.create(datasource)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
-                        // The duplicate key error is because of the `name` field.
-                        return createSuffixedDatasource(datasource, name, 1 + suffix);
-                    }
-                    throw error;
-                });
+        return datasourceService.create(datasource).onErrorResume(DuplicateKeyException.class, error -> {
+            if (error.getMessage() != null
+                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                // The duplicate key error is because of the `name` field.
+                return createSuffixedDatasource(datasource, name, 1 + suffix);
+            }
+            throw error;
+        });
     }
 }

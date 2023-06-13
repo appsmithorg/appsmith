@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
@@ -17,8 +18,6 @@ public class SSHPrivateKey implements AppsmithDomain {
 
     UploadedFile keyFile;
 
-    @Encrypted
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String password;
-
 }

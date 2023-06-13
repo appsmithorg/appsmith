@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -17,26 +18,40 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolution {
+public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEImpl
+        implements CreateDBTablePageSolution {
 
-    public CreateDBTablePageSolutionImpl(DatasourceService datasourceService,
-                                         DatasourceStorageService datasourceStorageService,
-                                         NewPageService newPageService,
-                                         LayoutActionService layoutActionService,
-                                         ApplicationPageService applicationPageService,
-                                         ApplicationService applicationService,
-                                         PluginService pluginService,
-                                         AnalyticsService analyticsService,
-                                         SessionUserService sessionUserService,
-                                         ResponseUtils responseUtils,
-                                         PluginExecutorHelper pluginExecutorHelper,
-                                         DatasourcePermission datasourcePermission,
-                                         ApplicationPermission applicationPermission,
-                                         PagePermission pagePermission,
-                                         DatasourceStructureSolution datasourceStructureSolution) {
-        super(datasourceService, datasourceStorageService, newPageService, layoutActionService,
-                applicationPageService, applicationService, pluginService, analyticsService,
-                sessionUserService, responseUtils, pluginExecutorHelper, datasourcePermission,
-                applicationPermission, pagePermission, datasourceStructureSolution);
+    public CreateDBTablePageSolutionImpl(
+            DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            NewPageService newPageService,
+            LayoutActionService layoutActionService,
+            ApplicationPageService applicationPageService,
+            ApplicationService applicationService,
+            PluginService pluginService,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            ResponseUtils responseUtils,
+            PluginExecutorHelper pluginExecutorHelper,
+            DatasourcePermission datasourcePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            DatasourceStructureSolution datasourceStructureSolution) {
+        super(
+                datasourceService,
+                datasourceStorageService,
+                newPageService,
+                layoutActionService,
+                applicationPageService,
+                applicationService,
+                pluginService,
+                analyticsService,
+                sessionUserService,
+                responseUtils,
+                pluginExecutorHelper,
+                datasourcePermission,
+                applicationPermission,
+                pagePermission,
+                datasourceStructureSolution);
     }
 }

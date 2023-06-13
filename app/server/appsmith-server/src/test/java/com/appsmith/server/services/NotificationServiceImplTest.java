@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Notification;
@@ -35,29 +36,44 @@ import static org.mockito.ArgumentMatchers.eq;
 @ExtendWith(SpringExtension.class)
 public class NotificationServiceImplTest {
     NotificationService notificationService;
+
     @MockBean
     private Scheduler scheduler;
+
     @MockBean
     private Validator validator;
+
     @MockBean
     private MongoConverter mongoConverter;
+
     @MockBean
     private ReactiveMongoTemplate reactiveMongoTemplate;
+
     @MockBean
     private NotificationRepository repository;
+
     @MockBean
     private AnalyticsService analyticsService;
+
     @MockBean
     private SessionUserService sessionUserService;
+
     @MockBean
     private ResponseUtils responseUtils;
+
     private User currentUser;
 
     @BeforeEach
     public void setUp() {
         notificationService = new NotificationServiceImpl(
-                scheduler, validator, mongoConverter, reactiveMongoTemplate,
-                repository, analyticsService, sessionUserService, responseUtils);
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                sessionUserService,
+                responseUtils);
         currentUser = new User();
         currentUser.setEmail("sample-email");
 
@@ -65,7 +81,8 @@ public class NotificationServiceImplTest {
         // mock the repository to return count as 100
         Mockito.when(repository.countByForUsername(currentUser.getUsername())).thenReturn(Mono.just(100L));
         // mock the repository to return unread count as 5
-        Mockito.when(repository.countByForUsernameAndIsReadIsFalse(currentUser.getUsername())).thenReturn(Mono.just(5L));
+        Mockito.when(repository.countByForUsernameAndIsReadIsFalse(currentUser.getUsername()))
+                .thenReturn(Mono.just(5L));
     }
 
     private List<Notification> createSampleNotificationList() {
@@ -85,12 +102,11 @@ public class NotificationServiceImplTest {
 
         // mock the repository to return the sample list of notification when called with current time
         Mockito.when(repository.findByForUsernameAndCreatedAtBefore(
-                eq(currentUser.getUsername()), Mockito.any(Instant.class), Mockito.any(Pageable.class))
-        ).thenReturn(Flux.fromIterable(notificationList));
+                        eq(currentUser.getUsername()), Mockito.any(Instant.class), Mockito.any(Pageable.class)))
+                .thenReturn(Flux.fromIterable(notificationList));
 
         Flux<Notification> notificationFlux = notificationService.get(new LinkedMultiValueMap<>());
-        StepVerifier
-                .create(notificationFlux.collectList())
+        StepVerifier.create(notificationFlux.collectList())
                 .assertNext(listResponseDTO -> {
                     assertThat(listResponseDTO.size()).isEqualTo(notificationList.size());
                 })
@@ -105,8 +121,8 @@ public class NotificationServiceImplTest {
 
         // mock the repository to return the sample list of notification
         Mockito.when(repository.findByForUsernameAndCreatedAtBefore(
-                eq(currentUser.getUsername()), eq(instant), Mockito.any(Pageable.class))
-        ).thenReturn(Flux.fromIterable(notificationList));
+                        eq(currentUser.getUsername()), eq(instant), Mockito.any(Pageable.class)))
+                .thenReturn(Flux.fromIterable(notificationList));
 
         // add the sample pagination parameters
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -114,8 +130,7 @@ public class NotificationServiceImplTest {
 
         Flux<Notification> notificationFlux = notificationService.get(params);
 
-        StepVerifier
-                .create(notificationFlux.collectList())
+        StepVerifier.create(notificationFlux.collectList())
                 .assertNext(listResponseDTO -> {
                     assertThat(listResponseDTO.size()).isEqualTo(notificationList.size());
                 })
@@ -130,8 +145,7 @@ public class NotificationServiceImplTest {
 
         Flux<Notification> notificationFlux = notificationService.get(params);
 
-        StepVerifier
-                .create(notificationFlux.collectList())
+        StepVerifier.create(notificationFlux.collectList())
                 .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage("as beforeDate"))
                 .verify();
     }
@@ -141,12 +155,10 @@ public class NotificationServiceImplTest {
         UpdateIsReadNotificationDTO dto = new UpdateIsReadNotificationDTO();
         dto.setIsRead(true);
 
-        Mockito.when(repository.updateIsReadByForUsername(currentUser.getUsername(), true)).thenReturn(
-                Mono.just(Mockito.mock(UpdateResult.class))
-        );
+        Mockito.when(repository.updateIsReadByForUsername(currentUser.getUsername(), true))
+                .thenReturn(Mono.just(Mockito.mock(UpdateResult.class)));
 
-        StepVerifier
-                .create(notificationService.updateIsRead(dto))
+        StepVerifier.create(notificationService.updateIsRead(dto))
                 .assertNext(responseDTO -> {
                     assertThat(responseDTO.getIsRead()).isTrue();
                 })
@@ -159,14 +171,10 @@ public class NotificationServiceImplTest {
         dto.setIsRead(true);
         dto.setIdList(List.of("sample-id-1", "sample-id-2", "sample-id-3"));
 
-        Mockito.when(repository.updateIsReadByForUsernameAndIdList(
-                currentUser.getUsername(), dto.getIdList(), true)
-        ).thenReturn(
-                Mono.just(Mockito.mock(UpdateResult.class))
-        );
+        Mockito.when(repository.updateIsReadByForUsernameAndIdList(currentUser.getUsername(), dto.getIdList(), true))
+                .thenReturn(Mono.just(Mockito.mock(UpdateResult.class)));
 
-        StepVerifier
-                .create(notificationService.updateIsRead(dto))
+        StepVerifier.create(notificationService.updateIsRead(dto))
                 .assertNext(responseDTO -> {
                     assertThat(responseDTO.getIsRead()).isTrue();
                     assertThat(responseDTO.getIdList()).isEqualTo(dto.getIdList());

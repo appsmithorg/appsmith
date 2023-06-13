@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
 public class GraphQLConstants {
@@ -13,7 +14,7 @@ public class GraphQLConstants {
     public static final String LIMIT_VAL = "limitValue";
     public static final String OFFSET_VARIABLE_NAME = "offsetVariableName";
     public static final String OFFSET_VAL = "offsetValue";
-    protected static String HINT_MESSAGE_FOR_DUPLICATE_VARIABLE_DEFINITION = "Your GraphQL query may not run as " +
-            "expected because it has duplicate definition for variable(s): {0}. Please remove one of the definitions " +
-            "- either in the query variables section or the pagination tab to resolve this issue.";
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_VARIABLE_DEFINITION = "Your GraphQL query may not run as "
+            + "expected because it has duplicate definition for variable(s): {0}. Please remove one of the definitions "
+            + "- either in the query variables section or the pagination tab to resolve this issue.";
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.PermissionGroup;
@@ -35,7 +36,6 @@ public class CacheableRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void getUserPermissionsTest_onPermissionGroupDelete_valid() {
@@ -46,8 +46,14 @@ public class CacheableRepositoryTest {
         workspace.setName("getUserPermissionsTest_onPermissionGroupDelete_valid Workspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
-        List<PermissionGroup> defaultPermissionGroups = permissionGroupRepository.findAllById(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
-        PermissionGroup adminPg = defaultPermissionGroups.stream().filter(pg -> pg.getName().startsWith(ADMINISTRATOR)).findFirst().get();
+        List<PermissionGroup> defaultPermissionGroups = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+        PermissionGroup adminPg = defaultPermissionGroups.stream()
+                .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
 
         Mono<Set<String>> permissionGroupsOfUserMono = cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user);
 
@@ -61,7 +67,8 @@ public class CacheableRepositoryTest {
         // Now delete the workspace and assert that user permission groups does not contain the admin pg
         workspaceService.archiveById(createdWorkspace.getId()).block();
 
-        Set<String> userPermissionGroupsPostWorkspaceDelete = cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user).block();
+        Set<String> userPermissionGroupsPostWorkspaceDelete =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user).block();
         assertThat(userPermissionGroupsPostWorkspaceDelete).doesNotContain(adminPg.getId());
     }
 }

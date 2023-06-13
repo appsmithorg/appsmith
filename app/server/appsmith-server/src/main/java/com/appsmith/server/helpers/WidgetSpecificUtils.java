@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.FieldName;
@@ -68,5 +69,4 @@ public class WidgetSpecificUtils {
         }
         return dsl;
     }
-
 }

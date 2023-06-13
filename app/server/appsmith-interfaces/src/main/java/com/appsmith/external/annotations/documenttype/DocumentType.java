@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.annotations.documenttype;
 
 import java.lang.annotation.ElementType;
@@ -17,5 +18,4 @@ import java.lang.annotation.Target;
 public @interface DocumentType {
 
     public String value() default "";
-
 }

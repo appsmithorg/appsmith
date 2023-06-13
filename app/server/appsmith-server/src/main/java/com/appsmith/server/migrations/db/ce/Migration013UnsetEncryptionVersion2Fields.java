@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Datasource;
@@ -25,7 +26,6 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-
 @Slf4j
 @ChangeUnit(order = "013", id = "unset-not-encrypted-encryption-version-2-fields", author = " ")
 public class Migration013UnsetEncryptionVersion2Fields {
@@ -33,17 +33,25 @@ public class Migration013UnsetEncryptionVersion2Fields {
     private final MongoTemplate mongoTemplate;
     private static final int ENCRYPTION_VERSION = 2;
     private static final String ENCRYPTION_VERSION_FIELD_NAME = "encryptionVersion";
-    private static final String DATASOURCE_CONFIGURATION_FIELD_NAME = fieldName(QDatasource.datasource.datasourceConfiguration);
-    private static final String AUTHENTICATION_FIELD_NAME = fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
+    private static final String DATASOURCE_CONFIGURATION_FIELD_NAME =
+            fieldName(QDatasource.datasource.datasourceConfiguration);
+    private static final String AUTHENTICATION_FIELD_NAME =
+            fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
     private static final String DELIMITER = ".";
 
-    private static final String AUTHENTICATION_QUALIFIED_NAME =  DATASOURCE_CONFIGURATION_FIELD_NAME + DELIMITER + AUTHENTICATION_FIELD_NAME;
-    private static final String AUTHENTICATION_RESPONSE_QUALIFIED_NAME =  AUTHENTICATION_QUALIFIED_NAME + DELIMITER + fieldName(QAuthenticationDTO.authenticationDTO.authenticationResponse);
-    private static final String PASSWORD_QUALIFIED_NAME =  AUTHENTICATION_QUALIFIED_NAME + DELIMITER + PASSWORD;
-    private static final String CLIENT_SECRET_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + CLIENT_SECRET;
+    private static final String AUTHENTICATION_QUALIFIED_NAME =
+            DATASOURCE_CONFIGURATION_FIELD_NAME + DELIMITER + AUTHENTICATION_FIELD_NAME;
+    private static final String AUTHENTICATION_RESPONSE_QUALIFIED_NAME = AUTHENTICATION_QUALIFIED_NAME
+            + DELIMITER
+            + fieldName(QAuthenticationDTO.authenticationDTO.authenticationResponse);
+    private static final String PASSWORD_QUALIFIED_NAME = AUTHENTICATION_QUALIFIED_NAME + DELIMITER + PASSWORD;
+    private static final String CLIENT_SECRET_QUALIFIED_NAME =
+            AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + CLIENT_SECRET;
     private static final String TOKEN_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + TOKEN;
-    private static final String REFRESH_TOKEN_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + REFRESH_TOKEN;
-    private static final String TOKEN_RESPONSE_QUALIFIED_NAME = AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + TOKEN_RESPONSE;
+    private static final String REFRESH_TOKEN_QUALIFIED_NAME =
+            AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + REFRESH_TOKEN;
+    private static final String TOKEN_RESPONSE_QUALIFIED_NAME =
+            AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + TOKEN_RESPONSE;
 
     public Migration013UnsetEncryptionVersion2Fields(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -70,24 +78,23 @@ public class Migration013UnsetEncryptionVersion2Fields {
         mongoOperations.updateMulti(datasourcesToUpdateQuery, updateQuery, Datasource.class);
     }
 
-        private Criteria findDatasourceToUnsetFieldsIn() {
+    private Criteria findDatasourceToUnsetFieldsIn() {
 
-            return new Criteria().andOperator(
-                    //Older check for deleted
-                    new Criteria().orOperator(
-                        where(FieldName.DELETED).exists(false),
-                        where(FieldName.DELETED).is(false)
-                    ),
-                    //New check for deleted
-                    new Criteria().orOperator(
-                            where(FieldName.DELETED_AT).exists(false),
-                            where(FieldName.DELETED_AT).is(null)
-                    ),
-                    new Criteria().andOperator(
-                            where(ENCRYPTION_VERSION_FIELD_NAME).exists(true),
-                            where(ENCRYPTION_VERSION_FIELD_NAME).is(ENCRYPTION_VERSION)
-                    )
-            );
+        return new Criteria()
+                .andOperator(
+                        // Older check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED).exists(false),
+                                        where(FieldName.DELETED).is(false)),
+                        // New check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED_AT).exists(false),
+                                        where(FieldName.DELETED_AT).is(null)),
+                        new Criteria()
+                                .andOperator(
+                                        where(ENCRYPTION_VERSION_FIELD_NAME).exists(true),
+                                        where(ENCRYPTION_VERSION_FIELD_NAME).is(ENCRYPTION_VERSION)));
     }
-
 }

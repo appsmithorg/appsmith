@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.util.WebClientUtils;
@@ -16,8 +17,7 @@ public class NetworkUtils {
 
     private static final String FALLBACK_IP = "unknown";
 
-    private NetworkUtils() {
-    }
+    private NetworkUtils() {}
 
     /**
      * This method hits an API endpoint that returns the external IP address of this server instance.
@@ -29,8 +29,7 @@ public class NetworkUtils {
             return Mono.just(cachedAddress);
         }
 
-        return WebClientUtils
-                .create()
+        return WebClientUtils.create()
                 .get()
                 .uri(GET_IP_URI)
                 .retrieve()
@@ -45,5 +44,4 @@ public class NetworkUtils {
                     return Mono.just(FALLBACK_IP);
                 });
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.helpers.SSLHelper;

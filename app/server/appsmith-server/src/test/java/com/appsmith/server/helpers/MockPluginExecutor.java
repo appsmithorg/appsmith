@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
@@ -15,7 +16,10 @@ import java.util.Set;
 public class MockPluginExecutor implements PluginExecutor {
 
     @Override
-    public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+    public Mono<ActionExecutionResult> execute(
+            Object connection,
+            DatasourceConfiguration datasourceConfiguration,
+            ActionConfiguration actionConfiguration) {
         if (actionConfiguration == null) {
             return Mono.error(new Exception("ActionConfiguration is null"));
         }
@@ -36,8 +40,7 @@ public class MockPluginExecutor implements PluginExecutor {
     }
 
     @Override
-    public void datasourceDestroy(Object connection) {
-    }
+    public void datasourceDestroy(Object connection) {}
 
     @Override
     public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
@@ -50,8 +53,8 @@ public class MockPluginExecutor implements PluginExecutor {
     }
 
     @Override
-    public Mono<TriggerResultDTO> trigger(Object connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+    public Mono<TriggerResultDTO> trigger(
+            Object connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
         return Mono.empty();
     }
-
 }

@@ -1,5 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations.db.ce;
-
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.server.constants.FieldName;
@@ -33,84 +33,109 @@ public class Migration012RenameIndexesWithLongNames {
 
     @RollbackExecution
     public void rollBackExecution() {
-        // Rollback behaviour is undefined. This migration is idempotent, and only does indexes, so should be fine going back.
+        // Rollback behaviour is undefined. This migration is idempotent, and only does indexes, so should be fine going
+        // back.
     }
 
     @Execution
     public void executeMigration() {
         // update-index-for-git
-        if (dropIndexIfExists(mongoTemplate, Application.class, "defaultCollectionId_branchName_deleted_compound_index")) {
-            ensureIndexes(mongoTemplate, ActionCollection.class,
-                makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
-                    .named("defaultCollectionId_branchName_deleted")
-            );
+        if (dropIndexIfExists(
+                mongoTemplate, Application.class, "defaultCollectionId_branchName_deleted_compound_index")) {
+            ensureIndexes(
+                    mongoTemplate,
+                    ActionCollection.class,
+                    makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
+                            .named("defaultCollectionId_branchName_deleted"));
         }
 
         // update-index-for-git
-        if (dropIndexIfExists(mongoTemplate, Application.class, "defaultApplicationId_branchName_deleted_compound_index")) {
-            ensureIndexes(mongoTemplate, Application.class,
-                makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
-                    .named("defaultApplicationId_branchName_deleted")
-            );
+        if (dropIndexIfExists(
+                mongoTemplate, Application.class, "defaultApplicationId_branchName_deleted_compound_index")) {
+            ensureIndexes(
+                    mongoTemplate,
+                    Application.class,
+                    makeIndex(
+                                    "gitApplicationMetadata.defaultApplicationId",
+                                    "gitApplicationMetadata.branchName",
+                                    "deleted")
+                            .named("defaultApplicationId_branchName_deleted"));
         }
 
         // update-index-for-newAction-actionCollection
-        if (dropIndexIfExists(mongoTemplate, ActionCollection.class, "unpublishedCollectionPageId_deleted_compound_index")) {
-            ensureIndexes(mongoTemplate, ActionCollection.class,
-                makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                    .named("unpublishedCollectionPageId_deleted")
-            );
+        if (dropIndexIfExists(
+                mongoTemplate, ActionCollection.class, "unpublishedCollectionPageId_deleted_compound_index")) {
+            ensureIndexes(
+                    mongoTemplate,
+                    ActionCollection.class,
+                    makeIndex(
+                                    fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                                            + FieldName.PAGE_ID,
+                                    FieldName.DELETED)
+                            .named("unpublishedCollectionPageId_deleted"));
         }
 
         // update-index-for-newAction-actionCollection
-        if (dropIndexIfExists(mongoTemplate, ActionCollection.class, "publishedCollectionPageId_deleted_compound_index")) {
-            ensureIndexes(mongoTemplate, ActionCollection.class,
-                makeIndex(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                    .named("publishedCollectionPageId_deleted")
-            );
+        if (dropIndexIfExists(
+                mongoTemplate, ActionCollection.class, "publishedCollectionPageId_deleted_compound_index")) {
+            ensureIndexes(
+                    mongoTemplate,
+                    ActionCollection.class,
+                    makeIndex(
+                                    fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                                            + FieldName.PAGE_ID,
+                                    FieldName.DELETED)
+                            .named("publishedCollectionPageId_deleted"));
         }
 
         // update-git-indexes
-        dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
+        dropIndexIfExists(
+                mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, NewPage.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
         DatabaseChangelog2.doAddIndexesForGit(mongoTemplate);
 
         // organization-to-workspace-indexes-recreate
-        if (dropIndexIfExists(mongoTemplate, Application.class, "workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-            ensureIndexes(mongoTemplate, Application.class,
-                makeIndex(
-                    fieldName(QApplication.application.workspaceId),
-                    fieldName(QApplication.application.name),
-                    fieldName(QApplication.application.deletedAt),
-                    "gitApplicationMetadata.remoteUrl",
-                    "gitApplicationMetadata.branchName")
-                    .unique().named("workspace_app_deleted_gitApplicationMetadata")
-            );
+        if (dropIndexIfExists(
+                mongoTemplate,
+                Application.class,
+                "workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+            ensureIndexes(
+                    mongoTemplate,
+                    Application.class,
+                    makeIndex(
+                                    fieldName(QApplication.application.workspaceId),
+                                    fieldName(QApplication.application.name),
+                                    fieldName(QApplication.application.deletedAt),
+                                    "gitApplicationMetadata.remoteUrl",
+                                    "gitApplicationMetadata.branchName")
+                            .unique()
+                            .named("workspace_app_deleted_gitApplicationMetadata"));
         }
 
         DatabaseChangelog2.doAddPermissionGroupIndex(mongoTemplate); // Idempotent index-only migration, do it again.
 
         // create-index-default-domain-id-default-domain-type
         dropIndexIfExists(
-            mongoTemplate,
-            PermissionGroup.class,
-            "permission_group_domainId_domainType_deleted_deleted_compound_index"
-        );
+                mongoTemplate,
+                PermissionGroup.class,
+                "permission_group_domainId_domainType_deleted_deleted_compound_index");
         Index newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt = makeIndex(
-            fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
-            fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
-            fieldName(QPermissionGroup.permissionGroup.deleted),
-            fieldName(QPermissionGroup.permissionGroup.deletedAt)
-        ).named(Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId.newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
+                        fieldName(QPermissionGroup.permissionGroup.deleted),
+                        fieldName(QPermissionGroup.permissionGroup.deletedAt))
+                .named(
+                        Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId
+                                .newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
         ensureIndexes(mongoTemplate, PermissionGroup.class, newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt);
 
         // remove-structure-from-within-datasource
-        dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
-        DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceStorageStructure.class,
-            DatabaseChangelog1.makeIndex("datasourceId", "envId")
-                .unique().named("dsConfigStructure_dsId_envId")
-        );
+        dropIndexIfExists(
+                mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
+        DatabaseChangelog1.ensureIndexes(
+                mongoTemplate,
+                DatasourceStorageStructure.class,
+                DatabaseChangelog1.makeIndex("datasourceId", "envId").unique().named("dsConfigStructure_dsId_envId"));
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers.ce;
 
 import lombok.extern.slf4j.Slf4j;

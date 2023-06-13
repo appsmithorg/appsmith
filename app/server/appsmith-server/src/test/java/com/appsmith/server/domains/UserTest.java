@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,5 +30,4 @@ public class UserTest {
         one.setEmail("sherlock@gmail.com");
         assertThat(one.computeFirstName()).isEqualTo("Sherlock");
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
@@ -16,7 +17,8 @@ public interface AnalyticsServiceCE {
 
     Mono<User> identifyUser(User user, UserData userData, String recentlyUsedWorkspaceId);
 
-    void identifyInstance(String instanceId, String role, String useCase, String adminEmail, String adminFullName, String ip);
+    void identifyInstance(
+            String instanceId, String role, String useCase, String adminEmail, String adminFullName, String ip);
 
     Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties);
 

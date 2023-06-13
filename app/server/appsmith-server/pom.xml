@@ -17,28 +17,21 @@
 
     <properties>
         <ff4j.version>2.0.0</ff4j.version>
-        <org.modelmapper.version>2.4.4</org.modelmapper.version>
         <jmh.version>1.35</jmh.version>
+        <org.modelmapper.version>2.4.4</org.modelmapper.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jboss-maven2-release-repository</id>
-            <name>JBoss Spring Repository</name>
-            <url>https://repository.jboss.org/nexus/content/repositories/public/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.mongock</groupId>
+                <artifactId>mongock-bom</artifactId>
+                <version>5.1.7</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
@@ -58,20 +51,20 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>reactor-core</artifactId>
                     <groupId>io.projectreactor</groupId>
+                    <artifactId>reactor-core</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.springframework</groupId>
                     <artifactId>spring-core</artifactId>
-                    <groupId>org.springframework</groupId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.springframework</groupId>
                     <artifactId>spring-web</artifactId>
-                    <groupId>org.springframework</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>reactive-streams</artifactId>
                     <groupId>org.reactivestreams</groupId>
+                    <artifactId>reactive-streams</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -398,8 +391,8 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>junit</artifactId>
                     <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -411,6 +404,25 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jboss-maven2-release-repository</id>
+            <name>JBoss Spring Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/public/</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -430,9 +442,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>
-                                org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
-                            </processor>
+                            <processor>org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor</processor>
                             <options>
                                 <querydsl.listAccessors>true</querydsl.listAccessors>
                             </options>
@@ -442,17 +452,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.mongock</groupId>
-                <artifactId>mongock-bom</artifactId>
-                <version>5.1.7</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
 </project>

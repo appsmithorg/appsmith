@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ApiTemplate;
@@ -15,16 +16,17 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 
-
 @Slf4j
-public class ApiTemplateServiceCEImpl extends BaseService<ApiTemplateRepository, ApiTemplate, String> implements ApiTemplateServiceCE {
+public class ApiTemplateServiceCEImpl extends BaseService<ApiTemplateRepository, ApiTemplate, String>
+        implements ApiTemplateServiceCE {
 
-    public ApiTemplateServiceCEImpl(Scheduler scheduler,
-                                    Validator validator,
-                                    MongoConverter mongoConverter,
-                                    ReactiveMongoTemplate reactiveMongoTemplate,
-                                    ApiTemplateRepository repository,
-                                    AnalyticsService analyticsService) {
+    public ApiTemplateServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            ApiTemplateRepository repository,
+            AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }

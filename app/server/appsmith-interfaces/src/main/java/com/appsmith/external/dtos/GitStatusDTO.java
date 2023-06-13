@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import com.appsmith.external.constants.Assets;
@@ -11,44 +12,44 @@ import java.util.Set;
 @Data
 public class GitStatusDTO {
 
-        // Name of modified, added and deleted resources in local git repo
-        Set<String> modified;
+    // Name of modified, added and deleted resources in local git repo
+    Set<String> modified;
 
-        // Name of added resources to local git repo
-        Set<String> added;
+    // Name of added resources to local git repo
+    Set<String> added;
 
-        // Name of deleted resources from local git repo
-        Set<String> removed;
+    // Name of deleted resources from local git repo
+    Set<String> removed;
 
-        // Name of conflicting resources
-        Set<String> conflicting;
+    // Name of conflicting resources
+    Set<String> conflicting;
 
-        Boolean isClean;
+    Boolean isClean;
 
-        // number of modified custom JS libs
-        int modifiedJSLibs;
+    // number of modified custom JS libs
+    int modifiedJSLibs;
 
-        // number of modified pages
-        int modifiedPages;
+    // number of modified pages
+    int modifiedPages;
 
-        // number of modified actions
-        int modifiedQueries;
+    // number of modified actions
+    int modifiedQueries;
 
-        // number of modified JSObjects
-        int modifiedJSObjects;
+    // number of modified JSObjects
+    int modifiedJSObjects;
 
-        // number of modified JSObjects
-        int modifiedDatasources;
+    // number of modified JSObjects
+    int modifiedDatasources;
 
-        // number of local commits which are not present in remote repo
-        Integer aheadCount;
+    // number of local commits which are not present in remote repo
+    Integer aheadCount;
 
-        // number of remote commits which are not present in local repo
-        Integer behindCount;
+    // number of remote commits which are not present in local repo
+    Integer behindCount;
 
-        // Remote tracking branch name
-        String remoteBranch;
+    // Remote tracking branch name
+    String remoteBranch;
 
-        // Documentation url for discard and pull functionality
-        String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
+    // Documentation url for discard and pull functionality
+    String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
 }

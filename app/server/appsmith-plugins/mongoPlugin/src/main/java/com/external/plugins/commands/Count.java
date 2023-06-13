@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.commands;
 
 import com.appsmith.external.helpers.PluginUtils;
@@ -100,16 +101,11 @@ public class Count extends MongoCommand {
         setDataValueSafelyInFormData(configMap, COUNT_QUERY, "{\"_id\": {\"$exists\": true}}");
         setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
-        String rawQuery = "{\n" +
-                "  \"count\": \"" + collectionName + "\",\n" +
-                "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
-                "}\n";
+        String rawQuery = "{\n" + "  \"count\": \""
+                + collectionName + "\",\n" + "  \"query\": "
+                + "{\"_id\": {\"$exists\": true}} \n" + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template(
-                "Count",
-                null,
-                configMap
-        ));
+        return Collections.singletonList(new DatasourceStructure.Template("Count", null, configMap));
     }
 }

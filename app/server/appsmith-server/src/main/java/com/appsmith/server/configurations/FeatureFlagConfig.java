@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import org.ff4j.FF4j;
@@ -10,8 +11,6 @@ public class FeatureFlagConfig {
 
     @Bean
     public FF4j ff4j() {
-        return new FF4j(new XmlParser(), "features/init-flags.xml")
-                .audit(true)
-                .autoCreate(true);
+        return new FF4j(new XmlParser(), "features/init-flags.xml").audit(true).autoCreate(true);
     }
 }

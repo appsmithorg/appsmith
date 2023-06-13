@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.PolicyUtils;
@@ -20,25 +21,40 @@ import reactor.core.scheduler.Scheduler;
 @Service
 public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements WorkspaceService {
 
-    public WorkspaceServiceImpl(Scheduler scheduler,
-                                Validator validator,
-                                MongoConverter mongoConverter,
-                                ReactiveMongoTemplate reactiveMongoTemplate,
-                                WorkspaceRepository repository,
-                                AnalyticsService analyticsService,
-                                PluginRepository pluginRepository,
-                                SessionUserService sessionUserService,
-                                AssetRepository assetRepository,
-                                AssetService assetService,
-                                ApplicationRepository applicationRepository,
-                                PermissionGroupService permissionGroupService,
-                                PolicyUtils policyUtils,
-                                ModelMapper modelMapper,
-                                WorkspacePermission workspacePermission,
-                                PermissionGroupPermission permissionGroupPermission) {
+    public WorkspaceServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            WorkspaceRepository repository,
+            AnalyticsService analyticsService,
+            PluginRepository pluginRepository,
+            SessionUserService sessionUserService,
+            AssetRepository assetRepository,
+            AssetService assetService,
+            ApplicationRepository applicationRepository,
+            PermissionGroupService permissionGroupService,
+            PolicyUtils policyUtils,
+            ModelMapper modelMapper,
+            WorkspacePermission workspacePermission,
+            PermissionGroupPermission permissionGroupPermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                pluginRepository, sessionUserService, assetRepository, assetService, applicationRepository,
-                permissionGroupService, policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                pluginRepository,
+                sessionUserService,
+                assetRepository,
+                assetService,
+                applicationRepository,
+                permissionGroupService,
+                policyUtils,
+                modelMapper,
+                workspacePermission,
+                permissionGroupPermission);
     }
 }

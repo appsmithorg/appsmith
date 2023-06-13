@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
@@ -13,9 +14,11 @@ public interface LayoutActionServiceCE {
 
     Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout);
 
-    Mono<LayoutDTO> updateLayout(String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName);
+    Mono<LayoutDTO> updateLayout(
+            String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName);
 
-    Mono<Integer> updateMultipleLayouts(String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
+    Mono<Integer> updateMultipleLayouts(
+            String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
 
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
 
@@ -48,5 +51,4 @@ public interface LayoutActionServiceCE {
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id, String branchName);
-
 }

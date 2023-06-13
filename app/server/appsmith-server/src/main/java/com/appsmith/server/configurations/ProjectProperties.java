@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import lombok.Getter;
@@ -20,5 +21,4 @@ public class ProjectProperties {
 
     @Value("${version:UNKNOWN}")
     private String version;
-
 }

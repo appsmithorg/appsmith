@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
@@ -45,7 +46,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO);
 
-    Mono<Application> changeViewAccess(String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
+    Mono<Application> changeViewAccess(
+            String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
 
     Flux<Application> findAllApplicationsByWorkspaceId(String workspaceId);
 
@@ -61,21 +63,20 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<GitAuthDTO> getSshKey(String applicationId);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
-                                                              String defaultApplicationId,
-                                                              AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationId(
+            String branchName, String defaultApplicationId, AclPermission aclPermission);
 
-    Mono<String> findBranchedApplicationId(Optional<String> branchName, String defaultApplicationId, Optional<AclPermission> permission);
+    Mono<String> findBranchedApplicationId(
+            Optional<String> branchName, String defaultApplicationId, Optional<AclPermission> permission);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
-                                                              String defaultApplicationId,
-                                                              List<String> projectionFieldNames,
-                                                              AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationId(
+            String branchName,
+            String defaultApplicationId,
+            List<String> projectionFieldNames,
+            AclPermission aclPermission);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(String branchName,
-                                                                          String defaultApplicationId,
-                                                                          String fieldName,
-                                                                          AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
+            String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission);
 
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
@@ -87,7 +88,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     String getRandomAppCardColor();
 
-    Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
+    Mono<UpdateResult> setAppTheme(
+            String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 

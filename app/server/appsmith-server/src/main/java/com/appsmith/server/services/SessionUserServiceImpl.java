@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.UserRepository;
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SessionUserServiceImpl extends SessionUserServiceCEImpl implements SessionUserService {
 
-    public SessionUserServiceImpl(UserRepository userRepository,
-                                  ReactiveRedisOperations<String, Object> redisOperations) {
+    public SessionUserServiceImpl(
+            UserRepository userRepository, ReactiveRedisOperations<String, Object> redisOperations) {
 
         super(userRepository, redisOperations);
     }

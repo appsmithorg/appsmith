@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.annotations.documenttype.DocumentTypeMapper;
@@ -50,10 +51,10 @@ import java.util.List;
 @Slf4j
 @Configuration
 @EnableReactiveMongoAuditing
-@EnableReactiveMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
+@EnableReactiveMongoRepositories(
+        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
         basePackages = "com.appsmith.server.repositories",
-        repositoryBaseClass = BaseRepositoryImpl.class
-)
+        repositoryBaseClass = BaseRepositoryImpl.class)
 public class MongoConfig {
 
     /*
@@ -63,7 +64,8 @@ public class MongoConfig {
         Link to documentation: https://docs.mongock.io/v5/runner/springboot/index.html
     */
     @Bean
-    public MongockInitializingBeanRunner mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+    public MongockInitializingBeanRunner mongockInitializingBeanRunner(
+            ApplicationContext springContext, MongoTemplate mongoTemplate) {
         SpringDataMongoV4Driver mongoDriver = SpringDataMongoV4Driver.withDefaultLock(mongoTemplate);
         mongoDriver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
         mongoDriver.setReadConcern(ReadConcern.LOCAL);
@@ -78,7 +80,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public ReactiveMongoTemplate reactiveMongoTemplate(ReactiveMongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
+    public ReactiveMongoTemplate reactiveMongoTemplate(
+            ReactiveMongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
         ReactiveMongoTemplate mongoTemplate = new ReactiveMongoTemplate(mongoDbFactory, mappingMongoConverter);
         MappingMongoConverter conv = (MappingMongoConverter) mongoTemplate.getConverter();
         // tell mongodb to use the custom converters
@@ -88,7 +91,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
+    public MongoTemplate mongoTemplate(
+            MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
         MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory, mappingMongoConverter);
         MappingMongoConverter conv = (MappingMongoConverter) mongoTemplate.getConverter();
         // tell mongodb to use the custom converters
@@ -97,16 +101,19 @@ public class MongoConfig {
         return mongoTemplate;
     }
 
-    // Custom type mapper here includes our annotation based mapper that is meant to ensure correct mapping for sub-classes
+    // Custom type mapper here includes our annotation based mapper that is meant to ensure correct mapping for
+    // sub-classes
     // We have currently only included the package which contains the DTOs that need this mapping
     @Bean
     public DefaultTypeMapper<Bson> typeMapper() {
-        TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
-                .Builder()
-                .withBasePackages(new String[]{AuthenticationDTO.class.getPackageName()})
+        TypeInformationMapper typeInformationMapper = new DocumentTypeMapper.Builder()
+                .withBasePackages(new String[] {AuthenticationDTO.class.getPackageName()})
                 .build();
-        // This is a hack to include the default mapper as a fallback, because Spring seems to override its list instead of appending mappers
-        return new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
+        // This is a hack to include the default mapper as a fallback, because Spring seems to override its list instead
+        // of appending mappers
+        return new DefaultMongoTypeMapper(
+                DefaultMongoTypeMapper.DEFAULT_TYPE_KEY,
+                Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
     }
 
     @Bean
@@ -115,7 +122,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper<Bson> typeMapper, MongoMappingContext context) {
+    public MappingMongoConverter mappingMongoConverter(
+            DefaultTypeMapper<Bson> typeMapper, MongoMappingContext context) {
         MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
         converter.setCustomConversions(mongoCustomConversions());

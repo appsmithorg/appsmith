@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
 
 @RequestMapping(Url.PLUGIN_URL)
 public class PluginControllerCE extends BaseController<PluginService, Plugin, String> {
@@ -49,8 +49,7 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
     @JsonView(Views.Public.class)
     @GetMapping("/{pluginId}/form")
     public Mono<ResponseDTO<Object>> getDatasourceForm(@PathVariable String pluginId) {
-        return service.getFormConfig(pluginId)
-                .map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
+        return service.getFormConfig(pluginId).map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
     }
 
     @JsonView(Views.Public.class)

@@ -1,10 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
 
 import java.math.BigDecimal;
 
-public class BigDecimalType implements AppsmithType{
+public class BigDecimalType implements AppsmithType {
     @Override
     public String performSmartSubstitution(String s) {
         return s;

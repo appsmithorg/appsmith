@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import org.pf4j.PropertiesPluginDescriptorFinder;
@@ -21,5 +22,4 @@ public class PluginConfiguration {
                     : new PropertiesPluginDescriptorFinder();
         }
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.notifications;
 
 import com.appsmith.server.configurations.EmailConfig;
@@ -42,7 +43,8 @@ public class EmailSender {
         return sendMail(to, subject, text, params, null);
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params, String replyTo) {
+    public Mono<Boolean> sendMail(
+            String to, String subject, String text, Map<String, ? extends Object> params, String replyTo) {
 
         /**
          * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded elastic
@@ -108,7 +110,11 @@ public class EmailSender {
 
             log.debug("Email sent successfully to {} with subject {}", to, subject);
         } catch (MessagingException e) {
-            log.error("Unable to create the mime message while sending an email to {} with subject: {}. Cause: ", to, subject, e);
+            log.error(
+                    "Unable to create the mime message while sending an email to {} with subject: {}. Cause: ",
+                    to,
+                    subject,
+                    e);
         } catch (MailException e) {
             log.error("Unable to send email. Cause: ", e);
         }

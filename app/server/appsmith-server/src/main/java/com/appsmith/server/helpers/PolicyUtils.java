@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.BaseDomain;
@@ -61,7 +62,6 @@ public class PolicyUtils {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
 
-
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
@@ -113,7 +113,8 @@ public class PolicyUtils {
                     policy.setPermissionGroups(new HashSet<>());
                 }
                 if (policyMap1.get(permission).getPermissionGroups() != null) {
-                    policy.getPermissionGroups().removeAll(policyMap1.get(permission).getPermissionGroups());
+                    policy.getPermissionGroups()
+                            .removeAll(policyMap1.get(permission).getPermissionGroups());
                 }
                 // Remove this permission from the policyMap as this has been accounted for in the above code
                 policyMap1.remove(permission);
@@ -138,8 +139,10 @@ public class PolicyUtils {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                            .users(Set.of(username)).build();
+                    Policy policyWithCurrentPermission = Policy.builder()
+                            .permission(perm.getValue())
+                            .users(Set.of(username))
+                            .build();
                     // Generate any and all lateral policies that might come with the current permission
                     Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(username), null);
                     policiesForUser.add(policyWithCurrentPermission);
@@ -149,17 +152,19 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Map<String, Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId) {
+    public Map<String, Policy> generatePolicyFromPermissionGroupForObject(
+            PermissionGroup permissionGroup, String objectId) {
         Set<Permission> permissions = permissionGroup.getPermissions();
         return permissions.stream()
                 .filter(perm -> perm.getDocumentId().equals(objectId))
                 .map(perm -> {
-
-                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getAclPermission().getValue())
+                    Policy policyWithCurrentPermission = Policy.builder()
+                            .permission(perm.getAclPermission().getValue())
                             .permissionGroups(Set.of(permissionGroup.getId()))
                             .build();
                     // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(perm.getAclPermission(), Set.of(permissionGroup.getId()), null);
+                    Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(
+                            perm.getAclPermission(), Set.of(permissionGroup.getId()), null);
                     policiesForPermissionGroup.add(policyWithCurrentPermission);
                     return policiesForPermissionGroup;
                 })
@@ -167,27 +172,31 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity(), (policy1, policy2) -> policy1));
     }
 
-    public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {
+    public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(
+            AclPermission permission, String permissionGroupId) {
 
-        Policy policyWithCurrentPermission = Policy.builder().permission(permission.getValue())
+        Policy policyWithCurrentPermission = Policy.builder()
+                .permission(permission.getValue())
                 .permissionGroups(Set.of(permissionGroupId))
                 .build();
         // Generate any and all lateral policies that might come with the current permission
-        Set<Policy> policiesForPermission = policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
+        Set<Policy> policiesForPermission =
+                policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
         policiesForPermission.add(policyWithCurrentPermission);
-        return policiesForPermission.stream()
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+        return policiesForPermission.stream().collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-
-    public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(Set<AclPermission> permissions, List<User> users) {
+    public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(
+            Set<AclPermission> permissions, List<User> users) {
         Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());
 
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                            .users(usernames).build();
+                    Policy policyWithCurrentPermission = Policy.builder()
+                            .permission(perm.getValue())
+                            .users(usernames)
+                            .build();
                     // Generate any and all lateral policies that might come with the current permission
                     Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, usernames, null);
                     policiesForUser.add(policyWithCurrentPermission);
@@ -197,12 +206,14 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByWorkspaceId(String workspaceId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByWorkspaceId(
+            String workspaceId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
                 .findAllByWorkspaceId(workspaceId, datasourcePermission.getExecutePermission())
-                // In case we have come across a datasource for this workspace that the current user is not allowed to manage, move on.
+                // In case we have come across a datasource for this workspace that the current user is not allowed to
+                // manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
                     if (addPolicyToObject) {
@@ -215,7 +226,8 @@ public class PolicyUtils {
                 .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));
     }
 
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(
+            Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
 
         return datasourceRepository
                 .findAllByIds(ids, datasourcePermission.getEditPermission())
@@ -235,9 +247,8 @@ public class PolicyUtils {
                 .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
 
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(Set<String> ids,
-                                                                                               Map<String, Policy> datasourcePolicyMap,
-                                                                                               boolean addPolicyToObject) {
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
+            Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
 
         // Find all the datasources without permission to update the policies.
         return datasourceRepository
@@ -257,12 +268,14 @@ public class PolicyUtils {
                 .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
 
-    public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
+    public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(
+            String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
                 .findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
-                // In case we have come across an application for this workspace that the current user is not allowed to manage, move on.
+                // In case we have come across an application for this workspace that the current user is not allowed to
+                // manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {
                     if (addPolicyToObject) {
@@ -275,11 +288,15 @@ public class PolicyUtils {
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
-    public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
+    public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(
+            String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
 
-        // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures that all the published
-        // AND the unpublished pages are updated with the new policy change [This covers the edge cases where a page may exist
-        // in published app but has been deleted in the edit mode]. This means that we don't have to do any special treatment
+        // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures
+        // that all the published
+        // AND the unpublished pages are updated with the new policy change [This covers the edge cases where a page may
+        // exist
+        // in published app but has been deleted in the edit mode]. This means that we don't have to do any special
+        // treatment
         // during deployment of the application to handle edge cases.
         return newPageRepository
                 // fetch pages with read permissions so that app viewers can invite other app viewers
@@ -293,21 +310,19 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedPages -> newPageRepository
-                        .saveAll(updatedPages));
+                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages));
     }
 
-    public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
+    public Flux<Theme> updateThemePolicies(
+            Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if (StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
-                    themeRepository.findById(application.getEditModeThemeId(), READ_THEMES)
-            );
+                    themeRepository.findById(application.getEditModeThemeId(), READ_THEMES));
         }
         if (StringUtils.hasLength(application.getPublishedModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
-                    themeRepository.findById(application.getPublishedModeThemeId(), READ_THEMES)
-            );
+                    themeRepository.findById(application.getPublishedModeThemeId(), READ_THEMES));
         }
         return applicationThemes
                 .filter(theme -> !theme.isSystemTheme()) // skip the system themes
@@ -334,7 +349,8 @@ public class PolicyUtils {
      * @param addPolicyToObject
      * @return
      */
-    public Flux<NewAction> updateWithPagePermissionsToAllItsActions(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+    public Flux<NewAction> updateWithPagePermissionsToAllItsActions(
+            String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
 
         return newActionRepository
                 .findByApplicationId(applicationId)
@@ -350,7 +366,8 @@ public class PolicyUtils {
                 .flatMapMany(newActionRepository::saveAll);
     }
 
-    public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+    public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(
+            String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
 
         return actionCollectionRepository
                 .findByApplicationId(applicationId)
@@ -366,12 +383,14 @@ public class PolicyUtils {
                 .flatMapMany(actionCollectionRepository::saveAll);
     }
 
-    public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
-                                                                           Class<? extends BaseDomain> sourceEntity,
-                                                                           Class<? extends BaseDomain> destinationEntity) {
+    public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(
+            Map<String, Policy> sourcePolicyMap,
+            Class<? extends BaseDomain> sourceEntity,
+            Class<? extends BaseDomain> destinationEntity) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicyMap.values());
 
-        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
+        return policyGenerator
+                .getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
                 .stream()
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
@@ -389,7 +408,8 @@ public class PolicyUtils {
         return Collections.emptySet();
     }
 
-    public static boolean isPermissionPresentInPolicies(String permission, Set<Policy> policies, Set<String> userPermissionGroupIds) {
+    public static boolean isPermissionPresentInPolicies(
+            String permission, Set<Policy> policies, Set<String> userPermissionGroupIds) {
 
         Optional<Policy> interestingPolicyOptional = policies.stream()
                 .filter(policy -> policy.getPermission().equals(permission))
@@ -410,5 +430,4 @@ public class PolicyUtils {
                 .map(permissionGroup -> TRUE)
                 .orElse(FALSE);
     }
-
 }

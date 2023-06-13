@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.datatypes;
 
 import com.appsmith.external.datatypes.AppsmithType;
@@ -30,12 +31,9 @@ public class MongoSpecificDataTypes {
 
         pluginSpecificTypes.put(ClientDataType.ARRAY, List.of(new ArrayType()));
 
-        pluginSpecificTypes.put(ClientDataType.NUMBER, List.of(
-                new IntegerType(),
-                new LongType(),
-                new DoubleType(),
-                new BigDecimalType()
-        ));
+        pluginSpecificTypes.put(
+                ClientDataType.NUMBER,
+                List.of(new IntegerType(), new LongType(), new DoubleType(), new BigDecimalType()));
 
         /*
             BSON is the superset of JSON with more data types.
@@ -43,11 +41,7 @@ public class MongoSpecificDataTypes {
         */
         pluginSpecificTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType(), new BsonType()));
 
-        pluginSpecificTypes.put(ClientDataType.STRING, List.of(
-                new TimeType(),
-                new DateType(),
-                new TimestampType(),
-                new StringType()
-        ));
+        pluginSpecificTypes.put(
+                ClientDataType.STRING, List.of(new TimeType(), new DateType(), new TimestampType(), new StringType()));
     }
 }

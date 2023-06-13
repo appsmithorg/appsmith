@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Group;
@@ -16,16 +17,19 @@ import java.util.Optional;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-public class CustomGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Group>
-        implements CustomGroupRepositoryCE {
+public class CustomGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Group> implements CustomGroupRepositoryCE {
 
-    public CustomGroupRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomGroupRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
     public Flux<Group> getAllByWorkspaceId(String workspaceId) {
-        Criteria workspaceIdCriteria = where(fieldName(QGroup.group.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QGroup.group.workspaceId)).is(workspaceId);
 
         return queryAll(List.of(workspaceIdCriteria), Optional.empty());
     }

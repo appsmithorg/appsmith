@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -133,6 +134,5 @@ public class UsagePulseServiceTest {
         assertThat(usagePulseCount).isNotNull();
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCount + 1);
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCountForCloud);
-
     }
 }

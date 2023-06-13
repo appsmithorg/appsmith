@@ -1,6 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.testcaching.model;
-
-import java.time.Instant;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

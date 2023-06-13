@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
@@ -16,11 +17,9 @@ public interface DatasourceStorageServiceCE {
 
     Mono<DatasourceStorage> archive(DatasourceStorage datasourceStorage);
 
-    Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource,
-                                                             String environmentId);
+    Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource, String environmentId);
 
-    Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(Datasource datasource,
-                                                                         String environmentId);
+    Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(Datasource datasource, String environmentId);
 
     Flux<DatasourceStorage> findByDatasource(Datasource datasource);
 
@@ -28,9 +27,11 @@ public interface DatasourceStorageServiceCE {
 
     Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 
-    Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate);
+    Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(
+            Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate);
 
     Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration);
+
     Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage);
 
     Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage);

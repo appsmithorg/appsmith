@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.services;
 
 import com.appsmith.external.constants.ConditionalOperator;
@@ -40,8 +41,7 @@ public class FilterDataServiceTest {
         Map<String, DataType> schema = Map.of(
                 "id", DataType.INTEGER,
                 "name", DataType.STRING,
-                "status", DataType.BOOLEAN
-        );
+                "status", DataType.BOOLEAN);
 
         String table = filterDataService.generateTable(schema);
 
@@ -51,75 +51,73 @@ public class FilterDataServiceTest {
     @Test
     public void generateLogicalOperatorTest() {
 
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"i\",\n" +
-                "        \"condition\": \"GTE\",\n" +
-                "        \"value\": \"u\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"condition\": \"AND\",\n" +
-                "        \"children\": [\n" +
-                "          {\n" +
-                "            \"key\": \"d\",\n" +
-                "            \"condition\": \"LTE\",\n" +
-                "            \"value\": \"w\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"condition\": \"AND\",\n" +
-                "            \"children\": [\n" +
-                "              {\n" +
-                "                \"key\": \"a\",\n" +
-                "                \"condition\": \"LTE\",\n" +
-                "                \"value\": \"s\"\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"condition\": \"AND\",\n" +
-                "        \"children\": [\n" +
-                "          {\n" +
-                "            \"key\": \"u\",\n" +
-                "            \"condition\": \"LTE\",\n" +
-                "            \"value\": \"me\"\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"i\",\n"
+                + "        \"condition\": \"GTE\",\n"
+                + "        \"value\": \"u\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"condition\": \"AND\",\n"
+                + "        \"children\": [\n"
+                + "          {\n"
+                + "            \"key\": \"d\",\n"
+                + "            \"condition\": \"LTE\",\n"
+                + "            \"value\": \"w\"\n"
+                + "          },\n"
+                + "          {\n"
+                + "            \"condition\": \"AND\",\n"
+                + "            \"children\": [\n"
+                + "              {\n"
+                + "                \"key\": \"a\",\n"
+                + "                \"condition\": \"LTE\",\n"
+                + "                \"value\": \"s\"\n"
+                + "              }\n"
+                + "            ]\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"condition\": \"AND\",\n"
+                + "        \"children\": [\n"
+                + "          {\n"
+                + "            \"key\": \"u\",\n"
+                + "            \"condition\": \"LTE\",\n"
+                + "            \"value\": \"me\"\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
 
@@ -133,8 +131,11 @@ public class FilterDataServiceTest {
             ConditionalOperator operator = condition.getOperator();
             List<Condition> conditions = (List<Condition>) condition.getValue();
 
-            String expression = filterDataService.generateLogicalExpression(conditions, new ArrayList<>(), schema, operator);
-            assertThat(expression).isEqualTo(" ( \"i\" >= ? )  and (  ( \"d\" <= ? )  and (  ( \"a\" <= ? )  )  )  and (  ( \"u\" <= ? )  ) ");
+            String expression =
+                    filterDataService.generateLogicalExpression(conditions, new ArrayList<>(), schema, operator);
+            assertThat(expression)
+                    .isEqualTo(
+                            " ( \"i\" >= ? )  and (  ( \"d\" <= ? )  and (  ( \"a\" <= ? )  )  )  and (  ( \"u\" <= ? )  ) ");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -144,45 +145,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testFilterSingleConditionWithWhereJson() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -191,8 +190,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -204,58 +203,56 @@ public class FilterDataServiceTest {
 
     @Test
     public void testFilterMultipleConditionsNew() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"anotherKey\": 20,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"anotherKey\": 12,\n" +
-                "    \"orderStatus\": \"NOT READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"anotherKey\": 20,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"anotherKey\": 20,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"anotherKey\": 12,\n"
+                + "    \"orderStatus\": \"NOT READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"anotherKey\": 20,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"key\": \"anotherKey\",\n" +
-                "        \"condition\": \"GT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"key\": \"orderStatus\",\n" +
-                "        \"condition\": \"EQ\",\n" +
-                "        \"value\": \"READY\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"key\": \"anotherKey\",\n"
+                + "        \"condition\": \"GT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"key\": \"orderStatus\",\n"
+                + "        \"condition\": \"EQ\",\n"
+                + "        \"value\": \"READY\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -264,11 +261,10 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 1);
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -278,50 +274,48 @@ public class FilterDataServiceTest {
 
     @Test
     public void testFilterInConditionForStringsNew() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"NOT READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"NOT READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"key\": \"orderStatus\",\n" +
-                "        \"condition\": \"IN\",\n" +
-                "        \"value\": \"[\\\"READY\\\", \\\"NOT READY\\\"]\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"key\": \"orderStatus\",\n"
+                + "        \"condition\": \"IN\",\n"
+                + "        \"value\": \"[\\\"READY\\\", \\\"NOT READY\\\"]\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -330,11 +324,10 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -344,50 +337,48 @@ public class FilterDataServiceTest {
 
     @Test
     public void testFilterInConditionForNumbersNew() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"NOT READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"NOT READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"IN\",\n" +
-                "        \"value\": \"[4.99, 19.99]\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"IN\",\n"
+                + "        \"value\": \"[4.99, 19.99]\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -396,8 +387,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 1);
 
@@ -409,50 +400,48 @@ public class FilterDataServiceTest {
 
     @Test
     public void testFilterNotInConditionForNumbersNew() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"NOT READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"NOT READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"NOT_IN\",\n" +
-                "        \"value\": \"[5.99, 19.00]\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"NOT_IN\",\n"
+                + "        \"value\": \"[5.99, 19.00]\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -461,11 +450,10 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -474,45 +462,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testMultiWordColumnNamesNew() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email id\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email id\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email id\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email id\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -521,8 +507,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -533,7 +519,9 @@ public class FilterDataServiceTest {
                     .map(n -> fieldNamesIterator.next())
                     .collect(Collectors.toList());
 
-            assertThat(columnNames).containsExactlyInAnyOrder("id", "email id", "userName", "productName", "orderAmount", "orderStatus");
+            assertThat(columnNames)
+                    .containsExactlyInAnyOrder(
+                            "id", "email id", "userName", "productName", "orderAmount", "orderStatus");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -543,45 +531,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testEmptyValuesInSomeColumnsNew() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -590,11 +576,10 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -604,48 +589,46 @@ public class FilterDataServiceTest {
 
     @Test
     public void testValuesOfUnsupportedDataTypeNew() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\",\n" +
-                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\",\n" +
-                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\",\n" +
-                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"date\": \"2021-09-01\",\n"
+                + "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"date\": \"2021-09-01\",\n"
+                + "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"date\": \"2021-09-01\",\n"
+                + "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -654,11 +637,10 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -668,45 +650,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testConditionTypeMismatch() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"String here where number is expected\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"String here where number is expected\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -716,7 +696,8 @@ public class FilterDataServiceTest {
             Condition condition = parseWhereClause(unparsedWhereClause);
 
             // Since the data type expected for orderAmount is float, but the value given is String, assert exception
-            assertThrows(AppsmithPluginException.class,
+            assertThrows(
+                    AppsmithPluginException.class,
                     () -> filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null)));
 
         } catch (IOException e) {
@@ -727,39 +708,34 @@ public class FilterDataServiceTest {
 
     @Test
     public void testEmptyConditions() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": \"USD 4.99\",\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": \"USD 4.99\",\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson =
+                "{\n" + "  \"where\": {\n" + "    \"children\": [],\n" + "    \"condition\": \"AND\"\n" + "  }\n" + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -768,8 +744,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null), new HashMap<>());
+            ArrayNode filteredData = filterDataService.filterDataNew(
+                    items, new UQIDataFilterParams(condition, null, null, null), new HashMap<>());
 
             assertEquals(3, filteredData.size());
             assertEquals("USD 4.99", filteredData.get(0).get("orderAmount").asText());
@@ -783,45 +759,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testConditionNullValueMatch() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"EQ\",\n" +
-                "        \"value\": \"null\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"EQ\",\n"
+                + "        \"value\": \"null\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -830,8 +804,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             // Since there are no null orderAmounts, the filtered data would be empty.
             assertEquals(filteredData.size(), 0);
@@ -844,45 +818,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testDateCondition() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-02\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-03\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"date\": \"2021-09-01\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"date\": \"2021-09-02\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"date\": \"2021-09-03\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"date\",\n" +
-                "        \"condition\": \"GTE\",\n" +
-                "        \"value\": \"2021-09-02\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"date\",\n"
+                + "        \"condition\": \"GTE\",\n"
+                + "        \"value\": \"2021-09-02\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -891,8 +863,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -904,45 +876,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testFilterDataNew_withTimestampClause_returnsCorrectValues() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01 00:01:00\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-02 00:02:00\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": \"\",\n" +
-                "    \"email id\": \"\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-03 00:03:00\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email id\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"date\": \"2021-09-01 00:01:00\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"date\": \"2021-09-02 00:02:00\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": \"\",\n"
+                + "    \"email id\": \"\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"date\": \"2021-09-03 00:03:00\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"date\",\n" +
-                "        \"condition\": \"GTE\",\n" +
-                "        \"value\": \"2021-09-02 00:02:00\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"date\",\n"
+                + "        \"condition\": \"GTE\",\n"
+                + "        \"value\": \"2021-09-02 00:02:00\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -951,8 +921,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -964,45 +934,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testProjection() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -1011,8 +979,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
-                    List.of("id", "email"), null, null));
+            ArrayNode filteredData = filterDataService.filterDataNew(
+                    items, new UQIDataFilterParams(condition, List.of("id", "email"), null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1028,45 +996,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testSortBy() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -1085,8 +1051,8 @@ public class FilterDataServiceTest {
             sortCondition2.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
             sortBy.add(sortCondition2);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    sortBy, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, sortBy, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1103,45 +1069,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testPagination() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"25\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"25\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -1154,8 +1118,8 @@ public class FilterDataServiceTest {
             paginateBy.put(PAGINATE_LIMIT_KEY, "2");
             paginateBy.put(PAGINATE_OFFSET_KEY, "1");
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, paginateBy));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, paginateBy));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1172,45 +1136,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testProjectionSortingAndPaginationTogether() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"20\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"20\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -1231,8 +1193,8 @@ public class FilterDataServiceTest {
             paginateBy.put(PAGINATE_LIMIT_KEY, "1");
             paginateBy.put(PAGINATE_OFFSET_KEY, "1");
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
-                    projectColumns, sortBy, paginateBy));
+            ArrayNode filteredData = filterDataService.filterDataNew(
+                    items, new UQIDataFilterParams(condition, projectColumns, sortBy, paginateBy));
 
             assertEquals(filteredData.size(), 1);
 
@@ -1247,45 +1209,43 @@ public class FilterDataServiceTest {
 
     @Test
     public void testSortByWithEmptyColumnNameOnly() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"Beef steak\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"Tuna Salad\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"Beef steak\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderAmount\",\n" +
-                "        \"condition\": \"LT\",\n" +
-                "        \"value\": \"15\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderAmount\",\n"
+                + "        \"condition\": \"LT\",\n"
+                + "        \"value\": \"15\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -1300,8 +1260,8 @@ public class FilterDataServiceTest {
             sortCondition1.put(SORT_BY_TYPE_KEY, VALUE_DESCENDING);
             sortBy.add(sortCondition1);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    sortBy, null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, sortBy, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1318,49 +1278,47 @@ public class FilterDataServiceTest {
 
     @Test
     public void testFilterEmptyAndNonEmptyCondition() {
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"email\": \"michael.lawson@reqres.in\",\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
-                "    \"orderStatus\": \"READY\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"productName\": \"\",\n" +
-                "    \"orderAmount\": 9.99,\n" +
-                "    \"orderStatus\": \"\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"email\": \"tobias.funke@reqres.in\",\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"productName\": \"\",\n" +
-                "    \"orderAmount\": 19.99,\n" +
-                "    \"orderStatus\": \"NOT READY\"\n" +
-                "  }\n" +
-                "]";
+        String data = "[\n" + "  {\n"
+                + "    \"id\": 2381224,\n"
+                + "    \"email\": \"michael.lawson@reqres.in\",\n"
+                + "    \"userName\": \"Michael Lawson\",\n"
+                + "    \"productName\": \"Chicken Sandwich\",\n"
+                + "    \"orderAmount\": 4.99,\n"
+                + "    \"orderStatus\": \"READY\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 2736212,\n"
+                + "    \"email\": \"lindsay.ferguson@reqres.in\",\n"
+                + "    \"userName\": \"Lindsay Ferguson\",\n"
+                + "    \"productName\": \"\",\n"
+                + "    \"orderAmount\": 9.99,\n"
+                + "    \"orderStatus\": \"\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"id\": 6788734,\n"
+                + "    \"email\": \"tobias.funke@reqres.in\",\n"
+                + "    \"userName\": \"Tobias Funke\",\n"
+                + "    \"productName\": \"\",\n"
+                + "    \"orderAmount\": 19.99,\n"
+                + "    \"orderStatus\": \"NOT READY\"\n"
+                + "  }\n"
+                + "]";
 
-        String whereJson = "{\n" +
-                "  \"where\": {\n" +
-                "    \"children\": [\n" +
-                "      {\n" +
-                "        \"key\": \"orderStatus\",\n" +
-                "        \"condition\": \"EQ\",\n" +
-                "        \"value\": \"\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"key\": \"productName\",\n" +
-                "        \"condition\": \"EQ\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"condition\": \"AND\"\n" +
-                "  }\n" +
-                "}";
+        String whereJson = "{\n" + "  \"where\": {\n"
+                + "    \"children\": [\n"
+                + "      {\n"
+                + "        \"key\": \"orderStatus\",\n"
+                + "        \"condition\": \"EQ\",\n"
+                + "        \"value\": \"\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"key\": \"productName\",\n"
+                + "        \"condition\": \"EQ\"\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"condition\": \"AND\"\n"
+                + "  }\n"
+                + "}";
 
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
@@ -1369,13 +1327,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(
-                    items,
-                    new UQIDataFilterParams(
-                            condition,
-                            null,
-                            null,
-                            null));
+            ArrayNode filteredData =
+                    filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 1);
 

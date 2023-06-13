@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
@@ -14,16 +15,24 @@ import reactor.core.scheduler.Scheduler;
 @Service
 public class NotificationServiceImpl extends NotificationServiceCEImpl implements NotificationService {
 
-    public NotificationServiceImpl(Scheduler scheduler,
-                                   Validator validator,
-                                   MongoConverter mongoConverter,
-                                   ReactiveMongoTemplate reactiveMongoTemplate,
-                                   NotificationRepository repository,
-                                   AnalyticsService analyticsService,
-                                   SessionUserService sessionUserService,
-                                   ResponseUtils responseUtils) {
+    public NotificationServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            NotificationRepository repository,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            ResponseUtils responseUtils) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                sessionUserService, responseUtils);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                sessionUserService,
+                responseUtils);
     }
 }

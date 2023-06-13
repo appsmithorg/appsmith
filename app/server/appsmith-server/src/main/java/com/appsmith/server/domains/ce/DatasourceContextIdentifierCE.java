@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains.ce;
 
 import com.appsmith.server.domains.DatasourceContextIdentifier;
@@ -45,13 +46,13 @@ public class DatasourceContextIdentifierCE {
     public int hashCode() {
         int result = 0;
         result = hasLength(this.getDatasourceId()) ? this.getDatasourceId().hashCode() : result;
-        result = hasLength(this.getDatasourceId()) ? result * 31 + this.getDatasourceId().hashCode() : result;
+        result = hasLength(this.getDatasourceId())
+                ? result * 31 + this.getDatasourceId().hashCode()
+                : result;
         return result;
     }
 
     public boolean isKeyValid() {
         return hasLength(this.getDatasourceId());
     }
-
-
 }

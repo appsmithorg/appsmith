@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
@@ -39,7 +40,6 @@ public class ActionExecutionResult {
     List<ParsedDataType> dataTypes;
 
     List<WidgetSuggestionDTO> suggestedWidgets;
-
 
     PluginErrorDetails pluginErrorDetails;
 

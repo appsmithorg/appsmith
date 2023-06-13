@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.models.BearerTokenAuth;
@@ -24,18 +25,16 @@ public class BearerTokenAuthentication extends APIConnection {
     private String bearerToken;
 
     public static Mono<BearerTokenAuthentication> create(BearerTokenAuth bearerTokenAuth) {
-        return Mono.just(
-                BearerTokenAuthentication.builder()
-                        .bearerToken(bearerTokenAuth.getBearerToken())
-                        .build()
-        );
+        return Mono.just(BearerTokenAuthentication.builder()
+                .bearerToken(bearerTokenAuth.getBearerToken())
+                .build());
     }
 
     @Override
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
         return Mono.justOrEmpty(ClientRequest.from(request)
-                .headers(header -> header.set(AUTHORIZATION_HEADER, getHeaderValue()))
-                .build())
+                        .headers(header -> header.set(AUTHORIZATION_HEADER, getHeaderValue()))
+                        .build())
                 // Carry on to next exchange function
                 .flatMap(next::exchange)
                 // Default to next exchange function if something went wrong

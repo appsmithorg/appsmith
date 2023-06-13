@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.Datasource;
@@ -15,5 +16,4 @@ public interface DatasourceRepositoryCE extends BaseRepository<Datasource, Strin
     Flux<Datasource> findAllByWorkspaceId(String workspaceId);
 
     Mono<Long> countByDeletedAtNull();
-
 }

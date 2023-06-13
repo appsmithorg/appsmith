@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -67,5 +68,4 @@ public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
          */
         return CollectionUtils.lastElement(Arrays.asList(error.getMessage().split(":")));
     }
-
 }

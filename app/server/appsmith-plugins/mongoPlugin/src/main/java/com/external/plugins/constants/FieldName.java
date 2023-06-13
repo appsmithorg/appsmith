@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.constants;
 
 public class FieldName {
@@ -45,7 +46,6 @@ public class FieldName {
     public static final String FIND_SKIP = FIND + "." + SKIP;
     public static final String UPDATE_LIMIT = UPDATE_MANY + "." + LIMIT;
 
-    
     public static final String RAW = "RAW";
     public static final String DATA = "data";
     public static final String STATUS = "status";

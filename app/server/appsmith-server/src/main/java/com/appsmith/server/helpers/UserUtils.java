@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.helpers.ce.UserUtilsCE;
@@ -9,10 +10,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserUtils extends UserUtilsCE {
-    public UserUtils(ConfigRepository configRepository,
-                     PermissionGroupRepository permissionGroupRepository,
-                     CacheableRepositoryHelper cacheableRepositoryHelper,
-                     PermissionGroupPermission permissionGroupPermission) {
+    public UserUtils(
+            ConfigRepository configRepository,
+            PermissionGroupRepository permissionGroupRepository,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            PermissionGroupPermission permissionGroupPermission) {
 
         super(configRepository, permissionGroupRepository, cacheableRepositoryHelper, permissionGroupPermission);
     }

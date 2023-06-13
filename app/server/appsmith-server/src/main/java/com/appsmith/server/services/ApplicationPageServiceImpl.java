@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
@@ -18,29 +19,46 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Slf4j
 public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl implements ApplicationPageService {
 
-    public ApplicationPageServiceImpl(WorkspaceService workspaceService,
-                                      ApplicationService applicationService,
-                                      SessionUserService sessionUserService,
-                                      WorkspaceRepository workspaceRepository,
-                                      LayoutActionService layoutActionService,
-                                      AnalyticsService analyticsService,
-                                      PolicyGenerator policyGenerator,
-                                      ApplicationRepository applicationRepository,
-                                      NewPageService newPageService,
-                                      NewActionService newActionService,
-                                      ActionCollectionService actionCollectionService,
-                                      GitFileUtils gitFileUtils,
-                                      ThemeService themeService,
-                                      ResponseUtils responseUtils,
-                                      WorkspacePermission workspacePermission,
-                                      ApplicationPermission applicationPermission,
-                                      PagePermission pagePermission,
-                                      ActionPermission actionPermission,
-                                      TransactionalOperator transactionalOperator) {
+    public ApplicationPageServiceImpl(
+            WorkspaceService workspaceService,
+            ApplicationService applicationService,
+            SessionUserService sessionUserService,
+            WorkspaceRepository workspaceRepository,
+            LayoutActionService layoutActionService,
+            AnalyticsService analyticsService,
+            PolicyGenerator policyGenerator,
+            ApplicationRepository applicationRepository,
+            NewPageService newPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
+            GitFileUtils gitFileUtils,
+            ThemeService themeService,
+            ResponseUtils responseUtils,
+            WorkspacePermission workspacePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            TransactionalOperator transactionalOperator) {
 
-        super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
-                policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
-                gitFileUtils, themeService, responseUtils, workspacePermission,
-                applicationPermission, pagePermission, actionPermission, transactionalOperator);
+        super(
+                workspaceService,
+                applicationService,
+                sessionUserService,
+                workspaceRepository,
+                layoutActionService,
+                analyticsService,
+                policyGenerator,
+                applicationRepository,
+                newPageService,
+                newActionService,
+                actionCollectionService,
+                gitFileUtils,
+                themeService,
+                responseUtils,
+                workspacePermission,
+                applicationPermission,
+                pagePermission,
+                actionPermission,
+                transactionalOperator);
     }
 }

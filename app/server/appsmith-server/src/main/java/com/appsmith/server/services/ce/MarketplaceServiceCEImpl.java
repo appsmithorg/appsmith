@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ApiTemplate;
@@ -44,12 +45,12 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
     private final Long timeoutInMillis = Long.valueOf(10000);
 
     @Autowired
-    public MarketplaceServiceCEImpl(WebClient.Builder webClientBuilder,
-                                    CloudServicesConfig cloudServicesConfig, ObjectMapper objectMapper) {
+    public MarketplaceServiceCEImpl(
+            WebClient.Builder webClientBuilder, CloudServicesConfig cloudServicesConfig, ObjectMapper objectMapper) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.webClient = webClientBuilder
-                .defaultHeaders(header -> header.setBasicAuth(cloudServicesConfig.getUsername(),
-                        cloudServicesConfig.getPassword()))
+                .defaultHeaders(header ->
+                        header.setBasicAuth(cloudServicesConfig.getUsername(), cloudServicesConfig.getPassword()))
                 .baseUrl(cloudServicesConfig.getBaseUrl())
                 .build();
         this.objectMapper = objectMapper;
@@ -143,11 +144,7 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
         }
 
-        return webClient
-                .put()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(Boolean.class);
+        return webClient.put().uri(uri).retrieve().bodyToMono(Boolean.class);
     }
 
     @Override

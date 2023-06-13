@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DBAuth;
@@ -103,16 +104,18 @@ public class MockDataServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("MockDataServiceTest");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
 
-
         if (testPage == null) {
-            //Create application and page which will be used by the tests to create actions for.
+            // Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, workspaceId).block();
+            testApp = applicationPageService
+                    .createApplication(application, workspaceId)
+                    .block();
             final String pageId = testApp.getPages().get(0).getId();
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
@@ -121,13 +124,14 @@ public class MockDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetMockDataSets() {
-        StepVerifier
-                .create(mockDataService.getMockDataSet())
+        StepVerifier.create(mockDataService.getMockDataSet())
                 .assertNext(mockDataSets -> {
                     assertThat(mockDataSets.getMockdbs()).hasSize(2);
                     assertThat(mockDataSets.getMockdbs())
-                            .anyMatch(data -> data.getName().equals("Movies") && data.getPackageName().equals("mongo-plugin"))
-                            .anyMatch(data -> data.getName().equals("Users") && data.getPackageName().equals("postgres-plugin"));
+                            .anyMatch(data -> data.getName().equals("Movies")
+                                    && data.getPackageName().equals("mongo-plugin"))
+                            .anyMatch(data -> data.getName().equals("Users")
+                                    && data.getPackageName().equals("postgres-plugin"));
                 })
                 .verifyComplete();
     }
@@ -136,13 +140,15 @@ public class MockDataServiceTest {
     @WithUserDetails(value = "api_user")
     public void testCreateMockDataSetsMongo() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsMongo");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
@@ -153,7 +159,8 @@ public class MockDataServiceTest {
         mockDataSource.setPluginId(pluginMono.getId());
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
-        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String environmentId =
+                workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -165,37 +172,57 @@ public class MockDataServiceTest {
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
-        StepVerifier
-                .create(mockDataService.createMockDataSet(mockDataSource, environmentId))
+        StepVerifier.create(mockDataService.createMockDataSet(mockDataSource, environmentId))
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
                     assertThat(createdDatasource.getName()).isEqualTo("Movies");
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder()
+                            .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder()
+                            .permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy executeDatasourcePolicy = Policy.builder()
+                            .permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
-                    DBAuth auth = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth auth = (DBAuth)
+                            createdDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
-                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use mongo connection string URI");
+                    assertThat(createdDatasource.getPolicies())
+                            .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+                    assertThat(createdDatasource
+                                    .getDatasourceConfiguration()
+                                    .getProperties()
+                                    .get(0)
+                                    .getValue())
+                            .isEqualTo("Yes");
+                    assertThat(createdDatasource
+                                    .getDatasourceConfiguration()
+                                    .getProperties()
+                                    .get(0)
+                                    .getKey())
+                            .isEqualTo("Use mongo connection string URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                     Assertions.assertTrue(createdDatasource.getIsMock());
@@ -207,8 +234,8 @@ public class MockDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testCreateMockDataSetsPostgres() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
@@ -218,7 +245,8 @@ public class MockDataServiceTest {
         mockDataSource.setPluginId(pluginMono.getId());
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
-        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String environmentId =
+                workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -230,35 +258,45 @@ public class MockDataServiceTest {
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
-        StepVerifier
-                .create(mockDataService.createMockDataSet(mockDataSource, environmentId))
+        StepVerifier.create(mockDataService.createMockDataSet(mockDataSource, environmentId))
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
                     assertThat(createdDatasource.getName()).isEqualTo("Users");
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder()
+                            .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder()
+                            .permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy executeDatasourcePolicy = Policy.builder()
+                            .permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
-                    DBAuth auth = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth auth = (DBAuth)
+                            createdDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
-                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+                    assertThat(createdDatasource.getPolicies())
+                            .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                     assertThat(auth.getDatabaseName()).isEqualTo("users");
                     assertThat(auth.getUsername()).isEqualTo("users");
                 })
@@ -269,15 +307,18 @@ public class MockDataServiceTest {
     @WithUserDetails(value = "api_user")
     public void testCreateMockDataSetsDuplicateName() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsDuplicateName");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String environmentId =
+                workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
 
@@ -287,7 +328,8 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<DatasourceDTO> datasourceMono = mockDataService.createMockDataSet(mockDataSource, environmentId )
+        Mono<DatasourceDTO> datasourceMono = mockDataService
+                .createMockDataSet(mockDataSource, environmentId)
                 .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource, environmentId));
 
         List<PermissionGroup> permissionGroups = Mono.just(workspace)
@@ -300,37 +342,57 @@ public class MockDataServiceTest {
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
                     assertThat(createdDatasource.getName()).isEqualTo("Movies (1)");
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder()
+                            .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder()
+                            .permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy executeDatasourcePolicy = Policy.builder()
+                            .permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
-                    DBAuth auth = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth auth = (DBAuth)
+                            createdDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
-                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use mongo connection string URI");
+                    assertThat(createdDatasource.getPolicies())
+                            .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+                    assertThat(createdDatasource
+                                    .getDatasourceConfiguration()
+                                    .getProperties()
+                                    .get(0)
+                                    .getValue())
+                            .isEqualTo("Yes");
+                    assertThat(createdDatasource
+                                    .getDatasourceConfiguration()
+                                    .getProperties()
+                                    .get(0)
+                                    .getKey())
+                            .isEqualTo("Use mongo connection string URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                 })

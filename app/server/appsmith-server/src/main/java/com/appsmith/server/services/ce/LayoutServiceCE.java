@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Layout;
@@ -12,5 +13,4 @@ public interface LayoutServiceCE {
     Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode);
 
     Mono<Layout> getLayout(String defaultPageId, String layoutId, Boolean viewMode, String branchName);
-
 }

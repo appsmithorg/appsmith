@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.util.WebClientUtils;
@@ -18,5 +19,4 @@ public class CustomAccessTokenResponseClient extends WebClientReactiveAuthorizat
         setWebClient(webClient);
         return super.getTokenResponse(grantRequest);
     }
-
 }

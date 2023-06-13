@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
@@ -13,8 +14,7 @@ import java.time.Instant;
 public class GitAuth implements AppsmithDomain {
 
     @JsonView(Views.Internal.class)
-    @Encrypted
-    String privateKey;
+    @Encrypted String privateKey;
 
     @JsonView(Views.Public.class)
     String publicKey;

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.PolicyUtils;
@@ -14,31 +15,44 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-
 @Slf4j
 @Service
 public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements ApplicationService {
 
-    public ApplicationServiceImpl(Scheduler scheduler,
-                                  Validator validator,
-                                  MongoConverter mongoConverter,
-                                  ReactiveMongoTemplate reactiveMongoTemplate,
-                                  ApplicationRepository repository,
-                                  AnalyticsService analyticsService,
-                                  PolicyUtils policyUtils,
-                                  ConfigService configService,
-                                  SessionUserService sessionUserService,
-                                  ResponseUtils responseUtils,
-                                  PermissionGroupService permissionGroupService,
-                                  TenantService tenantService,
-                                  AssetService assetService,
-                                  UserRepository userRepository,
-                                  DatasourcePermission datasourcePermission,
-                                  ApplicationPermission applicationPermission) {
+    public ApplicationServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            ApplicationRepository repository,
+            AnalyticsService analyticsService,
+            PolicyUtils policyUtils,
+            ConfigService configService,
+            SessionUserService sessionUserService,
+            ResponseUtils responseUtils,
+            PermissionGroupService permissionGroupService,
+            TenantService tenantService,
+            AssetService assetService,
+            UserRepository userRepository,
+            DatasourcePermission datasourcePermission,
+            ApplicationPermission applicationPermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
-                userRepository, datasourcePermission, applicationPermission);
-
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                policyUtils,
+                configService,
+                sessionUserService,
+                responseUtils,
+                permissionGroupService,
+                tenantService,
+                assetService,
+                userRepository,
+                datasourcePermission,
+                applicationPermission);
     }
 }

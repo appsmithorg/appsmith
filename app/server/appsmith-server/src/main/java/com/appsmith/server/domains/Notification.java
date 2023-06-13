@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -13,7 +14,8 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Document
 public class Notification extends BaseDomain {
 
-    // TODO: This class extends BaseDomain, so it has policies. Should we use information from policies instead of this field?
+    // TODO: This class extends BaseDomain, so it has policies. Should we use information from policies instead of this
+    // field?
     String forUsername;
 
     /**

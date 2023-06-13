@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.NewPage;
@@ -11,5 +12,4 @@ public interface NewPageRepositoryCE extends BaseRepository<NewPage, String>, Cu
     Flux<NewPage> findByApplicationId(String applicationId);
 
     Mono<Long> countByDeletedAtNull();
-
 }

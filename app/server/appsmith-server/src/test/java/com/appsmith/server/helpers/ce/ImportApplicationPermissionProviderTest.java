@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.models.BaseDomain;
@@ -41,9 +42,14 @@ class ImportApplicationPermissionProviderTest {
 
     @Test
     public void testCheckPermissionMethods_WhenNoPermissionProvided_ReturnsTrue() {
-        ImportApplicationPermissionProvider importApplicationPermissionProvider = ImportApplicationPermissionProvider
-                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
-                .build();
+        ImportApplicationPermissionProvider importApplicationPermissionProvider =
+                ImportApplicationPermissionProvider.builder(
+                                applicationPermission,
+                                pagePermission,
+                                actionPermission,
+                                datasourcePermission,
+                                workspacePermission)
+                        .build();
 
         assertTrue(importApplicationPermissionProvider.hasEditPermission(new NewPage()));
         assertTrue(importApplicationPermissionProvider.hasEditPermission(new NewAction()));
@@ -66,12 +72,13 @@ class ImportApplicationPermissionProviderTest {
         domainAndPermissionList.add(Tuples.of(new ActionCollection(), actionPermission));
         domainAndPermissionList.add(Tuples.of(new Datasource(), datasourcePermission));
 
-        for(Tuple2<BaseDomain, DomainPermission> domainAndPermission : domainAndPermissionList) {
+        for (Tuple2<BaseDomain, DomainPermission> domainAndPermission : domainAndPermissionList) {
             BaseDomain domain = domainAndPermission.getT1();
             // create a permission provider that sets edit permission on the domain
-            ImportApplicationPermissionProvider provider = createPermissionProviderForDomainEditPermission(domain, domainAndPermission.getT2());
+            ImportApplicationPermissionProvider provider =
+                    createPermissionProviderForDomainEditPermission(domain, domainAndPermission.getT2());
 
-            if(domain instanceof NewPage) {
+            if (domain instanceof NewPage) {
                 assertFalse(provider.hasEditPermission((NewPage) domain));
             } else if (domain instanceof NewAction) {
                 assertFalse(provider.hasEditPermission((NewAction) domain));
@@ -92,12 +99,13 @@ class ImportApplicationPermissionProviderTest {
         domainAndPermissionList.add(Tuples.of(new NewPage(), pagePermission.getActionCreatePermission()));
         domainAndPermissionList.add(Tuples.of(new Workspace(), workspacePermission.getDatasourceCreatePermission()));
 
-        for(Tuple2<BaseDomain, AclPermission> domainAndPermission : domainAndPermissionList) {
+        for (Tuple2<BaseDomain, AclPermission> domainAndPermission : domainAndPermissionList) {
             BaseDomain domain = domainAndPermission.getT1();
             // create a permission provider that sets edit permission on the domain
-            ImportApplicationPermissionProvider provider = createPermissionProviderForDomainCreatePermission(domain, domainAndPermission.getT2());
+            ImportApplicationPermissionProvider provider =
+                    createPermissionProviderForDomainCreatePermission(domain, domainAndPermission.getT2());
 
-            if(domain instanceof Application) {
+            if (domain instanceof Application) {
                 assertFalse(provider.canCreatePage((Application) domain));
             } else if (domain instanceof NewPage) {
                 assertFalse(provider.canCreateAction((NewPage) domain));
@@ -109,16 +117,18 @@ class ImportApplicationPermissionProviderTest {
 
     @Test
     public void tesBuilderIsSettingTheCorrectParametersToPermissionProvider() {
-        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider
-                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
+        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider.builder(
+                applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
 
         assertThat(builder.requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                .build().getRequiredPermissionOnTargetApplication()
-        ).isEqualTo(applicationPermission.getEditPermission());
+                        .build()
+                        .getRequiredPermissionOnTargetApplication())
+                .isEqualTo(applicationPermission.getEditPermission());
 
         assertThat(builder.requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                .build().getRequiredPermissionOnTargetWorkspace()
-        ).isEqualTo(workspacePermission.getReadPermission());
+                        .build()
+                        .getRequiredPermissionOnTargetWorkspace())
+                .isEqualTo(workspacePermission.getReadPermission());
 
         assertTrue(builder.permissionRequiredToCreateDatasource(true).build().isPermissionRequiredToCreateDatasource());
         assertTrue(builder.permissionRequiredToCreatePage(true).build().isPermissionRequiredToCreatePage());
@@ -131,8 +141,12 @@ class ImportApplicationPermissionProviderTest {
 
     @Test
     public void testAllPermissionsRequiredIsSettingAllPermissionsAsRequired() {
-        ImportApplicationPermissionProvider provider = ImportApplicationPermissionProvider
-                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+        ImportApplicationPermissionProvider provider = ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
                 .allPermissionsRequired()
                 .build();
 
@@ -156,18 +170,23 @@ class ImportApplicationPermissionProviderTest {
      * @param domainPermission
      * @return
      */
-    private ImportApplicationPermissionProvider createPermissionProviderForDomainEditPermission(BaseDomain baseDomain, DomainPermission domainPermission) {
+    private ImportApplicationPermissionProvider createPermissionProviderForDomainEditPermission(
+            BaseDomain baseDomain, DomainPermission domainPermission) {
         setPoliciesToDomain(baseDomain, domainPermission.getEditPermission());
 
-        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider
-                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
                 .currentUserPermissionGroups(Set.of());
 
-        if(baseDomain instanceof NewPage) {
+        if (baseDomain instanceof NewPage) {
             builder.permissionRequiredToEditPage(true);
-        } else if(baseDomain instanceof NewAction) {
+        } else if (baseDomain instanceof NewAction) {
             builder.permissionRequiredToEditAction(true);
-        } else if(baseDomain instanceof Datasource) {
+        } else if (baseDomain instanceof Datasource) {
             builder.permissionRequiredToEditDatasource(true);
         }
         return builder.build();
@@ -185,18 +204,23 @@ class ImportApplicationPermissionProviderTest {
      * @param permission
      * @return
      */
-    private ImportApplicationPermissionProvider createPermissionProviderForDomainCreatePermission(BaseDomain baseDomain, AclPermission permission) {
+    private ImportApplicationPermissionProvider createPermissionProviderForDomainCreatePermission(
+            BaseDomain baseDomain, AclPermission permission) {
         setPoliciesToDomain(baseDomain, permission);
 
-        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider
-                .builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission)
+        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
                 .currentUserPermissionGroups(Set.of());
 
-        if(baseDomain instanceof Application) {
+        if (baseDomain instanceof Application) {
             builder.permissionRequiredToCreatePage(true);
-        } else if(baseDomain instanceof NewPage) {
+        } else if (baseDomain instanceof NewPage) {
             builder.permissionRequiredToCreateAction(true);
-        } else if(baseDomain instanceof Workspace) {
+        } else if (baseDomain instanceof Workspace) {
             builder.permissionRequiredToCreateDatasource(true);
         }
         return builder.build();

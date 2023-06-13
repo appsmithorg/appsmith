@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.WidgetSuggestionDTO;
@@ -53,7 +54,7 @@ public class WidgetSuggestionHelper {
         if (array.isEmpty()) {
             return new ArrayList<>();
         }
-        //TODO - check other data types
+        // TODO - check other data types
         if (array.isArray()) {
             int length = array.size();
             JsonNode node = array.get(0);
@@ -100,8 +101,10 @@ public class WidgetSuggestionHelper {
                     if (node.get(nestedFieldName).size() == 0) {
                         widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                     } else {
-                        dataFields = collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
-                        widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName, dataFields.getFields(), dataFields.getNumericFields());
+                        dataFields = collectFieldsFromData(
+                                node.get(nestedFieldName).get(0).fields());
+                        widgetTypeList = getWidgetsForTypeNestedObject(
+                                nestedFieldName, dataFields.getFields(), dataFields.getNumericFields());
                     }
                 }
             } else if (JsonNodeType.NUMBER.equals(nodeType)) {
@@ -121,7 +124,7 @@ public class WidgetSuggestionHelper {
             List<String> fields = new ArrayList<>();
             List<String> numericFields = new ArrayList<>();
 
-            //Get all the fields from the object and check for the possible widget match
+            // Get all the fields from the object and check for the possible widget match
             for (Object key : fieldList) {
                 if (map.get(key) instanceof String) {
                     fields.add(((String) key));
@@ -202,9 +205,8 @@ public class WidgetSuggestionHelper {
      * When the response from the action is has nested data(Ex : Object containing array of fields) and only 1 level is supported
      * For nested data, the binding query changes from data.map() --> data.nestedFieldName.map()
      */
-    private static List<WidgetSuggestionDTO> getWidgetsForTypeNestedObject(String nestedFieldName,
-                                                                           List<String> fields,
-                                                                           List<String> numericFields) {
+    private static List<WidgetSuggestionDTO> getWidgetsForTypeNestedObject(
+            String nestedFieldName, List<String> fields, List<String> numericFields) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         /*
          * fields - contains all the fields inside the nested data and nested data is considered to only 1 level
@@ -214,12 +216,15 @@ public class WidgetSuggestionHelper {
          * */
         if (!fields.isEmpty()) {
             if (fields.size() < 2) {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
+                widgetTypeList.add(
+                        getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
             } else {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
+                widgetTypeList.add(
+                        getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
             }
             if (!numericFields.isEmpty()) {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
+                widgetTypeList.add(getWidgetNestedData(
+                        WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
             }
         }
         widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, nestedFieldName));
@@ -234,7 +239,8 @@ public class WidgetSuggestionHelper {
         return widgetSuggestionDTO;
     }
 
-    public static WidgetSuggestionDTO getWidgetNestedData(WidgetType widgetType, String nestedFieldName, Object... args) {
+    public static WidgetSuggestionDTO getWidgetNestedData(
+            WidgetType widgetType, String nestedFieldName, Object... args) {
         WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
         widgetSuggestionDTO.setType(widgetType);
         String query = String.format(widgetType.getMessage(), args);
@@ -244,5 +250,4 @@ public class WidgetSuggestionHelper {
         widgetSuggestionDTO.setBindingQuery(query);
         return widgetSuggestionDTO;
     }
-
 }

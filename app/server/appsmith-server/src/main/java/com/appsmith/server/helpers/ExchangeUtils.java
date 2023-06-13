@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.FieldName;
@@ -23,9 +24,11 @@ public class ExchangeUtils {
      */
     private static Mono<String> getHeaderFromCurrentRequest(String headerName) {
         return Mono.deferContextual(Mono::just)
-                .flatMap(contextView -> Mono.justOrEmpty(
-                        contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst(headerName)
-                ))
+                .flatMap(contextView -> Mono.justOrEmpty(contextView
+                        .get(ServerWebExchange.class)
+                        .getRequest()
+                        .getHeaders()
+                        .getFirst(headerName)))
                 // An error is thrown when the context is not available. We don't want to fail the request in this case.
                 .onErrorResume(error -> Mono.empty());
     }
@@ -38,13 +41,10 @@ public class ExchangeUtils {
      * @return a Mono that resolves to the value of the `X-Anonymous-User-Id` header, if present. Else, `FieldName.ANONYMOUS_USER`.
      */
     public static Mono<String> getAnonymousUserIdFromCurrentRequest() {
-        return getHeaderFromCurrentRequest(HEADER_ANONYMOUS_USER_ID)
-                .defaultIfEmpty(FieldName.ANONYMOUS_USER);
+        return getHeaderFromCurrentRequest(HEADER_ANONYMOUS_USER_ID).defaultIfEmpty(FieldName.ANONYMOUS_USER);
     }
 
     public static Mono<String> getUserAgentFromCurrentRequest() {
-        return getHeaderFromCurrentRequest(USER_AGENT)
-                .defaultIfEmpty("unavailable");
+        return getHeaderFromCurrentRequest(USER_AGENT).defaultIfEmpty("unavailable");
     }
-
 }

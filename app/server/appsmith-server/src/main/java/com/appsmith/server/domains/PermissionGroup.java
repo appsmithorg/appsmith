@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -23,8 +24,8 @@ public class PermissionGroup extends BaseDomain {
 
     String description;
 
-    //TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for 
-    //which we are auto creating this permission group.
+    // TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for
+    // which we are auto creating this permission group.
     @Deprecated
     String defaultWorkspaceId;
 

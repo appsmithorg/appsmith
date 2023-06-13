@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomApiTemplateRepositoryCEImpl;
@@ -9,7 +10,10 @@ import org.springframework.stereotype.Component;
 public class CustomApiTemplateRepositoryImpl extends CustomApiTemplateRepositoryCEImpl
         implements CustomApiTemplateRepository {
 
-    public CustomApiTemplateRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomApiTemplateRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,8 @@ public class ImportExportUtils {
         // TODO provide actionable insights for different error messages generated from import-export flow
         // Filter out transactional error as these are cryptic and don't provide much info on the error
         return throwable instanceof TransactionException
-                || throwable instanceof MongoTransactionException
-                || throwable instanceof InvalidDataAccessApiUsageException
+                        || throwable instanceof MongoTransactionException
+                        || throwable instanceof InvalidDataAccessApiUsageException
                 ? ""
                 : "Error: " + throwable.getMessage();
     }

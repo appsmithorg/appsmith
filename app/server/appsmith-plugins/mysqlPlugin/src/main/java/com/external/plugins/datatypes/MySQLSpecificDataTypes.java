@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.datatypes;
 
 import com.appsmith.external.datatypes.AppsmithType;
@@ -24,23 +25,16 @@ public class MySQLSpecificDataTypes {
 
         pluginSpecificTypes.put(ClientDataType.BOOLEAN, List.of(new MySQLBooleanType()));
 
-        pluginSpecificTypes.put(ClientDataType.NUMBER, List.of(
-                new IntegerType(),
-                new LongType(),
-                new DoubleType(),
-                new BigDecimalType()
-        ));
+        pluginSpecificTypes.put(
+                ClientDataType.NUMBER,
+                List.of(new IntegerType(), new LongType(), new DoubleType(), new BigDecimalType()));
 
         pluginSpecificTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType()));
 
-        pluginSpecificTypes.put(ClientDataType.STRING, List.of(
-                new TimeType(),
-                new MySQLDateType(),
-                new MySQLDateTimeType(),
-                new StringType()
-        ));
+        pluginSpecificTypes.put(
+                ClientDataType.STRING,
+                List.of(new TimeType(), new MySQLDateType(), new MySQLDateTimeType(), new StringType()));
 
         pluginSpecificTypes.put(ClientDataType.ARRAY, List.of(new StringType()));
     }
-
 }

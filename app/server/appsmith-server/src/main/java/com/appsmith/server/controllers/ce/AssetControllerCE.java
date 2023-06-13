@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -24,5 +25,4 @@ public class AssetControllerCE {
         exchange.getResponse().getHeaders().set(HttpHeaders.CACHE_CONTROL, "public, max-age=7776000, immutable");
         return service.makeImageResponse(exchange, id);
     }
-
 }

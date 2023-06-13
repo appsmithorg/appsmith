@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers;
 
 import lombok.AllArgsConstructor;
@@ -28,7 +29,8 @@ public class AppsmithBeanUtilsTest {
     }
 
     enum Gender {
-        Male, Female
+        Male,
+        Female
     }
 
     @Test
@@ -36,14 +38,7 @@ public class AppsmithBeanUtilsTest {
         Person source = new Person();
         source.setAge(30);
 
-        Person target = new Person(
-                "Luke",
-                25,
-                true,
-                LocalDate.of(2000, 1, 1),
-                Gender.Male,
-                null
-        );
+        Person target = new Person("Luke", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null);
 
         AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
@@ -65,15 +60,7 @@ public class AppsmithBeanUtilsTest {
                 true,
                 LocalDate.of(2000, 1, 1),
                 Gender.Male,
-                new Person(
-                        "Leia",
-                        25,
-                        true,
-                        LocalDate.of(2000, 1, 1),
-                        Gender.Male,
-                        null
-                )
-        );
+                new Person("Leia", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null));
 
         AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
@@ -87,14 +74,7 @@ public class AppsmithBeanUtilsTest {
         mentor.setName("The new mentor name");
         source.setMentor(mentor);
 
-        Person target = new Person(
-                "Luke",
-                25,
-                true,
-                LocalDate.of(2000, 1, 1),
-                Gender.Male,
-                null
-        );
+        Person target = new Person("Luke", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null);
 
         AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
@@ -106,14 +86,7 @@ public class AppsmithBeanUtilsTest {
         Person source = new Person();
         source.setGender(Gender.Female);
 
-        Person target = new Person(
-                "Luke",
-                25,
-                true,
-                LocalDate.of(2000, 1, 1),
-                Gender.Male,
-                null
-        );
+        Person target = new Person("Luke", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null);
 
         AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
@@ -122,5 +95,4 @@ public class AppsmithBeanUtilsTest {
         assertThat(target.getJoinDate()).isEqualTo(LocalDate.of(2000, 1, 1));
         assertThat(target.getGender()).isEqualTo(Gender.Female);
     }
-
 }

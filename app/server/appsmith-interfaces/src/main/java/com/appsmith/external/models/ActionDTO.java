@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.ErrorDTO;
@@ -6,12 +7,10 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -70,7 +69,7 @@ public class ActionDTO implements Identifiable {
     @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;
 
-    //this attribute carries error messages while processing the actionCollection
+    // this attribute carries error messages while processing the actionCollection
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Transient
     @JsonView(Views.Public.class)
@@ -102,7 +101,6 @@ public class ActionDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Set<String> messages = new HashSet<>();
 
-
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -114,11 +112,11 @@ public class ActionDTO implements Identifiable {
 
     @Transient
     @JsonView(Views.Public.class)
-    String templateId; //If action is created via a template, store the id here.
+    String templateId; // If action is created via a template, store the id here.
 
     @Transient
     @JsonView(Views.Public.class)
-    String providerId; //If action is created via a template, store the template's provider id here.
+    String providerId; // If action is created via a template, store the template's provider id here.
 
     @Transient
     @JsonView(Views.Public.class)

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.documenttype.DocumentType;
@@ -21,6 +22,5 @@ public class BasicAuth extends AuthenticationDTO {
     String username;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Encrypted
-    String password;
+    @Encrypted String password;
 }

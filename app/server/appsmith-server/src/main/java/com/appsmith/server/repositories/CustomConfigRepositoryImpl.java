@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomConfigRepositoryCEImpl;
@@ -8,7 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomConfigRepositoryImpl extends CustomConfigRepositoryCEImpl implements CustomConfigRepository {
 
-    public CustomConfigRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomConfigRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

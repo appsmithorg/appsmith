@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
@@ -17,8 +18,7 @@ public enum PostgresPluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     POSTGRES_PLUGIN_ERROR(
             500,
             "PE-PGS-5001",
@@ -27,8 +27,7 @@ public enum PostgresPluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     RESPONSE_SIZE_TOO_LARGE(
             504,
             "PE-PGS-5009",
@@ -37,8 +36,7 @@ public enum PostgresPluginError implements BasePluginError {
             "Large Result Set Not Supported",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     ;
     private final Integer httpErrorCode;
     private final String appErrorCode;
@@ -51,8 +49,15 @@ public enum PostgresPluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    PostgresPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                        String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    PostgresPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -67,7 +72,9 @@ public enum PostgresPluginError implements BasePluginError {
         return new MessageFormat(this.message).format(args);
     }
 
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 
     public String getDownstreamErrorMessage(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorMessage, args);

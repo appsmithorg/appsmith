@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomServerOAuth2AuthorizationRequestResolverCE;
@@ -26,11 +27,15 @@ public class CustomServerOAuth2AuthorizationRequestResolver extends CustomServer
      * @param commonConfig
      * @param redirectHelper
      */
-    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                          CommonConfig commonConfig,
-                                                          RedirectHelper redirectHelper) {
-        this(clientRegistrationRepository, new PathPatternParserServerWebExchangeMatcher(
-                DEFAULT_AUTHORIZATION_REQUEST_PATTERN), commonConfig, redirectHelper);
+    public CustomServerOAuth2AuthorizationRequestResolver(
+            ReactiveClientRegistrationRepository clientRegistrationRepository,
+            CommonConfig commonConfig,
+            RedirectHelper redirectHelper) {
+        this(
+                clientRegistrationRepository,
+                new PathPatternParserServerWebExchangeMatcher(DEFAULT_AUTHORIZATION_REQUEST_PATTERN),
+                commonConfig,
+                redirectHelper);
     }
 
     /**
@@ -41,10 +46,11 @@ public class CustomServerOAuth2AuthorizationRequestResolver extends CustomServer
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
      * @param redirectHelper
      */
-    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                          ServerWebExchangeMatcher authorizationRequestMatcher,
-                                                          CommonConfig commonConfig,
-                                                          RedirectHelper redirectHelper) {
+    public CustomServerOAuth2AuthorizationRequestResolver(
+            ReactiveClientRegistrationRepository clientRegistrationRepository,
+            ServerWebExchangeMatcher authorizationRequestMatcher,
+            CommonConfig commonConfig,
+            RedirectHelper redirectHelper) {
         super(clientRegistrationRepository, authorizationRequestMatcher, commonConfig, redirectHelper);
         this.redirectHelper = redirectHelper;
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");

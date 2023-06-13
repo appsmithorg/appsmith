@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.fasterxml.jackson.databind.JsonNode;

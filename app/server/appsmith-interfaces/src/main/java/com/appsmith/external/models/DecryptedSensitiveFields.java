@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -14,25 +15,25 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 public class DecryptedSensitiveFields {
-    
+
     String password;
-    
+
     String token;
-    
+
     String refreshToken;
-    
+
     Object tokenResponse;
-    
+
     String authType;
-    
+
     DBAuth dbAuth;
-    
+
     BasicAuth basicAuth;
-    
+
     OAuth2 openAuth2;
 
     BearerTokenAuth bearerTokenAuth;
-    
+
     public DecryptedSensitiveFields(AuthenticationResponse authResponse) {
         this.token = authResponse.getToken();
         this.refreshToken = authResponse.getRefreshToken();

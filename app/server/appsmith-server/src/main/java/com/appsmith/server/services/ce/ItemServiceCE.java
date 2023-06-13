@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -12,5 +13,4 @@ public interface ItemServiceCE {
     Flux<ItemDTO> get(MultiValueMap<String, String> params);
 
     Mono<ActionDTO> addItemToPage(AddItemToPageDTO addItemToPageDTO);
-
 }

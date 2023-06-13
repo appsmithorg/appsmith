@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
@@ -19,5 +20,4 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
 
     Mono<Boolean> isUsersEmpty();
-
 }

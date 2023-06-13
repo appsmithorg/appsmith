@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.server.domains.ce.DatasourceContextIdentifierCE;
@@ -13,5 +14,4 @@ public class DatasourceContextIdentifier extends DatasourceContextIdentifierCE {
     public DatasourceContextIdentifier(String datasourceId, String environmentId) {
         super(datasourceId, environmentId);
     }
-
 }

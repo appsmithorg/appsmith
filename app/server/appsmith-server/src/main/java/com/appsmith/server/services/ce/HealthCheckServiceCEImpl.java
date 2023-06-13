@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.exceptions.AppsmithError;
@@ -15,23 +16,22 @@ import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-
 @Slf4j
 public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
 
     private final ReactiveRedisConnectionFactory reactiveRedisConnectionFactory;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
-    public HealthCheckServiceCEImpl(ReactiveRedisConnectionFactory reactiveRedisConnectionFactory,
-                                    ReactiveMongoTemplate reactiveMongoTemplate) {
+    public HealthCheckServiceCEImpl(
+            ReactiveRedisConnectionFactory reactiveRedisConnectionFactory,
+            ReactiveMongoTemplate reactiveMongoTemplate) {
         this.reactiveRedisConnectionFactory = reactiveRedisConnectionFactory;
         this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
 
     @Override
     public Mono<String> getHealth() {
-        return Mono.zip(getRedisHealth(), getMongoHealth())
-                .map(tuple -> "All systems are Up");
+        return Mono.zip(getRedisHealth(), getMongoHealth()).map(tuple -> "All systems are Up");
     }
 
     @Override
@@ -40,8 +40,12 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
             log.warn("Redis health check timed out: {}", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Redis");
         };
-        RedisReactiveHealthIndicator redisReactiveHealthIndicator = new RedisReactiveHealthIndicator(reactiveRedisConnectionFactory);
-        return redisReactiveHealthIndicator.health().timeout(Duration.ofSeconds(3)).onErrorMap(TimeoutException.class, healthTimeout);
+        RedisReactiveHealthIndicator redisReactiveHealthIndicator =
+                new RedisReactiveHealthIndicator(reactiveRedisConnectionFactory);
+        return redisReactiveHealthIndicator
+                .health()
+                .timeout(Duration.ofSeconds(3))
+                .onErrorMap(TimeoutException.class, healthTimeout);
     }
 
     @Override
@@ -50,8 +54,12 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
             log.warn("MongoDB health check timed out: {}", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Mongo");
         };
-        MongoReactiveHealthIndicator mongoReactiveHealthIndicator = new MongoReactiveHealthIndicator(reactiveMongoTemplate);
-        return mongoReactiveHealthIndicator.health().timeout(Duration.ofSeconds(1)).onErrorMap(TimeoutException.class, healthTimeout);
+        MongoReactiveHealthIndicator mongoReactiveHealthIndicator =
+                new MongoReactiveHealthIndicator(reactiveMongoTemplate);
+        return mongoReactiveHealthIndicator
+                .health()
+                .timeout(Duration.ofSeconds(1))
+                .onErrorMap(TimeoutException.class, healthTimeout);
     }
 
     private boolean isUp(Health health) {

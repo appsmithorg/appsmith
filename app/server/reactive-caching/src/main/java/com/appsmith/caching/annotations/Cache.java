@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.caching.annotations;
 
 import java.lang.annotation.ElementType;
@@ -22,5 +23,4 @@ public @interface Cache {
      * All method arguments can be used in the expression
      */
     String key() default "";
-    
 }

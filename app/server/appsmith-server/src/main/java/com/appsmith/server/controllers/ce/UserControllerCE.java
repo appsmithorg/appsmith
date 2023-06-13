@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -40,7 +41,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 
-
 @RequestMapping(Url.USER_URL)
 @Slf4j
 public class UserControllerCE extends BaseController<UserService, User, String> {
@@ -52,12 +52,13 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     private final UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
-    public UserControllerCE(UserService service,
-                            SessionUserService sessionUserService,
-                            UserWorkspaceService userWorkspaceService,
-                            UserSignup userSignup,
-                            UserDataService userDataService,
-                            UserAndAccessManagementService userAndAccessManagementService) {
+    public UserControllerCE(
+            UserService service,
+            SessionUserService sessionUserService,
+            UserWorkspaceService userWorkspaceService,
+            UserSignup userSignup,
+            UserDataService userDataService,
+            UserAndAccessManagementService userAndAccessManagementService) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userWorkspaceService = userWorkspaceService;
@@ -69,10 +70,12 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     @JsonView(Views.Public.class)
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
-                                          @RequestHeader(name = "Origin", required = false) String originHeader,
-                                          ServerWebExchange exchange) {
-        return userSignup.signupAndLogin(resource, exchange)
+    public Mono<ResponseDTO<User>> create(
+            @Valid @RequestBody User resource,
+            @RequestHeader(name = "Origin", required = false) String originHeader,
+            ServerWebExchange exchange) {
+        return userSignup
+                .signupAndLogin(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -84,17 +87,20 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping(value = "/super", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(
+            value = "/super",
+            consumes = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseDTO<User>> createSuperUser(
-            @Valid @RequestBody UserSignupRequestDTO resource,
-            ServerWebExchange exchange
-    ) {
-        return userSignup.signupAndLoginSuper(resource, exchange)
+            @Valid @RequestBody UserSignupRequestDTO resource, ServerWebExchange exchange) {
+        return userSignup
+                .signupAndLoginSuper(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping(value = "/super", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    @PostMapping(
+            value = "/super",
+            consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public Mono<Void> createSuperUserFromFormData(ServerWebExchange exchange) {
         return userSignup.signupAndLoginSuperFromFormData(exchange);
     }
@@ -109,7 +115,8 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     @JsonView(Views.Public.class)
     @PutMapping("/leaveWorkspace/{workspaceId}")
     public Mono<ResponseDTO<User>> leaveWorkspace(@PathVariable String workspaceId) {
-        return userWorkspaceService.leaveWorkspace(workspaceId)
+        return userWorkspaceService
+                .leaveWorkspace(workspaceId)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
@@ -123,8 +130,8 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
      */
     @JsonView(Views.Public.class)
     @PostMapping("/forgotPassword")
-    public Mono<ResponseDTO<Boolean>> forgotPasswordRequest(@RequestBody ResetUserPasswordDTO userPasswordDTO,
-                                                            @RequestHeader("Origin") String originHeader) {
+    public Mono<ResponseDTO<Boolean>> forgotPasswordRequest(
+            @RequestBody ResetUserPasswordDTO userPasswordDTO, @RequestHeader("Origin") String originHeader) {
         userPasswordDTO.setBaseUrl(originHeader);
         // We shouldn't leak information on whether this operation was successful or not to the client. This can enable
         // username scraping, where the response of this API can prove whether an email has an account or not.
@@ -143,7 +150,8 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
 
     @JsonView(Views.Public.class)
     @PutMapping("/resetPassword")
-    public Mono<ResponseDTO<Boolean>> resetPasswordAfterForgotPassword(@RequestBody ResetUserPasswordDTO userPasswordDTO) {
+    public Mono<ResponseDTO<Boolean>> resetPasswordAfterForgotPassword(
+            @RequestBody ResetUserPasswordDTO userPasswordDTO) {
         return service.resetPasswordAfterForgotPassword(userPasswordDTO.getToken(), userPasswordDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
@@ -151,7 +159,8 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     @JsonView(Views.Public.class)
     @GetMapping("/me")
     public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
-        return sessionUserService.getCurrentUser()
+        return sessionUserService
+                .getCurrentUser()
                 .flatMap(service::buildUserProfileDTO)
                 .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
     }
@@ -166,16 +175,18 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
      */
     @JsonView(Views.Public.class)
     @PostMapping("/invite")
-    public Mono<ResponseDTO<List<User>>> inviteUsers(@RequestBody InviteUsersDTO inviteUsersDTO,
-                                                     @RequestHeader("Origin") String originHeader) {
-        return userAndAccessManagementService.inviteUsers(inviteUsersDTO, originHeader)
+    public Mono<ResponseDTO<List<User>>> inviteUsers(
+            @RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
+        return userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/setReleaseNotesViewed")
     public Mono<ResponseDTO<Void>> setReleaseNotesViewed() {
-        return sessionUserService.getCurrentUser()
+        return sessionUserService
+                .getCurrentUser()
                 .flatMap(userDataService::setViewedCurrentVersionReleaseNotes)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
@@ -183,8 +194,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<UserData>> uploadProfilePhoto(@RequestPart("file") Mono<Part> fileMono) {
-        return fileMono
-                .flatMap(userDataService::saveProfilePhoto)
+        return fileMono.flatMap(userDataService::saveProfilePhoto)
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
 
@@ -199,25 +209,24 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     @JsonView(Views.Public.class)
     @GetMapping("/photo")
     public Mono<Void> getProfilePhoto(ServerWebExchange exchange) {
-        return userDataService.makeProfilePhotoResponse(exchange)
-                .switchIfEmpty(Mono.fromRunnable(() -> {
-                    exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
-                }));
+        return userDataService.makeProfilePhotoResponse(exchange).switchIfEmpty(Mono.fromRunnable(() -> {
+            exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
+        }));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/photo/{email}")
     public Mono<Void> getProfilePhoto(ServerWebExchange exchange, @PathVariable String email) {
-        return userDataService.makeProfilePhotoResponse(exchange, email)
-                .switchIfEmpty(Mono.fromRunnable(() -> {
-                    exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
-                }));
+        return userDataService.makeProfilePhotoResponse(exchange, email).switchIfEmpty(Mono.fromRunnable(() -> {
+            exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
+        }));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/features")
     public Mono<ResponseDTO<Map<String, Boolean>>> getFeatureFlags() {
-        return userDataService.getFeatureFlagsForCurrentUser()
+        return userDataService
+                .getFeatureFlagsForCurrentUser()
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 }

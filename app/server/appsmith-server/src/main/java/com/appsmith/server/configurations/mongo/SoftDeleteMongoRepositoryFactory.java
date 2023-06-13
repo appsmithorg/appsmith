@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations.mongo;
 
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -19,10 +20,9 @@ public class SoftDeleteMongoRepositoryFactory extends ReactiveMongoRepositoryFac
     }
 
     @Override
-    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key,
-                                                                   QueryMethodEvaluationContextProvider evaluationContextProvider) {
-        Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key,
-                evaluationContextProvider);
+    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(
+            QueryLookupStrategy.Key key, QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key, evaluationContextProvider);
         return optStrategy.map(this::createSoftDeleteQueryLookupStrategy);
     }
 

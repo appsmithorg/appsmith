@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.constants;
 
 /**
@@ -6,6 +7,5 @@ package com.appsmith.server.constants;
 public class ConfigNames {
 
     // Disallow instantiation of this class.
-    private ConfigNames() {
-    }
+    private ConfigNames() {}
 }

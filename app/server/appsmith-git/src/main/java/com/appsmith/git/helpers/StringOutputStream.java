@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.git.helpers;
 
 import java.io.IOException;
@@ -8,7 +9,7 @@ public class StringOutputStream extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        this.string.append((char) b );
+        this.string.append((char) b);
     }
 
     public String toString() {

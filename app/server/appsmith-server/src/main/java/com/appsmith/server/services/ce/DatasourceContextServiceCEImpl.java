@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.dtos.ExecutePluginDTO;
@@ -26,7 +27,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-
 @Slf4j
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
@@ -42,12 +42,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final DatasourcePermission datasourcePermission;
 
     @Autowired
-    public DatasourceContextServiceCEImpl(@Lazy DatasourceService datasourceService,
-                                          DatasourceStorageService datasourceStorageService,
-                                          PluginService pluginService,
-                                          PluginExecutorHelper pluginExecutorHelper,
-                                          ConfigService configService,
-                                          DatasourcePermission datasourcePermission) {
+    public DatasourceContextServiceCEImpl(
+            @Lazy DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            PluginService pluginService,
+            PluginExecutorHelper pluginExecutorHelper,
+            ConfigService configService,
+            DatasourcePermission datasourcePermission) {
         this.datasourceService = datasourceService;
         this.datasourceStorageService = datasourceStorageService;
         this.pluginService = pluginService;
@@ -76,17 +77,19 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
-    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(DatasourceStorage datasourceStorage,
-                                                                               PluginExecutor<Object> pluginExecutor,
-                                                                               Object monitor,
-                                                                               DatasourceContextIdentifier datasourceContextIdentifier) {
+    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(
+            DatasourceStorage datasourceStorage,
+            PluginExecutor<Object> pluginExecutor,
+            Object monitor,
+            DatasourceContextIdentifier datasourceContextIdentifier) {
         synchronized (monitor) {
             /* Destroy any connection that is stale or in error state to free up resource */
             final boolean isStale = getIsStale(datasourceStorage, datasourceContextIdentifier);
             final boolean isInErrorState = getIsInErrorState(datasourceContextIdentifier);
 
             if (isStale || isInErrorState) {
-                final Object connection = datasourceContextMap.get(datasourceContextIdentifier).getConnection();
+                final Object connection =
+                        datasourceContextMap.get(datasourceContextIdentifier).getConnection();
                 if (connection != null) {
                     try {
                         // Basically remove entry from both cache maps
@@ -113,12 +116,14 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             /* Create a fresh datasource context */
             DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
             if (datasourceContextIdentifier.isKeyValid()) {
-            /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
-            the new connection in the context map. */
+                /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
+                the new connection in the context map. */
                 datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
             }
 
-            Mono<Object> connectionMonoCache = pluginExecutor.datasourceCreate(datasourceStorage.getDatasourceConfiguration()).cache();
+            Mono<Object> connectionMonoCache = pluginExecutor
+                    .datasourceCreate(datasourceStorage.getDatasourceConfiguration())
+                    .cache();
 
             Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache
                     .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, datasourceStorage))
@@ -129,8 +134,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         return datasourceContext;
                     })
                     .defaultIfEmpty(
-                        /* When a connection object doesn't make sense for the plugin, we get an empty mono
-                        and we just return the context object as is. */
+                            /* When a connection object doesn't make sense for the plugin, we get an empty mono
+                            and we just return the context object as is. */
                             datasourceContext)
                     .cache(); /* Cache the value so that further evaluations don't result in new connections */
 
@@ -147,51 +152,58 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             datasourceStorage.setUpdatedAt(Instant.now());
             datasourceStorage
                     .getDatasourceConfiguration()
-                    .setAuthentication(
-                            ((UpdatableConnection) connection).getAuthenticationDTO(
-                                    datasourceStorage.getDatasourceConfiguration().getAuthentication()));
+                    .setAuthentication(((UpdatableConnection) connection)
+                            .getAuthenticationDTO(datasourceStorage
+                                    .getDatasourceConfiguration()
+                                    .getAuthentication()));
             datasourceStorageMono = datasourceStorageService.save(datasourceStorage);
         }
         return datasourceStorageMono.thenReturn(connection);
     }
 
-    protected Mono<DatasourceContext<?>> createNewDatasourceContext(DatasourceStorage datasourceStorage,
-                                                                    DatasourceContextIdentifier datasourceContextIdentifier) {
+    protected Mono<DatasourceContext<?>> createNewDatasourceContext(
+            DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
         log.debug("Datasource context doesn't exist. Creating connection.");
         Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
 
-        return pluginExecutorHelper.getPluginExecutor(pluginMono)
-                .flatMap(pluginExecutor -> {
+        return pluginExecutorHelper.getPluginExecutor(pluginMono).flatMap(pluginExecutor -> {
 
-                    /**
-                     * Keep one monitor object against each datasource id. The synchronized method
-                     * `getCachedDatasourceContextMono` would then acquire lock on the monitor object which is unique
-                     * for each datasourceId hence ensuring that if competing threads want to create datasource context
-                     * on different datasource id then they are not blocked on each other and can run concurrently.
-                     * Only threads that want to create a new datasource context on the same datasource id would be
-                     * synchronized.
-                     */
-                    Object monitor = new Object();
-                    if (datasourceContextIdentifier.isKeyValid()) {
-                        if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
-                            synchronized (this) {
-                                datasourceContextSynchronizationMonitorMap.computeIfAbsent(datasourceContextIdentifier, k -> new Object());
-                            }
-                        }
-
-                        monitor = datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier);
+            /**
+             * Keep one monitor object against each datasource id. The synchronized method
+             * `getCachedDatasourceContextMono` would then acquire lock on the monitor object which is unique
+             * for each datasourceId hence ensuring that if competing threads want to create datasource context
+             * on different datasource id then they are not blocked on each other and can run concurrently.
+             * Only threads that want to create a new datasource context on the same datasource id would be
+             * synchronized.
+             */
+            Object monitor = new Object();
+            if (datasourceContextIdentifier.isKeyValid()) {
+                if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
+                    synchronized (this) {
+                        datasourceContextSynchronizationMonitorMap.computeIfAbsent(
+                                datasourceContextIdentifier, k -> new Object());
                     }
+                }
 
-                    return getCachedDatasourceContextMono(datasourceStorage, pluginExecutor, monitor, datasourceContextIdentifier);
-                });
+                monitor = datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier);
+            }
+
+            return getCachedDatasourceContextMono(
+                    datasourceStorage, pluginExecutor, monitor, datasourceContextIdentifier);
+        });
     }
 
-    public boolean getIsStale(DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
+    public boolean getIsStale(
+            DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
         String datasourceId = datasourceStorage.getDatasourceId();
         return datasourceId != null
                 && datasourceContextMap.get(datasourceContextIdentifier) != null
                 && datasourceStorage.getUpdatedAt() != null
-                && datasourceStorage.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceContextIdentifier).getCreationTime());
+                && datasourceStorage
+                        .getUpdatedAt()
+                        .isAfter(datasourceContextMap
+                                .get(datasourceContextIdentifier)
+                                .getCreationTime());
     }
 
     /**
@@ -202,11 +214,14 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      */
     private boolean getIsInErrorState(DatasourceContextIdentifier datasourceContextIdentifier) {
         return datasourceContextMonoMap.get(datasourceContextIdentifier) != null
-                && datasourceContextMonoMap.get(datasourceContextIdentifier).toFuture().isCompletedExceptionally();
+                && datasourceContextMonoMap
+                        .get(datasourceContextIdentifier)
+                        .toFuture()
+                        .isCompletedExceptionally();
     }
 
-    public boolean isValidDatasourceContextAvailable(DatasourceStorage datasourceStorage,
-                                                     DatasourceContextIdentifier datasourceContextIdentifier) {
+    public boolean isValidDatasourceContextAvailable(
+            DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
         boolean isStale = getIsStale(datasourceStorage, datasourceContextIdentifier);
         boolean isInErrorState = getIsInErrorState(datasourceContextIdentifier);
         return datasourceContextMap.get(datasourceContextIdentifier) != null
@@ -223,8 +238,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         DatasourceContextIdentifier datasourceContextIdentifier =
                 this.initializeDatasourceContextIdentifier(datasourceStorage);
         if (datasourceId == null) {
-            log.debug("This is a dry run or an embedded datasourceStorage. The datasourceStorage context would not exist in this " +
-                    "scenario");
+            log.debug(
+                    "This is a dry run or an embedded datasourceStorage. The datasourceStorage context would not exist in this "
+                            + "scenario");
         } else {
             if (isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier)) {
                 log.debug("Resource context exists. Returning the same.");
@@ -235,26 +251,24 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage,
-                                 Function<DatasourceContext<?>, Mono<T>> task) {
+    public <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage, Function<DatasourceContext<?>, Mono<T>> task) {
 
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasourceStorage)
                 .flatMap(this::getDatasourceContext)
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);
 
-        return taskRunnerMono
-                .onErrorResume(StaleConnectionException.class, error -> {
-                    log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                    return deleteDatasourceContext(datasourceStorage)
-                            .then(taskRunnerMono);
-                });
+        return taskRunnerMono.onErrorResume(StaleConnectionException.class, error -> {
+            log.info("Looks like the connection is stale. Retrying with a fresh context.");
+            return deleteDatasourceContext(datasourceStorage).then(taskRunnerMono);
+        });
     }
 
     @Override
     public Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceStorage datasourceStorage) {
 
-        DatasourceContextIdentifier datasourceContextIdentifier = initializeDatasourceContextIdentifier(datasourceStorage);
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                initializeDatasourceContextIdentifier(datasourceStorage);
         if (!datasourceContextIdentifier.isKeyValid()) {
             return Mono.empty();
         }
@@ -264,7 +278,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             // No resource context exists for this resource. Return void.
             return Mono.empty();
         }
-        return pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
+        return pluginExecutorHelper
+                .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .map(pluginExecutor -> {
                     log.info("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
@@ -293,21 +308,18 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     public Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, DatasourceStorage datasourceStorage) {
         final DatasourceContext<ExecutePluginDTO> datasourceContext = new DatasourceContext<>();
 
-        return configService.getInstanceId()
-                .map(instanceId -> {
-                    ExecutePluginDTO executePluginDTO = new ExecutePluginDTO();
-                    executePluginDTO.setInstallationKey(instanceId);
-                    executePluginDTO.setPluginName(plugin.getPluginName());
-                    executePluginDTO.setPluginVersion(plugin.getVersion());
-                    executePluginDTO.setDatasource(new RemoteDatasourceDTO(
-                            datasourceStorage.getDatasourceId(),
-                            datasourceStorage.getDatasourceConfiguration()));
-                    datasourceContext.setConnection(executePluginDTO);
+        return configService.getInstanceId().map(instanceId -> {
+            ExecutePluginDTO executePluginDTO = new ExecutePluginDTO();
+            executePluginDTO.setInstallationKey(instanceId);
+            executePluginDTO.setPluginName(plugin.getPluginName());
+            executePluginDTO.setPluginVersion(plugin.getVersion());
+            executePluginDTO.setDatasource(new RemoteDatasourceDTO(
+                    datasourceStorage.getDatasourceId(), datasourceStorage.getDatasourceConfiguration()));
+            datasourceContext.setConnection(executePluginDTO);
 
-                    return datasourceContext;
-                });
+            return datasourceContext;
+        });
     }
-
 
     /**
      * Generates the custom key that is used in:

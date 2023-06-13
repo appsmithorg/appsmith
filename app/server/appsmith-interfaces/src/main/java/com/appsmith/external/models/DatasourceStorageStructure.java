@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
@@ -22,5 +23,4 @@ public class DatasourceStorageStructure extends BaseDomain {
 
     @JsonView(Views.Internal.class)
     private DatasourceStructure structure;
-
 }

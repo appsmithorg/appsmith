@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -12,17 +13,26 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolution {
+public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEImpl
+        implements DatasourceTriggerSolution {
 
-    public DatasourceTriggerSolutionImpl(DatasourceService datasourceService,
-                                         DatasourceStorageService datasourceStorageService,
-                                         PluginExecutorHelper pluginExecutorHelper,
-                                         PluginService pluginService,
-                                         DatasourceStructureSolution datasourceStructureSolution,
-                                         AuthenticationValidator authenticationValidator,
-                                         DatasourceContextService datasourceContextService,
-                                         DatasourcePermission datasourcePermission) {
-        super(datasourceService, datasourceStorageService, pluginExecutorHelper, pluginService,
-                datasourceStructureSolution, authenticationValidator, datasourceContextService, datasourcePermission);
+    public DatasourceTriggerSolutionImpl(
+            DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            PluginExecutorHelper pluginExecutorHelper,
+            PluginService pluginService,
+            DatasourceStructureSolution datasourceStructureSolution,
+            AuthenticationValidator authenticationValidator,
+            DatasourceContextService datasourceContextService,
+            DatasourcePermission datasourcePermission) {
+        super(
+                datasourceService,
+                datasourceStorageService,
+                pluginExecutorHelper,
+                pluginService,
+                datasourceStructureSolution,
+                authenticationValidator,
+                datasourceContextService,
+                datasourcePermission);
     }
 }

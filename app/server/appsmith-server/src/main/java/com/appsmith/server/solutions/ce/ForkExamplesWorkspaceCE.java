@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
@@ -9,19 +10,15 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-
 public interface ForkExamplesWorkspaceCE {
 
     Mono<Workspace> forkExamplesWorkspace();
 
     Mono<Workspace> forkWorkspaceForUser(
-            String templateWorkspaceId,
-            User user,
-            Flux<Application> applicationFlux,
-            Flux<Datasource> datasourceFlux
-    );
+            String templateWorkspaceId, User user, Flux<Application> applicationFlux, Flux<Datasource> datasourceFlux);
 
-    Mono<List<String>> forkApplications(String toWorkspaceId, Flux<Application> applicationFlux, String sourceEnvironmentId);
+    Mono<List<String>> forkApplications(
+            String toWorkspaceId, Flux<Application> applicationFlux, String sourceEnvironmentId);
 
     Mono<List<String>> forkApplications(
             String toWorkspaceId,

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
@@ -10,9 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PostmanImporterServiceImpl extends PostmanImporterServiceCEImpl implements PostmanImporterService {
 
-    public PostmanImporterServiceImpl(NewPageService newPageService,
-                                      ResponseUtils responseUtils,
-                                      PagePermission pagePermission) {
+    public PostmanImporterServiceImpl(
+            NewPageService newPageService, ResponseUtils responseUtils, PagePermission pagePermission) {
         super(newPageService, responseUtils, pagePermission);
     }
 }

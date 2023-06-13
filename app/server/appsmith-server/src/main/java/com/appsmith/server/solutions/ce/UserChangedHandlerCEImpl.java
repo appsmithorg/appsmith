@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
@@ -32,9 +33,7 @@ public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
         final User user = event.getUser();
         log.debug("Handling user document changes {}", user);
 
-        updateNameInUserRoles(user)
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
+        updateNameInUserRoles(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
     }
 
     private Mono<Void> updateNameInUserRoles(User user) {

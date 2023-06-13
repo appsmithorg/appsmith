@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -21,28 +22,44 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ForkExamplesWorkspaceServiceImpl extends ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace {
+public class ForkExamplesWorkspaceServiceImpl extends ForkExamplesWorkspaceServiceCEImpl
+        implements ForkExamplesWorkspace {
 
-    public ForkExamplesWorkspaceServiceImpl(WorkspaceService workspaceService,
-                                            WorkspaceRepository workspaceRepository,
-                                            DatasourceService datasourceService,
-                                            DatasourceStorageService datasourceStorageService,
-                                            DatasourceRepository datasourceRepository,
-                                            ConfigService configService,
-                                            SessionUserService sessionUserService,
-                                            UserService userService,
-                                            ApplicationService applicationService,
-                                            ApplicationPageService applicationPageService,
-                                            NewPageRepository newPageRepository,
-                                            NewActionService newActionService,
-                                            LayoutActionService layoutActionService,
-                                            ActionCollectionService actionCollectionService,
-                                            ThemeService themeService,
-                                            ApplicationPermission applicationPermission,
-                                            PagePermission pagePermission) {
-        super(workspaceService, workspaceRepository, datasourceService, datasourceStorageService, datasourceRepository,
-                configService, sessionUserService, userService, applicationService, applicationPageService,
-                newPageRepository, newActionService, layoutActionService, actionCollectionService, themeService,
-                applicationPermission, pagePermission);
+    public ForkExamplesWorkspaceServiceImpl(
+            WorkspaceService workspaceService,
+            WorkspaceRepository workspaceRepository,
+            DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            DatasourceRepository datasourceRepository,
+            ConfigService configService,
+            SessionUserService sessionUserService,
+            UserService userService,
+            ApplicationService applicationService,
+            ApplicationPageService applicationPageService,
+            NewPageRepository newPageRepository,
+            NewActionService newActionService,
+            LayoutActionService layoutActionService,
+            ActionCollectionService actionCollectionService,
+            ThemeService themeService,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission) {
+        super(
+                workspaceService,
+                workspaceRepository,
+                datasourceService,
+                datasourceStorageService,
+                datasourceRepository,
+                configService,
+                sessionUserService,
+                userService,
+                applicationService,
+                applicationPageService,
+                newPageRepository,
+                newActionService,
+                layoutActionService,
+                actionCollectionService,
+                themeService,
+                applicationPermission,
+                pagePermission);
     }
 }

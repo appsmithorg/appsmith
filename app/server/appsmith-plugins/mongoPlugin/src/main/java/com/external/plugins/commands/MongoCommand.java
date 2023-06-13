@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins.commands;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -54,14 +55,20 @@ public abstract class MongoCommand {
     }
 
     public Document parseCommand() {
-        throw new AppsmithPluginException(MongoPluginError.UNSUPPORTED_OPERATION, MongoPluginErrorMessages.UNSUPPORTED_OPERATION_PARSE_COMMAND_ERROR_MSG);
+        throw new AppsmithPluginException(
+                MongoPluginError.UNSUPPORTED_OPERATION,
+                MongoPluginErrorMessages.UNSUPPORTED_OPERATION_PARSE_COMMAND_ERROR_MSG);
     }
 
     public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
-        throw new AppsmithPluginException(MongoPluginError.UNSUPPORTED_OPERATION, MongoPluginErrorMessages.UNSUPPORTED_OPERATION_GENERATE_TEMPLATE_ERROR_MSG);
+        throw new AppsmithPluginException(
+                MongoPluginError.UNSUPPORTED_OPERATION,
+                MongoPluginErrorMessages.UNSUPPORTED_OPERATION_GENERATE_TEMPLATE_ERROR_MSG);
     }
 
     public String getRawQuery() {
-        throw new AppsmithPluginException(MongoPluginError.UNSUPPORTED_OPERATION, MongoPluginErrorMessages.UNSUPPORTED_OPERATION_GET_RAW_QUERY_ERROR_MSG);
+        throw new AppsmithPluginException(
+                MongoPluginError.UNSUPPORTED_OPERATION,
+                MongoPluginErrorMessages.UNSUPPORTED_OPERATION_GET_RAW_QUERY_ERROR_MSG);
     }
 }

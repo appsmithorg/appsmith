@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -15,5 +16,4 @@ public class GitController extends GitControllerCE {
     public GitController(GitService service) {
         super(service);
     }
-
 }

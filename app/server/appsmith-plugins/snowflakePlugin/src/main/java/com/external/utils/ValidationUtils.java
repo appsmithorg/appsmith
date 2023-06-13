@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -29,8 +30,8 @@ public class ValidationUtils {
      * @param connection - Connection object to execute query
      * @return A set of error statements in case the query result contains any null / empty value.
      */
-    public static Set<String> validateWarehouseDatabaseSchema(Connection connection) throws StaleConnectionException,
-            AppsmithPluginException {
+    public static Set<String> validateWarehouseDatabaseSchema(Connection connection)
+            throws StaleConnectionException, AppsmithPluginException {
         Set<String> invalids = new HashSet<>();
 
         // Check database validity.
@@ -60,8 +61,9 @@ public class ValidationUtils {
     // Construct error message string.
     private static String getWarehouseDatabaseSchemaErrorMessage(String key) {
         String fieldName = StringUtils.capitalize(key.toLowerCase());
-        return "Appsmith could not find any valid " + key.toLowerCase() + " configured for this datasource. " +
-                "Please provide a valid " + key.toLowerCase() + " by editing the " + fieldName + " field in the " +
-                "datasource configuration page.";
+        return "Appsmith could not find any valid " + key.toLowerCase() + " configured for this datasource. "
+                + "Please provide a valid "
+                + key.toLowerCase() + " by editing the " + fieldName + " field in the "
+                + "datasource configuration page.";
     }
 }

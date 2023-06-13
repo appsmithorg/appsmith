@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import jakarta.mail.internet.InternetAddress;
@@ -53,5 +54,4 @@ public class EmailConfig {
             }
         }
     }
-
 }

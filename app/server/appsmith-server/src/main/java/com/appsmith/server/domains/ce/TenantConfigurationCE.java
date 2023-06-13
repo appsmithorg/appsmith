@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains.ce;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,5 +28,4 @@ public class TenantConfigurationCE {
         }
         thirdPartyAuths.add(auth);
     }
-
 }

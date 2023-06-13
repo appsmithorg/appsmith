@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.constants.FieldName;
@@ -30,8 +31,10 @@ public class AppsmithComparatorsCE {
                     throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
                 }
 
-                boolean workspaceRolePresent1 = o1.getRoles().stream().anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
-                boolean workspaceRolePresent2 = o1.getRoles().stream().anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
+                boolean workspaceRolePresent1 = o1.getRoles().stream()
+                        .anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
+                boolean workspaceRolePresent2 = o1.getRoles().stream()
+                        .anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
 
                 if (!workspaceRolePresent1 || !workspaceRolePresent2) {
                     throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
@@ -53,7 +56,8 @@ public class AppsmithComparatorsCE {
             private int getOrderBasedOnWorkspaceRole(MemberInfoDTO member) {
                 PermissionGroupInfoDTO role = member.getRoles().stream()
                         .filter(role1 -> Workspace.class.getSimpleName().equals(role1.getEntityType()))
-                        .findFirst().get();
+                        .findFirst()
+                        .get();
                 if (Objects.nonNull(role.getName()) && role.getName().startsWith(FieldName.ADMINISTRATOR)) {
                     return 0;
                 } else if (Objects.nonNull(role.getName()) && role.getName().startsWith(FieldName.DEVELOPER)) {

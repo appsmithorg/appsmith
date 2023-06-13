@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Datasource;
@@ -30,14 +31,18 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  */
 @Slf4j
 @ChangeUnit(order = "109", id = "migrate-configurations-to-data-storage-v2", author = " ")
-// Although this migration is common to CE and BE, the ordering of this change-unit needs to be specifically after 107-ee,
-// as this migration has EE overrides for default environmentId, and for getting the environments on existing workspaces, 107-ee needs to run
+// Although this migration is common to CE and BE, the ordering of this change-unit needs to be specifically after
+// 107-ee,
+// as this migration has EE overrides for default environmentId, and for getting the environments on existing
+// workspaces, 107-ee needs to run
 public class Migration109TransferToDatasourceStorage {
     private final MongoTemplate mongoTemplate;
 
     private final String migrationFlag = "hasDatasourceStorage";
-    private static final String datasourceConfigurationFieldName = fieldName(QDatasource.datasource.datasourceConfiguration);
-    private static final String authenticationFieldName = fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
+    private static final String datasourceConfigurationFieldName =
+            fieldName(QDatasource.datasource.datasourceConfiguration);
+    private static final String authenticationFieldName =
+            fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
     private static final String delimiter = ".";
 
     private final DatasourceStorageMigrationSolution solution = new DatasourceStorageMigrationSolution();
@@ -60,91 +65,94 @@ public class Migration109TransferToDatasourceStorage {
         // query to fetch all datasource that
         // do not have `hasDatasourceStorage` value set as true
         Query datasourcesToUpdateQuery = query(findDatasourceIdsToUpdate()).cursorBatchSize(1024);
-        datasourcesToUpdateQuery.fields().include(
-                fieldName(QDatasource.datasource.id),
-                fieldName(QDatasource.datasource.workspaceId),
-                fieldName(QDatasource.datasource.isConfigured),
-                fieldName(QDatasource.datasource.gitSyncId),
-                fieldName(QDatasource.datasource.invalids),
-                fieldName(QDatasource.datasource.hasDatasourceStorage),
-                fieldName(QDatasource.datasource.datasourceConfiguration)
-        );
+        datasourcesToUpdateQuery
+                .fields()
+                .include(
+                        fieldName(QDatasource.datasource.id),
+                        fieldName(QDatasource.datasource.workspaceId),
+                        fieldName(QDatasource.datasource.isConfigured),
+                        fieldName(QDatasource.datasource.gitSyncId),
+                        fieldName(QDatasource.datasource.invalids),
+                        fieldName(QDatasource.datasource.hasDatasourceStorage),
+                        fieldName(QDatasource.datasource.datasourceConfiguration));
 
-        final Query performanceOptimizedUpdateQuery = CompatibilityUtils
-                .optimizeQueryForNoCursorTimeout(mongoTemplate, datasourcesToUpdateQuery, Datasource.class);
+        final Query performanceOptimizedUpdateQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
+                mongoTemplate, datasourcesToUpdateQuery, Datasource.class);
 
         // Now go back to streaming through each datasource that has
         // `hasDatasourceStorage` value set as true
-        mongoTemplate
-                .stream(performanceOptimizedUpdateQuery, Datasource.class)
-                .forEach(datasource -> {
-                    // For each of these datasource, we want to build a new datasource storage
+        mongoTemplate.stream(performanceOptimizedUpdateQuery, Datasource.class).forEach(datasource -> {
+            // For each of these datasource, we want to build a new datasource storage
 
-                    // Fetch the correct environment id to use with this datasource storage
-                    String environmentId = solution
-                            .getEnvironmentIdForDatasource(environmentsMap, datasource.getWorkspaceId());
+            // Fetch the correct environment id to use with this datasource storage
+            String environmentId = solution.getEnvironmentIdForDatasource(environmentsMap, datasource.getWorkspaceId());
 
-                    // If none exists, this is an error scenario, log the error and skip the datasource
-                    if (environmentId == null) {
-                        log.error("Could not find default environment id for workspace id: {}, skipping datasource id: {}",
-                                datasource.getWorkspaceId(), datasource.getId());
-                        return;
-                    }
+            // If none exists, this is an error scenario, log the error and skip the datasource
+            if (environmentId == null) {
+                log.error(
+                        "Could not find default environment id for workspace id: {}, skipping datasource id: {}",
+                        datasource.getWorkspaceId(),
+                        datasource.getId());
+                return;
+            }
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
 
-                    log.debug("Creating datasource storage for datasource id: {} with environment id: {}",
-                            datasource.getId(), environmentId);
+            log.debug(
+                    "Creating datasource storage for datasource id: {} with environment id: {}",
+                    datasource.getId(),
+                    environmentId);
 
-                    // Insert the populated datasource storage into database
-                    try {
-                        mongoTemplate.insert(datasourceStorage);
-                    } catch (DuplicateKeyException e) {
-                        log.warn("Looks like the datasource storage already exists for datasource id: {}",
-                                datasource.getId());
-                        log.warn("We will attempt to reset the datasource again.");
-                    }
+            // Insert the populated datasource storage into database
+            try {
+                mongoTemplate.insert(datasourceStorage);
+            } catch (DuplicateKeyException e) {
+                log.warn("Looks like the datasource storage already exists for datasource id: {}", datasource.getId());
+                log.warn("We will attempt to reset the datasource again.");
+            }
 
-                    // Once the datasource storage exists, delete the older config inside datasource
-                    // And set `hasDatasourceStorage` value to true
-                    mongoTemplate.updateFirst(
-                            new Query()
-                                    .addCriteria(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-                            new Update()
-                                    .set(migrationFlag, true)
-                                    .unset(fieldName(QDatasource.datasource.datasourceConfiguration))
-                                    .unset(fieldName(QDatasource.datasource.invalids))
-                                    .unset(fieldName(QDatasource.datasource.isConfigured)),
-                            Datasource.class);
-                });
-
+            // Once the datasource storage exists, delete the older config inside datasource
+            // And set `hasDatasourceStorage` value to true
+            mongoTemplate.updateFirst(
+                    new Query()
+                            .addCriteria(
+                                    where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    new Update()
+                            .set(migrationFlag, true)
+                            .unset(fieldName(QDatasource.datasource.datasourceConfiguration))
+                            .unset(fieldName(QDatasource.datasource.invalids))
+                            .unset(fieldName(QDatasource.datasource.isConfigured)),
+                    Datasource.class);
+        });
     }
 
     private Criteria findDatasourceIdsToUpdate() {
-        return new Criteria().andOperator(
-                // Check for migration flag
-                new Criteria().orOperator(
-                        where(migrationFlag).exists(false),
-                        where(migrationFlag).is(false)
-                ),
-                //Older check for deleted
-                new Criteria().orOperator(
-                        where(FieldName.DELETED).exists(false),
-                        where(FieldName.DELETED).is(false)
-                ),
-                //New check for deleted
-                new Criteria().orOperator(
-                        where(FieldName.DELETED_AT).exists(false),
-                        where(FieldName.DELETED_AT).is(null)
-                ),
-                // these checks are placed because we are getting values which are empty and while decrypting
-                // those values, we are getting ArrayOutOfBoundException because password is set to ""
-                where(fieldName(QDatasource.datasource.workspaceId)).exists(true),
-                where(fieldName(QDatasource.datasource.workspaceId)).ne(null),
-                where(datasourceConfigurationFieldName +  delimiter + authenticationFieldName + delimiter + PASSWORD).ne("")
-        );
+        return new Criteria()
+                .andOperator(
+                        // Check for migration flag
+                        new Criteria()
+                                .orOperator(
+                                        where(migrationFlag).exists(false),
+                                        where(migrationFlag).is(false)),
+                        // Older check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED).exists(false),
+                                        where(FieldName.DELETED).is(false)),
+                        // New check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED_AT).exists(false),
+                                        where(FieldName.DELETED_AT).is(null)),
+                        // these checks are placed because we are getting values which are empty and while decrypting
+                        // those values, we are getting ArrayOutOfBoundException because password is set to ""
+                        where(fieldName(QDatasource.datasource.workspaceId)).exists(true),
+                        where(fieldName(QDatasource.datasource.workspaceId)).ne(null),
+                        where(datasourceConfigurationFieldName
+                                        + delimiter
+                                        + authenticationFieldName
+                                        + delimiter
+                                        + PASSWORD)
+                                .ne(""));
     }
-
 }
-
-

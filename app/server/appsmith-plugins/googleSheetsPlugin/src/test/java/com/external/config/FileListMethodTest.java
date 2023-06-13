@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -127,7 +128,8 @@ public class FileListMethodTest {
     public void testTransformTriggerResponse_withAllSheetsAccess_returnsAllSheets() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         assertNotNull(jsonNode);
@@ -157,7 +159,8 @@ public class FileListMethodTest {
     public void testTransformTriggerResponse_withSpecificSheets_returnsSpecificSheets() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Set<String> userAuthorizedSheetIds = new HashSet<String>();
@@ -183,7 +186,8 @@ public class FileListMethodTest {
     public void testTransformExecutionResponse_withAllSheetsAccess_returnsAllSheets() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         assertNotNull(jsonNode);
@@ -212,10 +216,12 @@ public class FileListMethodTest {
     }
 
     @Test
-    public void testTransformExecutionResponse_withSpecificSheets_returnsSpecificSheets() throws JsonProcessingException {
+    public void testTransformExecutionResponse_withSpecificSheets_returnsSpecificSheets()
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+        final String jsonString =
+                "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Set<String> userAuthorizedSheetIds = new HashSet<String>();

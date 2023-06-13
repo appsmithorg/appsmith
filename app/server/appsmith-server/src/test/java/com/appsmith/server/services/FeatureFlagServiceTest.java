@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -18,7 +19,6 @@ import reactor.test.StepVerifier;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -92,5 +92,4 @@ public class FeatureFlagServiceTest {
             return ff4j;
         }
     }
-
 }

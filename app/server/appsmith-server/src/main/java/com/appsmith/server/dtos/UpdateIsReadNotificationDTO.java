@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,5 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class UpdateIsReadNotificationDTO {
-    @NotNull
-    private Boolean isRead;
+    @NotNull private Boolean isRead;
 }

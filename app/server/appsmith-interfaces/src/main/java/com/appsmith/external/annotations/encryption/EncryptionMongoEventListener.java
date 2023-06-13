@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.annotations.encryption;
 
 import com.appsmith.external.services.EncryptionService;
@@ -34,5 +35,4 @@ public class EncryptionMongoEventListener<E> extends AbstractMongoEventListener<
 
         encryptionHandler.convertEncryption(source, encryptionService::decryptString);
     }
-
 }

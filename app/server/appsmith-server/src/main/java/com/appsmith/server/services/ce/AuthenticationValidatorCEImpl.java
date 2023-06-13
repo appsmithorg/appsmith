@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.AuthenticationDTO;
@@ -15,11 +16,14 @@ public class AuthenticationValidatorCEImpl implements AuthenticationValidatorCE 
     private final AuthenticationService authenticationService;
 
     public Mono<DatasourceStorage> validateAuthentication(DatasourceStorage datasourceStorage) {
-        if (datasourceStorage.getDatasourceConfiguration() == null || datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
+        if (datasourceStorage.getDatasourceConfiguration() == null
+                || datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
             return Mono.just(datasourceStorage);
         }
-        AuthenticationDTO authentication = datasourceStorage.getDatasourceConfiguration().getAuthentication();
-        return authentication.hasExpired()
+        AuthenticationDTO authentication =
+                datasourceStorage.getDatasourceConfiguration().getAuthentication();
+        return authentication
+                .hasExpired()
                 .filter(expired -> expired)
                 .flatMap(expired -> {
                     if (authentication instanceof OAuth2) {

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
@@ -17,8 +18,7 @@ public class CurlImporterServiceImpl extends CurlImporterServiceCEImpl implement
             NewPageService newPageService,
             ResponseUtils responseUtils,
             ObjectMapper objectMapper,
-            PagePermission pagePermission
-    ) {
+            PagePermission pagePermission) {
         super(pluginService, layoutActionService, newPageService, responseUtils, objectMapper, pagePermission);
     }
 }

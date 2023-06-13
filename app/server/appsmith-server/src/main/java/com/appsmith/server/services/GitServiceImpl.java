@@ -1,5 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
-
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -16,7 +16,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 
@@ -24,36 +23,56 @@ import org.springframework.stereotype.Service;
 @Service
 @Import({GitExecutorImpl.class})
 public class GitServiceImpl extends GitServiceCEImpl implements GitService {
-    public GitServiceImpl(UserService userService,
-                          UserDataService userDataService,
-                          SessionUserService sessionUserService,
-                          ApplicationService applicationService,
-                          ApplicationPageService applicationPageService,
-                          NewPageService newPageService,
-                          NewActionService newActionService,
-                          ActionCollectionService actionCollectionService,
-                          GitFileUtils fileUtils,
-                          ImportExportApplicationService importExportApplicationService,
-                          GitExecutor gitExecutor,
-                          ResponseUtils responseUtils,
-                          EmailConfig emailConfig,
-                          AnalyticsService analyticsService,
-                          GitCloudServicesUtils gitCloudServicesUtils,
-                          GitDeployKeysRepository gitDeployKeysRepository,
-                          DatasourceService datasourceService,
-                          PluginService pluginService,
-                          DatasourcePermission datasourcePermission,
-                          ApplicationPermission applicationPermission,
-                          PagePermission pagePermission,
-                          ActionPermission actionPermission,
-                          WorkspaceService workspaceService,
-                          RedisUtils redisUtils) {
+    public GitServiceImpl(
+            UserService userService,
+            UserDataService userDataService,
+            SessionUserService sessionUserService,
+            ApplicationService applicationService,
+            ApplicationPageService applicationPageService,
+            NewPageService newPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
+            GitFileUtils fileUtils,
+            ImportExportApplicationService importExportApplicationService,
+            GitExecutor gitExecutor,
+            ResponseUtils responseUtils,
+            EmailConfig emailConfig,
+            AnalyticsService analyticsService,
+            GitCloudServicesUtils gitCloudServicesUtils,
+            GitDeployKeysRepository gitDeployKeysRepository,
+            DatasourceService datasourceService,
+            PluginService pluginService,
+            DatasourcePermission datasourcePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            WorkspaceService workspaceService,
+            RedisUtils redisUtils) {
 
-        super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
-                newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
-                gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
-                actionPermission, workspaceService, redisUtils);
+        super(
+                userService,
+                userDataService,
+                sessionUserService,
+                applicationService,
+                applicationPageService,
+                newPageService,
+                newActionService,
+                actionCollectionService,
+                fileUtils,
+                importExportApplicationService,
+                gitExecutor,
+                responseUtils,
+                emailConfig,
+                analyticsService,
+                gitCloudServicesUtils,
+                gitDeployKeysRepository,
+                datasourceService,
+                pluginService,
+                datasourcePermission,
+                applicationPermission,
+                pagePermission,
+                actionPermission,
+                workspaceService,
+                redisUtils);
     }
-
 }

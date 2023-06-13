@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -46,7 +47,7 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private String releaseNotesViewedVersion;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedOrgIds;
@@ -58,7 +59,6 @@ public class UserData extends BaseDomain {
     // list of application ids that were recently accessed by the user
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedAppIds;
-
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
@@ -100,5 +100,4 @@ public class UserData extends BaseDomain {
     public UserData(String userId) {
         this.userId = userId;
     }
-
 }

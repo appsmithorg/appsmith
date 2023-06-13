@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
@@ -48,7 +49,8 @@ public class RedisListenerConfig {
                 .map(p -> p.getMessage())
                 .map(msg -> {
                     try {
-                        InstallPluginRedisDTO installPluginRedisDTO = objectMapper.readValue(msg, InstallPluginRedisDTO.class);
+                        InstallPluginRedisDTO installPluginRedisDTO =
+                                objectMapper.readValue(msg, InstallPluginRedisDTO.class);
                         return installPluginRedisDTO;
                     } catch (Exception e) {
                         log.error("", e);
@@ -57,7 +59,8 @@ public class RedisListenerConfig {
                 })
                 // Actual processing of the message.
                 .map(redisPluginObj -> pluginService.redisInstallPlugin((InstallPluginRedisDTO) redisPluginObj))
-                // Handle this error because it prevents the Redis connection from shutting down when the server is shut down
+                // Handle this error because it prevents the Redis connection from shutting down when the server is shut
+                // down
                 // TODO: Verify if this is invoked in normal redis pubsub execution as well
                 .doOnError(throwable -> {
                     if (!(throwable instanceof CancellationException)) {
@@ -70,5 +73,4 @@ public class RedisListenerConfig {
                 .subscribe();
         return container;
     }
-
 }

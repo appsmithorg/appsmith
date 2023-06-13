@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.models.BaseDomain;
@@ -43,12 +44,16 @@ import java.util.Set;
 public class ImportApplicationPermissionProvider {
     @Getter(AccessLevel.NONE)
     private final ApplicationPermission applicationPermission;
+
     @Getter(AccessLevel.NONE)
     private final PagePermission pagePermission;
+
     @Getter(AccessLevel.NONE)
     private final ActionPermission actionPermission;
+
     @Getter(AccessLevel.NONE)
     private final DatasourcePermission datasourcePermission;
+
     @Getter(AccessLevel.NONE)
     private final WorkspacePermission workspacePermission;
 
@@ -64,7 +69,7 @@ public class ImportApplicationPermissionProvider {
     // flag to indicate whether permission check is required on the create datasource operation
     private boolean permissionRequiredToCreateDatasource;
 
-    //flag to indicate whether permission check is required on the create page operation
+    // flag to indicate whether permission check is required on the create page operation
     private boolean permissionRequiredToCreatePage;
     // flag to indicate whether permission check is required on the edit page operation
     private boolean permissionRequiredToEditPage;
@@ -88,60 +93,63 @@ public class ImportApplicationPermissionProvider {
      * @return True if there is a match, false otherwise
      */
     private boolean hasPermission(AclPermission permission, BaseDomain baseDomain) {
-        if(permission == null) {
+        if (permission == null) {
             return true;
         }
-        return PolicyUtils.isPermissionPresentInPolicies(permission.getValue(), baseDomain.getPolicies(), currentUserPermissionGroups);
+        return PolicyUtils.isPermissionPresentInPolicies(
+                permission.getValue(), baseDomain.getPolicies(), currentUserPermissionGroups);
     }
 
     public boolean hasEditPermission(NewPage page) {
-        if(!permissionRequiredToEditPage) {
+        if (!permissionRequiredToEditPage) {
             return true;
         }
         return hasPermission(pagePermission.getEditPermission(), page);
     }
 
     public boolean hasEditPermission(NewAction action) {
-        if(!permissionRequiredToEditAction) {
+        if (!permissionRequiredToEditAction) {
             return true;
         }
         return hasPermission(actionPermission.getEditPermission(), action);
     }
 
     public boolean hasEditPermission(Datasource datasource) {
-        if(!permissionRequiredToEditDatasource) {
+        if (!permissionRequiredToEditDatasource) {
             return true;
         }
         return hasPermission(datasourcePermission.getEditPermission(), datasource);
     }
 
     public boolean canCreatePage(Application application) {
-        if(!permissionRequiredToCreatePage) {
+        if (!permissionRequiredToCreatePage) {
             return true;
         }
         return hasPermission(applicationPermission.getPageCreatePermission(), application);
     }
 
     public boolean canCreateAction(NewPage page) {
-        if(!permissionRequiredToCreateAction) {
+        if (!permissionRequiredToCreateAction) {
             return true;
         }
         return hasPermission(pagePermission.getActionCreatePermission(), page);
     }
 
     public boolean canCreateDatasource(Workspace workspace) {
-        if(!permissionRequiredToCreateDatasource) {
+        if (!permissionRequiredToCreateDatasource) {
             return true;
         }
         return hasPermission(workspacePermission.getDatasourceCreatePermission(), workspace);
     }
 
-    public static Builder builder(ApplicationPermission applicationPermission,
-                                  PagePermission pagePermission,
-                                  ActionPermission actionPermission,
-                                  DatasourcePermission datasourcePermission,
-                                  WorkspacePermission workspacePermission) {
-        return new Builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
+    public static Builder builder(
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            DatasourcePermission datasourcePermission,
+            WorkspacePermission workspacePermission) {
+        return new Builder(
+                applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
     }
 
     @Setter
@@ -165,7 +173,12 @@ public class ImportApplicationPermissionProvider {
         private boolean permissionRequiredToEditAction;
         private boolean permissionRequiredToEditDatasource;
 
-        private Builder(ApplicationPermission applicationPermission, PagePermission pagePermission, ActionPermission actionPermission, DatasourcePermission datasourcePermission, WorkspacePermission workspacePermission) {
+        private Builder(
+                ApplicationPermission applicationPermission,
+                PagePermission pagePermission,
+                ActionPermission actionPermission,
+                DatasourcePermission datasourcePermission,
+                WorkspacePermission workspacePermission) {
             this.applicationPermission = applicationPermission;
             this.pagePermission = pagePermission;
             this.actionPermission = actionPermission;
@@ -200,8 +213,7 @@ public class ImportApplicationPermissionProvider {
                     permissionRequiredToCreateAction,
                     permissionRequiredToEditAction,
                     permissionRequiredToEditDatasource,
-                    currentUserPermissionGroups
-            );
+                    currentUserPermissionGroups);
         }
     }
 }

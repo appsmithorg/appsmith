@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.git.helpers.StringOutputStream;
@@ -38,7 +39,6 @@ public class GitDeployKeyGenerator {
             gitDeployKeyDTO.setPlatFormSupported(this.supportedPlatforms);
             return gitDeployKeyDTO;
         }
-
     }
 
     public static GitAuth generateSSHKey(String keyType) {

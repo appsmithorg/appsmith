@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -43,7 +44,6 @@ import reactor.test.StepVerifier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 
-
 @ExtendWith(SpringExtension.class)
 @Slf4j
 public class NewActionServiceCEImplTest {
@@ -52,58 +52,83 @@ public class NewActionServiceCEImplTest {
 
     @MockBean
     Scheduler scheduler;
+
     @MockBean
     Validator validator;
+
     @MockBean
     MongoConverter mongoConverter;
+
     @MockBean
     ReactiveMongoTemplate reactiveMongoTemplate;
+
     @MockBean
     AnalyticsService analyticsService;
+
     @MockBean
     DatasourceService datasourceService;
+
     @MockBean
     PluginService pluginService;
+
     @MockBean
     DatasourceContextService datasourceContextService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
     @MockBean
     MarketplaceService marketplaceService;
+
     @MockBean
     PolicyGenerator policyGenerator;
+
     @MockBean
     NewPageService newPageService;
+
     @MockBean
     ApplicationService applicationService;
+
     @MockBean
     SessionUserService sessionUserService;
+
     @MockBean
     PolicyUtils policyUtils;
+
     @MockBean
     AuthenticationValidator authenticationValidator;
+
     @MockBean
     ConfigService configService;
+
     @MockBean
     ResponseUtils responseUtils;
+
     @MockBean
     PermissionGroupService permissionGroupService;
+
     @MockBean
     NewActionRepository newActionRepository;
+
     @MockBean
     DatasourcePermission datasourcePermission;
+
     @MockBean
     ApplicationPermission applicationPermission;
+
     @MockBean
     PagePermission pagePermission;
+
     @MockBean
     ActionPermission actionPermission;
+
     @MockBean
     ObservationRegistry observationRegistry;
 
     @BeforeEach
     public void setup() {
-        newActionService = new NewActionServiceCEImpl(scheduler,
+        newActionService = new NewActionServiceCEImpl(
+                scheduler,
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
@@ -126,7 +151,8 @@ public class NewActionServiceCEImplTest {
                 actionPermission,
                 observationRegistry);
 
-        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        ObservationRegistry.ObservationConfig mockObservationConfig =
+                Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
@@ -136,8 +162,7 @@ public class NewActionServiceCEImplTest {
         Plugin testPlugin = new Plugin();
         testPlugin.setId("testId");
         testPlugin.setType(PluginType.DB);
-        Mockito.when(pluginService.findById(anyString()))
-                .thenReturn(Mono.just(testPlugin));
+        Mockito.when(pluginService.findById(anyString())).thenReturn(Mono.just(testPlugin));
 
         NewAction action = new NewAction();
         action.setPluginId(null);
@@ -164,8 +189,7 @@ public class NewActionServiceCEImplTest {
         Plugin testPlugin = new Plugin();
         testPlugin.setId("testId");
         testPlugin.setType(PluginType.JS);
-        Mockito.when(pluginService.findByPackageName(anyString()))
-                .thenReturn(Mono.just(testPlugin));
+        Mockito.when(pluginService.findByPackageName(anyString())).thenReturn(Mono.just(testPlugin));
 
         NewAction action = new NewAction();
         action.setPluginId(null);
@@ -183,5 +207,4 @@ public class NewActionServiceCEImplTest {
                 })
                 .verifyComplete();
     }
-
 }

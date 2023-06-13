@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Application;
@@ -21,5 +22,4 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
     Mono<Long> countByDeletedAtNull();
 
     Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
-
 }

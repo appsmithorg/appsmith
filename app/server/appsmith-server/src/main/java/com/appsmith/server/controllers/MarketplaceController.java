@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -13,8 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class MarketplaceController extends MarketplaceControllerCE {
 
-    public MarketplaceController(ObjectMapper objectMapper,
-                                 MarketplaceService marketplaceService) {
+    public MarketplaceController(ObjectMapper objectMapper, MarketplaceService marketplaceService) {
 
         super(objectMapper, marketplaceService);
     }

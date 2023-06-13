@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import org.slf4j.MDC;
@@ -37,7 +38,8 @@ public class LogHelper {
                 return;
             }
 
-            Optional<Map<String, String>> maybeContextMap = signal.getContextView().getOrEmpty(CONTEXT_MAP);
+            Optional<Map<String, String>> maybeContextMap =
+                    signal.getContextView().getOrEmpty(CONTEXT_MAP);
 
             if (maybeContextMap.isEmpty()) {
                 log.accept(signal.get());
@@ -59,8 +61,8 @@ public class LogHelper {
                 return;
             }
 
-            Optional<Map<String, String>> maybeContextMap
-                    = signal.getContextView().getOrEmpty(CONTEXT_MAP);
+            Optional<Map<String, String>> maybeContextMap =
+                    signal.getContextView().getOrEmpty(CONTEXT_MAP);
 
             if (maybeContextMap.isEmpty()) {
                 log.accept(signal.getThrowable());
@@ -75,5 +77,4 @@ public class LogHelper {
             }
         };
     }
-
 }

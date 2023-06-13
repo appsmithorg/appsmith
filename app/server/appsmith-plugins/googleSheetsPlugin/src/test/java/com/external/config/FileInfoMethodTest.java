@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -79,7 +79,8 @@ public class FileInfoMethodTest {
     public void testTransformExecutionResponse_validSheets_toListOfSheets() throws JsonProcessingException {
 
         final String jsonString = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
-        final String sheetMetadataString = "{\"sheetId\":\"1\", \"title\":\"test\", \"sheetType\":\"GRID\", \"index\":0}";
+        final String sheetMetadataString =
+                "{\"sheetId\":\"1\", \"title\":\"test\", \"sheetType\":\"GRID\", \"index\":0}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         assertNotNull(jsonNode);
@@ -94,7 +95,8 @@ public class FileInfoMethodTest {
         assertNotNull(result);
         assertTrue(result.isObject());
         assertEquals(1, result.get("sheets").size());
-        assertTrue("test".equalsIgnoreCase(result.get("sheets").get(0).get("title").asText()));
+        assertTrue(
+                "test".equalsIgnoreCase(result.get("sheets").get(0).get("title").asText()));
     }
 
     @Test

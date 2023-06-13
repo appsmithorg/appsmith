@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -15,8 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Tenant extends BaseDomain {
 
-    @Unique
-    String slug;
+    @Unique String slug;
 
     String displayName;
 

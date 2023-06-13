@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
@@ -32,7 +33,7 @@ public enum AclPermission {
     // Does the user have manage workspace permission
     @Deprecated
     USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
-    //Does the user have read workspace permissions
+    // Does the user have read workspace permissions
     @Deprecated
     USER_READ_WORKSPACES("read:userWorkspace", User.class),
 
@@ -119,7 +120,6 @@ public enum AclPermission {
     // Manage tenant permissions
     MANAGE_TENANT("manage:tenants", Tenant.class),
     ;
-
 
     private final String value;
     private final Class<? extends BaseDomain> entity;

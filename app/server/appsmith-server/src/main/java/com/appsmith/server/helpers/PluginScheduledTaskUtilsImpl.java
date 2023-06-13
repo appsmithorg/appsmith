@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
@@ -9,11 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class PluginScheduledTaskUtilsImpl extends PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtils {
 
-    public PluginScheduledTaskUtilsImpl(ConfigService configService,
-                                        PluginService pluginService,
-                                        CloudServicesConfig cloudServicesConfig) {
+    public PluginScheduledTaskUtilsImpl(
+            ConfigService configService, PluginService pluginService, CloudServicesConfig cloudServicesConfig) {
 
         super(configService, pluginService, cloudServicesConfig);
     }
-
 }

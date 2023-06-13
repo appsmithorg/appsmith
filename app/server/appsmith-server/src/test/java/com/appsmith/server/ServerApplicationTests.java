@@ -1,8 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
 
 @SpringBootTest
 public class ServerApplicationTests {
@@ -11,5 +11,4 @@ public class ServerApplicationTests {
     public void contextLoads() {
         assert (true);
     }
-
 }

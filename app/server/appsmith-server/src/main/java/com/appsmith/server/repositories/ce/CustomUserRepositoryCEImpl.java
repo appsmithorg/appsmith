@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
@@ -24,7 +25,10 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @Slf4j
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
 
-    public CustomUserRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomUserRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -75,10 +79,10 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         final Query q = query(new Criteria());
         q.fields().include(fieldName(QUser.user.email));
         q.limit(2);
-        return mongoOperations.find(q, User.class)
+        return mongoOperations
+                .find(q, User.class)
                 .filter(user -> !user.getEmail().equals(FieldName.ANONYMOUS_USER))
                 .count()
                 .map(count -> count == 0);
     }
-
 }

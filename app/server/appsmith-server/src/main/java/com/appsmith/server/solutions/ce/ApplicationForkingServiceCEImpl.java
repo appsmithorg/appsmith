@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
@@ -42,18 +43,17 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ImportExportApplicationService importExportApplicationService;
 
     @Override
-    public Mono<Application> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId,
-                                                                       String targetWorkspaceId,
-                                                                       String sourceEnvironmentId) {
+    public Mono<Application> forkApplicationToWorkspaceWithEnvironment(
+            String srcApplicationId, String targetWorkspaceId, String sourceEnvironmentId) {
         final Mono<Application> sourceApplicationMono = applicationService
                 .findById(srcApplicationId, applicationPermission.getReadPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                        FieldName.APPLICATION, srcApplicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         final Mono<Workspace> targetWorkspaceMono = workspaceService
                 .findById(targetWorkspaceId, workspacePermission.getApplicationCreatePermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                        FieldName.WORKSPACE, targetWorkspaceId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
@@ -68,13 +68,18 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     eventData.put(FieldName.WORKSPACE, targetWorkspace);
 
-                    // If the forking application is connected to git, do not copy those data to the new forked application
+                    // If the forking application is connected to git, do not copy those data to the new forked
+                    // application
                     application.setGitApplicationMetadata(null);
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?
-                            !user.isAnonymous() && application.getUserPermissions().contains(applicationPermission.getEditPermission().getValue())
-                    )
+                            !user.isAnonymous()
+                                    && application
+                                            .getUserPermissions()
+                                            .contains(applicationPermission
+                                                    .getEditPermission()
+                                                    .getValue()))
                             || Boolean.TRUE.equals(application.getForkingEnabled());
 
                     if (!allowFork) {
@@ -88,44 +93,46 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 })
                 .flatMap(applicationIds -> {
                     final String newApplicationId = applicationIds.get(0);
-                    return applicationService.getById(newApplicationId)
-                            .flatMap(application ->
-                                    sendForkApplicationAnalyticsEvent(
-                                            srcApplicationId,
-                                            targetWorkspaceId,
-                                            application,
-                                            eventData));
+                    return applicationService
+                            .getById(newApplicationId)
+                            .flatMap(application -> sendForkApplicationAnalyticsEvent(
+                                    srcApplicationId, targetWorkspaceId, application, eventData));
                 });
 
-        // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
+        // Fork application is currently a slow API because it needs to create application, clone all the pages, and
+        // then
         // copy all the actions and collections. This process may take time and the client may cancel the request.
         // This leads to the flow getting stopped midway producing corrupted DB objects. The following ensures that even
         // though the client may have cancelled the flow, the forking of the application should proceed uninterrupted
         // and whenever the user refreshes the page, the sane forked application is available.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
-        // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
-        return Mono.create(sink -> forkApplicationMono
-                .subscribe(sink::success, sink::error, null, sink.currentContext())
-        );
+        // means that even if the subscriber has cancelled its subscription, the create method still generates its
+        // event.
+        return Mono.create(
+                sink -> forkApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
-    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId,
-                                                                 String targetWorkspaceId,
-                                                                 String branchName) {
+    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(
+            String srcApplicationId, String targetWorkspaceId, String branchName) {
 
         // First we try to find the correct database entry of application to fork, based on git
         Mono<Application> applicationMono;
 
         if (StringUtils.isEmpty(branchName)) {
-            applicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                            FieldName.APPLICATION, srcApplicationId)))
+            applicationMono = applicationService
+                    .findById(srcApplicationId, applicationPermission.getReadPermission())
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
                     .flatMap(application -> {
                         // For git connected application user can update the default branch
                         // In such cases we should fork the application from the new default branch
                         if (!(application.getGitApplicationMetadata() == null)
-                                && !application.getGitApplicationMetadata().getBranchName()
-                                .equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                                && !application
+                                        .getGitApplicationMetadata()
+                                        .getBranchName()
+                                        .equals(application
+                                                .getGitApplicationMetadata()
+                                                .getDefaultBranchName())) {
                             return applicationService.findByBranchNameAndDefaultApplicationId(
                                     application.getGitApplicationMetadata().getDefaultBranchName(),
                                     srcApplicationId,
@@ -134,37 +141,38 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         return Mono.just(application);
                     });
         } else {
-            applicationMono = applicationService
-                    .findByBranchNameAndDefaultApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission());
+            applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(
+                    branchName, srcApplicationId, applicationPermission.getReadPermission());
         }
 
         return applicationMono
                 // We will be forking to the default environment in the new workspace
-                .zipWhen(application ->  workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()))
+                .zipWhen(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()))
                 .flatMap(tuple -> {
                     String fromApplicationId = tuple.getT1().getId();
                     String sourceEnvironmentId = tuple.getT2();
-                    return forkApplicationToWorkspaceWithEnvironment(fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
+                    return forkApplicationToWorkspaceWithEnvironment(
+                                    fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
                             .map(responseUtils::updateApplicationWithDefaultResources)
-                            .flatMap(application -> importExportApplicationService
-                                    .getApplicationImportDTO(
-                                            application.getId(),
-                                            application.getWorkspaceId(),
-                                            application
-                                    ));
+                            .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                                    application.getId(), application.getWorkspaceId(), application));
                 });
     }
 
-    private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application, Map<String, Object> eventData) {
-        return applicationService.findById(applicationId, applicationPermission.getReadPermission())
+    private Mono<Application> sendForkApplicationAnalyticsEvent(
+            String applicationId, String workspaceId, Application application, Map<String, Object> eventData) {
+        return applicationService
+                .findById(applicationId, applicationPermission.getReadPermission())
                 .flatMap(sourceApplication -> {
-
                     final Map<String, Object> data = Map.of(
-                            "forkedFromAppId", applicationId,
-                            "forkedToOrgId", workspaceId,
-                            "forkedFromAppName", sourceApplication.getName(),
-                            FieldName.EVENT_DATA, eventData
-                    );
+                            "forkedFromAppId",
+                            applicationId,
+                            "forkedToOrgId",
+                            workspaceId,
+                            "forkedFromAppName",
+                            sourceApplication.getName(),
+                            FieldName.EVENT_DATA,
+                            eventData);
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, application, data);
                 })
@@ -173,5 +181,4 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return Mono.just(application);
                 });
     }
-
 }

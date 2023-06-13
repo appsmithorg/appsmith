@@ -1,5 +1,5 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
-
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class CollectionUtils {
     public static <E> void putAtFirst(List<E> list, E item) {
         // check if item already exists
         int index = list.indexOf(item);
-        if (index == -1) {  // does not exist so put it at first
+        if (index == -1) { // does not exist so put it at first
             list.add(0, item);
         } else if (index > 0) {
             list.remove(item);
@@ -93,5 +93,4 @@ public class CollectionUtils {
             map.put(key, 1);
         }
     }
-
 }

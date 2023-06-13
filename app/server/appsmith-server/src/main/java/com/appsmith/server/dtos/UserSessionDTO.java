@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.LoginSource;
@@ -53,8 +54,7 @@ public class UserSessionDTO {
     /**
      * We don't expect this class to be instantiated outside this class. Remove this constructor when needed.
      */
-    private UserSessionDTO() {
-    }
+    private UserSessionDTO() {}
 
     /**
      * Given an authentication token, typically from a Spring Security context, create a UserSession object. This
@@ -82,11 +82,13 @@ public class UserSessionDTO {
         session.authorities = authentication.getAuthorities();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
-            session.authorizedClientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+            session.authorizedClientRegistrationId =
+                    ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         } else if (authentication instanceof UsernamePasswordAuthenticationToken) {
             session.authorizedClientRegistrationId = PASSWORD_PROVIDER;
         } else {
-            throw new IllegalArgumentException("Unsupported authentication type: " + authentication.getClass().getName());
+            throw new IllegalArgumentException("Unsupported authentication type: "
+                    + authentication.getClass().getName());
         }
 
         return session;
@@ -117,10 +119,8 @@ public class UserSessionDTO {
 
         } else if (ALLOWED_OAUTH_PROVIDERS.contains(authorizedClientRegistrationId)) {
             return new OAuth2AuthenticationToken(user, authorities, authorizedClientRegistrationId);
-
         }
 
         throw new IllegalArgumentException("Invalid registration ID " + authorizedClientRegistrationId);
     }
-
 }

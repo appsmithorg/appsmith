@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -35,8 +36,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             NewActionRepository newActionRepository,
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
-            ProjectProperties projectProperties
-    ) {
+            ProjectProperties projectProperties) {
 
         super(
                 configService,
@@ -48,7 +48,6 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 newActionRepository,
                 datasourceRepository,
                 userRepository,
-                projectProperties
-        );
+                projectProperties);
     }
 }

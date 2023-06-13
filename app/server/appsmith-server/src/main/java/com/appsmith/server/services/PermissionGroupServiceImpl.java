@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.PolicyUtils;
@@ -15,21 +16,32 @@ import reactor.core.scheduler.Scheduler;
 @Service
 public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl implements PermissionGroupService {
 
-    public PermissionGroupServiceImpl(Scheduler scheduler,
-                                      Validator validator,
-                                      MongoConverter mongoConverter,
-                                      ReactiveMongoTemplate reactiveMongoTemplate,
-                                      PermissionGroupRepository repository,
-                                      AnalyticsService analyticsService,
-                                      SessionUserService sessionUserService,
-                                      TenantService tenantService,
-                                      UserRepository userRepository,
-                                      PolicyUtils policyUtils,
-                                      ConfigRepository configRepository,
-                                      PermissionGroupPermission permissionGroupPermission) {
+    public PermissionGroupServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            PermissionGroupRepository repository,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            TenantService tenantService,
+            UserRepository userRepository,
+            PolicyUtils policyUtils,
+            ConfigRepository configRepository,
+            PermissionGroupPermission permissionGroupPermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                sessionUserService, tenantService, userRepository, policyUtils, configRepository,
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                sessionUserService,
+                tenantService,
+                userRepository,
+                policyUtils,
+                configRepository,
                 permissionGroupPermission);
     }
 }

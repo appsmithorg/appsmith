@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
@@ -20,14 +21,14 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
     private final DatasourceStorageRepository datasourceStorageRepository;
     private final WorkspaceService workspaceService;
 
-    public DatasourceStorageTransferSolutionCEImpl(DatasourceRepository datasourceRepository,
-                                                   DatasourceStorageRepository datasourceStorageRepository,
-                                                   WorkspaceService workspaceService) {
+    public DatasourceStorageTransferSolutionCEImpl(
+            DatasourceRepository datasourceRepository,
+            DatasourceStorageRepository datasourceStorageRepository,
+            WorkspaceService workspaceService) {
         this.datasourceRepository = datasourceRepository;
         this.datasourceStorageRepository = datasourceStorageRepository;
         this.workspaceService = workspaceService;
     }
-
 
     @Override
     public DatasourceStorage initializeDatasourceStorage(Datasource datasource, String environmentId) {
@@ -40,13 +41,13 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
         return this.transferDatasourceStorage(datasource, environmentId);
     }
 
-    @NotNull
-    private Mono<DatasourceStorage> transferDatasourceStorage(Datasource datasource, String environmentId) {
+    @NotNull private Mono<DatasourceStorage> transferDatasourceStorage(Datasource datasource, String environmentId) {
         final DatasourceStorage datasourceStorage = this.initializeDatasourceStorage(datasource, environmentId);
         datasource.setDatasourceConfiguration(null);
         datasource.setInvalids(null);
         datasource.setHasDatasourceStorage(true);
-        return datasourceStorageRepository.save(datasourceStorage)
+        return datasourceStorageRepository
+                .save(datasourceStorage)
                 .zipWhen(datasourceStorage1 -> datasourceRepository.save(datasource))
                 .map(Tuple2::getT1);
     }
@@ -55,7 +56,8 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
     @Override
     public Mono<DatasourceStorage> transferToFallbackEnvironmentAndGetDatasourceStorage(Datasource datasource) {
 
-        return workspaceService.getDefaultEnvironmentId(datasource.getWorkspaceId())
+        return workspaceService
+                .getDefaultEnvironmentId(datasource.getWorkspaceId())
                 .flatMap(environmentId -> transferDatasourceStorage(datasource, environmentId));
     }
 }

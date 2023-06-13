@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceStorage;
@@ -26,8 +27,7 @@ public interface DatasourceContextServiceCE {
 
     Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, DatasourceStorage datasourceStorage);
 
-    <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage,
-                          Function<DatasourceContext<?>, Mono<T>> task);
+    <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage, Function<DatasourceContext<?>, Mono<T>> task);
 
     Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceStorage datasourceStorage);
 

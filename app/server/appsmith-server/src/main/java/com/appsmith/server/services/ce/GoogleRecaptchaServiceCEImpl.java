@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
@@ -28,9 +29,10 @@ public class GoogleRecaptchaServiceCEImpl implements CaptchaServiceCE {
     private static final Long TIMEOUT_IN_MILLIS = 10000L;
 
     @Autowired
-    public GoogleRecaptchaServiceCEImpl(WebClient.Builder webClientBuilder,
-                                        GoogleRecaptchaConfig googleRecaptchaConfig,
-                                        ObjectMapper objectMapper) {
+    public GoogleRecaptchaServiceCEImpl(
+            WebClient.Builder webClientBuilder,
+            GoogleRecaptchaConfig googleRecaptchaConfig,
+            ObjectMapper objectMapper) {
         this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
         this.googleRecaptchaConfig = googleRecaptchaConfig;
         this.objectMapper = objectMapper;
@@ -46,11 +48,11 @@ public class GoogleRecaptchaServiceCEImpl implements CaptchaServiceCE {
         // API Docs: https://developers.google.com/recaptcha/docs/v3
         return webClient
                 .get()
-                .uri(uriBuilder -> uriBuilder.path(VERIFY_PATH)
+                .uri(uriBuilder -> uriBuilder
+                        .path(VERIFY_PATH)
                         .queryParam("response", recaptchaResponse)
                         .queryParam("secret", googleRecaptchaConfig.getSecretKey())
-                        .build()
-                )
+                        .build())
                 .retrieve()
                 .bodyToMono(String.class)
                 .flatMap(stringBody -> {

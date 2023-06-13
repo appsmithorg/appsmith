@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
@@ -30,5 +31,4 @@ public interface UserSignupCE {
     Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange);
 
     Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange);
-
 }

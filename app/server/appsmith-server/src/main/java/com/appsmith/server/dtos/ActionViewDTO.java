@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.DefaultResources;
@@ -43,7 +44,8 @@ public class ActionViewDTO {
     // and hence would return an action execution error.
     @JsonView(Views.Public.class)
     public Integer getTimeoutInMillisecond() {
-        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
-                DEFAULT_ACTION_EXECUTION_TIMEOUT_MS : timeoutInMillisecond;
+        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0)
+                ? DEFAULT_ACTION_EXECUTION_TIMEOUT_MS
+                : timeoutInMillisecond;
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server;
 
 import org.springframework.boot.Banner;
@@ -14,5 +15,4 @@ public class ServerApplication {
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);
     }
-
 }

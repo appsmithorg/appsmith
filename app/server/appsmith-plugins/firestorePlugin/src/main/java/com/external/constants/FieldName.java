@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.constants;
 
 public class FieldName {
@@ -20,4 +21,3 @@ public class FieldName {
 
     public static final String WHERE_CHILDREN = WHERE + "." + CHILDREN;
 }
-

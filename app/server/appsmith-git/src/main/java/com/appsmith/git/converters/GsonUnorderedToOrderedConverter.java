@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.git.converters;
 
 import com.google.gson.Gson;
@@ -6,13 +7,14 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.springframework.util.CollectionUtils;
 
-import javax.lang.model.type.PrimitiveType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import javax.lang.model.type.PrimitiveType;
 
 public class GsonUnorderedToOrderedConverter<T> implements JsonSerializer<T> {
     @Override
@@ -21,8 +23,7 @@ public class GsonUnorderedToOrderedConverter<T> implements JsonSerializer<T> {
         Gson gson = new Gson();
         if (src instanceof Set) {
             return gson.toJsonTree(getOrderedResource((Set<?>) src));
-        }
-        else if (src instanceof Map) {
+        } else if (src instanceof Map) {
             return gson.toJsonTree(new TreeMap<>((Map<?, ?>) src));
         }
         return (JsonElement) src;

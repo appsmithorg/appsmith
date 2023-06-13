@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -14,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class LayoutController extends LayoutControllerCE {
 
-    public LayoutController(LayoutService layoutService,
-                            LayoutActionService layoutActionService,
-                            RefactoringSolution refactoringSolution) {
+    public LayoutController(
+            LayoutService layoutService,
+            LayoutActionService layoutActionService,
+            RefactoringSolution refactoringSolution) {
 
         super(layoutService, layoutActionService, refactoringSolution);
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
@@ -61,9 +62,7 @@ public class ApplicationSnapshotServiceUnitTest {
 
     @Test
     public void createApplicationSnapshot_WhenApplicationTooLarge_SnapshotCreatedSuccessfully() {
-        String defaultAppId = "default-app-id",
-                branchName = "develop",
-                branchedAppId = "branched-app-id";
+        String defaultAppId = "default-app-id", branchName = "develop", branchedAppId = "branched-app-id";
 
         // Create a large ApplicationJson object that exceeds the 15 MB size
         JSONObject jsonObject = new JSONObject();
@@ -81,17 +80,20 @@ public class ApplicationSnapshotServiceUnitTest {
         ApplicationJson applicationJson = new ApplicationJson();
         applicationJson.setPageList(List.of(newPage));
 
-        Mockito.when(applicationService.findBranchedApplicationId(branchName, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
+        Mockito.when(applicationService.findBranchedApplicationId(
+                        branchName, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.just(branchedAppId));
 
-        Mockito.when(importExportApplicationService.exportApplicationById(branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
+        Mockito.when(importExportApplicationService.exportApplicationById(
+                        branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
                 .thenReturn(Mono.just(applicationJson));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
                 .thenReturn(Mono.just("").then());
 
         // we're expecting to receive two application snapshots, create a matcher to check the size
-        ArgumentMatcher<List<ApplicationSnapshot>> snapshotListHasTwoSnapshot = snapshotList -> snapshotList.size() == 2;
+        ArgumentMatcher<List<ApplicationSnapshot>> snapshotListHasTwoSnapshot =
+                snapshotList -> snapshotList.size() == 2;
 
         Mockito.when(applicationSnapshotRepository.saveAll(argThat(snapshotListHasTwoSnapshot)))
                 .thenReturn(Flux.just(new ApplicationSnapshot(), new ApplicationSnapshot()));
@@ -115,7 +117,8 @@ public class ApplicationSnapshotServiceUnitTest {
         application.setWorkspaceId(workspaceId);
         application.setId(branchedAppId);
 
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(branch, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
+        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+                        branch, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.just(application));
 
         ApplicationJson applicationJson = new ApplicationJson();
@@ -129,16 +132,17 @@ public class ApplicationSnapshotServiceUnitTest {
         List<ApplicationSnapshot> snapshots = List.of(
                 createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize * 2, jsonStringBytes.length), 3),
                 createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, 0, chunkSize), 1),
-                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize, chunkSize * 2), 2)
-        );
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize, chunkSize * 2), 2));
 
         Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))
                 .thenReturn(Flux.fromIterable(snapshots));
 
         // matcher to check that ApplicationJson created from chunks matches the original one
         ArgumentMatcher<ApplicationJson> matchApplicationJson;
-        matchApplicationJson = applicationJson1 -> applicationJson1.getExportedApplication().getName().equals(application.getName());
-        Mockito.when(importExportApplicationService.restoreSnapshot(eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
+        matchApplicationJson = applicationJson1 ->
+                applicationJson1.getExportedApplication().getName().equals(application.getName());
+        Mockito.when(importExportApplicationService.restoreSnapshot(
+                        eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
                 .thenReturn(Mono.just(application));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
@@ -171,7 +175,8 @@ public class ApplicationSnapshotServiceUnitTest {
 
         application.setPages(List.of(applicationPage));
 
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(branch, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
+        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+                        branch, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.just(application));
 
         ApplicationJson applicationJson = new ApplicationJson();
@@ -180,14 +185,13 @@ public class ApplicationSnapshotServiceUnitTest {
         String jsonString = gson.toJson(applicationJson);
         byte[] jsonStringBytes = jsonString.getBytes(StandardCharsets.UTF_8);
 
-        List<ApplicationSnapshot> snapshots = List.of(
-                createSnapshot(branchedAppId, jsonStringBytes, 1)
-        );
+        List<ApplicationSnapshot> snapshots = List.of(createSnapshot(branchedAppId, jsonStringBytes, 1));
 
         Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))
                 .thenReturn(Flux.fromIterable(snapshots));
 
-        Mockito.when(importExportApplicationService.restoreSnapshot(eq(application.getWorkspaceId()), any(), eq(branchedAppId), eq(branch)))
+        Mockito.when(importExportApplicationService.restoreSnapshot(
+                        eq(application.getWorkspaceId()), any(), eq(branchedAppId), eq(branch)))
                 .thenReturn(Mono.just(application));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
@@ -203,7 +207,7 @@ public class ApplicationSnapshotServiceUnitTest {
                 .verifyComplete();
     }
 
-    private ApplicationSnapshot createSnapshot(String applicationId, byte [] data, int chunkOrder) {
+    private ApplicationSnapshot createSnapshot(String applicationId, byte[] data, int chunkOrder) {
         ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
         applicationSnapshot.setApplicationId(applicationId);
         applicationSnapshot.setData(data);
@@ -253,7 +257,8 @@ public class ApplicationSnapshotServiceUnitTest {
         ApplicationSnapshot applicationSnapshot = createSnapshot("branched-app-id", jsonStringBytes, 1);
 
         // mock so that this application is returned
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId("development", "default-app-id", applicationPermission.getEditPermission()))
+        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+                        "development", "default-app-id", applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
 
         // mock so that this application snapshot is returned when queried with branched application id
@@ -261,7 +266,14 @@ public class ApplicationSnapshotServiceUnitTest {
                 .thenReturn(Flux.just(applicationSnapshot));
 
         // mock the import application service to return the application that was passed to it
-        Mockito.when(importExportApplicationService.restoreSnapshot(eq(application.getWorkspaceId()), argThat(applicationJson1 -> applicationJson1.getExportedApplication().getName().equals(application.getName())), eq("branched-app-id"), eq("development")))
+        Mockito.when(importExportApplicationService.restoreSnapshot(
+                        eq(application.getWorkspaceId()),
+                        argThat(applicationJson1 -> applicationJson1
+                                .getExportedApplication()
+                                .getName()
+                                .equals(application.getName())),
+                        eq("branched-app-id"),
+                        eq("development")))
                 .thenReturn(Mono.just(application));
 
         // mock the delete spanshot to return an empty mono
@@ -271,8 +283,10 @@ public class ApplicationSnapshotServiceUnitTest {
         StepVerifier.create(applicationSnapshotService.restoreSnapshot("default-app-id", "development"))
                 .assertNext(application1 -> {
                     assertThat(application1.getName()).isEqualTo(application.getName());
-                    assertThat(application1.getId()).isEqualTo(application.getGitApplicationMetadata().getDefaultApplicationId());
-                    assertThat(application1.getPages().get(0).getId()).isEqualTo(application.getPages().get(0).getDefaultPageId());
+                    assertThat(application1.getId())
+                            .isEqualTo(application.getGitApplicationMetadata().getDefaultApplicationId());
+                    assertThat(application1.getPages().get(0).getId())
+                            .isEqualTo(application.getPages().get(0).getDefaultPageId());
                 })
                 .verifyComplete();
     }

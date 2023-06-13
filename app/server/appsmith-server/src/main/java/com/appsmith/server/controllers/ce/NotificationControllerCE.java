@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -32,8 +33,7 @@ public class NotificationControllerCE extends BaseController<NotificationService
     @JsonView(Views.Public.class)
     @GetMapping("count/unread")
     public Mono<ResponseDTO<Long>> getUnreadCount() {
-        return service.getUnreadCount()
-                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
+        return service.getUnreadCount().map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
 
     @JsonView(Views.Public.class)
@@ -41,9 +41,7 @@ public class NotificationControllerCE extends BaseController<NotificationService
     public Mono<ResponseDTO<UpdateIsReadNotificationByIdDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationByIdDTO body) {
         log.debug("Going to set isRead to notifications by id");
-        return service.updateIsRead(body).map(
-                dto -> new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true)
-        );
+        return service.updateIsRead(body).map(dto -> new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true));
     }
 
     @JsonView(Views.Public.class)
@@ -51,13 +49,12 @@ public class NotificationControllerCE extends BaseController<NotificationService
     public Mono<ResponseDTO<UpdateIsReadNotificationDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationDTO body) {
         log.debug("Going to set isRead to all notifications");
-        return service.updateIsRead(body).map(
-                dto -> new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true)
-        );
+        return service.updateIsRead(body).map(dto -> new ResponseDTO<>(HttpStatus.OK.value(), dto, null, true));
     }
 
     @Override
-    public Mono<ResponseDTO<Notification>> create(Notification resource, String originHeader, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<Notification>> create(
+            Notification resource, String originHeader, ServerWebExchange exchange) {
         return Mono.error(new AppsmithException(UNSUPPORTED_OPERATION));
     }
 

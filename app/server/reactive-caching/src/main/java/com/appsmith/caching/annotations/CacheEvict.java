@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.caching.annotations;
 
 import java.lang.annotation.ElementType;
@@ -27,5 +28,4 @@ public @interface CacheEvict {
      * Whether to evict all keys for a given cache name.
      */
     boolean all() default false;
-    
 }

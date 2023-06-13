@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.exceptions;
 
 import lombok.Getter;
@@ -36,5 +37,4 @@ public abstract class BaseException extends RuntimeException {
     public abstract String getDownstreamErrorCode();
 
     public abstract String getErrorType();
-
 }

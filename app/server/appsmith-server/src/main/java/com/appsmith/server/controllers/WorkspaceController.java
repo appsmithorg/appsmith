@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -11,8 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.WORKSPACE_URL)
 public class WorkspaceController extends WorkspaceControllerCE {
 
-    public WorkspaceController(WorkspaceService workspaceService,
-                               UserWorkspaceService userWorkspaceService) {
+    public WorkspaceController(WorkspaceService workspaceService, UserWorkspaceService userWorkspaceService) {
 
         super(workspaceService, userWorkspaceService);
     }

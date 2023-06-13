@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -47,12 +48,11 @@ public class GetDatasourceMetadataMethod {
             return Mono.just(datasourceConfiguration);
         }
 
-        return fetchEmailAddressFromGoogleAPI(accessToken)
-                .map(emailAddress -> {
-                    List<Property> properties = datasourceConfiguration.getProperties();
-                    datasourceConfiguration.setProperties(setPropertiesWithEmailAddress(properties, emailAddress));
-                    return datasourceConfiguration;
-                });
+        return fetchEmailAddressFromGoogleAPI(accessToken).map(emailAddress -> {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            datasourceConfiguration.setProperties(setPropertiesWithEmailAddress(properties, emailAddress));
+            return datasourceConfiguration;
+        });
     }
 
     public static List<Property> setPropertiesWithEmailAddress(List<Property> properties, String emailAddress) {
@@ -74,7 +74,8 @@ public class GetDatasourceMetadataMethod {
         WebClient client = WebClientUtils.builder().build();
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
         try {
-            uriBuilder.uri(new URI(FieldName.GOOGLE_API_BASE_URL +"/drive/v3/about"))
+            uriBuilder
+                    .uri(new URI(FieldName.GOOGLE_API_BASE_URL + "/drive/v3/about"))
                     .queryParam("fields", "user");
         } catch (URISyntaxException e) {
             // since the datasource authorisation doesn't get affected if this flow fails,
@@ -103,11 +104,7 @@ public class GetDatasourceMetadataMethod {
                         userNode = objectMapper.readTree(jsonBody).get("user");
                     } catch (IOException e) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                new String(responseBody),
-                                e.getMessage()
-                        ));
-
+                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, new String(responseBody), e.getMessage()));
                     }
 
                     return userNode.get(FieldName.EMAIL_ADDRESS).asText();

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.NewAction;
@@ -11,5 +12,4 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
     Flux<NewAction> findByApplicationId(String applicationId);
 
     Mono<Long> countByDeletedAtNull();
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.models.BasicAuth;
@@ -22,7 +23,7 @@ import static com.appsmith.external.constants.Authentication.BASIC_HEADER_PREFIX
 public class BasicAuthentication extends APIConnection {
 
     private String encodedAuthorizationHeader;
-    final private static String HEADER_PREFIX = "Basic ";
+    private static final String HEADER_PREFIX = "Basic ";
 
     public static Mono<BasicAuthentication> create(BasicAuth basicAuth) {
         final BasicAuthentication basicAuthentication = new BasicAuthentication();
@@ -34,12 +35,11 @@ public class BasicAuthentication extends APIConnection {
         return Mono.just(basicAuthentication);
     }
 
-
     @Override
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
         return Mono.justOrEmpty(ClientRequest.from(request)
-                .headers(headers -> headers.set(AUTHORIZATION_HEADER, getHeaderValue()))
-                .build())
+                        .headers(headers -> headers.set(AUTHORIZATION_HEADER, getHeaderValue()))
+                        .build())
                 // Carry on to next exchange function
                 .flatMap(next::exchange)
                 // Default to next exchange function if something went wrong

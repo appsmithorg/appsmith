@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomUserRepositoryCEImpl;
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl implements CustomUserRepository {
 
-    public CustomUserRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomUserRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
-
 }

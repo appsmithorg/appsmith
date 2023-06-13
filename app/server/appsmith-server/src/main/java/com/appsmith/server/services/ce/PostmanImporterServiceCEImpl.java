@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
@@ -25,16 +26,16 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
     private final ResponseUtils responseUtils;
     private final PagePermission pagePermission;
 
-    public PostmanImporterServiceCEImpl(NewPageService newPageService,
-                                        ResponseUtils responseUtils,
-                                        PagePermission pagePermission) {
+    public PostmanImporterServiceCEImpl(
+            NewPageService newPageService, ResponseUtils responseUtils, PagePermission pagePermission) {
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
         this.pagePermission = pagePermission;
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
+    public Mono<ActionDTO> importAction(
+            Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();
@@ -44,7 +45,8 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(pageId);
         action.setName(name);
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
+        return newPageService
+                .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
                 .map(branchedPage -> {
                     action.setDefaultResources(branchedPage.getDefaultResources());
                     return action;
@@ -114,5 +116,4 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
 
         return templateCollection;
     }
-
 }

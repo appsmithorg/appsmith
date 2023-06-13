@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.DatasourceStorage;
@@ -26,7 +27,8 @@ public class Migration010AddIndexToDatasourceStorage {
 
     @Execution
     public void addingIndexToDatasourceStorage() {
-        Index datasourceIdAndEnvironmentId = makeIndex("datasourceId", "environmentId", "deletedAt").unique()
+        Index datasourceIdAndEnvironmentId = makeIndex("datasourceId", "environmentId", "deletedAt")
+                .unique()
                 .named("datasource_storage_compound_index");
 
         ensureIndexes(mongoTemplate, DatasourceStorage.class, datasourceIdAndEnvironmentId);

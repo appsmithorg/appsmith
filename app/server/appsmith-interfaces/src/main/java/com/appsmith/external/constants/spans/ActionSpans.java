@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.constants.spans;
 
 public final class ActionSpans {
@@ -16,6 +17,4 @@ public final class ActionSpans {
     public static final String GET_UNPUBLISHED_ACTION = "get.action.unpublished";
     public static final String GET_VIEW_MODE_ACTION = "get.action.viewmode";
     public static final String GET_ACTION_REPOSITORY_CALL = "get.action.repository.call";
-
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.constants.Security;
@@ -46,7 +47,9 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
             String[] stateArray = state.split(",");
             for (int i = 0; i < stateArray.length; i++) {
                 String stateVar = stateArray[i];
-                if (stateVar != null && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN) && stateVar.contains("=")) {
+                if (stateVar != null
+                        && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN)
+                        && stateVar.contains("=")) {
                     // This is the origin of the request that we want to redirect to
                     originHeader = stateVar.split("=")[1];
                 }
@@ -76,11 +79,17 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         URI defaultRedirectLocation;
         String url = "";
         if (exception instanceof OAuth2AuthenticationException
-                && AppsmithError.SIGNUP_DISABLED.getAppErrorCode().toString().equals(((OAuth2AuthenticationException) exception).getError().getErrorCode())) {
+                && AppsmithError.SIGNUP_DISABLED
+                        .getAppErrorCode()
+                        .toString()
+                        .equals(((OAuth2AuthenticationException) exception)
+                                .getError()
+                                .getErrorCode())) {
             url = "/user/signup?error=" + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
         } else {
             if (exception instanceof InternalAuthenticationServiceException) {
-                url = originHeader + "/user/login?error=true&message=" + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
+                url = originHeader + "/user/login?error=true&message="
+                        + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
             } else {
                 url = originHeader + "/user/login?error=true";
             }
@@ -91,5 +100,4 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         defaultRedirectLocation = URI.create(url);
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
     }
-
 }

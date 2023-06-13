@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.MustacheBindingToken;
@@ -22,7 +23,13 @@ public interface AstServiceCE {
      * @param evalVersion   : The evaluated value version of the current app to be used while AST parsing
      * @return A mono of list of strings that represent all valid global references in the binding string
      */
-    Flux<Tuple2<String, Set<String>>> getPossibleReferencesFromDynamicBinding(List<String> bindingValues, int evalVersion);
+    Flux<Tuple2<String, Set<String>>> getPossibleReferencesFromDynamicBinding(
+            List<String> bindingValues, int evalVersion);
 
-    Mono<Map<MustacheBindingToken, String>> refactorNameInDynamicBindings(Set<MustacheBindingToken> bindingValues, String oldName, String newName, int evalVersion, boolean isJSObject);
+    Mono<Map<MustacheBindingToken, String>> refactorNameInDynamicBindings(
+            Set<MustacheBindingToken> bindingValues,
+            String oldName,
+            String newName,
+            int evalVersion,
+            boolean isJSObject);
 }

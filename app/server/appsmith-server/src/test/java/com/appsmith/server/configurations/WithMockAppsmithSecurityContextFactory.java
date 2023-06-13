@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.domains.User;
@@ -16,7 +17,8 @@ public class WithMockAppsmithSecurityContextFactory implements WithSecurityConte
         principal.setId(mockAppsmithUser.username());
         principal.setEmail(mockAppsmithUser.username());
         principal.setName(mockAppsmithUser.name());
-        Authentication auth = new UsernamePasswordAuthenticationToken(principal, "password", principal.getAuthorities());
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(principal, "password", principal.getAuthorities());
         context.setAuthentication(auth);
         return context;
     }

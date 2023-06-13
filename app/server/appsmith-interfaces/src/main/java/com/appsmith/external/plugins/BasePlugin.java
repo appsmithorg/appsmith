@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.plugins;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,5 +12,4 @@ public abstract class BasePlugin extends Plugin {
     public BasePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
-
 }

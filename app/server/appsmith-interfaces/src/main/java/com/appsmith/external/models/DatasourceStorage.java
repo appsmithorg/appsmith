@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
@@ -78,12 +79,13 @@ public class DatasourceStorage extends BaseDomain {
     @Transient
     Boolean isMock;
 
-    public DatasourceStorage(String datasourceId,
-                             String environmentId,
-                             DatasourceConfiguration datasourceConfiguration,
-                             Boolean isConfigured,
-                             Set<String> invalids,
-                             Set<String> messages) {
+    public DatasourceStorage(
+            String datasourceId,
+            String environmentId,
+            DatasourceConfiguration datasourceConfiguration,
+            Boolean isConfigured,
+            Set<String> invalids,
+            Set<String> messages) {
 
         this.datasourceId = datasourceId;
         this.environmentId = environmentId;

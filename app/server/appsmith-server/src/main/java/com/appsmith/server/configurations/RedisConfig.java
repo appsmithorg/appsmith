@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.domains.LoginSource;
@@ -59,7 +60,8 @@ public class RedisConfig {
         RedisSerializationContext.RedisSerializationContextBuilder<String, String> builder =
                 RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
 
-        RedisSerializationContext<String, String> context = builder.value(serializer).build();
+        RedisSerializationContext<String, String> context =
+                builder.value(serializer).build();
 
         return new ReactiveRedisTemplate<>(factory, context);
     }
@@ -67,12 +69,14 @@ public class RedisConfig {
     // Lifted from below and turned it into a bean. Wish Spring provided it as a bean.
     // RedisWebSessionConfiguration.createReactiveRedisTemplate
     @Bean
-    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory,
-                                                                RedisSerializer<Object> serializer) {
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(
+            ReactiveRedisConnectionFactory factory, RedisSerializer<Object> serializer) {
         RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-                .<String, Object>newSerializationContext(serializer).key(keySerializer).hashKey(keySerializer)
-                .build();
+        RedisSerializationContext<String, Object> serializationContext =
+                RedisSerializationContext.<String, Object>newSerializationContext(serializer)
+                        .key(keySerializer)
+                        .hashKey(keySerializer)
+                        .build();
         return new ReactiveRedisTemplate<>(factory, serializationContext);
     }
 
@@ -84,7 +88,8 @@ public class RedisConfig {
 
         private final JdkSerializationRedisSerializer fallback = new JdkSerializationRedisSerializer();
 
-        private final GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(new JsonMapper());
+        private final GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer(new JsonMapper());
 
         @Override
         public byte[] serialize(Object t) {
@@ -107,7 +112,6 @@ public class RedisConfig {
                     final byte[] bytes = serializeOAuthClientMap(data);
                     return bytes == null ? null : ByteUtils.concat(OAUTH_CLIENT_PREFIX, bytes);
                 }
-
             }
 
             return fallback.serialize(t);
@@ -128,7 +132,10 @@ public class RedisConfig {
                     }
                     dataMap.put(key, dto);
                 } else {
-                    log.warn("Unknown data type found in session data. Key: {}, Value: {}", entry.getKey(), entry.getValue());
+                    log.warn(
+                            "Unknown data type found in session data. Key: {}, Value: {}",
+                            entry.getKey(),
+                            entry.getValue());
                 }
             }
             return jsonSerializer.serialize(dataMap);
@@ -156,17 +163,15 @@ public class RedisConfig {
 
                 final Map<String, OAuth2AuthorizedClient> sessionData = new HashMap<>();
                 for (final Map.Entry<String, Map<?, ?>> entry : clientData.entrySet()) {
-                    final OAuth2AuthorizedClientDTO dto = new ObjectMapper()
-                            .convertValue(entry.getValue(), OAuth2AuthorizedClientDTO.class);
+                    final OAuth2AuthorizedClientDTO dto =
+                            new ObjectMapper().convertValue(entry.getValue(), OAuth2AuthorizedClientDTO.class);
                     sessionData.put(entry.getKey(), dto.makeOAuth2AuthorizedClient());
                 }
 
                 return sessionData;
-
             }
 
             return fallback.deserialize(bytes);
         }
     }
-
 }

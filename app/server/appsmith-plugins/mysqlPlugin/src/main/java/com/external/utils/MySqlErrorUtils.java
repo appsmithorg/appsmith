@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -34,8 +35,7 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils {
             }
 
             externalError = ((AppsmithPluginException) error).getExternalError();
-        }
-        else {
+        } else {
             externalError = error;
         }
 
@@ -43,17 +43,18 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils {
 
             /**
              *@param [9000] [H1000] Fail to establish connection to [host:port] :
-                                            Access denied for user 'username'@'host' (using password: NO)
+             * Access denied for user 'username'@'host' (using password: NO)
              *@return Access denied for user 'username'@'host'
              */
-
-            R2dbcNonTransientResourceException r2dbcNonTransientResourceException = (R2dbcNonTransientResourceException) externalError;
-            return r2dbcNonTransientResourceException.getMessage().split(" : ")[1].
-                    split(" \\(")[0].trim();
-
+            R2dbcNonTransientResourceException r2dbcNonTransientResourceException =
+                    (R2dbcNonTransientResourceException) externalError;
+            return r2dbcNonTransientResourceException
+                    .getMessage()
+                    .split(" : ")[1]
+                    .split(" \\(")[0]
+                    .trim();
         }
 
         return externalError.getMessage();
     }
 }
-

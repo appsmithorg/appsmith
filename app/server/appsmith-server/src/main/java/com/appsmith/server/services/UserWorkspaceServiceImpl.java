@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.PolicyUtils;
@@ -15,19 +16,30 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl implements UserWorkspaceService {
 
-    public UserWorkspaceServiceImpl(SessionUserService sessionUserService,
-                                    WorkspaceRepository workspaceRepository,
-                                    UserRepository userRepository,
-                                    UserDataRepository userDataRepository,
-                                    PolicyUtils policyUtils,
-                                    EmailSender emailSender,
-                                    UserDataService userDataService,
-                                    PermissionGroupService permissionGroupService,
-                                    TenantService tenantService,
-                                    WorkspacePermission workspacePermission,
-                                    PermissionGroupPermission permissionGroupPermission) {
+    public UserWorkspaceServiceImpl(
+            SessionUserService sessionUserService,
+            WorkspaceRepository workspaceRepository,
+            UserRepository userRepository,
+            UserDataRepository userDataRepository,
+            PolicyUtils policyUtils,
+            EmailSender emailSender,
+            UserDataService userDataService,
+            PermissionGroupService permissionGroupService,
+            TenantService tenantService,
+            WorkspacePermission workspacePermission,
+            PermissionGroupPermission permissionGroupPermission) {
 
-        super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policyUtils, emailSender,
-                userDataService, permissionGroupService, tenantService, workspacePermission, permissionGroupPermission);
+        super(
+                sessionUserService,
+                workspaceRepository,
+                userRepository,
+                userDataRepository,
+                policyUtils,
+                emailSender,
+                userDataService,
+                permissionGroupService,
+                tenantService,
+                workspacePermission,
+                permissionGroupPermission);
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.ResponseUtils;
@@ -11,25 +12,35 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ce.ApplicationFetcherCEImpl;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class ApplicationFetcherImpl extends ApplicationFetcherCEImpl implements ApplicationFetcher {
 
-    public ApplicationFetcherImpl(SessionUserService sessionUserService,
-                                  UserService userService,
-                                  UserDataService userDataService,
-                                  WorkspaceService workspaceService,
-                                  ApplicationRepository applicationRepository,
-                                  ReleaseNotesService releaseNotesService,
-                                  ResponseUtils responseUtils,
-                                  NewPageService newPageService,
-                                  UserWorkspaceService userWorkspaceService,
-                                  WorkspacePermission workspacePermission,
-                                  ApplicationPermission applicationPermission,
-                                  PagePermission pagePermission) {
+    public ApplicationFetcherImpl(
+            SessionUserService sessionUserService,
+            UserService userService,
+            UserDataService userDataService,
+            WorkspaceService workspaceService,
+            ApplicationRepository applicationRepository,
+            ReleaseNotesService releaseNotesService,
+            ResponseUtils responseUtils,
+            NewPageService newPageService,
+            UserWorkspaceService userWorkspaceService,
+            WorkspacePermission workspacePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission) {
 
-        super(sessionUserService, userService, userDataService, workspaceService, applicationRepository,
-                releaseNotesService, responseUtils, newPageService, userWorkspaceService, workspacePermission,
-                applicationPermission, pagePermission);
+        super(
+                sessionUserService,
+                userService,
+                userDataService,
+                workspaceService,
+                applicationRepository,
+                releaseNotesService,
+                responseUtils,
+                newPageService,
+                userWorkspaceService,
+                workspacePermission,
+                applicationPermission,
+                pagePermission);
     }
 }

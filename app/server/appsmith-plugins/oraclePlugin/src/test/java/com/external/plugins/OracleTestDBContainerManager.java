@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins;
 
 import com.appsmith.external.models.Connection;
@@ -32,13 +33,13 @@ public class OracleTestDBContainerManager {
     public static DatasourceConfiguration getDefaultDatasourceConfig(OracleContainer oracleDB) {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(new DBAuth());
-        ((DBAuth)dsConfig.getAuthentication()).setUsername(OracleTestDBContainerManager.ORACLE_USERNAME);
-        ((DBAuth)dsConfig.getAuthentication()).setPassword(OracleTestDBContainerManager.ORACLE_PASSWORD);
-        ((DBAuth)dsConfig.getAuthentication()).setDatabaseName(OracleTestDBContainerManager.ORACLE_DB_NAME);
+        ((DBAuth) dsConfig.getAuthentication()).setUsername(OracleTestDBContainerManager.ORACLE_USERNAME);
+        ((DBAuth) dsConfig.getAuthentication()).setPassword(OracleTestDBContainerManager.ORACLE_PASSWORD);
+        ((DBAuth) dsConfig.getAuthentication()).setDatabaseName(OracleTestDBContainerManager.ORACLE_DB_NAME);
 
         dsConfig.setEndpoints(new ArrayList<>());
         String host = oracleDB == null ? "host" : oracleDB.getHost();
-        long port = oracleDB == null ? 1521L : (long)oracleDB.getOraclePort();
+        long port = oracleDB == null ? 1521L : (long) oracleDB.getOraclePort();
         dsConfig.getEndpoints().add(new Endpoint(host, port));
 
         dsConfig.setConnection(new Connection());

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -27,9 +28,7 @@ public class IndexControllerCE {
     @GetMapping
     public Mono<String> index(Mono<Principal> principal) {
         Mono<User> userMono = service.getCurrentUser();
-        return userMono
-                .map(obj -> obj.getUsername())
-                .map(name -> String.format("Hello %s", name));
+        return userMono.map(obj -> obj.getUsername()).map(name -> String.format("Hello %s", name));
     }
 
     /*
@@ -41,5 +40,4 @@ public class IndexControllerCE {
     public Mono<Long> pubRedisMessage() {
         return reactiveTemplate.convertAndSend(topic.getTopic(), "This is a test message");
     }
-
 }

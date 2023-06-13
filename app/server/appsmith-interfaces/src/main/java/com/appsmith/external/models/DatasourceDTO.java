@@ -1,6 +1,6 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
-import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -56,7 +56,6 @@ public class DatasourceDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> messages;
-
 
     /*
      * This field is introduced as part of git sync feature, for the git import we will need to identify the datasource's

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -37,5 +38,4 @@ public class TenantControllerCE {
         return service.getTenantConfiguration()
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
-
 }

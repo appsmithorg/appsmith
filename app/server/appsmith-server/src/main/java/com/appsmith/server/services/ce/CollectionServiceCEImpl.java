@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -21,14 +22,16 @@ import java.util.List;
 import java.util.ListIterator;
 
 @Slf4j
-public class CollectionServiceCEImpl extends BaseService<CollectionRepository, Collection, String> implements CollectionServiceCE {
+public class CollectionServiceCEImpl extends BaseService<CollectionRepository, Collection, String>
+        implements CollectionServiceCE {
 
-    public CollectionServiceCEImpl(Scheduler scheduler,
-                                   Validator validator,
-                                   MongoConverter mongoConverter,
-                                   ReactiveMongoTemplate reactiveMongoTemplate,
-                                   CollectionRepository repository,
-                                   AnalyticsService analyticsService) {
+    public CollectionServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            CollectionRepository repository,
+            AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 
@@ -41,7 +44,6 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
     public Mono<Collection> addActionsToCollection(Collection collection, List<NewAction> actions) {
         collection.setActions(actions);
         return repository.save(collection);
-
     }
 
     @Override
@@ -55,7 +57,8 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
 
         return repository
                 .findById(collectionId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .flatMap(collection1 -> {
                     List<NewAction> actions = collection1.getActions();
                     if (actions == null) {
@@ -87,7 +90,8 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
 
         return repository
                 .findById(collectionId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .zipWith(actionMono)
                 .flatMap(tuple -> {
                     Collection collection = tuple.getT1();
@@ -99,7 +103,9 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
 
                     List<NewAction> actions = collection.getActions();
                     if (actions == null || actions.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID + " or " + FieldName.COLLECTION_ID));
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_PARAMETER,
+                                FieldName.ACTION_ID + " or " + FieldName.COLLECTION_ID));
                     }
                     ListIterator<NewAction> actionIterator = actions.listIterator();
                     while (actionIterator.hasNext()) {

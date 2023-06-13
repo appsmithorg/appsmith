@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
@@ -15,7 +16,8 @@ public class DatasourceStructureServiceCEImpl implements DatasourceStructureServ
     protected final DatasourceStructureRepository repository;
 
     @Override
-    public Mono<DatasourceStorageStructure> getByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+    public Mono<DatasourceStorageStructure> getByDatasourceIdAndEnvironmentId(
+            String datasourceId, String environmentId) {
         return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
     }
 

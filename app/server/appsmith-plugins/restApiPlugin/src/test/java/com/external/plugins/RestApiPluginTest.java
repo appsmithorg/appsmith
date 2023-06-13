@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
@@ -40,7 +41,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import javax.crypto.SecretKey;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -58,6 +58,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.zip.GZIPOutputStream;
+
+import javax.crypto.SecretKey;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -98,7 +100,8 @@ public class RestApiPluginTest {
         }
     }
 
-    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
+    RestApiPlugin.RestApiPluginExecutor pluginExecutor =
+            new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -111,7 +114,7 @@ public class RestApiPluginTest {
     public void tearDown() throws IOException {
         mockEndpoint.shutdown();
     }
-    
+
     @Test
     public void testValidJsonApiExecution() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
@@ -119,11 +122,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
-
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         final List<Property> headers = List.of(new Property("content-type", "application/json"));
@@ -132,7 +131,8 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -152,15 +152,16 @@ public class RestApiPluginTest {
                         assert false : e.getMessage();
                     }
 
-
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(baseUrl, request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
                     assertEquals(requestBody, request.getBody().toString());
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    final Iterator<Map.Entry<String, JsonNode>> fields =
+                            ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
                         if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
-                            assertEquals("application/json", field.getValue().get(0).asText());
+                            assertEquals(
+                                    "application/json", field.getValue().get(0).asText());
                         }
                     });
                 })
@@ -172,13 +173,10 @@ public class RestApiPluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
-        //added whitespaces in url to validate successful execution of the same
+        // added whitespaces in url to validate successful execution of the same
         dsConfig.setUrl("  " + baseUrl + "  ");
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         final List<Property> headers = List.of(new Property("content-type", "application/json"));
@@ -187,7 +185,8 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -217,10 +216,7 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter", "abc 11"),
-                new Property("pageSize", "1"),
-                new Property("page", "3")
-        );
+                new Property("mock_filter", "abc 11"), new Property("pageSize", "1"), new Property("page", "3"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(headers);
@@ -241,7 +237,8 @@ public class RestApiPluginTest {
 
         actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -266,8 +263,8 @@ public class RestApiPluginTest {
 
         HttpUrl mockHttpUrl = mockEndpoint.url("/mock");
 
-        String previousUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11",
-                StandardCharsets.UTF_8);
+        String previousUrl =
+                URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11", StandardCharsets.UTF_8);
         String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -280,10 +277,7 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter", "abc 11"),
-                new Property("pageSize", "1"),
-                new Property("page", "3")
-        );
+                new Property("mock_filter", "abc 11"), new Property("pageSize", "1"), new Property("page", "3"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(headers);
@@ -304,7 +298,8 @@ public class RestApiPluginTest {
 
         actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -342,10 +337,7 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter", "abc 11"),
-                new Property("pageSize", "1"),
-                new Property("page", "3")
-        );
+                new Property("mock_filter", "abc 11"), new Property("pageSize", "1"), new Property("page", "3"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(headers);
@@ -366,7 +358,8 @@ public class RestApiPluginTest {
 
         actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -392,7 +385,8 @@ public class RestApiPluginTest {
         HttpUrl mockHttpUrl = mockEndpoint.url("/mock");
 
         String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
-        String nextUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11", StandardCharsets.UTF_8);
+        String nextUrl =
+                URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11", StandardCharsets.UTF_8);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setPaginationField(PaginationField.NEXT);
@@ -404,10 +398,7 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter", "abc 11"),
-                new Property("pageSize", "1"),
-                new Property("page", "3")
-        );
+                new Property("mock_filter", "abc 11"), new Property("pageSize", "1"), new Property("page", "3"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(headers);
@@ -428,7 +419,8 @@ public class RestApiPluginTest {
 
         actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -451,21 +443,15 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
-
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
         actionConfig.setHttpMethod(HttpMethod.POST);
         actionConfig.setBodyFormData(List.of(
-                new Property("key", "value"),
-                new Property("key1", "value1"),
-                new Property(null, "irrelevantValue")
-        ));
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+                new Property("key", "value"), new Property("key1", "value1"), new Property(null, "irrelevantValue")));
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -498,11 +484,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
-
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "text/plain;charset=UTF-8")));
@@ -510,7 +492,8 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -541,21 +524,16 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
-
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
-        dsConfig.setProperties(List.of(
-                new Property("isSendSessionEnabled", "Y"),
-                new Property("sessionSignatureKey", secretKey)
-        ));
+        dsConfig.setProperties(
+                List.of(new Property("isSendSessionEnabled", "Y"), new Property("sessionSignatureKey", secretKey)));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -575,7 +553,8 @@ public class RestApiPluginTest {
                                 .getBody()
                                 .getIssuer();
                         assertEquals("Appsmith", issuer);
-                        final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                        final Iterator<Map.Entry<String, JsonNode>> fields =
+                                ((ObjectNode) result.getRequest().getHeaders()).fields();
                         fields.forEachRemaining(field -> {
                             if ("X-Appsmith-Signature".equalsIgnoreCase(field.getKey())) {
                                 assertEquals(token, field.getValue().get(0).asText());
@@ -585,7 +564,6 @@ public class RestApiPluginTest {
                     } catch (InterruptedException e) {
                         assert false : e.getMessage();
                     }
-
                 })
                 .verifyComplete();
     }
@@ -611,8 +589,7 @@ public class RestApiPluginTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("https://postman-echo.com/get");
 
-        final List<Property> headers = List.of(
-                new Property("content-type", MediaType.TEXT_PLAIN_VALUE));
+        final List<Property> headers = List.of(new Property("content-type", MediaType.TEXT_PLAIN_VALUE));
 
         final List<Property> queryParameters = List.of();
 
@@ -638,7 +615,8 @@ public class RestApiPluginTest {
         for (int requestBodyIndex = 0; requestBodyIndex < requestBodyList.length; requestBodyIndex++) {
 
             actionConfiguration.setBody(requestBodyList[requestBodyIndex]);
-            Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
+            Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                    null, executeActionDTO, datasourceConfiguration, actionConfiguration);
 
             int currentIndex = requestBodyIndex;
             StepVerifier.create(resultMono)
@@ -668,20 +646,16 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
-        dsConfig.setProperties(List.of(
-                new Property("isSendSessionEnabled", "Y"),
-                new Property("sessionSignatureKey", secretKey)
-        ));
+        dsConfig.setProperties(
+                List.of(new Property("isSendSessionEnabled", "Y"), new Property("sessionSignatureKey", secretKey)));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -694,13 +668,13 @@ public class RestApiPluginTest {
                         String token = recordedRequest.getHeaders().get("X-Appsmith-Signature");
 
                         final SecretKey key = Keys.hmacShaKeyFor((secretKey + "-abc").getBytes(StandardCharsets.UTF_8));
-                        final JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();
+                        final JwtParser parser =
+                                Jwts.parserBuilder().setSigningKey(key).build();
 
                         assertThrows(SignatureException.class, () -> parser.parseClaimsJws(token));
                     } catch (InterruptedException e) {
                         assert false : e.getMessage();
                     }
-
                 })
                 .verifyComplete();
     }
@@ -712,10 +686,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -728,7 +699,8 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(queryParams);
         actionConfig.setEncodeParamsToggle(true);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -762,10 +734,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -778,7 +747,8 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(queryParams);
         actionConfig.setEncodeParamsToggle(null);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -812,10 +782,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -829,12 +796,13 @@ public class RestApiPluginTest {
         actionConfig.setEncodeParamsToggle(false);
 
         Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
-        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.executeParameterized(null,
-                new ExecuteActionDTO(),
-                dsConfig,
-                actionConfig));
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(
+                executor -> executor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig));
         StepVerifier.create(resultMono)
-                .assertNext(actionExecutionResult -> assertTrue(actionExecutionResult.getPluginErrorDetails().getDownstreamErrorMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\"")))
+                .assertNext(actionExecutionResult -> assertTrue(actionExecutionResult
+                        .getPluginErrorDetails()
+                        .getDownstreamErrorMessage()
+                        .contains("Invalid character ' ' for QUERY_PARAM in \"query val\"")))
                 .verifyComplete();
     }
 
@@ -846,11 +814,12 @@ public class RestApiPluginTest {
         datasourceConfiguration.setAuthentication(oAuth2);
 
         Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
-        Mono<Set<String>> invalidsMono = pluginExecutorMono.map(executor -> executor.validateDatasource(datasourceConfiguration));
+        Mono<Set<String>> invalidsMono =
+                pluginExecutorMono.map(executor -> executor.validateDatasource(datasourceConfiguration));
 
-        StepVerifier
-                .create(invalidsMono)
-                .assertNext(invalids -> assertIterableEquals(Set.of("Missing Client ID", "Missing client secret", "Missing access token URL"), invalids));
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> assertIterableEquals(
+                        Set.of("Missing Client ID", "Missing client secret", "Missing access token URL"), invalids));
     }
 
     @Test
@@ -859,15 +828,13 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = """
+        String requestBody =
+                """
                 {
                 \t"name" : {{Input1.text}},
                 \t"email" : {{Input2.text}},
@@ -911,22 +878,26 @@ public class RestApiPluginTest {
         params.add(param6);
         Param param7 = new Param();
         param7.setKey("Table1.selectedRow");
-        param7.setValue("{  \"id\": 2381224,  \"email\": \"michael.lawson@reqres.in\",  \"userName\": \"Michael Lawson\",  \"productName\": \"Chicken Sandwich\",  \"orderAmount\": 4.99}");
+        param7.setValue(
+                "{  \"id\": 2381224,  \"email\": \"michael.lawson@reqres.in\",  \"userName\": \"Michael Lawson\",  \"productName\": \"Chicken Sandwich\",  \"orderAmount\": 4.99}");
         param7.setClientDataType(ClientDataType.OBJECT);
         params.add(param7);
         Param param8 = new Param();
         param8.setKey("Table1.tableData");
-        param8.setValue("[  {    \"id\": 2381224,    \"email\": \"michael.lawson@reqres.in\",    \"userName\": \"Michael Lawson\",    \"productName\": \"Chicken Sandwich\",    \"orderAmount\": 4.99  },  {    \"id\": 2736212,    \"email\": \"lindsay.ferguson@reqres.in\",    \"userName\": \"Lindsay Ferguson\",    \"productName\": \"Tuna Salad\",    \"orderAmount\": 9.99  },  {    \"id\": 6788734,    \"email\": \"tobias.funke@reqres.in\",    \"userName\": \"Tobias Funke\",    \"productName\": \"Beef steak\",    \"orderAmount\": 19.99  }]");
+        param8.setValue(
+                "[  {    \"id\": 2381224,    \"email\": \"michael.lawson@reqres.in\",    \"userName\": \"Michael Lawson\",    \"productName\": \"Chicken Sandwich\",    \"orderAmount\": 4.99  },  {    \"id\": 2736212,    \"email\": \"lindsay.ferguson@reqres.in\",    \"userName\": \"Lindsay Ferguson\",    \"productName\": \"Tuna Salad\",    \"orderAmount\": 9.99  },  {    \"id\": 6788734,    \"email\": \"tobias.funke@reqres.in\",    \"userName\": \"Tobias Funke\",    \"productName\": \"Beef steak\",    \"orderAmount\": 19.99  }]");
         param8.setClientDataType(ClientDataType.ARRAY);
         params.add(param8);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String resultBody = "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
+                    String resultBody =
+                            "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
 
                     try {
                         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
@@ -944,8 +915,8 @@ public class RestApiPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<Map.Entry<String, String>> parameters =
-                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>)
+                            request.getProperties().get("smart-substitution-parameters");
                     assertEquals(7, parameters.size());
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
@@ -977,30 +948,31 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type", "multipart/form-data")));
 
         actionConfig.setHttpMethod(HttpMethod.POST);
         final Property key1 = new Property("key1", "onlyValue");
-        final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
-        final Property key3 = new Property("key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
+        final Property key2 = new Property(
+                "key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
+        final Property key3 = new Property(
+                "key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
         final Property key4 = new Property(null, "irrelevantValue");
         key2.setType("FILE");
         key3.setType("FILE");
         List<Property> formData = List.of(key1, key2, key3, key4);
         actionConfig.setBodyFormData(formData);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    assertEquals(Map.of(
+                    assertEquals(
+                            Map.of(
                                     "key1", "onlyValue",
                                     "key2", "<file>",
                                     "key3", "<file>"),
@@ -1017,20 +989,26 @@ public class RestApiPluginTest {
 
                         String bodyString = new String(bodyBytes);
 
-                        assertTrue(bodyString.contains("""
+                        assertTrue(
+                                bodyString.contains(
+                                        """
                                 Content-Disposition: form-data; name="key1"\r
                                 Content-Type: text/plain;charset=UTF-8\r
                                 Content-Length: 9\r
                                 \r
                                 onlyValue"""));
 
-                        assertTrue(bodyString.contains("""
+                        assertTrue(
+                                bodyString.contains(
+                                        """
                                 Content-Disposition: form-data; name="key2"; filename="fileName"\r
                                 Content-Type: application/json\r
                                 \r
                                 {key=value}"""));
 
-                        assertTrue(bodyString.contains("""
+                        assertTrue(
+                                bodyString.contains(
+                                        """
                                 Content-Disposition: form-data; name="key3"; filename="fileName2"\r
                                 Content-Type: application/json\r
                                 \r
@@ -1048,16 +1026,15 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("invalid json text")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(
+                new MockResponse().setBody("invalid json text").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
 
-        String requestBody = """
+        String requestBody =
+                """
                 {
                     "headers": {
                         "Content-Type": "application/json",
@@ -1067,7 +1044,8 @@ public class RestApiPluginTest {
                 }""";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -1082,7 +1060,8 @@ public class RestApiPluginTest {
                         recordedRequestBody.readFully(bodyBytes);
                         recordedRequestBody.close();
 
-                        assertEquals("{\"headers\":{\"X-RANDOM-HEADER\":\"random-value\",\"Content-Type\":\"application/json\"},\"body\":\"invalid json text\"}",
+                        assertEquals(
+                                "{\"headers\":{\"X-RANDOM-HEADER\":\"random-value\",\"Content-Type\":\"application/json\"},\"body\":\"invalid json text\"}",
                                 new String(bodyBytes));
 
                         String contentType = recordedRequest.getHeaders().get("Content-Type");
@@ -1093,11 +1072,11 @@ public class RestApiPluginTest {
                     assertEquals("invalid json text", result.getBody());
 
                     assertEquals(1, result.getMessages().size());
-                    String expectedMessage = "The response returned by this API is not a valid JSON. Please " +
-                            "be careful when using the API response anywhere a valid JSON is required" +
-                            ". You may resolve this issue either by modifying the 'Content-Type' " +
-                            "Header to indicate a non-JSON response or by modifying the API response " +
-                            "to return a valid JSON.";
+                    String expectedMessage = "The response returned by this API is not a valid JSON. Please "
+                            + "be careful when using the API response anywhere a valid JSON is required"
+                            + ". You may resolve this issue either by modifying the 'Content-Type' "
+                            + "Header to indicate a non-JSON response or by modifying the API response "
+                            + "to return a valid JSON.";
                     assertEquals(expectedMessage, result.getMessages().toArray()[0]);
                 })
                 .verifyComplete();
@@ -1109,10 +1088,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "api_key", "Token", "test");
         dsConfig.setAuthentication(authenticationDTO);
@@ -1120,24 +1096,27 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(
                 new Property("content-type", "application/json"),
-                new Property(HttpHeaders.AUTHORIZATION, "auth-value")
-        ));
+                new Property(HttpHeaders.AUTHORIZATION, "auth-value")));
         actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
 
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
+        final APIConnection apiConnection =
+                pluginExecutor.datasourceCreate(dsConfig).block();
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getRequest().getBody());
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    final Iterator<Map.Entry<String, JsonNode>> fields =
+                            ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
-                        if ("api_key".equalsIgnoreCase(field.getKey()) || HttpHeaders.AUTHORIZATION.equalsIgnoreCase(field.getKey())) {
+                        if ("api_key".equalsIgnoreCase(field.getKey())
+                                || HttpHeaders.AUTHORIZATION.equalsIgnoreCase(field.getKey())) {
                             assertEquals("****", field.getValue().get(0).asText());
                         }
                     });
@@ -1151,15 +1130,13 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = """
+        String requestBody =
+                """
                 {
                 \t"name" : {{Input1.text}},
                 \t"email" : {{Input2.text}},
@@ -1183,7 +1160,8 @@ public class RestApiPluginTest {
         params.add(param2);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -1237,7 +1215,7 @@ public class RestApiPluginTest {
         actionHeaders.add(new Property("myHeader4", "myVal"));
         actionHeaders.add(new Property("myHeader4", "myVal")); // duplicate
         actionHeaders.add(new Property("myHeader5", "myVal"));
-        actionHeaders.add(new Property("apiKey", "myVal"));  // duplicate - because also inherited from authentication
+        actionHeaders.add(new Property("apiKey", "myVal")); // duplicate - because also inherited from authentication
         actionConfig.setHeaders(actionHeaders);
 
         // Add params to API query editor page.
@@ -1260,8 +1238,7 @@ public class RestApiPluginTest {
 
         /* Test duplicate query params in datasource configuration only */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly =
-                hintMessageUtils.getAllDuplicateParams(null,
-                        dsConfig);
+                hintMessageUtils.getAllDuplicateParams(null, dsConfig);
 
         // Query param duplicates
         Set<String> expectedDuplicateParams = new HashSet<>();
@@ -1293,8 +1270,7 @@ public class RestApiPluginTest {
 
         /* Test duplicate query params in action + datasource config */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
-                hintMessageUtils.getAllDuplicateParams(actionConfig,
-                        dsConfig);
+                hintMessageUtils.getAllDuplicateParams(actionConfig, dsConfig);
 
         // Query param duplicates in datasource config only
         expectedDuplicateParams = new HashSet<>();
@@ -1326,7 +1302,7 @@ public class RestApiPluginTest {
         // Add headers to API query editor page.
         ArrayList<Property> actionHeaders = new ArrayList<>();
         actionHeaders.add(new Property("myHeader1", "myVal"));
-        actionHeaders.add(new Property("Authorization", "myVal"));  // duplicate - because also inherited from dsConfig
+        actionHeaders.add(new Property("Authorization", "myVal")); // duplicate - because also inherited from dsConfig
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(actionHeaders);
 
@@ -1366,8 +1342,7 @@ public class RestApiPluginTest {
 
         /* Test duplicate params in datasource + action configuration */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
-                hintMessageUtils.getAllDuplicateParams(actionConfig,
-                        dsConfig);
+                hintMessageUtils.getAllDuplicateParams(actionConfig, dsConfig);
 
         // Param duplicates in ds config only
         assertTrue(allDuplicateParams.get(DATASOURCE_CONFIG_ONLY).isEmpty());
@@ -1407,26 +1382,26 @@ public class RestApiPluginTest {
                 .assertNext(tuple -> {
                     Set<String> datasourceHintMessages = tuple.getT1();
                     Set<String> expectedDatasourceHintMessages = new HashSet<>();
-                    expectedDatasourceHintMessages.add("API queries linked to this datasource may not run as expected" +
-                            " because this datasource has duplicate definition(s) for param(s): [myParam1]. Please " +
-                            "remove the duplicate definition(s) to resolve this warning. Please note that some of the" +
-                            " authentication mechanisms also implicitly define a param.");
+                    expectedDatasourceHintMessages.add("API queries linked to this datasource may not run as expected"
+                            + " because this datasource has duplicate definition(s) for param(s): [myParam1]. Please "
+                            + "remove the duplicate definition(s) to resolve this warning. Please note that some of the"
+                            + " authentication mechanisms also implicitly define a param.");
 
-                    expectedDatasourceHintMessages.add("API queries linked to this datasource may not run as expected" +
-                            " because this datasource has duplicate definition(s) for header(s): [myHeader1]. Please " +
-                            "remove the duplicate definition(s) to resolve this warning. Please note that some of the" +
-                            " authentication mechanisms also implicitly define a header.");
+                    expectedDatasourceHintMessages.add("API queries linked to this datasource may not run as expected"
+                            + " because this datasource has duplicate definition(s) for header(s): [myHeader1]. Please "
+                            + "remove the duplicate definition(s) to resolve this warning. Please note that some of the"
+                            + " authentication mechanisms also implicitly define a header.");
                     assertEquals(expectedDatasourceHintMessages, datasourceHintMessages);
 
                     Set<String> actionHintMessages = tuple.getT2();
                     Set<String> expectedActionHintMessages = new HashSet<>();
-                    expectedActionHintMessages.add("Your API query may not run as expected because its datasource has" +
-                            " duplicate definition(s) for param(s): [myParam1]. Please remove the duplicate " +
-                            "definition(s) from the datasource to resolve this warning.");
+                    expectedActionHintMessages.add("Your API query may not run as expected because its datasource has"
+                            + " duplicate definition(s) for param(s): [myParam1]. Please remove the duplicate "
+                            + "definition(s) from the datasource to resolve this warning.");
 
-                    expectedActionHintMessages.add("Your API query may not run as expected because its datasource has" +
-                            " duplicate definition(s) for header(s): [myHeader1]. Please remove the duplicate " +
-                            "definition(s) from the datasource to resolve this warning.");
+                    expectedActionHintMessages.add("Your API query may not run as expected because its datasource has"
+                            + " duplicate definition(s) for header(s): [myHeader1]. Please remove the duplicate "
+                            + "definition(s) from the datasource to resolve this warning.");
                     assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
                 .verifyComplete();
@@ -1454,7 +1429,8 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(params);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
+        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono =
+                pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
                 .assertNext(tuple -> {
                     Set<String> datasourceHintMessages = tuple.getT1();
@@ -1462,13 +1438,13 @@ public class RestApiPluginTest {
 
                     Set<String> actionHintMessages = tuple.getT2();
                     Set<String> expectedActionHintMessages = new HashSet<>();
-                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
-                            "definition(s) for header(s): [myHeader1]. Please remove the duplicate definition(s) from" +
-                            " the 'Headers' tab to resolve this warning.");
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate "
+                            + "definition(s) for header(s): [myHeader1]. Please remove the duplicate definition(s) from"
+                            + " the 'Headers' tab to resolve this warning.");
 
-                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
-                            "definition(s) for param(s): [myParam1]. Please remove the duplicate definition(s) from " +
-                            "the 'Params' tab to resolve this warning.");
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate "
+                            + "definition(s) for param(s): [myParam1]. Please remove the duplicate definition(s) from "
+                            + "the 'Params' tab to resolve this warning.");
                     assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
                 .verifyComplete();
@@ -1487,14 +1463,14 @@ public class RestApiPluginTest {
         headers.add(new Property("myHeader1", "myVal"));
         actionConfig.setHeaders(headers);
 
-
         // This authentication mechanism will add `myHeader1` as header implicitly.
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "myHeader1", "Token", "test");
         authenticationDTO.setAuthenticationType(API_KEY);
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authenticationDTO);
 
-        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
+        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono =
+                pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
                 .assertNext(tuple -> {
                     Set<String> datasourceHintMessages = tuple.getT1();
@@ -1502,10 +1478,10 @@ public class RestApiPluginTest {
 
                     Set<String> actionHintMessages = tuple.getT2();
                     Set<String> expectedActionHintMessages = new HashSet<>();
-                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
-                            "definition(s) for header(s): [myHeader1]. Please remove the duplicate definition(s) from" +
-                            " the 'Headers' section of either the API query or the datasource. Please note that some " +
-                            "of the authentication mechanisms also implicitly define a header.");
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate "
+                            + "definition(s) for header(s): [myHeader1]. Please remove the duplicate definition(s) from"
+                            + " the 'Headers' section of either the API query or the datasource. Please note that some "
+                            + "of the authentication mechanisms also implicitly define a header.");
 
                     assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
@@ -1525,14 +1501,14 @@ public class RestApiPluginTest {
         params.add(new Property("myParam1", "myVal"));
         actionConfig.setQueryParameters(params);
 
-
         // This authentication mechanism will add `myHeader1` as query param implicitly.
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.QUERY_PARAMS, "myParam1", "Token", "test");
         authenticationDTO.setAuthenticationType(API_KEY);
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authenticationDTO);
 
-        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
+        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono =
+                pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
                 .assertNext(tuple -> {
                     Set<String> datasourceHintMessages = tuple.getT1();
@@ -1540,10 +1516,10 @@ public class RestApiPluginTest {
 
                     Set<String> actionHintMessages = tuple.getT2();
                     Set<String> expectedActionHintMessages = new HashSet<>();
-                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
-                            "definition(s) for param(s): [myParam1]. Please remove the duplicate definition(s) from" +
-                            " the 'Params' section of either the API query or the datasource. Please note that some " +
-                            "of the authentication mechanisms also implicitly define a param.");
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate "
+                            + "definition(s) for param(s): [myParam1]. Please remove the duplicate definition(s) from"
+                            + " the 'Params' section of either the API query or the datasource. Please note that some "
+                            + "of the authentication mechanisms also implicitly define a param.");
 
                     assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
@@ -1556,10 +1532,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -1572,7 +1545,8 @@ public class RestApiPluginTest {
         queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
         dsConfig.setQueryParameters(queryParams);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -1608,14 +1582,16 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     assertTrue(
-                            result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."),
-                            "Unexpected error message. Did this fail for a different reason?"
-                    );
+                            result.getPluginErrorDetails()
+                                    .getDownstreamErrorMessage()
+                                    .contains("Host not allowed."),
+                            "Unexpected error message. Did this fail for a different reason?");
                 })
                 .verifyComplete();
     }
@@ -1628,11 +1604,14 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."));
+                    assertTrue(result.getPluginErrorDetails()
+                            .getDownstreamErrorMessage()
+                            .contains("Host not allowed."));
                 })
                 .verifyComplete();
     }
@@ -1645,7 +1624,8 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
                 .verifyComplete();
@@ -1668,11 +1648,14 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(result.getPluginErrorDetails().getDownstreamErrorMessage().contains("Host not allowed."));
+                    assertTrue(result.getPluginErrorDetails()
+                            .getDownstreamErrorMessage()
+                            .contains("Host not allowed."));
                 })
                 .verifyComplete();
     }
@@ -1683,9 +1666,7 @@ public class RestApiPluginTest {
         dsConfig.setUrl("https://postman-echo.com/get");
 
         ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(
-                new Property("content-type", "application/json")
-        ));
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.GET);
         actionConfig.setFormData(new HashMap<>());
         PluginUtils.setValueSafelyInFormData(actionConfig.getFormData(), "apiContentType", "application/json");
@@ -1693,9 +1674,11 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
+        final APIConnection apiConnection =
+                pluginExecutor.datasourceCreate(dsConfig).block();
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -1728,18 +1711,16 @@ public class RestApiPluginTest {
         String body = "GzippedBody";
 
         try (Buffer buffer = new Buffer()) {
-            mockEndpoint
-                    .enqueue(new MockResponse()
-                            .setBody(buffer.write(compressor.apply(body)))
-                            .addHeader("Content-Encoding", "gzip"));
+            mockEndpoint.enqueue(new MockResponse()
+                    .setBody(buffer.write(compressor.apply(body)))
+                    .addHeader("Content-Encoding", "gzip"));
         }
         ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(
-                new Property("content-type", "application/json")
-        ));
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -1756,10 +1737,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         final List<Property> headers = List.of(new Property("content-type", "application/json"));
@@ -1776,7 +1754,8 @@ public class RestApiPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -1791,7 +1770,8 @@ public class RestApiPluginTest {
                         recordedRequestBody.readFully(bodyBytes);
                         recordedRequestBody.close();
 
-                        assertEquals(requestBody.replace("{{phoneNumber.text}}", param.getValue()), new String(bodyBytes));
+                        assertEquals(
+                                requestBody.replace("{{phoneNumber.text}}", param.getValue()), new String(bodyBytes));
                     } catch (EOFException | InterruptedException e) {
                         assert false : e.getMessage();
                     }
@@ -1799,10 +1779,12 @@ public class RestApiPluginTest {
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(baseUrl, request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    final Iterator<Map.Entry<String, JsonNode>> fields =
+                            ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
                         if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
-                            assertEquals("application/json", field.getValue().get(0).asText());
+                            assertEquals(
+                                    "application/json", field.getValue().get(0).asText());
                         }
                     });
                 })
@@ -1815,10 +1797,7 @@ public class RestApiPluginTest {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         final List<Property> headers = List.of(new Property("content-type", "application/json"));
@@ -1829,13 +1808,15 @@ public class RestApiPluginTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         Param param = new Param();
         param.setKey("Input1.text");
-        param.setValue("This TC is for this {{bug11688}}. HL7 Result: CODE 5 - CRITICAL VALUE - {{institution}} {{accessionNumber}}");
+        param.setValue(
+                "This TC is for this {{bug11688}}. HL7 Result: CODE 5 - CRITICAL VALUE - {{institution}} {{accessionNumber}}");
         param.setClientDataType(ClientDataType.STRING);
         List<Param> params = new ArrayList<>();
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -1858,10 +1839,12 @@ public class RestApiPluginTest {
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(baseUrl, request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    final Iterator<Map.Entry<String, JsonNode>> fields =
+                            ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
                         if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
-                            assertEquals("application/json", field.getValue().get(0).asText());
+                            assertEquals(
+                                    "application/json", field.getValue().get(0).asText());
                         }
                     });
                 })
@@ -1870,11 +1853,19 @@ public class RestApiPluginTest {
 
     @Test
     public void verifyUniquenessOfRestApiPluginErrorCode() {
-        assertEquals(RestApiPluginError.values().length, Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode).distinct().count());
+        assertEquals(
+                RestApiPluginError.values().length,
+                Arrays.stream(RestApiPluginError.values())
+                        .map(RestApiPluginError::getAppErrorCode)
+                        .distinct()
+                        .count());
 
-        assertEquals(0, Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode)
-                .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST")).count());
-
+        assertEquals(
+                0,
+                Arrays.stream(RestApiPluginError.values())
+                        .map(RestApiPluginError::getAppErrorCode)
+                        .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST"))
+                        .count());
     }
 
     @Test
@@ -1896,7 +1887,8 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
@@ -1904,7 +1896,6 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
-
 
     /**
      * Please note that this test also serves to test the GraphQL plugin flow as the API handling part for both is
@@ -1919,8 +1910,10 @@ public class RestApiPluginTest {
         actionConfig.setHttpMethod(HttpMethod.GET);
         actionConfig.setFormData(new HashMap<>());
 
-        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        final APIConnection apiConnection =
+                pluginExecutor.datasourceCreate(dsConfig).block();
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -1928,6 +1921,4 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
-
 }
-

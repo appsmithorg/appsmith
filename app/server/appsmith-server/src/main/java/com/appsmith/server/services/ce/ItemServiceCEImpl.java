@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
@@ -20,7 +21,6 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-
 @Slf4j
 public class ItemServiceCEImpl implements ItemServiceCE {
 
@@ -31,11 +31,12 @@ public class ItemServiceCEImpl implements ItemServiceCE {
     private final LayoutActionService layoutActionService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
-    public ItemServiceCEImpl(ApiTemplateService apiTemplateService,
-                             PluginService pluginService,
-                             MarketplaceService marketplaceService,
-                             NewActionService newActionService,
-                             LayoutActionService layoutActionService) {
+    public ItemServiceCEImpl(
+            ApiTemplateService apiTemplateService,
+            PluginService pluginService,
+            MarketplaceService marketplaceService,
+            NewActionService newActionService,
+            LayoutActionService layoutActionService) {
         this.apiTemplateService = apiTemplateService;
         this.pluginService = pluginService;
         this.marketplaceService = marketplaceService;
@@ -53,15 +54,13 @@ public class ItemServiceCEImpl implements ItemServiceCE {
         } else if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         } else if (params.getFirst(FieldName.PROVIDER_ID) != null) {
-            return apiTemplateService
-                    .get(params)
-                    .map(apiTemplate -> {
-                        ItemDTO itemDTO = new ItemDTO();
-                        itemDTO.setItem(apiTemplate);
-                        itemDTO.setType(ItemType.TEMPLATE);
+            return apiTemplateService.get(params).map(apiTemplate -> {
+                ItemDTO itemDTO = new ItemDTO();
+                itemDTO.setItem(apiTemplate);
+                itemDTO.setType(ItemType.TEMPLATE);
 
-                        return itemDTO;
-                    });
+                return itemDTO;
+            });
         }
 
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -93,9 +92,13 @@ public class ItemServiceCEImpl implements ItemServiceCE {
 
         // Set Action Fields
         action.setActionConfiguration(apiTemplate.getActionConfiguration());
-        if (apiTemplate.getApiTemplateConfiguration().getSampleResponse() != null &&
-                apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody() != null) {
-            action.setCacheResponse(apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody().toString());
+        if (apiTemplate.getApiTemplateConfiguration().getSampleResponse() != null
+                && apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody() != null) {
+            action.setCacheResponse(apiTemplate
+                    .getApiTemplateConfiguration()
+                    .getSampleResponse()
+                    .getBody()
+                    .toString());
         }
 
         log.debug("Going to subscribe marketplace provider : {} and then create action", apiTemplate.getProviderId());
@@ -106,7 +109,7 @@ public class ItemServiceCEImpl implements ItemServiceCE {
                 // Assume that we are only adding rapid api templates right now. Set the package to rapid-api forcibly
                 .then(pluginService.findByPackageName(RAPID_API_PLUGIN))
                 .map(plugin -> {
-                    //Set Datasource
+                    // Set Datasource
                     Datasource datasource = new Datasource();
                     datasource.setDatasourceConfiguration(apiTemplate.getDatasourceConfiguration());
                     datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());

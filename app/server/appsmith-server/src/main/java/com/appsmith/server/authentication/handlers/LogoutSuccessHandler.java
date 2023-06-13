@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.LogoutSuccessHandlerCE;
@@ -11,5 +12,4 @@ public class LogoutSuccessHandler extends LogoutSuccessHandlerCE {
     public LogoutSuccessHandler(ObjectMapper objectMapper, AnalyticsService analyticsService) {
         super(objectMapper, analyticsService);
     }
-
 }

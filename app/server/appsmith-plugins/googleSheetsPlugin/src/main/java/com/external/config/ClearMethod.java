@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -25,31 +26,34 @@ public class ClearMethod implements ExecutionMethod {
 
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
-        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
+        if (methodConfig.getSpreadsheetId() == null
+                || methodConfig.getSpreadsheetId().isBlank()) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
-        if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_CELL_RANGE_ERROR_MSG);
+        if (methodConfig.getSpreadsheetRange() == null
+                || methodConfig.getSpreadsheetRange().isBlank()) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_CELL_RANGE_ERROR_MSG);
         }
         return true;
-
     }
 
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
-
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(
+                this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + URLEncoder.encode(methodConfig.getSpreadsheetRange(), StandardCharsets.UTF_8) /* spreadsheet Range */
+                        + URLEncoder.encode(
+                                methodConfig.getSpreadsheetRange(), StandardCharsets.UTF_8) /* spreadsheet Range */
                         + ":clear",
-                true
-        );
+                true);
 
-        return webClient.method(HttpMethod.POST)
+        return webClient
+                .method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.empty());
     }
-
 }

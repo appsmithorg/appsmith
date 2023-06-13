@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.acl;
 
 import java.util.Set;
@@ -10,12 +11,5 @@ public interface AclConstants {
     String DEFAULT_ORG_ID = "default-org";
 
     Set<String> PERMISSIONS_GROUP_ORG_ADMIN = Set.of(
-            "create:organizations",
-            "read:organizations",
-            "create:groups",
-            "read:groups",
-            "create:users",
-            "read:users"
-    );
+            "create:organizations", "read:organizations", "create:groups", "read:groups", "create:users", "read:users");
 }
-

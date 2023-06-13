@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations.mongo;
 
 import java.lang.annotation.ElementType;
@@ -11,5 +12,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface CanSeeSoftDeletedRecords {
-}
+public @interface CanSeeSoftDeletedRecords {}

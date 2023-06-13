@@ -1,32 +1,4 @@
-/*
- * ====================================================================
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * ====================================================================
- *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
- *
- */
-
-// Copied from original, only to make a change in the `build` method.
-
+/* Copyright 2019-2023 Appsmith */
 package org.apache.http.impl.nio.client;
 
 import com.appsmith.util.WebClientUtils;
@@ -104,8 +76,6 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 import org.apache.http.util.VersionInfo;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.ProxySelector;
 import java.net.UnknownHostException;
@@ -114,6 +84,9 @@ import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 /**
  * Builder for {@link CloseableHttpAsyncClient} instances.
@@ -222,8 +195,7 @@ public class HttpAsyncClientBuilder {
     /**
      * Assigns {@link NHttpClientConnectionManager} instance.
      */
-    public final HttpAsyncClientBuilder setConnectionManager(
-            final NHttpClientConnectionManager connManager) {
+    public final HttpAsyncClientBuilder setConnectionManager(final NHttpClientConnectionManager connManager) {
         this.connManager = connManager;
         return this;
     }
@@ -241,8 +213,7 @@ public class HttpAsyncClientBuilder {
      *
      * @since 4.1
      */
-    public final HttpAsyncClientBuilder setConnectionManagerShared(
-            final boolean shared) {
+    public final HttpAsyncClientBuilder setConnectionManagerShared(final boolean shared) {
         this.connManagerShared = shared;
         return this;
     }
@@ -250,8 +221,7 @@ public class HttpAsyncClientBuilder {
     /**
      * Assigns {@link SchemePortResolver} instance.
      */
-    public final HttpAsyncClientBuilder setSchemePortResolver(
-            final SchemePortResolver schemePortResolver) {
+    public final HttpAsyncClientBuilder setSchemePortResolver(final SchemePortResolver schemePortResolver) {
         this.schemePortResolver = schemePortResolver;
         return this;
     }
@@ -286,7 +256,8 @@ public class HttpAsyncClientBuilder {
      *
      * @since 4.1
      */
-    public final HttpAsyncClientBuilder setConnectionTimeToLive(final long connTimeToLive, final TimeUnit connTimeToLiveTimeUnit) {
+    public final HttpAsyncClientBuilder setConnectionTimeToLive(
+            final long connTimeToLive, final TimeUnit connTimeToLiveTimeUnit) {
         this.connTimeToLive = connTimeToLive;
         this.connTimeToLiveTimeUnit = connTimeToLiveTimeUnit;
         return this;
@@ -295,8 +266,7 @@ public class HttpAsyncClientBuilder {
     /**
      * Assigns {@link ConnectionReuseStrategy} instance.
      */
-    public final HttpAsyncClientBuilder setConnectionReuseStrategy(
-            final ConnectionReuseStrategy reuseStrategy) {
+    public final HttpAsyncClientBuilder setConnectionReuseStrategy(final ConnectionReuseStrategy reuseStrategy) {
         this.reuseStrategy = reuseStrategy;
         return this;
     }
@@ -304,8 +274,7 @@ public class HttpAsyncClientBuilder {
     /**
      * Assigns {@link ConnectionKeepAliveStrategy} instance.
      */
-    public final HttpAsyncClientBuilder setKeepAliveStrategy(
-            final ConnectionKeepAliveStrategy keepAliveStrategy) {
+    public final HttpAsyncClientBuilder setKeepAliveStrategy(final ConnectionKeepAliveStrategy keepAliveStrategy) {
         this.keepAliveStrategy = keepAliveStrategy;
         return this;
     }
@@ -335,8 +304,7 @@ public class HttpAsyncClientBuilder {
      * Assigns {@link AuthenticationStrategy} instance for target
      * host authentication.
      */
-    public final HttpAsyncClientBuilder setProxyAuthenticationStrategy(
-            final AuthenticationStrategy proxyAuthStrategy) {
+    public final HttpAsyncClientBuilder setProxyAuthenticationStrategy(final AuthenticationStrategy proxyAuthStrategy) {
         this.proxyAuthStrategy = proxyAuthStrategy;
         return this;
     }
@@ -447,12 +415,10 @@ public class HttpAsyncClientBuilder {
      * for request execution if not explicitly set in the client execution
      * context.
      */
-    public final HttpAsyncClientBuilder setDefaultCredentialsProvider(
-            final CredentialsProvider credentialsProvider) {
+    public final HttpAsyncClientBuilder setDefaultCredentialsProvider(final CredentialsProvider credentialsProvider) {
         this.credentialsProvider = credentialsProvider;
         return this;
     }
-
 
     /**
      * Assigns default {@link org.apache.http.auth.AuthScheme} registry which will
@@ -690,10 +656,10 @@ public class HttpAsyncClientBuilder {
                         sslcontext = SSLContexts.createDefault();
                     }
                 }
-                final String[] supportedProtocols = systemProperties ? split(
-                        System.getProperty("https.protocols")) : null;
-                final String[] supportedCipherSuites = systemProperties ? split(
-                        System.getProperty("https.cipherSuites")) : null;
+                final String[] supportedProtocols =
+                        systemProperties ? split(System.getProperty("https.protocols")) : null;
+                final String[] supportedCipherSuites =
+                        systemProperties ? split(System.getProperty("https.cipherSuites")) : null;
                 HostnameVerifier hostnameVerifier = this.hostnameVerifier;
                 if (hostnameVerifier == null) {
                     hostnameVerifier = new DefaultHostnameVerifier(publicSuffixMatcher);
@@ -783,19 +749,18 @@ public class HttpAsyncClientBuilder {
                 }
                 if (userAgent == null) {
                     userAgent = VersionInfo.getUserAgent(
-                            "Apache-HttpAsyncClient",
-                            "org.apache.http.nio.client", getClass());
+                            "Apache-HttpAsyncClient", "org.apache.http.nio.client", getClass());
                 }
             }
 
             final HttpProcessorBuilder b = HttpProcessorBuilder.create();
             if (requestFirst != null) {
-                for (final HttpRequestInterceptor i: requestFirst) {
+                for (final HttpRequestInterceptor i : requestFirst) {
                     b.addFirst(i);
                 }
             }
             if (responseFirst != null) {
-                for (final HttpResponseInterceptor i: responseFirst) {
+                for (final HttpResponseInterceptor i : responseFirst) {
                     b.addFirst(i);
                 }
             }
@@ -816,12 +781,12 @@ public class HttpAsyncClientBuilder {
                 b.add(new ResponseProcessCookies());
             }
             if (requestLast != null) {
-                for (final HttpRequestInterceptor i: requestLast) {
+                for (final HttpRequestInterceptor i : requestLast) {
                     b.addLast(i);
                 }
             }
             if (responseLast != null) {
-                for (final HttpResponseInterceptor i: responseLast) {
+                for (final HttpResponseInterceptor i : responseLast) {
                     b.addLast(i);
                 }
             }
@@ -833,8 +798,7 @@ public class HttpAsyncClientBuilder {
             if (proxy != null) {
                 routePlanner = new DefaultProxyRoutePlanner(proxy, schemePortResolver);
             } else if (systemProperties) {
-                routePlanner = new SystemDefaultRoutePlanner(
-                        schemePortResolver, ProxySelector.getDefault());
+                routePlanner = new SystemDefaultRoutePlanner(schemePortResolver, ProxySelector.getDefault());
             } else {
                 routePlanner = new DefaultRoutePlanner(schemePortResolver);
             }
@@ -891,12 +855,7 @@ public class HttpAsyncClientBuilder {
         }
 
         final MainClientExec exec = new MainClientExec(
-                httpprocessor,
-                routePlanner,
-                redirectStrategy,
-                targetAuthStrategy,
-                proxyAuthStrategy,
-                userTokenHandler);
+                httpprocessor, routePlanner, redirectStrategy, targetAuthStrategy, proxyAuthStrategy, userTokenHandler);
 
         ThreadFactory threadFactory = null;
         NHttpClientEventHandler eventHandler = null;
@@ -923,5 +882,4 @@ public class HttpAsyncClientBuilder {
                 defaultCredentialsProvider,
                 defaultRequestConfig);
     }
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
@@ -10,11 +11,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ReleaseNotesUtilsImpl extends ReleaseNotesUtilsCEImpl implements ReleaseNotesUtils {
-    public ReleaseNotesUtilsImpl(CloudServicesConfig cloudServicesConfig,
-                                 CommonConfig commonConfig,
-                                 SegmentConfig segmentConfig,
-                                 ConfigService configService,
-                                 ProjectProperties projectProperties) {
+    public ReleaseNotesUtilsImpl(
+            CloudServicesConfig cloudServicesConfig,
+            CommonConfig commonConfig,
+            SegmentConfig segmentConfig,
+            ConfigService configService,
+            ProjectProperties projectProperties) {
 
         super(cloudServicesConfig, commonConfig, segmentConfig, configService, projectProperties);
     }

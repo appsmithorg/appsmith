@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos.ce;
 
 import com.appsmith.server.domains.Layout;
@@ -12,18 +13,16 @@ import java.util.List;
 @Setter
 public class UpdateMultiplePageLayoutDTO {
 
-    @NotNull
-    @Valid
+    @NotNull @Valid
     private List<UpdatePageLayoutDTO> pageLayouts;
 
     @Getter
     @Setter
     public static class UpdatePageLayoutDTO {
-        @NotNull
-        private String pageId;
+        @NotNull private String pageId;
 
-        @NotNull
-        private String layoutId;
+        @NotNull private String layoutId;
+
         private Layout layout;
     }
 }

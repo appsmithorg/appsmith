@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.connections;
 
 import com.appsmith.external.helpers.restApiUtils.connections.BearerTokenAuthentication;

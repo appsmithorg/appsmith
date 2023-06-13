@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
@@ -27,8 +28,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     private final SessionUserService sessionUserService;
 
-    public CustomWorkspaceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-                                           SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomWorkspaceRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            SessionUserService sessionUserService,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
         this.sessionUserService = sessionUserService;
     }
@@ -41,9 +45,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
+    public Flux<Workspace> findByIdsIn(
+            Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
         Criteria workspaceIdCriteria = where(fieldName(QWorkspace.workspace.id)).in(workspaceIds);
-        Criteria tenantIdCriteria = where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
+        Criteria tenantIdCriteria =
+                where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
 
         return queryAll(List.of(workspaceIdCriteria, tenantIdCriteria), aclPermission, sort);
     }
@@ -54,8 +60,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .updateMulti(
                         Query.query(Criteria.where("userRoles.userId").is(userId)),
                         Update.update("userRoles.$.name", userName),
-                        Workspace.class
-                )
+                        Workspace.class)
                 .then();
     }
 
@@ -66,11 +71,10 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Workspace> findAll(AclPermission permission) {
-        return sessionUserService.getCurrentUser()
-                .flatMapMany(user -> {
-                    Criteria tenantIdCriteria = where(fieldName(QWorkspace.workspace.tenantId)).is(user.getTenantId());
-                    return queryAll(List.of(tenantIdCriteria), permission);
-                });
-
+        return sessionUserService.getCurrentUser().flatMapMany(user -> {
+            Criteria tenantIdCriteria =
+                    where(fieldName(QWorkspace.workspace.tenantId)).is(user.getTenantId());
+            return queryAll(List.of(tenantIdCriteria), permission);
+        });
     }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.notifications;
 
 import com.appsmith.server.configurations.EmailConfig;
@@ -23,8 +24,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
-@TestPropertySource(
-        properties = {"management.health.mail.enabled=false"})
+@TestPropertySource(properties = {"management.health.mail.enabled=false"})
 public class EmailSenderTest {
     @MockBean
     private JavaMailSender javaMailSender;
@@ -52,12 +52,17 @@ public class EmailSenderTest {
                 "email@example.com (Joe Smith)",
                 "email@-example.com",
                 "email@example..com",
-                "Abc..123@example.com"
-        );
+                "Abc..123@example.com");
 
         for (String invalidAddress : invalidAddresses) {
             try {
-                emailSender.sendMail(invalidAddress, "test-subject", "email/welcomeUserTemplate.html", Collections.emptyMap()).block();
+                emailSender
+                        .sendMail(
+                                invalidAddress,
+                                "test-subject",
+                                "email/welcomeUserTemplate.html",
+                                Collections.emptyMap())
+                        .block();
 
                 verifyNoInteractions(javaMailSender);
             } catch (Throwable exc) {

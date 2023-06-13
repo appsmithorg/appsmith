@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomPermissionGroupRepositoryCEImpl;
@@ -9,7 +10,10 @@ import org.springframework.stereotype.Component;
 public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRepositoryCEImpl
         implements CustomPermissionGroupRepository {
 
-    public CustomPermissionGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomPermissionGroupRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

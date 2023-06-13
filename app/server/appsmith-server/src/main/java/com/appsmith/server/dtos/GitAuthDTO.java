@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.views.Views;
@@ -21,5 +22,4 @@ public class GitAuthDTO {
 
     @JsonView(Views.Public.class)
     List<GitDeployKeyDTO> gitSupportedSSHKeyType;
-
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ApplicationAccessDTO {
 
-    @NotNull
-    Boolean publicAccess;
-
+    @NotNull Boolean publicAccess;
 }

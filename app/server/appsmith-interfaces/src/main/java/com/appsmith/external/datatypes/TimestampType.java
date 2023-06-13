@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
@@ -38,12 +39,7 @@ public class TimestampType implements AppsmithType {
             return Matcher.quoteReplacement(valueAsString);
         } catch (JsonProcessingException e) {
             throw Exceptions.propagate(
-                    new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            s,
-                            e.getMessage()
-                    )
-            );
+                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, s, e.getMessage()));
         }
     }
 

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.views.Views;
@@ -38,5 +39,4 @@ public class ApplicationPage {
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);
     }
-
 }

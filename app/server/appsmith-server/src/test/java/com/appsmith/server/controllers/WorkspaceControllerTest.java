@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.RedisTestContainerConfig;
@@ -25,26 +26,31 @@ import org.springframework.web.reactive.function.BodyInserters;
 public class WorkspaceControllerTest {
     @MockBean
     WorkspaceService workspaceService;
+
     @Autowired
     private WebTestClient webTestClient;
 
     @Test
     @WithMockUser
     public void getWorkspaceNoName() {
-        webTestClient.post().uri("/api/v1/workspaces").
-                contentType(MediaType.APPLICATION_JSON).
-                body(BodyInserters.fromValue("{}")).
-                exchange().
-                expectStatus().isEqualTo(400).
-                expectBody().json("{\n" +
-                        "    \"responseMeta\": {\n" +
-                        "        \"status\": 400,\n" +
-                        "        \"success\": false,\n" +
-                        "        \"error\": {\n" +
-                        "            \"code\": " + AppsmithErrorCode.VALIDATION_FAILURE.getCode() + ",\n" +
-                        "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}");
+        webTestClient
+                .post()
+                .uri("/api/v1/workspaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue("{}"))
+                .exchange()
+                .expectStatus()
+                .isEqualTo(400)
+                .expectBody()
+                .json("{\n" + "    \"responseMeta\": {\n"
+                        + "        \"status\": 400,\n"
+                        + "        \"success\": false,\n"
+                        + "        \"error\": {\n"
+                        + "            \"code\": "
+                        + AppsmithErrorCode.VALIDATION_FAILURE.getCode() + ",\n"
+                        + "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}");
     }
 }

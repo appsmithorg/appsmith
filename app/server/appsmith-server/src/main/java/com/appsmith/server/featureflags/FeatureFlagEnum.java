@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.featureflags;
 
 import org.ff4j.core.FlippingStrategy;

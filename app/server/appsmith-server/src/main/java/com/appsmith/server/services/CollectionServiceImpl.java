@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.CollectionRepository;
@@ -13,12 +14,13 @@ import reactor.core.scheduler.Scheduler;
 @Service
 public class CollectionServiceImpl extends CollectionServiceCEImpl implements CollectionService {
 
-    public CollectionServiceImpl(Scheduler scheduler,
-                                 Validator validator,
-                                 MongoConverter mongoConverter,
-                                 ReactiveMongoTemplate reactiveMongoTemplate,
-                                 CollectionRepository repository,
-                                 AnalyticsService analyticsService) {
+    public CollectionServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            CollectionRepository repository,
+            AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
