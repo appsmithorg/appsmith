@@ -34,10 +34,6 @@ describe("Theme validation usecase for multi-select widget", function () {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.shadowMouseover("none");
-    cy.shadowMouseover("S");
-    cy.shadowMouseover("M");
-    cy.shadowMouseover("L");
     cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",

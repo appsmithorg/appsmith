@@ -21,6 +21,20 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
     || true
 fi
 
+if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
+
+  ## Trim APPSMITH_FILESTORE_IP and FILE_SHARE_NAME
+  FILESTORE_IP_ADDRESS="$(echo "$FILESTORE_IP_ADDRESS" | xargs)"
+  FILE_SHARE_NAME="$(echo "$FILE_SHARE_NAME" | xargs)"
+
+  echo "Running appsmith for cloudRun"
+  echo "Mounting File Sytem"
+  mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
+  echo "Mounted File Sytem"
+  echo "Setting HOSTNAME for Cloudrun"
+  export HOSTNAME="cloudrun"
+fi
+
 stacks_path=/appsmith-stacks
 
 function get_maximum_heap() {
@@ -496,6 +510,10 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
+  # The default NGINX configuration includes an IPv6 listen directive. But not all
+  # servers support it, and we don't need it. So we remove it here before starting
+  # NGINX. 
+  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default  
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
   local editor_load_page="/opt/appsmith/editor/loading.html" 

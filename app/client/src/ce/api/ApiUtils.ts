@@ -199,7 +199,9 @@ export const apiFailureResponseInterceptor = (error: any) => {
             )}`,
           }),
         );
+        Sentry.captureException(error);
         return Promise.reject({
+          ...error,
           code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
           message: "Unauthorized. Redirecting to login page...",
           show: false,
@@ -211,7 +213,9 @@ export const apiFailureResponseInterceptor = (error: any) => {
         (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error.code) ||
           SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData.error.code))
       ) {
+        Sentry.captureException(error);
         return Promise.reject({
+          ...error,
           code: ERROR_CODES.PAGE_NOT_FOUND,
           message: "Resource Not Found",
           show: false,

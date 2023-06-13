@@ -59,7 +59,7 @@ export class JSEditor {
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS object')";
+  private _newJSobj = "span:contains('New JS Object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
@@ -140,7 +140,7 @@ export class JSEditor {
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
     // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
-    //Checking JS object was created successfully
+    //Checking JS Object was created successfully
     this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
 
     this.agHelper.Sleep();

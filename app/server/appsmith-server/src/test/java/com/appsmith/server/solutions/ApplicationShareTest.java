@@ -1507,7 +1507,7 @@ public class ApplicationShareTest {
         Application branchedApplication = importExportApplicationService
                 .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
                 .flatMap(applicationJson -> importExportApplicationService
-                        .importApplicationInWorkspace(createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
+                        .importApplicationInWorkspaceFromGit(createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();
                     gitData1.setBranchName("testBranch");
@@ -1595,7 +1595,7 @@ public class ApplicationShareTest {
         Application branchedApplication = importExportApplicationService
                 .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
                 .flatMap(applicationJson -> importExportApplicationService
-                        .importApplicationInWorkspace(createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
+                        .importApplicationInWorkspaceFromGit(createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();
                     gitData1.setBranchName("testBranch");
