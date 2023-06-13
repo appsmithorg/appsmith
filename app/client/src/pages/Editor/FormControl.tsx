@@ -11,6 +11,7 @@ import FormControlFactory from "utils/formControl/FormControlFactory";
 
 import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
 import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
@@ -22,14 +23,16 @@ import history from "utils/history";
 import {
   getAction,
   getDatasourceFirstTableName,
+  getPlugins,
   getPluginTemplates,
 } from "selectors/entitiesSelector";
 import { get } from "lodash";
 import {
   DB_QUERY_DEFAULT_TABLE_NAME,
   DB_QUERY_DEFAULT_TEMPLATE_TYPE,
-  DB_QUERY_DEFAULT_TEMPLATE_TYPE_MONGO,
 } from "constants/Datasource";
+import TemplateMenu from "./QueryEditor/TemplateMenu";
+import type { Plugin } from "api/PluginApi";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -69,6 +72,7 @@ function FormControl(props: FormControlProps) {
   const pluginTemplate = !!formValues?.datasource?.pluginId
     ? pluginTemplates[formValues?.datasource?.pluginId]
     : undefined;
+  const plugins: Plugin[] = useSelector(getPlugins);
 
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
   const isNewQuery =
@@ -121,11 +125,9 @@ function FormControl(props: FormControlProps) {
   }
 
   useEffect(() => {
-    if (showTemplate && !convertFormToRaw) {
+    if (showTemplate && !convertFormToRaw && !isMongoPlugin()) {
       const defaultTemplate = !!pluginTemplate
-        ? DB_QUERY_DEFAULT_TEMPLATE_TYPE in pluginTemplate
-          ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
-          : pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE_MONGO]
+        ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
         : "";
       const smartTemplate = defaultTemplate
         .replace(DB_QUERY_DEFAULT_TABLE_NAME, datasourceTableName)
@@ -157,6 +159,24 @@ function FormControl(props: FormControlProps) {
     viewTypes.push(...props.config.alternateViewTypes);
   }
 
+  const createTemplate = (
+    template: string,
+    formName: string,
+    configProperty: string,
+  ) => {
+    updateQueryParams();
+    dispatch(
+      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
+    );
+  };
+
+  const isMongoPlugin = () => {
+    const plugin: Plugin | undefined = plugins.find(
+      (plugin) => plugin?.id === formValues?.pluginId,
+    );
+    return !!plugin && plugin?.packageName === PluginPackageName.MONGO;
+  };
+
   return useMemo(
     () =>
       !hidden ? (
@@ -173,7 +193,18 @@ function FormControl(props: FormControlProps) {
             className={`t--form-control-${props.config.controlType}`}
             data-replay-id={btoa(props.config.configProperty)}
           >
-            {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
+            {showTemplate && !convertFormToRaw && isMongoPlugin() ? (
+              <TemplateMenu
+                createTemplate={(templateString: string) =>
+                  createTemplate(
+                    templateString,
+                    props?.formName,
+                    props?.config?.configProperty,
+                  )
+                }
+                pluginId={formValues?.datasource?.pluginId || ""}
+              />
+            ) : viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
                 componentControlType={props.config.controlType}
                 configProperty={props.config.configProperty}

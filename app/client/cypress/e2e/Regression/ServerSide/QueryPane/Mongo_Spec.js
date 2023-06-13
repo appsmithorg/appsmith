@@ -43,8 +43,7 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Raw",
     );
-    // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
+    cy.get(queryLocators.templateMenu).click();
     cy.typeValueNValidate(
       '{"find": "listingAndReviews","limit": 10}',
       formControls.rawBody,
