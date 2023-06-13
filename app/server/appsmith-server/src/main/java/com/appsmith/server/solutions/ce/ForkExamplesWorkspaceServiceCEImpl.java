@@ -150,10 +150,10 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     workspace.setSlug(null);
                     return workspaceService.createDefault(workspace, user);
                 })
-                .zipWhen(newWorkspace -> workspaceService.getDefaultEnvironmentId(newWorkspace.getId()))
+                .zipWhen(newWorkspace -> workspaceService.getDefaultEnvironmentId(templateWorkspaceId))
                 .flatMap(tuple2 -> {
                     Workspace newWorkspace = tuple2.getT1();
-                    String targetEnvironmentId = tuple2.getT2();
+                    String sourceEnvironmentId = tuple2.getT2();
 
                     User userUpdate = new User();
                     userUpdate.setExamplesWorkspaceId(newWorkspace.getId());
@@ -164,7 +164,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     return Mono
                             .when(
                                     userService.update(user.getId(), userUpdate),
-                                    forkApplications(newWorkspace.getId(), applicationFlux, datasourceFlux, targetEnvironmentId)
+                                    forkApplications(newWorkspace.getId(), applicationFlux, datasourceFlux, sourceEnvironmentId)
                             )
                             .thenReturn(newWorkspace);
                 })
