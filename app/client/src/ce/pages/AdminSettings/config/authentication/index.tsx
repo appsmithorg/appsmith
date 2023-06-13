@@ -109,7 +109,7 @@ export const GoogleAuth: AdminConfigType = {
       fieldName: "redirect-url-form",
       value: "/login/oauth2/code/google",
       tooltip:
-        "This URL will be used while configuring the Google OAuth Client ID's authorized Redirect URIs",
+        "This URL will be used while configuring the Google OAuth Client ID's authorized redirect URIs",
       helpText: "Paste this URL in your Google developer console.",
     },
     {
