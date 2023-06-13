@@ -655,7 +655,7 @@ function GeneratePageForm() {
 
   const submitButtonDisable =
     !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
-  console.log("ondhu ", fetchingDatasourceConfigError);
+
   return (
     <div>
       <Wrapper>
@@ -760,7 +760,6 @@ function GeneratePageForm() {
               virtual={false}
             >
               {datasourceTableOptions.map((table) => {
-                console.log("ondhu ", table);
                 return (
                   <Option key={table.value} value={table.value}>
                     <OptionWrapper>

@@ -1,5 +1,5 @@
 import React from "react";
-import _, { isEqual, omit } from "lodash";
+import { get, isEqual, isNil, map, memoize, omit, set } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
@@ -409,6 +409,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       !isPluginAuthorized &&
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
 
+    const defaultDataStorage = get(datasource, "datasourceStorages.unused_env");
+    //When using saved datasource we should update active env to unused env
+    //This is because client uses active_env for editing datasource.
+    if (defaultDataStorage)
+      set(
+        datasource as Datasource,
+        "datasourceStorages.active_env",
+        defaultDataStorage,
+      );
     return (
       <>
         {!hiddenHeader && (
@@ -460,8 +469,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       pageId={pageId}
                     />
                   ) : null}
-                  {!_.isNil(sections)
-                    ? _.map(sections, this.renderMainSection)
+                  {!isNil(sections)
+                    ? map(sections, this.renderMainSection)
                     : null}
                   {""}
                 </>
@@ -477,8 +486,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       pageId={pageId}
                     />
                   ) : null}
-                  {!_.isNil(formConfig) &&
-                  !_.isNil(datasource) &&
+                  {!isNil(formConfig) &&
+                  !isNil(datasource) &&
                   !hideDatasourceSection ? (
                     <DatasourceInformation
                       config={formConfig[0]}
@@ -495,7 +504,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 datasource={datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
                 formData={formData}
-                getSanitizedFormData={_.memoize(this.getSanitizedData)}
+                getSanitizedFormData={memoize(this.getSanitizedData)}
                 isInsideReconnectModal={isInsideReconnectModal}
                 isInvalid={validate(this.props.requiredFields, formData)}
                 isSaving={isSaving}
@@ -544,7 +553,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
-  const pluginId = _.get(datasource, "pluginId", "");
+  const pluginId = get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const formConfig = formConfigs[pluginId];
   const initialValues = getFormInitialValues(DATASOURCE_SAAS_FORM)(
