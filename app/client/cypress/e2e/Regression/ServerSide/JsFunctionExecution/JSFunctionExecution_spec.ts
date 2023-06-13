@@ -120,7 +120,10 @@ describe("JS Function Execution", function () {
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClickResponseTab();
     jsEditor.AssertParseError(false);
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
   });
 
   it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function () {
