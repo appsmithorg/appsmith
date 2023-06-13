@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
+// import styled from "styled-components";
+import "./styles.css";
 
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+// import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { FlexLayerLayoutData } from "utils/autoLayout/autoLayoutTypes";
-import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
+// import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 import { getAutoLayerId } from "utils/WidgetPositionsObserver/utils";
 import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
 
@@ -36,46 +37,46 @@ export type AutoLayoutLayerProps = FlexLayerLayoutData & {
   widgetId: string;
 };
 
-const RowContainer = styled.div<{
-  isMobile?: boolean;
-}>`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  overflow: visible;
-  width: 100%;
-  row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
-  column-gap: ${WIDGET_PADDING}px;
-`;
+// const RowContainer = styled.div<{
+//   isMobile?: boolean;
+// }>`
+//   display: flex;
+//   flex-direction: row;
+//   justify-content: flex-start;
+//   align-items: flex-start;
+//   flex-wrap: wrap;
+//   overflow: visible;
+//   width: 100%;
+//   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
+//   column-gap: ${WIDGET_PADDING}px;
+// `;
 
-const Alignment = styled.div<{
-  isMobile?: boolean;
-}>`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  align-self: stretch;
-  flex-wrap: ${({ isMobile }) => (isMobile ? "wrap" : "nowrap")};
-  row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
-  column-gap: ${WIDGET_PADDING}px;
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: ${({ isMobile }) => (isMobile ? "auto" : "0%")};
-`;
+// const Alignment = styled.div<{
+//   isMobile?: boolean;
+// }>`
+//   display: flex;
+//   flex-direction: row;
+//   align-items: flex-start;
+//   align-self: stretch;
+//   flex-wrap: ${({ isMobile }) => (isMobile ? "wrap" : "nowrap")};
+//   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
+//   column-gap: ${WIDGET_PADDING}px;
+//   flex-grow: 1;
+//   flex-shrink: 1;
+//   flex-basis: ${({ isMobile }) => (isMobile ? "auto" : "0%")};
+// `;
 
-const StartAlignment = styled(Alignment)`
-  justify-content: flex-start;
-`;
+// const StartAlignment = styled(Alignment)`
+//   justify-content: flex-start;
+// `;
 
-const EndAlignment = styled(Alignment)`
-  justify-content: flex-end;
-`;
+// const EndAlignment = styled(Alignment)`
+//   justify-content: flex-end;
+// `;
 
-const CenterAlignment = styled(Alignment)`
-  justify-content: center;
-`;
+// const CenterAlignment = styled(Alignment)`
+//   justify-content: center;
+// `;
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -96,13 +97,7 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   }, []);
 
   const renderChildren = () => {
-    const {
-      centerChildren,
-      endChildren,
-      hasFillWidget,
-      isMobile,
-      startChildren,
-    } = props;
+    const { centerChildren, endChildren, hasFillWidget, startChildren } = props;
 
     /**
      * If flex layer has a fill widget,
@@ -111,27 +106,27 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     if (hasFillWidget) return startChildren;
 
     const arr: (JSX.Element | null)[] = [
-      <StartAlignment isMobile={isMobile} key={0}>
+      <div className="alignment start-alignment" key={0}>
         {startChildren}
-      </StartAlignment>,
-      <CenterAlignment isMobile={isMobile} key={1}>
+      </div>,
+      <div className="alignment center-alignment" key={1}>
         {centerChildren}
-      </CenterAlignment>,
-      <EndAlignment isMobile={isMobile} key={2}>
+      </div>,
+      <div className="alignment end-alignment" key={2}>
         {endChildren}
-      </EndAlignment>,
+      </div>,
     ];
 
     return arr;
   };
   return (
-    <RowContainer
-      className={`auto-layout-layer-${props.widgetId}-${props.index}`}
+    <div
+      className={`row auto-layout-layer-${props.widgetId}-${props.index}`}
       id={getAutoLayerId(props.widgetId, props.index)}
       ref={ref}
     >
       {renderChildren()}
-    </RowContainer>
+    </div>
   );
 }
 
