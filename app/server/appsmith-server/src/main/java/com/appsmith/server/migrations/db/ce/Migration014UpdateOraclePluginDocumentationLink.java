@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.domains.Plugin;
+import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -8,6 +9,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
+@ChangeUnit(order = "014", id="update-oracle-doc-link", author = " ")
 public class Migration014UpdateOraclePluginDocumentationLink {
     private final MongoTemplate mongoTemplate;
 
