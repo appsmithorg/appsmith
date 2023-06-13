@@ -64,14 +64,11 @@ export default function ActionTree(props: {
     setActionBlock(props.actionBlock);
   }, [props.actionBlock]);
 
-  const [touched, setTouched] = React.useState(false);
-
   const [callbacksExpanded, setCallbacksExpanded] = React.useState(false);
 
   const handleCardSelection = useCallback(() => {
     if (selectedBlockId === id) return;
     selectBlock(id);
-    setTouched(true);
   }, [id, selectedBlockId]);
 
   useEffect(() => {
@@ -132,8 +129,6 @@ export default function ActionTree(props: {
     areCallbacksApplicable = callbacksCount > 0;
   }
 
-  const showCallbacks = selectedBlockId === id || touched;
-
   const callbackBlocks = [
     {
       label: "On success",
@@ -169,16 +164,16 @@ export default function ActionTree(props: {
           level={props.level}
           onSelect={handleCardSelection}
           selected={isOpen}
-          showCallbacks={showCallbacks && areCallbacksApplicable}
+          showCallbacks={areCallbacksApplicable}
           variant={props.variant}
         />
       </ActionSelector>
-      {showCallbacks && areCallbacksApplicable ? (
+      {areCallbacksApplicable ? (
         <CallbackButton
           className="callback-collapse flex w-full justify-between px-2 py-1 border-t-transparent t--action-callbacks"
+          data-testid={`t--callback-btn-${id}`}
           onClick={() => {
             setCallbacksExpanded((prev) => !prev);
-            setTouched(true);
           }}
         >
           <Text kind="action-s">Callbacks</Text>

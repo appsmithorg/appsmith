@@ -17,11 +17,9 @@ describe("API Panel Test Functionality ", function () {
     cy.log("Navigation to API Panel screen successful");
     cy.generateUUID().then((uid) => {
       cy.CreateAPI(`FirstAPI_${uid}`);
-      cy.RunAPI();
       cy.log("Creation of FirstAPI Action successful");
       cy.NavigateToAPI_Panel();
       cy.CreateAPI(`SecondAPI_${uid}`);
-      cy.RunAPI();
       cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.log("Creation of SecondAPI Action successful");
       cy.get(".t--entity-name").contains("FirstAPI");

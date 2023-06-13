@@ -26,6 +26,10 @@ export type TriggerSource = {
   isJSAction?: boolean;
   actionId?: string;
 };
+export enum TriggerKind {
+  EVENT_EXECUTION = "EVENT_EXECUTION", // Eg. Button onClick
+  JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION", // Executing js function from jsObject page
+}
 
 export type ExecuteTriggerPayload = {
   dynamicString: string;
