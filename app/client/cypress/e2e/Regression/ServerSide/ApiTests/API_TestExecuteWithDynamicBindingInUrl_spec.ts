@@ -1,7 +1,10 @@
 const datasourceFormData = require("../../../../fixtures/datasources.json");
 
-import { agHelper, jsEditor } from "../../../../support/Objects/ObjectsCore";
-import { apiPage } from "../../../../support/Objects/ObjectsCore";
+import {
+  apiPage,
+  agHelper,
+  jsEditor,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
   it("1. Test API execution with dynamic binding in URL", () => {
