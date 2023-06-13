@@ -1,15 +1,17 @@
-import { agHelper, jsEditor } from "../../../../support/Objects/ObjectsCore";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+const datasourceFormData = require("../../../../fixtures/datasources.json");
 
-describe("Test API execution with dynamic binding in URL", () => {
-  /* Create a JS Object and set TED API URL in an Appsmith store variable. */
-  it("1. Set URL in Appsmith store variable", () => {
+import { agHelper, jsEditor } from "../../../../support/Objects/ObjectsCore";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
+
+describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
+  it("1. Test API execution with dynamic binding in URL", () => {
+    // Create JS Object to set Appsmith store variable to mockApiUrl
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
         myVar2: {},
         myFun1 () {
-          storeValue("api_url", "http://host.docker.internal:5001/v1/dynamicrecords/getstudents");
+          storeValue("api_url", ${datasourceFormData["mockApiUrl"]});
         },
         myFun2: async function() {
         }
@@ -23,18 +25,15 @@ describe("Test API execution with dynamic binding in URL", () => {
       },
     );
 
-    agHelper.AssertAutoSave();
     jsEditor.RunJSObj();
-  });
 
-  /* Create an API with dynamic binding as URL and run it. */
-  it("2. Execute API", () => {
-    _.apiPage.CreateAndFillApi(
+    // Create API and set URL to {{appsmith.store.api_url}}
+    apiPage.CreateAndFillApi(
       "{{appsmith.store.api_url}}",
       "Api_with_dynamic_binding",
     );
-    _.apiPage.RunAPI();
-    _.apiPage.ResponseStatusCheck("200 OK");
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    apiPage.RunAPI();
+    apiPage.ResponseStatusCheck("200 OK");
+    agHelper.ActionContextMenuWithInPane("Delete");
   });
 });
