@@ -47,6 +47,10 @@ export class AssertHelper extends ReusableHelper {
       case EntityItems.Datasource:
         networkCall = "deleteDatasource";
         break;
+      case EntityItems.Page:
+        networkCall = "deletePage";
+        break;
+
       default:
         networkCall && this.AssertNetworkStatus(networkCall);
     }

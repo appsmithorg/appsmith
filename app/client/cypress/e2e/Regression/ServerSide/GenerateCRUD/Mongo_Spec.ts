@@ -1,20 +1,18 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let dsName: any;
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators,
-  dataSources = ObjectsRegistry.DataSources,
-  deployMode = ObjectsRegistry.DeployMode,
-  table = ObjectsRegistry.Table,
-  appSettings = ObjectsRegistry.AppSettings;
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  appSettings,
+  entityItems,
+  dataSources,
+  table,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate Mongo CRUD with JSON Form", () => {
-  before(() => {
-    //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
-  });
+  let dsName: any;
 
   beforeEach(function () {
     if (INTERCEPT.MONGO) {
@@ -27,10 +25,10 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     appSettings.OpenPaneAndChangeTheme("Water Lily");
 
     dataSources.CreateDataSource("Mongo");
-    cy.get("@dsName").then(($dsName) => {
+    cy.get("@dsName").then(($dsName: any) => {
       dsName = $dsName;
-      ee.AddNewPage();
-      ee.AddNewPage("Generate page with data");
+      entityExplorer.AddNewPage();
+      entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
@@ -48,8 +46,11 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
 
     //Delete the test data
-    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
-    agHelper.AssertNetworkStatus("@deletePage", 200);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page2",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
@@ -70,9 +71,12 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
-    ee.ExpandCollapseEntity("Pages");
-    ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
-    agHelper.AssertNetworkStatus("@deletePage", 200);
+    entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "CoffeeCafe",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
@@ -108,7 +112,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

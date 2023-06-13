@@ -1,14 +1,16 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 // import { INTERCEPT } from "../../../../fixtures/variables";
 let dsName: any, newStoreSecret: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators,
-  table = ObjectsRegistry.Table,
-  dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
-  deployMode = ObjectsRegistry.DeployMode;
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  deployMode,
+  dataSources,
+  table,
+  entityItems,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // beforeEach(function() {
@@ -58,20 +60,28 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateStores");
     dataSources.EnterQuery(tableCreateQuery);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
+    agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
 
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(ee._entityNameInExplorer("Stores"));
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementVisible(
+      entityExplorer._entityNameInExplorer("Stores"),
+    );
   });
 
   it("3. Validate Select record from Postgress datasource & verify query response", () => {
-    ee.ActionTemplateMenuByEntityName("Stores", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("Stores", "SELECT");
     dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.ReadQueryTableResponse(5).then(($cellData) => {
       expect($cellData).to.eq("2112");
@@ -79,7 +89,10 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.ReadQueryTableResponse(6).then(($cellData) => {
       expect($cellData).to.eq("Mike's Liquors");
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
@@ -98,14 +111,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("5. Verify Update data from Deploy page - on Stores - existing record", () => {
-    ee.SelectEntityByName("update_form", "Widgets");
+    entityExplorer.SelectEntityByName("update_form", "Widgets");
 
     updatingStoreJSONPropertyFileds();
     deployMode.DeployApp();
     table.SelectTableRow(0, 0, false); //to make JSON form hidden
-    agHelper.AssertElementAbsence(locator._jsonFormWidget);
+    agHelper.AssertElementAbsence(locators._jsonFormWidget);
     table.SelectTableRow(3);
-    agHelper.AssertElementVisible(locator._jsonFormWidget);
+    agHelper.AssertElementVisible(locators._jsonFormWidget);
     dataSources.AssertJSONFormHeader(3, 0, "store_id");
     generateStoresSecretInfo(3);
     cy.get("@secretInfo").then(($secretInfo) => {
@@ -156,7 +169,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.SelectTableRow(5);
     dataSources.AssertJSONFormHeader(5, 0, "store_id");
     agHelper.ClickButton("Delete", 5);
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
     agHelper.AssertElementVisible(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
@@ -165,7 +178,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Cancel");
     dataSources.AssertJSONFormHeader(5, 0, "store_id");
     agHelper.ClickButton("Delete", 5);
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
     agHelper.AssertElementVisible(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
@@ -197,12 +210,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.NavigateToNextPage(); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
     table.WaitUntilTableLoad(); //page 2
-    agHelper.AssertElementVisible(locator._jsonFormWidget); // JSON form should be present
+    agHelper.AssertElementVisible(locators._jsonFormWidget); // JSON form should be present
 
     table.NavigateToNextPage(); //page 3
     agHelper.Sleep(3000); //wait for table navigation to take effect!
     table.WaitForTableEmpty(); //page 3
-    agHelper.AssertElementAbsence(locator._jsonFormWidget); //JSON form also should not be present
+    agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form also should not be present
 
     //Try to add via to Insert Modal - JSON fields not showing correct fields, Open bug 14122
 
@@ -220,9 +233,9 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("9. Verify Add/Insert from Deploy page - on Stores - new record", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("Widgets");
-    ee.ExpandCollapseEntity("Insert_Modal");
-    ee.SelectEntityByName("insert_form");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Insert_Modal");
+    entityExplorer.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
 
     //Removing Default values & setting placeholder!
@@ -237,7 +250,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep(1000); //time for new Modal to settle
     //agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal at index 1
-    agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
+    agHelper.AssertElementVisible(locators._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
     agHelper.AssertContains("Column 'store_id' cannot be null");
 
@@ -273,7 +286,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Insert to reflect!
     agHelper
-      .GetElementLength(locator._jsonFormWidget)
+      .GetElementLength(locators._jsonFormWidget)
       .then(($len) => expect($len).to.eq(1));
   });
 
@@ -311,7 +324,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.NavigateToNextPage(); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
     table.WaitUntilTableLoad(); //page 2 //newly inserted record would have pushed the existing record to next page!
-    agHelper.AssertElementVisible(locator._jsonFormWidget); //JSON form should be present
+    agHelper.AssertElementVisible(locators._jsonFormWidget); //JSON form should be present
 
     table.NavigateToPreviousPage();
     agHelper.Sleep(3000); //wait for table navigation to take effect!
@@ -319,7 +332,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(0, 0, "store_id", "2105");
     agHelper.ClickButton("Delete", 0);
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
     agHelper.AssertElementVisible(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
@@ -339,8 +352,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ActionContextMenuByEntityName("Stores", "Delete", "Are you sure?");
-    agHelper.AssertNetworkStatus("@deletePage", 200);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Stores",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
     agHelper.RefreshPage();
   });
 
@@ -350,15 +366,23 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropStores");
     dataSources.EnterQuery(deleteTblQuery);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
+    agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementAbsence(
+      entityExplorer._entityNameInExplorer("Stores"),
+    );
   });
 
   it("13. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
@@ -396,7 +420,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -431,7 +455,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     expectedTableData: string,
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
-    agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
+    agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063 - for common table columns
     agHelper.Sleep(2000); //for update to reflect!
     agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.AssertNetworkStatus("@postExecute", 200);
