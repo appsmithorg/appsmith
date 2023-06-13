@@ -3,7 +3,7 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let dataSources = ObjectsRegistry.DataSources;
 
 describe("API Panel Test Functionality", function () {

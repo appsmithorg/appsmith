@@ -28,6 +28,7 @@ import { get } from "lodash";
 import {
   DB_QUERY_DEFAULT_TABLE_NAME,
   DB_QUERY_DEFAULT_TEMPLATE_TYPE,
+  DB_QUERY_DEFAULT_TEMPLATE_TYPE_MONGO,
 } from "constants/Datasource";
 
 export interface FormControlProps {
@@ -122,7 +123,9 @@ function FormControl(props: FormControlProps) {
   useEffect(() => {
     if (showTemplate && !convertFormToRaw) {
       const defaultTemplate = !!pluginTemplate
-        ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
+        ? DB_QUERY_DEFAULT_TEMPLATE_TYPE in pluginTemplate
+          ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
+          : pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE_MONGO]
         : "";
       const smartTemplate = defaultTemplate
         .replace(DB_QUERY_DEFAULT_TABLE_NAME, datasourceTableName)

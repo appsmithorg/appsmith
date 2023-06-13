@@ -1,6 +1,10 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
+
+let dataSources = ObjectsRegistry.DataSources;
+
 let datasourceName;
 
 describe("Add widget - Postgress DataSource", function () {
@@ -15,7 +19,7 @@ describe("Add widget - Postgress DataSource", function () {
   it("1. Verify 'Add to widget [Widget Suggestion]' functionality - Postgress", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
+    dataSources.EnterQuery("");
     cy.wait(500);
     cy.get(".CodeMirror textarea")
       .first()

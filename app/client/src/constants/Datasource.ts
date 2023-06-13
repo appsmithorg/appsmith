@@ -28,3 +28,4 @@ export const DatasourceEditEntryPoints = {
 
 export const DB_QUERY_DEFAULT_TABLE_NAME = "<<your_table_name>>";
 export const DB_QUERY_DEFAULT_TEMPLATE_TYPE = "SELECT";
+export const DB_QUERY_DEFAULT_TEMPLATE_TYPE_MONGO = "READ";

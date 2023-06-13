@@ -4,7 +4,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 
 let datasourceName;
 
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let dataSources = ObjectsRegistry.dataSources;
 
 describe("Add widget - Postgress DataSource", function () {
