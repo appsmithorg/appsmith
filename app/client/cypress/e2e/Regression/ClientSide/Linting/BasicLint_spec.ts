@@ -8,6 +8,7 @@ import {
   jsEditor,
   locators,
   propPane,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 const successMessage = "Successful Trigger";
@@ -88,7 +89,7 @@ describe("Linting", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     clickButtonAndAssertLintError(true);
 
@@ -149,7 +150,7 @@ describe("Linting", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     clickButtonAndAssertLintError(true);
@@ -212,7 +213,7 @@ describe("Linting", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Query,
     });
     clickButtonAndAssertLintError(true);
 
@@ -261,17 +262,17 @@ describe("Linting", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Query,
     });
     clickButtonAndAssertLintError(true);
 

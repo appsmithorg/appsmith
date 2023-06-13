@@ -3,6 +3,7 @@ import {
   apiPage,
   debuggerHelper,
   entityExplorer,
+  entityItems,
   jsEditor,
   locators,
   propPane,
@@ -319,52 +320,52 @@ describe("Lint error reporting", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api2",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api3",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api4",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api5",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject2",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject3",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject4",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject5",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
   });
 });

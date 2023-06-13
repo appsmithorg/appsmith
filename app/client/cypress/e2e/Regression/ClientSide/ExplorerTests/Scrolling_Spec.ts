@@ -2,6 +2,7 @@ import {
   agHelper,
   dataSources,
   entityExplorer,
+  entityItems,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 let mockDBNameUsers: string, mockDBNameMovies: string;
@@ -80,13 +81,13 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Query,
     });
 
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query2",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Query,
     });
     dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
     dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);

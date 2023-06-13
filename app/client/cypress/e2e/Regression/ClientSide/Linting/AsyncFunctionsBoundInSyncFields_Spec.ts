@@ -5,6 +5,7 @@ import {
   jsEditor,
   locators,
   propPane,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Linting async JSFunctions bound to data fields", () => {
@@ -128,12 +129,12 @@ describe("Linting async JSFunctions bound to data fields", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
   });
 });

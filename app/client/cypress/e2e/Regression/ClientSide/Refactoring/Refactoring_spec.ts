@@ -3,37 +3,38 @@ import {
   apiPage,
   dataSources,
   entityExplorer,
+  entityItems,
   jsEditor,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-let dsName: any;
+describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
+  let dsName: any;
 
-const jsCode = `//TextWidget, InputWidget, QueryRefactor and RefactorAPI are used
+  const jsCode = `//TextWidget, InputWidget, QueryRefactor and RefactorAPI are used
   let text = TextWidget.text;
   let input = InputWidget.text;
   let query = QueryRefactor.data;
   let api = RefactorAPI.data;
   console.log("InputWidget.text + TextWidget.text + QueryRefactor.data + RefactorAPI.data");
   return 10;`;
-const query =
-  "SELECT * FROM paintings ORDER BY id LIMIT {{JSObject1.myFun1()}};";
-const refactorInput = {
-  api: { oldName: "RefactorAPI", newName: "RefactorAPIRenamed" },
-  query: { oldName: "QueryRefactor", newName: "QueryRefactorRenamed" },
-  jsObject: { oldName: "JSObject1", newName: "JSObject1Renamed" },
-  inputWidget: {
-    oldName: "InputWidget",
-    newName: "InputWidgetRenamed",
-  },
-  textWidget: {
-    oldName: "TextWidget",
-    newName: "TextWidgetRenamed",
-  },
-};
+  const query =
+    "SELECT * FROM paintings ORDER BY id LIMIT {{JSObject1.myFun1()}};";
+  const refactorInput = {
+    api: { oldName: "RefactorAPI", newName: "RefactorAPIRenamed" },
+    query: { oldName: "QueryRefactor", newName: "QueryRefactorRenamed" },
+    jsObject: { oldName: "JSObject1", newName: "JSObject1Renamed" },
+    inputWidget: {
+      oldName: "InputWidget",
+      newName: "InputWidgetRenamed",
+    },
+    textWidget: {
+      oldName: "TextWidget",
+      newName: "TextWidgetRenamed",
+    },
+  };
 
-describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
   before(() => {
     cy.fixture("Datatypes/RefactorDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -173,17 +174,17 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "QueryRefactorRenamed",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Query,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1Renamed",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "RefactorAPIRenamed",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });

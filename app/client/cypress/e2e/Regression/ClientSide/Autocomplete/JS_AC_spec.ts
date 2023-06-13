@@ -249,7 +249,7 @@ describe("Autocomplete tests", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
-      subAction: "Are you sure?",
+      entityType: entityItems.Api,
     });
   });
 
