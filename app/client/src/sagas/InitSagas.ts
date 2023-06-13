@@ -21,7 +21,11 @@ import { resetCurrentApplication } from "@appsmith/actions/applicationActions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
-import { resetEditorSuccess } from "actions/initActions";
+import {
+  initAppViewer,
+  initEditor,
+  resetEditorSuccess,
+} from "actions/initActions";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
@@ -35,9 +39,16 @@ import type AppEngine from "entities/Engine";
 import { AppEngineApiError } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
-import { updateSlugNamesInURL } from "utils/helpers";
+import { getSearchQuery, updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
+import {
+  isEditorPath,
+  isViewerPath,
+} from "../ce/pages/Editor/Explorer/helpers";
+import { APP_MODE } from "../entities/App";
+import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -77,12 +88,11 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
-    const applicationId = "648814b904646200a8d2a88f";
-    const toLoadPageId = "648814b904646200a8d2a892";
-    yield all([
-      call(engine.loadAppData, action.payload),
-      call(engine.loadAppEntities, toLoadPageId, applicationId),
-    ]);
+    const { applicationId, toLoadPageId } = yield call(
+      engine.loadAppData,
+      action.payload,
+    );
+    yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
@@ -156,6 +166,39 @@ function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
   });
 }
 
+function* eagerPageInitSaga() {
+  const url = window.location.pathname;
+  const search = window.location.search;
+  if (isEditorPath(url)) {
+    const { pageId } = identifyEntityFromPath(url);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+    if (pageId) {
+      yield put(
+        initEditor({
+          pageId,
+          branch,
+          mode: APP_MODE.EDIT,
+        }),
+      );
+    }
+  } else if (isViewerPath(url)) {
+    const {
+      params: { applicationId, pageId },
+    } = matchViewerPath(url);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+    if (applicationId || pageId) {
+      yield put(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
+    }
+  }
+}
+
 export default function* watchInitSagas() {
   yield all([
     takeLatest(
@@ -167,5 +210,6 @@ export default function* watchInitSagas() {
     ),
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
     takeEvery(URL_CHANGE_ACTIONS, updateURLSaga),
+    takeEvery(ReduxActionTypes.INITIALIZE_CURRENT_PAGE, eagerPageInitSaga),
   ]);
 }
