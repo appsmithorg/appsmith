@@ -1,10 +1,10 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {entityExplorer,propPane} from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
   cy.fixture("formWidgetdsl").then((val) => {
-    _.agHelper.AddDsl(val);
+    agHelper.AddDsl(val);
   });
 });
 
@@ -12,8 +12,8 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {
-    _.entityExplorer.SelectEntityByName("Form1", "Widgets");
-    _.propPane.RenameWidget("Form1", "FormTest");
+    entityExplorer.SelectEntityByName("Form1", "Widgets");
+    propPane.RenameWidget("Form1", "FormTest");
     cy.get(commonlocators.copyWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -21,7 +21,10 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
   });
 
   it("2. Delete Widget from sidebar and Undo action validation", function () {
-    _.entityExplorer.ActionContextMenuByEntityName("FormTest", "Show bindings");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"FormTest",
+      action:"Show bindings",
+    }); 
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

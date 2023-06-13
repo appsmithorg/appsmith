@@ -310,11 +310,11 @@ describe("Git sync apps", function () {
       .click({ force: true });
     cy.wait(2000);
     entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    entityExplorer.ActionContextMenuByEntityName(
-      "JSObject1",
-      "Move to page",
-      "Child_Page",
-    );
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Move to page",
+      subAction:  "Child_Page"
+    });
     cy.wait(2000);
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(explorer.addWidget).click({ force: true });
@@ -453,7 +453,10 @@ describe("Git sync apps", function () {
     entityExplorer.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
     entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
-    entityExplorer.ActionContextMenuByEntityName("Child_Page", "Hide");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Child_Page",
+      action: "Hide"
+    });
 
     entityExplorer.SelectEntityByName("Child_Page", "Pages");
     cy.wait("@getPage");

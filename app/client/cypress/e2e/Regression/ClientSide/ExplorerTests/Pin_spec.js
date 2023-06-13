@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {agHelper, entityExplorer, locators} from "../../../../support/Objects/ObjectsCore";
 
 const ExplorerMenu = {
   ADD_PAGE: "ADD_PAGE",
@@ -10,28 +10,28 @@ const ExplorerMenu = {
 const OpenExplorerMenu = (menu) => {
   switch (menu) {
     case ExplorerMenu.ADD_PAGE:
-      _.agHelper.GetNClick(_.locators._newPage);
-      cy.get(_.locators._canvas).trigger("mousemove", 500, 400, {
+      agHelper.GetNClick(locators._newPage);
+      cy.get(locators._canvas).trigger("mousemove", 500, 400, {
         force: true,
       });
       break;
     case ExplorerMenu.ENTITY:
-      cy.xpath(_.entityExplorer._contextMenu("Page1"))
+      cy.xpath(entityExplorer._contextMenu("Page1"))
         .last()
         .click({ force: true });
-      cy.get(_.locators._canvas).trigger("mousemove", 500, 400, {
+      cy.get(locators._canvas).trigger("mousemove", 500, 400, {
         force: true,
       });
       break;
     case ExplorerMenu.ADD_QUERY_JS:
-      cy.get(_.locators._createNew).last().click({ force: true });
-      cy.get(_.locators._canvas).trigger("mousemove", 500, 300, {
+      cy.get(locators._createNew).last().click({ force: true });
+      cy.get(locators._canvas).trigger("mousemove", 500, 300, {
         force: true,
       });
       break;
     case ExplorerMenu.ADD_LIBRARY:
-      _.installer.OpenInstaller(true);
-      cy.get(_.locators._canvas).trigger("mousemove", 500, 100, {
+      installer.OpenInstaller(true);
+      cy.get(locators._canvas).trigger("mousemove", 500, 100, {
         force: true,
       });
       break;
@@ -42,7 +42,7 @@ const OpenExplorerMenu = (menu) => {
 describe("Entity explorer tests related to pinning and unpinning", function () {
   before(() => {
     cy.fixture("displayWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -60,37 +60,40 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
   });
 
   it("2. Widgets visibility in widget pane", function () {
-    _.entityExplorer.NavigateToSwitcher("Widgets");
-    _.agHelper.ScrollTo(_.locators._widgetPane, "bottom");
-    _.agHelper.AssertElementVisible(
-      _.locators._widgetPageIcon(_.draggableWidgets.VIDEO),
+    entityExplorer.NavigateToSwitcher("Widgets");
+    agHelper.ScrollTo(locators._widgetPane, "bottom");
+    agHelper.AssertElementVisible(
+      locators._widgetPageIcon(draggableWidgets.VIDEO),
     );
-    _.entityExplorer.PinUnpinEntityExplorer(true);
-    _.agHelper.AssertElementVisible(
-      _.locators._widgetPageIcon(_.draggableWidgets.VIDEO),
+    entityExplorer.PinUnpinEntityExplorer(true);
+    agHelper.AssertElementVisible(
+      locators._widgetPageIcon(draggableWidgets.VIDEO),
     );
-    _.entityExplorer.PinUnpinEntityExplorer(false);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.PinUnpinEntityExplorer(false);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it(
     "excludeForAirgap",
     "3. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
-      _.agHelper.AssertElementVisible(_.entityExplorer._entityExplorer);
-      _.entityExplorer.PinUnpinEntityExplorer(true);
+      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(true);
       const menu = Object.keys(ExplorerMenu);
 
-      Cypress._.times(menu.length, (index) => {
+      Cypress.times(menu.length, (index) => {
         OpenExplorerMenu(menu[index]);
-        _.agHelper.Sleep();
+        agHelper.Sleep();
         cy.get("[data-testid=sidebar-active]").should("exist");
       });
 
       // when an entity is being edited
-      _.entityExplorer.ActionContextMenuByEntityName("Page1", "Edit name");
-      cy.get(_.locators._canvas).trigger("mousemove", 500, 400);
-      _.agHelper.AssertElementVisible(_.entityExplorer._entityExplorer);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar:"Page1",
+        action:"Edit name",
+      });
+      cy.get(locators._canvas).trigger("mousemove", 500, 400);
+      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
     },
   );
 
@@ -98,20 +101,23 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     "airgap",
     "4. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
-      _.agHelper.AssertElementVisible(_.entityExplorer._entityExplorer);
-      _.entityExplorer.PinUnpinEntityExplorer(true);
+      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(true);
       const menu = Object.keys(ExplorerMenu);
 
-      Cypress._.times(menu.length - 1, (index) => {
+      Cypress.times(menu.length - 1, (index) => {
         OpenExplorerMenu(menu[index]);
-        _.agHelper.Sleep();
+        agHelper.Sleep();
         cy.get("[data-testid=sidebar-active]").should("exist");
       });
 
       // when an entity is being edited
-      _.entityExplorer.ActionContextMenuByEntityName("Page1", "Edit name");
-      cy.get(_.locators._canvas).trigger("mousemove", 500, 400);
-      _.agHelper.AssertElementVisible(_.entityExplorer._entityExplorer);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar:"Page1",
+        action:"Edit name",
+      });
+      cy.get(locators._canvas).trigger("mousemove", 500, 400);
+      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
     },
   );
 });

@@ -33,7 +33,10 @@ describe("Entity explorer datasource structure", function () {
       .blur();
     cy.WaitAutoSave();
     ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.wait(2000); //for the tables to open
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -63,7 +66,9 @@ describe("Entity explorer datasource structure", function () {
 
     cy.deleteQueryUsingContext();
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("MyQuery");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "MyQuery",
+    });
     cy.deleteDatasource(datasourceName);
   });
 
@@ -102,7 +107,10 @@ describe("Entity explorer datasource structure", function () {
     //   .last()
     //   .click({ force: true });
     ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -124,7 +132,10 @@ describe("Entity explorer datasource structure", function () {
     cy.typeValueNValidate(`DROP TABLE public.${tableName}`);
     cy.runQuery();
     ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",

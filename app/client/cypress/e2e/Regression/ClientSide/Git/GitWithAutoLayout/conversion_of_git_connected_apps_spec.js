@@ -51,8 +51,10 @@ describe("Git sync:", function () {
     entityExplorer.SelectEntityByName("Page1", "Pages");
 
     agHelper.Sleep();
-
-    entityExplorer.ActionContextMenuByEntityName("Page2");
+    
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page2"
+    });
   });
 
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {

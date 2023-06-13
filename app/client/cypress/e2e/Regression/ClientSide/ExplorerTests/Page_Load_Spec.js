@@ -1,18 +1,22 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Page Load tests", () => {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
     cy.fixture("PageLoadDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     cy.CreatePage();
     cy.get("h2").contains("Drag and drop a widget here");
@@ -21,13 +25,13 @@ describe("Page Load tests", () => {
   it("1. Published page loads correctly", () => {
     //add page within page
     cy.fixture("PageLoadDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     // Update the text to be asserted later
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");
     // Publish
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
@@ -43,7 +47,7 @@ describe("Page Load tests", () => {
       "This is Page 2",
     );
     // Test after reload
-    _.agHelper.RefreshPage(true, "viewPage");
+    agHelper.RefreshPage(true, "viewPage");
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
@@ -77,18 +81,21 @@ describe("Page Load tests", () => {
   });
 
   it("2. Hide Page and validate published app", () => {
-    _.deployMode.NavigateBacktoEditor();
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Hide");
-    _.deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page1",
+      action: "Hide",
+    });
+    deployMode.DeployApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",
       "This is Page 1",
     );
     cy.contains("Page2").should("not.exist");
-    _.deployMode.NavigateBacktoEditor();
-    _.entityExplorer.SelectEntityByName("Page2");
-    _.deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Page2");
+    deployMode.DeployApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",

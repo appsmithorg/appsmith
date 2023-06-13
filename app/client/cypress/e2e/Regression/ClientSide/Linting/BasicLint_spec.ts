@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {agHelper,apiPage,dataSources, entityExplorer, homePage,installer,jsEditor,locators, propPane} from "../../../../support/Objects/ObjectsCore";
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -8,52 +8,52 @@ const clickButtonAndAssertLintError = (
   shouldExist: boolean,
   shouldWait = false,
 ) => {
-  _.agHelper.Sleep(2000);
+  agHelper.Sleep(2000);
   // Check for presence/ absence of lint error
-  _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+  entityExplorer.SelectEntityByName("Button1", "Widgets");
   // Sometimes wait for page to switch
-  shouldWait && _.agHelper.Sleep(2000);
+  shouldWait && agHelper.Sleep(2000);
   if (shouldExist) {
-    _.agHelper.AssertElementExist(_.locators._lintErrorElement);
-    _.agHelper.ClickButton("Submit");
-    _.agHelper.AssertContains(errorMessage);
+    agHelper.AssertElementExist(locators._lintErrorElement);
+    agHelper.ClickButton("Submit");
+    agHelper.AssertContains(errorMessage);
   } else {
-    _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
-    _.agHelper.ClickButton("Submit");
-    _.agHelper.AssertContains(successMessage);
+    agHelper.AssertElementAbsence(locators._lintErrorElement);
+    agHelper.ClickButton("Submit");
+    agHelper.AssertContains(successMessage);
   }
 
   //Reload and Check for presence/ absence of lint error
-  _.agHelper.RefreshPage();
-  // _.agHelper.AssertElementVisible(_.locators._visibleTextDiv("Explorer"));
-  // _.agHelper.Sleep(2500);
-  _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+  agHelper.RefreshPage();
+  // agHelper.AssertElementVisible(locators._visibleTextDiv("Explorer"));
+  // agHelper.Sleep(2500);
+  entityExplorer.SelectEntityByName("Button1", "Widgets");
   shouldExist
-    ? _.agHelper.AssertElementExist(_.locators._lintErrorElement)
-    : _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
+    ? agHelper.AssertElementExist(locators._lintErrorElement)
+    : agHelper.AssertElementAbsence(locators._lintErrorElement);
 };
 
 const createMySQLDatasourceQuery = () => {
   // Create Query
-  _.dataSources.NavigateFromActiveDS(dsName, true);
-  _.agHelper.GetNClick(_.dataSources._templateMenu);
+  dataSources.NavigateFromActiveDS(dsName, true);
+  agHelper.GetNClick(dataSources._templateMenu);
   const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
-  _.dataSources.EnterQuery(tableCreateQuery);
+  dataSources.EnterQuery(tableCreateQuery);
 };
 
 describe("Linting", () => {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
-    _.dataSources.CreateDataSource("MySql");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
+    entityExplorer.NavigateToSwitcher("Explorer");
+    dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName as unknown as string;
     });
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.EnterJSContext(
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -65,48 +65,47 @@ describe("Linting", () => {
       }()}}`,
     );
 
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Tooltip",
       "{{Api1.config.httpMethod}}",
     );
     clickButtonAndAssertLintError(true);
 
     // create Api1
-    _.apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     clickButtonAndAssertLintError(false);
 
     // Delete Api and assert that lint error shows
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Api1",
-      "Delete",
-      "Are you sure?",
-    );
-
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"Api1",
+      action:"Delete",
+      subAction:  "Are you sure?",
+    }); 
     clickButtonAndAssertLintError(true);
 
     // Re-create Api1
-    _.apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     clickButtonAndAssertLintError(false);
   });
 
   it("2. TC 1927 Cont'd - Doesn't show lint errors when Api is renamed", () => {
-    _.entityExplorer.SelectEntityByName("Api1", "Queries/JS");
-    _.agHelper.RenameWithInPane("Api2");
+    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    agHelper.RenameWithInPane("Api2");
 
     clickButtonAndAssertLintError(false);
 
-    _.entityExplorer.SelectEntityByName("Api2", "Queries/JS");
-    _.agHelper.RenameWithInPane("Api1");
+    entityExplorer.SelectEntityByName("Api2", "Queries/JS");
+    agHelper.RenameWithInPane("Api1");
 
     clickButtonAndAssertLintError(false);
   });
 
   it("3. TC 1929 - Shows correct lint error when JSObject is deleted or created", () => {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.EnterJSContext(
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -116,11 +115,11 @@ describe("Linting", () => {
         }
       }()}}`,
     );
-    _.propPane.UpdatePropertyFieldValue("Tooltip", `{{JSObject1.myVar1}}`);
+    propPane.UpdatePropertyFieldValue("Tooltip", `{{JSObject1.myVar1}}`);
 
     clickButtonAndAssertLintError(true);
 
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
         myVar1: "name",
         myVar2: "test",
@@ -139,17 +138,17 @@ describe("Linting", () => {
       },
     );
     clickButtonAndAssertLintError(false);
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "JSObject1",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"JSObject1",
+      action:"Delete",
+      subAction:  "Are you sure?",
+    }); 
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     clickButtonAndAssertLintError(true);
 
     // Re-create JSObject, lint error should be gone
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
         myVar1: "name",
         myVar2: "test",
@@ -171,19 +170,19 @@ describe("Linting", () => {
   });
 
   it("4. TC 1929 Cont'd -Doesn't show lint error when JSObject is renamed", () => {
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.jsEditor.RenameJSObjFromPane("JSObject2");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    jsEditor.RenameJSObjFromPane("JSObject2");
     clickButtonAndAssertLintError(false, true);
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.SelectEntityByName("JSObject2", "Queries/JS");
-    _.jsEditor.RenameJSObjFromPane("JSObject1");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("JSObject2", "Queries/JS");
+    jsEditor.RenameJSObjFromPane("JSObject1");
     clickButtonAndAssertLintError(false, true);
   });
 
   it("5. TC 1928 - Shows correct lint error with Query is created or Deleted", () => {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.EnterJSContext(
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
       try{
@@ -194,7 +193,7 @@ describe("Linting", () => {
       }
     }()}}`,
     );
-    _.propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.ENTITY_TYPE}}`);
+    propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.ENTITY_TYPE}}`);
     clickButtonAndAssertLintError(true);
 
     createMySQLDatasourceQuery();
@@ -202,12 +201,12 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Query1",
-      "Delete",
-      "Are you sure?",
-    );
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"Query1",
+      action:"Delete",
+      subAction:  "Are you sure?",
+    }); 
     clickButtonAndAssertLintError(true);
 
     // Recreate Query
@@ -217,22 +216,22 @@ describe("Linting", () => {
   });
 
   it("6. TC 1928 Cont'd - Shows correct lint error when Query is renamed", () => {
-    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
-    _.agHelper.RenameWithInPane("Query2");
+    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    agHelper.RenameWithInPane("Query2");
 
     // Assert Absence of lint error
     clickButtonAndAssertLintError(false);
 
-    _.entityExplorer.SelectEntityByName("Query2", "Queries/JS");
-    _.agHelper.RenameWithInPane("Query1");
+    entityExplorer.SelectEntityByName("Query2", "Queries/JS");
+    agHelper.RenameWithInPane("Query1");
 
     // Assert Absence of lint error
     clickButtonAndAssertLintError(false);
   });
 
   it("7. TC 1930 - Shows correct lint error with multiple entities in triggerfield", () => {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.EnterJSContext(
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -243,7 +242,7 @@ describe("Linting", () => {
         }
       }()}}`,
     );
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Tooltip",
       `{{Api1.config.httpMethod + JSObject1.myVar1 + Query1.ENTITY_TYPE}}`,
     );
@@ -251,26 +250,26 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete all
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "JSObject1",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Api1",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Query1",
-      "Delete",
-      "Are you sure?",
-    );
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"JSObject1",
+      action:"Delete",
+      subAction:  "Are you sure?",
+    }); 
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"Api1",
+      action:"Delete",
+      subAction:  "Are you sure?",
+    }); 
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"Query1",
+      action:"Delete",
+      subAction:  "Are you sure?",
+    }); 
     clickButtonAndAssertLintError(true);
 
     // ReCreate all
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
           myVar1: "name",
           myVar2: "test",
@@ -288,10 +287,10 @@ describe("Linting", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    _.apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     createMySQLDatasourceQuery();
-    _.agHelper.RefreshPage(); //Since this seems failing a bit
+    agHelper.RefreshPage(); //Since this seems failing a bit
     clickButtonAndAssertLintError(false);
   });
 
@@ -302,14 +301,14 @@ describe("Linting", () => {
       console.log(crypto.getRandomValues(byteArray));
       },
     }`;
-    _.jsEditor.CreateJSObject(JS_OBJECT_WITH_WEB_API, {
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_WEB_API, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
     // expect no lint error
-    _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
+    agHelper.AssertElementAbsence(locators._lintErrorElement);
   });
 
   it(
@@ -321,42 +320,42 @@ describe("Linting", () => {
         return UUID.generate();
       },
     }`;
-      _.jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+      jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
         paste: true,
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
       });
 
-      _.agHelper.AssertElementExist(_.locators._lintErrorElement);
-      _.entityExplorer.ExpandCollapseEntity("Libraries");
+      agHelper.AssertElementExist(locators._lintErrorElement);
+      entityExplorer.ExpandCollapseEntity("Libraries");
       // install the library
-      _.installer.OpenInstaller();
-      _.installer.installLibrary("uuidjs", "UUID");
-      _.installer.CloseInstaller();
+      installer.OpenInstaller();
+      installer.installLibrary("uuidjs", "UUID");
+      installer.CloseInstaller();
 
-      _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
+      agHelper.AssertElementAbsence(locators._lintErrorElement);
 
-      _.installer.uninstallLibrary("uuidjs");
+      installer.uninstallLibrary("uuidjs");
 
-      _.agHelper.AssertElementExist(_.locators._lintErrorElement);
-      _.agHelper.Sleep(2000);
-      _.installer.OpenInstaller();
-      _.installer.installLibrary("uuidjs", "UUID");
-      _.installer.CloseInstaller();
+      agHelper.AssertElementExist(locators._lintErrorElement);
+      agHelper.Sleep(2000);
+      installer.OpenInstaller();
+      installer.installLibrary("uuidjs", "UUID");
+      installer.CloseInstaller();
 
-      _.homePage.NavigateToHome();
+      homePage.NavigateToHome();
 
-      _.homePage.CreateNewApplication();
+      homePage.CreateNewApplication();
 
-      _.jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+      jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
         paste: true,
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
       });
 
-      _.agHelper.AssertElementExist(_.locators._lintErrorElement);
+      agHelper.AssertElementExist(locators._lintErrorElement);
     },
   );
 });

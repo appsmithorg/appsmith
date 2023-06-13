@@ -26,8 +26,9 @@ interface EntityActionParams {
     | "Clone"
     | "Settings"
     | "Copy to page"
-    | "Refresh"
-    | "Move to page";
+    | "Move to page"
+    | "Hide"
+    | "Refresh";
   subAction?: string;
   entityType?: EntityItems;
   toAssertAction?: boolean;

@@ -1,7 +1,7 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import homePage from "../../../../../locators/HomePage";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {agHelper, entityExplorer, gitSync, homePage, jsEditor} from "../../../../../support/Objects/ObjectsCore";
 
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
@@ -13,21 +13,21 @@ let repoName;
 
 describe("Git sync Bug #10773", function () {
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    _.gitSync.CreateNConnectToGit(repoName);
+    gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
@@ -39,7 +39,7 @@ describe("Git sync Bug #10773", function () {
     cy.get(".t--entity-name:contains('Page1')").click();
     cy.commitAndPush();
     cy.wait(2000);
-    _.gitSync.CreateGitBranch(tempBranch, false);
+    gitSync.CreateGitBranch(tempBranch, false);
     //cy.createGitBranch(tempBranch);
     cy.CheckAndUnfoldEntityItem("Pages");
     // verify tempBranch should contain this page
@@ -60,29 +60,29 @@ describe("Git sync Bug #10773", function () {
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
     // create another branch and verify deleted page doesn't exist on it
     //cy.createGitBranch(tempBranch0);
-    _.gitSync.CreateGitBranch(tempBranch0, false);
+    gitSync.CreateGitBranch(tempBranch0, false);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
   });
 
   it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.fixture("JsObjecWithGitdsl").then((val) => {
-        _.agHelper.AddDsl(val);
+        agHelper.AddDsl(val);
       });
     });
     // connect app to git
-    _.gitSync.CreateNConnectToGit(repoName);
+    gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS Object and validate its data on Page1
-    _.jsEditor.CreateJSObject('return "Success";');
+    jsEditor.CreateJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
@@ -91,7 +91,10 @@ describe("Git sync Bug #10773", function () {
       "be.visible",
     );
     // clone the page1 and validate data binding
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Clone");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"Page1",
+      action:"Clone",
+    }); 
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -105,7 +108,7 @@ describe("Git sync Bug #10773", function () {
     );
     // deploy the app and validate data binding
     cy.get(homePage.publishButton).click();
-    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    agHelper.AssertElementExist(gitSync._bottomBarPull);
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.wait(8000);
@@ -129,7 +132,7 @@ describe("Git sync Bug #10773", function () {
     //cy.createGitBranch(tempBranch);
     cy.wait(3000);
 
-    _.gitSync.CreateGitBranch(tempBranch, true);
+    gitSync.CreateGitBranch(tempBranch, true);
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(".t--entity-name:contains(Page1)")
@@ -142,28 +145,31 @@ describe("Git sync Bug #10773", function () {
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Clone");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"Page1",
+      action:"Clone",
+    }); 
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    gitSync.DeleteTestGithubRepo(repoName);
   });
 
   it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function () {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.fixture("JsObjecWithGitdsl").then((val) => {
-        _.agHelper.AddDsl(val);
+        agHelper.AddDsl(val);
       });
     });
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS Object and validate its data on Page1
-    _.jsEditor.CreateJSObject('return "Success";');
+    jsEditor.CreateJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
@@ -172,14 +178,17 @@ describe("Git sync Bug #10773", function () {
       "be.visible",
     );
     // clone the page1 and validate data binding
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Clone");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar:"Page1",
+      action:"Clone",
+    }); 
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
     // connect app to git and deploy
-    _.gitSync.CreateNConnectToGit();
+    gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
       cy.wait(2000);
@@ -240,12 +249,12 @@ describe("Git sync Bug #10773", function () {
             "be.visible",
           );
         });
-      _.gitSync.DeleteTestGithubRepo(repoName);
+      gitSync.DeleteTestGithubRepo(repoName);
     });
   });
 
   it("5. Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -254,7 +263,7 @@ describe("Git sync Bug #10773", function () {
       cy.generateUUID().then((uid) => {
         const owner = Cypress.env("TEST_GITHUB_USER_NAME");
         repoName = uid;
-        _.gitSync.CreateTestGiteaRepo(repoName);
+        gitSync.CreateTestGiteaRepo(repoName);
         //cy.createTestGithubRepo(repoName);
 
         // open gitSync modal
@@ -274,13 +283,13 @@ describe("Git sync Bug #10773", function () {
           `generateKey-${repoName}`,
         );
         cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}${_.hostPort.GITEA_API_URL_TED}/${repoName}.git`,
+          `{selectAll}${hostPort.GITEA_API_URL_TED}/${repoName}.git`,
         );
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
       // verify app is visible and open
-      _.homePage.NavigateToHome();
+      homePage.NavigateToHome();
       cy.reload();
       cy.wait(3000);
       cy.SearchApp(`${newWorkspaceName}app`);
@@ -289,6 +298,6 @@ describe("Git sync Bug #10773", function () {
 
   after(() => {
     //clean up
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    gitSync.DeleteTestGithubRepo(repoName);
   });
 });
