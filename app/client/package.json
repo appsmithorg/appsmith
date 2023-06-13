@@ -91,7 +91,7 @@
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@2.1.11-alpha.4",
+    "design-system": "npm:@appsmithorg/design-system@2.1.12",
     "design-system-old": "npm:@appsmithorg/design-system-old@1.1.8",
     "downloadjs": "^1.4.7",
     "fast-deep-equal": "^3.1.3",
