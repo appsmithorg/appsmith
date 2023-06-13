@@ -16,7 +16,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   searchTags: ["click", "submit"],
-  isDeprecated: true,
+  isDeprecated: false,
   replacement: "BUTTON_WIDGET_V2",
   defaults: {
     animateLoading: true,
