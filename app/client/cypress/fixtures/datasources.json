@@ -61,6 +61,7 @@
   "mockApiUrl": "http://host.docker.internal:5001/v1/mock-api?records=10",
   "echoApiUrl": "http://host.docker.internal:5001/v1/mock-api/echo",
   "randomCatfactUrl": "http://host.docker.internal:5001/v1/catfact/random",
+  "multipartAPI": "http://host.docker.internal:5001/v1/mock-api/echo-multipart",
 
   "firestore-database-url": "https://appsmith-22e8b.firebaseio.com",
   "firestore-projectID": "appsmith-22e8b",
