@@ -23,7 +23,7 @@ type HelpItem = {
 };
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: "file-line",
+    icon: "book-line",
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },

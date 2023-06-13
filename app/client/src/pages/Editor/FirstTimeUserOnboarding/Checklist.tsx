@@ -58,6 +58,8 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
+import { getAppsmithConfigs } from "@appsmith/configs";
+const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`
   display: block;
@@ -358,6 +360,13 @@ export default function OnboardingChecklist() {
   };
 
   useEffect(() => {
+    if (intercomAppID && window.Intercom) {
+      // Close signposting modal when intercom modal is open
+      window.Intercom("onShow", () => {
+        dispatch(showSignpostingModal(false));
+      });
+    }
+
     return () => {
       dispatch({
         type: "SIGNPOSTING_MARK_ALL_READ",
