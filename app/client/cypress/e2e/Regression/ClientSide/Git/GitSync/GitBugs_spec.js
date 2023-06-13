@@ -1,9 +1,10 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import homePage from "../../../../../locators/HomePage";
+import homePageLocators from "../../../../../locators/HomePage";
 import {
   agHelper,
   entityExplorer,
+  hostPort,
   gitSync,
   homePage,
   jsEditor,
@@ -53,7 +54,7 @@ describe("Git sync Bug #10773", function () {
     cy.get(`.t--entity-name:contains("${pagename}")`).click();
     // delete page from tempBranch and merge to master
     cy.Deletepage(pagename);
-    cy.get(homePage.publishButton).click();
+    cy.get(homePageLocators.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.wait(8000);
@@ -113,7 +114,7 @@ describe("Git sync Bug #10773", function () {
       "be.visible",
     );
     // deploy the app and validate data binding
-    cy.get(homePage.publishButton).click();
+    cy.get(homePageLocators.publishButton).click();
     agHelper.AssertElementExist(gitSync._bottomBarPull);
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
@@ -273,8 +274,8 @@ describe("Git sync Bug #10773", function () {
         //cy.createTestGithubRepo(repoName);
 
         // open gitSync modal
-        cy.get(homePage.deployPopupOptionTrigger).click();
-        cy.get(homePage.connectToGitBtn).click({ force: true });
+        cy.get(homePageLocators.deployPopupOptionTrigger).click();
+        cy.get(homePageLocators.connectToGitBtn).click({ force: true });
 
         cy.intercept(
           {

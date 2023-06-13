@@ -1,6 +1,7 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
+  agHelper,
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";

@@ -359,7 +359,7 @@ describe("Autocomplete tests", () => {
       entityType: entityItems.JSObject,
     });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "JSObject1",
+      entityNameinLeftSidebar: "JSObject2",
       action: "Delete",
       entityType: entityItems.JSObject,
     });
