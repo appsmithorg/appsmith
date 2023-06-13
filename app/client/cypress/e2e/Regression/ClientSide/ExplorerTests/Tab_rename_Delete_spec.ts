@@ -1,5 +1,9 @@
 import explorer from "../../../../locators/explorerlocators.json";
-import {agHelper,entityExplorer, locators} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", function () {
   const tabname = "UpdatedTab";
@@ -19,9 +23,9 @@ describe("Tab widget test", function () {
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.ExpandCollapseEntity("Tabs1");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Tab2",
-      action:"Edit name",
-    }); 
+      entityNameinLeftSidebar: "Tab2",
+      action: "Edit name",
+    });
     agHelper.TypeText(locators._entityNameEditing("Tab2"), tabname);
     agHelper.Sleep(2000);
     entityExplorer.ValidateDuplicateMessageToolTip(tabname);

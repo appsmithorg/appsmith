@@ -1,6 +1,9 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import {entityExplorer,propPane} from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
   cy.fixture("formWidgetdsl").then((val) => {
@@ -22,9 +25,9 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
 
   it("2. Delete Widget from sidebar and Undo action validation", function () {
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"FormTest",
-      action:"Show bindings",
-    }); 
+      entityNameinLeftSidebar: "FormTest",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

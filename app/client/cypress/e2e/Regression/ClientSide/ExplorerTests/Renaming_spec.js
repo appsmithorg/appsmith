@@ -1,5 +1,8 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-import {apiPage, entityExplorer} from "../../../../support/Objects/ObjectsCore";
+import {
+  apiPage,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 const firstApiName = "First";
 const secondApiName = "Second";
@@ -22,13 +25,13 @@ describe("Api Naming conflict on a page test", function () {
     cy.validateMessage(firstApiName);
     agHelper.PressEnter();
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:secondApiName,
-      action:"Delete",
+      entityNameinLeftSidebar: secondApiName,
+      action: "Delete",
     });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:firstApiName,
-      action:"Delete",
-    });  
+      entityNameinLeftSidebar: firstApiName,
+      action: "Delete",
+    });
   });
 });
 

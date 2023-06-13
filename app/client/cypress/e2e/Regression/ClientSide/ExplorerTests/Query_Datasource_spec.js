@@ -4,7 +4,11 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-import {dataSources, entityExplorer, agHelper} from "../../../../support/Objects/ObjectsCore";
+import {
+  dataSources,
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
 let datasourceName;
@@ -84,9 +88,9 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Query1",
-      action:"Show bindings",
-    }); 
+      entityNameinLeftSidebar: "Query1",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -97,15 +101,15 @@ describe("Entity explorer tests related to query and datasource", function () {
     });
     cy.get(".t--entity-property-close").click(); //closing Bindings overlay
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Query1",
+      entityNameinLeftSidebar: "Query1",
       action: "Edit name",
-    }); 
-     cy.EditApiNameFromExplorer("MyQuery");
+    });
+    cy.EditApiNameFromExplorer("MyQuery");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"My Query",
-      action:"Move to page",
-      subAction :pageid
-    }); 
+      entityNameinLeftSidebar: "My Query",
+      action: "Move to page",
+      subAction: pageid,
+    });
     cy.wait(2000);
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.SelectEntityByName("MyQuery");

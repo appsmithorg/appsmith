@@ -1,4 +1,11 @@
-import {agHelper, apiPage, entityExplorer, jsEditor, locators, propPane,} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Linting async JSFunctions bound to data fields", () => {
   before(() => {
@@ -119,14 +126,14 @@ describe("Linting async JSFunctions bound to data fields", () => {
   after(() => {
     //deleting all test data
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
   });
 });

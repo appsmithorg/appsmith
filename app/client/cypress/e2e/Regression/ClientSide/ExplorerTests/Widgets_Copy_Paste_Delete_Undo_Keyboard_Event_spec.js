@@ -1,6 +1,10 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import {agHelper, entityExplorer, propPane} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
   cy.fixture("formWithInputdsl").then((val) => {
@@ -41,9 +45,9 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.ExpandCollapseEntity("FormTest");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"FormTestCopy",
-      action:"Show bindings",
-    }); 
+      entityNameinLeftSidebar: "FormTestCopy",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");

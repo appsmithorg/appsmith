@@ -1,7 +1,13 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import homePage from "../../../../../locators/HomePage";
-import {agHelper, entityExplorer, gitSync, homePage, jsEditor} from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  gitSync,
+  homePage,
+  jsEditor,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
@@ -92,9 +98,9 @@ describe("Git sync Bug #10773", function () {
     );
     // clone the page1 and validate data binding
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Page1",
-      action:"Clone",
-    }); 
+      entityNameinLeftSidebar: "Page1",
+      action: "Clone",
+    });
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -146,9 +152,9 @@ describe("Git sync Bug #10773", function () {
       "be.visible",
     );
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Page1",
-      action:"Clone",
-    }); 
+      entityNameinLeftSidebar: "Page1",
+      action: "Clone",
+    });
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -179,9 +185,9 @@ describe("Git sync Bug #10773", function () {
     );
     // clone the page1 and validate data binding
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Page1",
-      action:"Clone",
-    }); 
+      entityNameinLeftSidebar: "Page1",
+      action: "Clone",
+    });
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",

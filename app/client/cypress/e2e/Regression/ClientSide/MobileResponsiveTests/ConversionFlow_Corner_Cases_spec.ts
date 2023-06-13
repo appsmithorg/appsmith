@@ -25,7 +25,7 @@ describe("Handle Cases while conversion", () => {
     cy.wait(1000);
 
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Page2"
+      entityNameinLeftSidebar: "Page2",
     });
   });
 

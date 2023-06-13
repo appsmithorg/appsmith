@@ -313,7 +313,7 @@ describe("Git sync apps", function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Move to page",
-      subAction:  "Child_Page"
+      subAction: "Child_Page",
     });
     cy.wait(2000);
     entityExplorer.NavigateToSwitcher("Widgets");
@@ -455,7 +455,7 @@ describe("Git sync apps", function () {
     entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Child_Page",
-      action: "Hide"
+      action: "Hide",
     });
 
     entityExplorer.SelectEntityByName("Child_Page", "Pages");

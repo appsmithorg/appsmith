@@ -1,4 +1,13 @@
-import {agHelper, apiPage,debuggerHelper,entityExplorer, jsEditor,locators, propPane,table} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  debuggerHelper,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Lint error reporting", () => {
   before(() => {
@@ -308,54 +317,54 @@ describe("Lint error reporting", () => {
   after(() => {
     //deleting all test data
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api2",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api2",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api3",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api3",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api4",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api4",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api5",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api5",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject2",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject2",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject3",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject3",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject4",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject4",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject5",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject5",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
   });
 });

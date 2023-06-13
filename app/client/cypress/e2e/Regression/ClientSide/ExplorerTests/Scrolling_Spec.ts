@@ -1,4 +1,9 @@
-import {agHelper, dataSources,entityExplorer,locators} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  entityExplorer,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 let mockDBNameUsers: string, mockDBNameMovies: string;
 
 describe("Entity explorer context menu should hide on scrolling", function () {
@@ -27,10 +32,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           entityExplorer.ExpandCollapseEntity("movies");
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisible(entityExplorer._adsPopup);
-          agHelper.ScrollTo(
-            entityExplorer._entityExplorerWrapper,
-            "bottom",
-          );
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });
@@ -66,10 +68,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           entityExplorer.ExpandCollapseEntity("listingAndReviews");
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisible(entityExplorer._adsPopup);
-          agHelper.ScrollTo(
-            entityExplorer._entityExplorerWrapper,
-            "bottom",
-          );
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });
@@ -79,16 +78,16 @@ describe("Entity explorer context menu should hide on scrolling", function () {
   after(() => {
     //clean up
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Query1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
-  
+      entityNameinLeftSidebar: "Query1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
+
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Query2",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Query2",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
     dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
   });

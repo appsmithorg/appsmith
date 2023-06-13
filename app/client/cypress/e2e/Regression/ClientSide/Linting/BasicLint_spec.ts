@@ -1,4 +1,14 @@
-import {agHelper,apiPage,dataSources, entityExplorer, homePage,installer,jsEditor,locators, propPane} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  dataSources,
+  entityExplorer,
+  homePage,
+  installer,
+  jsEditor,
+  locators,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -65,10 +75,7 @@ describe("Linting", () => {
       }()}}`,
     );
 
-    propPane.UpdatePropertyFieldValue(
-      "Tooltip",
-      "{{Api1.config.httpMethod}}",
-    );
+    propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.config.httpMethod}}");
     clickButtonAndAssertLintError(true);
 
     // create Api1
@@ -79,10 +86,10 @@ describe("Linting", () => {
     // Delete Api and assert that lint error shows
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     clickButtonAndAssertLintError(true);
 
     // Re-create Api1
@@ -140,10 +147,10 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     clickButtonAndAssertLintError(true);
 
@@ -203,10 +210,10 @@ describe("Linting", () => {
     // Delete
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Query1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Query1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     clickButtonAndAssertLintError(true);
 
     // Recreate Query
@@ -252,20 +259,20 @@ describe("Linting", () => {
     // Delete all
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Api1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Api1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Query1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "Query1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     clickButtonAndAssertLintError(true);
 
     // ReCreate all

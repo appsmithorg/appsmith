@@ -1,4 +1,9 @@
-import {agHelper, entityExplorer, locators} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  locators,
+  draggableWidgets
+} from "../../../../support/Objects/ObjectsCore";
 
 const ExplorerMenu = {
   ADD_PAGE: "ADD_PAGE",
@@ -89,8 +94,8 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
 
       // when an entity is being edited
       entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar:"Page1",
-        action:"Edit name",
+        entityNameinLeftSidebar: "Page1",
+        action: "Edit name",
       });
       cy.get(locators._canvas).trigger("mousemove", 500, 400);
       agHelper.AssertElementVisible(entityExplorer._entityExplorer);
@@ -113,8 +118,8 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
 
       // when an entity is being edited
       entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar:"Page1",
-        action:"Edit name",
+        entityNameinLeftSidebar: "Page1",
+        action: "Edit name",
       });
       cy.get(locators._canvas).trigger("mousemove", 500, 400);
       agHelper.AssertElementVisible(entityExplorer._entityExplorer);

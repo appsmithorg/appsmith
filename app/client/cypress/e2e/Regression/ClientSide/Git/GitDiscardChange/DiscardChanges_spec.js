@@ -107,9 +107,9 @@ describe("Git discard changes:", function () {
     // delete query1
     entityExplorer.SelectEntityByName(query1, "Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:query1,
-      action:"Delete",
-    }); 
+      entityNameinLeftSidebar: query1,
+      action: "Delete",
+    });
     // verify Query1 is deleted
     entityExplorer.AssertEntityAbsenceInExplorer(query1);
     // discard changes

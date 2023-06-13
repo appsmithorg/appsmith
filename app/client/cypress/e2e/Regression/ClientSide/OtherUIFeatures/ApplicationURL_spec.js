@@ -1,6 +1,6 @@
 import homePage from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
-import {entityExplorer} from "../../../../support/Objects/ObjectsCore";
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Slug URLs", () => {
   let applicationName;
@@ -43,9 +43,9 @@ describe("Slug URLs", () => {
 
   it("3. Checks if page slug updates on the URL when page name changes", () => {
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"Page1",
-      action:"Edit name"
-    }); 
+      entityNameinLeftSidebar: "Page1",
+      action: "Edit name",
+    });
     cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
     cy.get("body").click(0, 0, { force: true });
     cy.wait("@updatePage").should(

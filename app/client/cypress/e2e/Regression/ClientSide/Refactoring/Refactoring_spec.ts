@@ -1,4 +1,12 @@
-import {agHelper, apiPage,dataSources,entityExplorer, jsEditor,locators, propPane} from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  dataSources,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
@@ -163,20 +171,20 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
 
   after("Delete Mysql query, JSObject, API & Datasource", () => {
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"QueryRefactorRenamed",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "QueryRefactorRenamed",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject1Renamed",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject1Renamed",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"RefactorAPIRenamed",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "RefactorAPIRenamed",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

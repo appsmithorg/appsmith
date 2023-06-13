@@ -83,10 +83,10 @@ describe("Linting of entity properties", () => {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
     // delete JSObject
     ee.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar:"JSObject1",
-      action:"Delete",
-      subAction:  "Are you sure?",
-    }); 
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      subAction: "Are you sure?",
+    });
     // select button, and assert that lint error is present
     ee.SelectEntityByName("Button1", "Widgets");
     cy.get(locator._lintErrorElement)

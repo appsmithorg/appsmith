@@ -51,9 +51,9 @@ describe("Git sync:", function () {
     entityExplorer.SelectEntityByName("Page1", "Pages");
 
     agHelper.Sleep();
-    
+
     entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Page2"
+      entityNameinLeftSidebar: "Page2",
     });
   });
 
