@@ -1074,6 +1074,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
   cy.intercept("DELETE", "/api/v1/git/branch/app/*").as("deleteBranch");
+  cy.intercept("GET", "/api/v1/git/branch/app/*").as("getBranch");
   cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");

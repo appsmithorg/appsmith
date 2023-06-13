@@ -143,7 +143,7 @@ export class GitSync {
     });
   }
 
-  CreateGitBranch(branch = "Branch", toUseNewGuid = false) {
+  CreateGitBranch(branch = "br", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
@@ -159,6 +159,7 @@ export class GitSync {
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
       this.agHelper.AssertElementVisible(this._branchName(branch + uid));
+      this.agHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");
     });
   }
