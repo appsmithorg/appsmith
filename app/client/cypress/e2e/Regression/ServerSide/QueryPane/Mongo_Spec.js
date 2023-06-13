@@ -301,24 +301,19 @@ describe("Validate Mongo query commands", function () {
     let id;
     _.entityExplorer.ExpandCollapseEntity("Datasources");
     _.entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
-    // div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']",
     cy.get("[data-testid='t--entity-item-listingAndReviews']")
       .find(".t--template-menu-trigger")
       .click({ force: true });
 
     cy.get(".ads-v2-menu__menu-item").contains("Find").click().wait(100); //wait for Find form to open
 
-    cy.get(`${formControls.mongoCollection} .rc-select-selection-item`).then(
-      ($field) => {
-        val = cy.wrap($field).invoke("text");
+    cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
+      .then(($field) => {
+        return cy.wrap($field).invoke("text");
+      })
+      .then((val) => {
         cy.wrap(val).as("colData");
-      },
-    );
-    // cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
-    //   let localcolData = colData.replace("{", "").replace("}", "");
-    //   cy.log("Collection value is fieldData: " + localcolData);
-    //   cy.wrap(localcolData).as("colData");
-    // });
+      });
     cy.EvaluatFieldValue(formControls.mongoFindQuery).then((queryData) => {
       let localqueryData = queryData.replace("{", "").replace("}", "");
       id = localqueryData;
