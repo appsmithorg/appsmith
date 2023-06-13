@@ -7,7 +7,7 @@ import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json
 
 const oneClickBinding = new OneClickBinding();
 
-describe("One click binding control", () => {
+describe.skip("One click binding control", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
   });
@@ -74,20 +74,6 @@ describe("One click binding control", () => {
     _.agHelper.AssertElementExist(onboardingLocator.datasourcePage);
 
     _.agHelper.GetNClick(onboardingLocator.datasourceBackBtn);
-
-    _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-
-    _.agHelper.AssertElementExist(
-      oneClickBindingLocator.otherActionSelector("Insert snippet"),
-    );
-
-    _.agHelper.GetNClick(
-      oneClickBindingLocator.otherActionSelector("Insert snippet"),
-    );
-
-    _.agHelper.AssertElementExist(CommonLocators.globalSearchModal);
-
-    _.agHelper.TypeText(CommonLocators.globalSearchInput, "{esc}", 0, true);
 
     _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 

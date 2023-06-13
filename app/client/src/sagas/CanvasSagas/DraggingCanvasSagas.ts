@@ -341,7 +341,7 @@ function* moveWidgetsSaga(
     let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
     if (appPositioningType === AppPositioningTypes.AUTO) {
       /**
-       * If previous parent is an auto layout container,
+       * If previous parent is an auto-layout container,
        * then update the flex layers.
        */
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);

@@ -1446,6 +1446,7 @@ Cypress.Commands.add("editTableCell", (x, y) => {
   cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
     .invoke("show")
     .click({ force: true });
+  cy.wait(500);
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
   ).should("exist");
