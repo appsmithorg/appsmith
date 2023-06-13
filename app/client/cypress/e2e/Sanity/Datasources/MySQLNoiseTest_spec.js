@@ -3,6 +3,10 @@ const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
 const dsl = require("../../../fixtures/noiseDsl.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
+
+let dataSources = ObjectsRegistry.DataSources;
+
 describe("MySQL noise test", function () {
   let datasourceName;
 
@@ -28,8 +32,7 @@ describe("MySQL noise test", function () {
     });
     cy.get(queryLocators.queryNameField).type("NoiseTestQuery");
     // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
-    _.dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
+    dataSources.EnterQuery("");
     // mySQL query to fetch data
     cy.get(".CodeMirror textarea")
       .first()

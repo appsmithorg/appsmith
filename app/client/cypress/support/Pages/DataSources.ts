@@ -777,7 +777,8 @@ export class DataSources {
     this.agHelper.GetNClick(this._createQuery);
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
+      // Resetting the default query and rewriting a new one
+      this.EnterQuery("");
       this.EnterQuery(query);
     }
   }
@@ -964,7 +965,8 @@ export class DataSources {
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
+      // Resetting the default query and rewriting a new one
+      this.EnterQuery("");
       this.EnterQuery(query, sleep);
     }
     if (queryName) this.agHelper.RenameWithInPane(queryName);

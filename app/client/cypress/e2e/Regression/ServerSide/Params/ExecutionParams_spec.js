@@ -3,6 +3,9 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
+let dataSources = ObjectsRegistry.DataSources;
+
 describe("API Panel Test Functionality", function () {
   let datasourceName;
   before(() => {
@@ -24,7 +27,7 @@ describe("API Panel Test Functionality", function () {
   it("2. Create and runs query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
+    dataSources.EnterQuery("");
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch).last().click({ force: true });
     cy.xpath(queryLocators.query).click({ force: true });

@@ -4,6 +4,9 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 
 let datasourceName;
 
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
+let dataSources = ObjectsRegistry.dataSources;
+
 describe("Add widget - Postgress DataSource", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
@@ -30,7 +33,7 @@ describe("Add widget - Postgress DataSource", function () {
     cy.wait(2000);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
+    dataSources.EnterQuery("");
     cy.wait(500);
     cy.get(".CodeMirror textarea")
       .first()

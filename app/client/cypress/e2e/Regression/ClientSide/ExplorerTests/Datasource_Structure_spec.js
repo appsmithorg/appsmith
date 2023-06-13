@@ -5,7 +5,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let ee = ObjectsRegistry.EntityExplorer;
+let ee = ObjectsRegistry.EntityExplorer,
+  dataSources = ObjectsRegistry.DataSources;
 let datasourceName;
 
 describe("Entity explorer datasource structure", function () {
@@ -70,7 +71,7 @@ describe("Entity explorer datasource structure", function () {
   it("2. Refresh datasource structure", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
+    dataSources.EnterQuery("");
 
     //cy.GlobalSearchEntity(datasourceName);
     // cy.get(`.t--entity.datasource:contains(${datasourceName})`)

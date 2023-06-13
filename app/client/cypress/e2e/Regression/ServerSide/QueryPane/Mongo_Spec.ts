@@ -651,7 +651,8 @@ describe("Validate Mongo Query Pane Validations", () => {
       "Raw",
     );
     _.agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     _.dataSources.EnterQuery(dropCollection);
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
     //_.agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -674,7 +675,8 @@ describe("Validate Mongo Query Pane Validations", () => {
       "Find document(s)",
       "Raw",
     );
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     _.agHelper.RenameWithInPane("DropAuthorNAwards");
     _.dataSources.EnterQuery(dropCollection);
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
@@ -782,7 +784,8 @@ describe("Validate Mongo Query Pane Validations", () => {
       "Find document(s)",
       "Raw",
     );
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    // Resetting the default query and rewriting a new one
+    _.dataSources.EnterQuery("");
     _.agHelper.RenameWithInPane("DropBirthNDeath");
     _.dataSources.EnterQuery(dropCollection);
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
