@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
+import { entityItems } from "../Objects/ObjectsCore";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -690,7 +691,11 @@ export class DataSources {
     expectedRes: number | number[] = 200,
   ) {
     this.ee.SelectEntityByName(dsName, "Datasources");
-    this.ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: entityItems.Datasource,
+    });
     this.ValidateDSDeletion(expectedRes);
   }
 
@@ -794,7 +799,11 @@ export class DataSources {
 
   DeleteQuery(queryName: string) {
     this.ee.ExpandCollapseEntity("Queries/JS");
-    this.ee.ActionContextMenuByEntityName(queryName, "Delete", "Are you sure?");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: queryName,
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   }
 
   public ValidateNSelectDropdown(
@@ -1084,7 +1093,10 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.ee.ActionContextMenuByEntityName(dataSourceName, "Refresh");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dataSourceName,
+      action: "Refresh",
+    });
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
