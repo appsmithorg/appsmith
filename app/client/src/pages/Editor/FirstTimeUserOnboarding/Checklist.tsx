@@ -54,6 +54,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
+import HelpMenu from "./HelpMenu";
 
 const Wrapper = styled.div`
   padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
@@ -329,13 +330,8 @@ export default function OnboardingChecklist() {
     actions,
     deps,
   );
-  // const theme = useSelector(getCurrentThemeDetails);
   const applicationId = useSelector(getCurrentApplicationId);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
-  // TODO
-  //   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
-  //     return <Redirect to={builderURL({ pageId })} />;
-  //   }
   const { completedTasks } = getSuggestedNextActionAndCompletedTasks(
     datasources,
     actions,
@@ -486,6 +482,7 @@ export default function OnboardingChecklist() {
         }}
         step={SIGNPOSTING_STEP.DEPLOY_APPLICATIONS}
       />
+      <HelpMenu />
     </Wrapper>
   );
 }
