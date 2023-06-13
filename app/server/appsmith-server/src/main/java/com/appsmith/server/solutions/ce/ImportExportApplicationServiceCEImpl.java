@@ -35,6 +35,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
@@ -89,6 +90,8 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -936,134 +939,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return errorField;
     }
 
-    /**
-     * This function will take the application reference object to hydrate the application in mongoDB
-     *
-     * @param workspaceId     workspace to which application is going to be stored
-     * @param applicationJson application resource which contains necessary information to import the application
-     * @param applicationId   application which needs to be saved with the updated resources
-     * @param branchName      name of the branch of application with applicationId
-     * @param appendToApp     whether applicationJson will be appended to the existing app or not
-     * @return Updated application
-     */
-    private Mono<Application> importApplicationInWorkspace(
-            String workspaceId,
-            ApplicationJson applicationJson,
-            String applicationId,
-            String branchName,
-            boolean appendToApp,
+    private Mono<Map<String, String>> importDatasources(
+            ApplicationJson importedDoc,
+            Mono<List<Datasource>> existingDatasourceMono,
+            Workspace workspace,
+            Mono<Map<String, String>> pluginMapMno,
             ImportApplicationPermissionProvider permissionProvider) {
-        /*
-           1. Migrate resource to latest schema
-           2. Fetch workspace by id
-           3. Extract datasources and update plugin information
-           4. Create new datasource if same datasource is not present
-           5. Extract and save application
-           6. Extract and save pages in the application
-           7. Extract and save actions in the application
-        */
-        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
-
-        // check for validation error and raise exception if error found
-        String errorField = validateApplicationJson(importedDoc);
-        if (!errorField.isEmpty()) {
-            log.error("Error in importing application. Field {} is missing", errorField);
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
-        }
-
-        Map<String, String> pluginMap = new HashMap<>();
-        Map<String, String> datasourceMap = new HashMap<>();
-        Map<String, NewPage> pageNameMap = new HashMap<>();
-
-        Application importedApplication = importedDoc.getExportedApplication();
-
-        List<DatasourceStorage> importedDatasourceList = importedDoc.getDatasourceList();
-        List<NewPage> importedNewPageList = importedDoc.getPageList();
-        List<NewAction> importedNewActionList = importedDoc.getActionList();
-        List<ActionCollection> importedActionCollectionList =
-                CollectionUtils.isEmpty(importedDoc.getActionCollectionList())
-                        ? new ArrayList<>()
-                        : importedDoc.getActionCollectionList();
-
-        Mono<Workspace> workspaceMono = workspaceService
-                .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error(
-                            "No workspace found with id: {} and permission: {}",
-                            workspaceId,
-                            permissionProvider.getRequiredPermissionOnTargetWorkspace());
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
-                }));
-
-        /* We need to take care of the null case in case someone is trying to import an older app where JS libs did
-        not exist */
-        List<CustomJSLib> customJSLibs =
-                importedDoc.getCustomJSLibList() == null ? new ArrayList<>() : importedDoc.getCustomJSLibList();
-
-        Mono<Application> installedJSLibMono = Flux.fromIterable(customJSLibs)
-                .flatMap(customJSLib -> {
-                    customJSLib.setId(null);
-                    customJSLib.setCreatedAt(null);
-                    customJSLib.setUpdatedAt(null);
-                    return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
-                })
-                .collectList()
-                .map(jsLibDTOList -> {
-                    importedApplication.setUnpublishedCustomJSLibs(new HashSet<>(jsLibDTOList));
-                    return importedApplication;
-                });
-
-        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
-        final Flux<Datasource> existingDatasourceFlux = datasourceService
-                .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
-                .cache();
-
-        assert importedApplication != null : "Received invalid application object!";
-        if (importedApplication.getApplicationVersion() == null) {
-            importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
-        }
-
-        final List<ApplicationPage> publishedPages = importedApplication.getPublishedPages();
-        importedApplication.setViewMode(false);
-        final List<ApplicationPage> unpublishedPages = importedApplication.getPages();
-
-        importedApplication.setPages(null);
-        importedApplication.setPublishedPages(null);
-        // re-setting the properties
-        importedApplication.setForkWithConfiguration(null);
-        importedApplication.setExportWithConfiguration(null);
-        // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-
-        final Mono<Application> importedApplicationMono = pluginRepository
-                .findAll()
-                .map(plugin -> {
-                    final String pluginReference = StringUtils.isEmpty(plugin.getPluginName())
-                            ? plugin.getPackageName()
-                            : plugin.getPluginName();
-                    pluginMap.put(pluginReference, plugin.getId());
-                    return plugin;
-                })
-                .then(installedJSLibMono)
-                .then(workspaceMono)
-                .flatMap(workspace -> {
-                    Mono<List<Datasource>> existingDatasourceMono;
-                    // Check if the request is to hydrate the application to DB for particular branch
-                    // Application id will be present for GIT sync
-                    if (!StringUtils.isEmpty(applicationId)) {
-                        // No need to hydrate the datasource as we expect user will configure the datasource
-                        existingDatasourceMono = existingDatasourceFlux.collectList();
-                    } else {
-                        existingDatasourceMono = Mono.just(new ArrayList<>());
-                    }
-                    return Mono.zip(existingDatasourceMono, Mono.just(workspace));
-                })
-                .zipWhen(objects -> workspaceService.getDefaultEnvironmentId(workspaceId, null))
+        return Mono.zip(
+                        existingDatasourceMono,
+                        workspaceService.getDefaultEnvironmentId(workspace.getId(), null),
+                        pluginMapMno)
                 .flatMapMany(objects -> {
-                    List<Datasource> existingDatasources = objects.getT1().getT1();
-                    Workspace workspace = objects.getT1().getT2();
+                    List<Datasource> existingDatasources = objects.getT1();
                     String environmentId = objects.getT2();
+                    Map<String, String> pluginMap = objects.getT3();
+                    List<DatasourceStorage> importedDatasourceList = importedDoc.getDatasourceList();
                     if (CollectionUtils.isEmpty(importedDatasourceList)) {
                         return Mono.empty();
                     }
@@ -1085,6 +975,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
                         }
                     }
+
                     return Flux.fromIterable(importedDatasourceList)
                             // Check for duplicate datasources to avoid duplicates in target workspace
                             .flatMap(datasourceStorage -> {
@@ -1125,7 +1016,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 // This is explicitly copied over from the map we created before
                                 datasourceStorage.setPluginId(pluginMap.get(datasourceStorage.getPluginId()));
-                                datasourceStorage.setWorkspaceId(workspaceId);
+                                datasourceStorage.setWorkspaceId(workspace.getId());
                                 datasourceStorage.setEnvironmentId(environmentId);
 
                                 // Check if any decrypted fields are present for datasource
@@ -1139,347 +1030,158 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
 
                                 return createUniqueDatasourceIfNotPresent(
-                                        existingDatasourceFlux,
+                                        existingDatasources,
                                         datasourceStorage,
                                         workspace,
                                         environmentId,
                                         permissionProvider);
                             });
                 })
-                .collectMap(Datasource::getName, Datasource::getId)
-                .flatMap(map -> {
-                    datasourceMap.putAll(map);
-                    // 1. Assign the policies for the imported application
-                    // 2. Check for possible duplicate names,
-                    // 3. Save the updated application
+                .collectMap(Datasource::getName, Datasource::getId);
+    }
 
-                    return Mono.just(importedApplication)
-                            .zipWith(currUserMono)
-                            .map(objects -> {
-                                Application application = objects.getT1();
-                                application.setModifiedBy(objects.getT2().getUsername());
-                                return application;
-                            })
-                            .flatMap(application -> {
-                                importedApplication.setWorkspaceId(workspaceId);
-                                // Application Id will be present for GIT sync
-                                if (!StringUtils.isEmpty(applicationId)) {
-                                    return applicationService
-                                            .findById(
-                                                    applicationId,
-                                                    permissionProvider.getRequiredPermissionOnTargetApplication())
-                                            .switchIfEmpty(Mono.defer(() -> {
-                                                log.error(
-                                                        "No application found with id: {} and permission: {}",
-                                                        applicationId,
-                                                        permissionProvider.getRequiredPermissionOnTargetApplication());
-                                                return Mono.error(new AppsmithException(
-                                                        AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                                        FieldName.APPLICATION,
-                                                        applicationId));
-                                            }))
-                                            .flatMap(existingApplication -> {
-                                                if (appendToApp) {
-                                                    // When we are appending the pages to the existing application
-                                                    // e.g. import template we are only importing this in unpublished
-                                                    // version. At the same time we want to keep the existing page ref
-                                                    unpublishedPages.addAll(existingApplication.getPages());
-                                                    return Mono.just(existingApplication);
-                                                }
-                                                setPropertiesToExistingApplication(
-                                                        importedApplication, existingApplication);
-                                                // We are expecting the changes present in DB are committed to git
-                                                // directory
-                                                // so that these won't be lost when we are pulling changes from remote
-                                                // and
-                                                // rehydrate the application. We are now rehydrating the application
-                                                // with/without
-                                                // the changes from remote
-                                                // We are using the save instead of update as we are using @Encrypted
-                                                // for GitAuth
-                                                Mono<Application> parentApplicationMono;
-                                                if (existingApplication.getGitApplicationMetadata() != null) {
-                                                    parentApplicationMono =
-                                                            applicationService.findById(existingApplication
-                                                                    .getGitApplicationMetadata()
-                                                                    .getDefaultApplicationId());
-                                                } else {
-                                                    parentApplicationMono = Mono.just(existingApplication);
-                                                }
-
-                                                return parentApplicationMono.flatMap(application1 -> {
-                                                    // Set the policies from the defaultApplication
-                                                    existingApplication.setPolicies(application1.getPolicies());
-                                                    importedApplication.setPolicies(application1.getPolicies());
-                                                    return applicationService
-                                                            .save(existingApplication)
-                                                            .onErrorResume(DuplicateKeyException.class, error -> {
-                                                                if (error.getMessage() != null) {
-                                                                    return applicationPageService
-                                                                            .createOrUpdateSuffixedApplication(
-                                                                                    existingApplication,
-                                                                                    existingApplication.getName(),
-                                                                                    0);
-                                                                }
-                                                                throw error;
-                                                            });
-                                                });
-                                            });
-                                }
-                                return applicationPageService.createOrUpdateSuffixedApplication(
-                                        application, application.getName(), 0);
-                            });
-                })
-                .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
-                .flatMap(savedApp -> {
-                    importedApplication.setId(savedApp.getId());
-                    if (savedApp.getGitApplicationMetadata() != null) {
-                        importedApplication.setGitApplicationMetadata(savedApp.getGitApplicationMetadata());
+    private Mono<Application> getImportApplicationMono(
+            Application importedApplication,
+            String applicationId,
+            boolean appendToApp,
+            String workspaceId,
+            ImportApplicationPermissionProvider permissionProvider,
+            Mono<User> currUserMono,
+            Mono<List<CustomJSLibApplicationDTO>> installedJsLibsMono) {
+        Mono<Application> importApplicationMono = Mono.just(importedApplication)
+                .map(application -> {
+                    if (application.getApplicationVersion() == null) {
+                        application.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
                     }
-
-                    // Import and save pages, also update the pages related fields in saved application
-                    assert importedNewPageList != null : "Unable to find pages in the imported application";
-
-                    if (appendToApp) {
-                        // add existing pages to importedApplication so that they are not lost
-                        // when we update application from importedApplication
-                        importedApplication.setPages(savedApp.getPages());
-                    }
-
-                    // For git-sync this will not be empty
-                    Mono<List<NewPage>> existingPagesMono = newPageService
-                            .findNewPagesByApplicationId(importedApplication.getId(), Optional.empty())
-                            .collectList()
-                            .cache();
-
-                    Flux<NewPage> importNewPageFlux = importAndSavePages(
-                            importedNewPageList, savedApp, branchName, existingPagesMono, permissionProvider);
-                    Flux<NewPage> importedNewPagesMono;
-
-                    if (appendToApp) {
-                        // we need to rename page if there is a conflict
-                        // also need to remap the renamed page
-                        importedNewPagesMono = updateNewPagesBeforeMerge(existingPagesMono, importedNewPageList)
-                                .flatMapMany(newToOldNameMap -> importNewPageFlux.map(newPage -> {
-                                    // we need to map the newly created page with old name
-                                    // because other related resources e.g. actions will refer the page with old name
-                                    String newPageName =
-                                            newPage.getUnpublishedPage().getName();
-                                    String oldPageName = newToOldNameMap.get(newPageName);
-                                    if (!newPageName.equals(oldPageName)) {
-                                        renamePageInActions(importedNewActionList, oldPageName, newPageName);
-                                        renamePageInActionCollections(
-                                                importedActionCollectionList, oldPageName, newPageName);
-                                        unpublishedPages.stream()
-                                                .filter(applicationPage -> oldPageName.equals(applicationPage.getId()))
-                                                .findAny()
-                                                .ifPresent(applicationPage -> applicationPage.setId(newPageName));
-                                    }
-                                    return newPage;
-                                }));
-                    } else {
-                        importedNewPagesMono = importNewPageFlux;
-                    }
-                    importedNewPagesMono = importedNewPagesMono.map(newPage -> {
-                        // Save the map of pageName and NewPage
-                        if (newPage.getUnpublishedPage() != null
-                                && newPage.getUnpublishedPage().getName() != null) {
-                            pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                        }
-                        if (newPage.getPublishedPage() != null
-                                && newPage.getPublishedPage().getName() != null) {
-                            pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
-                        }
-                        return newPage;
-                    });
-
-                    return importedNewPagesMono
-                            .collectList()
-                            .map(newPageList -> {
-                                log.info("New pages imported for application: {}", savedApp.getId());
-                                Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
-                                applicationPages.put(EDIT, unpublishedPages);
-                                applicationPages.put(VIEW, publishedPages);
-
-                                Iterator<ApplicationPage> unpublishedPageItr = unpublishedPages.iterator();
-                                while (unpublishedPageItr.hasNext()) {
-                                    ApplicationPage applicationPage = unpublishedPageItr.next();
-                                    NewPage newPage = pageNameMap.get(applicationPage.getId());
-                                    if (newPage == null) {
-                                        if (appendToApp) {
-                                            // Don't remove the page reference if doing the partial import and appending
-                                            // to the existing application
-                                            continue;
-                                        }
-                                        log.debug(
-                                                "Unable to find the page during import for appId {}, with name {}",
-                                                applicationId,
-                                                applicationPage.getId());
-                                        unpublishedPageItr.remove();
-                                    } else {
-                                        applicationPage.setId(newPage.getId());
-                                        applicationPage.setDefaultPageId(
-                                                newPage.getDefaultResources().getPageId());
-                                        // Keep the existing page as the default one
-                                        if (appendToApp) {
-                                            applicationPage.setIsDefault(false);
-                                        }
-                                    }
-                                }
-
-                                Iterator<ApplicationPage> publishedPagesItr;
-                                // Remove the newly added pages from merge app flow. Keep only the existing page from
-                                // the old app
-                                if (appendToApp) {
-                                    List<String> existingPagesId = savedApp.getPublishedPages().stream()
-                                            .map(applicationPage -> applicationPage.getId())
-                                            .collect(Collectors.toList());
-                                    List<ApplicationPage> publishedApplicationPages = publishedPages.stream()
-                                            .filter(applicationPage ->
-                                                    existingPagesId.contains(applicationPage.getId()))
-                                            .collect(Collectors.toList());
-                                    applicationPages.replace(VIEW, publishedApplicationPages);
-                                    publishedPagesItr = publishedApplicationPages.iterator();
-                                } else {
-                                    publishedPagesItr = publishedPages.iterator();
-                                }
-                                while (publishedPagesItr.hasNext()) {
-                                    ApplicationPage applicationPage = publishedPagesItr.next();
-                                    NewPage newPage = pageNameMap.get(applicationPage.getId());
-                                    if (newPage == null) {
-                                        log.debug(
-                                                "Unable to find the page during import for appId {}, with name {}",
-                                                applicationId,
-                                                applicationPage.getId());
-                                        if (!appendToApp) {
-                                            publishedPagesItr.remove();
-                                        }
-                                    } else {
-                                        applicationPage.setId(newPage.getId());
-                                        applicationPage.setDefaultPageId(
-                                                newPage.getDefaultResources().getPageId());
-                                        if (appendToApp) {
-                                            applicationPage.setIsDefault(false);
-                                        }
-                                    }
-                                }
-
-                                return applicationPages;
-                            })
-                            .flatMap(applicationPages -> {
-                                // During partial import/appending to the existing application keep the resources
-                                // attached to the application:
-                                // Delete the invalid resources (which are not the part of applicationJsonDTO) in
-                                // the git flow only
-                                if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
-                                    Set<String> validPageIds = applicationPages.get(EDIT).stream()
-                                            .map(ApplicationPage::getId)
-                                            .collect(Collectors.toSet());
-
-                                    validPageIds.addAll(applicationPages.get(VIEW).stream()
-                                            .map(ApplicationPage::getId)
-                                            .collect(Collectors.toSet()));
-
-                                    return existingPagesMono.flatMap(existingPagesList -> {
-                                        Set<String> invalidPageIds = new HashSet<>();
-                                        for (NewPage newPage : existingPagesList) {
-                                            if (!validPageIds.contains(newPage.getId())) {
-                                                invalidPageIds.add(newPage.getId());
-                                            }
-                                        }
-
-                                        // Delete the pages which were removed during git merge operation
-                                        // This does not apply to the traditional import via file approach
-                                        return Flux.fromIterable(invalidPageIds)
-                                                .flatMap(applicationPageService::deleteWithoutPermissionUnpublishedPage)
-                                                .flatMap(page -> newPageService
-                                                        .archiveWithoutPermissionById(page.getId())
-                                                        .onErrorResume(e -> {
-                                                            log.debug(
-                                                                    "Unable to archive page {} with error {}",
-                                                                    page.getId(),
-                                                                    e.getMessage());
-                                                            return Mono.empty();
-                                                        }))
-                                                .then()
-                                                .thenReturn(applicationPages);
-                                    });
-                                }
-                                return Mono.just(applicationPages);
-                            });
+                    application.setViewMode(false);
+                    application.setForkWithConfiguration(null);
+                    application.setExportWithConfiguration(null);
+                    application.setWorkspaceId(workspaceId);
+                    application.setIsPublic(null);
+                    application.setPolicies(null);
+                    application.setPages(null);
+                    application.setPublishedPages(null);
+                    return application;
                 })
-                .map(applicationPageMap -> {
-                    log.info(
-                            "Imported pages. Edit: {}, View: {}",
-                            applicationPageMap.get(EDIT).size(),
-                            applicationPageMap.get(VIEW).size());
-                    log.info("Importing actions for applicationId: {}, ", importedApplication.getId());
-                    // Set page sequence based on the order for published and unpublished pages
-                    importedApplication.setPages(applicationPageMap.get(EDIT));
-                    importedApplication.setPublishedPages(applicationPageMap.get(VIEW));
-                    return applicationPageMap;
-                })
-                .flatMap(unused -> newActionService.importActions(
-                        importedNewActionList,
-                        importedApplication,
-                        branchName,
-                        pageNameMap,
-                        pluginMap,
-                        datasourceMap,
-                        permissionProvider))
-                .flatMap(importActionResultDTO -> {
-                    log.info(
-                            "Actions imported. applicationId {}, result: {}",
-                            importedApplication.getId(),
-                            importActionResultDTO.getGist());
-                    // Updating the existing application for git-sync
-                    // During partial import/appending to the existing application keep the resources
-                    // attached to the application:
-                    // Delete the invalid resources (which are not the part of applicationJsonDTO) in
-                    // the git flow only
-                    if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
-                        // Remove unwanted actions
-                        Set<String> invalidActionIds = new HashSet<>();
-                        for (NewAction action : importActionResultDTO.getExistingActions()) {
-                            if (!importActionResultDTO.getImportedActionIds().contains(action.getId())) {
-                                invalidActionIds.add(action.getId());
+                .zipWith(installedJsLibsMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    List<CustomJSLibApplicationDTO> customJSLibApplicationDTOList = tuple.getT2();
+                    application.setUnpublishedCustomJSLibs(new HashSet<>(customJSLibApplicationDTOList));
+                    return application;
+                });
+
+        importApplicationMono = importApplicationMono.zipWith(currUserMono).map(objects -> {
+            Application application = objects.getT1();
+            application.setModifiedBy(objects.getT2().getUsername());
+            return application;
+        });
+
+        if (StringUtils.isEmpty(applicationId)) {
+            importApplicationMono = importApplicationMono.flatMap(application -> {
+                return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
+            });
+        } else {
+            Mono<Application> existingApplicationMono = applicationService
+                    .findById(applicationId, permissionProvider.getRequiredPermissionOnTargetApplication())
+                    .switchIfEmpty(Mono.defer(() -> {
+                        log.error(
+                                "No application found with id: {} and permission: {}",
+                                applicationId,
+                                permissionProvider.getRequiredPermissionOnTargetApplication());
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId));
+                    }))
+                    .cache();
+
+            // this can be a git sync, import page from template, update app with json, restore snapshot
+            if (appendToApp) { // we don't need to do anything with the imported application
+                importApplicationMono = existingApplicationMono;
+            } else {
+                importApplicationMono = importApplicationMono
+                        .zipWith(existingApplicationMono)
+                        .map(objects -> {
+                            Application newApplication = objects.getT1();
+                            Application existingApplication = objects.getT2();
+                            setPropertiesToExistingApplication(newApplication, existingApplication);
+                            return existingApplication;
+                        })
+                        .flatMap(application -> {
+                            Mono<Application> parentApplicationMono;
+                            if (application.getGitApplicationMetadata() != null) {
+                                parentApplicationMono = applicationService.findById(
+                                        application.getGitApplicationMetadata().getDefaultApplicationId());
+                            } else {
+                                parentApplicationMono = Mono.just(application);
                             }
-                        }
-                        log.info("Deleting {} actions which are no more used", invalidActionIds.size());
-                        return Flux.fromIterable(invalidActionIds)
-                                .flatMap(actionId -> newActionService
-                                        .deleteUnpublishedAction(actionId)
-                                        // return an empty action so that the filter can remove it from the list
-                                        .onErrorResume(throwable -> {
-                                            log.debug("Failed to delete action with id {} during import", actionId);
-                                            log.error(throwable.getMessage());
-                                            return Mono.empty();
-                                        }))
-                                .then()
-                                .thenReturn(importActionResultDTO);
-                    }
-                    return Mono.just(importActionResultDTO);
-                })
-                .flatMap(importActionResultDTO -> {
-                    log.info("Importing action collections for applicationId {}", importedApplication.getId());
-                    return actionCollectionService
-                            .importActionCollections(
-                                    importActionResultDTO,
-                                    importedApplication,
-                                    branchName,
-                                    importedActionCollectionList,
-                                    pluginMap,
-                                    pageNameMap,
-                                    permissionProvider)
-                            .zipWith(Mono.just(importActionResultDTO));
-                })
-                .flatMap(resultDtos -> {
-                    ImportActionCollectionResultDTO importActionCollectionResultDTO = resultDtos.getT1();
-                    ImportActionResultDTO importActionResultDTO = resultDtos.getT2();
+                            return Mono.zip(Mono.just(application), parentApplicationMono);
+                        })
+                        .flatMap(objects -> {
+                            Application application = objects.getT1();
+                            Application parentApplication = objects.getT2();
+                            application.setPolicies(parentApplication.getPolicies());
+                            return applicationService
+                                    .save(application)
+                                    .onErrorResume(DuplicateKeyException.class, error -> {
+                                        if (error.getMessage() != null) {
+                                            return applicationPageService.createOrUpdateSuffixedApplication(
+                                                    application, application.getName(), 0);
+                                        }
+                                        throw error;
+                                    });
+                        });
+            }
+        }
+        return importApplicationMono;
+    }
+
+    private Mono<Map<String, String>> getPluginMapMono() {
+        return pluginRepository.findAll().collectList().map(plugins -> {
+            Map<String, String> pluginMap = new HashMap<>();
+            plugins.forEach(plugin -> {
+                final String pluginReference =
+                        StringUtils.isEmpty(plugin.getPluginName()) ? plugin.getPackageName() : plugin.getPluginName();
+                pluginMap.put(pluginReference, plugin.getId());
+            });
+            return pluginMap;
+        });
+    }
+
+    private Mono<Map<String, NewPage>> getPageNameMapMono(
+            Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono) {
+        return importedNewPagesMono.map(objects -> {
+            Map<String, NewPage> pageNameMap = new HashMap<>();
+            objects.getT1().forEach(newPage -> {
+                // Save the map of pageName and NewPage
+                if (newPage.getUnpublishedPage() != null
+                        && newPage.getUnpublishedPage().getName() != null) {
+                    pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                }
+                if (newPage.getPublishedPage() != null
+                        && newPage.getPublishedPage().getName() != null) {
+                    pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                }
+            });
+            return pageNameMap;
+        });
+    }
+
+    private Mono<Tuple2<ImportedActionAndCollectionMapsDTO, ImportActionResultDTO>> setCollectionIdToActionsMono(
+            Mono<ImportActionResultDTO> importActionsMono,
+            Mono<ImportActionCollectionResultDTO> importActionCollectionMono,
+            Mono<Application> importApplicationMono,
+            String applicationId,
+            boolean appendToApp) {
+        return Mono.zip(importActionsMono, importActionCollectionMono, importApplicationMono)
+                .flatMap(objects -> {
+                    ImportActionResultDTO importActionResultDTO = objects.getT1();
+                    ImportActionCollectionResultDTO importActionCollectionResultDTO = objects.getT2();
+                    Application importedApplication1 = objects.getT3();
+
                     List<String> savedCollectionIds = importActionCollectionResultDTO.getSavedActionCollectionIds();
                     log.info(
                             "Action collections imported. applicationId {}, result: {}",
-                            importedApplication.getId(),
+                            importedApplication1.getId(),
                             importActionCollectionResultDTO.getGist());
                     return newActionService
                             .updateActionsWithImportedCollectionIds(
@@ -1487,7 +1189,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .flatMap(actionAndCollectionMapsDTO -> {
                                 log.info(
                                         "Updated actions with imported collection ids. applicationId {}",
-                                        importedApplication.getId());
+                                        importedApplication1.getId());
                                 // Updating the existing application for git-sync
                                 // During partial import/appending to the existing application keep the resources
                                 // attached to the application:
@@ -1523,67 +1225,616 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return Mono.just(actionAndCollectionMapsDTO);
                             })
                             .zipWith(Mono.just(importActionResultDTO));
-                })
+                });
+    }
+
+    private Mono<List<NewPage>> setActionIdInPages(
+            Mono<Tuple2<ImportedActionAndCollectionMapsDTO, ImportActionResultDTO>> updateCollectionIdToActionsMono,
+            Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
+            String branchName) {
+        return Mono.zip(updateCollectionIdToActionsMono, importedNewPagesMono).flatMap(objects -> {
+            ImportedActionAndCollectionMapsDTO actionAndCollectionMapsDTO =
+                    objects.getT1().getT1();
+            ImportActionResultDTO importActionResultDTO = objects.getT1().getT2();
+            List<NewPage> newPages = objects.getT2().getT1();
+            return Flux.fromIterable(newPages)
+                    .flatMap(newPage -> {
+                        if (newPage.getDefaultResources() != null) {
+                            newPage.getDefaultResources().setBranchName(branchName);
+                        }
+                        return mapActionAndCollectionIdWithPageLayout(
+                                newPage,
+                                importActionResultDTO.getActionIdMap(),
+                                actionAndCollectionMapsDTO.getUnpublishedActionIdToCollectionIdMap(),
+                                actionAndCollectionMapsDTO.getPublishedActionIdToCollectionIdMap());
+                    })
+                    .collectList()
+                    .flatMapMany(newPageService::saveAll)
+                    .collectList();
+        });
+    }
+
+    private Mono<ImportActionCollectionResultDTO> createImportActionCollectionMono(
+            List<ActionCollection> importedActionCollectionList,
+            Mono<Application> importApplicationMono,
+            Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
+            Mono<ImportActionResultDTO> importActionsMono,
+            Mono<Map<String, String>> pluginMapMno,
+            Mono<Map<String, NewPage>> pageNameMapMono,
+            ImportApplicationPermissionProvider permissionProvider,
+            boolean appendToApp,
+            String branchName) {
+        Mono<List<ActionCollection>> importedActionCollectionMono = Mono.just(importedActionCollectionList);
+
+        if (appendToApp) {
+            importedActionCollectionMono = importedActionCollectionMono
+                    .zipWith(importedNewPagesMono)
+                    .map(objects -> {
+                        List<ActionCollection> importedActionCollectionList1 = objects.getT1();
+                        List<NewPage> importedNewPages = objects.getT2().getT1();
+                        Map<String, String> newToOldNameMap = objects.getT2().getT2();
+
+                        for (NewPage newPage : importedNewPages) {
+                            String newPageName = newPage.getUnpublishedPage().getName();
+                            String oldPageName = newToOldNameMap.get(newPageName);
+
+                            if (!newPageName.equals(oldPageName)) {
+                                renamePageInActionCollections(importedActionCollectionList1, oldPageName, newPageName);
+                            }
+                        }
+                        return importedActionCollectionList1;
+                    });
+        }
+
+        return Mono.zip(
+                        importActionsMono,
+                        importApplicationMono,
+                        importedActionCollectionMono,
+                        pluginMapMno,
+                        pageNameMapMono)
                 .flatMap(objects -> {
-                    ImportedActionAndCollectionMapsDTO actionAndCollectionMapsDTO = objects.getT1();
-                    ImportActionResultDTO importActionResultDTO = objects.getT2();
-                    // Don't update gitAuth as we are using @Encrypted for private key
-                    importedApplication.setGitApplicationMetadata(null);
-                    // Map layoutOnLoadActions ids with relevant actions
-                    return newPageService
-                            .findNewPagesByApplicationId(importedApplication.getId(), Optional.empty())
-                            .flatMap(newPage -> {
-                                if (newPage.getDefaultResources() != null) {
-                                    newPage.getDefaultResources().setBranchName(branchName);
-                                }
-                                return mapActionAndCollectionIdWithPageLayout(
-                                        newPage,
-                                        importActionResultDTO.getActionIdMap(),
-                                        actionAndCollectionMapsDTO.getUnpublishedActionIdToCollectionIdMap(),
-                                        actionAndCollectionMapsDTO.getPublishedActionIdToCollectionIdMap());
-                            })
+                    log.info("Importing action collections");
+                    return actionCollectionService.importActionCollections(
+                            objects.getT1(),
+                            objects.getT2(),
+                            branchName,
+                            objects.getT3(),
+                            objects.getT4(),
+                            objects.getT5(),
+                            permissionProvider);
+                });
+    }
+
+    Mono<ImportActionResultDTO> getImportActionsMono(
+            ApplicationJson importedDoc,
+            Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
+            Mono<Application> importApplicationMono,
+            Mono<Map<String, NewPage>> pageNameMapMono,
+            Mono<Map<String, String>> pluginMapMno,
+            boolean appendToApp,
+            Workspace workspace,
+            String applicationId,
+            String branchName,
+            ImportApplicationPermissionProvider permissionProvider) {
+        List<NewAction> importedNewActionList = importedDoc.getActionList();
+        Mono<List<Datasource>> existingDatasourceMono = getExistingDatasourceMono(applicationId, workspace.getId());
+        Mono<Map<String, String>> datasourceMapMono =
+                importDatasources(importedDoc, existingDatasourceMono, workspace, pluginMapMno, permissionProvider);
+
+        Mono<List<NewAction>> importedNewActionMono = Mono.just(importedNewActionList);
+        if (appendToApp) {
+            importedNewActionMono = importedNewActionMono
+                    .zipWith(importedNewPagesMono)
+                    .map(objects -> {
+                        List<NewAction> importedNewActionList1 = objects.getT1();
+                        List<NewPage> importedNewPages = objects.getT2().getT1();
+                        Map<String, String> newToOldNameMap = objects.getT2().getT2();
+
+                        for (NewPage newPage : importedNewPages) {
+                            String newPageName = newPage.getUnpublishedPage().getName();
+                            String oldPageName = newToOldNameMap.get(newPageName);
+
+                            if (!newPageName.equals(oldPageName)) {
+                                renamePageInActions(importedNewActionList1, oldPageName, newPageName);
+                            }
+                        }
+                        return importedNewActionList1;
+                    });
+        }
+
+        return Mono.zip(importedNewActionMono, importApplicationMono, pageNameMapMono, pluginMapMno, datasourceMapMono)
+                .flatMap(objects -> {
+                    return newActionService.importActions(
+                            objects.getT1(),
+                            objects.getT2(),
+                            branchName,
+                            objects.getT3(),
+                            objects.getT4(),
+                            objects.getT5(),
+                            permissionProvider);
+                })
+                .flatMap(importActionResultDTO -> {
+                    log.info("Actions imported. result: {}", importActionResultDTO.getGist());
+                    // Updating the existing application for git-sync
+                    // During partial import/appending to the existing application keep the resources
+                    // attached to the application:
+                    // Delete the invalid resources (which are not the part of applicationJsonDTO) in
+                    // the git flow only
+                    if (!StringUtils.isEmpty(applicationId)
+                            && !appendToApp
+                            && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
+                        // Remove unwanted actions
+                        Set<String> invalidActionIds = new HashSet<>();
+                        for (NewAction action : importActionResultDTO.getExistingActions()) {
+                            if (!importActionResultDTO.getImportedActionIds().contains(action.getId())) {
+                                invalidActionIds.add(action.getId());
+                            }
+                        }
+                        log.info("Deleting {} actions which are no more used", invalidActionIds.size());
+                        return Flux.fromIterable(invalidActionIds)
+                                .flatMap(actionId -> newActionService
+                                        .deleteUnpublishedAction(actionId)
+                                        // return an empty action so that the filter can remove it from the list
+                                        .onErrorResume(throwable -> {
+                                            log.debug("Failed to delete action with id {} during import", actionId);
+                                            log.error(throwable.getMessage());
+                                            return Mono.empty();
+                                        }))
+                                .then()
+                                .thenReturn(importActionResultDTO);
+                    }
+                    return Mono.just(importActionResultDTO);
+                });
+    }
+
+    private Mono<List<ApplicationPage>> importUnpublishedPages(
+            List<ApplicationPage> editModeApplicationPages,
+            boolean appendToApp,
+            Mono<Application> importApplicationMono,
+            Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono) {
+        Mono<List<ApplicationPage>> unpublishedPagesMono = Mono.just(editModeApplicationPages);
+        if (appendToApp) {
+            unpublishedPagesMono = unpublishedPagesMono
+                    .zipWith(importApplicationMono)
+                    .map(objects -> {
+                        Application application = objects.getT2();
+                        List<ApplicationPage> applicationPages = objects.getT1();
+                        applicationPages.addAll(application.getPages());
+                        return applicationPages;
+                    })
+                    .zipWith(importedNewPagesMono)
+                    .map(objects -> {
+                        List<ApplicationPage> unpublishedPages = objects.getT1();
+                        Map<String, String> newToOldNameMap = objects.getT2().getT2();
+                        List<NewPage> importedPages = objects.getT2().getT1();
+                        for (NewPage newPage : importedPages) {
+                            // we need to map the newly created page with old name
+                            // because other related resources e.g. actions will refer the page with old name
+                            String newPageName = newPage.getUnpublishedPage().getName();
+                            if (newToOldNameMap.containsKey(newPageName)) {
+                                String oldPageName = newToOldNameMap.get(newPageName);
+                                unpublishedPages.stream()
+                                        .filter(applicationPage -> oldPageName.equals(applicationPage.getId()))
+                                        .findAny()
+                                        .ifPresent(applicationPage -> applicationPage.setId(newPageName));
+                            }
+                        }
+                        return unpublishedPages;
+                    });
+        }
+        return unpublishedPagesMono;
+    }
+
+    private Mono<Tuple2<List<NewPage>, Map<String, String>>> getImportNewPagesMono(
+            List<NewPage> importedNewPageList,
+            Mono<List<NewPage>> existingPagesMono,
+            Mono<Application> importApplicationMono,
+            boolean appendToApp,
+            String branchName,
+            ImportApplicationPermissionProvider permissionProvider) {
+        return Mono.just(importedNewPageList)
+                .zipWith(existingPagesMono)
+                .map(objects -> {
+                    List<NewPage> importedNewPages = objects.getT1();
+                    List<NewPage> existingPages = objects.getT2();
+                    Map<String, String> newToOldNameMap;
+                    if (appendToApp) {
+                        newToOldNameMap = updateNewPagesBeforeMerge(existingPages, importedNewPages);
+                    } else {
+                        newToOldNameMap = Map.of();
+                    }
+                    return Tuples.of(importedNewPages, newToOldNameMap);
+                })
+                .zipWith(importApplicationMono)
+                .flatMap(objects -> {
+                    List<NewPage> importedNewPages = objects.getT1().getT1();
+                    Map<String, String> newToOldNameMap = objects.getT1().getT2();
+                    Application application = objects.getT2();
+                    return importAndSavePages(
+                                    importedNewPages, application, branchName, existingPagesMono, permissionProvider)
                             .collectList()
-                            .flatMapMany(newPageService::saveAll)
-                            .then(applicationService.update(importedApplication.getId(), importedApplication))
-                            .then(sendImportExportApplicationAnalyticsEvent(
-                                    importedApplication.getId(), AnalyticsEvents.IMPORT))
-                            .zipWith(currUserMono)
-                            .flatMap(tuple -> {
-                                Application application = tuple.getT1();
-                                stopwatch.stopTimer();
-                                stopwatch.stopAndLogTimeInMillis();
-                                final Map<String, Object> data = Map.of(
-                                        FieldName.APPLICATION_ID,
-                                        application.getId(),
-                                        FieldName.WORKSPACE_ID,
-                                        application.getWorkspaceId(),
-                                        "pageCount",
-                                        applicationJson.getPageList().size(),
-                                        "actionCount",
-                                        applicationJson.getActionList().size(),
-                                        "JSObjectCount",
-                                        applicationJson
-                                                .getActionCollectionList()
-                                                .size(),
-                                        FieldName.FLOW_NAME,
-                                        stopwatch.getFlow(),
-                                        "executionTime",
-                                        stopwatch.getExecutionTime());
-                                return analyticsService
-                                        .sendEvent(
-                                                AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
-                                                tuple.getT2().getUsername(),
-                                                data)
-                                        .thenReturn(application);
+                            .zipWith(Mono.just(newToOldNameMap));
+                });
+    }
+
+    Mono<Application> savePagesToApplicationMono(
+            Application importedApplication,
+            Mono<Map<String, NewPage>> pageNameMapMono,
+            Mono<Application> applicationMono,
+            boolean appendToApp,
+            String applicationId,
+            Mono<List<NewPage>> existingPagesMono,
+            Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono) {
+
+        List<ApplicationPage> editModeApplicationPages = importedApplication.getPages();
+        List<ApplicationPage> publishedModeApplicationPages = importedApplication.getPublishedPages();
+
+        Mono<List<ApplicationPage>> unpublishedPagesMono =
+                importUnpublishedPages(editModeApplicationPages, appendToApp, applicationMono, importedNewPagesMono);
+
+        Mono<List<ApplicationPage>> publishedPagesMono = Mono.just(publishedModeApplicationPages);
+
+        Mono<Map<ResourceModes, List<ApplicationPage>>> applicationPagesMono = Mono.zip(
+                        unpublishedPagesMono, publishedPagesMono, pageNameMapMono, applicationMono)
+                .map(objects -> {
+                    List<ApplicationPage> unpublishedPages = objects.getT1();
+                    List<ApplicationPage> publishedPages = objects.getT2();
+                    Map<String, NewPage> pageNameMap = objects.getT3();
+                    Application savedApp = objects.getT4();
+
+                    log.info("New pages imported for application: {}", savedApp.getId());
+                    Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
+                    applicationPages.put(EDIT, unpublishedPages);
+                    applicationPages.put(VIEW, publishedPages);
+
+                    Iterator<ApplicationPage> unpublishedPageItr = unpublishedPages.iterator();
+                    while (unpublishedPageItr.hasNext()) {
+                        ApplicationPage applicationPage = unpublishedPageItr.next();
+                        NewPage newPage = pageNameMap.get(applicationPage.getId());
+                        if (newPage == null) {
+                            if (appendToApp) {
+                                // Don't remove the page reference if doing the partial import and appending
+                                // to the existing application
+                                continue;
+                            }
+                            log.debug(
+                                    "Unable to find the page during import for appId {}, with name {}",
+                                    applicationId,
+                                    applicationPage.getId());
+                            unpublishedPageItr.remove();
+                        } else {
+                            applicationPage.setId(newPage.getId());
+                            applicationPage.setDefaultPageId(
+                                    newPage.getDefaultResources().getPageId());
+                            // Keep the existing page as the default one
+                            if (appendToApp) {
+                                applicationPage.setIsDefault(false);
+                            }
+                        }
+                    }
+
+                    Iterator<ApplicationPage> publishedPagesItr;
+                    // Remove the newly added pages from merge app flow. Keep only the existing page from the old app
+                    if (appendToApp) {
+                        List<String> existingPagesId = savedApp.getPublishedPages().stream()
+                                .map(applicationPage -> applicationPage.getId())
+                                .collect(Collectors.toList());
+                        List<ApplicationPage> publishedApplicationPages = publishedPages.stream()
+                                .filter(applicationPage -> existingPagesId.contains(applicationPage.getId()))
+                                .collect(Collectors.toList());
+                        applicationPages.replace(VIEW, publishedApplicationPages);
+                        publishedPagesItr = publishedApplicationPages.iterator();
+                    } else {
+                        publishedPagesItr = publishedPages.iterator();
+                    }
+                    while (publishedPagesItr.hasNext()) {
+                        ApplicationPage applicationPage = publishedPagesItr.next();
+                        NewPage newPage = pageNameMap.get(applicationPage.getId());
+                        if (newPage == null) {
+                            log.debug(
+                                    "Unable to find the page during import for appId {}, with name {}",
+                                    applicationId,
+                                    applicationPage.getId());
+                            if (!appendToApp) {
+                                publishedPagesItr.remove();
+                            }
+                        } else {
+                            applicationPage.setId(newPage.getId());
+                            applicationPage.setDefaultPageId(
+                                    newPage.getDefaultResources().getPageId());
+                            if (appendToApp) {
+                                applicationPage.setIsDefault(false);
+                            }
+                        }
+                    }
+
+                    return applicationPages;
+                });
+
+        if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
+            applicationPagesMono = applicationPagesMono
+                    .zipWith(existingPagesMono)
+                    .flatMap(objects -> {
+                        Map<ResourceModes, List<ApplicationPage>> applicationPages = objects.getT1();
+                        List<NewPage> existingPagesList = objects.getT2();
+                        Set<String> validPageIds = applicationPages.get(EDIT).stream()
+                                .map(ApplicationPage::getId)
+                                .collect(Collectors.toSet());
+
+                        validPageIds.addAll(applicationPages.get(VIEW).stream()
+                                .map(ApplicationPage::getId)
+                                .collect(Collectors.toSet()));
+
+                        Set<String> invalidPageIds = new HashSet<>();
+                        for (NewPage newPage : existingPagesList) {
+                            if (!validPageIds.contains(newPage.getId())) {
+                                invalidPageIds.add(newPage.getId());
+                            }
+                        }
+
+                        // Delete the pages which were removed during git merge operation
+                        // This does not apply to the traditional import via file approach
+                        return Flux.fromIterable(invalidPageIds)
+                                .flatMap(applicationPageService::deleteWithoutPermissionUnpublishedPage)
+                                .flatMap(page -> newPageService
+                                        .archiveWithoutPermissionById(page.getId())
+                                        .onErrorResume(e -> {
+                                            log.debug(
+                                                    "Unable to archive page {} with error {}",
+                                                    page.getId(),
+                                                    e.getMessage());
+                                            return Mono.empty();
+                                        }))
+                                .then()
+                                .thenReturn(applicationPages);
+                    });
+        }
+        return applicationMono.zipWith(applicationPagesMono).map(objects -> {
+            Application application = objects.getT1();
+            Map<ResourceModes, List<ApplicationPage>> applicationPages = objects.getT2();
+            application.setPages(applicationPages.get(EDIT));
+            application.setPublishedPages(applicationPages.get(VIEW));
+            return application;
+        });
+    }
+
+    private Mono<List<CustomJSLibApplicationDTO>> getCustomJslibImportMono(List<CustomJSLib> customJSLibs) {
+        if (customJSLibs == null) {
+            customJSLibs = new ArrayList<>();
+        }
+
+        return Flux.fromIterable(customJSLibs)
+                .flatMap(customJSLib -> {
+                    customJSLib.setId(null);
+                    customJSLib.setCreatedAt(null);
+                    customJSLib.setUpdatedAt(null);
+                    return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
+                })
+                .collectList();
+    }
+
+    private Mono<List<Datasource>> getExistingDatasourceMono(String applicationId, String workspaceId) {
+        Mono<List<Datasource>> existingDatasourceMono;
+        // Check if the request is to hydrate the application to DB for particular branch
+        // Application id will be present for GIT sync
+        if (!StringUtils.isEmpty(applicationId)) {
+            // No need to hydrate the datasource as we expect user will configure the datasource
+            existingDatasourceMono = datasourceService
+                    .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
+                    .collectList();
+        } else {
+            existingDatasourceMono = Mono.just(new ArrayList<>());
+        }
+        return existingDatasourceMono;
+    }
+
+    private Mono<List<NewPage>> getImportActionsAndActionCollectionsMono(
+            ApplicationJson importedDoc,
+            Mono<Application> applicationMono,
+            Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
+            Mono<Map<String, String>> pluginMapMno,
+            Mono<Map<String, NewPage>> pageNameMapMono,
+            boolean appendToApp,
+            String branchName,
+            String applicationId,
+            Workspace workspace,
+            ImportApplicationPermissionProvider permissionProvider) {
+        Mono<ImportActionResultDTO> importActionsMono = getImportActionsMono(
+                        importedDoc,
+                        importedNewPagesMono,
+                        applicationMono,
+                        pageNameMapMono,
+                        pluginMapMno,
+                        appendToApp,
+                        workspace,
+                        applicationId,
+                        branchName,
+                        permissionProvider)
+                .cache();
+
+        List<ActionCollection> importedActionCollectionList =
+                CollectionUtils.isEmpty(importedDoc.getActionCollectionList())
+                        ? new ArrayList<>()
+                        : importedDoc.getActionCollectionList();
+
+        Mono<ImportActionCollectionResultDTO> importActionCollectionMono = createImportActionCollectionMono(
+                importedActionCollectionList,
+                applicationMono,
+                importedNewPagesMono,
+                importActionsMono,
+                pluginMapMno,
+                pageNameMapMono,
+                permissionProvider,
+                appendToApp,
+                branchName);
+
+        Mono<Tuple2<ImportedActionAndCollectionMapsDTO, ImportActionResultDTO>> updateCollectionIdToActionsMono =
+                setCollectionIdToActionsMono(
+                        importActionsMono, importActionCollectionMono, applicationMono, applicationId, appendToApp);
+
+        Mono<List<NewPage>> updateActionsInPages =
+                setActionIdInPages(updateCollectionIdToActionsMono, importedNewPagesMono, branchName);
+        return updateActionsInPages;
+    }
+
+    /**
+     * This function will take the application reference object to hydrate the application in mongoDB
+     *
+     * @param workspaceId     workspace to which application is going to be stored
+     * @param applicationJson application resource which contains necessary information to import the application
+     * @param applicationId   application which needs to be saved with the updated resources
+     * @param branchName      name of the branch of application with applicationId
+     * @param appendToApp     whether applicationJson will be appended to the existing app or not
+     * @return Updated application
+     */
+    private Mono<Application> importApplicationInWorkspace(
+            String workspaceId,
+            ApplicationJson applicationJson,
+            String applicationId,
+            String branchName,
+            boolean appendToApp,
+            ImportApplicationPermissionProvider permissionProvider) {
+        /*
+           1. Migrate resource to latest schema
+           2. Fetch workspace by id
+           3. Extract datasources and update plugin information
+           4. Create new datasource if same datasource is not present
+           5. Extract and save application
+           6. Extract and save pages in the application
+           7. Extract and save actions in the application
+        */
+        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+
+        // check for validation error and raise exception if error found
+        String errorField = validateApplicationJson(importedDoc);
+        if (!errorField.isEmpty()) {
+            log.error("Error in importing application. Field {} is missing", errorField);
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+        }
+
+        Application importedApplication = importedDoc.getExportedApplication();
+        List<NewPage> importedNewPageList = importedDoc.getPageList();
+
+        Mono<Workspace> workspaceMono = workspaceService
+                .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error(
+                            "No workspace found with id: {} and permission: {}",
+                            workspaceId,
+                            permissionProvider.getRequiredPermissionOnTargetWorkspace());
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
+                }));
+
+        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
+        Mono<List<CustomJSLibApplicationDTO>> installedJsLibsMono =
+                getCustomJslibImportMono(importedDoc.getCustomJSLibList());
+        Mono<Map<String, String>> pluginMapMno = getPluginMapMono().cache();
+
+        // Start the stopwatch to log the execution time
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
+        Mono<Application> importedApplicationMono = workspaceMono
+                .flatMap(workspace -> {
+                    Mono<Application> applicationMono = getImportApplicationMono(
+                                    importedApplication,
+                                    applicationId,
+                                    appendToApp,
+                                    workspaceId,
+                                    permissionProvider,
+                                    currUserMono,
+                                    installedJsLibsMono)
+                            .flatMap(application -> importThemes(application, importedDoc, appendToApp))
+                            .cache();
+
+                    // Import and save pages, also update the pages related fields in saved application
+                    assert importedNewPageList != null : "Unable to find pages in the imported application";
+
+                    // For git-sync this will not be empty
+                    Mono<List<NewPage>> existingPagesMono = applicationMono
+                            .flatMap(application -> newPageService
+                                    .findNewPagesByApplicationId(application.getId(), Optional.empty())
+                                    .collectList())
+                            .cache();
+
+                    Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono = getImportNewPagesMono(
+                                    importedNewPageList,
+                                    existingPagesMono,
+                                    applicationMono,
+                                    appendToApp,
+                                    branchName,
+                                    permissionProvider)
+                            .cache();
+
+                    Mono<Map<String, NewPage>> pageNameMapMono =
+                            getPageNameMapMono(importedNewPagesMono).cache();
+
+                    applicationMono = savePagesToApplicationMono(
+                                    importedApplication,
+                                    pageNameMapMono,
+                                    applicationMono,
+                                    appendToApp,
+                                    applicationId,
+                                    existingPagesMono,
+                                    importedNewPagesMono)
+                            .cache();
+
+                    Mono<List<NewPage>> importActionAndActionCollections = getImportActionsAndActionCollectionsMono(
+                            importedDoc,
+                            applicationMono,
+                            importedNewPagesMono,
+                            pluginMapMno,
+                            pageNameMapMono,
+                            appendToApp,
+                            branchName,
+                            applicationId,
+                            workspace,
+                            permissionProvider);
+
+                    return importActionAndActionCollections
+                            .then(applicationMono)
+                            .flatMap(application -> {
+                                log.info("Imported application with id {}", application.getId());
+                                return applicationService.save(application);
+                            })
+                            .onErrorResume(throwable -> {
+                                String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                                log.error("Error importing application. Error: {}", errorMessage, throwable);
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                             });
                 })
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing application. Error: {}", errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
                 .as(transactionalOperator::transactional);
+
+        final Mono<Application> resultMono = importedApplicationMono
+                .flatMap(application ->
+                        sendImportExportApplicationAnalyticsEvent(application.getId(), AnalyticsEvents.IMPORT))
+                .zipWith(currUserMono)
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    stopwatch.stopTimer();
+                    stopwatch.stopAndLogTimeInMillis();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID,
+                            application.getId(),
+                            FieldName.WORKSPACE_ID,
+                            application.getWorkspaceId(),
+                            "pageCount",
+                            applicationJson.getPageList().size(),
+                            "actionCount",
+                            applicationJson.getActionList().size(),
+                            "JSObjectCount",
+                            applicationJson.getActionCollectionList().size(),
+                            FieldName.FLOW_NAME,
+                            stopwatch.getFlow(),
+                            "executionTime",
+                            stopwatch.getExecutionTime());
+                    return analyticsService
+                            .sendEvent(
+                                    AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
+                                    tuple.getT2().getUsername(),
+                                    data)
+                            .thenReturn(application);
+                });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the
@@ -1596,8 +1847,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
-        return Mono.create(
-                sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     private void renamePageInActions(List<NewAction> newActionList, String oldPageName, String newPageName) {
@@ -1884,13 +2134,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     /**
      * This will check if the datasource is already present in the workspace and create a new one if unable to find one
      *
-     * @param existingDatasourceFlux already present datasource in the workspace
+     * @param existingDatasources already present datasource in the workspace
      * @param datasourceStorage      which will be checked against existing datasources
      * @param workspace              workspace where duplicate datasource should be checked
      * @return already present or brand new datasource depending upon the equality check
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(
-            Flux<Datasource> existingDatasourceFlux,
+            List<Datasource> existingDatasources,
             DatasourceStorage datasourceStorage,
             Workspace workspace,
             String environmentId,
@@ -1907,7 +2157,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             datasourceConfig.getAuthentication().setAuthenticationType(null);
         }
 
-        return existingDatasourceFlux
+        return Flux.fromIterable(existingDatasources)
                 // For git import exclude datasource configuration
                 .filter(ds -> ds.getName().equals(datasourceStorage.getName())
                         && datasourceStorage.getPluginId().equals(ds.getPluginId()))
@@ -2175,36 +2425,33 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         });
     }
 
-    private Mono<Map<String, String>> updateNewPagesBeforeMerge(
-            Mono<List<NewPage>> existingPagesMono, List<NewPage> newPagesList) {
-        return existingPagesMono.map(newPages -> {
-            Map<String, String> newToOldToPageNameMap = new HashMap<>(); // maps new names with old names
+    private Map<String, String> updateNewPagesBeforeMerge(List<NewPage> existingPages, List<NewPage> newPagesList) {
+        Map<String, String> newToOldToPageNameMap = new HashMap<>(); // maps new names with old names
 
-            // get a list of unpublished page names that already exists
-            List<String> unpublishedPageNames = newPages.stream()
-                    .filter(newPage -> newPage.getUnpublishedPage() != null)
-                    .map(newPage -> newPage.getUnpublishedPage().getName())
-                    .collect(Collectors.toList());
+        // get a list of unpublished page names that already exists
+        List<String> unpublishedPageNames = existingPages.stream()
+                .filter(newPage -> newPage.getUnpublishedPage() != null)
+                .map(newPage -> newPage.getUnpublishedPage().getName())
+                .collect(Collectors.toList());
 
-            // modify each new page
-            for (NewPage newPage : newPagesList) {
-                newPage.setPublishedPage(null); // we'll not merge published pages so removing this
+        // modify each new page
+        for (NewPage newPage : newPagesList) {
+            newPage.setPublishedPage(null); // we'll not merge published pages so removing this
 
-                // let's check if page name conflicts, rename in that case
-                String oldPageName = newPage.getUnpublishedPage().getName(),
-                        newPageName = newPage.getUnpublishedPage().getName();
+            // let's check if page name conflicts, rename in that case
+            String oldPageName = newPage.getUnpublishedPage().getName(),
+                    newPageName = newPage.getUnpublishedPage().getName();
 
-                int i = 1;
-                while (unpublishedPageNames.contains(newPageName)) {
-                    i++;
-                    newPageName = oldPageName + i;
-                }
-                newPage.getUnpublishedPage().setName(newPageName); // set new name. may be same as before or not
-                newPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(newPageName)); // set the slug also
-                newToOldToPageNameMap.put(newPageName, oldPageName); // map: new name -> old name
+            int i = 1;
+            while (unpublishedPageNames.contains(newPageName)) {
+                i++;
+                newPageName = oldPageName + i;
             }
-            return newToOldToPageNameMap;
-        });
+            newPage.getUnpublishedPage().setName(newPageName); // set new name. may be same as before or not
+            newPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(newPageName)); // set the slug also
+            newToOldToPageNameMap.put(newPageName, oldPageName); // map: new name -> old name
+        }
+        return newToOldToPageNameMap;
     }
 
     /**

@@ -1900,7 +1900,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .get(newAction.getId())
                                 .get(0));
                         if (unpublishedAction.getDefaultResources() != null
-                                && !StringUtils.hasLength(
+                                && org.apache.commons.lang3.StringUtils.isEmpty(
                                         unpublishedAction.getDefaultResources().getCollectionId())) {
 
                             unpublishedAction
@@ -1918,7 +1918,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .get(0));
 
                         if (publishedAction.getDefaultResources() != null
-                                && !StringUtils.hasLength(
+                                && org.apache.commons.lang3.StringUtils.isEmpty(
                                         publishedAction.getDefaultResources().getCollectionId())) {
 
                             publishedAction
