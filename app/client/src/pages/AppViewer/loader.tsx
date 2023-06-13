@@ -1,8 +1,19 @@
 import React from "react";
+import type { RouteComponentProps } from "react-router";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
+import type { InitAppViewerPayload } from "actions/initActions";
+import { initAppViewer } from "actions/initActions";
+import { APP_MODE } from "entities/App";
+import { connect } from "react-redux";
+import { getSearchQuery } from "utils/helpers";
+import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 
-class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
+type Props = {
+  initAppViewer: (payload: InitAppViewerPayload) => void;
+} & RouteComponentProps<{ pageId: string; applicationId?: string }>;
+
+class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
   constructor(props: any) {
     super(props);
 
@@ -12,6 +23,7 @@ class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
+    this.initialize();
     retryPromise(
       () => import(/* webpackChunkName: "AppViewer" */ "./index"),
     ).then((module) => {
@@ -23,6 +35,32 @@ class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
     const { Page } = this.state;
     return Page ? <Page {...this.props} /> : <PageLoadingBar />;
   }
+
+  private initialize() {
+    const {
+      initAppViewer,
+      location: { search },
+      match: { params },
+    } = this.props;
+    const { applicationId, pageId } = params;
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+    // onMount initPage
+    if (applicationId || pageId) {
+      initAppViewer({
+        applicationId,
+        branch,
+        pageId,
+        mode: APP_MODE.PUBLISHED,
+      });
+    }
+  }
 }
 
-export default AppViewerLoader;
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    initAppViewer: (payload: InitAppViewerPayload) =>
+      dispatch(initAppViewer(payload)),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(AppViewerLoader);

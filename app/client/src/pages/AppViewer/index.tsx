@@ -100,18 +100,6 @@ function AppViewer(props: Props) {
     editorInitializer().then(() => {
       setRegistered(true);
     });
-
-    // onMount initPage
-    if (applicationId || pageId) {
-      dispatch(
-        initAppViewer({
-          applicationId,
-          branch,
-          pageId,
-          mode: APP_MODE.PUBLISHED,
-        }),
-      );
-    }
   }, []);
 
   /**

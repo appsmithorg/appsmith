@@ -18,7 +18,7 @@ export const initEditor = (
 
 export type InitAppViewerPayload = {
   branch: string;
-  applicationId: string;
+  applicationId?: string;
   pageId: string;
   mode: APP_MODE;
 };
