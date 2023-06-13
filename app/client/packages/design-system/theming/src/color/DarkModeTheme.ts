@@ -345,9 +345,26 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdNegative() {
-    const color = this.bdAccent.clone();
+    const color = this.bgNegative.clone();
 
-    color.oklch.h = this.bgNegative.oklch.h;
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.15 &&
+      this.bdAccent.oklch.h < 27 &&
+      this.bdAccent.oklch.h >= 5
+    ) {
+      color.oklch.l = color.oklch.l + 0.18;
+    }
+
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.15 &&
+      this.bdAccent.oklch.h >= 27 &&
+      this.bdAccent.oklch.h < 50
+    ) {
+      color.oklch.h = color.oklch.h - 5;
+      color.oklch.l = color.oklch.l + 0.05;
+    }
 
     return color;
   }
