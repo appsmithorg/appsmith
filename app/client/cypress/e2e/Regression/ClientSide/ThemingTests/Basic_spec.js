@@ -38,7 +38,7 @@ describe("App Theming funtionality", function () {
       .first()
       .invoke("text")
       .then((text) => {
-        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
+        cy.get(commonlocators.toastmsg).contains(`Theme ${text} applied`);
       });
 
     // check if color of canvas is same as theme bg color
@@ -189,7 +189,7 @@ describe("App Theming funtionality", function () {
     cy.get("button[type='submit']").click({ force: true });
 
     cy.wait(200);
-    cy.get(commonlocators.toastMsg).contains("Theme testtheme Saved");
+    cy.get(commonlocators.toastMsg).contains("Theme testtheme saved");
     appSettings.ClosePane();
   });
 
@@ -352,7 +352,7 @@ describe("App Theming funtionality", function () {
     cy.xpath("//span[text()='Save theme']/parent::div").click({ force: true });
 
     cy.wait(200);
-    cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme Saved");
+    cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme saved");
   });
 
   it("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
@@ -362,7 +362,7 @@ describe("App Theming funtionality", function () {
       .click({ force: true })
       .wait(1000); //Changing to testtheme
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       .click()
       .parent()
       .siblings()
@@ -437,7 +437,7 @@ describe("App Theming funtionality", function () {
 
     //check for delete alert
     cy.wait(500);
-    cy.get(commonlocators.toastMsg).contains("Theme testtheme Deleted");
+    cy.get(commonlocators.toastMsg).contains("Theme testtheme deleted");
     cy.xpath(applyTheme("Your themes", "testtheme")).should("not.exist");
   });
 
@@ -446,7 +446,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Pampas"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -457,7 +457,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(5, 150, 105)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -474,7 +474,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Classic"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -485,7 +485,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(22, 163, 74)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -502,7 +502,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Modern"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -513,7 +513,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(85, 61, 233)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -530,7 +530,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Sunrise"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -541,7 +541,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(239, 68, 68)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -557,7 +557,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Water Lily"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -568,7 +568,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(219, 39, 119)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -584,7 +584,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Pacific"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -595,7 +595,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(8, 145, 178)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -611,7 +611,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Earth"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -622,7 +622,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(59, 130, 246)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -638,7 +638,7 @@ describe("App Theming funtionality", function () {
     cy.xpath(applyTheme("Featured themes", "Moon"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -649,7 +649,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(100, 116, 139)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -666,7 +666,7 @@ describe("App Theming funtionality", function () {
       .click({ force: true })
       .wait(1000); //Changing to created test theme
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
@@ -677,7 +677,7 @@ describe("App Theming funtionality", function () {
         expect(backgroudColor).to.eq("rgb(126, 34, 206)");
       });
 
-    cy.contains("Applied Theme")
+    cy.contains("Applied theme")
       // .click()
       .parent()
       .siblings()
