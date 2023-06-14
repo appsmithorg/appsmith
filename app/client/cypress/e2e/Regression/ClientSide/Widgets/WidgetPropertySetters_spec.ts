@@ -3,6 +3,7 @@ import {
   WIDGET,
   getWidgetSelector,
 } from "../../../../locators/WidgetLocators";
+
 import { ObjectsRegistry as _ } from "../../../../support/Objects/Registry";
 
 const setterMethodsToTest = [
@@ -144,3 +145,41 @@ Object.values(setterMethodsToTest).forEach(
     });
   },
 );
+
+describe("Linting warning for setter methods", function () {
+  it("Lint error when setter is used in a data field", function () {
+    _.EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    _.AggregateHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
+    _.PropertyPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
+
+    //Mouse hover to exact warning message
+    _.AggregateHelper.GetElement(_.CommonLocators._lintErrorElement).trigger(
+      "mouseover",
+    );
+    _.AggregateHelper.AssertContains("Data fields cannot execute async code");
+
+    //Create a JS object
+    _.JSEditor.CreateJSObject(
+      `export default {
+        myFun1: () => {
+          Button1.setLabel('Hello');
+        },
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+
+    //Add myFun1 to onClick
+    _.EntityExplorer.SelectEntityByName("Button1");
+    _.PropertyPane.TypeTextIntoField("Label", "{{JSObject1.myFun1()}}");
+
+    _.AggregateHelper.AssertContains(
+      "Found an action invocation during evaluation. Data fields cannot execute actions.",
+    );
+  });
+});
