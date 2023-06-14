@@ -19,15 +19,13 @@ export enum LINT_WORKER_ACTIONS {
 export interface LintTreeResponse {
   errors: LintErrorsStore;
   updatedJSEntities: string[];
+  jsPropertiesState: TJSPropertiesState;
 }
 
 export interface LintTreeRequestPayload {
-  pathsToLint: string[];
   unevalTree: DataTree;
-  jsPropertiesState: TJSPropertiesState;
   configTree: ConfigTree;
   cloudHosting: boolean;
-  asyncJSFunctionsInDataFields: DependencyMap;
 }
 
 export type LintRequest = {
@@ -36,10 +34,7 @@ export type LintRequest = {
 };
 
 export type LintTreeSagaRequestData = {
-  pathsToLint: string[];
   unevalTree: DataTree;
-  jsPropertiesState: TJSPropertiesState;
-  asyncJSFunctionsInDataFields: DependencyMap;
   configTree: ConfigTree;
 };
 export interface lintTriggerPathProps {

@@ -1,29 +1,19 @@
-import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
+import type { LintTreeResponse } from "Linting/types";
 import { getLintErrorsFromTree } from "Linting/utils/lintTree";
 
-export function lintTree(data: LintTreeRequestPayload): LintTreeResponse {
+export function lintTree(data: any): LintTreeResponse {
   const lintTreeResponse: LintTreeResponse = {
     errors: {},
     updatedJSEntities: [],
+    jsPropertiesState: {},
   };
   try {
-    const {
-      asyncJSFunctionsInDataFields,
-      cloudHosting,
-      configTree,
-      jsPropertiesState,
-      pathsToLint,
-      unevalTree: unEvalTree,
-    } = data as LintTreeRequestPayload;
+    const { cloudHosting, configTree, unevalTree: unEvalTree } = data;
     const { errors: lintErrors, updatedJSEntities } = getLintErrorsFromTree({
-      pathsToLint,
       unEvalTree,
-      jsPropertiesState,
       cloudHosting,
-      asyncJSFunctionsInDataFields,
       configTree,
-    });
-
+    } as any);
     lintTreeResponse.errors = lintErrors;
     lintTreeResponse.updatedJSEntities = updatedJSEntities;
   } catch (e) {}

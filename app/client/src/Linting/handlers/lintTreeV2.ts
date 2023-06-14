@@ -47,15 +47,17 @@ export function lintTreeV2({
   const { pathsToLint } = isEmpty(cachedEntityTree)
     ? lintFirstTree(unEvalTree as UnEvalTree, configTree)
     : lintUpdatedTree(unEvalTree as UnEvalTree, configTree);
+
+  const jsPropertiesState = mapValues(parsedJSEntitiesCache, (parsedJSEntity) =>
+    parsedJSEntity.getParsedEntityConfig(),
+  ) as TJSPropertiesState;
+
   const lintTreeResponse: LintTreeResponse = {
     errors: {},
     updatedJSEntities: [],
+    jsPropertiesState,
   };
   try {
-    const jsPropertiesState = mapValues(
-      parsedJSEntitiesCache,
-      (parsedJSEntity) => parsedJSEntity.getParsedEntityConfig(),
-    ) as TJSPropertiesState;
     const { errors: lintErrors, updatedJSEntities } = getLintErrorsFromTree({
       pathsToLint,
       unEvalTree: getUnevalEntityTree(cachedEntityTree),

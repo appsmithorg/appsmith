@@ -46,20 +46,11 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
-  const {
-    asyncJSFunctionsInDataFields,
-    configTree,
-    jsPropertiesState,
-    pathsToLint: lintOrder,
-    unevalTree,
-  } = data as LintTreeSagaRequestData;
+  const { configTree, unevalTree } = data as LintTreeSagaRequestData;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: lintOrder,
       unevalTree,
-      jsPropertiesState,
-      asyncJSFunctionsInDataFields,
       configTree,
     },
   });

@@ -18,6 +18,7 @@ import type {
   LintTreeResponse,
   LintTreeSagaRequestData,
 } from "Linting/types";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -77,30 +78,19 @@ function* getValidOldJSCollectionLintErrors(
 }
 
 export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
-  const {
-    asyncJSFunctionsInDataFields,
-    configTree,
-    jsPropertiesState,
-    pathsToLint,
-    unevalTree,
-  } = action.payload;
+  const { configTree, unevalTree } = action.payload;
   // only perform lint operations in edit mode
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
 
   const lintTreeRequestData: LintTreeRequestPayload = {
-    pathsToLint,
     unevalTree,
-    jsPropertiesState,
     configTree,
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
-    asyncJSFunctionsInDataFields,
   };
 
-  const { errors, updatedJSEntities }: LintTreeResponse = yield call(
-    lintWorker.lintTree,
-    lintTreeRequestData,
-  );
+  const { errors, jsPropertiesState, updatedJSEntities }: LintTreeResponse =
+    yield call(lintWorker.lintTree, lintTreeRequestData);
 
   const oldJSCollectionLintErrors: LintErrorsStore =
     yield getValidOldJSCollectionLintErrors(
@@ -115,6 +105,26 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   yield call(logLatestLintPropertyErrors, {
     errors,
     dataTree: unevalTree,
+  });
+}
+
+export function* initiateLinting(requiresLinting: boolean) {
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+  if (!requiresLinting || appMode !== APP_MODE.EDIT) return;
+
+  const {
+    configTree,
+    unEvalTree: unevalTree,
+  }: ReturnType<typeof getUnevaluatedDataTree> = yield select(
+    getUnevaluatedDataTree,
+  );
+
+  yield put({
+    type: ReduxActionTypes.LINT_TREE,
+    payload: {
+      unevalTree,
+      configTree,
+    },
   });
 }
 
