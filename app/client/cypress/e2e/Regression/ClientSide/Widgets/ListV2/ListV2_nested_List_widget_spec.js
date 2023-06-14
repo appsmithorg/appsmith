@@ -139,6 +139,7 @@ describe(" Nested List Widgets ", function () {
   it("3. Accessing CurrentView, SelectedItemView and TriggeredItemView from Sibling List widget", () => {
     cy.fixture("Listv2/ListV2_nested_sibling_listwidget_dsl").then((val) => {
       agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
 
     cy.waitUntil(() =>
