@@ -9,6 +9,7 @@ const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will h
 const ObjectsRegistry =
   require("../../../../../support/Objects/Registry").ObjectsRegistry;
 let propPane = ObjectsRegistry.PropertyPane;
+let table = ObjectsRegistry.Table;
 
 describe("File picker widget v2", () => {
   before(() => {
@@ -48,7 +49,7 @@ describe("File picker widget v2", () => {
     agHelper.ValidateNetworkStatus("@updateLayout");
 
     // The table takes a bit of time to load the values in the cells
-    cy.wait(2000);
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     cy.readTableV2dataPublish("1", "1").then((tabData) => {
       const tabValue = tabData;
@@ -74,7 +75,7 @@ describe("File picker widget v2", () => {
     agHelper.ValidateNetworkStatus("@updateLayout");
 
     // The table takes a bit of time to load the values in the cells
-    cy.wait(2000);
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("Sheet1");
@@ -106,7 +107,7 @@ describe("File picker widget v2", () => {
     agHelper.ValidateNetworkStatus("@updateLayout");
 
     // The table takes a bit of time to load the values in the cells
-    cy.wait(2000);
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     cy.readTableV2dataPublish("0", "2").then((tabData) => {
       expect(tabData).to.contain("sunt aut facere");
@@ -122,7 +123,7 @@ describe("File picker widget v2", () => {
     agHelper.ValidateNetworkStatus("@updateLayout");
 
     // The table takes a bit of time to load the values in the cells
-    cy.wait(2000);
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("CONST");
@@ -159,7 +160,7 @@ describe("File picker widget v2", () => {
 
     agHelper.ValidateNetworkStatus("@updateLayout");
 
-    // The table takes a bit of time to load the values in the cells
+    // The text widget takes a bit of time to load the values
     cy.wait(2000);
 
     cy.get(locators._widgetInDeployed("textwidget")).should("have.text", "");
