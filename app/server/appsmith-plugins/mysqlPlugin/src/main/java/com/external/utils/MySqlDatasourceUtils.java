@@ -28,9 +28,10 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 
 public class MySqlDatasourceUtils {
 
-    public static int MAX_CONNECTION_POOL_SIZE = 10;
+    public static int MAX_CONNECTION_POOL_SIZE = 5;
 
-    private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10);
+    //private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10); // TODO: fix it
+    private static final Duration MAX_IDLE_TIME = Duration.ofSeconds(1);
 
     public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -186,7 +187,10 @@ public class MySqlDatasourceUtils {
         ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
                 .maxIdleTime(MAX_IDLE_TIME)
                 .maxSize(MAX_CONNECTION_POOL_SIZE)
+                .backgroundEvictionInterval(Duration.ofMinutes(5))
+                .maxLifeTime(Duration.ofMinutes(5))
                 .build();
+
         return new ConnectionPool(configuration);
     }
 }
