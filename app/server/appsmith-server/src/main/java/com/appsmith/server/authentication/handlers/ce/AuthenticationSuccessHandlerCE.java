@@ -203,7 +203,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
-    private Mono<Map<String, Object>> addDefaultUserTraits(User user){
+    private Mono<Void> addDefaultUserTraits(User user){
         String identifier = user.getEmail();
         List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
         return configService.getInstanceId()

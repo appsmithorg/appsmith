@@ -169,7 +169,7 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
     }
 
     @Override
-    public Mono<Map<String, Object>> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits){
+    public Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits){
 
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
                 .post()
@@ -177,7 +177,7 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
                 .body(BodyInserters.fromValue(featureFlagTraits))
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
-                        return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Map<String, Object>>>() {
+                        return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Void>>() {
                         });
                     } else {
                         return clientResponse.createError();
@@ -194,7 +194,7 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
                     // We're gobbling up errors here so that all feature flags are turned off by default
                     // This will be problematic if we do not maintain code to reflect validity of flags
                     log.debug("Received error from CS for feature flags: {}", error.getMessage());
-                    return Mono.just(Map.of());
+                    return Mono.empty();
                 });
     }
 }

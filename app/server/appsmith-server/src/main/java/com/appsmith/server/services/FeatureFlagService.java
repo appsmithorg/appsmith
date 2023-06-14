@@ -10,5 +10,5 @@ import java.util.Map;
 public interface FeatureFlagService extends FeatureFlagServiceCE {
     Mono<Void> refreshFeatureFlagsForAllUsers();
 
-    Mono<Map<String, Object>> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits);
+    Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits);
 }
