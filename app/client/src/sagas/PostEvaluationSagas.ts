@@ -23,7 +23,7 @@ import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
@@ -324,7 +324,7 @@ export function* dynamicTriggerErrorHandler(errors: any[]) {
     for (const error of errors) {
       const errorMessage =
         error.errorMessage.message.message || error.errorMessage.message;
-      logActionExecutionError(errorMessage, true);
+      yield call(logActionExecutionError, errorMessage, true);
     }
   }
 }

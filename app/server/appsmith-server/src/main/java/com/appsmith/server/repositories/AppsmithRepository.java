@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -30,6 +29,4 @@ public interface AppsmithRepository<T> {
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
     Mono<T> setUserPermissionsInObject(T obj);
-
-    Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username);
 }

@@ -101,7 +101,7 @@ public class ActionCollectionDTO {
     List<ActionDTO> archivedActions = List.of();
 
     // JS collection fields
-    // This is the raw body that contains the entire JS object definition as the user has written it
+    // This is the raw body that contains the entire JS Object definition as the user has written it
     @JsonView(Views.Public.class)
     String body;
 
