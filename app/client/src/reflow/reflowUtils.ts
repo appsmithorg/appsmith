@@ -237,6 +237,11 @@ export function getDelta(
   const tempId = Object.keys(OGSpacePositionsMap)[0];
   const OGSpacePosition = OGSpacePositionsMap[tempId];
   const newSpacePosition = newSpacePositionsMap[tempId];
+
+  if (!OGSpacePosition || !newSpacePosition) {
+    return { X: 0, Y: 0 };
+  }
+
   let X = OGSpacePosition.left - newSpacePosition.left,
     Y = OGSpacePosition.top - newSpacePosition.top;
 

@@ -108,7 +108,7 @@ class SwitchGroupWidget extends BaseWidget<
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: false,
+            fullWidth: true,
             hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
@@ -342,6 +342,7 @@ class SwitchGroupWidget extends BaseWidget<
             helpText: "Sets the alignment of the widget",
             label: "Alignment",
             controlType: "ICON_TABS",
+            defaultValue: Alignment.LEFT,
             fullWidth: true,
             isBindProperty: true,
             isTriggerProperty: false,

@@ -1,6 +1,5 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
-const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 beforeEach(() => {
@@ -35,6 +34,9 @@ describe(
         .scrollIntoView()
         .wait(500)
         .click();
+      _.agHelper.WaitUntilEleDisappear(
+        "//*[text()='Loading template details']",
+      );
       cy.wait(1000);
       _.agHelper.CheckForErrorToast(
         "Internal server error while processing request",
@@ -91,6 +93,43 @@ describe(
       cy.get(_.templates.locators._forkApp).first().click();
 
       cy.get(template.templateViewForkButton).should("be.visible");
+      cy.get(_.templates.locators._closeTemplateDialogBoxBtn).click();
+    });
+
+    it("4. Add page from template to show only apps with 'allowPageImport:true'", () => {
+      cy.reload();
+      cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
+        cy.intercept(
+          {
+            method: "GET",
+            url: "/api/v1/app-templates",
+          },
+          {
+            statusCode: 200,
+            body: data,
+          },
+        ).as("fetchAllTemplates");
+
+        _.entityExplorer.AddNewPage("Add page from template");
+
+        cy.get(template.templateDialogBox).should("be.visible");
+        cy.wait("@fetchAllTemplates").should(({ request, response }) => {
+          // in the fixture data we are sending some tempaltes with `allowPageImport: false`
+          cy.get(template.templateCard).should(
+            "not.have.length",
+            response.body.data.length,
+          );
+
+          const templatesInResponse = response.body.data.filter(
+            (card) => !!card.allowPageImport,
+          );
+          cy.get(template.templateCard).should(
+            "have.length",
+            templatesInResponse.length,
+          );
+          cy.get(_.templates.locators._closeTemplateDialogBoxBtn).click();
+        });
+      });
     });
   },
 );

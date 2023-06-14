@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -29,7 +29,11 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { saveAllowed } from "@appsmith/utils/adminSettingsHelpers";
+import {
+  isTenantConfig,
+  saveAllowed,
+  tenantConfigConnection,
+} from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
@@ -45,6 +49,7 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
+import { updateTenantConfig } from "@appsmith/actions/tenantActions";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -65,6 +70,10 @@ function getSettingsConfig(category: string, subCategory?: string) {
   return AdminConfig.get(subCategory ?? category);
 }
 
+function getKeyByValue(object: any, value: string) {
+  return Object.keys(object).find((key) => object[key] === value);
+}
+
 export function SettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
 ) {
@@ -83,13 +92,57 @@ export function SettingsForm(
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
 
+  const updatedTenantSettings = useMemo(
+    () => Object.keys(props.settings).filter((s) => isTenantConfig(s)),
+    [props.settings],
+  );
+
+  const saveChangedSettings = () => {
+    const settingsKeyLength = Object.keys(props.settings).length;
+    const isOnlyEnvSettings =
+      updatedTenantSettings.length === 0 && settingsKeyLength !== 0;
+    const isEnvAndTenantSettings =
+      updatedTenantSettings.length !== 0 &&
+      updatedTenantSettings.length !== settingsKeyLength;
+    if (isOnlyEnvSettings) {
+      // only env settings
+      dispatch(saveSettings(props.settings));
+    } else {
+      // only tenant settings
+      const config: any = {};
+      for (const each in props.settings) {
+        const key = getKeyByValue(tenantConfigConnection, each) || "";
+        if (key) {
+          config[key] = props.settings[each];
+        }
+      }
+      dispatch(
+        updateTenantConfig({
+          tenantConfiguration: config,
+          isOnlyTenantSettings: !isEnvAndTenantSettings,
+        }),
+      );
+      // both env and tenant settings
+      if (isEnvAndTenantSettings) {
+        const filteredSettings = Object.keys(props.settings)
+          .filter((key) => !isTenantConfig(key))
+          .reduce((obj, key) => {
+            return Object.assign(obj, {
+              [key]: props.settings[key],
+            });
+          }, {});
+        dispatch(saveSettings(filteredSettings));
+      }
+    }
+  };
+
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
-        dispatch(saveSettings(props.settings));
+        saveChangedSettings();
       } else {
         saveBlocked();
       }
@@ -228,6 +281,7 @@ export function SettingsForm(
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}
+            updatedTenantSettings={updatedTenantSettings}
             valid={props.valid}
           />
         )}

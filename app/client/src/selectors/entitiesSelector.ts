@@ -12,6 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -41,6 +42,7 @@ import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLib
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -59,20 +61,35 @@ export const getDatasourcesStructure = (
   return state.entities.datasources.structure;
 };
 
-export const getDatasourceStructureById =
-  (id: string) =>
-  (state: AppState): DatasourceStructure => {
-    return state.entities.datasources.structure[id];
-  };
+export const getDatasourceStructureById = (
+  state: AppState,
+  id: string,
+): DatasourceStructure => {
+  return state.entities.datasources.structure[id];
+};
 
 export const getDatasourceTableColumns =
   (datasourceId: string, tableName: string) => (state: AppState) => {
-    const structure = getDatasourceStructureById(datasourceId)(state);
+    const structure = getDatasourceStructureById(state, datasourceId);
 
     if (structure) {
       const table = structure.tables?.find((d) => d.name === tableName);
 
       return table?.columns;
+    }
+  };
+export const getDatasourceTablePrimaryColumn =
+  (datasourceId: string, tableName: string) => (state: AppState) => {
+    const structure = getDatasourceStructureById(state, datasourceId);
+
+    if (structure) {
+      const table = structure.tables?.find((d) => d.name === tableName);
+
+      if (table) {
+        const primaryKey = table.keys?.find((d) => d.type === "primary key");
+
+        return primaryKey?.columnNames?.[0];
+      }
     }
   };
 
@@ -152,6 +169,21 @@ export const getPluginPackageFromDatasourceId = (
 
   if (!plugin) return undefined;
   return plugin.packageName;
+};
+
+export const getPluginIdFromDatasourceId = (
+  state: AppState,
+  datasourceId: string,
+): string | undefined => {
+  const datasource = state.entities.datasources.list.find(
+    (datasource) => datasource.id === datasourceId,
+  );
+
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === datasource?.pluginId,
+  );
+
+  return plugin?.id;
 };
 
 export const getPluginNameFromId = (
@@ -1056,4 +1088,28 @@ export const getDatasourceScopeValue = (
     (option: any) => option.value === scopeValue,
   )?.label;
   return label;
+};
+
+export const getDatasourcesUsedInApplicationByActions = (
+  state: AppState,
+): Datasource[] => {
+  const actions = getActions(state);
+  const datasources = getDatasources(state);
+  const datasourceIdsUsedInCurrentApplication = actions.reduce(
+    (acc, action: ActionData) => {
+      if (
+        isStoredDatasource(action.config.datasource) &&
+        action.config.datasource.id
+      ) {
+        acc.add(action.config.datasource.id);
+      }
+      return acc;
+    },
+    new Set(),
+  );
+  return datasources.filter(
+    (ds) =>
+      datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+      ds.id !== TEMP_DATASOURCE_ID,
+  );
 };

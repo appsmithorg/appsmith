@@ -36,8 +36,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
-import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
 import { getAutoLayoutCanvasMetaWidth } from "selectors/autoLayoutSelectors";
 import type { StyledComponent } from "styled-components";
 
@@ -83,7 +81,7 @@ export type AutoLayoutResizableProps = {
   showResizeBoundary: boolean;
 };
 export function ReflowResizable(props: AutoLayoutResizableProps) {
-  // Auto Layouts resizable is dependent on the app state of the widget so on delete it crashes the app
+  // auto-layouts resizable is dependent on the app state of the widget so on delete it crashes the app
   // so adding this check to render auto layout resize only when the widget does have an app state.
   const widget = useSelector((state: AppState) =>
     getWidget(state, props.widgetId),
@@ -145,16 +143,6 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       props.parentId || MAIN_CONTAINER_WIDGET_ID,
     ),
   );
-  const {
-    maxHeight,
-    maxWidth,
-    minHeight,
-    minWidth,
-  }: { [key in keyof MinMaxSize]: number | undefined } =
-    getWidgetMinMaxDimensionsInPixel(
-      { type: props.zWidgetType },
-      parentWidth || 1,
-    );
   const dimensionMap = useSelector(getDimensionMap);
   const {
     bottomRow: bottomRowMap,
@@ -529,7 +517,6 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       props.showResizeBoundary ? "show-boundary" : ""
     } ${pointerEvents ? "" : "pointer-event-none"}`;
   }, [props.className, pointerEvents, props.showResizeBoundary]);
-  const computedWidth = parentWidth * 0.01 * props.componentWidth;
 
   return (
     <ResizeWrapper
@@ -539,27 +526,14 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       style={{
         ...resizeWrapperStyle,
         ...{
-          minWidth,
-          maxWidth,
-          minHeight,
-          maxHeight,
-          width: props.hasAutoWidth
-            ? "100%"
-            : isResizing
-            ? `calc(${
-                computedWidth < (minWidth || 0) ? minWidth : computedWidth
-              }px + ${newDimensions.width}px)`
-            : `${computedWidth < (minWidth || 0) ? minWidth : computedWidth}px`,
-          height: props.hasAutoHeight
-            ? "100%"
-            : `${
-                (isResizing ? newDimensions.height : props.componentHeight) <
-                (minHeight || 0)
-                  ? minHeight
-                  : isResizing
-                  ? newDimensions.height
-                  : props.componentHeight
-              }px`,
+          width:
+            props.hasAutoWidth || !isResizing
+              ? "100%"
+              : isResizing && `calc(100% + ${newDimensions.width}px)`,
+          height:
+            props.hasAutoHeight || !isResizing
+              ? "100%"
+              : `${newDimensions.height}px`,
         },
       }}
     >

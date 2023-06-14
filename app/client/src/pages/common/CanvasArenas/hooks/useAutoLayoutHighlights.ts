@@ -10,7 +10,7 @@ import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];

@@ -10,11 +10,10 @@
     "test:unit": "yarn g:jest"
   },
   "dependencies": {
-    "@capsizecss/core": "^3.1.0",
-    "@capsizecss/metrics": "^1.0.1",
     "@design-system/headless": "workspace:^",
     "@design-system/theming": "workspace:^",
     "@react-aria/utils": "^3.16.0",
+    "@react-aria/visually-hidden": "^3.8.0",
     "colorjs.io": "^0.4.3"
   },
   "devDependencies": {

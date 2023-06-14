@@ -193,14 +193,14 @@ export function FlexComponent(props: AutoLayoutProps) {
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
       height: isCurrentWidgetResizing
-        ? `${props.componentHeight}px`
+        ? `auto`
         : getWidgetCssHeight(
             props.hasAutoHeight,
             props.responsiveBehavior,
             props.componentHeight,
           ),
       width: isCurrentWidgetResizing
-        ? `${props.componentWidth}%`
+        ? `auto`
         : getWidgetCssWidth(
             props.hasAutoWidth,
             props.responsiveBehavior,
@@ -212,6 +212,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.componentWidth,
     props.componentHeight,
     props.flexVerticalAlignment,
+    isCurrentWidgetResizing,
     zIndex,
     isResizing,
     isPreviewMode,

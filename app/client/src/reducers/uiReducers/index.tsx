@@ -47,9 +47,9 @@ import libraryReducer from "./libraryReducer";
 import appSettingsPaneReducer from "./appSettingsPaneReducer";
 import autoHeightUIReducer from "./autoHeightReducer";
 import analyticsReducer from "./analyticsReducer";
-import multiPaneReducer from "./multiPaneReducer";
 import layoutConversionReducer from "./layoutConversionReducer";
 import autoLayoutCanvasWidthReducer from "./autoLayoutCanvasWidthReducer";
+import oneClickBindingReducer from "./oneClickBindingReducer";
 
 const uiReducer = combineReducers({
   analytics: analyticsReducer,
@@ -100,9 +100,9 @@ const uiReducer = combineReducers({
   libraries: libraryReducer,
   autoHeightUI: autoHeightUIReducer,
   autoLayoutCanvasMetaWidth: autoLayoutCanvasWidthReducer,
-  multiPaneConfig: multiPaneReducer,
   layoutConversion: layoutConversionReducer,
   actionSelector: actionSelectorReducer,
+  oneClickBinding: oneClickBindingReducer,
 });
 
 export default uiReducer;

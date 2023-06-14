@@ -575,8 +575,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
-  cy.server();
-  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -726,8 +725,8 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
-  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS object");
-  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
+  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
+  cy.get("span:contains('New JS Object')").eq(0).click({ force: true });
 });
 
 Cypress.Commands.add("importCurl", () => {
@@ -853,10 +852,10 @@ Cypress.Commands.add("closePropertyPane", () => {
 
 Cypress.Commands.add(
   "onClickActions",
-  (forSuccess, forFailure, actionType, actionValue) => {
+  (forSuccess, forFailure, actionType, actionValue, idx = 0) => {
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-    cy.get(propPane._actionCallbacks).click();
+    cy.get(propPane._actionCallbacks).last().click();
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
@@ -1292,17 +1291,17 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.email).should("be.visible");
   cy.get(welcomePage.password).should("be.visible");
   cy.get(welcomePage.verifyPassword).should("be.visible");
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
 
   cy.get(welcomePage.firstName).type(Cypress.env("USERNAME"));
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.email).type(Cypress.env("USERNAME"));
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.password).type(Cypress.env("PASSWORD"));
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.verifyPassword).type(Cypress.env("PASSWORD"));
-  cy.get(welcomePage.submitButton).should("not.be.disabled");
-  cy.get(welcomePage.submitButton).click();
+  cy.get(welcomePage.continueButton).should("not.be.disabled");
+  cy.get(welcomePage.continueButton).click();
 
   cy.get(welcomePage.roleDropdown).click();
   cy.get(welcomePage.roleDropdownOption).eq(1).click();
@@ -1312,14 +1311,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.submitButton).should("not.be.disabled");
   cy.get(welcomePage.submitButton).click();
   //in case of airgapped both anonymous data and newsletter are disabled
-  if (!Cypress.env("AIRGAPPED")) {
-    cy.wait("@createSuperUser").then((interception) => {
-      expect(interception.request.body).contains(
-        "allowCollectingAnonymousData=true",
-      );
-      expect(interception.request.body).contains("signupForNewsletter=true");
-    });
-  } else {
+  if (Cypress.env("AIRGAPPED")) {
     cy.wait("@createSuperUser").then((interception) => {
       expect(interception.request.body).to.not.contain(
         "allowCollectingAnonymousData=true",
@@ -1327,6 +1319,13 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).to.not.contain(
         "signupForNewsletter=true",
       );
+    });
+  } else {
+    cy.wait("@createSuperUser").then((interception) => {
+      expect(interception.request.body).contains(
+        "allowCollectingAnonymousData=true",
+      );
+      expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
 

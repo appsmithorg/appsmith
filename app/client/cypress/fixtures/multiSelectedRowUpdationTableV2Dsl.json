@@ -96,7 +96,7 @@
         "data": "data"
       },
       "isVisibleDownload": true,
-      "dynamicPropertyPathList": [],
+      "dynamicPropertyPathList": [{"key": "tableData"}],
       "displayName": "Table",
       "iconSVG": "/static/media/icon.75823c5c.svg",
       "topRow": 19,

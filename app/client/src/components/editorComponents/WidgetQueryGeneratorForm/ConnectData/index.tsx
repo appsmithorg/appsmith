@@ -4,16 +4,19 @@ import { StyledButton } from "../styles";
 import { useConnectData } from "./useConnectData";
 
 export function ConnectData() {
-  const { disabled, onClick, show } = useConnectData();
+  const { disabled, isLoading, onClick, show } = useConnectData();
 
   if (show) {
     return (
       <StyledButton
-        disabled={disabled}
+        data-testId="t--one-click-binding-connect-data"
+        isDisabled={disabled}
+        isLoading={isLoading}
         onClick={onClick}
-        tag="button"
-        text="Connect data"
-      />
+        size="md"
+      >
+        Connect data
+      </StyledButton>
     );
   } else {
     return null;

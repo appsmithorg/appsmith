@@ -11,7 +11,7 @@ describe("Undo/Redo functionality", function () {
   let postgresDatasourceName;
 
   it("1. Checks undo/redo in datasource forms", () => {
-    cy.NavigateToDatasourceEditor();
+    _.dataSources.NavigateToDSCreateNew();
     cy.get(datasource.PostgreSQL).click({ force: true });
     cy.generateUUID().then((uid) => {
       postgresDatasourceName = uid;
