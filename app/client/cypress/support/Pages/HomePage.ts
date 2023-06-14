@@ -518,7 +518,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
-    this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    this.agHelper.AssertContains("Deleting application...");
   }
 
   //Maps to leaveworkspace in command.js

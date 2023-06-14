@@ -1,5 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../fixtures/tableWidgetCondnFormatDsl.json");
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget condtional formatting to remain consistent", function () {
   before(() => {
@@ -7,8 +8,7 @@ describe("Table Widget condtional formatting to remain consistent", function () 
   });
 
   it("check the cell styles before and after sorting", function () {
-    cy.openPropertyPane("tablewidget");
-
+    entityExplorer.SelectEntityByName("Table1");
     //Check Font weight, font style, and text color before sorting
     cy.readTabledataValidateCSS("0", "1", "font-weight", "700");
     cy.readTabledataValidateCSS("0", "1", "font-style", "normal");

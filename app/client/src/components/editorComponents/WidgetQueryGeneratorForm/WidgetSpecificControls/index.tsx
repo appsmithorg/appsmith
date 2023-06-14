@@ -1,6 +1,5 @@
 import React from "react";
 import ColumnDropdown from "./ColumnDropdown";
-import { Section } from "../styles";
 import { noop } from "lodash";
 
 type Props = {
@@ -30,9 +29,9 @@ export default function WidgetSpecificControls(props: Props) {
   }
 
   return (
-    <Section>
+    <>
       {searchableColumn}
       {aliasPicker}
-    </Section>
+    </>
   );
 }
