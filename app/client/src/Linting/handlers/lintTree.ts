@@ -4,18 +4,18 @@ import { getLintErrorsFromTree } from "Linting/utils/lintTree";
 export function lintTree(data: any): LintTreeResponse {
   const lintTreeResponse: LintTreeResponse = {
     errors: {},
-    updatedJSEntities: [],
+    lintedJSPaths: [],
     jsPropertiesState: {},
   };
   try {
     const { cloudHosting, configTree, unevalTree: unEvalTree } = data;
-    const { errors: lintErrors, updatedJSEntities } = getLintErrorsFromTree({
+    const { errors: lintErrors, lintedJSPaths } = getLintErrorsFromTree({
       unEvalTree,
       cloudHosting,
       configTree,
     } as any);
     lintTreeResponse.errors = lintErrors;
-    lintTreeResponse.updatedJSEntities = updatedJSEntities;
+    lintTreeResponse.lintedJSPaths = lintedJSPaths;
   } catch (e) {}
   return lintTreeResponse;
 }

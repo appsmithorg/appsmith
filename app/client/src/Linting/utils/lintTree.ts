@@ -22,7 +22,7 @@ export function getLintErrorsFromTree({
   unEvalTree,
 }: getLintErrorsFromTreeProps): getLintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
-  const updatedJSEntities = new Set<string>();
+  const lintedJSPaths = new Set<string>();
   globalData.initialize(unEvalTree, cloudHosting);
   const { bindingPaths, jsObjectPaths, triggerPaths } = sortLintingPathsByType(
     pathsToLint,
@@ -72,16 +72,17 @@ export function getLintErrorsFromTree({
         getEntityNameAndPropertyPath(jsObjectPath);
       const jsObjectState = get(jsPropertiesState, jsObjectName);
       const jsObjectBodyPath = `["${jsObjectName}.body"]`;
-      updatedJSEntities.add(jsObjectName);
       // An empty state shows that there is a parse error in the jsObject or the object is empty, so we lint the entire body
       // instead of an individual properties
       if (isEmpty(jsObjectState)) {
+        lintedJSPaths.add(jsObjectBodyPath);
         const jsObjectBodyLintErrors = lintJSObjectBody(
           jsObjectName,
           globalData.getGlobalData(true),
         );
         set(lintTreeErrors, jsObjectBodyPath, jsObjectBodyLintErrors);
       } else if (jsPropertyName !== "body") {
+        lintedJSPaths.add(jsObjectPath);
         const propertyLintErrors = lintJSObjectProperty(
           jsObjectPath,
           jsObjectState,
@@ -103,6 +104,6 @@ export function getLintErrorsFromTree({
 
   return {
     errors: lintTreeErrors,
-    updatedJSEntities: Array.from(updatedJSEntities),
+    lintedJSPaths: Array.from(lintedJSPaths),
   };
 }

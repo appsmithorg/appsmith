@@ -32,6 +32,8 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: true,
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: true,
   [ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL]: true,
+  [ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS]: true,
+  [ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS]: true,
 };
 
 export const LOG_REDUX_ACTIONS = {

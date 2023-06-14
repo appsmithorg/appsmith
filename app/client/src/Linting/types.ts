@@ -18,7 +18,7 @@ export enum LINT_WORKER_ACTIONS {
 }
 export interface LintTreeResponse {
   errors: LintErrorsStore;
-  updatedJSEntities: string[];
+  lintedJSPaths: string[];
   jsPropertiesState: TJSPropertiesState;
 }
 
@@ -70,7 +70,7 @@ export interface getLintErrorsFromTreeProps {
 
 export interface getLintErrorsFromTreeResponse {
   errors: LintErrorsStore;
-  updatedJSEntities: string[];
+  lintedJSPaths: string[];
 }
 
 export interface updateJSLibraryProps {

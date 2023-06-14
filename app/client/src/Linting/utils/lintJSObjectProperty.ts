@@ -77,6 +77,6 @@ function generateAsyncFunctionBoundToDataFieldCustomError(
     code: CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD,
     line: jsPropertyState.position.keyStartLine - 1,
     ch: jsPropertyState.position.keyStartColumn + 1,
-    originalPath: jsPropertyName,
+    originalPath: jsPropertyFullName,
   };
 }

@@ -54,11 +54,11 @@ export function lintTreeV2({
 
   const lintTreeResponse: LintTreeResponse = {
     errors: {},
-    updatedJSEntities: [],
+    lintedJSPaths: [],
     jsPropertiesState,
   };
   try {
-    const { errors: lintErrors, updatedJSEntities } = getLintErrorsFromTree({
+    const { errors: lintErrors, lintedJSPaths } = getLintErrorsFromTree({
       pathsToLint,
       unEvalTree: getUnevalEntityTree(cachedEntityTree),
       jsPropertiesState,
@@ -68,7 +68,7 @@ export function lintTreeV2({
     });
 
     lintTreeResponse.errors = lintErrors;
-    lintTreeResponse.updatedJSEntities = updatedJSEntities;
+    lintTreeResponse.lintedJSPaths = lintedJSPaths;
   } catch (e) {}
   return lintTreeResponse;
 }
