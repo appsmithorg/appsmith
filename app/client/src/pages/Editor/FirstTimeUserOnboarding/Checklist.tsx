@@ -12,8 +12,8 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCanvasWidgets,
-  getDatasources,
   getPageActions,
+  getSavedDatasources,
 } from "selectors/entitiesSelector";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
@@ -347,7 +347,7 @@ function CheckListItem(props: {
 
 export default function OnboardingChecklist() {
   const dispatch = useDispatch();
-  const datasources = useSelector(getDatasources);
+  const datasources = useSelector(getSavedDatasources);
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);

@@ -8,8 +8,8 @@ import {
 } from "selectors/editorSelectors";
 import {
   getCanvasWidgets,
-  getDatasources,
   getPageActions,
+  getSavedDatasources,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { SIGNPOSTING_STEP } from "./Utils";
@@ -54,7 +54,7 @@ export function StatusProgressbar(props: StatusProgressbarType) {
 }
 
 const useStatusListener = () => {
-  const datasources = useSelector(getDatasources);
+  const datasources = useSelector(getSavedDatasources);
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);

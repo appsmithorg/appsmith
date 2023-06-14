@@ -13,14 +13,14 @@ import {
   getApplicationLastDeployedAt,
 } from "selectors/editorSelectors";
 import {
-  getDatasources,
   getPageActions,
   getCanvasWidgets,
+  getSavedDatasources,
 } from "selectors/entitiesSelector";
 import { useIsWidgetActionConnectionPresent } from "../utils";
 
 function TooltipContent() {
-  const datasources = useSelector(getDatasources);
+  const datasources = useSelector(getSavedDatasources);
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
