@@ -8,11 +8,14 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.featureflags.FeatureFlagTrait;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
@@ -59,6 +62,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
     private final WorkspacePermission workspacePermission;
+    private final ConfigService configService;
+    private final FeatureFlagService featureFlagService;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -156,6 +161,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     if (authentication instanceof OAuth2AuthenticationToken) {
                         modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                     }
+                    /*
+                        Adding default traits to flagsmith for the logged-in user
+                     */
+                    monos.add(addDefaultUserTraits(user));
 
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
@@ -192,6 +201,27 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
+    }
+
+    private Mono<Map<String, Object>> addDefaultUserTraits(User user){
+        String identifier = user.getEmail();
+        List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
+        return configService.getInstanceId()
+                .flatMap(instanceId -> {
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", user.getEmail()));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
+                    return featureFlagService.remoteSetUserTraits(featureFlagTraits);
+                });
+    }
+
+    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue){
+        FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
+        //TODO: check hashing of email for self-hosted
+        featureFlagTrait.setIdentifier(identifier);
+        featureFlagTrait.setTraitKey(traitKey);
+        featureFlagTrait.setTraitValue(traitValue);
+        return featureFlagTrait;
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
