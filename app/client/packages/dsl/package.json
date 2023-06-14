@@ -15,8 +15,10 @@
         "directory": "build"
     },
     "scripts": {
+        "start": "rollup -c",
         "build": "rollup -c",
-        "lint": "yarn g:lint"
+        "lint": "yarn g:lint",
+        "postinstall": "yarn build"
     },
     "dependencies": {
         "@babel/runtime": "^7.21.0",
