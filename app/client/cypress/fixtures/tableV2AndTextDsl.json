@@ -28,13 +28,11 @@
           "status",
           "action",
           "customColumn1",
-          "customColumn2",
-          "docs"
+          "customColumn2"
         ],
         "aliasMap": {
           "step": "step",
           "task": "task",
-          "docs": "docs",
           "status": "status",
           "action": "action",
           "customColumn1": "customColumn1",
@@ -199,24 +197,6 @@
             "computedValue": "",
             "buttonStyle": "rgb(3, 179, 101)",
             "buttonLabelColor": "#FFFFFF"
-          },
-          "docs": {
-            "index": 6,
-            "width": 150,
-            "id": "docs",
-            "alias": "docs",
-            "originalId": "docs",
-            "horizontalAlignment": "LEFT",
-            "verticalAlignment": "CENTER",
-            "columnType": "url",
-            "textSize": "PARAGRAPH",
-            "enableFilter": true,
-            "enableSort": true,
-            "isVisible": true,
-            "isCellVisible": true,
-            "isDerived": false,
-            "label": "docs",
-            "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.task))}}"
           }
         },
         "delimiter": ",",
@@ -225,7 +205,7 @@
         "textSize": "PARAGRAPH",
         "widgetId": "ofs3jqui68",
         "isVisibleFilters": true,
-        "tableData": "[\n  {\n    \"step\": \"#1\",\n    \"task\": \"Drop a table\",\n    \"status\": \"✅\",\n  \"docs\": \"rp\",\n  \"action\": \"\"\n  },\n  {\n    \"step\": \"#2\",\n    \"task\": \"Create a query fetch_users with the Mock DB\",\n    \"status\": \"--\",\n \"docs\": \"ra\",\n   \"action\": \"\"\n  },\n  {\n    \"step\": \"#3\",\n    \"task\": \"Bind the query using => fetch_users.data\",\n    \"status\": \"--\",\n \"docs\": \"id\",\n    \"action\": \"\"\n  }\n]",
+        "tableData": "[\n  {\n    \"step\": \"#1\",\n    \"task\": \"Drop a table\",\n    \"status\": \"✅\",\n    \"action\": \"\"\n  },\n  {\n    \"step\": \"#2\",\n    \"task\": \"Create a query fetch_users with the Mock DB\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  },\n  {\n    \"step\": \"#3\",\n    \"task\": \"Bind the query using => fetch_users.data\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  }\n]",
         "isVisible": true,
         "label": "Data",
         "searchKey": "",
@@ -241,8 +221,7 @@
         "columnSizeMap": {
           "task": 245,
           "step": 62,
-          "status": 75,
-          "docs": 70
+          "status": 75
         }
       },
       {
