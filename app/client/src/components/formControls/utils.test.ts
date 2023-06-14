@@ -207,8 +207,12 @@ describe("getConfigInitialValues test", () => {
           },
         ],
         output: {
-          datasourceConfiguration: {
-            authentication: { databaseName: "ap-south-1" },
+          datasourceStorages: {
+            unused_env: {
+              datasourceConfiguration: {
+                authentication: { databaseName: "ap-south-1" },
+              },
+            },
           },
         },
       },
@@ -251,8 +255,12 @@ describe("getConfigInitialValues test", () => {
           },
         ],
         output: {
-          datasourceConfiguration: {
-            endpoints: [{ host: "jsonplaceholder.typicode.com" }],
+          datasourceStorages: {
+            unused_env: {
+              datasourceConfiguration: {
+                endpoints: [{ host: "jsonplaceholder.typicode.com" }],
+              },
+            },
           },
         },
       },
@@ -272,8 +280,12 @@ describe("getConfigInitialValues test", () => {
           },
         ],
         output: {
-          datasourceConfiguration: {
-            isSmart: false,
+          datasourceStorages: {
+            unused_env: {
+              datasourceConfiguration: {
+                isSmart: false,
+              },
+            },
           },
         },
       },
