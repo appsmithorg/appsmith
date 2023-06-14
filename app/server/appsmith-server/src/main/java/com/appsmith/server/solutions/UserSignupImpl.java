@@ -6,7 +6,6 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.UserSignupCEImpl;
@@ -25,10 +24,9 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
                           AnalyticsService analyticsService,
                           EnvManager envManager,
                           CommonConfig commonConfig,
-                          UserUtils userUtils,
-                          FeatureFlagService featureFlagService) {
+                          UserUtils userUtils) {
 
         super(userService, userDataService, captchaService, authenticationSuccessHandler, configService,
-                analyticsService, envManager, commonConfig, userUtils, featureFlagService);
+                analyticsService, envManager, commonConfig, userUtils);
     }
 }
