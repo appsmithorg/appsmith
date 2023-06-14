@@ -18,9 +18,7 @@ export function PageWrapper(props: PageWrapperProps) {
     <Wrapper isFixed={isFixed}>
       {showBanner && isHomePage && <PageBannerMessage />}
       <Helmet>
-        <title>{`${
-          props.displayName ? `${props.displayName} | ` : ""
-        }Appsmith`}</title>
+        <title>{`${props.displayName ? `${props.displayName}` : ""}`}</title>
       </Helmet>
       <PageBody isSavable={isSavable}>{props.children}</PageBody>
     </Wrapper>

@@ -25,3 +25,7 @@ export const addItemsInContextMenu = (
   }
   return updatedActionItems;
 };
+
+export const useHtmlPageTitle = () => {
+  return "Applications";
+};
