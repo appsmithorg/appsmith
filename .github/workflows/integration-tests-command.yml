@@ -27,6 +27,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
 
   client-build:
     name: client-build
