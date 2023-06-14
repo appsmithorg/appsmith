@@ -1,9 +1,10 @@
 {
   "noSubscriptionText": "[data-testid=t--no-active-subscription-text]",
-  "licenseCheckPageSubHeaderText": "[data-testid=t--choose-one-option-license-text]",
+  "licenseCheckPageSubHeaderText": "[data-testid=t--secondary-header-text]",
   "licenseCheckForm": "[data-testid=t--license-check-form-card]",
   "licenseFormInput": "[data-testid=t--license-input]",
   "activeInstanceBtn": "[data-testid=t--activate-instance-btn]",
+  "activeInstanceModalBtn": "[data-testid=t--activate-instance-submit-btn]",
   "getTrialLicenseCard": "[data-testid=t--get-trial-license-card-wrapper]",
   "getTrialLicenseLabel": "[data-testid=t--get-license-key-label]",
   "getTrialLicenseBtn": "[data-testid=t--customer-portal-cta]",
@@ -27,5 +28,7 @@
   "wrapperBanner": ".wrapper-banner",
   "signOutBtn": ".t--sign-out",
   "portalBtn": ".portal-btn",
-  "licenseModalHeader": "//h3[@kind=\"heading-m\"]"
+  "licenseModalHeader": "//h3[@kind=\"heading-m\"]",
+  "customerPortalCta":"[data-testid=t--customer-portal-cta]",
+  "customerPortalCTAText":".ads-v2-link__text"
 }

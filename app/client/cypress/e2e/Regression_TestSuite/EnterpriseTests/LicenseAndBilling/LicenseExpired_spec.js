@@ -20,9 +20,10 @@ describe("License expired", function () {
         "have.text",
         "No active subscription",
       );
+
       cy.get(LicenseLocators.licenseCheckPageSubHeaderText).should(
         "have.text",
-        "Kindly choose one of the following option to get started",
+        "We need a license key to start or verify a subscription.",
       );
 
       cy.get(LicenseLocators.licenseCheckForm).within(() => {
@@ -34,16 +35,13 @@ describe("License expired", function () {
         cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
       });
 
-      cy.get(LicenseLocators.getTrialLicenseCard).within(() => {
-        cy.get(LicenseLocators.getTrialLicenseLabel).should(
-          "have.text",
-          "If you do not have a license key, please visit our customer portal to start trial or buy a subscription",
-        );
-        cy.get(LicenseLocators.getTrialLicenseBtn).should(
+      cy.get(LicenseLocators.customerPortalCta).within(() => {
+        cy.get(LicenseLocators.customerPortalCTAText).should(
           "have.text",
           "Visit customer portal",
         );
       });
+
       cy.get(locators.appsmithHeader).should("be.visible");
       cy.get(locators.appsmithHeader).within(() => {
         cy.get(".t--profile-menu-icon").click();

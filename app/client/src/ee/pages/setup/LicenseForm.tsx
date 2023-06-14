@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { validateLicense } from "@appsmith/actions/tenantActions";
+import {
+  showLicenseModal,
+  validateLicense,
+} from "@appsmith/actions/tenantActions";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,6 +10,9 @@ import {
   ADD_KEY,
   ACTIVATE_INSTANCE,
   createMessage,
+  SUBMIT_BUTTON,
+  CANCEL,
+  LICENSE_FORM_DESCIPTION,
 } from "@appsmith/constants/messages";
 import {
   hasInvalidLicenseKeyError,
@@ -14,16 +20,23 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import { isEmptyString } from "utils/formhelpers";
 import { StyledForm, StyledInput, InputWrapper } from "./styles";
-import { Button, Text } from "design-system";
+import { Button, Text, toast } from "design-system";
+import { getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown } from "utils/storage";
 
 export type LicenseFormProps = {
   label?: string;
   placeholder?: string;
   actionBtnText?: string;
+  isModal?: boolean;
 };
 
 export const LicenseForm = (props: LicenseFormProps) => {
-  const { actionBtnText, label, placeholder } = props;
+  const urlParams = new URLSearchParams(window.location.search);
+  const myParam = urlParams.get("error");
+  if (myParam) {
+    toast.show(myParam, { kind: "error" });
+  }
+  const { actionBtnText, isModal, label, placeholder } = props;
   const dispatch = useDispatch();
   const isInvalid = useSelector(hasInvalidLicenseKeyError);
   const licenseValidating = useSelector(isLicenseValidating);
@@ -38,6 +51,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
 
   const isFieldTouched = getFieldState("licenseKey").isTouched;
   const [isFieldEmpty, setIsFieldEmpty] = useState(true);
+  const [isUserOnboarding, setUserOnboarding] = useState(false);
 
   useEffect(() => {
     const values = getValues();
@@ -54,6 +68,20 @@ export const LicenseForm = (props: LicenseFormProps) => {
     }
   }, [isInvalid, isFieldTouched, errors, licenseValidating]);
 
+  useEffect(() => {
+    const isOnboardingCompleted = async () => {
+      const isFirstTimeUserOnboarding =
+        await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
+      //false if the user is onboarding
+      //true if the user is not onboarding
+      //undefined if the user is using a different browser
+      if (isFirstTimeUserOnboarding === false) {
+        setUserOnboarding(true);
+      }
+    };
+    isOnboardingCompleted();
+  }, []);
+
   const checkLicenseStatus = (formValues: any) => {
     const { licenseKey } = formValues;
 
@@ -65,7 +93,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
     }
 
     if (licenseKey) {
-      dispatch(validateLicense(licenseKey));
+      dispatch(validateLicense(licenseKey, isUserOnboarding));
     }
   };
 
@@ -88,6 +116,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
         <StyledInput
           className={`license-input`}
           data-testid="t--license-input"
+          description={isModal ? createMessage(LICENSE_FORM_DESCIPTION) : ""}
           label={label}
           placeholder={placeholder ?? createMessage(ADD_KEY)}
           {...register("licenseKey")}
@@ -104,15 +133,38 @@ export const LicenseForm = (props: LicenseFormProps) => {
           </Text>
         )}
       </InputWrapper>
-      <Button
-        data-testid="t--activate-instance-btn"
-        isDisabled={isFieldEmpty}
-        isLoading={licenseValidating}
-        size="md"
-        type="submit"
-      >
-        {actionBtnText ?? createMessage(ACTIVATE_INSTANCE)}
-      </Button>
+      {isModal ? (
+        <div className="flex justify-end gap-2">
+          <Button
+            data-testid="t--activate-instance-cancel-btn "
+            kind="secondary"
+            onClick={() => dispatch(showLicenseModal(false))}
+            size="md"
+            type="button"
+          >
+            {createMessage(CANCEL)}
+          </Button>
+          <Button
+            data-testid="t--activate-instance-submit-btn"
+            isDisabled={isFieldEmpty}
+            isLoading={licenseValidating}
+            size="md"
+            type="submit"
+          >
+            {createMessage(SUBMIT_BUTTON)}
+          </Button>
+        </div>
+      ) : (
+        <Button
+          data-testid="t--activate-instance-btn"
+          isDisabled={isFieldEmpty}
+          isLoading={licenseValidating}
+          size="md"
+          type="submit"
+        >
+          {actionBtnText ?? createMessage(ACTIVATE_INSTANCE)}
+        </Button>
+      )}
     </StyledForm>
   );
 };

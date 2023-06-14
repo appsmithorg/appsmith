@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Input, Text } from "design-system";
+import { Input, Link, Text } from "design-system";
 
 export const StyledPageWrapper = styled.div`
   display: flex;
@@ -13,10 +13,10 @@ export const StyledPageWrapper = styled.div`
 
 export const StyledCardWrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 50px;
+  gap: 10px;
   flex-wrap: wrap;
 `;
 
@@ -66,8 +66,7 @@ export const IconBadge = styled.div`
 `;
 
 export const StyledContent = styled(Text)`
-  width: 100%;
-  height: 60px;
+  width: 50%;
   text-align: center;
   .license-input {
     width: 100%;
@@ -90,3 +89,12 @@ export const InputWrapper = styled.div`
 `;
 
 export const StyledInput = styled(Input)``;
+
+export const StyledLink = styled(Link)`
+  width: 50%;
+`;
+
+export const StyledLinkWrapper = styled.div`
+  width: 100%;
+  display: flex;
+`;
