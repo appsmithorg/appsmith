@@ -387,7 +387,8 @@ class CodeMirrorTernService {
           selectedResultIndex <= AutocompleteSorter.bestMatchEndIndex,
       });
 
-      if (selected.type === AutocompleteDataType.FUNCTION) {
+      const hasParenthesis = selected.text.endsWith("()");
+      if (selected.type === AutocompleteDataType.FUNCTION && hasParenthesis) {
         cm.setCursor({
           line: cm.getCursor().line,
           ch: cm.getCursor().ch - 1,
