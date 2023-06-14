@@ -3,6 +3,7 @@ import {
   entityExplorer,
   entityItems,
   dataSources,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 let dsName: any;
 
@@ -14,12 +15,9 @@ describe(
       dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
         dataSources.CreateQueryFromActiveTab(mockDBName, false);
+        assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        agHelper.EnterValue("movies", {
-          propFieldName: "",
-          directInput: false,
-          inputFieldName: "Collection",
-        });
+        dataSources.ValidateNSelectDropdown("Collection", "", "movies");
         dataSources.RunQueryNVerifyResponseViews(10, false);
         dataSources.NavigateToActiveTab();
         agHelper
@@ -30,11 +28,7 @@ describe(
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        agHelper.EnterValue("movies", {
-          propFieldName: "",
-          directInput: false,
-          inputFieldName: "Collection",
-        });
+        dataSources.ValidateNSelectDropdown("Collection", "", "movies");
         dataSources.RunQueryNVerifyResponseViews(10, false);
         dataSources.NavigateToActiveTab();
         agHelper

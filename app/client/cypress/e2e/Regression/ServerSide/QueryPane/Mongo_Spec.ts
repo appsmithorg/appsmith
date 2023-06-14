@@ -9,6 +9,7 @@ import {
   dataSources,
   table,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 let dsName: any;
 
@@ -277,16 +278,18 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.NavigateFromActiveDS(dsName, true);
 
+    assertHelper.AssertNetworkStatus("@trigger");
+
     dataSources.ValidateNSelectDropdown(
       "Commands",
       "Find document(s)",
       "Insert document(s)",
     );
 
-    agHelper.EnterValue("AuthorNAwards", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    dataSources.EnterJSContext({
+      fieldProperty: dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "AuthorNAwards",
     });
 
     agHelper.EnterValue(authorNAwardsArray, {
@@ -764,6 +767,8 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.NavigateFromActiveDS(dsName, true);
 
+    assertHelper.AssertNetworkStatus("@trigger");
+
     dataSources.ValidateNSelectDropdown(
       "Commands",
       "Find document(s)",
@@ -771,10 +776,10 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     agHelper.RenameWithInPane("InsertBirthNDeath");
-    agHelper.EnterValue("BirthNDeath", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    dataSources.EnterJSContext({
+      fieldProperty: dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "BirthNDeath",
     });
 
     agHelper.EnterValue(birthNDeathArray, {

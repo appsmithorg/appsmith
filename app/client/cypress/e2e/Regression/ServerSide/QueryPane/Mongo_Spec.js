@@ -75,15 +75,16 @@ describe("Validate Mongo query commands", function () {
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
 
+    agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
     );
 
-    agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    dataSources.EnterJSContext({
+      fieldProperty: dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "listingAndReviews",
     });
     dataSources.RunQuery();
     dataSources.CheckResponseRecordsCount(10);
@@ -144,15 +145,16 @@ describe("Validate Mongo query commands", function () {
 
   it("3. Validate Count command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
       "Count",
     );
-    agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    dataSources.EnterJSContext({
+      fieldProperty: dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "listingAndReviews",
     });
     dataSources.RunQuery();
     agHelper.EnterValue("{guests_included : {$gte: 2}}", {
@@ -172,15 +174,16 @@ describe("Validate Mongo query commands", function () {
 
   it("4. Validate Distinct command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
       "Distinct",
     );
-    agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    dataSources.EnterJSContext({
+      fieldProperty: dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "listingAndReviews",
     });
     agHelper.EnterValue("{price : {$gte: 100}}", {
       propFieldName: "",
@@ -204,15 +207,16 @@ describe("Validate Mongo query commands", function () {
 
   it("5. Validate Aggregate command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    agHelper.ValidateNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
       "Aggregate",
     );
-    agHelper.EnterValue("listingAndReviews", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    dataSources.EnterJSContext({
+      fieldProperty: dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "listingAndReviews",
     });
     agHelper.EnterValue(`[{ $project: { count: { $size:"$amenities" }}}]`, {
       propFieldName: "",
@@ -293,15 +297,19 @@ describe("Validate Mongo query commands", function () {
     let id;
     entityExplorer.ExpandCollapseEntity("Datasources");
     entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
-    // div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']",
+    cy.get("[data-testid='t--entity-item-listingAndReviews']")
+      .find(".t--template-menu-trigger")
+      .click({ force: true });
 
     entityExplorer.ActionTemplateMenuByEntityName("listingAndReviews", "Find");
 
-    cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
-      let localcolData = colData.replace("{", "").replace("}", "");
-      cy.log("Collection value is fieldData: " + localcolData);
-      cy.wrap(localcolData).as("colData");
-    });
+    cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
+      .then(($field) => {
+        return cy.wrap($field).invoke("text");
+      })
+      .then((val) => {
+        cy.wrap(val).as("colData");
+      });
     cy.EvaluatFieldValue(formControls.mongoFindQuery).then((queryData) => {
       let localqueryData = queryData.replace("{", "").replace("}", "");
       id = localqueryData;
@@ -388,6 +396,8 @@ describe("Validate Mongo query commands", function () {
       cy.NavigateToActiveDSQueryPane(dbName);
     });
 
+    agHelper.ValidateNetworkStatus("@trigger");
+
     dataSources.SetQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
@@ -399,10 +409,10 @@ describe("Validate Mongo query commands", function () {
     {"_id":2, "Från" :"Joann" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
-    agHelper.EnterValue("NonAsciiTest", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Collection",
+    dataSources.EnterJSContext({
+      fieldProperty: dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "NonAsciiTest",
     });
 
     agHelper.EnterValue(nonAsciiDoc, {
