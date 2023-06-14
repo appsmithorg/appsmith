@@ -83,9 +83,6 @@ export class ActionEntity
   getConfig() {
     return this.config;
   }
-  getEntityForDifferences() {
-    return this.entity;
-  }
 }
 
 export class WidgetEntity
@@ -111,9 +108,6 @@ export class WidgetEntity
   }
   getConfig() {
     return this.config;
-  }
-  getEntityForDifferences() {
-    return this.entity;
   }
 }
 
@@ -158,11 +152,13 @@ export class JSEntity
   getParsedEntityConfig() {
     return this.parsedEntityConfig;
   }
-  getEntityForDifferences() {
+  getEntityForDiff() {
     const val: Record<string, string> = {};
     for (const [propertyName, value] of Object.entries(this.parsedEntity)) {
-      val[propertyName] =
-        value + JSON.stringify(this.parsedEntityConfig[propertyName] || {});
+      val[propertyName] = getHashedConfigString(
+        value,
+        this.parsedEntityConfig[propertyName],
+      );
     }
     return val;
   }
@@ -189,9 +185,6 @@ export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
   getId() {
     return "pageList";
   }
-  getEntityForDifferences() {
-    return this.entity;
-  }
 }
 
 export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
@@ -214,9 +207,6 @@ export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
   }
   getId(): string {
     return "appsmith";
-  }
-  getEntityForDifferences() {
-    return this.entity;
   }
 }
 
@@ -247,4 +237,17 @@ export function isDynamicEntity(
     ENTITY_TYPE.WIDGET,
     ENTITY_TYPE.ACTION,
   ].includes(entity.getType());
+}
+
+function getHashedConfigString(
+  propertyValue: string,
+  config?: TParsedJSProperty,
+) {
+  if (!config) return propertyValue;
+  const {
+    position: { endColumn, endLine, startColumn, startLine },
+    value,
+  } = config;
+
+  return value + `${startColumn}${endColumn}${startLine}${endLine}`;
 }

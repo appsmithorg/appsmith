@@ -27,6 +27,7 @@ import {
 } from "Linting/utils/parseJSEntity";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import { isDynamicLeaf } from "Linting/utils/entityPath";
+import { isJSEntity } from "Linting/lib/entity";
 
 let cachedEntityTree: TEntityTree = {};
 
@@ -125,13 +126,12 @@ function lintUpdatedTree(
   );
 
   const pathsToLint: string[] = [];
-  const cachedUnevalEntityTree = getUnevalEntityTree(cachedEntityTree);
 
   const NOOP = {
     pathsToLint: [],
     entityTree,
   };
-  const entityTreeDiff = diff(cachedUnevalEntityTree, unevalEntityTree);
+  const entityTreeDiff = getEntityTreeDifferences(cachedEntityTree, entityTree);
 
   if (!entityTreeDiff) return NOOP;
   const { additions, deletions, edits } = sortDifferencesByType(entityTreeDiff);
@@ -225,10 +225,10 @@ export function getEntityTreeDifferences(
   entityTree: TEntityTree,
 ) {
   const oldEntityTreeForDiff = mapValues(oldEntityTree, (entity) =>
-    entity.getEntityForDifferences(),
+    isJSEntity(entity) ? entity.getEntityForDiff() : entity.getRawEntity(),
   );
   const newEntityTreeForDiff = mapValues(entityTree, (entity) =>
-    entity.getEntityForDifferences(),
+    isJSEntity(entity) ? entity.getEntityForDiff() : entity.getRawEntity(),
   );
 
   return diff(oldEntityTreeForDiff, newEntityTreeForDiff);
