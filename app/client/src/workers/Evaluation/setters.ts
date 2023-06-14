@@ -53,7 +53,11 @@ class Setters {
     if (validationPaths) {
       const validationConfig = validationPaths[propertyPath] || {};
       const config = { ...validationConfig };
-      config.params.strict = true;
+      if (config.params) {
+        config.params.strict = true;
+      } else {
+        config.params = { strict: true };
+      }
 
       const { isValid, messages } = validate(
         config,
