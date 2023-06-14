@@ -1088,13 +1088,13 @@ describe("Validates getFilteredTableData Properties", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
       processedTableData: [
-        { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
-        { id: 123, name: "John Doe", __originalIndex__: 1 },
-        { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
-        { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
+        { id: 1234, name: "W", __originalIndex__: 0 },
+        { id: 123, name: "X", __originalIndex__: 1 },
+        { id: 234, name: "Y", __originalIndex__: 2 },
+        { id: 2345, name: "Z", __originalIndex__: 3 },
       ],
-      sortOrder: { column: "name", order: "desc" },
-      columnOrder: ["name", "id", "age"],
+      sortOrder: { column: "name", order: "asc" },
+      columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
           index: 1,
@@ -1134,33 +1134,8 @@ describe("Validates getFilteredTableData Properties", () => {
           isDerived: false,
           label: "awesome",
           isAscOrder: undefined,
-          computedValue: ["Jim Doe", "John Doe", "Jane Doe", "Jane Doeson"],
-          displayText: [
-            "jimdoe.com",
-            "johndoe.com",
-            "janedoe.com",
-            "janedoeson.com",
-          ],
-        },
-        age: {
-          index: 2,
-          width: 150,
-          id: "age",
-          alias: "age",
-          originalId: "age",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "number",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          label: "age",
-          isAscOrder: undefined,
-          computedValue: [28, null, 22, 30],
-          isDerived: true,
+          computedValue: ["W", "X", "Y", "Z"],
+          displayText: ["D.COM", "C.COM", "B.COM", "A.COM"],
         },
       },
       tableColumns: [
@@ -1180,13 +1155,8 @@ describe("Validates getFilteredTableData Properties", () => {
           isDerived: false,
           label: "awesome",
           isAscOrder: undefined,
-          computedValue: ["Jim Doe", "John Doe", "Jane Doe", "Jane Doeson"],
-          displayText: [
-            "jimdoe.com",
-            "johndoe.com",
-            "janedoe.com",
-            "janedoeson.com",
-          ],
+          computedValue: ["W", "X", "Y", "Z"],
+          displayText: ["D.COM", "C.COM", "B.COM", "A.COM"],
         },
         {
           index: 1,
@@ -1206,24 +1176,6 @@ describe("Validates getFilteredTableData Properties", () => {
           isAscOrder: false,
           computedValue: [1234, 123, 234],
         },
-        {
-          index: 2,
-          width: 150,
-          id: "age",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          label: "age",
-          isAscOrder: undefined,
-          computedValue: [28, null, 22, 30],
-          isDerived: true,
-        },
       ],
     };
 
@@ -1234,10 +1186,10 @@ describe("Validates getFilteredTableData Properties", () => {
     );
 
     const expected = [
-      { id: 123, name: "John Doe", age: null, __originalIndex__: 1 },
-      { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
-      { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
-      { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
+      { id: 2345, name: "Z", __originalIndex__: 3 },
+      { id: 234, name: "Y", __originalIndex__: 2 },
+      { id: 123, name: "X", __originalIndex__: 1 },
+      { id: 1234, name: "W", __originalIndex__: 0 },
     ];
 
     let result = getFilteredTableData(input, moment, _);
