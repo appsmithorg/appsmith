@@ -793,7 +793,7 @@ public class GitExecutorImpl implements GitExecutor {
                             return Mono.just(true);
                         } else {
                             log.error("Error while rebasing the branch, {}", result.getStatus().name());
-                            git.rebase().setUpstream("origin/master").setOperation(RebaseCommand.Operation.ABORT).call();
+                            git.rebase().setUpstream("origin/" + branchName).setOperation(RebaseCommand.Operation.ABORT).call();
                             return Mono.error(new Exception("Error while rebasing the branch, " + result.getStatus().name()));
 
                         }
