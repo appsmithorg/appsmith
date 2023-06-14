@@ -2,6 +2,7 @@ import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 
 import { Button } from "./";
 import { Icon } from "@design-system/headless";
+import { BUTTON_COLOR, BUTTON_VARIANT } from "./index.styled";
 import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
 <Meta
@@ -30,7 +31,7 @@ There are 3 variants of the button component.
 
 <Canvas>
   <Story
-    name="Fileld"
+    name="Filled"
     args={{
       children: "Filled",
     }}
@@ -62,50 +63,16 @@ There are 3 variants of the button component.
 There are 4 variants of the button component.
 
 <Canvas>
-  <Story
-    name="Accent"
-    args={{
-      color: "accent",
-      children: "Accent",
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="Positive"
-    args={{
-      color: "positive",
-      children: "Positive",
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="Negative"
-    args={{
-      color: "negative",
-      children: "Negative",
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="Warning"
-    args={{
-      color: "warning",
-      children: "Warning",
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    name="Neutral"
-    args={{
-      color: "neutral",
-      children: "Neutral",
-    }}
-  >
-    {Template.bind({})}
+  <Story name="Semantic">
+    <div style={{ display: "flex", gap: "10px", "flex-wrap": "wrap" }}>
+      {Object.keys(BUTTON_VARIANT).map((variant) =>
+        Object.keys(BUTTON_COLOR).map((color) => (
+          <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
+            <Button variant={variant} color={color} children={color} />
+          </div>
+        )),
+      )}
+    </div>
   </Story>
 </Canvas>
 

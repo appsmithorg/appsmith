@@ -45,22 +45,48 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleHover: this.bgAccentSubtleHover.toString(),
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString(),
       bgAssistive: this.bgAssistive.toString(),
+      bgPositive: this.bgPositive.toString(),
+      bgPositiveHover: this.bgPositiveHover.toString(),
+      bgPositiveActive: this.bgPositiveActive.toString(),
+      bgPositiveSubtleHover: this.bgPositiveSubtleHover.toString(),
+      bgPositiveSubtleActive: this.bgPositiveSubtleActive.toString(),
+      bgNegative: this.bgNegative.toString(),
+      bgNegativeHover: this.bgNegativeHover.toString(),
+      bgNegativeActive: this.bgNegativeActive.toString(),
+      bgNegativeSubtleHover: this.bgNegativeSubtleHover.toString(),
+      bgNegativeSubtleActive: this.bgNegativeSubtleActive.toString(),
+      bgWarning: this.bgWarning.toString(),
+      bgWarningHover: this.bgWarningHover.toString(),
+      bgWarningActive: this.bgWarningActive.toString(),
+      bgWarningSubtleHover: this.bgWarningSubtleHover.toString(),
+      bgWarningSubtleActive: this.bgWarningSubtleActive.toString(),
+      bgNeutral: this.bgNeutral.toString(),
+      bgNeutralHover: this.bgNeutralHover.toString(),
+      bgNeutralActive: this.bgNeutralActive.toString(),
+      bgNeutralSubtleHover: this.bgNeutralSubtleHover.toString(),
+      bgNeutralSubtleActive: this.bgNeutralSubtleActive.toString(),
       // fg
       fg: this.fg.toString(),
       fgAccent: this.fgAccent.toString(),
-      fgOnAccent: this.fgOnAccent.toString(),
-      fgOnAssistive: this.fgOnAssistive.toString(),
+      fgPositive: this.fgPositive.toString(),
       fgNeutral: this.fgNeutral.toString(),
-      fgPositive: this.fgPositive,
-      fgWarn: this.fgWarn,
-      fgNegative: this.fgNegative,
+      fgWarning: this.fgWarning.toString(),
+      fgNegative: this.fgNegative.toString(),
+      fgOnAccent: this.fgOnAccent.toString(),
+      fgOnPositive: this.fgOnPositive.toString(),
+      fgOnNegative: this.fgOnNegative.toString(),
+      fgOnWarning: this.fgOnWarning.toString(),
+      fgOnNeutral: this.fgOnNeutral.toString(),
+      fgOnAssistive: this.fgOnAssistive.toString(),
       // bd
       bdAccent: this.bdAccent.toString(),
       bdNeutral: this.bdNeutral.toString(),
+      bdPositive: this.bdPositive.toString(),
+      bdNegative: this.bdNegative.toString(),
+      bdWarning: this.bdWarning.toString(),
       bdNeutralHover: this.bdNeutralHover.toString(),
       bdFocus: this.bdFocus.toString(),
-      bdNegative: this.bdNegative,
-      bdNegativeHover: this.bdNegativeHover,
+      bdNegativeHover: this.bdNegativeHover.toString(),
     };
   };
 
@@ -212,6 +238,102 @@ export class LightModeTheme implements ColorModeTheme {
     return this.bgAccentSubtle.clone().darken(0.01);
   }
 
+  private get bgPositive() {
+    return "#4ade80";
+  }
+
+  private get bgPositiveHover() {
+    return "#3ec16c";
+  }
+
+  private get bgPositiveActive() {
+    return "#35a15c";
+  }
+
+  private get bgPositiveSubtle() {
+    return "#f0fff5";
+  }
+
+  private get bgPositiveSubtleHover() {
+    return "#e0ffeb";
+  }
+
+  private get bgPositiveSubtleActive() {
+    return "#d1ffe1";
+  }
+
+  private get bgWarning() {
+    return "#ffbc4b";
+  }
+
+  private get bgWarningHover() {
+    return "#f2a635";
+  }
+
+  private get bgWarningActive() {
+    return "#e6952e";
+  }
+
+  private get bgWarningSubtle() {
+    return "#fffaf0";
+  }
+
+  private get bgWarningSubtleHover() {
+    return "#fff5e0";
+  }
+
+  private get bgWarningSubtleActive() {
+    return "#fff1d1";
+  }
+
+  private get bgNegative() {
+    return "#ff5c5c";
+  }
+
+  private get bgNegativeHover() {
+    return "#f24646";
+  }
+
+  private get bgNegativeActive() {
+    return "#e23b3b";
+  }
+
+  private get bgNegativeSubtle() {
+    return "#fff0f0";
+  }
+
+  private get bgNegativeSubtleHover() {
+    return "#ffe0e0";
+  }
+
+  private get bgNegativeSubtleActive() {
+    return "#ffd1d1";
+  }
+
+  private get bgNeutral() {
+    return "##f2f2f2";
+  }
+
+  private get bgNeutralHover() {
+    return "#ebeff5";
+  }
+
+  private get bgNeutralActive() {
+    return "#e3e9f0";
+  }
+
+  private get bgNeutralSubtle() {
+    return "#ffffff";
+  }
+
+  private get bgNeutralSubtleHover() {
+    return "#f2f4f8";
+  }
+
+  private get bgNeutralSubtleActive() {
+    return "#ebeff5";
+  }
+
   private get bgAssistive() {
     return this.fg.clone();
   }
@@ -251,6 +373,22 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get fgNeutral() {
+    return this.bdNeutral.clone();
+  }
+
+  private get fgPositive() {
+    return "#4ade80";
+  }
+
+  private get fgWarning() {
+    return "#facc15";
+  }
+
+  private get fgNegative() {
+    return "#d91921";
+  }
+
   private get fgOnAccent() {
     const tint = this.seedColor.clone();
     const shade = this.seedColor.clone();
@@ -272,20 +410,20 @@ export class LightModeTheme implements ColorModeTheme {
     return shade;
   }
 
-  private get fgNeutral() {
-    return this.bdNeutral.clone();
+  private get fgOnNeutral() {
+    return "#1c1e21";
   }
 
-  private get fgPositive() {
-    return "#4ade80";
+  private get fgOnPositive() {
+    return "#fff";
   }
 
-  private get fgWarn() {
-    return "#facc15";
+  private get fgOnWarning() {
+    return "#fff";
   }
 
-  private get fgNegative() {
-    return "#d91921";
+  private get fgOnNegative() {
+    return "#fff";
   }
 
   private get fgOnAssistive() {
@@ -365,6 +503,14 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get bdNegative() {
     return "#d91921";
+  }
+
+  private bdPositive() {
+    return "#4ade80";
+  }
+
+  private get bdWarning() {
+    return "#facc15";
   }
 
   private get bdNegativeHover() {
