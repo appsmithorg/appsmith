@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
+
+stacks_path=/appsmith-stacks
+
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
@@ -29,7 +32,7 @@ if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
 
   echo "Running appsmith for cloudRun"
   echo "creating mount point"
-  mkdir -p /appsmith-stacks
+  mkdir -p "$stacks_path"
   echo "Mounting File Sytem"
   mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
   echo "Mounted File Sytem"
@@ -37,7 +40,6 @@ if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
   export HOSTNAME="cloudrun"
 fi
 
-stacks_path=/appsmith-stacks
 
 function get_maximum_heap() {
     resource=$(ulimit -u)
