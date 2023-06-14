@@ -31,22 +31,22 @@ describe("JSObjects OnLoad Actions tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    cy.fixture("datasources").then((datasourceFormData: any) => {
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      apiPage.CreateAndFillApi(
+        "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
+        "Quotes",
+        30000,
+      );
+      apiPage.ToggleConfirmBeforeRunningApi(true);
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    apiPage.CreateAndFillApi(
-      "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
-      "Quotes",
-      30000,
-    );
-    apiPage.ToggleConfirmBeforeRunningApi(true);
-
-    apiPage.CreateAndFillApi(
-      "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
-      "WhatTrumpThinks",
-      30000,
-    );
-    apiPage.ToggleConfirmBeforeRunningApi(true);
-
+      apiPage.CreateAndFillApi(
+        datasourceFormData["randomTrumpApi"],
+        "WhatTrumpThinks",
+        30000,
+      );
+      apiPage.ToggleConfirmBeforeRunningApi(true);
+    });
     jsEditor.CreateJSObject(
       `export default {
       callTrump: async () => {
