@@ -4,7 +4,7 @@ import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 
-describe.skip("one click binding mongodb datasource", function () {
+describe("one click binding mongodb datasource", function () {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
   });
