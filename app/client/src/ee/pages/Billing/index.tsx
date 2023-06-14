@@ -1,6 +1,5 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   ACTIVATE,
   ADMIN_BILLING_SETTINGS_TITLE,
@@ -15,9 +14,10 @@ import {
   SELF_SERVE,
   ENTERPRISE,
   AIRGAPPED,
+  LICENSE_KEY_MODAL_INPUT_LABEL,
 } from "@appsmith/constants/messages";
 import { BillingPageHeader } from "./Header";
-import { BillingPageWrapper, FlexWrapper, StyledImage } from "./styles";
+import { BillingPageWrapper, FlexWrapper } from "./styles";
 import { BillingPageContent } from "./BillingPageContent";
 import { getDateString } from "@appsmith/utils/billingUtils";
 import type { BillingDashboardCard, CTAButtonType } from "./types";
@@ -31,7 +31,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
 import { showLicenseModal } from "@appsmith/actions/tenantActions";
-import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import {
   Button,
   Link,
@@ -164,13 +164,10 @@ export function Billing() {
         <ModalContent style={{ width: "640px" }}>
           <ModalHeader>{createMessage(UPDATE_LICENSE)}</ModalHeader>
           <ModalBody>
-            <StyledImage
-              className="no-sub-img"
-              loading="lazy"
-              src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
-            />
             <LicenseForm
               actionBtnText={createMessage(ACTIVATE)}
+              isModal
+              label={createMessage(LICENSE_KEY_MODAL_INPUT_LABEL)}
               placeholder={createMessage(PASTE_LICENSE_KEY)}
             />
           </ModalBody>

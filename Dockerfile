@@ -13,7 +13,7 @@ ENV LC_ALL C.UTF-8
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
+    supervisor curl cron nfs-common certbot nginx gnupg wget netcat openssh-client \
     software-properties-common gettext \
     python3-pip python3-requests python-setuptools git ca-certificates-java \
     gawk \

@@ -400,8 +400,12 @@ public class DataTypeStringUtils {
      */
     public static String maskString(String str, int preserveChars, int maxLength, char maskChar) {
         if (str == null) {
-            // nothing to mask
+            // Nothing to mask
             return null;
+        }
+        if (str.length() < preserveChars) {
+            // No maskable portion exist
+            return str;
         }
         String start = str.substring(0, preserveChars);
         String end = str.substring(str.length() - preserveChars);

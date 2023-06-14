@@ -1,10 +1,11 @@
 export * from "ce/actions/tenantActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export const validateLicense = (key: string) => ({
+export const validateLicense = (key: string, isUserOnboarding: boolean) => ({
   type: ReduxActionTypes.VALIDATE_LICENSE_KEY,
   payload: {
     key,
+    isUserOnboarding,
   },
 });
 

@@ -139,7 +139,10 @@ export function* startLicenseStatusCheckSaga() {
 }
 
 export function* validateLicenseSaga(
-  action: ReduxAction<{ key: string }>,
+  action: ReduxAction<{
+    isUserOnboarding: boolean;
+    key: string;
+  }>,
 ): any {
   const urlObject = new URL(window.location.href);
   const redirectUrl =
@@ -151,12 +154,17 @@ export function* validateLicenseSaga(
   const shouldRedirectOnUpdate = urlObject?.pathname !== adminSettingsPath;
   try {
     const response: ApiResponse<TenantReduxState<License>> = yield call(
-      TenantApi.validateLicense,
+      action?.payload?.isUserOnboarding
+        ? TenantApi.validateLicenseForOnboarding
+        : TenantApi.validateLicense,
       action?.payload.key,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     const license = response?.data?.tenantConfiguration?.license;
     if (isValidResponse) {
+      if (response?.data && action?.payload?.isUserOnboarding) {
+        location.href = location.origin + response?.data;
+      }
       if (license?.active) {
         if (license?.type === LICENSE_TYPE.TRIAL) {
           localStorage.setItem("showLicenseBanner", JSON.stringify(true));

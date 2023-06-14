@@ -193,7 +193,7 @@ public class GenericDatabaseOperationTest {
                 ApplicationJson.class);
 
         // Import application in master branch
-        importedApplicationMasterBranchId = importExportApplicationService.importApplicationInWorkspace(workspace.getId(), applicationJson, application.getId(), "master").block().getId();
+        importedApplicationMasterBranchId = importExportApplicationService.importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master").block().getId();
 
         /*
          * Structure
@@ -229,7 +229,7 @@ public class GenericDatabaseOperationTest {
                 ApplicationJson.class);
 
         // Import application in feature1 branch
-        importedApplicationFeature1BranchId = importExportApplicationService.importApplicationInWorkspace(workspace.getId(), applicationJson, srcApplication.getId(), "feature1").block().getId();
+        importedApplicationFeature1BranchId = importExportApplicationService.importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, srcApplication.getId(), "feature1").block().getId();
 
         /*
          * Structure
@@ -266,7 +266,7 @@ public class GenericDatabaseOperationTest {
                 ApplicationJson.class);
 
         // Import application in master branch
-        application = importExportApplicationService.importApplicationInWorkspace(workspace.getId(), applicationJson, application.getId(), "master").block();
+        application = importExportApplicationService.importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master").block();
 
         //Import in feature branch
         Application srcApplication = applicationService.findById(application.getId()).block();
@@ -288,7 +288,7 @@ public class GenericDatabaseOperationTest {
                 ApplicationJson.class);
 
         // Import application in feature1 branch
-        importExportApplicationService.importApplicationInWorkspace(workspace.getId(), applicationJson, srcApplication.getId(), "feature1").block();
+        importExportApplicationService.importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, srcApplication.getId(), "feature1").block();
 
         // Import again in master branch to simulate merge
         applicationJson = new Gson().fromJson(
@@ -296,7 +296,7 @@ public class GenericDatabaseOperationTest {
                 ApplicationJson.class);
 
         mergedApplicationToMasterId =
-                importExportApplicationService.importApplicationInWorkspace(workspace.getId(), applicationJson, application.getId(), "master").block().getId();
+                importExportApplicationService.importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master").block().getId();
     }
 
     /**

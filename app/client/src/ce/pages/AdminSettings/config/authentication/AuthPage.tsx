@@ -179,8 +179,8 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         {authMethods &&
           authMethods.map((method) => {
             return (
-              <>
-                <MethodCard key={method.id}>
+              <div key={method.id}>
+                <MethodCard>
                   {method.icon ? (
                     <Icon name={method.icon} size="lg" />
                   ) : (
@@ -238,7 +238,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   <ActionButton method={method} />
                 </MethodCard>
                 <Divider />
-              </>
+              </div>
             );
           })}
       </SettingsFormWrapper>

@@ -128,10 +128,10 @@ describe("License and Billing dashboard", function () {
             "placeholder",
             "Paste your license key here",
           );
-          cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
+          cy.get(LicenseLocators.activeInstanceModalBtn).should("be.disabled");
         });
         cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
-        cy.get(LicenseLocators.activeInstanceBtn).click();
+        cy.get(LicenseLocators.activeInstanceModalBtn).click();
         cy.wait(2000);
         cy.request({
           method: "PUT",
@@ -193,10 +193,10 @@ describe("License and Billing dashboard", function () {
             "placeholder",
             "Paste your license key here",
           );
-          cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
+          cy.get(LicenseLocators.activeInstanceModalBtn).should("be.disabled");
         });
         cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
-        cy.get(LicenseLocators.activeInstanceBtn).click();
+        cy.get(LicenseLocators.activeInstanceModalBtn).click();
         cy.wait(2000);
         cy.request({
           method: "PUT",

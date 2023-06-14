@@ -143,7 +143,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier
@@ -170,7 +170,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier
