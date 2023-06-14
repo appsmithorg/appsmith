@@ -15,6 +15,7 @@ import styled from "styled-components";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { signpostingStepUpdateInit } from "actions/onboardingActions";
 
 const ProgressContainer = styled.div<StatusProgressbarContainerType>`
   background-color: ${(props) =>
@@ -93,103 +94,48 @@ const useStatusListener = () => {
   }
 
   useEffect(() => {
-    if (!!(datasources.length || actions.length)) {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.CONNECT_A_DATASOURCE,
-          completed: true,
-        },
-      });
-    } else {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.CONNECT_A_DATASOURCE,
-          completed: false,
-        },
-      });
-    }
+    dispatch(
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.CONNECT_A_DATASOURCE,
+        completed: !!(datasources.length || actions.length),
+      }),
+    );
   }, [datasources.length, actions.length]);
 
   useEffect(() => {
-    if (!!actions.length) {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.CREATE_A_QUERY,
-          completed: true,
-        },
-      });
-    } else {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.CREATE_A_QUERY,
-          completed: false,
-        },
-      });
-    }
+    dispatch(
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.CREATE_A_QUERY,
+        completed: !!actions.length,
+      }),
+    );
   }, [actions.length]);
 
   useEffect(() => {
-    if (Object.keys(widgets).length > 1) {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.ADD_WIDGETS,
-          completed: true,
-        },
-      });
-    } else {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.ADD_WIDGETS,
-          completed: false,
-        },
-      });
-    }
+    dispatch(
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.ADD_WIDGETS,
+        completed: Object.keys(widgets).length > 1,
+      }),
+    );
   }, [Object.keys(widgets).length]);
 
   useEffect(() => {
-    if (isConnectionPresent) {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET,
-          completed: true,
-        },
-      });
-    } else {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET,
-          completed: false,
-        },
-      });
-    }
+    dispatch(
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET,
+        completed: isConnectionPresent,
+      }),
+    );
   }, [isConnectionPresent]);
 
   useEffect(() => {
-    if (isDeployed) {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.DEPLOY_APPLICATIONS,
-          completed: true,
-        },
-      });
-    } else {
-      dispatch({
-        type: "SIGNPOSTING_STEP_COMPLETE",
-        payload: {
-          step: SIGNPOSTING_STEP.DEPLOY_APPLICATIONS,
-          completed: false,
-        },
-      });
-    }
+    dispatch(
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.DEPLOY_APPLICATIONS,
+        completed: isDeployed,
+      }),
+    );
   }, [isDeployed]);
 
   useEffect(() => {

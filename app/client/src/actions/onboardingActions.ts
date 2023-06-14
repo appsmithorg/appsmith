@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import type { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -55,6 +56,33 @@ export const firstTimeUserOnboardingInit = (
 export const setSignpostingOverlay = (payload: boolean) => {
   return {
     type: ReduxActionTypes.SET_SIGNPOSTING_OVERLAY,
+    payload,
+  };
+};
+
+export const signpostingMarkAllRead = () => {
+  return {
+    type: ReduxActionTypes.SIGNPOSTING_MARK_ALL_READ,
+  };
+};
+
+export const signpostingStepUpdateInit = (payload: {
+  step: SIGNPOSTING_STEP;
+  completed: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.SIGNPOSTING_STEP_UPDATE_INIT,
+    payload,
+  };
+};
+
+export const signpostingStepUpdate = (payload: {
+  step: SIGNPOSTING_STEP;
+  completed: boolean;
+  read?: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.SIGNPOSTING_STEP_UPDATE,
     payload,
   };
 };

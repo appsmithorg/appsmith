@@ -27,6 +27,7 @@ import history from "utils/history";
 import {
   setSignpostingOverlay,
   showSignpostingModal,
+  signpostingMarkAllRead,
   toggleInOnboardingWidgetSelection,
 } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -228,6 +229,7 @@ function CheckListItem(props: {
       if (!stepState?.read) {
         anim.play();
       } else {
+        // We want to show animation only for the first time. After we show the last frame only.
         anim.goToAndStop(60, true);
       }
 
@@ -395,9 +397,7 @@ export default function OnboardingChecklist() {
     }
 
     return () => {
-      dispatch({
-        type: "SIGNPOSTING_MARK_ALL_READ",
-      });
+      dispatch(signpostingMarkAllRead());
       dispatch(setSignpostingOverlay(false));
     };
   }, []);

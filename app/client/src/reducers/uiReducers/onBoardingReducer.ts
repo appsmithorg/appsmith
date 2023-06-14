@@ -73,7 +73,7 @@ const onboardingReducer = createReducer(initialState, {
   ) => {
     return { ...state, forceOpenWidgetPanel: action.payload };
   },
-  SIGNPOSTING_STEP_UPDATE: (
+  [ReduxActionTypes.SIGNPOSTING_STEP_UPDATE]: (
     state: OnboardingState,
     action: ReduxAction<StepState>,
   ) => {
@@ -91,7 +91,7 @@ const onboardingReducer = createReducer(initialState, {
       stepState: newArray,
     };
   },
-  SIGNPOSTING_MARK_ALL_READ: (state: OnboardingState) => {
+  [ReduxActionTypes.SIGNPOSTING_MARK_ALL_READ]: (state: OnboardingState) => {
     return {
       ...state,
       stepState: state.stepState.map((step) => {

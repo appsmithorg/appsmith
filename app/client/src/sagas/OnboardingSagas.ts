@@ -42,6 +42,7 @@ import {
   removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
   setCurrentStep,
   setSignpostingOverlay,
+  signpostingStepUpdate,
   toggleLoader,
 } from "actions/onboardingActions";
 import {
@@ -474,13 +475,12 @@ function* setSignpostingStepStateSaga(
         read: false,
       }
     : {};
-  yield put({
-    type: "SIGNPOSTING_STEP_UPDATE",
-    payload: {
+  yield put(
+    signpostingStepUpdate({
       ...action.payload,
       ...readProps,
-    },
-  });
+    }),
+  );
   yield call(setSignpostingAppState, stepState, applicationId);
 }
 
@@ -529,6 +529,9 @@ export default function* onboardingActionSagas() {
       ReduxActionTypes.DISABLE_START_SIGNPOSTING,
       disableStartFirstTimeUserOnboardingSaga,
     ),
-    takeLatest("SIGNPOSTING_STEP_COMPLETE", setSignpostingStepStateSaga),
+    takeLatest(
+      ReduxActionTypes.SIGNPOSTING_STEP_UPDATE_INIT,
+      setSignpostingStepStateSaga,
+    ),
   ]);
 }
