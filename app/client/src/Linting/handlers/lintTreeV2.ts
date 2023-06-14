@@ -197,7 +197,10 @@ function lintUpdatedTree(
     const entity = cachedEntityTree[entityName]; // Use previous tree in a DELETE EVENT
     if (!entity) continue;
 
-    const allDeletedPaths = getAllPathsFromNode(pathString, unevalEntityTree);
+    const allDeletedPaths = getAllPathsFromNode(
+      pathString,
+      getUnevalEntityTree(cachedEntityTree),
+    );
 
     for (const path of Object.keys(allDeletedPaths)) {
       const updatedPaths = jsActionsInDataField.handlePathDeletion(
