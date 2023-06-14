@@ -11,9 +11,6 @@ const SIGNPOSTING_POPUP_WIDTH = "360px";
 const StyledMenuContent = styled(MenuContent)<{ animate: boolean }>`
   max-width: ${SIGNPOSTING_POPUP_WIDTH};
 
-  ${(props) =>
-    props.animate &&
-    `
   animation-name: slideUpAndFade;
   @keyframes slideUpAndFade {
     from {
@@ -25,7 +22,6 @@ const StyledMenuContent = styled(MenuContent)<{ animate: boolean }>`
       transform: translateY(0);
     }
   }
-  `}
 `;
 const Wrapper = styled.div`
   padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
