@@ -17,7 +17,6 @@ import type {
   DeleteApplicationRequest,
   DeleteNavigationLogoRequest,
   FetchApplicationPayload,
-  FetchApplicationResponse,
   FetchUnconfiguredDatasourceListResponse,
   FetchUsersApplicationsWorkspacesResponse,
   ForkApplicationRequest,
@@ -101,7 +100,6 @@ import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
-import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
@@ -244,10 +242,119 @@ export function* fetchAppAndPagesSaga(
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
-    const response: FetchApplicationResponse = yield call(
-      PageApi.fetchAppAndPages,
-      params,
-    );
+    const response = {
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: {
+        workspaceId: "6487017aa351742e9695e5e7",
+        application: {
+          id: "6488471404646200a8d2a901",
+          modifiedBy: "hetu@appsmith.com",
+          userPermissions: [
+            "manage:applications",
+            "canComment:applications",
+            "export:applications",
+            "read:applications",
+            "create:pages",
+            "publish:applications",
+            "delete:applications",
+            "makePublic:applications",
+            "inviteUsers:applications",
+          ],
+          name: "Maintenance order management",
+          workspaceId: "6487017aa351742e9695e5e7",
+          isPublic: false,
+          appIsExample: false,
+          unreadCommentThreads: 0,
+          color: "#FBF4ED",
+          icon: "mug",
+          slug: "maintenance-order-management",
+          unpublishedCustomJSLibs: [],
+          publishedCustomJSLibs: [],
+          lastDeployedAt: "2023-06-13T10:39:06.078Z",
+          evaluationVersion: 2,
+          applicationVersion: 2,
+          forkingEnabled: true,
+          isManualUpdate: true,
+          isAutoUpdate: false,
+          appLayout: {
+            type: "DESKTOP",
+          },
+          new: false,
+          modifiedAt: "2023-06-13T10:39:00.254Z",
+        },
+        pages: [
+          {
+            id: "6488471404646200a8d2a90a",
+            name: "Home Page",
+            slug: "home-page",
+            isDefault: true,
+            isHidden: true,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+          {
+            id: "6488471404646200a8d2a909",
+            name: "Submit new order",
+            slug: "submit-new-order",
+            isDefault: false,
+            isHidden: true,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+          {
+            id: "6488471404646200a8d2a90c",
+            name: "My orders",
+            slug: "my-orders",
+            isDefault: false,
+            isHidden: true,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+          {
+            id: "6488471404646200a8d2a90b",
+            name: "Admin",
+            slug: "admin",
+            isDefault: false,
+            isHidden: true,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+          {
+            id: "6488471404646200a8d2a90d",
+            name: "Success page",
+            slug: "success-page",
+            isDefault: false,
+            isHidden: true,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+        ],
+      },
+      errorDisplay: "",
+    };
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
       const prevPagesState: Page[] = yield select(getPageList);
@@ -269,7 +376,7 @@ export function* fetchAppAndPagesSaga(
             isDefault: page.isDefault,
             isHidden: !!page.isHidden,
             slug: page.slug,
-            customSlug: page.customSlug,
+            customSlug: (page as any).customSlug,
             userPermissions: page.userPermissions
               ? page.userPermissions
               : pagePermissionsMap[page.id],
@@ -296,7 +403,10 @@ export function* fetchAppAndPagesSaga(
         payload: response.data.application?.evaluationVersion,
       });
     } else {
-      yield call(handleFetchApplicationError, response.responseMeta?.error);
+      yield call(
+        handleFetchApplicationError,
+        (response.responseMeta as any)?.error,
+      );
     }
   } catch (error) {
     yield call(handleFetchApplicationError, error);
