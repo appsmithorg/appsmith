@@ -54,6 +54,8 @@ export const getSignpostingUnreadSteps = createSelector(
 );
 export const getSignpostingSetOverlay = (state: AppState) =>
   state.ui.onBoarding.setOverlay;
+export const getSignpostingTooltipVisible = (state: AppState) =>
+  state.ui.onBoarding.showSignpostingTooltip;
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>

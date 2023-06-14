@@ -87,6 +87,13 @@ export const signpostingStepUpdate = (payload: {
   };
 };
 
+export const showSignpostingTooltip = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SIGNPOSTING_SHOW_TOOLTIP,
+    payload,
+  };
+};
+
 export const markStepComplete = () => {
   return {
     type: ReduxActionTypes.GUIDED_TOUR_MARK_STEP_COMPLETED,

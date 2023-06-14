@@ -33,11 +33,6 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
-  {
-    icon: "discord",
-    label: "Join our discord",
-    link: "https://discord.gg/rBTTVJp",
-  },
 ];
 
 if (intercomAppID && window.Intercom) {

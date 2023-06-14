@@ -29,6 +29,7 @@ import {
   getFirstTimeUserOnboardingModal,
   getIsFirstTimeUserOnboardingEnabled,
   getSignpostingSetOverlay,
+  getSignpostingTooltipVisible,
   getSignpostingUnreadSteps,
 } from "selectors/onboardingSelectors";
 import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
@@ -85,11 +86,6 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
-  {
-    icon: "discord",
-    label: "Join our discord",
-    link: "https://discord.gg/rBTTVJp",
-  },
 ];
 
 if (intercomAppID && window.Intercom) {
@@ -145,9 +141,12 @@ export function IntercomConsent({
 
 function HelpButtonTooltip(props: {
   isFirstTimeUserOnboardingEnabled: boolean;
+  showSignpostingTooltip: boolean;
 }) {
   if (props.isFirstTimeUserOnboardingEnabled) {
-    return <TooltipContent />;
+    return (
+      <TooltipContent showSignpostingTooltip={props.showSignpostingTooltip} />
+    );
   }
 
   return <>{createMessage(HELP_RESOURCE_TOOLTIP)}</>;
@@ -155,11 +154,13 @@ function HelpButtonTooltip(props: {
 
 function HelpButton() {
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const showSignpostingTooltip = useSelector(getSignpostingTooltipVisible);
   const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
   const unreadSteps = useSelector(getSignpostingUnreadSteps);
   const setOverlay = useSelector(getSignpostingSetOverlay);
@@ -174,6 +175,12 @@ function HelpButton() {
         open: onboardingModalOpen,
       }
     : {};
+  const tooltipProps = isFirstTimeUserOnboardingEnabled
+    ? {
+        visible: showTooltip || showSignpostingTooltip,
+        onVisibleChange: setShowTooltip,
+      }
+    : {};
 
   useEffect(() => {
     bootIntercom(user);
@@ -183,8 +190,10 @@ function HelpButton() {
     <Menu
       onOpenChange={(open) => {
         if (open) {
-          isFirstTimeUserOnboardingEnabled &&
+          if (isFirstTimeUserOnboardingEnabled) {
             dispatch(showSignpostingModal(true));
+            setShowTooltip(false);
+          }
           setShowIntercomConsent(false);
           AnalyticsUtil.logEvent("OPEN_HELP", {
             page: "Editor",
@@ -197,15 +206,22 @@ function HelpButton() {
       <MenuTrigger>
         <div className="relative">
           <Tooltip
+            align={{
+              targetOffset: [5, 0],
+            }}
             content={
               <HelpButtonTooltip
                 isFirstTimeUserOnboardingEnabled={
                   isFirstTimeUserOnboardingEnabled
                 }
+                showSignpostingTooltip={showSignpostingTooltip}
               />
             }
+            destroyTooltipOnHide={isFirstTimeUserOnboardingEnabled}
             isDisabled={onboardingModalOpen}
+            mouseLeaveDelay={0}
             placement="bottomRight"
+            {...tooltipProps}
           >
             <Button
               data-testid="t--help-button"

@@ -41,7 +41,7 @@ import {
   removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
   setCurrentStep,
   setSignpostingOverlay,
-  showSignpostingModal,
+  showSignpostingTooltip,
   signpostingStepUpdate,
   toggleLoader,
 } from "actions/onboardingActions";
@@ -85,8 +85,6 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import { isUndefined } from "lodash";
-import type { CrudInfoModalData } from "selectors/crudInfoModalSelectors";
-import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -485,16 +483,11 @@ function* setSignpostingStepStateSaga(
     }),
   );
 
-  const crudInfoModalData: CrudInfoModalData = yield select(
-    getCrudInfoModalData,
-  );
-  if (
-    !isUndefined(readProps.read) &&
-    !readProps.read &&
-    !crudInfoModalData.crudInfoModalOpen
-  ) {
+  // Show tooltip when a step is completed
+  if (!isUndefined(readProps.read) && !readProps.read) {
+    // Show tooltip after a small delay to not be abrupt
     yield delay(1000);
-    yield put(showSignpostingModal(true));
+    yield put(showSignpostingTooltip(true));
   }
 }
 
