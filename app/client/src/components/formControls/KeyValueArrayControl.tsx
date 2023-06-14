@@ -13,7 +13,7 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import type { InputProps } from "design-system";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Button, Input } from "design-system";
+import { Button, Input, Text } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -22,6 +22,7 @@ export interface KeyValueArrayControlProps extends ControlProps {
   actionConfig?: any;
   extraData?: ControlData[];
   isRequired?: boolean;
+  showHeader?: boolean;
 }
 
 const FormRowWithLabel = styled.div`
@@ -52,6 +53,23 @@ const StyledButton = styled(Button)`
   margin-left: 5px;
 `;
 const AddMoreButton = styled(Button)``;
+
+const Flex = styled.div`
+  flex: 1;
+`;
+
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: calc(100% - 30px);
+  .key-value {
+    padding: 6px 0px 6px 0px;
+    border-bottom: 0px;
+  }
+  .key-value:nth-child(2) {
+    margin-left: 0;
+  }
+`;
 
 function KeyValueRow(
   props: KeyValueArrayControlProps & WrappedFieldArrayProps,
@@ -108,6 +126,16 @@ function KeyValueRow(
 
   return typeof props.fields.getAll() === "object" ? (
     <>
+      {props.showHeader && (
+        <FlexContainer>
+          <Flex className="key-value">
+            <Text kind="body-m">Key</Text>
+          </Flex>
+          <Flex className="key-value">
+            <Text kind="body-m">Value</Text>
+          </Flex>
+        </FlexContainer>
+      )}
       {props.fields.map((field: any, index: number) => {
         let keyTextFieldName = `${field}.key`;
         let valueTextFieldName = `${field}.value`;
