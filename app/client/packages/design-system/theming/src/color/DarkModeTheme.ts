@@ -479,6 +479,14 @@ export class DarkModeTheme implements ColorModeTheme {
     return "#d91921";
   }
 
+  private get bdPositive() {
+    return "#4ade80";
+  }
+
+  private get bdWarning() {
+    return "#facc15";
+  }
+
   private get bdNegativeHover() {
     return "#b90707";
   }
