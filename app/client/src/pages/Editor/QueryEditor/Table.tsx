@@ -34,7 +34,7 @@ const NoDataMessage = styled.span`
 // TODO: replace with ads table
 export const TableWrapper = styled.div`
   width: 100%;
-  height: 100%;
+  height: auto;
   background: var(--ads-v2-color-bg);
   border: 1px solid var(--ads-v2-color-border);
   box-sizing: border-box;
