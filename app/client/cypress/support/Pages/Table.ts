@@ -61,6 +61,8 @@ export class Table {
   _tableRow = (rowNum: number, colNum: number, version: "v1" | "v2") =>
     this._tableWidgetVersion(version) +
     ` .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  _editCellIconDiv = ".t--editable-cell-icon";
+  _editCellEditorInput = ".t--inlined-cell-editor input";
   _tableRowColumnDataVersion = (version: "v1" | "v2") =>
     `${version == "v1" ? " div div" : " .cell-wrapper"}`;
   _tableRowColumnData = (
@@ -526,6 +528,26 @@ export class Table {
         ? this._columnSettings(columnName)
         : this._columnSettingsV2(columnName);
     this.agHelper.GetNClick(colSettings);
+  }
+
+  //Method to be improved!
+  public EditTableCell(rowIndex: number, colIndex: number, newValue: string) {
+    this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
+    this.agHelper.GetNClick(
+      this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
+    ); //not working consistenly
+    this.agHelper.AssertElementVisible(
+      this._tableRow(rowIndex, colIndex, "v2") +
+        " " +
+        this._editCellEditorInput,
+    );
+    this.agHelper.UpdateInputValue(
+      this._tableRow(rowIndex, colIndex, "v2") +
+        " " +
+        this._editCellEditorInput,
+      newValue,
+    );
+    this.agHelper.PressEnter();
   }
 
   public DeleteColumn(colId: string) {

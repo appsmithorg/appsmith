@@ -643,6 +643,15 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
+  public HoverElement(selector: string, index = 0, waitTimeInterval = 100) {
+    //this.ScrollTo(this.GetElement(selector))
+    return this.GetElement(selector)
+      .eq(index)
+      .scrollIntoView()
+      .realHover()
+      .wait(waitTimeInterval);
+  }
+
   public GetSiblingNClick(
     selector: string,
     siblingSelector: string,
