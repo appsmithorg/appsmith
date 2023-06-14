@@ -39,6 +39,7 @@ import {
   enableGuidedTour,
   focusWidgetProperty,
   loadGuidedTour,
+  removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
   setCurrentStep,
   setSignpostingOverlay,
   toggleLoader,
@@ -405,6 +406,17 @@ function* setFirstTimeUserOnboardingIntroModalVisibility(
   yield storeFirstTimeUserOnboardingIntroModalVisibility(action.payload);
 }
 
+function* endFirstTimeUserOnboardingSaga() {
+  const firstTimeUserExperienceAppId: string = yield select(
+    getCurrentApplicationId,
+  );
+  yield put(
+    removeFirstTimeUserOnboardingApplicationIdAction(
+      firstTimeUserExperienceAppId,
+    ),
+  );
+}
+
 function* firstTimeUserOnboardingInitSaga(
   action: ReduxAction<{ applicationId: string; pageId: string }>,
 ) {
@@ -500,6 +512,10 @@ export default function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
       setFirstTimeUserOnboardingIntroModalVisibility,
+    ),
+    takeLatest(
+      ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
+      endFirstTimeUserOnboardingSaga,
     ),
     takeLatest(
       ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,

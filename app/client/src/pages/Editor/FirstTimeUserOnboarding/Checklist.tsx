@@ -210,6 +210,7 @@ function CheckListItem(props: {
   disabled: boolean;
   completed: boolean;
   step: SIGNPOSTING_STEP;
+  docLink?: string;
 }) {
   const stepState = useSelector((state) =>
     getSignpostingStepStateByStep(state, props.step),
@@ -316,11 +317,21 @@ function CheckListItem(props: {
               startIcon="question-line"
             />
           </MenuTrigger>
-          <MenuContent>
+          <MenuContent
+            align="end"
+            collisionPadding={10}
+            onCloseAutoFocus={(e) => {
+              e.preventDefault();
+            }}
+          >
             <MenuItem
               disabled={props.disabled}
-              onSelect={() => {
-                window.open("https://docs.appsmith.com/", "_blank");
+              onClick={(e) => {
+                window.open(
+                  props.docLink ?? "https://docs.appsmith.com/",
+                  "_blank",
+                );
+                e?.stopPropagation();
               }}
               startIcon="book-line"
             >
@@ -391,16 +402,31 @@ export default function OnboardingChecklist() {
     };
   }, []);
 
+  // End signposting for the application once signposting is complete and the
+  // signposting complete menu is closed
+  useEffect(() => {
+    return () => {
+      if (isFirstTimeUserOnboardingComplete) {
+        dispatch({
+          type: ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
+        });
+      }
+    };
+  }, [isFirstTimeUserOnboardingComplete]);
+
   // Success UI
   if (isFirstTimeUserOnboardingComplete) {
     return (
       <>
         <div className="flex justify-between pb-4 gap-6">
-          <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
+          <Text
+            className="flex-1"
+            color="var(--ads-v2-color-fg-emphasis)"
+            kind="heading-m"
+          >
             {createMessage(SIGNPOSTING_SUCCESS_POPUP.title)}
           </Text>
           <Button
-            UNSAFE_width="24px"
             isIconButton
             kind="tertiary"
             onClick={() => {
@@ -448,6 +474,7 @@ export default function OnboardingChecklist() {
         boldText={createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold)}
         completed={!!(datasources.length || actions.length)}
         disabled={false}
+        docLink="https://docs.appsmith.com/core-concepts/connecting-to-data-sources"
         normalText={createMessage(
           ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal,
         )}
@@ -468,7 +495,8 @@ export default function OnboardingChecklist() {
       <CheckListItem
         boldText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
         completed={!!actions.length}
-        disabled={!datasources.length}
+        disabled={!datasources.length && !actions.length}
+        docLink="https://docs.appsmith.com/core-concepts/data-access-and-binding/querying-a-database"
         normalPrefixText={createMessage(
           ONBOARDING_CHECKLIST_CREATE_A_QUERY.normalPrefix,
         )}
@@ -496,6 +524,7 @@ export default function OnboardingChecklist() {
         boldText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}
         completed={Object.keys(widgets).length > 1}
         disabled={false}
+        docLink="https://docs.appsmith.com/reference/widgets"
         normalText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
         onClick={() => {
           AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_ADD_WIDGET_CLICK", {
@@ -514,6 +543,7 @@ export default function OnboardingChecklist() {
         )}
         completed={isConnectionPresent}
         disabled={Object.keys(widgets).length === 1 || !actions.length}
+        docLink="https://docs.appsmith.com/core-concepts/data-access-and-binding/displaying-data-read"
         normalText={createMessage(
           ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal,
         )}
