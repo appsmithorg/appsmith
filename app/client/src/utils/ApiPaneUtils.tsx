@@ -60,20 +60,32 @@ export function parseUrlForQueryParams(url: string) {
     });
 
     params = paramsWithDynamicValues.map((queryParam) => {
-      if (queryParam.value.includes("~")) {
-        const newVal = queryParam?.value?.replace(
-          /~/,
-          dynamicValuesDetected[0],
-        );
+      // this time around we check for both key and values.
+      if (queryParam.value.includes("~") || queryParam.key.includes("~")) {
+        let newVal = queryParam.value;
+        let newKey = queryParam.key;
 
-        // remove the first index from detected dynamic values.
-        dynamicValuesDetected.shift();
-        return { key: queryParam.key, value: newVal };
+        if (queryParam.key.includes("~")) {
+          newKey = queryParam?.key?.replace(/~/, dynamicValuesDetected[0]);
+          // remove the first index from detected dynamic values.
+          dynamicValuesDetected.shift();
+        }
+
+        if (queryParam.value.includes("~")) {
+          newVal = queryParam?.value?.replace(/~/, dynamicValuesDetected[0]);
+
+          // remove the first index from detected dynamic values.
+          dynamicValuesDetected.shift();
+        }
+
+        // dynamicValuesDetected.shift();
+        return { key: newKey, value: newVal };
       }
 
       return queryParam;
     });
   }
+
   return params;
 }
 
