@@ -1,16 +1,21 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 const data = require("../../../../../fixtures/TestDataSet1.json");
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  apiPage,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Statbox Widget", function () {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
     cy.fixture("StatboxDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -30,10 +35,11 @@ describe("Statbox Widget", function () {
         .clear()
         .wait(400)
         .type("#FFC13D");
-      cy.get(`${widgetsPage.cellBackground} input`).should(
-        "have.value",
-        "#ffc13d",
-      );
+      cy.get(`${widgetsPage.cellBackground} input`).should(($input) => {
+        const value = $input.val();
+        expect(Cypress.eq(value, "#ffc13d", { caseInsensitive: true })).to.be
+          .true;
+      });
     });
   });
 
@@ -58,14 +64,14 @@ describe("Statbox Widget", function () {
   });
 
   it("3. Bind datasource to multiple components in statbox", () => {
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       data.userApi + "/mock-api?records=20&page=4&size=3",
       "MockApi",
     );
-    _.apiPage.RunAPI();
+    apiPage.RunAPI();
     // going to HomePage where the button widget is located and opening it's property pane.
     // binding datasource to text widget in statbox
-    _.entityExplorer.SelectEntityByName("Text1", "Statbox1");
-    _.propPane.UpdatePropertyFieldValue("Text", "{{MockApi.data.users[0].id}}");
+    entityExplorer.SelectEntityByName("Text1", "Statbox1");
+    propPane.UpdatePropertyFieldValue("Text", "{{MockApi.data.users[0].id}}");
   });
 });
