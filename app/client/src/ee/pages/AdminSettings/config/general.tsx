@@ -26,8 +26,8 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
 };
 
 export const APPSMITH_SINGLE_USER_PER_SESSION_SETTING: Setting = {
-  id: "APPSMITH_ENABLE_SINGLE_SESSION_PER_USER",
-  name: "APPSMITH_ENABLE_SINGLE_SESSION_PER_USER",
+  id: "singleSessionPerUserEnabled",
+  name: "singleSessionPerUserEnabled",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "User session limit",
@@ -35,8 +35,8 @@ export const APPSMITH_SINGLE_USER_PER_SESSION_SETTING: Setting = {
 };
 
 export const APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING: Setting = {
-  id: "APPSMITH_SHOW_ROLES_AND_GROUPS",
-  name: "APPSMITH_SHOW_ROLES_AND_GROUPS",
+  id: "showRolesAndGroups",
+  name: "showRolesAndGroups",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "Programmatic access control",
