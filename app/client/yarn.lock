@@ -8230,6 +8230,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/web@npm:^0.0.99":
+  version: 0.0.99
+  resolution: "@types/web@npm:0.0.99"
+  checksum: 5298e64fc9db63f7da840dff77cd770c0568d3162eac406aa74e3a251c58377d370398a1d9402feb4fc49afa615808ac85be966e59fa96677a23dfd1df89ef9a
+  languageName: node
+  linkType: hard
+
 "@types/webfontloader@npm:1.6.33":
   version: 1.6.33
   resolution: "@types/webfontloader@npm:1.6.33"
@@ -9601,6 +9608,7 @@ __metadata:
     "@types/tinycolor2": ^1.4.2
     "@types/to-json-schema": ^0.2.1
     "@types/toposort": ^2.0.3
+    "@types/web": ^0.0.99
     "@types/webfontloader": 1.6.33
     "@types/zipcelx": ^1.5.0
     "@typescript-eslint/eslint-plugin": ^5.54.1
