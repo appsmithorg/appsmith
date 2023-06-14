@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
-  createMessage,
   APP_NAVIGATION_SETTING,
+  createMessage,
 } from "@appsmith/constants/messages";
 // import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
 // import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
@@ -23,7 +23,8 @@ import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system";
 import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
@@ -47,7 +48,9 @@ export type LogoConfigurationSwitches = {
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
-  const featureFlags = useSelector(selectFeatureFlags);
+  const isAppLogoEnabled = useFeatureFlagCheck(
+    FeatureFlag.APP_NAVIGATION_LOGO_UPLOAD,
+  );
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(
     application?.applicationDetail?.navigationSetting,
@@ -390,8 +393,7 @@ function NavigationSettings() {
             updateSetting={updateSetting}
           />
 
-          {(navigationSetting?.logoAssetId ||
-            featureFlags.APP_NAVIGATION_LOGO_UPLOAD) && (
+          {(navigationSetting?.logoAssetId || isAppLogoEnabled) && (
             <>
               <SwitchSettingForLogoConfiguration
                 keyName="logo"

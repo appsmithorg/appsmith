@@ -1,20 +1,21 @@
 import {
-  isHidden,
-  getConfigInitialValues,
-  caculateIsHidden,
-  evaluateCondtionWithType,
   actionPathFromName,
-  getViewType,
-  ViewTypes,
-  switchViewType,
-  extractConditionalOutput,
+  caculateIsHidden,
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
+  evaluateCondtionWithType,
+  extractConditionalOutput,
+  getConfigInitialValues,
+  getViewType,
+  isHidden,
+  switchViewType,
   updateEvaluatedSectionConfig,
+  ViewTypes,
 } from "./utils";
 import type { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
+import { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
@@ -289,13 +290,13 @@ describe("caculateIsHidden test", () => {
       path: "name",
       comparison: "EQUALS",
       value: "Name",
-      flagValue: "TEST_FLAG",
+      flagValue: FeatureFlag.TEST_FLAG,
     };
     const hiddenFalsy: HiddenType = {
       path: "name",
       comparison: "EQUALS",
       value: "Different Name",
-      flagValue: "TEST_FLAG",
+      flagValue: FeatureFlag.TEST_FLAG,
     };
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();
