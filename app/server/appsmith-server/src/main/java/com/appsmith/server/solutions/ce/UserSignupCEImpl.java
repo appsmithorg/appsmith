@@ -13,13 +13,11 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagTrait;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
@@ -43,7 +41,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +76,6 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final EnvManager envManager;
     private final CommonConfig commonConfig;
     private final UserUtils userUtils;
-    private final FeatureFlagService featureFlagService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -93,8 +89,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             AnalyticsService analyticsService,
                             EnvManager envManager,
                             CommonConfig commonConfig,
-                            UserUtils userUtils,
-                            FeatureFlagService featureFlagService) {
+                            UserUtils userUtils) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -105,7 +100,6 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.envManager = envManager;
         this.commonConfig = commonConfig;
         this.userUtils = userUtils;
-        this.featureFlagService = featureFlagService;
     }
 
     /**
@@ -137,24 +131,12 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return pair.getT2();
                 });
 
-        //        user.getHashedEmail();
-
-        String identifier = user.getEmail();
-        List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
-        Mono<Map<String, Object>> userTraitsMono = configService.getInstanceId()
-                .flatMap(instanceId -> {
-                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", user.getEmail()));
-                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
-                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
-                    return featureFlagService.remoteSetUserTraits(featureFlagTraits);
-                });
 
         return Mono
                 .zip(
                         createUserAndSendEmailMono,
                         exchange.getSession(),
-                        ReactiveSecurityContextHolder.getContext(),
-                        userTraitsMono
+                        ReactiveSecurityContextHolder.getContext()
                 )
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
@@ -162,7 +144,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                     final String workspaceId = tuple.getT1().getDefaultWorkspaceId();
                     final WebSession session = tuple.getT2();
                     final SecurityContext securityContext = tuple.getT3();
-                    final Map<String, Object> userTraits = tuple.getT4();
 
                     Authentication authentication = new UsernamePasswordAuthenticationToken(
                             savedUser, null, savedUser.getAuthorities()
@@ -194,15 +175,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return authenticationSuccessMono
                             .thenReturn(savedUser);
                 });
-    }
-
-    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue){
-        FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
-        //TODO: check hashing of email for self-hosted
-        featureFlagTrait.setIdentifier(identifier);
-        featureFlagTrait.setTraitKey(traitKey);
-        featureFlagTrait.setTraitValue(traitValue);
-        return featureFlagTrait;
     }
 
     /**
