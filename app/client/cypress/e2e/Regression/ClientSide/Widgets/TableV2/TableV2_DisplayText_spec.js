@@ -52,7 +52,6 @@ describe("Table V2 sort & filter using display text functionality", () => {
     cy.get(".t--property-control-columntype span.rc-select-selection-item span")
       .invoke("text")
       .then((text) => {
-        console.log(text);
         columnType = text;
         if (columnType !== "URL") {
           cy.changeColumnType("URL");
