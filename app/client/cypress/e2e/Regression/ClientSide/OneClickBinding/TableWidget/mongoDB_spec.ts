@@ -83,12 +83,16 @@ describe("one click binding mongodb datasource", function () {
     (cy as any).saveTableCellValue(searchColumnIndex, 0);
     // save a row with some random text
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
-
-    _.agHelper.Sleep(5000);
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertElementVisible(_.table._saveNewRow);
+    _.agHelper.Sleep();
 
     //search the table for a row having the text used to create a new row
     _.agHelper.ClearTextField(_.table._searchInput);
     _.agHelper.TypeText(_.table._searchInput, someText);
+    _.agHelper.Sleep();
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertElementVisible(oneClickBindingLocator.validTableRowData);
     _.agHelper.Sleep();
 
     //check if that row is present

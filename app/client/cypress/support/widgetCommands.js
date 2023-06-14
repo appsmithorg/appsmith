@@ -1443,6 +1443,9 @@ Cypress.Commands.add("hoverTableCell", (x, y) => {
 });
 
 Cypress.Commands.add("editTableCell", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`,
+  ).scrollIntoView();
   cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
     .invoke("show")
     .click({ force: true });
@@ -1453,6 +1456,9 @@ Cypress.Commands.add("editTableCell", (x, y) => {
 });
 
 Cypress.Commands.add("editTableSelectCell", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`,
+  ).scrollIntoView();
   cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
     .invoke("show")
     .click({ force: true });
