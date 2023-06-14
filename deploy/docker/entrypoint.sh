@@ -28,6 +28,8 @@ if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
   FILE_SHARE_NAME="$(echo "$FILE_SHARE_NAME" | xargs)"
 
   echo "Running appsmith for cloudRun"
+  echo "creating mount point"
+  mkdir -p /appsmith-stacks
   echo "Mounting File Sytem"
   mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
   echo "Mounted File Sytem"
