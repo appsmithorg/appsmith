@@ -82,10 +82,11 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Mongo_Query");
 
     cy.wait(1000);
-    cy.updateCodeInput(
-      ".t--actionConfiguration\\.formData\\.collection\\.data",
-      "TestCollection",
-    );
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "TestCollection",
+    });
     cy.wait("@saveAction");
   });
 
@@ -135,11 +136,13 @@ describe("MaintainContext&Focus", function () {
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
       { ch: 2, line: 0 },
     );
-    _.entityExplorer.SelectEntityByName("Mongo_Query");
 
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration\\.formData\\.collection\\.data",
-    );
+    // Removing as the Mongo collection is now converted to dropdown
+    // _.entityExplorer.SelectEntityByName("Mongo_Query");
+
+    // cy.assertCursorOnCodeInput(
+    //   ".t--actionConfiguration\\.formData\\.collection\\.data",
+    // );
 
     //Maintains focus on JS Objects
     _.entityExplorer.SelectEntityByName("JSObject1");
