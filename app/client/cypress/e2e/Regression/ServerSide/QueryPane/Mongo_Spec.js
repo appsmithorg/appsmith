@@ -9,6 +9,7 @@ import {
   homePage,
   dataSources,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -75,7 +76,7 @@ describe("Validate Mongo query commands", function () {
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
 
-    agHelper.ValidateNetworkStatus("@trigger");
+    assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -145,7 +146,7 @@ describe("Validate Mongo query commands", function () {
 
   it("3. Validate Count command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    agHelper.ValidateNetworkStatus("@trigger");
+    assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -174,7 +175,7 @@ describe("Validate Mongo query commands", function () {
 
   it("4. Validate Distinct command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    agHelper.ValidateNetworkStatus("@trigger");
+    assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -207,7 +208,7 @@ describe("Validate Mongo query commands", function () {
 
   it("5. Validate Aggregate command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    agHelper.ValidateNetworkStatus("@trigger");
+    assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
@@ -396,7 +397,7 @@ describe("Validate Mongo query commands", function () {
       cy.NavigateToActiveDSQueryPane(dbName);
     });
 
-    agHelper.ValidateNetworkStatus("@trigger");
+    assertHelper.AssertNetworkStatus("@trigger");
 
     dataSources.SetQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(
