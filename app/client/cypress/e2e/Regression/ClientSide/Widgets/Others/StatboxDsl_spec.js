@@ -34,11 +34,11 @@ describe("Statbox Widget", function () {
         .first()
         .clear()
         .wait(400)
-        .type("#FFC13D");
+        .type("#FFC13D")
+        .wait(500);
       cy.get(`${widgetsPage.cellBackground} input`).should(($input) => {
         const value = $input.val();
-        expect(Cypress.eq(value, "#ffc13d", { caseInsensitive: true })).to.be
-          .true;
+        expect(value.toLowerCase()).to.equal("#ffc13d"); // Case-insensitive comparison
       });
     });
   });
