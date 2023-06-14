@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 import { FixedSizeList } from "react-window";
-import { useTable, useBlockLayout } from "react-table";
+import { useTable, useBlockLayout, useResizeColumns } from "react-table";
 
 import { scrollbarWidth } from "utils/helpers";
 import { getType, Types } from "utils/TypeHelpers";
@@ -273,6 +273,7 @@ function Table(props: TableProps) {
       defaultColumn,
     },
     useBlockLayout,
+    useResizeColumns,
   );
 
   const tableBodyEle = tableBodyRef?.current;
@@ -339,6 +340,12 @@ function Table(props: TableProps) {
                         >
                           <AutoToolTipComponent title={column.render("Header")}>
                             {column.render("Header")}
+                            <div
+                              {...column.getResizerProps()}
+                              className={`resizer ${
+                                column.isResizing ? "isResizing" : ""
+                              }`}
+                            />
                           </AutoToolTipComponent>
                         </div>
                       </div>
