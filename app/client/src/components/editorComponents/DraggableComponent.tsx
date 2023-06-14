@@ -7,6 +7,7 @@ import styled from "styled-components";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { useSelector } from "react-redux";
 import {
+  getIsAutoLayout,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -78,6 +79,7 @@ export const canDrag = (
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -159,7 +161,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
   const onDragStart = (e: any) => {
-    e.preventDefault();
     e.stopPropagation();
     // allowDrag check is added as react jest test simulation is not respecting default behaviour
     // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
@@ -169,6 +170,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isSelected) {
         selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
+
       const widgetHeight = props.bottomRow - props.topRow;
       const widgetWidth = props.rightColumn - props.leftColumn;
       const bounds = draggableRef.current.getBoundingClientRect();
@@ -190,6 +192,28 @@ function DraggableComponent(props: DraggableComponentProps) {
         startPoints,
         draggedOn: props.parentId,
       });
+      if (isAutoLayout) {
+        e.dataTransfer.setData(
+          "text",
+          JSON.stringify(props.widgetId || "widget"),
+        );
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.width = 100;
+        canvas.height = 20;
+        if (context) {
+          context.fillStyle = "#333333";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+
+          context.fillStyle = "#999999";
+          context.font = "bold 13px Arial";
+          context.fillText(props.widgetName, 5, 15);
+        }
+        e.dataTransfer.setDragImage(canvas, -25, -25);
+        document.body.appendChild(canvas);
+      } else {
+        e.preventDefault();
+      }
     }
   };
 
@@ -197,7 +221,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     <DraggableWrapper
       className={className}
       data-testid={isSelected ? "t--selected" : ""}
-      draggable={allowDrag}
+      draggable
       onDragStart={onDragStart}
       onMouseOver={handleMouseOver}
       ref={draggableRef}

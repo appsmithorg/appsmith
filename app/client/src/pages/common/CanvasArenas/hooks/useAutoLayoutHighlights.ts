@@ -4,7 +4,6 @@ import { getWidgets } from "sagas/selectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
-import type { Point } from "utils/autoLayout/highlightSelectionUtils";
 import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { useRef } from "react";
@@ -123,8 +122,7 @@ export const useAutoLayoutHighlights = ({
    */
   const getDropPosition = (
     snapColumnSpace: number,
-    e?: any,
-    val?: Point,
+    delta = { left: 0, top: 0 },
     mouseUp = false,
   ) => {
     if (mouseUp && lastActiveHighlight) return lastActiveHighlight;
@@ -160,8 +158,7 @@ export const useAutoLayoutHighlights = ({
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights.current,
-      e || null,
-      val,
+      delta,
     );
     if (!highlight) return;
 

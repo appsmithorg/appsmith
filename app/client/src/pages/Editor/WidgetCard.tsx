@@ -1,3 +1,4 @@
+import type { DragEvent } from "react";
 import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
@@ -6,6 +7,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
+import { useSelector } from "react-redux";
+import { getIsAutoLayout } from "selectors/editorSelectors";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -71,15 +74,42 @@ export const IconLabel = styled.h5`
 
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const { deselectAll } = useWidgetSelection();
 
-  const onDragStart = (e: any) => {
-    e.preventDefault();
+  const onDragStart = (e: DragEvent) => {
     e.stopPropagation();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
       widgetName: props.details.displayName,
     });
+    if (isAutoLayout) {
+      e.dataTransfer.setData(
+        "text/plain",
+        JSON.stringify({
+          ...props.details,
+          widgetId: generateReactKey(),
+        }),
+      );
+      const img = new Image();
+      img.src = props.details.icon;
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      canvas.width = 100;
+      canvas.height = 20;
+      if (context) {
+        context.fillStyle = "#333333";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        context.fillStyle = "#999999";
+        context.font = "bold 13px Arial";
+        context.fillText(props.details.displayName, 5, 15);
+      }
+      e.dataTransfer.setDragImage(img, -25, -25);
+      //document.body.appendChild(canvas);
+    } else {
+      e.preventDefault();
+    }
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
