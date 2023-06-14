@@ -521,8 +521,9 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            Click the <b>+</b> button beside On success, select{" "}
-            <b>Execute a query</b> {"&"} then choose <b>getCustomers</b> Query
+            Expand <b>Callbacks</b> section, click the <b>+</b> button beside{" "}
+            <b>On success</b>, select <b>Execute a query</b> {"&"} then choose{" "}
+            <b>getCustomers</b> Query
           </>
         ),
       },

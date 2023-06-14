@@ -359,7 +359,8 @@ class CodeMirrorTernService {
     // When a function is picked, move the cursor between the parenthesis
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
     CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
-      if (selected.type === AutocompleteDataType.FUNCTION) {
+      const hasParenthesis = selected.text.endsWith("()");
+      if (selected.type === AutocompleteDataType.FUNCTION && hasParenthesis) {
         cm.setCursor({
           line: cm.getCursor().line,
           ch: cm.getCursor().ch - 1,

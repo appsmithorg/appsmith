@@ -84,10 +84,8 @@ describe("Table widget inline editing validation functionality", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
     });
 
@@ -100,10 +98,8 @@ describe("Table widget inline editing validation functionality", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
     });
 
@@ -116,13 +112,10 @@ describe("Table widget inline editing validation functionality", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
     });
   });
@@ -143,19 +136,14 @@ describe("Table widget inline editing validation functionality", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
     });
 
@@ -174,19 +162,14 @@ describe("Table widget inline editing validation functionality", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
     });
   });
@@ -200,7 +183,6 @@ describe("Table widget inline editing validation functionality", () => {
     cy.editTableCell(0, 0);
     cy.wait(1000);
     cy.enterTableCellValue(0, 0, "123");
-    cy.wait(500);
     cy.get(".bp3-overlay.error-tooltip .bp3-popover-content").should(
       "contain",
       "You got error mate!!",
@@ -224,7 +206,6 @@ describe("Table widget inline editing validation functionality", () => {
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.get(widgetsPage.toastAction).should("not.exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.saveTableCellValue(0, 0);
       cy.get(`.t--inlined-cell-editor`).should("not.exist");
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");

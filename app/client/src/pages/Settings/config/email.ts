@@ -109,7 +109,8 @@ export const config: AdminConfigType = {
                 smtpHost: settings["APPSMITH_MAIL_HOST"],
                 smtpPort: settings["APPSMITH_MAIL_PORT"],
                 fromEmail: settings["APPSMITH_MAIL_FROM"],
-                starttlsEnabled: settings["APPSMITH_MAIL_SMTP_TLS_ENABLED"],
+                starttlsEnabled:
+                  settings["APPSMITH_MAIL_SMTP_TLS_ENABLED"] || false,
                 username: settings["APPSMITH_MAIL_USERNAME"],
                 password: settings["APPSMITH_MAIL_PASSWORD"],
               },

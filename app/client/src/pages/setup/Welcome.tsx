@@ -18,6 +18,7 @@ const LandingPageWrapper = styled.div`
   justify-content: center;
   align-items: flex-start;
   margin: 0 auto;
+  overflow-y: auto;
 `;
 
 const LandingPageContent = styled.div`
@@ -43,16 +44,17 @@ const StyledBannerHeader = styled.div`
   font-size: 72px;
   margin: 0px 0px;
   font-weight: 600;
-  margin-right: 1rem;
+  margin-right: 3rem;
   width: 100%;
   text-align: center;
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 const StyledBannerBody = styled.div`
   font-size: 24px;
   margin: ${(props) => props.theme.spaces[7]}px 0px;
   font-weight: 500;
-  margin-right: 8rem;
+  margin-right: 9rem;
   width: 100%;
   text-align: center;
   color: var(--ads-v2-color-fg);

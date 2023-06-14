@@ -528,12 +528,17 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
-    if (identifierHasChanged && shouldFocusOnPropertyControl()) {
-      setTimeout(() => {
-        if (this.props.editorIsFocused) {
-          this.editor.focus();
-        }
-      }, 200);
+    if (identifierHasChanged) {
+      if (this.state.showAIWindow) {
+        this.setState({ showAIWindow: false });
+      }
+      if (shouldFocusOnPropertyControl()) {
+        setTimeout(() => {
+          if (this.props.editorIsFocused) {
+            this.editor.focus();
+          }
+        }, 200);
+      }
     }
     this.editor.operation(() => {
       if (prevProps.lintErrors !== this.props.lintErrors) {
@@ -849,7 +854,7 @@ class CodeEditor extends Component<Props, State> {
         /*
          * We only want focus to go out for code editors in JS pane with binding prompts
          * This is so the esc closes the binding prompt.
-         * but this is not needed in the JS object editor, since there are no prompts there
+         * but this is not needed in the JS Object editor, since there are no prompts there
          * So we check for the following so the JS editor does not have this behaviour -
          * isFocused : editor is focused
          * hinterOpen : autocomplete hinter is closed
@@ -1283,6 +1288,14 @@ class CodeEditor extends Component<Props, State> {
     // Check if the user is trying to comment out the line, in that case we should not show autocomplete
     const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
 
+    const isAltKeyPressed = event.altKey;
+
+    // If alt key is pressed, do not show autocomplete
+    // Windows and Linux use Alt + Enter to add a new line
+    // Alt key is used to enter non-english characters which are invalid entity names
+    // So we can safely disable autocomplete when alt key is pressed
+    if (isAltKeyPressed) return;
+
     if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
     if (isCloseKey(code) || isCloseKey(key)) {
@@ -1292,13 +1305,19 @@ class CodeEditor extends Component<Props, State> {
     }
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
+    const token = cm.getTokenAt(cursor);
     let showAutocomplete = false;
     const prevChar = line[cursor.ch - 1];
 
-    /* Check if the character before cursor is completable to show autocomplete which backspacing */
-    if (key === "/" && !isCtrlOrCmdPressed) {
+    // If the token is a comment or string, do not show autocomplete
+    if (token?.type && ["comment", "string"].includes(token.type)) return;
+    if (isCtrlOrCmdPressed) {
+      // If cmd or ctrl is pressed only show autocomplete for space key
+      showAutocomplete = key === " ";
+    } else if (key === "/") {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
+      /* Check if the character before cursor is completable to show autocomplete which backspacing */
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
