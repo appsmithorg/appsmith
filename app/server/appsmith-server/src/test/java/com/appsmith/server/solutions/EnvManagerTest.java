@@ -82,8 +82,6 @@ public class EnvManagerTest {
     @MockBean
     private OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository;
 
-    EnvManager envManager;
-
     @BeforeEach
     public void setup() {
         envManager = new EnvManagerImpl(sessionUserService,
