@@ -41,7 +41,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
     apiPage.CreateAndFillApi(
-      "https://api.whatdoestrumpthink.com/api/v1/quotes/random",
+      "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
       "WhatTrumpThinks",
       30000,
     );
@@ -94,7 +94,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       entityExplorer.SelectEntityByName("Input2");
       propPane.UpdatePropertyFieldValue(
         "Default value",
-        "{{" + jsObjName + ".callTrump.data.message}}",
+        "{{" + jsObjName + ".callTrump.data}}",
       );
 
       agHelper.AssertContains(
