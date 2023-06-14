@@ -468,13 +468,23 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
       //Verifying DeleteFile icon from UI
-      cy.xpath(queryLocators.deleteFileicon).eq(0).click(); //Verifies 8684
+      cy.xpath(
+        "//span[text()='" +
+          fileName +
+          "']/ancestor::div[@type='CANVAS_WIDGET']//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]",
+      )
+        .eq(0)
+        .click(); //Verifies 8684
       cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
       expect(
         cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
       ).to.exist; //verify Delete File dialog appears
       cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
+      agHelper.AssertElementAbsence(".t--modal-widget", 10000);
+      cy.wait("@postExecute").then(({ response }) => {
+        expect(response.body.data.isExecutionSuccess).to.eq(true);
+      });
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
       });
