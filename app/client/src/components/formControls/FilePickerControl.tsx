@@ -11,6 +11,7 @@ import { Field } from "redux-form";
 import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
 import { Button, Modal, ModalBody, ModalContent } from "design-system";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -135,7 +136,10 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 
   render() {
-    const { configProperty, disabled } = this.props;
+    const { disabled } = this.props;
+    const currentEnvironment = getCurrentEnvironment();
+    const configProperty =
+      `datasourceStorages.${currentEnvironment}.` + this.props.configProperty;
     return (
       <Field
         component={RenderFilePicker}

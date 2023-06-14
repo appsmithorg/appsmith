@@ -5,6 +5,7 @@ import type { InputType } from "components/constants";
 import type { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import styled from "styled-components";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
   width: 545px;
@@ -12,8 +13,10 @@ const Wrapper = styled.div`
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   render() {
-    const { configProperty, dataType, disabled, fixedKey, placeholderText } =
-      this.props;
+    const { dataType, disabled, fixedKey, placeholderText } = this.props;
+    const currentEnvironment = getCurrentEnvironment();
+    const configProperty =
+      `datasourceStorages.${currentEnvironment}.` + this.props.configProperty;
 
     return (
       <Wrapper>

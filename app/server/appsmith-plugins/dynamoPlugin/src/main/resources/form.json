@@ -6,7 +6,7 @@
       "children": [
         {
           "label": "Region",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "ap-south-1",
@@ -139,7 +139,7 @@
         },
         {
           "label": "AWS Access key ID",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+          "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "placeholderText": "",
@@ -147,7 +147,7 @@
         },
         {
           "label": "AWS Secret Access Key",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+          "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
           "initialValue": "",

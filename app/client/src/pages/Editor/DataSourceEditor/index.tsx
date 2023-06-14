@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { get, isEqual, memoize, set } from "lodash";
+import { get, isEqual, memoize } from "lodash";
 import {
   getPluginImages,
   getDatasource,
@@ -613,23 +613,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       );
       return null;
     }
-
-    const defaultDataStorage = get(datasource, "datasourceStorages.unused_env");
-    const activeDataStorage = get(datasource, "datasourceStorages.active_env");
-    //When using saved datasource we should update active env to unused env
-    //This is because client uses active_env for editing datasource.
-    if (
-      defaultDataStorage &&
-      ((!isNewDatasource &&
-        this.props.pluginDatasourceForm ===
-          DatasourceComponentTypes.AutoForm) ||
-        !activeDataStorage)
-    )
-      set(
-        datasource as Datasource,
-        "datasourceStorages.active_env",
-        defaultDataStorage,
-      );
 
     return (
       <Form

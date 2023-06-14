@@ -94,7 +94,7 @@ export class JSONtoForm<
     try {
       this.props.setupConfig(config);
       return (
-        <div key={config.configProperty} style={{ marginTop: "16px" }}>
+        <div key={config.configProperty + 123} style={{ marginTop: "16px" }}>
           <FormControl
             config={config}
             formName={this.props.formName}

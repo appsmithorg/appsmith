@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -40,8 +41,11 @@ export default class RenderDatasourceInformation extends React.Component<{
 }> {
   renderKVArray = (children: Array<any>) => {
     try {
+      const currentEnvionment = getCurrentEnvironment();
       // setup config for each child
-      const firstConfigProperty = children[0].configProperty;
+      const firstConfigProperty =
+        `datasourceStorages.${currentEnvionment}.` +
+          children[0].configProperty || children[0].configProperty;
       const configPropertyInfo = firstConfigProperty.split("[*].");
       const values = get(this.props.datasource, configPropertyInfo[0], null);
       const renderValues: Array<
@@ -88,6 +92,7 @@ export default class RenderDatasourceInformation extends React.Component<{
 
   renderDatasourceSection(section: any) {
     const { datasource, viewMode } = this.props;
+    const currentEnvionment = getCurrentEnvironment();
     return (
       <React.Fragment key={datasource.id}>
         {map(section.children, (section) => {
@@ -102,8 +107,10 @@ export default class RenderDatasourceInformation extends React.Component<{
           } else {
             try {
               const { configProperty, controlType, label } = section;
+              const customConfigProperty =
+                `datasourceStorages.${currentEnvionment}.` + configProperty;
               const reactKey = datasource.id + "_" + label;
-
+              //Check this case
               if (controlType === "FIXED_KEY_INPUT") {
                 return (
                   <FieldWrapper key={reactKey}>
@@ -113,7 +120,7 @@ export default class RenderDatasourceInformation extends React.Component<{
                 );
               }
 
-              let value = get(datasource, configProperty);
+              let value = get(datasource, customConfigProperty);
 
               if (controlType === "DROP_DOWN") {
                 if (Array.isArray(section.options)) {

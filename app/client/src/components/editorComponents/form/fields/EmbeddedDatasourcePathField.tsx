@@ -194,6 +194,7 @@ const StyledTooltip = styled.span<{ width?: number }>`
 
 //Avoiding styled components since ReactDOM.render cannot directly work with it
 function CustomHint(props: { datasource: Datasource }) {
+  const currentEnvironment = getCurrentEnvironment();
   return (
     <div style={hintContainerStyles}>
       <div style={mainContainerStyles}>
@@ -205,7 +206,7 @@ function CustomHint(props: { datasource: Datasource }) {
       <span style={datasourceInfoStyles}>
         {get(
           props.datasource,
-          "datasourceStorages.active_env.datasourceConfiguration.url",
+          `datasourceStorages.${currentEnvironment}.datasourceConfiguration.url`,
         )}
       </span>
     </div>
@@ -253,6 +254,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     value: string,
   ): { datasourceUrl: string; path: string } => {
     const { datasource } = this.props;
+    const currentEnvironment = getCurrentEnvironment();
 
     if (value === "") {
       return {
@@ -263,7 +265,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     if (datasource && datasource.hasOwnProperty("id")) {
       const datasourceUrl = get(
         datasource,
-        "datasourceStorages.active_env.datasourceConfiguration.url",
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.url`,
         "",
       );
       if (value.includes(datasourceUrl)) {

@@ -189,7 +189,7 @@ describe("getConfigInitialValues test", () => {
               {
                 label: "Region",
                 configProperty:
-                  "datasourceConfiguration.authentication.databaseName",
+                  "datasourceStorages.unused_env.datasourceConfiguration.authentication.databaseName",
                 controlType: "DROP_DOWN",
                 initialValue: "ap-south-1",
                 options: [
@@ -220,7 +220,7 @@ describe("getConfigInitialValues test", () => {
               {
                 label: "Region",
                 configProperty:
-                  "datasourceConfiguration.authentication.databaseName",
+                  "datasourceStorages.unused_env.datasourceConfiguration.authentication.databaseName",
                 controlType: "INPUT_TEXT",
               },
             ],
@@ -235,13 +235,15 @@ describe("getConfigInitialValues test", () => {
             children: [
               {
                 label: "Host address (for overriding endpoint only)",
-                configProperty: "datasourceConfiguration.endpoints[*].host",
+                configProperty:
+                  "datasourceStorages.unused_env.datasourceConfiguration.endpoints[*].host",
                 controlType: "KEYVALUE_ARRAY",
                 initialValue: ["jsonplaceholder.typicode.com"],
               },
               {
                 label: "Port",
-                configProperty: "datasourceConfiguration.endpoints[*].port",
+                configProperty:
+                  "datasourceStorages.unused_env.datasourceConfiguration.endpoints[*].port",
                 dataType: "NUMBER",
                 controlType: "KEYVALUE_ARRAY",
               },
@@ -261,7 +263,8 @@ describe("getConfigInitialValues test", () => {
             children: [
               {
                 label: "Smart substitution",
-                configProperty: "datasourceConfiguration.isSmart",
+                configProperty:
+                  "datasourceStorages.unused_env.datasourceConfiguration.isSmart",
                 controlType: "SWITCH",
                 initialValue: false,
               },

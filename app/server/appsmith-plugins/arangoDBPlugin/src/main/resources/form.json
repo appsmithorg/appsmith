@@ -9,14 +9,14 @@
           "children": [
             {
               "label": "Host address",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$"
             },
             {
               "label": "Port",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY"
             }
@@ -24,7 +24,7 @@
         },
         {
           "label": "Database name",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Database name",
           "initialValue": "_system"
@@ -40,13 +40,13 @@
           "children": [
             {
               "label": "Username",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+              "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Username"
             },
             {
               "label": "Password",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+              "configProperty": "datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
@@ -62,7 +62,7 @@
       "children": [
         {
           "label": "SSL mode",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.authType",
+          "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "initialValue": "DEFAULT",
           "options": [
@@ -82,7 +82,7 @@
         },
         {
           "label": "Use CA Certificate",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.caCertificateType",
+          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateType",
           "controlType": "DROP_DOWN",
           "initialValue": "NONE",
           "options": [
@@ -100,30 +100,30 @@
             }
           ],
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.authType",
+            "path": "datasourceConfiguration.connection.ssl.authType",
             "comparison": "NOT_EQUALS",
             "value": "ENABLED"
           }
         },
         {
           "label": "CA Certificate File",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.caCertificateFile",
+          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile",
           "controlType": "FILE_PICKER",
           "encrypted": true,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.caCertificateType",
+            "path": "datasourceConfiguration.connection.ssl.caCertificateType",
             "comparison": "NOT_EQUALS",
             "value": "FILE"
           }
         },
         {
           "label": "Base64 Encoded CA Certificate String",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.caCertificateFile.base64Content",
+          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile.base64Content",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
           "encrypted": true,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.caCertificateType",
+            "path": "datasourceConfiguration.connection.ssl.caCertificateType",
             "comparison": "NOT_EQUALS",
             "value": "BASE64_STRING"
           }

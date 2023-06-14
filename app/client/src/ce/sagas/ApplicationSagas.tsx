@@ -122,6 +122,7 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -851,11 +852,10 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  if (datasource.datasourceStorages.unused_env) {
-    datasource.datasourceStorages.active_env =
-      datasource.datasourceStorages.unused_env;
-  }
-  if (!datasource.datasourceStorages.active_env?.datasourceConfiguration) {
+  const currentEnvironment = getCurrentEnvironment();
+  if (
+    !datasource.datasourceStorages[currentEnvironment]?.datasourceConfiguration
+  ) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
@@ -866,9 +866,9 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       formConfig,
     );
     const payload = merge(initialValues, datasource);
-    payload.datasourceStorages.active_env.isConfigured = false; // imported datasource as not configured yet
+    payload.datasourceStorages[currentEnvironment].isConfigured = false; // imported datasource as not configured yet
     const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
-      payload.datasourceStorages.active_env,
+      payload.datasourceStorages[currentEnvironment],
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

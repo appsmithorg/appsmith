@@ -18,6 +18,7 @@ import {
   FIELD_REQUIRED_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const getTrimmedData = (formData: any) => {
   const dataType = getType(formData);
@@ -82,7 +83,7 @@ export const validate = (
   values: any,
 ) => {
   const errors = {} as any;
-
+  const currentEnvironment = getCurrentEnvironment();
   Object.keys(requiredFields).forEach((fieldConfigProperty) => {
     const fieldConfig = requiredFields[fieldConfigProperty];
     if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
@@ -113,10 +114,17 @@ export const validate = (
       });
 
       if (keyValueArrayErrors.length) {
-        _.set(errors, configProperty[0], keyValueArrayErrors);
+        _.set(
+          errors,
+          `datasourceStorages.${currentEnvironment}.` + configProperty[0],
+          keyValueArrayErrors,
+        );
       }
     } else {
-      const value = _.get(values, fieldConfigProperty);
+      const value = _.get(
+        values,
+        `datasourceStorages.${currentEnvironment}.` + fieldConfigProperty,
+      );
 
       if (_.isNil(value) || (isString(value) && _.isEmpty(value.trim()))) {
         _.set(errors, fieldConfigProperty, "This field is required");

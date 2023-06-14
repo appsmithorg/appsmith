@@ -9,6 +9,7 @@ import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/ac
 import { WhereClauseSubComponent } from "./utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Button, Tooltip } from "design-system";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -476,11 +477,13 @@ function ConditionBlock(props: any) {
 export default function WhereClauseControl(props: WhereClauseControlProps) {
   const {
     comparisonTypes, // All possible keys for the comparison
-    configProperty, // JSON path for the where clause data
     formName, // Name of the form, used by redux-form lib to store the data in redux store
     logicalTypes, // All possible keys for the logical operators joining multiple conditions
     nestedLevels, // Number of nested levels allowed
   } = props;
+  const currentEnvironment = getCurrentEnvironment();
+  const configProperty =
+    `datasourceStorages.${currentEnvironment}.` + props.configProperty; // JSON path for the where clause data
 
   // Max width is designed in a way that the proportion stays same even after nesting
   const maxWidth = 60; //in vw

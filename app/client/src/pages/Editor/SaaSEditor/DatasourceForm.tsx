@@ -1,5 +1,5 @@
 import React from "react";
-import { get, isEqual, isNil, map, memoize, omit, set } from "lodash";
+import { get, isEqual, isNil, map, memoize, omit } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
@@ -409,15 +409,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       !isPluginAuthorized &&
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
 
-    const defaultDataStorage = get(datasource, "datasourceStorages.unused_env");
-    //When using saved datasource we should update active env to unused env
-    //This is because client uses active_env for editing datasource.
-    if (defaultDataStorage)
-      set(
-        datasource as Datasource,
-        "datasourceStorages.active_env",
-        defaultDataStorage,
-      );
     return (
       <>
         {!hiddenHeader && (

@@ -14,6 +14,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import _ from "lodash";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
@@ -104,6 +105,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
     const {
       actionName,
       configProperty,
+      currentEnvironment,
       customStyles,
       disabled,
       inputType,
@@ -124,7 +126,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
         disabled={disabled}
         inputType={inputTypeProp}
         label={label}
-        name={configProperty}
+        name={`datasourceStorages.${currentEnvironment}.` + configProperty}
         placeholder={placeholderText}
         showLineNumbers={showLineNumbers}
       />
@@ -139,6 +141,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
 export interface DynamicInputControlProps extends ControlProps {
   placeholderText: string;
   actionName: string;
+  currentEnvironment: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
 }
 
@@ -147,8 +150,10 @@ const mapStateToProps = (state: AppState, props: DynamicInputControlProps) => {
     props.formName || QUERY_EDITOR_FORM_NAME,
   );
   const actionName = valueSelector(state, "name");
+  const currentEnvironment = getCurrentEnvironment();
   return {
     actionName: actionName,
+    currentEnvironment,
   };
 };
 

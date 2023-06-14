@@ -6,16 +6,20 @@ import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 class CheckboxControl extends BaseControl<CheckboxControlProps> {
   getControlType(): ControlType {
     return "CHECKBOX";
   }
   render() {
+    const currentEnvionment = getCurrentEnvironment();
     return (
       <Field
         component={renderComponent}
-        name={this.props.configProperty}
+        name={
+          `datasourceStorages.${currentEnvionment}.` + this.props.configProperty
+        }
         props={{ ...this.props }}
         type="checkbox"
       />
