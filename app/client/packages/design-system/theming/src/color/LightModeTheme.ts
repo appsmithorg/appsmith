@@ -191,27 +191,6 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private get bgPositive() {
-    const color = this.bgAccent.clone();
-
-    color.oklch.h = 140;
-
-    if (this.seedIsGreen) {
-      if (this.seedColor.oklch.h < 139) {
-        color.oklch.h = 165;
-      }
-      if (this.seedColor.oklch.h >= 139) {
-        color.oklch.h = 116;
-      }
-    }
-
-    if (color.oklch.c < 0.15) {
-      color.oklch.c = 0.15;
-    }
-
-    return color;
-  }
-
   // used only for generating child colors, not used as a token
   private get bgAccentSubtle() {
     const color = this.seedColor.clone();
@@ -266,6 +245,25 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bgPositive() {
+    const color = this.bgAccent.clone();
+
+    color.oklch.l = 0.62;
+    color.oklch.c = 0.19;
+    color.oklch.h = 145;
+
+    if (this.seedIsGreen && this.seedColor.oklch.c > 0.11) {
+      if (this.seedColor.oklch.h < 145) {
+        color.oklch.h = 155;
+      }
+      if (this.seedColor.oklch.h >= 145) {
+        color.oklch.h = 135;
+      }
+    }
+
+    return color;
+  }
+
   /*
    * Foreground colors
    */
@@ -301,6 +299,30 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get fgNegative() {
+    const color = this.bgNegative.clone();
+
+    color.oklch.l = color.oklch.l + 0.1;
+    color.oklch.c = color.oklch.c + 0.1;
+    color.oklch.h = color.oklch.h - 10;
+
+    if (
+      this.seedIsRed &&
+      !this.seedIsAchromatic &&
+      this.fgAccent.oklch.l > 0.5 &&
+      this.fgAccent.oklch.h < 28
+    ) {
+      color.oklch.c = color.oklch.c + 0.05;
+      color.oklch.h = color.oklch.h - 15;
+    }
+
+    return color;
+  }
+
+  private get fgNeutral() {
+    return this.bdNeutral.clone();
+  }
+
   private get fgOnAccent() {
     const tint = this.seedColor.clone();
     const shade = this.seedColor.clone();
@@ -322,34 +344,6 @@ export class LightModeTheme implements ColorModeTheme {
     return shade;
   }
 
-  private get fgNeutral() {
-    return this.bdNeutral.clone();
-  }
-
-  private get fgWarn() {
-    return "#facc15";
-  }
-
-  private get fgNegative() {
-    const color = this.bgNegative.clone();
-
-    color.oklch.l = color.oklch.l + 0.1;
-    color.oklch.c = color.oklch.c + 0.1;
-    color.oklch.h = color.oklch.h - 10;
-
-    if (
-      this.seedIsRed &&
-      !this.seedIsAchromatic &&
-      this.fgAccent.oklch.l > 0.5 &&
-      this.fgAccent.oklch.h < 28
-    ) {
-      color.oklch.c = color.oklch.c + 0.05;
-      color.oklch.h = color.oklch.h - 15;
-    }
-
-    return color;
-  }
-
   private get fgOnAssistive() {
     return this.bg.clone();
   }
@@ -357,12 +351,23 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgPositive() {
     const color = this.bgPositive.clone();
 
-    if (this.bg.contrastAPCA(color) < 60) {
-      color.oklch.l = 50;
+    if (
+      this.seedIsGreen &&
+      !this.seedIsAchromatic &&
+      this.fgAccent.oklch.l > 0.5 &&
+      this.fgAccent.oklch.h < 145
+    ) {
+      color.oklch.c = color.oklch.c + 0.05;
+      color.oklch.h = color.oklch.h - 10;
     }
 
     return color;
   }
+
+  private get fgWarn() {
+    return "#facc15";
+  }
+
   /*
    * Border colors
    */
@@ -483,12 +488,26 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bdPositive() {
-    const color = this.bdAccent.clone();
+    const color = this.bgPositive.clone();
 
-    color.oklch.h = this.bgPositive.oklch.h;
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.11 &&
+      this.bdAccent.oklch.h < 145 &&
+      this.bdAccent.oklch.h >= 116
+    ) {
+      color.oklch.h = color.oklch.h + 5;
+      color.oklch.l = color.oklch.l + 0.1;
+    }
 
-    if (color.oklch.c < 0.15) {
-      color.oklch.c = 0.15;
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.11 &&
+      this.bdAccent.oklch.h >= 145 &&
+      this.bdAccent.oklch.h < 166
+    ) {
+      color.oklch.h = color.oklch.h - 5;
+      color.oklch.l = color.oklch.l + 0.05;
     }
 
     return color;
