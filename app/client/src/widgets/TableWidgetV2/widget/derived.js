@@ -367,24 +367,13 @@ export default {
                 const column = primaryColumns[sortByColumnOriginalId];
                 if (column && column.displayText) {
                   if (_.isString(column.displayText)) {
-                    try {
-                      const displayText = column.displayText;
-                      return sortByOrder(
-                        displayText.toLowerCase() > displayText.toLowerCase(),
-                      );
-                    } catch (e) {
-                      /* do nothing */
-                    }
+                    return false;
                   } else if (_.isArray(column.displayText)) {
                     return sortByOrder(
-                      primaryColumns[sortByColumnOriginalId].displayText[
-                        a.__originalIndex__
-                      ]
+                      column.displayText[a.__originalIndex__]
                         .toString()
                         .toLowerCase() >
-                        primaryColumns[sortByColumnOriginalId].displayText[
-                          b.__originalIndex__
-                        ]
+                        column.displayText[b.__originalIndex__]
                           .toString()
                           .toLowerCase(),
                     );
