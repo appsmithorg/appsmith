@@ -31,7 +31,6 @@ import {
   ApiKeyAuthType,
   AuthType,
   GrantType,
-  SSLType,
 } from "entities/Datasource/RestAPIForm";
 import { createMessage, INVALID_URL } from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
@@ -277,7 +276,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         {this.renderGeneralSettings()}
         {this.renderAuthFields()}
         {this.renderOauth2AdvancedSettings()}
-        {this.renderSelfSignedCertificateFields()}
         {formData.authType &&
           formData.authType === AuthType.OAuth2 &&
           _.get(authentication, "grantType") ===
@@ -325,25 +323,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             fieldValidator: this.urlValidator,
           })}
         </FormInputContainer>
-        <FormInputContainer
-          className="t--headers-array"
-          data-replay-id={btoa("headers")}
-        >
-          {this.renderKeyValueControlViaFormControl(
-            "headers",
-            "Headers",
-            "",
-            false,
-          )}
-        </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("queryParameters")}>
-          {this.renderKeyValueControlViaFormControl(
-            "queryParameters",
-            "Query parameters",
-            "",
-            false,
-          )}
-        </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("isSendSessionEnabled")}>
           {this.renderCheckboxViaFormControl(
             "isSendSessionEnabled",
@@ -364,6 +343,34 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             })}
           </FormInputContainer>
         )}
+        <FormInputContainer data-replay-id={btoa("ssl")}>
+          {this.renderCheckboxViaFormControl(
+            "connection.ssl.authTypeControl",
+            "Use Self-Signed Certificate",
+            "",
+            false,
+          )}
+        </FormInputContainer>
+        {this.renderSelfSignedCertificateFields()}
+        <FormInputContainer
+          className="t--headers-array"
+          data-replay-id={btoa("headers")}
+        >
+          {this.renderKeyValueControlViaFormControl(
+            "headers",
+            "Headers",
+            "",
+            false,
+          )}
+        </FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("queryParameters")}>
+          {this.renderKeyValueControlViaFormControl(
+            "queryParameters",
+            "Query parameters",
+            "",
+            false,
+          )}
+        </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("authType")}>
           {this.renderDropdownControlViaFormControl(
             "authType",
@@ -401,7 +408,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderSelfSignedCertificateFields = () => {
     const { connection } = this.props.formData;
-    if (connection?.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE) {
+    if (connection?.ssl.authTypeControl) {
       return (
         <Collapsible title="Certificate Details">
           <div style={{ marginTop: "16px" }}>
@@ -697,8 +704,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const isGrantTypeAuthorizationCode =
       _.get(authentication, "grantType") === GrantType.AuthorizationCode;
     const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
-    const isConnectSelfSigned =
-      _.get(connection, "ssl.authType") === SSLType.SELF_SIGNED_CERTIFICATE;
+    const isConnectSelfSigned = _.get(connection, "ssl.authTypeControl");
 
     return (
       <Collapsible title="Advanced Settings">
@@ -750,26 +756,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             )}
           </FormInputContainer>
         )}
-        <FormInputContainer data-replay-id={btoa("ssl")}>
-          {this.renderDropdownControlViaFormControl(
-            "connection.ssl.authType",
-            [
-              {
-                label: "No",
-                value: "DEFAULT",
-              },
-              {
-                label: "Yes",
-                value: "SELF_SIGNED_CERTIFICATE",
-              },
-            ],
-            "Use Self-signed certificate",
-            "",
-            true,
-            "",
-            "DEFAULT",
-          )}
-        </FormInputContainer>
         {isAuthenticationTypeOAuth2 && isConnectSelfSigned && (
           <FormInputContainer data-replay-id={btoa("selfsignedcert")}>
             {this.renderCheckboxViaFormControl(
