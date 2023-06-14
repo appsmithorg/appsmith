@@ -1324,7 +1324,18 @@ export class DataSources {
     fieldValue: string;
     fieldLabel: string;
   }) {
-    this.agHelper.GetNClick(this._getJSONswitchLocator(fieldProperty));
+    this.agHelper
+      .GetElement(this._getJSONswitchLocator(fieldProperty))
+      .invoke("attr", "data-selected")
+      .then(($state: any) => {
+        if (!$state.includes("true"))
+          this.agHelper.GetNClick(
+            this._getJSONswitchLocator(fieldProperty),
+            0,
+            true,
+          );
+        else this.agHelper.Sleep(200);
+      });
     this.agHelper.EnterValue(fieldValue, {
       propFieldName: "",
       directInput: false,
