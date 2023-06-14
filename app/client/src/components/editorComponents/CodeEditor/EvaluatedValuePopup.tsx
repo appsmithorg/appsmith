@@ -668,7 +668,6 @@ function EvaluatedValuePopup(props: Props) {
           }}
           onMouseLeave={() => {
             const id = setTimeout(() => setContentHovered(false), 500);
-            // @ts-expect-error: setTimeout return type mismatch
             setTimeoutId(id);
           }}
           preparedStatementViewer={
