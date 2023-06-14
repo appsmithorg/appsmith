@@ -1,6 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
@@ -23,25 +23,6 @@ function deleteAllWidgetsInContainer() {
     cy.wrap($el).click();
   });
   cy.wait(1000);
-}
-
-function dragAndDropToWidget(widgetType) {
-  const selector = `.t--widget-card-draggable-${widgetType}`;
-  const destinationWidget = "containerwidget";
-  const x = 250;
-  const y = 50;
-  cy.wait(800);
-  cy.get(selector)
-    .scrollIntoView()
-    .trigger("dragstart", { force: true })
-    .trigger("mousemove", x, y, { force: true });
-  const selector2 = `.t--draggable-${destinationWidget}`;
-  cy.get(selector2)
-    .first()
-    .scrollIntoView()
-    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-    .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 }
 
 function validateToastExist() {
@@ -105,7 +86,12 @@ describe("List widget v2 onItemClick", () => {
 
     deleteAllWidgetsInContainer();
 
-    dragAndDropToWidget("inputwidgetv2");
+    entityExplorer.DragDropWidgetNVerify(
+      "inputwidgetv2",
+      250,
+      50,
+      ".t--draggable-containerwidget",
+    );
 
     cy.get(`${widgetSelector("Input1")} input`)
       .first()
@@ -114,7 +100,12 @@ describe("List widget v2 onItemClick", () => {
 
     deleteAllWidgetsInContainer();
 
-    dragAndDropToWidget("selectwidget");
+    entityExplorer.DragDropWidgetNVerify(
+      "selectwidget",
+      250,
+      50,
+      ".t--draggable-containerwidget",
+    );
 
     cy.get(`${widgetSelector("Select1")} button`)
       .first()
@@ -123,7 +114,13 @@ describe("List widget v2 onItemClick", () => {
 
     deleteAllWidgetsInContainer();
 
-    dragAndDropToWidget("buttonwidget");
+    entityExplorer.DragDropWidgetNVerify(
+      "buttonwidget",
+      250,
+      50,
+      ".t--draggable-containerwidget",
+    );
+
     cy.get(`${widgetSelector("Button1")} button`)
       .first()
       .click({ force: true });
