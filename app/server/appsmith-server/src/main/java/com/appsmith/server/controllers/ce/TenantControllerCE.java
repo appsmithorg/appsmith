@@ -41,7 +41,7 @@ public class TenantControllerCE {
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 
-    @PutMapping("updateDefaultTenantConfiguration")
+    @PutMapping("")
     public Mono<ResponseDTO<Tenant>> updateTenantConfiguration(@RequestBody TenantConfiguration tenantConfiguration) {
         return service.updateDefaultTenantConfiguration(tenantConfiguration)
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));

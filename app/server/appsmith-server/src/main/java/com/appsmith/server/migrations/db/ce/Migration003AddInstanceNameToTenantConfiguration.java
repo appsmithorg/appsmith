@@ -33,12 +33,12 @@ public class Migration003AddInstanceNameToTenantConfiguration {
     }
 
     @Execution
-    public void addSingleSessionEnvVarToTenantConfiguration() {
+    public void addInstanceNameEnvVarToTenantConfiguration() {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is(DEFAULT));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
-        // Using default name as Appsmith here. 
+        // Using default name as Appsmith here.
         String instanceName = StringUtils.defaultIfEmpty(System.getenv(String.valueOf(APPSMITH_INSTANCE_NAME)), DEFAULT_INSTANCE_NAME);
 
         TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
@@ -48,6 +48,5 @@ public class Migration003AddInstanceNameToTenantConfiguration {
         defaultTenantConfiguration.setInstanceName(instanceName);
         defaultTenant.setTenantConfiguration(defaultTenantConfiguration);
         mongoTemplate.save(defaultTenant);
-        System.out.println(0);
     }
 }
