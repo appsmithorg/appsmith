@@ -11,6 +11,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,10 +64,12 @@ public class UserSignupTest {
 
     private UserSignup userSignup;
 
+    private FeatureFlagService featureFlagService;
+
     @BeforeEach
     public void setup() {
         userSignup = new UserSignupImpl(userService, userDataService, captchaService, authenticationSuccessHandler,
-                configService, analyticsService, envManager, commonConfig, userUtils);
+                configService, analyticsService, envManager, commonConfig, userUtils, featureFlagService);
     }
 
     private String createRandomString(int length) {
