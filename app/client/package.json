@@ -66,6 +66,7 @@
     "@tinymce/tinymce-react": "^3.13.0",
     "@types/google.maps": "^3.51.0",
     "@types/react-page-visibility": "^6.4.1",
+    "@types/web": "^0.0.99",
     "@uppy/core": "^1.16.0",
     "@uppy/dashboard": "^1.16.0",
     "@uppy/file-input": "^1.4.22",
