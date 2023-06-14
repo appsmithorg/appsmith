@@ -40,7 +40,7 @@ describe("Theme validation usecase for multi-select widget", function () {
   });
   it("5.validate applied theme", function () {
     agHelper.GetNClick(theme.locators._changeThemeBtn, 0, true);
-    agHelper.ContainsNClick(theme.locators._appliedThemeSection);
+    agHelper.GetNClick(theme.locators._appliedThemeSection);
     cy.get(theme.locators._appliedThemecard)
       .first()
       .invoke("css", "background-color")

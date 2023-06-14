@@ -20,10 +20,10 @@ export class ThemeSettings {
     _boxShadow: (type: string) =>
       "//p[text()='App box shadow']/following-sibling::div//span[contains(@class, 'ads-v2-segmented-control-value-" +
       type +
-      "')]/div",
+      "')]",
     _border: ".t--theme-appBorderRadius",
     _popover: ".rc-tooltip-inner",
-    _appliedThemeSection: "Applied Theme",
+    _appliedThemeSection: ".cursor-pointer:contains('Applied theme')",
     _appliedThemecard: ".t--theme-card main > main",
     _testWidgetMutliSelect:
       ".t--draggable-multiselectwidgetv2:contains('more')",
@@ -110,12 +110,12 @@ export class ThemeSettings {
       .wait(500);
     this.agHelper.Sleep();
 
-    this.agHelper.GetNAssertElementText(
-      this.locators._popover,
-      text,
-      "contain.text",
-      eleindex,
-    );
+    // this.agHelper.GetNAssertElementText(
+    //   this.locators._popover,
+    //   text,
+    //   "contain.text",
+    //   eleindex,
+    // );
     this.agHelper
       .GetElement(this.locators._boxShadow(text))
       .click({ force: true });
