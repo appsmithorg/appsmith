@@ -219,3 +219,17 @@ function lintUpdatedTree(
     entityTree,
   };
 }
+
+export function getEntityTreeDifferences(
+  oldEntityTree: TEntityTree,
+  entityTree: TEntityTree,
+) {
+  const oldEntityTreeForDiff = mapValues(oldEntityTree, (entity) =>
+    entity.getEntityForDifferences(),
+  );
+  const newEntityTreeForDiff = mapValues(entityTree, (entity) =>
+    entity.getEntityForDifferences(),
+  );
+
+  return diff(oldEntityTreeForDiff, newEntityTreeForDiff);
+}

@@ -8,7 +8,7 @@ import type { createEntityTree } from "./entityTree";
 
 export const parsedJSEntitiesCache: Record<string, ParsedJSEntity> = {};
 
-class ParsedJSEntity {
+export class ParsedJSEntity {
   private entity: Record<string, string> = { body: "" };
   private entityConfig: Record<string, TParsedJSProperty> = {};
 
@@ -57,9 +57,11 @@ export function updateTreeWithParsedJS(
 ) {
   for (const entity of Object.values(entityTree)) {
     if (!isJSEntity(entity)) continue;
-    const parsedJSEntity = parseJSEntity(entity).getParsedEntity();
+    const parsedJSEntity = parseJSEntity(entity);
     const rawEntity = entity.getRawEntity();
-    for (const [key, value] of Object.entries(parsedJSEntity)) {
+    for (const [key, value] of Object.entries(
+      parsedJSEntity.getParsedEntity(),
+    )) {
       rawEntity[key] = value;
     }
     entity.setParsedEntity(parsedJSEntity);

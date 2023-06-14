@@ -18,6 +18,8 @@ import type {
   DataTreeEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import type { ParsedJSEntity } from "Linting/utils/parseJSEntity";
+import type { TParsedJSProperty } from "@shared/ast";
 
 enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -81,6 +83,9 @@ export class ActionEntity
   getConfig() {
     return this.config;
   }
+  getEntityForDifferences() {
+    return this.entity;
+  }
 }
 
 export class WidgetEntity
@@ -107,6 +112,9 @@ export class WidgetEntity
   getConfig() {
     return this.config;
   }
+  getEntityForDifferences() {
+    return this.entity;
+  }
 }
 
 export class JSEntity
@@ -115,10 +123,12 @@ export class JSEntity
   private entity: TJSActionEntity;
   private config: TJSActionEntityConfig;
   private parsedEntity: Record<string, string>;
+  private parsedEntityConfig: Record<string, TParsedJSProperty>;
   constructor(entity: TJSActionEntity, config: TJSActionEntityConfig) {
     this.entity = entity;
     this.config = config;
     this.parsedEntity = { body: entity.body };
+    this.parsedEntityConfig = {};
   }
   getType() {
     return ENTITY_TYPE.JSACTION;
@@ -138,11 +148,23 @@ export class JSEntity
   isEqual(body: string) {
     return body === this.getRawEntity().body;
   }
-  setParsedEntity(parsedEntity: Record<string, string>) {
-    this.parsedEntity = parsedEntity;
+  setParsedEntity(parsedJSEntity: ParsedJSEntity) {
+    this.parsedEntity = parsedJSEntity.getParsedEntity();
+    this.parsedEntityConfig = parsedJSEntity.getParsedEntityConfig();
   }
   getParsedEntity() {
     return this.parsedEntity;
+  }
+  getParsedEntityConfig() {
+    return this.parsedEntityConfig;
+  }
+  getEntityForDifferences() {
+    const val: Record<string, string> = {};
+    for (const [propertyName, value] of Object.entries(this.parsedEntity)) {
+      val[propertyName] =
+        value + JSON.stringify(this.parsedEntityConfig[propertyName] || {});
+    }
+    return val;
   }
 }
 
@@ -167,6 +189,9 @@ export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
   getId() {
     return "pageList";
   }
+  getEntityForDifferences() {
+    return this.entity;
+  }
 }
 
 export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
@@ -189,6 +214,9 @@ export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
   }
   getId(): string {
     return "appsmith";
+  }
+  getEntityForDifferences() {
+    return this.entity;
   }
 }
 
