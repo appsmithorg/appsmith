@@ -1,6 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
+import {
+  draggableWidgets,
+  entityExplorer,
+} from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
@@ -87,7 +90,7 @@ describe("List widget v2 onItemClick", () => {
     deleteAllWidgetsInContainer();
 
     entityExplorer.DragDropWidgetNVerify(
-      "inputwidgetv2",
+      draggableWidgets.INPUT_V2,
       250,
       50,
       ".t--draggable-containerwidget",
@@ -101,7 +104,7 @@ describe("List widget v2 onItemClick", () => {
     deleteAllWidgetsInContainer();
 
     entityExplorer.DragDropWidgetNVerify(
-      "selectwidget",
+      draggableWidgets.SELECT,
       250,
       50,
       ".t--draggable-containerwidget",
@@ -115,7 +118,7 @@ describe("List widget v2 onItemClick", () => {
     deleteAllWidgetsInContainer();
 
     entityExplorer.DragDropWidgetNVerify(
-      "buttonwidget",
+      draggableWidgets.BUTTON,
       250,
       50,
       ".t--draggable-containerwidget",
