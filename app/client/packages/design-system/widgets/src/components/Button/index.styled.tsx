@@ -34,11 +34,11 @@ export const buttonStyles = css<ButtonProps>`
         color: var(--color-fg-on-${color});
         border-color: transparent;
 
-        &[data-hovered] {
+        &[data-hovered]:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-hover);
         }
 
-        &[data-active] {
+        &[data-active]:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-active);
         }
       `;
@@ -51,11 +51,11 @@ export const buttonStyles = css<ButtonProps>`
         border-color: var(--color-bd-${color});
         border-width: var(--border-width-1);
 
-        &[data-hovered] {
+        &[data-hovered]:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-subtle-hover);
         }
 
-        &[data-active] {
+        &[data-active]:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-subtle-active);
         }
       `;
@@ -68,11 +68,11 @@ export const buttonStyles = css<ButtonProps>`
         border-color: transparent;
         border-width: 0;
 
-        &[data-hovered] {
+        &[data-hovered]:not([aria-disabled]) {
           background: var(--color-bg-${color}-subtle-hover);
         }
 
-        &[data-active] {
+        &[data-active]:not([aria-disabled]) {
           background: var(--color-bg-${color}-subtle-active);
         }
       `;
@@ -86,7 +86,6 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   align-items: center;
   cursor: pointer;
   outline: 0;
-  gap: var(--spacing-1);
   padding: var(--spacing-2) var(--spacing-4);
   height: calc(var(--root-unit) * 8);
   border-radius: var(--border-radius-1);
@@ -94,6 +93,10 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   min-width: calc(var(--root-unit) * 7.5);
   text-align: center;
   position: relative;
+
+  & *:not([data-hidden]) + *:not([data-hidden]) {
+    margin-left: var(--spacing-1);
+  }
 
   ${buttonStyles}
 
@@ -107,15 +110,14 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
 
-  &[data-disabled],
-  // TODO(Pawan): Check if we need to make the UI of loading state same as disabled?
-  &[aria-disabled]:not([data-loading]) {
+  &[aria-disabled] {
     cursor: default;
     opacity: var(--opacity-disabled);
   }
 
   &[data-loading] {
     cursor: default;
+    opacity: 1;
   }
 
   &[data-icon-position="end"] {

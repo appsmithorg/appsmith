@@ -17,22 +17,16 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
    * @default "filled"
    */
   variant?: ButtonVariant;
-
   /** color tone of the button */
   color?: ButtonColor;
-
   /** when true, makes the button occupy all the space available */
   isFitContainer?: boolean;
-
   /** indicates the loading state of the button */
   isLoading?: boolean;
-
   /** icon to be used in the button of the button */
   icon?: React.ReactNode;
-
   /** Indicates the position of icon of the button */
   iconPosition?: "start" | "end";
-
   /** makes the button visually and functionaly disabled but focusable */
   visuallyDisabled?: boolean;
 }
@@ -79,7 +73,9 @@ export const Button = forwardRef(
     return (
       <StyledButton
         aria-busy={isLoading ? true : undefined}
-        aria-disabled={visuallyDisabled || isLoading ? true : undefined}
+        aria-disabled={
+          visuallyDisabled || isLoading || props.isDisabled ? true : undefined
+        }
         color={color}
         data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
@@ -92,7 +88,7 @@ export const Button = forwardRef(
         {...rest}
       >
         {renderChildren()}
-        <DragContainer />
+        <DragContainer data-hidden="" />
       </StyledButton>
     );
   },
