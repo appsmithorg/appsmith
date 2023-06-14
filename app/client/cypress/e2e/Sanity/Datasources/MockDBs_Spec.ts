@@ -9,12 +9,9 @@ describe(
       _.dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
         _.dataSources.CreateQueryFromActiveTab(mockDBName, false);
+        _.agHelper.ValidateNetworkStatus("@trigger");
         _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        _.agHelper.EnterValue("movies", {
-          propFieldName: "",
-          directInput: false,
-          inputFieldName: "Collection",
-        });
+        _.dataSources.ValidateNSelectDropdown("Collection", "", "movies");
         _.dataSources.RunQueryNVerifyResponseViews(10, false);
         _.dataSources.NavigateToActiveTab();
         _.agHelper
@@ -25,11 +22,7 @@ describe(
 
         _.entityExplorer.CreateNewDsQuery(mockDBName);
         _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        _.agHelper.EnterValue("movies", {
-          propFieldName: "",
-          directInput: false,
-          inputFieldName: "Collection",
-        });
+        _.dataSources.ValidateNSelectDropdown("Collection", "", "movies");
         _.dataSources.RunQueryNVerifyResponseViews(10, false);
         _.dataSources.NavigateToActiveTab();
         _.agHelper

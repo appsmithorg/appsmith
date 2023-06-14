@@ -205,8 +205,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return pluginExecutorMono
                 .map(pluginExecutor -> {
                     DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
-                    if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
-                        invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
+                    if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration,
+                            datasourceStorage.isEmbedded())) {
+                        invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration,
+                                datasourceStorage.isEmbedded()));
                     }
 
                     return datasourceStorage;
