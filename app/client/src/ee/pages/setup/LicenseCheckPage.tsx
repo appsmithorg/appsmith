@@ -3,7 +3,7 @@ import {
   ACTIVATE_INSTANCE,
   ADD_KEY,
   createMessage,
-  GET_STARTED_MESSAGE,
+  LICENSE_GET_STARTED_MESSAGE,
   LICENSE_KEY_CTA_LABEL,
   LICENSE_KEY_FORM_INPUT_LABEL,
   NO_ACTIVE_SUBSCRIPTION,
@@ -19,6 +19,8 @@ import {
   StyledContent,
   StyledCard,
   IconBadge,
+  StyledLinkWrapper,
+  StyledLink,
 } from "./styles";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import { LicenseForm } from "./LicenseForm";
@@ -28,7 +30,7 @@ import PageHeader from "pages/common/PageHeader";
 import Page from "pages/common/ErrorPages/Page";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { Button, Icon, Text } from "design-system";
+import { Icon, Text } from "design-system";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
@@ -83,7 +85,7 @@ function LicenseCheckPage() {
             />
             <Text
               data-testid="t--no-active-subscription-text"
-              kind="heading-m"
+              kind="heading-l"
               renderAs="h1"
             >
               {createMessage(NO_ACTIVE_SUBSCRIPTION)}
@@ -91,10 +93,10 @@ function LicenseCheckPage() {
             {!isAirgappedInstance && (
               <Text
                 color="var(--ads-v2-color-fg-emphasis)"
-                data-testid="t--choose-one-option-license-text"
+                data-testid="t--secondary-header-text"
                 renderAs="p"
               >
-                {createMessage(GET_STARTED_MESSAGE)}
+                {createMessage(LICENSE_GET_STARTED_MESSAGE)}
               </Text>
             )}
           </StyledBannerWrapper>
@@ -105,31 +107,26 @@ function LicenseCheckPage() {
               </IconBadge>
               <LicenseForm
                 actionBtnText={createMessage(ACTIVATE_INSTANCE)}
+                isModal={false}
                 label={createMessage(LICENSE_KEY_FORM_INPUT_LABEL)}
                 placeholder={createMessage(ADD_KEY)}
               />
             </StyledCard>
             {!isAirgappedInstance && (
-              <StyledCard
-                data-testid="t--get-trial-license-card-wrapper"
-                noField
-              >
-                <IconBadge>
-                  <Icon name="arrow-up-line" size="lg" />
-                </IconBadge>
+              <StyledLinkWrapper>
                 <StyledContent data-testid="t--get-license-key-label">
                   {createMessage(LICENSE_KEY_CTA_LABEL)}
                 </StyledContent>
-                <Button
+                <StyledLink
                   data-testid="t--customer-portal-cta"
-                  kind="secondary"
+                  endIcon="arrow-right-line"
+                  kind="primary"
                   onClick={goToCustomerPortal}
-                  size="md"
                   startIcon="share-2"
                 >
                   {createMessage(VISIT_CUSTOMER_PORTAL)}
-                </Button>{" "}
-              </StyledCard>
+                </StyledLink>
+              </StyledLinkWrapper>
             )}
           </StyledCardWrapper>
         </StyledPageWrapper>

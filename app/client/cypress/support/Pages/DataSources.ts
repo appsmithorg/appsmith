@@ -205,6 +205,9 @@ export class DataSources {
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
   _dropdownOption_users = "[data-testid='t--dropdown-option-public.users']";
+  public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
+  private _getJSONswitchLocator = (fieldLocator: string) =>
+    `[data-testid='${fieldLocator}.data-JS']`;
   _nestedWhereClauseKey = (index: number) =>
     ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
     index +
@@ -1320,5 +1323,22 @@ export class DataSources {
         );
         break;
     }
+  }
+
+  public EnterJSContext({
+    fieldLabel,
+    fieldProperty,
+    fieldValue,
+  }: {
+    fieldProperty: string;
+    fieldValue: string;
+    fieldLabel: string;
+  }) {
+    this.agHelper.GetNClick(this._getJSONswitchLocator(fieldProperty));
+    this.agHelper.EnterValue(fieldValue, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: fieldLabel,
+    });
   }
 }

@@ -10,6 +10,11 @@ export class TenantApi extends CE_TenantApi {
   static validateLicense(licenseKey: string): AxiosPromise<ApiResponse> {
     return TenantApi.put("v1/tenants/license", { key: licenseKey });
   }
+  static validateLicenseForOnboarding(
+    licenseKey: string,
+  ): AxiosPromise<ApiResponse> {
+    return TenantApi.post("v1/tenants/license", { key: licenseKey });
+  }
 }
 
 export default TenantApi;

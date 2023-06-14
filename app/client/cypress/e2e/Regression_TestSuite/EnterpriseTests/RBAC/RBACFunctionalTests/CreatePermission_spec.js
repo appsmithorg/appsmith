@@ -379,7 +379,7 @@ describe("Create Permission flow ", function () {
     );
 
     // Assert can create JS action from omnibar
-    cy.get(omnibar.createNew).contains("New JS object").click();
+    cy.get(omnibar.createNew).contains("New JS Object").click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);
