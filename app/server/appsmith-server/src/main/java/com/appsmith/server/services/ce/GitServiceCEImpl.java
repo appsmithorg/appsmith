@@ -2219,6 +2219,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         branchedApplication.getGitApplicationMetadata().getRepoName(),
                                         branchName);
                             })
+                            .onErrorResume(throwable -> {
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "discard changes", "Please resolve the merge conflicts before proceeding ahead"));
+                            })
                             .flatMap(applicationJson ->
                                     importExportApplicationService
                                             .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
