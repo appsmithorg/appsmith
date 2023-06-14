@@ -15,9 +15,7 @@ import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import type { DSLWidget } from "widgets/constants";
-import { unflattenDSLById } from "@shared/dsl";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { nestDSL } from "@shared/dsl";
 
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
   const dispatch = useDispatch();
@@ -96,9 +94,7 @@ export function MockPageDSL({ children, dsl }: any) {
 export const mockGetCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   (canvasWidgets: CanvasWidgetsReduxState): DSLWidget => {
-    return unflattenDSLById<WidgetProps>(MAIN_CONTAINER_WIDGET_ID, {
-      canvasWidgets,
-    });
+    return nestDSL(canvasWidgets);
   },
 );
 

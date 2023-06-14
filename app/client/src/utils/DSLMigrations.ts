@@ -84,8 +84,7 @@ import {
   migrateListWidgetChildrenForAutoHeight,
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
-import { flattenDSLById } from "@shared/dsl";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { unnestDSL } from "@shared/dsl";
 
 /**
  * adds logBlackList key for all list widget children
@@ -883,9 +882,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 21) {
-    const {
-      entities: { canvasWidgets },
-    } = flattenDSLById<WidgetProps>(currentDSL);
+    const canvasWidgets = unnestDSL(currentDSL);
     currentDSL = migrateWidgetsWithoutLeftRightColumns(
       currentDSL,
       canvasWidgets,

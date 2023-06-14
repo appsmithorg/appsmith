@@ -1,4 +1,4 @@
-import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
+import { nestDSL, unnestDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -40,8 +40,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
 
   if (!autoDSL || !autoDSL.children) return autoDSL;
 
-  const normalizedAutoDSL =
-    flattenDSLById<WidgetProps>(autoDSL).entities.canvasWidgets;
+  const normalizedAutoDSL = unnestDSL(autoDSL);
 
   const alteredNormalizedAutoDSL = alterLayoutForDesktop(
     normalizedAutoDSL,
@@ -50,10 +49,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
     true,
   );
 
-  const alteredAutoDSL: DSLWidget = unflattenDSLById<WidgetProps>(
-    MAIN_CONTAINER_WIDGET_ID,
-    { canvasWidgets: alteredNormalizedAutoDSL },
-  );
+  const alteredAutoDSL: DSLWidget = nestDSL(alteredNormalizedAutoDSL);
 
   return alteredAutoDSL;
 }

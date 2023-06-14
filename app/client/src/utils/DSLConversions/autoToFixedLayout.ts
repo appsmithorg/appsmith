@@ -1,4 +1,4 @@
-import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
+import { nestDSL, unnestDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -18,7 +18,6 @@ import {
   getLeftColumn,
   getRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
 const deletedResponsiveProperties = [
@@ -42,16 +41,14 @@ export default function convertDSLtoFixed(
   dsl: DSLWidget,
   destinationLayout: SupportedLayouts,
 ) {
-  const allWidgets = flattenDSLById<WidgetProps>(dsl).entities.canvasWidgets;
+  const allWidgets = unnestDSL(dsl);
 
   const convertedWidgets = convertNormalizedDSLToFixed(
     allWidgets,
     destinationLayout,
   );
 
-  const convertedDSL = unflattenDSLById<WidgetProps>(MAIN_CONTAINER_WIDGET_ID, {
-    canvasWidgets: convertedWidgets,
-  });
+  const convertedDSL = nestDSL(convertedWidgets);
 
   return convertedDSL;
 }

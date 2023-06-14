@@ -2,13 +2,13 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-import { flattenDSLById } from "@shared/dsl";
-import type { FlattenedDSLEntities } from "@shared/dsl";
+import type { UnnestedDSL } from "@shared/dsl";
+import { unnestDSL } from "@shared/dsl";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface PageWidgetsReduxState {
   [pageId: string]: {
-    dsl: FlattenedDSLEntities<WidgetProps>["canvasWidgets"];
+    dsl: UnnestedDSL<WidgetProps>;
     layoutId: string;
   };
 }
@@ -26,7 +26,7 @@ const pageWidgetsReducer = createImmerReducer(initialState, {
     >,
   ) => {
     action.payload.forEach((entry) => {
-      const dsl = flattenDSLById<WidgetProps>(entry.dsl).entities.canvasWidgets;
+      const dsl = unnestDSL(entry.dsl);
       state[entry.pageId] = { dsl, layoutId: entry.layoutId };
     });
   },
@@ -41,8 +41,7 @@ const pageWidgetsReducer = createImmerReducer(initialState, {
     if (!action.payload.dsl) {
       delete state[action.payload.pageId];
     } else {
-      const dsl = flattenDSLById<WidgetProps>(action.payload.dsl).entities
-        .canvasWidgets;
+      const dsl = unnestDSL(action.payload.dsl);
       state[action.payload.pageId] = { dsl, layoutId: action.payload.layoutId };
     }
   },

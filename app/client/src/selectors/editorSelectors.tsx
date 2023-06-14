@@ -59,7 +59,7 @@ import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { unflattenDSLById } from "@shared/dsl";
+import { nestDSL } from "@shared/dsl";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -522,9 +522,7 @@ export const getCanvasWidgetDsl = createSelector(
           canvasWidget.widgetName,
         );
       });
-    return unflattenDSLById<WidgetProps>(MAIN_CONTAINER_WIDGET_ID, {
-      canvasWidgets: widgets,
-    });
+    return nestDSL(widgets);
   },
 );
 

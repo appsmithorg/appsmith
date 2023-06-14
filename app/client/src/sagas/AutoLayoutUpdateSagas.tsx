@@ -63,8 +63,7 @@ import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
-import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { nestDSL, unnestDSL } from "@shared/dsl";
 
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
@@ -161,19 +160,13 @@ export function* updateLayoutPositioningSaga(
 
     //Convert fixed layout to auto-layout
     if (payloadPositioningType === AppPositioningTypes.AUTO) {
-      const denormalizedDSL = unflattenDSLById<WidgetProps>(
-        MAIN_CONTAINER_WIDGET_ID,
-        {
-          canvasWidgets: allWidgets,
-        },
-      );
+      const nestedDSL = nestDSL(allWidgets);
 
-      const autoDSL = convertDSLtoAuto(denormalizedDSL);
+      const autoDSL = convertDSLtoAuto(nestedDSL);
       log.debug("autoDSL", autoDSL);
 
-      const normaizedDSL =
-        flattenDSLById<WidgetProps>(autoDSL).entities.canvasWidgets;
-      yield put(updateAndSaveLayout(normaizedDSL));
+      const unnestedDSL = unnestDSL(autoDSL);
+      yield put(updateAndSaveLayout(unnestedDSL));
 
       yield call(recalculateAutoLayoutColumnsAndSave);
     }

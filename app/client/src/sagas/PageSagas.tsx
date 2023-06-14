@@ -143,9 +143,9 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 import { UserCancelledActionExecutionError } from "./ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { nestDSL, unnestDSL } from "@shared/dsl";
 // import type { DSLWidget } from "widgets/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -263,13 +263,14 @@ export const getCanvasWidgetsPayload = (
     isAutoLayout,
     mainCanvasWidth,
   ).dsl;
-  const normalizedResponse = flattenDSLById<WidgetProps>(extractedDSL);
+  const unnestedDSL = unnestDSL(extractedDSL);
+  const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
   return {
-    pageWidgetId: normalizedResponse.result,
+    pageWidgetId,
     currentPageName: pageResponse.data.name,
     currentPageId: pageResponse.data.id,
     dsl: extractedDSL,
-    widgets: normalizedResponse.entities.canvasWidgets,
+    widgets: unnestedDSL,
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
     pageActions: pageResponse.data.layouts[0].layoutOnLoadActions || [],
@@ -520,9 +521,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
      * https://github.com/appsmithorg/appsmith/issues/20744
      */
     // captureInvalidDynamicBindingPath(
-    //   unflattenDSLById("0", {
-    //     canvasWidgets: widgets,
-    //   }),
+    //   nestDSL(widgets),
     // );
 
     const savePageResponse: SavePageResponse = yield call(
@@ -603,15 +602,12 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           },
         });
       } else {
-        // Create a denormalized structure because the migration needs the children in the dsl form
-        const denormalizedWidgets = unflattenDSLById<WidgetProps>(
-          MAIN_CONTAINER_WIDGET_ID,
-          { canvasWidgets: widgets },
-        );
+        // Create a nested structure because the migration needs the children in the dsl form
+        const nestedDSL = nestDSL(widgets);
         const correctedWidgets =
-          migrateIncorrectDynamicBindingPathLists(denormalizedWidgets);
-        // Normalize the widgets because the save page needs it in the flat structure
-        const normalizedWidgets = flattenDSLById<WidgetProps>(correctedWidgets);
+          migrateIncorrectDynamicBindingPathLists(nestedDSL);
+        // Flatten the widgets because the save page needs it in the flat structure
+        const normalizedWidgets = unnestDSL(correctedWidgets);
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
           correctWidget: JSON.stringify(normalizedWidgets),
@@ -650,13 +646,10 @@ function getLayoutSavePayload(
   },
   editorConfigs: any,
 ) {
-  const denormalizedDSL = unflattenDSLById<WidgetProps>(
-    Object.keys(widgets)[0],
-    { canvasWidgets: widgets },
-  );
+  const nestedDSL = nestDSL(widgets, Object.keys(widgets)[0]);
   return {
     ...editorConfigs,
-    dsl: denormalizedDSL,
+    dsl: nestedDSL,
   };
 }
 
@@ -1085,19 +1078,20 @@ export function* updateCanvasWithDSL(
   pageId: string,
   layoutId: string,
 ) {
-  const normalizedWidgets = flattenDSLById<WidgetProps>(data.dsl);
+  const unnestedDSL = unnestDSL(data.dsl);
   const currentPageName: string = yield select(getCurrentPageName);
 
   const applicationId: string = yield select(getCurrentApplicationId);
+  const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
   const canvasWidgetsPayload: UpdateCanvasPayload = {
-    pageWidgetId: normalizedWidgets.result,
+    pageWidgetId,
     currentPageName,
     currentPageId: pageId,
     currentLayoutId: layoutId,
     currentApplicationId: applicationId,
     dsl: data.dsl,
     pageActions: data.layoutOnLoadActions,
-    widgets: normalizedWidgets.entities.canvasWidgets,
+    widgets: unnestedDSL,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
   yield put(fetchActionsForPage(pageId));
