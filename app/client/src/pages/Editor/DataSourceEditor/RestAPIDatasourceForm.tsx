@@ -274,7 +274,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             </Callout>
           ))}
         {this.renderGeneralSettings()}
-        {this.renderAuthFields()}
         {this.renderOauth2AdvancedSettings()}
         {formData.authType &&
           formData.authType === AuthType.OAuth2 &&
@@ -352,56 +351,58 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {this.renderSelfSignedCertificateFields()}
-        <FormInputContainer
-          className="t--headers-array"
-          data-replay-id={btoa("headers")}
-        >
-          {this.renderKeyValueControlViaFormControl(
-            "headers",
-            "Headers",
-            "",
-            false,
-          )}
-        </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("queryParameters")}>
-          {this.renderKeyValueControlViaFormControl(
-            "queryParameters",
-            "Query parameters",
-            "",
-            false,
-          )}
-        </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("authType")}>
-          {this.renderDropdownControlViaFormControl(
-            "authType",
-            [
-              {
-                label: "None",
-                value: AuthType.NONE,
-              },
-              {
-                label: "Basic",
-                value: AuthType.basic,
-              },
-              {
-                label: "OAuth 2.0",
-                value: AuthType.OAuth2,
-              },
-              {
-                label: "API key",
-                value: AuthType.apiKey,
-              },
-              {
-                label: "Bearer token",
-                value: AuthType.bearerToken,
-              },
-            ],
-            "Authentication type",
-            "",
-            false,
-            "",
-          )}
-        </FormInputContainer>
+        <Collapsible title="Headers">
+          <FormInputContainer
+            className="t--headers-array"
+            data-replay-id={btoa("headers")}
+          >
+            {this.renderKeyValueControlViaFormControl("headers", "", "", false)}
+          </FormInputContainer>
+        </Collapsible>
+        <Collapsible title="Query parameters">
+          <FormInputContainer data-replay-id={btoa("queryParameters")}>
+            {this.renderKeyValueControlViaFormControl(
+              "queryParameters",
+              "",
+              "",
+              false,
+            )}
+          </FormInputContainer>
+        </Collapsible>
+        <Collapsible title="Authentication">
+          <FormInputContainer data-replay-id={btoa("authType")}>
+            {this.renderDropdownControlViaFormControl(
+              "authType",
+              [
+                {
+                  label: "None",
+                  value: AuthType.NONE,
+                },
+                {
+                  label: "Basic",
+                  value: AuthType.basic,
+                },
+                {
+                  label: "OAuth 2.0",
+                  value: AuthType.OAuth2,
+                },
+                {
+                  label: "API key",
+                  value: AuthType.apiKey,
+                },
+                {
+                  label: "Bearer token",
+                  value: AuthType.bearerToken,
+                },
+              ],
+              "Authentication type",
+              "",
+              false,
+              "",
+            )}
+            {this.renderAuthFields()}
+          </FormInputContainer>
+        </Collapsible>
       </section>
     );
   };
@@ -410,17 +411,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { connection } = this.props.formData;
     if (connection?.ssl.authTypeControl) {
       return (
-        <Collapsible title="Certificate Details">
-          <div style={{ marginTop: "16px" }}>
-            {this.renderFilePickerControlViaFormControl(
-              "connection.ssl.certificateFile",
-              "Upload Certificate",
-              "",
-              false,
-              true,
-            )}
-          </div>
-        </Collapsible>
+        <div style={{ marginTop: "16px" }}>
+          {this.renderFilePickerControlViaFormControl(
+            "connection.ssl.certificateFile",
+            "Upload Certificate",
+            "",
+            false,
+            true,
+          )}
+        </div>
       );
     }
   };
@@ -439,7 +438,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       content = this.renderBearerToken();
     }
     if (content) {
-      return <Collapsible title="Authentication">{content}</Collapsible>;
+      return content;
     }
   };
 
