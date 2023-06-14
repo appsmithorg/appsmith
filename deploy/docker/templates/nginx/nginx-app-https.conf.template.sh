@@ -110,6 +110,10 @@ server {
   }
 
   location /api {
+    proxy_read_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
+    proxy_connect_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
+    proxy_send_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
+    
     proxy_pass http://localhost:8080;
   }
 
