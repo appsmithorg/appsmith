@@ -27,8 +27,8 @@ export const BUTTON_COLOR = {
 export type ButtonColor = (typeof BUTTON_COLOR)[keyof typeof BUTTON_COLOR];
 
 export const buttonStyles = css<ButtonProps>`
-  ${({ color = "accent", variant = "filled" }) => {
-    if (variant === "filled") {
+  ${({ color = BUTTON_COLOR.accent, variant = BUTTON_VARIANT.filled }) => {
+    if (variant === BUTTON_VARIANT.filled) {
       return css`
         background-color: var(--color-bg-${color});
         color: var(--color-fg-on-${color});
@@ -44,7 +44,7 @@ export const buttonStyles = css<ButtonProps>`
       `;
     }
 
-    if (variant === "outlined") {
+    if (variant === BUTTON_VARIANT.outlined) {
       return css`
         background-color: transparent;
         color: var(--color-fg-${color});
@@ -61,7 +61,7 @@ export const buttonStyles = css<ButtonProps>`
       `;
     }
 
-    if (variant === "ghost") {
+    if (variant === BUTTON_VARIANT.ghost) {
       return css`
         background: transparent;
         color: var(--color-fg-${color});
