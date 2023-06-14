@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Slf4j
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
 
@@ -80,8 +82,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         ActionDTO action;
 
         try {
-            if (input == null) {
-                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.CURL_CODE);
+            if (isBlank((String) input)) {
+                throw new AppsmithException(AppsmithError.EMPTY_CURL_INPUT_STATEMENT, FieldName.CURL_CODE);
             }
             action = curlToAction((String) input, name);
         } catch (AppsmithException e) {
@@ -425,9 +427,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             }
         }
 
-        if (!headers.isEmpty()) {
-            actionConfiguration.setHeaders(headers);
-        }
+        actionConfiguration.setHeaders(headers);
 
         if (!dataParts.isEmpty()) {
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType)) {

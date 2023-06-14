@@ -1,18 +1,13 @@
 import type { RefObject } from "react";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
-import { Icon, Tag } from "@blueprintjs/core";
-import { isString } from "lodash";
-import type {
-  MenuListComponentProps,
-  OptionProps,
-  OptionTypeBase,
-  SingleValueProps,
-} from "react-select";
-import { components } from "react-select";
+import { Tag } from "@blueprintjs/core";
+import { isString, noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import { getPluginImages } from "selectors/entitiesSelector";
-import { Colors } from "constants/Colors";
+import {
+  getPluginImages,
+  getPluginNameFromId,
+} from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { SlashCommand } from "entities/Action";
@@ -22,25 +17,21 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import type { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
+import { Text, TextType } from "design-system-old";
 import {
   Button,
   Callout,
-  Category,
-  Classes,
-  Icon as AdsIcon,
-  IconSize,
-  SearchSnippet,
-  Size,
+  Icon,
+  SegmentedControl,
   Spinner,
-  TabComponent,
-  Text,
-  TextType,
-  TooltipComponent,
-  Variant,
-} from "design-system-old";
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsList,
+  Tooltip,
+} from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
-import EditorButton from "components/editorComponents/Button";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
@@ -59,9 +50,6 @@ import {
 } from "components/formControls/utils";
 import {
   ACTION_EDITOR_REFRESH,
-  ACTION_EXECUTION_MESSAGE,
-  ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF,
-  ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF,
   CREATE_NEW_DATASOURCE,
   createMessage,
   DEBUGGER_ERRORS,
@@ -96,21 +84,17 @@ import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   apiReactJsonProps,
-  CancelRequestButton,
-  handleCancelActionExecution,
-  InlineButton,
-  LoadingOverlayContainer,
+  NoResponse,
   responseTabComponent,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
 } from "components/editorComponents/ApiResponseView";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   hasCreateDatasourcePermission,
@@ -142,21 +126,21 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
+import SearchSnippets from "pages/common/SearchSnippets";
+import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
+import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 
 const QueryFormContainer = styled.form`
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 20px 0px 0px 0px;
+  padding: var(--ads-v2-spaces-4) 0 0;
   width: 100%;
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
-    color: #2e3d49;
     margin-top: 5px;
   }
   .queryInput {
@@ -172,76 +156,35 @@ const QueryFormContainer = styled.form`
 
 const ErrorMessage = styled.p`
   font-size: 14px;
-  color: ${Colors.RED};
+  color: var(--ads-v2-color-fg-error);
   display: inline-block;
   margin-right: 10px;
 `;
 
 export const TabbedViewContainer = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   height: ${ActionExecutionResizerHeight}px;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
-  .react-tabs__tab-panel {
-    overflow: hidden;
-  }
-  .react-tabs__tab-list {
-    margin: 0px;
-  }
-  &&& {
-    ul.react-tabs__tab-list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.responseBody.bg};
-    }
-    .react-tabs__tab-panel {
-      height: calc(100% - 36px);
-    }
-  }
-  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 1px solid #e8e8e8;
+  background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 16px 30px;
-  height: 100%;
   ${thinScrollbar};
+  height: 100%;
 `;
 
 const ResultsCount = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 1}px;
-  color: #716e6e;
+  top: 9px;
+  color: var(--ads-v2-color-fg);
 `;
 
 const FieldWrapper = styled.div`
   margin-top: 15px;
-`;
-
-export const DocumentationLink = styled.a`
-  position: absolute;
-  right: 23px;
-  top: -6px;
-  color: black;
-  display: flex;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 14px;
-  span {
-    display: flex;
-    margin-left: 5px;
-  }
-  &:hover {
-    color: black;
-  }
 `;
 
 const SecondaryWrapper = styled.div`
@@ -254,7 +197,7 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div<{ isError: boolean }>`
-  overflow-y: auto;
+  overflow-y: clip;
   display: grid;
   height: ${(props) => (props.isError ? "" : "100%")};
 
@@ -263,27 +206,8 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   }
 `;
 
-const NoResponseContainer = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  .${Classes.ICON} {
-    margin-right: 0px;
-    svg {
-      width: 150px;
-      height: 150px;
-    }
-  }
-  .${Classes.TEXT} {
-    margin-top: ${(props) => props.theme.spaces[9]}px;
-  }
-`;
-
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px 20px;
+  padding: 0px var(--ads-v2-spaces-7);
   flex: 0;
 `;
 
@@ -302,73 +226,21 @@ const ActionsWrapper = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
-
-  & > div {
-    margin: 0 0 0 ${(props) => props.theme.spaces[7]}px;
-  }
-
-  button:last-child {
-    margin-left: ${(props) => props.theme.spaces[7]}px;
-  }
+  gap: var(--ads-v2-spaces-3);
 `;
 
 const DropdownSelect = styled.div`
   font-size: 14px;
-  margin-right: 10px;
-
-  .t--switch-datasource > div {
-    min-height: 30px;
-    height: 30px;
-
-    & > div {
-      height: 100%;
-    }
-
-    & .appsmith-select__input > input {
-      position: relative;
-      bottom: 4px;
-    }
-
-    & .appsmith-select__input > input[value=""] {
-      caret-color: transparent;
-    }
-  }
+  width: 230px;
 `;
 
 const CreateDatasource = styled.div`
-  height: 44px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  border-top: 1px solid ${Colors.ATHENS_GRAY};
-  :hover {
-    cursor: pointer;
-  }
-  .createIcon {
-    margin-right: 6px;
-  }
+  gap: 8px;
 `;
 
-const Container = styled.div`
+const StyledSpinner = styled(Spinner)`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  .plugin-image {
-    height: 20px;
-    width: auto;
-  }
-  .selected-value {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: no-wrap;
-    margin-left: 6px;
-  }
-`;
-
-const StyledSpinner = styled.div`
-  display: flex;
-  padding: 5px;
   height: 2vw;
   align-items: center;
   justify-content: space-between;
@@ -386,32 +258,38 @@ const NoDataSourceContainer = styled.div`
     text-align: center;
     margin-bottom: 23px;
     font-size: 18px;
-    color: #2e3d49;
   }
 `;
 
 const TabContainerView = styled.div`
+  display: flex;
+  align-items: start;
   flex: 1;
   overflow: auto;
-  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${thinScrollbar}
   a {
     font-size: 14px;
     line-height: 20px;
     margin-top: 12px;
   }
-  .react-tabs__tab-panel {
-    overflow: auto;
-  }
-  .react-tabs__tab-list {
-    margin: 0px;
-  }
-  &&& {
-    ul.react-tabs__tab-list {
-      margin-left: 24px;
+  position: relative;
+
+  & > .ads-v2-tabs {
+    height: 100%;
+
+    & > .ads-v2-tabs__panel {
+      height: calc(100% - 50px);
+      overflow-y: scroll;
     }
   }
-  position: relative;
+`;
+
+const TabsListWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
+`;
+
+const TabPanelWrapper = styled(TabPanel)`
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const Wrapper = styled.div`
@@ -421,11 +299,31 @@ const Wrapper = styled.div`
   width: 100%;
 `;
 
+const DocumentationButton = styled(Button)`
+  position: absolute !important;
+  right: 24px;
+  margin: 7px 0px 0px;
+  z-index: 6;
+`;
+
 const SidebarWrapper = styled.div<{ show: boolean }>`
-  border: 1px solid #e8e8e8;
+  border-left: 1px solid var(--ads-v2-color-border);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+  overflow: auto;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
+  margin-top: 38px;
+  /* margin-left: var(--ads-v2-spaces-7); */
+`;
+
+export const SegmentedControlContainer = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+  overflow-y: clip;
+  overflow-x: scroll;
 `;
 
 type QueryFormProps = {
@@ -531,6 +429,28 @@ export function EditorJSONtoForm(props: Props) {
     userWorkspacePermissions,
   );
 
+  // get the current action's plugin name
+  const currentActionPluginName = useSelector((state: AppState) =>
+    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
+  );
+
+  let actionBody = "";
+  if (!!currentActionConfig?.actionConfiguration) {
+    if ("formData" in currentActionConfig?.actionConfiguration) {
+      // if the action has a formData (the action is postUQI e.g. Oracle)
+      actionBody =
+        currentActionConfig.actionConfiguration.formData?.body?.data || "";
+    } else {
+      // if the action is pre UQI, the path is different e.g. mySQL
+      actionBody = currentActionConfig.actionConfiguration?.body || "";
+    }
+  }
+
+  // if (the body is empty and the action is an sql datasource) or the user does not have permission, block action execution.
+  const blockExecution =
+    (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
+    !isExecutePermitted;
+
   // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -566,50 +486,6 @@ export function EditorJSONtoForm(props: Props) {
 
   const dispatch = useDispatch();
 
-  function MenuList(props: MenuListComponentProps<{ children: Node }>) {
-    return (
-      <>
-        <components.MenuList {...props}>{props.children}</components.MenuList>
-        {canCreateDatasource ? (
-          <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-            <Icon className="createIcon" icon="plus" iconSize={11} />
-            {createMessage(CREATE_NEW_DATASOURCE)}
-          </CreateDatasource>
-        ) : null}
-      </>
-    );
-  }
-
-  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
-    return (
-      <components.SingleValue {...props}>
-        <Container>
-          <img
-            alt="Datasource"
-            className="plugin-image"
-            src={getAssetUrl(props.data.image)}
-          />
-          <div className="selected-value">{props.children}</div>
-        </Container>
-      </components.SingleValue>
-    );
-  }
-
-  function CustomOption(props: OptionProps<OptionTypeBase>) {
-    return (
-      <components.Option {...props}>
-        <Container className="t--datasource-option">
-          <img
-            alt="Datasource"
-            className="plugin-image"
-            src={getAssetUrl(props.data.image)}
-          />
-          <div style={{ marginLeft: "6px" }}>{props.children}</div>
-        </Container>
-      </components.Option>
-    );
-  }
-
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
@@ -630,12 +506,7 @@ export function EditorJSONtoForm(props: Props) {
             return renderEachConfigV2(formName, config, idx);
           });
         } else {
-          return (
-            <StyledSpinner>
-              <Spinner size={IconSize.LARGE} />
-              <p>Loading..</p>
-            </StyledSpinner>
-          );
+          return <StyledSpinner size="md" />;
         }
       } else {
         return editorConfig.map(renderEachConfig(formName));
@@ -762,7 +633,7 @@ export function EditorJSONtoForm(props: Props) {
       );
     };
 
-  const responeTabOnRunClick = () => {
+  const responseTabOnRunClick = () => {
     props.onRunClick();
 
     AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
@@ -792,6 +663,16 @@ export function EditorJSONtoForm(props: Props) {
       };
     });
 
+  const segmentedControlOptions =
+    responseBodyTabs &&
+    responseBodyTabs.map((item) => {
+      return { value: item.key, label: item.title };
+    });
+
+  const [selectedControl, setSelectedControl] = useState(
+    segmentedControlOptions[0]?.value,
+  );
+
   const onResponseTabSelect = (tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -804,6 +685,8 @@ export function EditorJSONtoForm(props: Props) {
       value: tabKey,
     });
   };
+
+  // onResponseTabSelect(selectedControl);
 
   const selectedTabIndex =
     responseDataTypes &&
@@ -821,6 +704,7 @@ export function EditorJSONtoForm(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "",
     id: currentActionConfig ? currentActionConfig.id : "",
   };
+
   const responseTabs = [
     {
       key: "response",
@@ -840,7 +724,7 @@ export function EditorJSONtoForm(props: Props) {
                 {executedQueryData &&
                   (executedQueryData.pluginErrorDetails ? (
                     <>
-                      <div data-cy="t--query-error">
+                      <div data-testid="t--query-error">
                         {
                           executedQueryData.pluginErrorDetails
                             .downstreamErrorMessage
@@ -858,7 +742,7 @@ export function EditorJSONtoForm(props: Props) {
                     </>
                   ) : (
                     executedQueryData.body && (
-                      <div data-cy="t--query-error">
+                      <div data-testid="t--query-error">
                         {executedQueryData.body}
                       </div>
                     )
@@ -885,12 +769,9 @@ export function EditorJSONtoForm(props: Props) {
           {hintMessages && hintMessages.length > 0 && (
             <HelpSection>
               {hintMessages.map((msg, index) => (
-                <Callout
-                  fill
-                  key={index}
-                  text={msg}
-                  variant={Variant.warning}
-                />
+                <Callout key={index} kind="warning">
+                  {msg}
+                </Callout>
               ))}
             </HelpSection>
           )}
@@ -899,30 +780,31 @@ export function EditorJSONtoForm(props: Props) {
             responseBodyTabs &&
             responseBodyTabs.length > 0 &&
             selectedTabIndex !== -1 && (
-              <EntityBottomTabs
-                onSelect={onResponseTabSelect}
-                responseViewer
-                selectedTabKey={responseDisplayFormat.value}
-                tabs={responseBodyTabs}
-              />
+              <SegmentedControlContainer>
+                <SegmentedControl
+                  data-testid="t--response-tab-segmented-control"
+                  defaultValue={segmentedControlOptions[0]?.value}
+                  isFullWidth={false}
+                  onChange={(value) => {
+                    setSelectedControl(value);
+                    onResponseTabSelect(value);
+                  }}
+                  options={segmentedControlOptions}
+                  value={selectedControl}
+                />
+                {responseTabComponent(
+                  selectedControl || segmentedControlOptions[0]?.value,
+                  output,
+                  responsePaneHeight,
+                )}
+              </SegmentedControlContainer>
             )}
           {!output && !error && (
-            <NoResponseContainer>
-              <AdsIcon name="no-response" />
-              <Text type={TextType.P1}>
-                {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
-                <InlineButton
-                  disabled={!isExecutePermitted}
-                  isLoading={isRunning}
-                  onClick={responeTabOnRunClick}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
-                {createMessage(ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF)}
-              </Text>
-            </NoResponseContainer>
+            <NoResponse
+              isButtonDisabled={!isExecutePermitted}
+              isQueryRunning={isRunning}
+              onRunClick={responseTabOnRunClick}
+            />
           )}
         </ResponseContentWrapper>
       ),
@@ -978,7 +860,7 @@ export function EditorJSONtoForm(props: Props) {
   // Debugger render flag
   const renderDebugger = useSelector(showDebuggerFlag);
 
-  const setSelectedConfigTab = useCallback((selectedIndex: number) => {
+  const setSelectedConfigTab = useCallback((selectedIndex: string) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
 
@@ -1002,7 +884,7 @@ export function EditorJSONtoForm(props: Props) {
     <>
       {!guidedTourEnabled && <CloseEditor />}
       {guidedTourEnabled && <Guide className="query-page" />}
-      <QueryFormContainer onSubmit={handleSubmit}>
+      <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>
             <ActionNameEditor disabled={!isChangePermitted} />
@@ -1016,7 +898,7 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
-            <SearchSnippet
+            <SearchSnippets
               className="search-snippets"
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
@@ -1035,182 +917,178 @@ export function EditorJSONtoForm(props: Props) {
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
-                components={{ MenuList, Option: CustomOption, SingleValue }}
+                formName={formName}
                 isDisabled={!isChangePermitted}
-                maxMenuHeight={200}
                 name="datasource.id"
                 options={DATASOURCES_OPTIONS}
                 placeholder="Datasource"
-                width={232}
-              />
+              >
+                {canCreateDatasource && (
+                  // this additional div is here so that rc-select can render the child with the onClick correctly
+                  <div>
+                    <CreateDatasource onClick={() => onCreateDatasourceClick()}>
+                      <Icon className="createIcon" name="plus" size="md" />
+                      {createMessage(CREATE_NEW_DATASOURCE)}
+                    </CreateDatasource>
+                  </div>
+                )}
+              </DropdownField>
             </DropdownSelect>
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
-              disabled={!isExecutePermitted}
+              isDisabled={blockExecution}
               isLoading={isRunning}
               onClick={onRunClick}
-              size={Size.medium}
-              tag="button"
-              text="Run"
-              type="button"
-            />
+              size="md"
+            >
+              Run
+            </Button>
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
           <div className="flex flex-1">
             <SecondaryWrapper>
               <TabContainerView>
-                {documentationLink && (
-                  <DocumentationLink>
-                    <TooltipComponent
-                      content={createMessage(DOCUMENTATION_TOOLTIP)}
-                      hoverOpenDelay={50}
-                      position="top"
-                    >
-                      <span
-                        className="t--datasource-documentation-link"
-                        onClick={(e: React.MouseEvent) =>
-                          handleDocumentationClick(e)
-                        }
-                      >
-                        <AdsIcon
-                          keepColors
-                          name="book-line"
-                          size={IconSize.XXXL}
-                        />
-                        &nbsp;
-                        {createMessage(DOCUMENTATION)}
-                      </span>
-                    </TooltipComponent>
-                  </DocumentationLink>
-                )}
-                <TabComponent
-                  onSelect={setSelectedConfigTab}
-                  selectedIndex={selectedConfigTab}
-                  tabs={[
-                    {
-                      key: EDITOR_TABS.QUERY,
-                      title: "Query",
-                      panelComponent: (
-                        <SettingsWrapper>
-                          {editorConfig && editorConfig.length > 0 ? (
-                            renderConfig(editorConfig)
-                          ) : (
-                            <>
-                              <ErrorMessage>
-                                {createMessage(UNEXPECTED_ERROR)}
-                              </ErrorMessage>
-                              <Tag
-                                intent="warning"
-                                interactive
-                                minimal
-                                onClick={() => window.location.reload()}
-                                round
-                              >
-                                {createMessage(ACTION_EDITOR_REFRESH)}
-                              </Tag>
-                            </>
-                          )}
-                          {dataSources.length === 0 && (
-                            <NoDataSourceContainer>
-                              <p className="font18">
-                                {createMessage(NO_DATASOURCE_FOR_QUERY)}
-                              </p>
-                              <EditorButton
-                                disabled={!canCreateDatasource}
-                                filled
-                                icon="plus"
-                                intent="primary"
-                                onClick={() => onCreateDatasourceClick()}
-                                size="small"
-                                text="Add a Datasource"
-                              />
-                            </NoDataSourceContainer>
-                          )}
-                        </SettingsWrapper>
-                      ),
-                    },
-                    {
-                      key: EDITOR_TABS.SETTINGS,
-                      title: "Settings",
-                      panelComponent: (
-                        <SettingsWrapper>
-                          <ActionSettings
-                            actionSettingsConfig={settingConfig}
-                            formName={formName}
-                          />
-                        </SettingsWrapper>
-                      ),
-                    },
-                  ]}
-                />
-              </TabContainerView>
-              {renderDebugger && (
-                <TabbedViewContainer
-                  className="t--query-bottom-pane-container"
-                  ref={panelRef}
+                <Tabs
+                  onValueChange={setSelectedConfigTab}
+                  value={selectedConfigTab || EDITOR_TABS.QUERY}
                 >
-                  <Resizable
-                    initialHeight={responsePaneHeight}
-                    onResizeComplete={(height: number) =>
-                      setQueryResponsePaneHeight(height)
-                    }
-                    openResizer={isRunning}
-                    panelRef={panelRef}
-                    snapToHeight={ActionExecutionResizerHeight}
-                  />
-                  {isRunning && (
-                    <>
-                      <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                      <LoadingOverlayContainer>
-                        <div>
-                          <Text textAlign={"center"} type={TextType.P1}>
-                            {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
-                          </Text>
-                          <CancelRequestButton
-                            category={Category.secondary}
-                            className={`t--cancel-action-button`}
-                            onClick={() => {
-                              handleCancelActionExecution();
-                            }}
-                            size={Size.medium}
-                            tag="button"
-                            text="Cancel Request"
-                            type="button"
-                          />
-                        </div>
-                      </LoadingOverlayContainer>
-                    </>
-                  )}
+                  <TabsListWrapper>
+                    <TabsList>
+                      <Tab
+                        data-testid={`t--query-editor-` + EDITOR_TABS.QUERY}
+                        value={EDITOR_TABS.QUERY}
+                      >
+                        Query
+                      </Tab>
+                      <Tab
+                        data-testid={`t--query-editor-` + EDITOR_TABS.SETTINGS}
+                        value={EDITOR_TABS.SETTINGS}
+                      >
+                        Settings
+                      </Tab>
+                    </TabsList>
+                  </TabsListWrapper>
+                  <TabPanelWrapper
+                    className="tab-panel"
+                    value={EDITOR_TABS.QUERY}
+                  >
+                    <SettingsWrapper>
+                      {editorConfig && editorConfig.length > 0 ? (
+                        renderConfig(editorConfig)
+                      ) : (
+                        <>
+                          <ErrorMessage>
+                            {createMessage(UNEXPECTED_ERROR)}
+                          </ErrorMessage>
+                          <Tag
+                            intent="warning"
+                            interactive
+                            minimal
+                            onClick={() => window.location.reload()}
+                            round
+                          >
+                            {createMessage(ACTION_EDITOR_REFRESH)}
+                          </Tag>
+                        </>
+                      )}
+                      {dataSources.length === 0 && (
+                        <NoDataSourceContainer>
+                          <p className="font18">
+                            {createMessage(NO_DATASOURCE_FOR_QUERY)}
+                          </p>
+                          <Button
+                            isDisabled={!canCreateDatasource}
+                            kind="primary"
+                            onClick={() => onCreateDatasourceClick()}
+                            size="sm"
+                            startIcon="plus"
+                          >
+                            Add a Datasource
+                          </Button>
+                        </NoDataSourceContainer>
+                      )}
+                    </SettingsWrapper>
+                  </TabPanelWrapper>
+                  <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
+                    <SettingsWrapper>
+                      <ActionSettings
+                        actionSettingsConfig={settingConfig}
+                        formName={formName}
+                      />
+                    </SettingsWrapper>
+                  </TabPanelWrapper>
+                </Tabs>
+                {documentationLink && (
+                  <Tooltip
+                    content={createMessage(DOCUMENTATION_TOOLTIP)}
+                    placement="top"
+                  >
+                    <DocumentationButton
+                      className="t--datasource-documentation-link"
+                      kind="tertiary"
+                      onClick={(e: React.MouseEvent) =>
+                        handleDocumentationClick(e)
+                      }
+                      size="sm"
+                      startIcon="book-line"
+                    >
+                      {createMessage(DOCUMENTATION)}
+                    </DocumentationButton>
+                  </Tooltip>
+                )}
+              </TabContainerView>
+              {renderDebugger &&
+                selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
+                  <TabbedViewContainer
+                    className="t--query-bottom-pane-container"
+                    ref={panelRef}
+                  >
+                    <Resizable
+                      initialHeight={responsePaneHeight}
+                      onResizeComplete={(height: number) =>
+                        setQueryResponsePaneHeight(height)
+                      }
+                      openResizer={isRunning}
+                      panelRef={panelRef}
+                      snapToHeight={ActionExecutionResizerHeight}
+                    />
+                    {isRunning && (
+                      <ActionExecutionInProgressView
+                        actionType="query"
+                        theme={EditorTheme.LIGHT}
+                      />
+                    )}
 
-                  {output && !!output.length && (
-                    <ResultsCount>
-                      <Text type={TextType.P3}>
-                        Result:
-                        <Text type={TextType.H5}>{` ${output.length} Record${
-                          output.length > 1 ? "s" : ""
-                        }`}</Text>
-                      </Text>
-                    </ResultsCount>
-                  )}
+                    {output && !!output.length && (
+                      <ResultsCount>
+                        <Text type={TextType.P3}>
+                          Result:
+                          <Text type={TextType.H5}>{` ${output.length} Record${
+                            output.length > 1 ? "s" : ""
+                          }`}</Text>
+                        </Text>
+                      </ResultsCount>
+                    )}
 
-                  <EntityBottomTabs
-                    expandedHeight={`${ActionExecutionResizerHeight}px`}
-                    onSelect={setSelectedResponseTab}
-                    selectedTabKey={selectedResponseTab}
-                    tabs={responseTabs}
-                  />
-                  <AdsIcon
-                    className="close-debugger t--close-debugger"
-                    name="close-modal"
-                    onClick={onClose}
-                    size={IconSize.XL}
-                  />
-                </TabbedViewContainer>
-              )}
+                    <EntityBottomTabs
+                      expandedHeight={`${ActionExecutionResizerHeight}px`}
+                      onSelect={setSelectedResponseTab}
+                      selectedTabKey={selectedResponseTab}
+                      tabs={responseTabs}
+                    />
+                    <CloseDebugger
+                      className="close-debugger t--close-debugger"
+                      isIconButton
+                      kind="tertiary"
+                      onClick={onClose}
+                      size="md"
+                      startIcon="close-modal"
+                    />
+                  </TabbedViewContainer>
+                )}
             </SecondaryWrapper>
-            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}

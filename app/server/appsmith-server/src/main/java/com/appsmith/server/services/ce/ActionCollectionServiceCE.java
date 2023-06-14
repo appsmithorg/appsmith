@@ -1,11 +1,11 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
@@ -37,7 +37,7 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
-    
+
     Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName);
@@ -56,4 +56,5 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
 
+    void populateDefaultResources(ActionCollection actionCollection, ActionCollection branchedActionCollection,String branchName);
 }

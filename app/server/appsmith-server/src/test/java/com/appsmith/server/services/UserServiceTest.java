@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
@@ -12,6 +13,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -32,6 +34,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -70,6 +73,9 @@ public class UserServiceTest {
     UserService userService;
 
     @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
@@ -100,6 +106,9 @@ public class UserServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @SpyBean
+    CommonConfig commonConfig;
 
     @BeforeEach
     public void setup() {
@@ -415,12 +424,39 @@ public class UserServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateNameOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
-        updateUser.setName("New name of api_user");
+        updateUser.setName("New name of api user");
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
                 .assertNext(user -> {
                     assertNotNull(user);
-                    assertThat(user.getEmail()).isEqualTo("api_user");
-                    assertThat(user.getName()).isEqualTo("New name of api_user");
+                    assertEquals("api_user", user.getEmail());
+                    assertEquals("New name of api user", user.getName());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameOfUser_WithNotAllowedSpecialCharacter_InvalidName() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("invalid name@symbol");
+        StepVerifier.create(userService.updateCurrentUser(updateUser, null))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException
+                                &&
+                                throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME))
+                )
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameOfUser_WithAccentedCharacters_IsValid() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("ä ö ü è ß Test .  '- ðƒ 你好 123'");
+        StepVerifier.create(userService.updateCurrentUser(updateUser, null))
+                .assertNext(user -> {
+                    assertNotNull(user);
+                    assertEquals("ä ö ü è ß Test .  '- ðƒ 你好 123'", user.getName());
                 })
                 .verifyComplete();
     }
@@ -475,6 +511,22 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void getIntercomConsentOfUserOnCloudHosting_AlwaysTrue() {
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+
+        Mono<UserProfileDTO> userProfileDTOMono = sessionUserService.getCurrentUser()
+                .flatMap(userService::buildUserProfileDTO);
+
+        StepVerifier.create(userProfileDTOMono)
+                .assertNext(userProfileDTO -> {
+                    assertNotNull(userProfileDTO);
+                    assertThat(userProfileDTO.isIntercomConsentGiven()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateNameRoleAndUseCaseOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of user here");
@@ -491,9 +543,9 @@ public class UserServiceTest {
                     final UserData userData = tuple.getT2();
                     assertNotNull(user);
                     assertNotNull(userData);
-                    assertThat(user.getName()).isEqualTo("New name of user here");
-                    assertThat(userData.getRole()).isEqualTo("New role of user");
-                    assertThat(userData.getUseCase()).isEqualTo("New use case");
+                    assertEquals("New name of user here", user.getName());
+                    assertEquals("New role of user", userData.getRole());
+                    assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();
     }
@@ -625,5 +677,36 @@ public class UserServiceTest {
             assertThat(userProfileDTO.getUsername()).isEqualTo("anonymousUser");
             assertThat(userProfileDTO.isAnonymous()).isTrue();
         }).verifyComplete();
+    }
+
+
+    /**
+     * This test case asserts that on every user creation, User Management role is auto-created and associated with that user.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateNewUser_assertUserManagementRole() {
+        String testName = "testCreateNewUser_assertUserManagementRole";
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+
+        User createdUser = userService.create(user).block();
+        assertThat(createdUser.getPolicies()).isNotEmpty();
+        assertThat(createdUser.getPolicies().stream().anyMatch(policy -> policy.getPermission().equals(MANAGE_USERS.getValue()))).isTrue();
+        Policy manageUserPolicy = createdUser.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                .findFirst()
+                .get();
+
+        PermissionGroup userManagementRole = permissionGroupRepository.findAll()
+                .filter(role -> role.getName().equals(createdUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE))
+                .blockFirst();
+
+        assertThat(manageUserPolicy.getPermissionGroups()).hasSize(1);
+
+        String userManagementRoleId = manageUserPolicy.getPermissionGroups().stream().findFirst().get();
+
+        assertThat(userManagementRole.getId()).isEqualTo(userManagementRoleId);
     }
 }

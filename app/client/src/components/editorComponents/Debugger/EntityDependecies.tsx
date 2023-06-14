@@ -3,17 +3,8 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import {
-  Classes,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { Classes, getTypographyByKey, Text, TextType } from "design-system-old";
 import InspectElement from "assets/images/InspectElement.svg";
-import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
 import {
   createMessage,
   INCOMING_ENTITIES,
@@ -28,6 +19,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
+import { Button, Icon, Tooltip } from "design-system";
+import { importSvg } from "design-system-old";
+
+const LongArrowSVG = importSvg(
+  () => import("assets/images/long-arrow-right.svg"),
+);
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -36,45 +33,40 @@ const ConnectionType = styled.span`
   padding-bottom: ${(props) => props.theme.spaces[2]}px;
 `;
 
-const ConnectionWrapper = styled.div`
+const ConnectionWrapper = styled(Button)`
   margin: ${(props) => props.theme.spaces[1]}px
     ${(props) => props.theme.spaces[0] + 2}px;
-`;
-
-const ConnectionsContainer = styled.span`
-  background-color: ${(props) =>
-    props.theme.colors.actionSidePane.noConnections};
-  display: flex;
-  flex-wrap: wrap;
-  padding: ${(props) => props.theme.spaces[2] + 1.5}px
-    ${(props) => props.theme.spaces[2] + 1}px;
-  .connection {
-    border: 1px solid
-      ${(props) => props.theme.colors.actionSidePane.connectionBorder};
-    padding: ${(props) => props.theme.spaces[0] + 2}px
-      ${(props) => props.theme.spaces[1]}px;
-    ${getTypographyByKey("p3")}
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-
-    :hover {
-      border: 1px solid
-        ${(props) => props.theme.colors.actionSidePane.connectionHover};
-      color: ${(props) => props.theme.colors.actionSidePane.connectionHover};
+  && {
+    min-width: auto;
+    .ads-v2-button__content-children {
+      display: block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
   }
 `;
 
+const ConnectionsContainer = styled.span`
+  background-color: var(--ads-v2-color-bg);
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
+  padding: ${(props) => props.theme.spaces[2] + 1.5}px
+    ${(props) => props.theme.spaces[2] + 1}px;
+  }
+`;
+
 const NoConnections = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.actionSidePane.noConnections};
+  background-color: var(--ads-v2-color-bg);
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   padding: ${(props) => props.theme.spaces[4] + 1}px
     ${(props) => props.theme.spaces[3]}px;
 
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.actionSidePane.noConnectionsText};
+    color: var(--ads-v2-color-fg);
   }
 `;
 
@@ -120,8 +112,9 @@ const BlankStateContainer = styled.div`
   justify-content: center;
   flex: 1;
   flex-direction: column;
-  color: ${(props) => props.theme.colors.debugger.blankState.color};
-
+  color: var(--ads-v2-color-fg);
+  overflow-y: auto;
+  padding: 8px 16px;
   span {
     margin-top: ${(props) => props.theme.spaces[9] + 1}px;
   }
@@ -171,19 +164,18 @@ export function Connection(props: ConnectionProps) {
   return (
     <Tooltip
       content={`Open ${entityDescription}`}
-      disabled={!entityDescription}
-      hoverOpenDelay={1000}
+      isDisabled={!entityDescription}
       key={props.entityName}
     >
-      <ConnectionWrapper className="t--dependencies-item">
-        <span
-          className="connection"
-          onClick={() =>
-            props.onClick(props.entityName, entityInfo?.entityType ?? "")
-          }
-        >
-          {props.entityName}
-        </span>
+      <ConnectionWrapper
+        className="t--dependencies-item connection"
+        kind="secondary"
+        onClick={() =>
+          props.onClick(props.entityName, entityInfo?.entityType ?? "")
+        }
+        size="sm"
+      >
+        {props.entityName}
       </ConnectionWrapper>
     </Tooltip>
   );
@@ -224,7 +216,7 @@ function EntityDeps(props: ConnectionsProps) {
     <Wrapper>
       <ConnectionContainer>
         <ConnectionType className="icon-text">
-          <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+          <Icon name="arrow-right-line" size="md" />
           <span className="connection-type">
             {createMessage(INCOMING_ENTITIES)}
           </span>
@@ -244,7 +236,7 @@ function EntityDeps(props: ConnectionsProps) {
           <span className="connection-type">
             {createMessage(OUTGOING_ENTITIES)}
           </span>
-          <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+          <Icon name="arrow-right-line" size="md" />
         </ConnectionType>
         {/* Inverse dependencies */}
         <Dependencies

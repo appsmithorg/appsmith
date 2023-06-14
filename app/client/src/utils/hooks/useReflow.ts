@@ -29,6 +29,7 @@ import {
 import { isCurrentCanvasDragging } from "sagas/selectors";
 import { getContainerWidgetSpacesSelectorWhileMoving } from "selectors/editorSelectors";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { getIsResizing } from "selectors/widgetSelectors";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 
 type WidgetCollidingSpace = CollidingSpace & {
@@ -78,6 +79,9 @@ export const useReflow = (
   const isDraggingCanvas = useSelector((state: AppState) =>
     isCurrentCanvasDragging(state, parentId),
   );
+  const isResizing = useSelector(getIsResizing);
+
+  const isCanvasDraggingOrResizing = isDraggingCanvas || isResizing;
 
   const throttledDispatch = throttle(dispatch, 50);
 
@@ -105,7 +109,7 @@ export const useReflow = (
 
   useEffect(() => {
     //only have it run when the user has completely stopped dragging and stopped Reflowing
-    if (!isReflowingGlobal && !isDraggingCanvas) {
+    if (!isReflowingGlobal && !isCanvasDraggingOrResizing) {
       isReflowing.current = false;
       prevPositions.current = [...OGPositions];
       prevCollidingSpaces.current = { horizontal: {}, vertical: {} };
@@ -114,12 +118,12 @@ export const useReflow = (
       shouldReflowDropTargets.current = false;
     }
 
-    if (!isDraggingCanvas) {
+    if (!isCanvasDraggingOrResizing) {
       clearTimeout(timeOutFunction.current);
       exitContainer.current = undefined;
       mousePointerAtContainerExit.current = undefined;
     }
-  }, [isReflowingGlobal, isDraggingCanvas]);
+  }, [isReflowingGlobal, isCanvasDraggingOrResizing]);
 
   // will become a state if we decide that resize should be a "toggle on-demand" feature
   return {

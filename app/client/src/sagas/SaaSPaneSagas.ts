@@ -1,4 +1,4 @@
-import { all, select, takeEvery } from "redux-saga/effects";
+import { all, put, select, takeEvery } from "redux-saga/effects";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
@@ -18,6 +18,9 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
+import { initialize } from "redux-form";
+import { omit } from "lodash";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
@@ -28,6 +31,8 @@ function* handleDatasourceCreatedSaga(
   // Only look at SAAS plugins
   if (!plugin) return;
   if (plugin.type !== PluginType.SAAS) return;
+
+  yield put(initialize(DATASOURCE_SAAS_FORM, omit(payload, "name")));
 
   const queryParams = getQueryParams();
   const updatedDatasource = payload;
@@ -62,7 +67,11 @@ function* handleDatasourceCreatedSaga(
         pageId,
         pluginPackageName: plugin.packageName,
         datasourceId: payload.id,
-        params: { from: "datasources", pluginId: plugin?.id },
+        params: {
+          from: "datasources",
+          pluginId: plugin?.id,
+          viewMode: "false",
+        },
       }),
     );
   }

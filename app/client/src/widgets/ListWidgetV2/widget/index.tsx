@@ -44,6 +44,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -112,6 +113,7 @@ export type MetaWidgetCache = {
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
   shouldScrollContents?: boolean;
+  isListWidgetCanvas?: boolean;
 };
 
 type RenderChildrenOption = {
@@ -562,7 +564,7 @@ class ListWidget extends BaseWidget<
       });
     }
 
-    //To Add Auto Layout flex layer for meta Canvas Widgets
+    //To Add auto-layout flex layer for meta Canvas Widgets
     if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
       metaWidget.flexLayers = getMetaFlexLayers(
         metaWidget.flexLayers,
@@ -605,6 +607,14 @@ class ListWidget extends BaseWidget<
   };
 
   getTemplateBottomRow = () => {
+    if (
+      this.props.appPositioningType === AppPositioningTypes.AUTO &&
+      this.props.isMobile
+    ) {
+      return (
+        this.getMainContainer()?.mobileBottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW
+      );
+    }
     return this.getMainContainer()?.bottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW;
   };
 
@@ -1108,11 +1118,20 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
+          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+            child.isListWidgetCanvas = true;
+          }
           child.children = child.children?.map((container, viewIndex) => {
             const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+            if (
+              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              container.children?.[0]
+            ) {
+              container.children[0].isListWidgetCanvas = true;
+            }
             return {
               ...container,
               focused,

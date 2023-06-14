@@ -5,7 +5,6 @@ import { Provider } from "react-redux";
 import "./index.css";
 import { ThemeProvider } from "styled-components";
 import { appInitializer } from "utils/AppUtils";
-import { Slide } from "react-toastify";
 import store, { runSagaMiddleware } from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "@appsmith/AppRouter";
@@ -13,16 +12,17 @@ import * as Sentry from "@sentry/react";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { StyledToastContainer } from "design-system-old";
+import { Toast } from "design-system";
 import "./assets/styles/index.css";
 import "./polyfills";
 import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
-const shouldAutoFreeze = process.env.NODE_ENV === "development";
-setAutoFreeze(shouldAutoFreeze);
 
+const shouldAutoFreeze = process.env.NODE_ENV === "development";
+
+setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
 
 appInitializer();
@@ -45,14 +45,7 @@ class ThemedApp extends React.Component<{
   render() {
     return (
       <ThemeProvider theme={this.props.currentTheme}>
-        <StyledToastContainer
-          autoClose={5000}
-          closeButton={false}
-          draggable={false}
-          hideProgressBar
-          pauseOnHover={false}
-          transition={Slide}
-        />
+        <Toast />
         <GlobalStyles />
         <AppErrorBoundary>
           <AppRouter />

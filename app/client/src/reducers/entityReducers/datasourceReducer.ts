@@ -12,6 +12,7 @@ import type {
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { DropdownOption } from "design-system-old";
 import produce from "immer";
+import { assign } from "lodash";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -38,6 +39,7 @@ export interface DatasourceDataState {
     isFetchingSheets: boolean;
     isFetchingColumns: boolean;
   };
+  recentDatasources: string[];
 }
 
 const initialState: DatasourceDataState = {
@@ -65,6 +67,7 @@ const initialState: DatasourceDataState = {
     isFetchingSheets: false,
     isFetchingColumns: false,
   },
+  recentDatasources: [],
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -271,6 +274,7 @@ const datasourceReducer = createReducer(initialState, {
       list: state.list.concat(action.payload),
       isDatasourceBeingSaved: false,
       isDatasourceBeingSavedFromPopup: false,
+      recentDatasources: [action.payload.id, ...state.recentDatasources],
     };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
@@ -290,6 +294,10 @@ const datasourceReducer = createReducer(initialState, {
 
         return datasource;
       }),
+      recentDatasources: [
+        action.payload.id,
+        ...state.recentDatasources.filter((ds) => ds !== action.payload.id),
+      ],
     };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS]: (
@@ -330,6 +338,15 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
   ): DatasourceDataState => {
+    return produce(state, (draftState) => {
+      draftState.loading = false;
+      draftState.list.forEach((datasource) => {
+        if (datasource.id === action.payload.id) {
+          assign(datasource, action.payload);
+        }
+      });
+    });
+
     return {
       ...state,
       loading: false,

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,7 +57,6 @@ import static org.mockito.ArgumentMatchers.any;
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
-    @Qualifier("importExportServiceCEImplV2")
     ImportExportApplicationService importExportApplicationService;
 
     @Autowired
@@ -81,10 +79,8 @@ public class ImportApplicationTransactionServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    private ApplicationJson applicationJson = new ApplicationJson();
-
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
+    private ApplicationJson applicationJson = new ApplicationJson();
 
     @BeforeEach
     public void setup() {
@@ -147,7 +143,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier
@@ -174,7 +170,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier

@@ -4,6 +4,7 @@ import {
 } from "actions/autoLayoutActions";
 import type { ApiResponse } from "api/ApiResponses";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
+import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
@@ -17,6 +18,7 @@ import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -72,7 +74,13 @@ export function* fetchSnapshotSaga() {
 //Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
   let response: ApiResponse<any> | undefined;
+  let appId = "";
   try {
+    appId = yield select(getCurrentApplicationId);
+    AnalyticsUtil.logEvent("RESTORE_SNAPSHOT", {
+      appId,
+    });
+
     const applicationId: string = yield select(getCurrentApplicationId);
     response = yield ApplicationApi.restoreApplicationFromSnapshot({
       applicationId,
@@ -88,6 +96,20 @@ function* restoreApplicationFromSnapshotSaga() {
       getLogToSentryFromResponse(response),
     );
 
+    // update the pages list temporarily with incomplete data.
+    if (response?.data?.pages) {
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+        payload: {
+          pages: response.data.pages.map((page: PageDefaultMeta) => ({
+            pageId: page.id,
+            isDefault: page.isDefault,
+          })),
+          applicationId,
+        },
+      });
+    }
+
     //update layout positioning type from
     yield call(
       updateApplicationLayoutType,
@@ -96,27 +118,30 @@ function* restoreApplicationFromSnapshotSaga() {
         : AppPositioningTypes.FIXED,
     );
 
-    if (response?.data?.applicationDetail?.appPositioning?.type) {
-      //update layout positioning type from response
-      yield call(
-        updateApplicationLayoutType,
-        response.data.applicationDetail.appPositioning.type,
-      );
-    }
-
     if (isValidResponse) {
       //update conversion form state to success
       yield put(
         setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
       );
     }
-  } catch (error) {
+  } catch (e: any) {
+    let error: Error = e;
+    if (error) {
+      error.message = `Layout conversion error - while restoring snapshot: ${error.message}`;
+    } else {
+      error = new Error("Layout conversion error - while restoring snapshot");
+    }
+
     log.error(error);
     //update conversion form state to error
     yield put(
-      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR),
+      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
-    throw error;
+
+    AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
+      flow: "RESTORE_SNAPSHOT",
+      appId,
+    });
   }
 }
 

@@ -1,25 +1,31 @@
 import React from "react";
 import styled from "styled-components";
-import { Overlay, Classes } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { ModalBody, ModalContent, Modal } from "design-system";
 
-const StyledDocsSearchModal = styled.div`
-  & {
-    .${Classes.OVERLAY} {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      .${Classes.OVERLAY_CONTENT} {
-        overflow: hidden;
-        top: 8vh;
-        box-shadow: 0px 6px 20px 0px #00000026;
-      }
-      .${Classes.OVERLAY_BACKDROP} {
-        background: transparent;
-      }
+const StyledDocsSearchModal = styled(ModalContent)`
+  text-rendering: auto;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  width: 500px;
+  margin-left: -250px;
+  margin-top: -200px;
+  transform: translate3d(0, 0, 0) !important;
+  &.modal-documentation,
+  &.modal-snippet {
+    width: 786px;
+    will-change: transform;
+    margin-left: -393px;
+  }
+  .modal-snippet,
+  .modal-documentation {
+    overflow: hidden;
+    .container {
+      overflow: auto;
+    }
+    .main {
+      overflow: hidden;
     }
   }
 `;
@@ -28,26 +34,30 @@ type Props = {
   modalOpen: boolean;
   toggleShow: () => void;
   children: React.ReactNode;
+  className?: string;
 };
 
-function DocsSearchModal({ children, modalOpen, toggleShow }: Props) {
+function DocsSearchModal({
+  children,
+  className,
+  modalOpen,
+  toggleShow,
+}: Props) {
   return (
-    <StyledDocsSearchModal>
-      <Overlay
-        hasBackdrop
-        isOpen={modalOpen}
-        onClose={toggleShow}
-        onClosing={() => {
-          AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
-        }}
-        transitionDuration={25}
-        usePortal={false}
+    <Modal
+      onOpenChange={() => {
+        toggleShow();
+        AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
+      }}
+      open={modalOpen}
+    >
+      <StyledDocsSearchModal
+        className={`${className}`}
+        data-testid="t--global-search-modal"
       >
-        <div className={`${Classes.OVERLAY_CONTENT} t--global-search-modal`}>
-          {children}
-        </div>
-      </Overlay>
-    </StyledDocsSearchModal>
+        <ModalBody className={`${className}`}>{children}</ModalBody>
+      </StyledDocsSearchModal>
+    </Modal>
   );
 }
 

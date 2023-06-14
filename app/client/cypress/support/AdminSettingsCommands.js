@@ -7,7 +7,7 @@ require("cypress-file-upload");
 const googleForm = require("../locators/GoogleForm.json");
 const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
-const adminSettings = require("../locators/AdminsSettings");
+import adminSettings from "../locators/AdminsSettings";
 
 const BASE_URL = Cypress.config().baseUrl;
 
@@ -44,6 +44,12 @@ Cypress.Commands.add("fillGithubFormPartly", () => {
 });
 
 Cypress.Commands.add("fillGithubForm", () => {
+  const baseUrl = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
+  cy.get(githubForm.githubHomepageUrl).should("have.value", `${baseUrl}`);
+  cy.get(githubForm.githubCallbackUrl).should(
+    "have.value",
+    `${baseUrl}/login/oauth2/code/github`,
+  );
   cy.get(githubForm.githubClientId).type(
     Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"),
   );

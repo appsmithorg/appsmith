@@ -18,21 +18,27 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes, MultiSwitch } from "design-system-old";
+import { Classes } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
+import { SegmentedControl } from "design-system";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
-  background-color: ${(props) => props.theme.colors.apiPane.tabBg};
+  background-color: var(--ads-v2-color-bg);
   height: 100%;
+  .ads-v2-segmented-control {
+    /* max-width: fit-content;
+    margin-left: 30px; */
+    margin-bottom: 12px;
+  }
 `;
 
 const JSONEditorFieldWrapper = styled.div`
-  margin: 0 30px;
-  width: 65%;
+  /* margin: 0 30px;
+  width: 65%; */
   .CodeMirror {
     height: auto;
     min-height: 250px;
@@ -45,16 +51,16 @@ const NoBodyMessage = styled.div`
   justify-content: center;
 
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.apiPane.body.text};
+    color: var(--ads-v2-color-fg);
   }
 `;
 
 interface PostDataProps {
-  displayFormat: any;
+  displayFormat: { label: string; value: string };
   dataTreePath: string;
   theme?: EditorTheme;
-  updateBodyContentType: (contentType: string, apiId: string) => void;
   apiId: string;
+  updateBodyContentType: (contentType: string, apiId: string) => void;
 }
 
 type Props = PostDataProps;
@@ -66,88 +72,98 @@ const expectedPostBody: CodeEditorExpected = {
 };
 
 function PostBodyData(props: Props) {
-  const { apiId, dataTreePath, displayFormat, theme, updateBodyContentType } =
-    props;
+  const [selectedTab, setSelectedTab] = React.useState(
+    props.displayFormat?.value,
+  );
+  const { dataTreePath, theme } = props;
 
-  const tabComponentsMap = (key: string, contentType: string): JSX.Element => {
-    return {
-      [POST_BODY_FORMAT_OPTIONS.NONE]: (
-        <NoBodyMessage id="NoBodyMessageDiv">
-          {" "}
-          {createMessage(API_PANE_NO_BODY)}{" "}
-        </NoBodyMessage>
-      ),
-      [POST_BODY_FORMAT_OPTIONS.JSON]: (
-        <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
-          <DynamicTextField
-            border={CodeEditorBorder.ALL_SIDE}
-            dataTreePath={`${dataTreePath}.body`}
-            evaluatedPopUpLabel={"Body"}
-            expected={expectedPostBody}
-            mode={EditorModes.JSON_WITH_BINDING}
-            name="actionConfiguration.body"
-            placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
-            showLineNumbers
-            size={EditorSize.EXTENDED}
-            tabBehaviour={TabBehaviour.INDENT}
+  const tabComponentsMap = (key: string) => {
+    switch (key) {
+      case POST_BODY_FORMAT_OPTIONS.NONE:
+        return (
+          <NoBodyMessage id="NoBodyMessageDiv">
+            {createMessage(API_PANE_NO_BODY)}
+          </NoBodyMessage>
+        );
+      case POST_BODY_FORMAT_OPTIONS.JSON:
+        return (
+          <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
+            <DynamicTextField
+              border={CodeEditorBorder.ALL_SIDE}
+              dataTreePath={`${dataTreePath}.body`}
+              evaluatedPopUpLabel={"Body"}
+              expected={expectedPostBody}
+              mode={EditorModes.JSON_WITH_BINDING}
+              name="actionConfiguration.body"
+              placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
+              showLineNumbers
+              size={EditorSize.EXTENDED}
+              tabBehaviour={TabBehaviour.INDENT}
+              theme={theme}
+            />
+          </JSONEditorFieldWrapper>
+        );
+      case POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED:
+        return (
+          <KeyValueFieldArray
+            dataTreePath={`${dataTreePath}.bodyFormData`}
+            key={key}
+            label=""
+            name="actionConfiguration.bodyFormData"
+            pushFields
             theme={theme}
           />
-        </JSONEditorFieldWrapper>
-      ),
-      [POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED]: (
-        <KeyValueFieldArray
-          dataTreePath={`${dataTreePath}.bodyFormData`}
-          key={key}
-          label=""
-          name="actionConfiguration.bodyFormData"
-          pushFields
-          theme={theme}
-        />
-      ),
-
-      [POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA]: (
-        <KeyValueFieldArray
-          dataTreePath={`${dataTreePath}.bodyFormData`}
-          hasType
-          key={key}
-          label=""
-          name="actionConfiguration.bodyFormData"
-          pushFields
-          theme={theme}
-        />
-      ),
-
-      [POST_BODY_FORMAT_OPTIONS.RAW]: (
-        <JSONEditorFieldWrapper key={key}>
-          <DynamicTextField
-            border={CodeEditorBorder.ALL_SIDE}
-            dataTreePath={`${dataTreePath}.body`}
-            mode={EditorModes.TEXT_WITH_BINDING}
-            name="actionConfiguration.body"
-            placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
-            size={EditorSize.EXTENDED}
-            tabBehaviour={TabBehaviour.INDENT}
+        );
+      case POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA:
+        return (
+          <KeyValueFieldArray
+            dataTreePath={`${dataTreePath}.bodyFormData`}
+            hasType
+            key={key}
+            label=""
+            name="actionConfiguration.bodyFormData"
+            pushFields
             theme={theme}
           />
-        </JSONEditorFieldWrapper>
-      ),
-    }[contentType];
+        );
+      case POST_BODY_FORMAT_OPTIONS.RAW:
+        return (
+          <JSONEditorFieldWrapper key={key}>
+            <DynamicTextField
+              border={CodeEditorBorder.ALL_SIDE}
+              dataTreePath={`${dataTreePath}.body`}
+              mode={EditorModes.TEXT_WITH_BINDING}
+              name="actionConfiguration.body"
+              placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
+              size={EditorSize.EXTENDED}
+              tabBehaviour={TabBehaviour.INDENT}
+              theme={theme}
+            />
+          </JSONEditorFieldWrapper>
+        );
+    }
+  };
+
+  const options = POST_BODY_FORMAT_TITLES.map((el) => ({
+    label: el.title,
+    value: el.key,
+  }));
+
+  const postBodyDataOnChangeFn = (key: string) => {
+    setSelectedTab(key);
+    props?.updateBodyContentType(key, props.apiId);
   };
 
   return (
     <PostBodyContainer>
-      <MultiSwitch
-        cypressSelector="t--api-body-tab-switch"
-        onSelect={(title: string) => updateBodyContentType(title, apiId)}
-        selected={displayFormat}
-        tabs={POST_BODY_FORMAT_TITLES.map((el) => {
-          return {
-            key: el.key,
-            title: el.title,
-            panelComponent: tabComponentsMap(el.key, el.key),
-          };
-        })}
+      <SegmentedControl
+        data-testid="t--api-body-tab-switch"
+        defaultValue={selectedTab}
+        isFullWidth={false}
+        onChange={(key: string) => postBodyDataOnChangeFn(key)}
+        options={options}
       />
+      {tabComponentsMap(selectedTab)}
     </PostBodyContainer>
   );
 }

@@ -9,11 +9,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { builderURL } from "RouteBuilder";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import {
-  getCurrentPageDescription,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import HtmlTitle from "../../AppViewerHtmlTitle";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import MobileNavToggle from "./MobileNavToggle";
 import ApplicationName from "./ApplicationName";
 import ShareButton from "./ShareButton";
@@ -25,7 +21,8 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
 import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
-import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
+import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
+import BackToAppsButton from "./BackToAppsButton";
 
 type TopHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -34,6 +31,7 @@ type TopHeaderProps = {
   currentUser?: User;
   isMenuOpen: boolean;
   setMenuOpen: (isMenuOpen: boolean) => void;
+  showUserSettings: boolean;
 };
 
 const TopHeader = (props: TopHeaderProps) => {
@@ -52,12 +50,15 @@ const TopHeader = (props: TopHeaderProps) => {
   const navStyle =
     currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle ||
     NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
+  const logoConfiguration =
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.logoConfiguration ||
+    NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
     "inherit",
   );
-  const description = useSelector(getCurrentPageDescription);
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
 
@@ -68,10 +69,6 @@ const TopHeader = (props: TopHeaderProps) => {
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >
-      <HtmlTitle
-        description={description}
-        name={currentApplicationDetails?.name}
-      />
       <HeaderRow
         className="relative h-12 px-3 md:px-6"
         navColorStyle={navColorStyle}
@@ -86,19 +83,20 @@ const TopHeader = (props: TopHeaderProps) => {
             setMenuOpen={setMenuOpen}
           />
 
-          {currentUser?.username !== ANONYMOUS_USERNAME && (
-            <BackToHomeButton
+          <NavigationLogo logoConfiguration={logoConfiguration} />
+
+          {(logoConfiguration ===
+            NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
+            logoConfiguration ===
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                .APPLICATION_TITLE_ONLY) && (
+            <ApplicationName
+              appName={currentApplicationDetails?.name}
               navColorStyle={navColorStyle}
+              navStyle={navStyle}
               primaryColor={primaryColor}
             />
           )}
-
-          <ApplicationName
-            appName={currentApplicationDetails?.name}
-            navColorStyle={navColorStyle}
-            navStyle={navStyle}
-            primaryColor={primaryColor}
-          />
         </section>
 
         {currentApplicationDetails?.applicationDetail?.navigationSetting
@@ -111,43 +109,49 @@ const TopHeader = (props: TopHeaderProps) => {
             />
           )}
 
-        <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
-          {currentApplicationDetails && currentApplicationDetails?.id && (
-            <div className="hidden space-x-1 md:flex">
-              <ShareButton
-                currentApplicationDetails={currentApplicationDetails}
-                currentWorkspaceId={currentWorkspaceId}
-              />
+        {props.showUserSettings && (
+          <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
+            {currentApplicationDetails && currentApplicationDetails?.id && (
+              <div className="hidden space-x-1 md:flex">
+                <ShareButton
+                  currentApplicationDetails={currentApplicationDetails}
+                  currentWorkspaceId={currentWorkspaceId}
+                />
 
+                <HeaderRightItemContainer>
+                  <PrimaryCTA
+                    className="t--back-to-editor"
+                    navColorStyle={navColorStyle}
+                    primaryColor={primaryColor}
+                    url={editorURL}
+                  />
+
+                  <BackToAppsButton
+                    currentApplicationDetails={currentApplicationDetails}
+                  />
+                </HeaderRightItemContainer>
+              </div>
+            )}
+
+            {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
-                <PrimaryCTA
-                  className="t--back-to-editor"
+                <ProfileDropdown
+                  modifiers={{
+                    offset: {
+                      enabled: true,
+                      offset: `0, 0`,
+                    },
+                  }}
+                  name={currentUser.name}
                   navColorStyle={navColorStyle}
+                  photoId={currentUser?.photoId}
                   primaryColor={primaryColor}
-                  url={editorURL}
+                  userName={currentUser?.username || ""}
                 />
               </HeaderRightItemContainer>
-            </div>
-          )}
-
-          {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
-            <HeaderRightItemContainer>
-              <ProfileDropdown
-                modifiers={{
-                  offset: {
-                    enabled: true,
-                    offset: `0, 0`,
-                  },
-                }}
-                name={currentUser.name}
-                navColorStyle={navColorStyle}
-                photoId={currentUser?.photoId}
-                primaryColor={primaryColor}
-                userName={currentUser?.username || ""}
-              />
-            </HeaderRightItemContainer>
-          )}
-        </section>
+            )}
+          </section>
+        )}
       </HeaderRow>
 
       {currentApplicationDetails?.applicationDetail?.navigationSetting

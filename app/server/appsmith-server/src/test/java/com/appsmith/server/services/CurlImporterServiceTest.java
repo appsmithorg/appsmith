@@ -72,6 +72,101 @@ public class CurlImporterServiceTest {
 
     String workspaceId;
 
+    // Assertion utilities for working with Action assertions.
+    private static void assertMethod(ActionDTO action, HttpMethod method) {
+        assertThat(action.getActionConfiguration().getHttpMethod()).isEqualByComparingTo(method);
+    }
+
+    private static void assertUrl(ActionDTO action, String url) {
+        assertThat(action.getDatasource().getDatasourceConfiguration().getUrl()).isEqualTo(url);
+    }
+
+    private static void assertEmptyPath(ActionDTO action) {
+        assertThat(action.getActionConfiguration().getPath()).isNullOrEmpty();
+    }
+
+    private static void assertPath(ActionDTO action, String path) {
+        assertThat(action.getActionConfiguration().getPath()).isEqualTo(path);
+    }
+
+    private static void assertQueryParams(ActionDTO action, Property... params) {
+        assertThat(action.getActionConfiguration().getQueryParameters()).containsExactly(params);
+    }
+
+    private static void assertEmptyHeaders(ActionDTO action) {
+        assertThat(action.getActionConfiguration().getHeaders()).isNullOrEmpty();
+    }
+
+    private static void assertHeaders(ActionDTO action, Property... headers) {
+        // this implementation only works if Property has a subclass of object which works implements equal function.
+        // let's compare sizes of both first
+        assert action.getActionConfiguration().getHeaders().size() == headers.length;
+        HashMap<String, List<Object>> headerStore = new HashMap<>();
+
+        // create a map of headers with header-property-key as keys and ArrayList of property-header-values as values.
+        for (Property property : action.getActionConfiguration().getHeaders()) {
+            String key = property.getKey().toLowerCase();
+
+            if (!headerStore.containsKey(key)) {
+                // using linkedList to achieve O(1) removal time
+                headerStore.put(key, new LinkedList<>());
+            }
+            headerStore.get(key).add(property.getValue());
+        }
+
+        // placeholder variable
+        List<Object> headerStorePropertyList;
+
+        // compare the hashMap headerStore with the varargs header
+        for (int i = 0; i < headers.length; i++) {
+            String key = headers[i].getKey().toLowerCase();
+
+            assert headerStore.containsKey(key);
+
+            boolean matchFound = false;
+            headerStorePropertyList = headerStore.get(key);
+            for (int listIndex = 0; listIndex < headerStorePropertyList.size(); listIndex++) {
+                if (!headerStorePropertyList.get(listIndex).equals(headers[i].getValue())) {
+                    continue;
+                }
+
+                // we keep removing the entries that have matched so that in the end we have zero entries in the headerStore.
+                headerStorePropertyList.remove(listIndex);
+                if (headerStorePropertyList.isEmpty()) {
+                    headerStore.remove(key);
+                }
+                matchFound = true;
+                break;
+            }
+
+            if (matchFound) {
+                continue;
+            }
+
+            assert (false);
+        }
+
+        // if headerStore has keys then it would mean that there are more headers than expected;
+        assert headerStore.size() == 0;
+        // if all header matches then only it will reach here.
+    }
+
+    private static void assertEmptyBody(ActionDTO action) {
+        assertThat(action.getActionConfiguration().getBody()).isNullOrEmpty();
+    }
+
+    private static void assertEmptyBodyFormData(ActionDTO action) {
+        assertThat(action.getActionConfiguration().getBodyFormData()).isNullOrEmpty();
+    }
+
+    private static void assertBody(ActionDTO action, String body) {
+        assertThat(action.getActionConfiguration().getBody()).isEqualTo(body);
+    }
+
+    private static void assertBodyFormData(ActionDTO action, Property... params) {
+        assertThat(action.getActionConfiguration().getBodyFormData()).containsExactly(params);
+    }
+
     public void setup() {
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
@@ -160,7 +255,7 @@ public class CurlImporterServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testImportAction_EmptyLex() {
+    public void testImportActionOnInvalidInput() {
         setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
@@ -177,6 +272,50 @@ public class CurlImporterServiceTest {
                 .create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.INVALID_CURL_COMMAND.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testImportActionOnNullInput() {
+        setup();
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction(null, page.getId(), "actionName", workspaceId, null);
+
+        StepVerifier
+                .create(action)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testImportActionOnEmptyInput() {
+        setup();
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction("", page.getId(), "actionName", workspaceId, null);
+
+        StepVerifier
+                .create(action)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
                 .verify();
     }
 
@@ -313,7 +452,6 @@ public class CurlImporterServiceTest {
         assertThat(actionConfiguration.getHttpMethod()).isEqualTo(HttpMethod.POST);
         assertThat(actionConfiguration.getBody()).isNullOrEmpty();
     }
-
 
     @Test
     public void missingMethod() throws AppsmithException {
@@ -862,107 +1000,6 @@ public class CurlImporterServiceTest {
         assert (map.containsKey(API_CONTENT_TYPE));
         assert (map.get(API_CONTENT_TYPE).equals(contentType));
 
-    }
-
-    // Assertion utilities for working with Action assertions.
-    private static void assertMethod(ActionDTO action, HttpMethod method) {
-        assertThat(action.getActionConfiguration().getHttpMethod()).isEqualByComparingTo(method);
-    }
-
-    private static void assertUrl(ActionDTO action, String url) {
-        assertThat(action.getDatasource().getDatasourceConfiguration().getUrl()).isEqualTo(url);
-    }
-
-    private static void assertEmptyPath(ActionDTO action) {
-        assertThat(action.getActionConfiguration().getPath()).isNullOrEmpty();
-    }
-
-    private static void assertPath(ActionDTO action, String path) {
-        assertThat(action.getActionConfiguration().getPath()).isEqualTo(path);
-    }
-
-    private static void assertQueryParams(ActionDTO action, Property... params) {
-        assertThat(action.getActionConfiguration().getQueryParameters()).containsExactly(params);
-    }
-
-    private static void assertEmptyHeaders(ActionDTO action) {
-        assertThat(action.getActionConfiguration().getHeaders()).isNullOrEmpty();
-    }
-
-    private static void assertHeaders(ActionDTO action, Property... headers) {
-        // this implementation only works if Property has a subclass of object which works implements equal function.
-        // let's compare sizes of both first
-        if (action.getActionConfiguration().getHeaders().size() != headers.length) {
-            assert (false);
-        }
-        HashMap<String, List<Object>> headerStore = new HashMap<>();
-
-        // create a map of headers with header-property-key as keys and ArrayList of property-header-values as values.
-        for (Property property : action.getActionConfiguration().getHeaders()) {
-            String key = property.getKey().toLowerCase();
-
-            if (!headerStore.containsKey(key)) {
-                // using linkedList to achieve O(1) removal time
-                headerStore.put(key, new LinkedList<>());
-            }
-            headerStore.get(key).add(property.getValue());
-        }
-
-        // placeholder variable
-        List<Object> headerStorePropertyList;
-
-        // compare the hashMap headerStore with the varargs header
-        for (int i = 0; i < headers.length; i++) {
-            String key = headers[i].getKey().toLowerCase();
-
-            if (!headerStore.containsKey(key)) {
-                assert (false);
-            }
-
-            boolean matchFound = false;
-            headerStorePropertyList = headerStore.get(key);
-            for (int listIndex = 0; listIndex < headerStorePropertyList.size(); listIndex++) {
-                if (!headerStorePropertyList.get(listIndex).equals(headers[i].getValue())) {
-                    continue;
-                }
-
-                // we keep removing the entries that have matched so that in the end we have zero entries in the headerStore.
-                headerStorePropertyList.remove(listIndex);
-                if (headerStorePropertyList.isEmpty()) {
-                    headerStore.remove(key);
-                }
-                matchFound = true;
-                break;
-            }
-
-            if (matchFound) {
-                continue;
-            }
-
-            assert (false);
-        }
-
-        // if headerStore has keys then it would mean that there are more headers than expected;
-        if (headerStore.size() != 0) {
-            assert (false);
-        }
-        // if all header matches then only it will reach here.
-    }
-
-    private static void assertEmptyBody(ActionDTO action) {
-        assertThat(action.getActionConfiguration().getBody()).isNullOrEmpty();
-    }
-
-    private static void assertEmptyBodyFormData(ActionDTO action) {
-        assertThat(action.getActionConfiguration().getBodyFormData()).isNullOrEmpty();
-    }
-
-    private static void assertBody(ActionDTO action, String body) {
-        assertThat(action.getActionConfiguration().getBody()).isEqualTo(body);
-    }
-
-    private static void assertBodyFormData(ActionDTO action, Property... params) {
-        assertThat(action.getActionConfiguration().getBodyFormData()).containsExactly(params);
     }
 
 }

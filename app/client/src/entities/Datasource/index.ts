@@ -12,6 +12,9 @@ export enum AuthenticationStatus {
   IN_PROGRESS = "IN_PROGRESS",
   SUCCESS = "SUCCESS",
   FAILURE = "FAILURE",
+  FAILURE_ACCESS_DENIED = "FAILURE_ACCESS_DENIED",
+  FAILURE_FILE_NOT_SELECTED = "FAILURE_FILE_NOT_SELECTED",
+  IN_PROGRESS_PERMISSIONS_GRANTED = "IN_PROGRESS_PERMISSIONS_GRANTED",
 }
 
 export enum FilePickerActionStatus {
@@ -22,7 +25,7 @@ export enum FilePickerActionStatus {
 
 export enum ActionType {
   AUTHORIZE = "authorize",
-  DOCUMENTATION = "picked",
+  DOCUMENTATION = "documentation",
 }
 
 export interface DatasourceAuthentication {
@@ -47,6 +50,7 @@ export interface DatasourceColumns {
 export interface DatasourceKeys {
   name: string;
   type: string;
+  columnNames: string[];
 }
 
 export interface DatasourceStructure {
@@ -73,11 +77,13 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
+  type?: string;
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;
   userPermissions?: string[];
   isDeleting?: boolean;
+  isMock?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
@@ -115,6 +121,7 @@ export interface Datasource extends BaseDatasource {
   structure?: DatasourceStructure;
   messages?: string[];
   success?: boolean;
+  isMock?: boolean;
 }
 
 export interface TokenResponse {

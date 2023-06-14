@@ -8,7 +8,7 @@ import type { RateSize } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -110,7 +110,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "maxCount",
             helpText: "Sets the maximum allowed rating",
-            label: "Max Rating",
+            label: "Max rating",
             controlType: "INPUT_TEXT",
             placeholderText: "5",
             isBindProperty: true,
@@ -123,7 +123,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "defaultRate",
             helpText: "Sets the default rating",
-            label: "Default Rating",
+            label: "Default rating",
             controlType: "INPUT_TEXT",
             placeholderText: "2.5",
             isBindProperty: true,
@@ -162,7 +162,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "isAllowHalf",
             helpText: "Controls if user can submit half stars",
-            label: "Allow Half Stars",
+            label: "Allow half stars",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -201,7 +201,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -236,9 +236,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "size",
-            label: "Star Size",
+            label: "Star size",
             helpText: "Controls the size of the stars in the widget",
             controlType: "ICON_TABS",
+            defaultValue: "LARGE",
             fullWidth: true,
             hidden: isAutoLayout,
             options: [
@@ -265,7 +266,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "activeColor",
-            label: "Active Color",
+            label: "Active color",
             helpText: "Color of the selected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -275,7 +276,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
           {
             propertyName: "inactiveColor",
-            label: "Inactive Color",
+            label: "Inactive color",
             helpText: "Color of the unselected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,

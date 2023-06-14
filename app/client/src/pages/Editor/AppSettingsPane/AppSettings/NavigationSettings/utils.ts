@@ -4,6 +4,11 @@ import type {
 } from "constants/AppConstants";
 import { keysOfNavigationSetting } from "constants/AppConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  APP_NAVIGATION_SETTING,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { toast } from "design-system";
 
 export const logEvent = (
   keyName: keyof StringsFromNavigationSetting,
@@ -38,4 +43,47 @@ export const logEvent = (
     default:
       break;
   }
+};
+
+/**
+ * validates the uploaded logo file
+ *
+ *  checks:
+ *  1. file size max 1MB
+ *  2. file type - jpg, or png
+ *
+ * @param e
+ * @param callback
+ * @returns
+ */
+export const logoImageValidation = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  callback?: (e: React.ChangeEvent<HTMLInputElement>) => void,
+) => {
+  const file = e.target.files?.[0];
+
+  // case 1: no file selected
+  if (!file) return false;
+
+  // case 2: file size > 1mb
+  if (file.size > 1 * 1024 * 1024) {
+    toast.show(createMessage(APP_NAVIGATION_SETTING.logoUploadSizeError), {
+      kind: "error",
+    });
+
+    return false;
+  }
+
+  // case 3: image selected
+  const validTypes = ["image/jpeg", "image/png"];
+
+  if (!validTypes.includes(file.type)) {
+    toast.show(createMessage(APP_NAVIGATION_SETTING.logoUploadFormatError), {
+      kind: "error",
+    });
+
+    return false;
+  }
+
+  callback && callback(e);
 };

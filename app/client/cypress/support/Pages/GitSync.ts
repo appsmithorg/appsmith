@@ -10,19 +10,34 @@ export class GitSync {
 
   private _connectGitBottomBar = ".t--connect-git-bottom-bar";
   private _gitSyncModal = ".git-sync-modal";
-  private _closeGitSyncModal = ".t--close-git-sync-modal";
-  private _gitRepoInput = ".t--git-repo-input";
-  private _useDefaultConfig =
-    "//span[text()='Use default configuration']/parent::div";
-  private _gitConfigNameInput = ".t--git-config-name-input";
-  private _gitConfigEmailInput = ".t--git-config-email-input";
-  _branchButton = "[data-testid=t--branch-button-container]";
-  private _branchSearchInput = ".t--branch-search-input";
-  private _bottomBarCommit = ".t--bottom-bar-commit span[name='plus']";
-  _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']";
+  private _closeGitSyncModal =
+    "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
+  //private _closeGitSyncModal = ".ads-v2-modal__content-header-close-button";
+  private _gitRepoInput =
+    "//label[text()='Remote URL']/following-sibling::div//input";
+  private _useDefaultConfig = "//label[text()='Use default configuration']";
+  private _gitConfigNameInput =
+    "//label[text()='Author name']/following-sibling::div//input";
+  private _gitConfigEmailInput =
+    "//label[text()='Author email']/following-sibling::div//input";
+  _branchButton = ".t--branch-button";
+  private _branchSearchInput = ".t--branch-search-input input";
+  private _bottomBarCommit = ".t--bottom-bar-commit button";
+  _bottomBarPull = ".t--bottom-bar-pull button";
   private _branchName = (branch: string) =>
-    "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
+    "//button[contains(@class, 't--branch-button')]//*[text()='" +
+    branch +
+    "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
+  private _branchListItem = "[data-testid=t--branch-list-item]";
+  private _spinner = ".ads-v2-spinner";
+  private _bottomBarMergeButton = ".t--bottom-bar-merge";
+  private _mergeBranchDropdownDestination =
+    ".t--merge-branch-dropdown-destination";
+  private _dropdownmenu = ".rc-select-item-option-content";
+  private _openRepoButton = "[data-testid=t--git-repo-button]";
+  private _commitButton = ".t--commit-button";
+  private _commitCommentInput = ".t--commit-comment-input textarea";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -110,7 +125,7 @@ export class GitSync {
         //`{selectall}${testUsername}`,
       );
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-      this.agHelper.ClickButton("CONNECT");
+      this.agHelper.ClickButton("Connect");
       if (assertConnect) {
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
@@ -147,6 +162,67 @@ export class GitSync {
       this.agHelper.AssertElementVisible(this._branchName(branch + uid));
       cy.wrap(branch + uid).as("gitbranchName");
     });
+  }
+
+  SwitchGitBranch(branch: string, expectError?: false) {
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    this.agHelper.GetNClick(this._branchButton);
+    this.agHelper.TypeText(
+      this._branchSearchInput,
+      `{selectall}` + `${branch}`,
+      0,
+      true,
+    );
+    cy.wait(1000);
+    //cy.get(gitSyncLocators.branchListItem).contains(branch).click();
+    this.agHelper.GetNClickByContains(this._branchListItem, branch);
+    if (!expectError) {
+      // increasing timeout to reduce flakyness
+      cy.get(this._spinner, { timeout: 45000 }).should("exist");
+      cy.get(this._spinner, { timeout: 45000 }).should("not.exist");
+    }
+
+    this.agHelper.Sleep(2000);
+  }
+
+  CheckMergeConflicts(destinationBranch: string) {
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    this.agHelper.GetNClick(this._bottomBarMergeButton);
+    cy.wait(2000);
+    this.agHelper.GetNClick(this._mergeBranchDropdownDestination);
+    // cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
+    this.agHelper.GetNClickByContains(this._dropdownmenu, destinationBranch);
+
+    this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
+  }
+
+  OpenRepositoryAndVerify() {
+    this.agHelper.GetNClick(this._openRepoButton);
+  }
+
+  CommitAndPush(assertFailure?: true) {
+    this.agHelper.GetNClick(this.locator._publishButton);
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    //cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    this.agHelper.TypeText(this._commitCommentInput, "Initial commit", 0, true);
+    this.agHelper.GetNClick(this._commitButton);
+    if (!assertFailure) {
+      // check for commit success
+      //adding timeout since commit is taking longer sometimes
+      cy.wait("@commit", { timeout: 35000 }).should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.wait(3000);
+    } else {
+      cy.wait("@commit", { timeout: 35000 }).then((interception: any) => {
+        const status = interception.response.body.responseMeta.status;
+        expect(status).to.be.gte(400);
+      });
+    }
+
+    this.CloseGitSyncModal();
   }
 
   //#region Unused methods

@@ -23,14 +23,12 @@ import {
   EMPTY_DATASOURCE_MAIN_TEXT,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
-import { Colors } from "constants/Colors";
 import {
   useDatasourceIdFromURL,
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { Icon } from "design-system-old";
+import { Icon, Button } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
@@ -40,19 +38,11 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const ShowAll = styled.div`
-  padding: 0.25rem 1.5rem;
-  font-weight: 500;
-  font-size: 12px;
-  color: ${Colors.DOVE_GRAY2};
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  &:hover {
-    transform: scale(1.01);
-  }
+const ShowAllButton = styled(Button)`
+  margin: 0.25rem 1.5rem;
 `;
 
 const Datasources = React.memo(() => {
@@ -71,14 +61,21 @@ const Datasources = React.memo(() => {
     userWorkspacePermissions,
   );
 
-  const addDatasource = useCallback(() => {
-    history.push(
-      integrationEditorURL({
-        pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
-      }),
-    );
-  }, [pageId]);
+  const addDatasource = useCallback(
+    (entryPoint: string) => {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
+      // Event for datasource creation click
+      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+        entryPoint,
+      });
+    },
+    [pageId],
+  );
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();
 
@@ -125,7 +122,7 @@ const Datasources = React.memo(() => {
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
-      className={"datasources"}
+      className={"group datasources"}
       entityId="datasources_section"
       icon={null}
       isDefaultExpanded={
@@ -135,7 +132,10 @@ const Datasources = React.memo(() => {
       }
       isSticky
       name="Datasources"
-      onCreate={addDatasource}
+      onCreate={addDatasource.bind(
+        this,
+        DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS,
+      )}
       onToggle={onDatasourcesToggle}
       searchKeyword={""}
       showAddButton={canCreateDatasource}
@@ -148,13 +148,20 @@ const Datasources = React.memo(() => {
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
           {...(canCreateDatasource && {
             addBtnText: createMessage(EMPTY_DATASOURCE_BUTTON_TEXT),
-            addFunction: addDatasource || noop,
+            addFunction:
+              addDatasource.bind(
+                this,
+                DatasourceCreateEntryPoints.ENTITY_EXPLORER_NEW_DATASOURCE,
+              ) || noop,
           })}
         />
       )}
       {datasourceElements.length > 0 && canCreateDatasource && (
         <AddEntity
-          action={addDatasource}
+          action={addDatasource.bind(
+            this,
+            DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS_CTA,
+          )}
           entityId="add_new_datasource"
           icon={<Icon name="plus" />}
           name={createMessage(ADD_DATASOURCE_BUTTON)}
@@ -162,10 +169,14 @@ const Datasources = React.memo(() => {
         />
       )}
       {otherDS.length ? (
-        <ShowAll onClick={listDatasource}>
+        <ShowAllButton
+          endIcon="arrow-right-line"
+          kind="tertiary"
+          onClick={listDatasource}
+          size="sm"
+        >
           Show all datasources
-          <ArrowRightLineIcon color={Colors.DOVE_GRAY2} size={"14px"} />
-        </ShowAll>
+        </ShowAllButton>
       ) : null}
     </Entity>
   );

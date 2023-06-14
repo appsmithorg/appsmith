@@ -2,11 +2,17 @@
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
 @import "~design-system-old/build/css/design-system-old.css";
+@import "~design-system/build/css/design-system.css";
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
 @import "assets/fonts/custom/index.css";
 @import "assets/fonts/google/index.css";
+
+:root {
+  /* TODO: This needs to be fixed! This oveerride is to mainatain branding changes. */
+  --ads-color-background-secondary: var(--ads-v2-color-bg-subtle);
+}
 
 body {
   margin: 0;
@@ -14,13 +20,31 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #fff !important;
+  color: var(--ads-v2-color-fg);
 }
 
 body.dragging * {
   cursor: grabbing !important;
 }
 
-body.overlay {
+/**
+  Disable outline completely from all components
+*/
+:focus,
+:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+/**
+  Disable outline for adsv2 select component
+*/
+.ads-v2-select.rc-select-focused {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+#root.overlay {
   opacity: 0;
   pointer-events: none;
 }
@@ -28,10 +52,6 @@ body.overlay {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
-}
-
-* {
-  outline: none !important;
 }
 
 div.bp3-select-popover .bp3-popover-content {
@@ -47,14 +67,68 @@ span.bp3-popover-target > * {
   flex-grow: 1;
 }
 
+.bp3-popover,
+.bp3-popover2 {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
+}
+
+.bp3-popover2-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.action-selector-popup {
+  background-color: var(--ads-v2-color-bg);
+  border-radius: var(--ads-v2-border-radius) !important;
+  border: 1px solid var(--ads-v2-color-border-muted) !important;
+}
+
 .action-selector-popup span.bp3-popover-target > * {
   max-width: 100%;
+}
+
+add-action.disabled span {
+  cursor: not-allowed;
 }
 
 .action-selector-popup .bp3-button-text {
   text-overflow: ellipsis;
   overflow: hidden;
   min-width: 0;
+}
+
+/**
+  action selector block styles
+**/
+.bp3-submenu.bp3-popover > .bp3-popover-content {
+  box-shadow: none;
+}
+
+.action-card-border {
+  border-color: var(--ads-v2-color-border);
+}
+
+.action-card-next-selected {
+  border-bottom: 1px solid var(--ads-v2-color-border-emphasis-plus);
+}
+
+.action-card-border-selected {
+  border-color: var(--ads-v2-color-border-emphasis-plus) !important;
+}
+
+.action-card-last-block {
+  border-radius: 0px 0px var(--ads-v2-border-radius) var(--ads-v2-border-radius);
+}
+
+.main-block-radius {
+  border-radius: var(--ads-v2-border-radius);
+}
+
+.main-block-radius-selected {
+  border-radius: var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0px 0px;
+}
+
+.bp3-popover.bp3-minimal.bp3-submenu {
+  padding-right: 0px;
 }
 
 div.bp3-popover-arrow {
@@ -69,20 +143,6 @@ div.bp3-popover-arrow {
   display: none;
 }
 
-.Toastify__toast {
-  padding: 0 !important;
-  border-radius: 4px !important;
-  box-shadow: none !important;
-}
-
-.Toastify__toast-body {
-  margin: 0 !important;
-}
-
-.Toastify__progress-bar--default {
-  background: rgb(3, 179, 101) !important;
-}
-
 .t--editor-appname-menu-portal {
   z-index: 9 !important;
 }
@@ -90,14 +150,13 @@ div.bp3-popover-arrow {
 .bp3-popover .bp3-input {
   outline: 0;
   box-shadow: none;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0 !important;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius) !important;
 }
 
 .bp3-popover .bp3-input:focus {
-  border-color: #80bdff;
+  border-color: var(--ads-v2-color-border-emphasis);
   outline: 0;
-  box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
 }
 
 .bp3-popover.bp3-minimal {
@@ -131,12 +190,10 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
-.widget-name-popper {
-  box-shadow: none !important;
-}
 
-.widget-name-popper > .bp3-popover2-content {
-  border-radius: 4px !important;
+.bp3-popover2-content {
+  background-color: var(--ads-v2-color-bg) !important;
+  border-radius: var(--ads-v2-border-radius) !important;
 }
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
@@ -144,4 +201,50 @@ div.bp3-popover-arrow {
 
 .bp3-overlay-zindex {
   z-index: 20 !important;
+}
+
+/** color picker input control */
+.color-picker-input,
+.color-picker-input > .bp3-popover-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.color-picker-input {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
+}
+
+.icon-select-popover,
+.icon-select-popover > .bp3-popover-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.icon-select-popover {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
+}
+
+.error-menuitem {
+  color: var(--ads-v2-color-fg-error) !important;
+}
+.error-menuitem > .ads-v2-menu__menu-item-children {
+  color: var(--ads-v2-color-fg-error) !important;
+}
+
+.error-menuitem:hover:not([data-disabled]),
+.error-menuitem:focus-visible {
+  background-color: var(--ads-v2-color-red-50) !important;
+}
+.error-menuitem:active:not([data-disabled]) {
+  background-color: var(--ads-v2-color-red-100) !important;
+}
+.menuitem-nohover:hover {
+  background-color: transparent !important;
+  cursor: default !important;
+}
+
+.react-datepicker__children-container {
+  margin-top: -10px !important;
+}
+
+.reconnect-datasource-modal {
+  z-index: 9 !important;
 }

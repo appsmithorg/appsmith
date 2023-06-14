@@ -38,6 +38,9 @@
                     },
                     {
                         "key": "primaryColumns.color.fontStyle"
+                    },
+                    {
+                      "key": "tableData"
                     }
                 ],
                 "displayName": "Table",

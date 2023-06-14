@@ -15,7 +15,7 @@ import type {
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
-  DuplicateApplicationRequest,
+  DeleteNavigationLogoRequest,
   FetchApplicationPayload,
   FetchApplicationResponse,
   FetchUnconfiguredDatasourceListResponse,
@@ -27,10 +27,11 @@ import type {
   SetDefaultPageRequest,
   UpdateApplicationRequest,
   UpdateApplicationResponse,
+  UploadNavigationLogoRequest,
   WorkspaceApplicationObject,
 } from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
-import { all, call, put, select } from "redux-saga/effects";
+import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
@@ -39,6 +40,7 @@ import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
 import {
   ApplicationVersion,
+  deleteApplicationNavigationLogoSuccessAction,
   fetchApplication,
   getAllApplications,
   importApplicationSuccess,
@@ -49,20 +51,19 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
+  updateApplicationNavigationLogoSuccessAction,
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
+  updateCurrentApplicationForkingEnabled,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   DELETING_APPLICATION,
   DISCARD_SUCCESS,
-  DUPLICATING_APPLICATION,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
-import type { AppIconName } from "design-system-old";
-import { Toaster, Variant } from "design-system-old";
 import { APP_MODE } from "entities/App";
 import type {
   Workspace,
@@ -72,6 +73,7 @@ import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 
 import {
@@ -107,12 +109,18 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
+import { toast } from "design-system";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import type { IconNames } from "design-system";
+import {
+  defaultNavigationSetting,
+  keysOfNavigationSetting,
+} from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
 
 export const getDefaultPageId = (
@@ -278,9 +286,8 @@ export function* fetchAppAndPagesSaga(
       });
 
       if (localStorage.getItem("GIT_DISCARD_CHANGES") === "success") {
-        Toaster.show({
-          text: createMessage(DISCARD_SUCCESS),
-          variant: Variant.success,
+        toast.show(createMessage(DISCARD_SUCCESS), {
+          kind: "success",
         });
         localStorage.setItem("GIT_DISCARD_CHANGES", "");
       }
@@ -406,6 +413,13 @@ export function* updateApplicationSaga(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
           );
         }
+        if ("forkingEnabled" in request) {
+          yield put(
+            updateCurrentApplicationForkingEnabled(
+              response.data.forkingEnabled,
+            ),
+          );
+        }
         if (
           request.applicationDetail?.navigationSetting &&
           response.data.applicationDetail?.navigationSetting
@@ -432,9 +446,7 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    Toaster.show({
-      text: createMessage(DELETING_APPLICATION),
-    });
+    toast.show(createMessage(DELETING_APPLICATION));
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,
@@ -451,46 +463,6 @@ export function* deleteApplicationSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* duplicateApplicationSaga(
-  action: ReduxAction<DeleteApplicationRequest>,
-) {
-  try {
-    Toaster.show({
-      text: createMessage(DUPLICATING_APPLICATION),
-    });
-    const request: DuplicateApplicationRequest = action.payload;
-    const response: ApiResponse = yield call(
-      ApplicationApi.duplicateApplication,
-      request,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      const application: ApplicationPayload = {
-        // @ts-expect-error: response is of type unknown
-        ...response.data,
-        // @ts-expect-error: response is of type unknown
-        defaultPageId: getDefaultPageId(response.data.pages),
-      };
-      yield put({
-        type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
-        payload: response.data,
-      });
-
-      const pageURL = builderURL({
-        pageId: application.defaultPageId,
-      });
-      history.push(pageURL);
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DUPLICATE_APPLICATION_ERROR,
       payload: {
         error,
       },
@@ -532,7 +504,7 @@ export function* changeAppViewAccessSaga(
 export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
-    icon: AppIconName;
+    icon: IconNames;
     color: AppColorCode;
     workspaceId: string;
     resolve: any;
@@ -649,18 +621,21 @@ export function* forkApplicationSaga(
   action: ReduxAction<ForkApplicationRequest>,
 ) {
   try {
-    const response: ApiResponse = yield call(
-      ApplicationApi.forkApplication,
-      action.payload,
-    );
+    const response: ApiResponse<{
+      application: ApplicationResponsePayload;
+      isPartialImport: boolean;
+      unConfiguredDatasourceList: Datasource[];
+    }> = yield call(ApplicationApi.forkApplication, {
+      applicationId: action.payload.applicationId,
+      workspaceId: action.payload.workspaceId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
+        ...response.data.application,
         // @ts-expect-error: response is of type unknown
-        ...response.data,
-        // @ts-expect-error: response is of type unknown
-        defaultPageId: getDefaultPageId(response.data.pages),
+        defaultPageId: getDefaultPageId(response.data.application.pages),
       };
       yield put({
         type: ReduxActionTypes.FORK_APPLICATION_SUCCESS,
@@ -672,13 +647,40 @@ export function* forkApplicationSaga(
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
-          id: action.payload.workspaceId,
+          workspaceId: action.payload.workspaceId,
         },
       });
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
       });
+
+      if (action.payload.editMode) {
+        const appId = application.id;
+        const pageId = application.defaultPageId;
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+          payload: {
+            applicationId: appId,
+            pageId,
+          },
+        });
+      }
       history.push(pageURL);
+
+      const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+      if (!isEditorInitialized) {
+        yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+      }
+      if (response.data.isPartialImport) {
+        yield put(
+          showReconnectDatasourceModal({
+            application: response.data?.application,
+            unConfiguredDatasourceList:
+              response?.data.unConfiguredDatasourceList,
+            workspaceId: action.payload.workspaceId,
+          }),
+        );
+      }
     }
   } catch (error) {
     yield put({
@@ -777,9 +779,8 @@ export function* importApplicationSaga(
 
           if (guidedTour) return;
 
-          Toaster.show({
-            text: "Application imported successfully",
-            variant: Variant.success,
+          toast.show("Application imported successfully", {
+            kind: "success",
           });
         }
       } else {
@@ -912,4 +913,112 @@ export function* initDatasourceConnectionDuringImport(
   );
 
   yield put(initDatasourceConnectionDuringImportSuccess());
+}
+
+export function* uploadNavigationLogoSaga(
+  action: ReduxAction<UploadNavigationLogoRequest>,
+) {
+  try {
+    const request: UploadNavigationLogoRequest = action.payload;
+    const response: ApiResponse<UpdateApplicationResponse> = yield call(
+      ApplicationApi.uploadNavigationLogo,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      if (request.logo) {
+        if (
+          request.logo &&
+          response.data.applicationDetail?.navigationSetting?.logoAssetId
+        ) {
+          yield put(
+            updateApplicationNavigationLogoSuccessAction(
+              response.data.applicationDetail.navigationSetting.logoAssetId,
+            ),
+          );
+
+          /**
+           * When the user creates a new application and they upload logo without
+           * interacting with any other navigation settings first, we get only
+           * navigationSetting = { logoAssetId: <id_string_here> } in the API response.
+           *
+           * Therefore, we need to handle this case by hitting the update application
+           * API and store the default navigation settings as well alongside
+           * the logoAssetId.
+           */
+          const navigationSettingKeys = Object.keys(
+            response.data.applicationDetail?.navigationSetting,
+          );
+          if (
+            navigationSettingKeys?.length === 1 &&
+            navigationSettingKeys?.[0] === keysOfNavigationSetting.logoAssetId
+          ) {
+            const newUpdateApplicationRequestWithDefaultNavigationSettings = {
+              ...response.data,
+              applicationDetail: {
+                ...response.data.applicationDetail,
+                navigationSetting: {
+                  ...defaultNavigationSetting,
+                  ...response.data.applicationDetail.navigationSetting,
+                },
+              },
+            };
+
+            const updateApplicationResponse: ApiResponse<UpdateApplicationResponse> =
+              yield call(
+                ApplicationApi.updateApplication,
+                newUpdateApplicationRequestWithDefaultNavigationSettings,
+              );
+
+            if (updateApplicationResponse?.data) {
+              yield put({
+                type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+                payload: updateApplicationResponse.data,
+              });
+
+              if (
+                newUpdateApplicationRequestWithDefaultNavigationSettings
+                  .applicationDetail?.navigationSetting &&
+                updateApplicationResponse.data.applicationDetail
+                  ?.navigationSetting
+              ) {
+                yield put(
+                  updateApplicationNavigationSettingAction(
+                    updateApplicationResponse.data.applicationDetail
+                      .navigationSetting,
+                  ),
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPLOAD_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deleteNavigationLogoSaga(
+  action: ReduxAction<DeleteNavigationLogoRequest>,
+) {
+  try {
+    const request: DeleteNavigationLogoRequest = action.payload;
+
+    yield call(ApplicationApi.deleteNavigationLogo, request);
+    yield put(deleteApplicationNavigationLogoSuccessAction());
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }

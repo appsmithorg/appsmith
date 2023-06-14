@@ -23,6 +23,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +39,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,7 +112,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
-        if(collection.getGitSyncId() == null) {
+        if (collection.getGitSyncId() == null) {
             collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
         }
         return repository.save(collection);
@@ -121,7 +121,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
         collections.forEach(collection -> {
-            if(collection.getGitSyncId() == null) {
+            if (collection.getGitSyncId() == null) {
                 collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
             }
         });
@@ -511,10 +511,35 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> create(ActionCollection collection) {
-        if(collection.getGitSyncId() == null) {
+        if (collection.getGitSyncId() == null) {
             collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
         }
         return super.create(collection);
     }
 
+    @Override
+    public void populateDefaultResources(ActionCollection actionCollection, ActionCollection branchedActionCollection,String branchName) {
+        DefaultResources defaultResources = branchedActionCollection.getDefaultResources();
+        // Create new action but keep defaultApplicationId and defaultActionId same for both the actions
+        defaultResources.setBranchName(branchName);
+        actionCollection.setDefaultResources(defaultResources);
+
+        String defaultPageId = branchedActionCollection.getUnpublishedCollection() != null
+                ? branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId()
+                : branchedActionCollection.getPublishedCollection().getDefaultResources().getPageId();
+        DefaultResources defaultsDTO = new DefaultResources();
+        defaultsDTO.setPageId(defaultPageId);
+        if (actionCollection.getUnpublishedCollection() != null) {
+            actionCollection.getUnpublishedCollection().setDefaultResources(defaultsDTO);
+        }
+        if (actionCollection.getPublishedCollection() != null) {
+            actionCollection.getPublishedCollection().setDefaultResources(defaultsDTO);
+        }
+        actionCollection.getUnpublishedCollection()
+                .setDeletedAt(branchedActionCollection.getUnpublishedCollection().getDeletedAt());
+        actionCollection.setDeletedAt(branchedActionCollection.getDeletedAt());
+        actionCollection.setDeleted(branchedActionCollection.getDeleted());
+        // Set policies from existing branch object
+        actionCollection.setPolicies(branchedActionCollection.getPolicies());
+    }
 }

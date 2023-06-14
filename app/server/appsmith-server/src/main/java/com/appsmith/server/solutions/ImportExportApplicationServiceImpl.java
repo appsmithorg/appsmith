@@ -4,14 +4,15 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SequenceService;
@@ -42,7 +43,6 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               NewPageRepository newPageRepository,
                                               NewActionService newActionService,
                                               SequenceService sequenceService,
-                                              ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,
@@ -54,12 +54,15 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               PagePermission pagePermission,
                                               ActionPermission actionPermission,
                                               Gson gson,
-                                              TransactionalOperator transactionalOperator) {
+                                              TransactionalOperator transactionalOperator,
+                                              DatasourceStorageService datasourceStorageService,
+                                              PermissionGroupRepository permissionGroupRepository) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
-                newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
-                actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
-                workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator);
+                newActionService, sequenceService, actionCollectionRepository, actionCollectionService, themeService,
+                analyticsService, customJSLibService, datasourcePermission, workspacePermission, applicationPermission,
+                pagePermission, actionPermission, gson, transactionalOperator, datasourceStorageService,
+                permissionGroupRepository);
     }
 }

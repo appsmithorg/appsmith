@@ -8,11 +8,12 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   align-items: center;
   cursor: pointer;
   outline: 0;
-  gap: var(--spacing-4);
+  gap: var(--spacing-1);
   padding: var(--spacing-2) var(--spacing-4);
-  min-height: calc(var(--sizing-root-unit) * 8);
+  height: calc(var(--root-unit) * 8);
   border-radius: var(--border-radius-1);
   user-select: none;
+  min-width: calc(var(--root-unit) * 7.5);
 
   // TODO: remove this when we use only flex layout
   &[data-fit-container] {
@@ -20,20 +21,16 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     height: 100%;
   }
 
-  &[data-loading="true"] {
-    pointer-events: none;
-  }
-
   &[data-variant="primary"] {
     background-color: var(--color-bg-accent);
     color: var(--color-fg-on-accent);
     border-color: transparent;
 
-    &[data-hovered] {
+    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-hover);
     }
 
-    &[data-active] {
+    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-active);
     }
   }
@@ -44,11 +41,11 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     border-color: var(--color-bd-accent);
     border-width: var(--border-width-1);
 
-    &[data-hovered] {
+    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-subtle-hover);
     }
 
-    &[data-active] {
+    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-subtle-active);
     }
   }
@@ -59,23 +56,36 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     border-color: transparent;
     border-width: 0;
 
-    &[data-hovered] {
+    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background: var(--color-bg-accent-subtle-hover);
     }
 
-    &[data-active] {
+    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background: var(--color-bg-accent-subtle-active);
     }
   }
 
-  // we don't use :focus-visible because not all browsers (safari) have it yet
-  &[data-focused]:not([data-loading]),
-  &[data-focus="true"] {
+  &[data-focused] {
     box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
 
-  &[data-disabled] {
-    pointer-events: none;
+  &[data-disabled],
+  // TODO(Pawan): Check if we need to make the UI of loading state same as disabled?
+  &[aria-disabled]:not([data-loading]) {
+    cursor: default;
     opacity: var(--opacity-disabled);
+  }
+
+  &[data-loading] {
+    cursor: default;
+  }
+
+  & [data-icon] {
+    height: calc(var(--root-unit) * 5);
+    width: calc(var(--root-unit) * 5);
+  }
+
+  &[data-icon-position="end"] {
+    flex-direction: row-reverse;
   }
 `;
