@@ -204,7 +204,6 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
-  _dropdownOption_users = "[data-testid='t--dropdown-option-public.users']";
   public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
   private _getJSONswitchLocator = (fieldLocator: string) =>
     `[data-testid='${fieldLocator}.data-JS']`;
