@@ -32,7 +32,7 @@ describe("Statbox Widget", function () {
         .type("#FFC13D");
       cy.get(`${widgetsPage.cellBackground} input`).should(
         "have.value",
-        "#FFC13D",
+        "#ffc13d",
       );
     });
   });
