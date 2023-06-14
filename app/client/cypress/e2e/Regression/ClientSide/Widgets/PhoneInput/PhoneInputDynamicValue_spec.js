@@ -1,16 +1,22 @@
-const dynamicDSL = require("../../../../../fixtures/PhoneInputDynamic.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  deployMode,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "phoneinputwidget";
 
 describe("Phone input widget - ", () => {
   before(() => {
-    cy.addDsl(dynamicDSL);
+    cy.fixture("PhoneInputDynamic").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   it("1. Should show empty dropdown for a typo", () => {
-    _.entityExplorer.SelectEntityByName("PhoneInput1");
+    entityExplorer.SelectEntityByName("PhoneInput1");
     // Turn on changecountrycode
-    _.propPane.TogglePropertyState("Change country code");
+    propPane.TogglePropertyState("Change country code");
 
     // Click on the country code change option
     cy.get(".t--input-country-code-change").first().click().wait(200);
@@ -20,7 +26,7 @@ describe("Phone input widget - ", () => {
     // Assert the options dropdown is still open
     cy.get(".t--search-input input").should("be.visible");
 
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     // Click on the country code change option
     cy.get(".t--input-country-code-change").first().click();
     // Search with a typo
@@ -28,7 +34,7 @@ describe("Phone input widget - ", () => {
     cy.wait(500);
     // Assert the options dropdown is still open
     cy.get(".t--search-input input").should("be.visible");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. should check that widget can be used with dynamic default dial code", () => {
@@ -45,7 +51,7 @@ describe("Phone input widget - ", () => {
       "contain",
       "{{appsmith.store.test}}",
     );
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(".bp3-button.select-button").click({ force: true });
     cy.get(".menu-item-text").first().click({ force: true });
     cy.get(".t--input-country-code-change").should("contain", "+91");
