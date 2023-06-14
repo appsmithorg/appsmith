@@ -64,8 +64,8 @@ function* getValidOldJSCollectionLintErrors(
     const filteredOldJsObjectBodyLintErrors = oldJsBodyLintErrors.filter(
       (lintError) =>
         lintError.originalPath &&
-        lintError.originalPath in jsObjectProperties &&
-        !(lintError.originalPath in newJSBodyLintErrorsOriginalPaths),
+        jsObjectProperties.includes(lintError.originalPath) &&
+        !newJSBodyLintErrorsOriginalPaths.includes(lintError.originalPath),
     );
     const updatedLintErrors = [
       ...filteredOldJsObjectBodyLintErrors,
