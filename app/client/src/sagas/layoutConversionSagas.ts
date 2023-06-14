@@ -31,7 +31,7 @@ import { unflattenDSLById } from "@shared/dsl";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 /**
- * This method is used to convert from Auto layout to Fixed layout
+ * This method is used to convert from auto-layout to fixed layout
  * @param action
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
@@ -62,7 +62,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 
     const pageLayouts = [];
 
-    //Convert all the pages into Fixed layout by iterating over the list
+    //Convert all the pages into fixed layout by iterating over the list
     for (const page of pageList) {
       const pageId = page?.pageId;
       const { dsl: normalizedDSL, layoutId } = pageWidgetsList[pageId];
@@ -96,10 +96,10 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   } catch (e: any) {
     let error: Error = e;
     if (error) {
-      error.message = `Layout Conversion Error - while Converting from Auto to Fixed Layout: ${error.message}`;
+      error.message = `Layout conversion error - while converting from auto-layout to fixed layout: ${error.message}`;
     } else {
       error = new Error(
-        "Layout Conversion Error - while Converting from Auto to Fixed Layout",
+        "Layout conversion error - while converting from auto-layout to fixed layout",
       );
     }
 
@@ -121,7 +121,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 }
 
 /**
- * This method is used to convert from Fixed layout to Auto layout
+ * This method is used to convert from fixed layout to auto-layout
  * @param action
  */
 function* convertFromFixedToAutoSaga() {
@@ -179,10 +179,10 @@ function* convertFromFixedToAutoSaga() {
   } catch (e: any) {
     let error: Error = e;
     if (error) {
-      error.message = `Layout Conversion Error - while Converting from Fixed to Auto Layout: ${error.message}`;
+      error.message = `Layout conversion error - while converting from fixed layout to auto-layout: ${error.message}`;
     } else {
       error = new Error(
-        "Layout Conversion Error - while Converting from Fixed to Auto Layout",
+        "Layout conversion error - while converting from fixed layout to auto-layout",
       );
     }
 
