@@ -1,7 +1,17 @@
 import commonLocators from "../../../../../locators/commonlocators.json";
 import explorer from "../../../../../locators/explorerlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  deployMode,
+  homePage,
+  gitSync,
+  apiPage,
+  dataSources,
+} from "../../../../../support/Objects/ObjectsCore";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch",
@@ -10,14 +20,14 @@ let parentBranchKey = "ParentBranch",
 let repoName;
 describe("Git sync:", function () {
   before(() => {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
 
-    _.gitSync.CreateNConnectToGit();
+    gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
@@ -25,7 +35,7 @@ describe("Git sync:", function () {
   });
 
   it("1. create branch input", function () {
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(gitSyncLocators.branchButton).click();
 
     // validate of the branch name
@@ -55,29 +65,29 @@ describe("Git sync:", function () {
   it("2. creates a new branch and create branch specific resources", function () {
     cy.get(commonLocators.canvas).click({ force: true });
     //cy.createGitBranch(parentBranchKey);
-    _.gitSync.CreateGitBranch(parentBranchKey, true);
+    gitSync.CreateGitBranch(parentBranchKey, true);
     cy.get("@gitbranchName").then((branName) => {
       parentBranchKey = branName;
     });
 
-    _.entityExplorer.AddNewPage();
-    _.entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1", true);
-    _.dataSources.NavigateToDSCreateNew();
-    _.apiPage.CreateApi("ParentApi1");
-    _.jsEditor.CreateJSObject();
+    entityExplorer.AddNewPage();
+    entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1", true);
+    dataSources.NavigateToDSCreateNew();
+    apiPage.CreateApi("ParentApi1");
+    jsEditor.CreateJSObject();
     // Added because api name edit takes some time to
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    _.gitSync.CreateGitBranch(childBranchKey, true);
+    gitSync.CreateGitBranch(childBranchKey, true);
     cy.get("@gitbranchName").then((branName) => {
       childBranchKey = branName;
     });
-    _.entityExplorer.AddNewPage();
-    _.entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1", true);
-    _.dataSources.NavigateToDSCreateNew();
-    _.apiPage.CreateApi("ChildApi1");
-    _.jsEditor.CreateJSObject();
+    entityExplorer.AddNewPage();
+    entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1", true);
+    dataSources.NavigateToDSCreateNew();
+    apiPage.CreateApi("ChildApi1");
+    jsEditor.CreateJSObject();
     // Added because api name edit takes some time to
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -104,14 +114,14 @@ describe("Git sync:", function () {
   // rename entities
   it("3. makes branch specific resource updates", function () {
     cy.switchGitBranch(childBranchKey);
-    _.entityExplorer.SelectEntityByName("ParentPage1", "Pages");
-    _.entityExplorer.RenameEntityFromExplorer(
+    entityExplorer.SelectEntityByName("ParentPage1", "Pages");
+    entityExplorer.RenameEntityFromExplorer(
       "ParentPage1",
       "ParentPageRenamed",
       true,
     );
-    _.entityExplorer.SelectEntityByName("ParentApi1", "Queries/JS");
-    _.entityExplorer.RenameEntityFromExplorer(
+    entityExplorer.SelectEntityByName("ParentApi1", "Queries/JS");
+    entityExplorer.RenameEntityFromExplorer(
       "ParentApi1",
       "ParentApiRenamed",
       true,
@@ -129,7 +139,7 @@ describe("Git sync:", function () {
 
   it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
-      _.entityExplorer.SelectEntityByName("ParentPage1", "Pages");
+      entityExplorer.SelectEntityByName("ParentPage1", "Pages");
       cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");
@@ -172,12 +182,12 @@ describe("Git sync:", function () {
     // uncomment once prune branch flow is complete
     let tempBranch = "featureA";
     const tempBranchRenamed = "newFeatureA";
-    _.deployMode.NavigateBacktoEditor();
-    _.gitSync.CreateGitBranch(tempBranch, true);
+    deployMode.NavigateBacktoEditor();
+    gitSync.CreateGitBranch(tempBranch, true);
     cy.get("@gitbranchName").then((branName) => {
       tempBranch = branName;
     });
-    _.gitSync.CreateGitBranch(`${tempBranch}-1`, true);
+    gitSync.CreateGitBranch(`${tempBranch}-1`, true);
     // cy.get("@gitbranchName").then((branName) => {
     //   tempBranch = branName;
     // });
@@ -209,18 +219,18 @@ describe("Git sync:", function () {
 
   // Validate the error faced when user switches between the branches
   it("6. no error faced when user switches branch with new page", function () {
-    _.deployMode.NavigateBacktoEditor(); //Adding since skipping 6th case
+    deployMode.NavigateBacktoEditor(); //Adding since skipping 6th case
     cy.generateUUID().then((uuid) => {
-      _.gitSync.CreateGitBranch(childBranchKey, true);
+      gitSync.CreateGitBranch(childBranchKey, true);
       //cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("Pages");
-      _.entityExplorer.AddNewPage();
+      entityExplorer.AddNewPage();
       cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      entityExplorer.NavigateToSwitcher("Widgets");
       cy.get(`.t--entity.page`)
         .contains("Page1")
         .closest(".t--entity")
@@ -228,19 +238,19 @@ describe("Git sync:", function () {
         .should("have.class", "activePage");
       cy.get(".t--canvas-artboard").should("be.visible");
     });
-    cy.reload();
+    agHelper.RefreshPage();
   });
 
   it("7. branch list search", function () {
     cy.get(".ads-v2-spinner").should("not.exist");
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
-    _.gitSync.CreateGitBranch("parentBranch", true);
+    gitSync.CreateGitBranch("parentBranch", true);
     cy.get("@gitbranchName").then((branName) => {
       parentBKey = branName;
 
-      _.gitSync.CreateGitBranch("childBranch", true);
+      gitSync.CreateGitBranch("childBranch", true);
       cy.get("@gitbranchName").then((branName) => {
         childBKey = branName;
 
@@ -273,6 +283,6 @@ describe("Git sync:", function () {
   });
 
   after(() => {
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    gitSync.DeleteTestGithubRepo(repoName);
   });
 });

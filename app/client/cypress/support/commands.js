@@ -38,6 +38,7 @@ const locators = ObjectsRegistry.CommonLocators;
 const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
+const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -1758,22 +1759,7 @@ Cypress.Commands.add("validateEvaluatedValue", (value) => {
 });
 
 Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
-  cy.xpath("//div[contains(@class, 't--entity-name')][text()='" + item + "']")
-    .parents(commonlocators.entityItem)
-    .first()
-    .children(commonlocators.entityCollapseToggle)
-    .invoke("attr", "id")
-    .then((name) => {
-      if (name === "arrow-right-s-line") {
-        cy.xpath(
-          "//div[contains(@class, 't--entity-name')][text()='" + item + "']",
-        )
-          .parents(commonlocators.entityItem)
-          .first()
-          .children(commonlocators.entityCollapseToggle)
-          .click({ force: true });
-      }
-    });
+  entityExplorer.ExpandCollapseEntity(item);
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
