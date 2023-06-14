@@ -165,7 +165,7 @@ function HelpButton() {
   const setOverlay = useSelector(getSignpostingSetOverlay);
   const currentApplicationId = useSelector(getCurrentApplicationId);
   const isAirgappedInstance = isAirgapped();
-  const showUnroadSteps =
+  const showUnreadSteps =
     !!unreadSteps.length &&
     isFirstTimeUserOnboardingEnabled &&
     !onboardingModalOpen;
@@ -216,7 +216,7 @@ function HelpButton() {
               Help
             </Button>
           </Tooltip>
-          {showUnroadSteps && <UnreadSteps className="unread" />}
+          {showUnreadSteps && <UnreadSteps className="unread" />}
         </div>
       </MenuTrigger>
       {isFirstTimeUserOnboardingEnabled ? (

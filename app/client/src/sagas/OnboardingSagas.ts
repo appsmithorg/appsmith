@@ -17,7 +17,6 @@ import {
   removeAllFirstTimeUserOnboardingApplicationIds,
   removeFirstTimeUserOnboardingApplicationId,
   setEnableStartSignposting,
-  setSignpostingAppState,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
@@ -439,7 +438,7 @@ function* firstTimeUserOnboardingInitSaga(
   }
   // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
   // is loaded
-  yield delay(1000);
+  yield delay(500);
   yield put({
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
@@ -465,9 +464,8 @@ function* setSignpostingStepStateSaga(
     getSignpostingStepStateByStep,
     step,
   );
-  const applicationId: string = yield select(getCurrentApplicationId);
 
-  // No changes to updated so we ignore
+  // No changes to update so we ignore
   if (stepState && stepState.completed === completed) return;
 
   const readProps = completed
@@ -481,7 +479,6 @@ function* setSignpostingStepStateSaga(
       ...readProps,
     }),
   );
-  yield call(setSignpostingAppState, stepState, applicationId);
 }
 
 export default function* onboardingActionSagas() {

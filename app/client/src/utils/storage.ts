@@ -418,30 +418,3 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
     log.error(error);
   }
 };
-
-export const setSignpostingAppState = async (state: any, appId: string) => {
-  try {
-    const appState =
-      ((await store.getItem(STORAGE_KEYS.RECENT_ENTITIES)) as Record<
-        string,
-        any
-      >) || {};
-    appState[appId] = state;
-    await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, appState);
-  } catch (error) {
-    log.error("An error occurred while saving signposting app state");
-    log.error(error);
-  }
-};
-
-export const fetchSignpostingAppState = async (appId: string) => {
-  try {
-    const appState = (await store.getItem(
-      STORAGE_KEYS.RECENT_ENTITIES,
-    )) as Record<string, any>;
-    return (appState && appState[appId]) || [];
-  } catch (error) {
-    log.error("An error occurred while fetching signposting app state");
-    log.error(error);
-  }
-};

@@ -449,7 +449,6 @@ export default function OnboardingChecklist() {
         <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
           {createMessage(ONBOARDING_CHECKLIST_HEADER)}
         </Text>
-        {/* TODO: size looks small */}
         <Button
           isIconButton
           kind="tertiary"
