@@ -8,8 +8,24 @@ import { showSignpostingModal } from "actions/onboardingActions";
 
 const SIGNPOSTING_POPUP_WIDTH = "360px";
 
-const StyledMenuContent = styled(MenuContent)`
+const StyledMenuContent = styled(MenuContent)<{ animate: boolean }>`
   max-width: ${SIGNPOSTING_POPUP_WIDTH};
+
+  ${(props) =>
+    props.animate &&
+    `
+  animation-name: slideUpAndFade;
+  @keyframes slideUpAndFade {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  `}
 `;
 const Wrapper = styled.div`
   padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
@@ -24,6 +40,7 @@ function OnboardingModal(props: {
 
   return (
     <StyledMenuContent
+      animate={props.setOverlay}
       collisionPadding={10}
       onInteractOutside={() => {
         dispatch(showSignpostingModal(false));

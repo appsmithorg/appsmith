@@ -434,11 +434,12 @@ function* firstTimeUserOnboardingInitSaga(
 
   const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
   if (!isEditorInitialised) {
-    yield take(ReduxActionTypes.RESTORE_RECENT_ENTITIES_SUCCESS);
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
   // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
   // is loaded
-  yield delay(500);
+  yield put(setSignpostingOverlay(true));
+  yield delay(1000);
   yield put({
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
