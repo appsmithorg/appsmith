@@ -306,7 +306,7 @@ const getType = (dataType: string | undefined) => {
 function renderInput(
   props: InputProps & {
     dataType?: "text" | "number" | "password";
-    placeholder?: string;
+    placeholderText?: string;
     defaultValue: string | number;
     isRequired: boolean;
     isKeyFieldValid?: (value: string) => { isValid: boolean; message: string };
@@ -319,7 +319,10 @@ function renderInput(
   return (
     <StyledInput
       aria-label={
-        props.helperText || props.defaultValue || props.placeholder || "label"
+        props.helperText ||
+        props.defaultValue ||
+        props.placeholderText ||
+        "label"
       }
       defaultValue={props.defaultValue}
       description={props.helperText}
@@ -327,7 +330,7 @@ function renderInput(
       isValid={props.isKeyFieldValid?.(props.input.value).isValid}
       name={props.input?.name}
       onChange={props.input.onChange}
-      placeholder={props.placeholder}
+      placeholder={props.placeholderText}
       size="md"
       type={props.dataType}
       value={props.input.value}
