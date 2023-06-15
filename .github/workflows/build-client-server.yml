@@ -5,12 +5,12 @@ on:
   workflow_dispatch:
     inputs:
       normal_run_id:
-        description: 'Run id to download the docker image artifact:'
+        description: "Run id to download the docker image artifact:"
         required: false
         type: string
         default: "0"
       airgap_run_id:
-        description: 'Run id to download the docker image artifact:'
+        description: "Run id to download the docker image artifact:"
         required: false
         type: string
         default: "0"
@@ -73,7 +73,7 @@ jobs:
     with:
       pr: 0
       skip-tests: "true"
-      
+
   build-docker-image:
     needs: [client-build, server-build, rts-build]
     if: inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'

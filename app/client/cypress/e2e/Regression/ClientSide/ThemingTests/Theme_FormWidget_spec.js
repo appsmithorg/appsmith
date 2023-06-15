@@ -44,6 +44,7 @@ describe("Theme validation usecases", function () {
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
+    //cy.contains("Shadow").click({ force: true });
     cy.xpath(_.theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
