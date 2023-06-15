@@ -1617,12 +1617,16 @@ export const IN_APP_EMBED_SETTING = {
   upgradeSubheadingForInviteModal: () =>
     "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
   privateAppsText: () => "Private apps",
-  rampSubtext: () =>
+  rampSubtextModal: () =>
     "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+  rampSubtextSidebar: () =>
+    "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
   rampLinktext: () => "Try Business",
+  rampLinktextvariant2: () => "Business Edition",
   upgradeContent: () => "Private embedding is now available in",
   appsmithBusinessEdition: () => "Appsmith Business Edition.",
-  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeadingForAppSettings: () =>
+    "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
 };
