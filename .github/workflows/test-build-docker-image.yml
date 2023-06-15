@@ -11,7 +11,7 @@ on:
       - "app/client/**"
       - "app/server/**"
       - "app/client/packages/rts/**"
-      - "!app/client/cypress/manual_TestSuite/**"
+      - "!app/client/packages/cypress/manual_TestSuite/**"
 
 jobs:
 

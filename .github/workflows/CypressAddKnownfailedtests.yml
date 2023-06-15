@@ -25,9 +25,9 @@ jobs:
           echo "Issue title: $ISSUE_TITLE"
           echo "Issue body: $ISSUE_BODY"
           #echo "$GITHUB_CONTEXT"
-          chmod a+x app/client/cypress/xataadd.sh
+          chmod a+x app/client/packages/cypress/xataadd.sh
           echo "$ISSUE_TITLE"|awk '{print $2}'
-          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/cypress/xataadd.sh
+          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/packages/cypress/xataadd.sh
 
   IssueClosed:
     if: github.event.action == 'closed' && contains( github.event.issue.labels.*.name, 'CI impacted')
@@ -49,5 +49,5 @@ jobs:
           echo "Issue title: $ISSUE_TITLE"
           echo "Issue body: $ISSUE_BODY"
           #echo "$GITHUB_CONTEXT"
-          chmod a+x app/client/cypress/xatadel.sh
-          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/cypress/xatadel.sh
+          chmod a+x app/client/packages/cypress/xatadel.sh
+          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/packages/cypress/xatadel.sh

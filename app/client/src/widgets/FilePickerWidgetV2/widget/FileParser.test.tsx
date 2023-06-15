@@ -7,7 +7,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses csv file correclty", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/Test_csv.csv",
+      "../../../../packages/cypress/fixtures/Test_csv.csv",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
@@ -43,7 +43,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses json file correclty", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/testdata.json",
+      "../../../../packages/cypress/fixtures/testdata.json",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
@@ -63,7 +63,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses tsv file correctly", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/Sample.tsv",
+      "../../../../packages/cypress/fixtures/Sample.tsv",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
@@ -93,7 +93,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses xlsx file correctly", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/TestSpreadsheet.xlsx",
+      "../../../../packages/cypress/fixtures/TestSpreadsheet.xlsx",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
@@ -122,7 +122,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses xls file correctly", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/SampleXLS.xls",
+      "../../../../packages/cypress/fixtures/SampleXLS.xls",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
@@ -151,7 +151,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses text file correctly", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/testdata.json",
+      "../../../../packages/cypress/fixtures/testdata.json",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
@@ -167,7 +167,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses binary file correctly", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/testdata.json",
+      "../../../../packages/cypress/fixtures/testdata.json",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
@@ -189,7 +189,7 @@ describe("File parser formats differenty file types correctly", () => {
   it("parses base64 file correctly", async () => {
     const fixturePath = path.resolve(
       __dirname,
-      "../../../../cypress/fixtures/testdata.json",
+      "../../../../packages/cypress/fixtures/testdata.json",
     );
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);

@@ -1,0 +1,56 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "dynamicBindings": {},
+    "version": 6,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "inputType": "TEXT",
+        "label": "",
+        "widgetName": "Input1",
+        "type": "INPUT_WIDGET_V2",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 3,
+        "rightColumn": 8,
+        "topRow": 3,
+        "bottomRow": 4,
+        "parentId": "0",
+        "widgetId": "ufr2ik3x1q"
+      },
+      {
+        "isVisible": true,
+        "inputType": "TEXT",
+        "label": "",
+        "widgetName": "Input2",
+        "type": "INPUT_WIDGET_V2",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 4,
+        "rightColumn": 9,
+        "topRow": 5,
+        "bottomRow": 6,
+        "parentId": "0",
+        "widgetId": "qfc7a4t3p8"
+      }
+    ]
+  }
+}

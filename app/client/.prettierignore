@@ -4,5 +4,3 @@ package-lock.json
 yarn.lock
 package.json
 src/assets/lottie/
-cypress/fixtures
-cypress/locators/

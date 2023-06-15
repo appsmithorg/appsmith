@@ -1,0 +1,256 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1270,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1050,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 58,
+    "minHeight": 830,
+    "parentColumnSpace": 1,
+    "dynamicTriggerPathList": [],
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "labelTextSize": "0.875rem",
+        "boxShadow": "none",
+        "widgetName": "Chart1",
+        "rightColumn": 26,
+        "widgetId": "ypstklohw5",
+        "topRow": 4,
+        "bottomRow": 36,
+        "parentRowSpace": 10,
+        "isVisible": true,
+        "type": "CHART_WIDGET",
+        "version": 1,
+        "parentId": "0",
+        "isLoading": false,
+        "chartData": {
+          "3jzahcrorq": {
+            "seriesName": "Sales",
+            "data": [
+              {
+                "x": "Mon",
+                "y": 10000
+              },
+              {
+                "x": "Tue",
+                "y": 12000
+              },
+              {
+                "x": "Wed",
+                "y": 32000
+              },
+              {
+                "x": "Thu",
+                "y": 28000
+              },
+              {
+                "x": "Fri",
+                "y": 14000
+              },
+              {
+                "x": "Sat",
+                "y": 19000
+              },
+              {
+                "x": "Sun",
+                "y": 36000
+              }
+            ]
+          }
+        },
+        "yAxisName": "Total Order Revenue $",
+        "parentColumnSpace": 19.65625,
+        "chartName": "Last week's revenue",
+        "leftColumn": 2,
+        "borderRadius": "0px",
+        "xAxisName": "Last Week",
+        "customFusionChartConfig": {
+          "type": "column2d",
+          "dataSource": {
+            "chart": {
+              "caption": "Last week's revenue",
+              "xAxisName": "Last Week",
+              "yAxisName": "Total Order Revenue $",
+              "theme": "fusion"
+            },
+            "data": [
+              {
+                "label": "Mon",
+                "value": 10000
+              },
+              {
+                "label": "Tue",
+                "value": 12000
+              },
+              {
+                "label": "Wed",
+                "value": 32000
+              },
+              {
+                "label": "Thu",
+                "value": 28000
+              },
+              {
+                "label": "Fri",
+                "value": 14000
+              },
+              {
+                "label": "Sat",
+                "value": 19000
+              },
+              {
+                "label": "Sun",
+                "value": 36000
+              }
+            ],
+            "trendlines": [
+              {
+                "line": [
+                  {
+                    "startvalue": "38000",
+                    "valueOnRight": "1",
+                    "displayvalue": "Weekly Target"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chartType": "LINE_CHART"
+      },
+      {
+        "labelTextSize": "0.875rem",
+        "boxShadow": "none",
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container1",
+        "rightColumn": 62,
+        "widgetId": "6y21iarlp4",
+        "containerStyle": "card",
+        "topRow": 11,
+        "bottomRow": 51,
+        "parentRowSpace": 10,
+        "isVisible": true,
+        "type": "CONTAINER_WIDGET",
+        "version": 1,
+        "parentId": "0",
+        "isLoading": false,
+        "parentColumnSpace": 19.65625,
+        "leftColumn": 30,
+        "borderRadius": "0px",
+        "children": [
+          {
+            "labelTextSize": "0.875rem",
+            "boxShadow": "none",
+            "widgetName": "Canvas1",
+            "rightColumn": 629,
+            "detachFromLayout": true,
+            "widgetId": "jqasr1uss5",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 400,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "canExtend": false,
+            "type": "CANVAS_WIDGET",
+            "version": 1,
+            "parentId": "6y21iarlp4",
+            "minHeight": 400,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "borderRadius": "0px",
+            "children": []
+          }
+        ]
+      },
+      {
+        "labelTextSize": "0.875rem",
+        "image": "",
+        "boxShadow": "none",
+        "widgetName": "Image1",
+        "rightColumn": 22,
+        "widgetId": "1t50avy6f1",
+        "topRow": 58,
+        "bottomRow": 70,
+        "parentRowSpace": 10,
+        "isVisible": true,
+        "type": "IMAGE_WIDGET",
+        "version": 1,
+        "parentId": "0",
+        "isLoading": false,
+        "maxZoomLevel": 1,
+        "parentColumnSpace": 19.65625,
+        "imageShape": "RECTANGLE",
+        "leftColumn": 6,
+        "borderRadius": "0px",
+        "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
+      },
+      {
+        "labelTextSize": "0.875rem",
+        "boxShadow": "none",
+        "widgetName": "Button1",
+        "rightColumn": 18,
+        "isDefaultClickDisabled": true,
+        "buttonColor": "#03B365",
+        "widgetId": "41wgbhd5vp",
+        "topRow": 44,
+        "bottomRow": 48,
+        "parentRowSpace": 10,
+        "isVisible": true,
+        "type": "BUTTON_WIDGET",
+        "version": 1,
+        "recaptchaType": "V3",
+        "parentId": "0",
+        "isLoading": false,
+        "parentColumnSpace": 19.65625,
+        "leftColumn": 10,
+        "borderRadius": "0px",
+        "buttonVariant": "PRIMARY",
+        "text": "Submit",
+        "isDisabled": false
+      },
+      {
+        "boxShadow": "none",
+        "widgetName": "Camera1",
+        "isCanvas": false,
+        "displayName": "Camera",
+        "iconSVG": "/static/media/icon.79c0d6de.svg",
+        "topRow": 70,
+        "bottomRow": 103,
+        "parentRowSpace": 10,
+        "type": "CAMERA_WIDGET",
+        "hideCard": false,
+        "mode": "CAMERA",
+        "parentColumnSpace": 12.5625,
+        "leftColumn": 2,
+        "dynamicBindingPathList": [
+          {
+            "key": "borderRadius"
+          }
+        ],
+        "isDisabled": false,
+        "key": "bybcx1x9lk",
+        "isMirrored": true,
+        "rightColumn": 27,
+        "widgetId": "wv1qtmzsbm",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      }
+    ]
+  }
+}

@@ -146,7 +146,7 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          cd app/client
+          cd app/client/packages/
           yarn install \
           --cwd cypress \
           --modules-folder node_modules
@@ -183,7 +183,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
         run: |
-          cd app/client
+          cd app/client/packages
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
@@ -323,7 +323,7 @@ jobs:
       - name: Incase of test failures copy them to a file
         if: failure()
         run: |
-          cd ${{ github.workspace }}/app/client/cypress/
+          cd ${{ github.workspace }}/app/client/packages/cypress/
           find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
@@ -361,13 +361,13 @@ jobs:
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
+          path: app/client/packages/cypress/screenshots/
 
       - name: Restore the previous bundle
         uses: actions/cache@v3
         with:
           path: |
-            app/client/cypress/snapshots/
+            app/client/packages/cypress/snapshots/
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
@@ -376,7 +376,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
-          path: app/client/cypress/snapshots/
+          path: app/client/packages/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

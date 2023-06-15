@@ -1,0 +1,61 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 8,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "label": "",
+        "selectionType": "SINGLE_SELECT",
+        "options": "",
+        "widgetName": "Dropdown1",
+        "defaultOptionValue": "[\n  {\n    \"label\": \"VEG\",\n    \"value\": \"VEG\"\n  }\n]",
+        "type": "SELECT_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 3,
+        "rightColumn": 8,
+        "topRow": 2,
+        "bottomRow": 3,
+        "parentId": "0",
+        "widgetId": "07z27e6p0i",
+        "dynamicBindingPathList": []
+      },
+      {
+        "isVisible": true,
+        "label": "Data",
+        "widgetName": "Table1",
+        "searchKey": "",
+        "tableData": "",
+        "type": "TABLE_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 2,
+        "rightColumn": 10,
+        "topRow": 7,
+        "bottomRow": 14,
+        "parentId": "0",
+        "widgetId": "3sgral84p6",
+        "dynamicBindingPathList": []
+      }
+    ]
+  }
+}

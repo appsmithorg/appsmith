@@ -1,0 +1,48 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1280,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1300,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 23,
+    "minHeight": 1310,
+    "parentColumnSpace": 1,
+    "dynamicTriggerPathList": [],
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "Divider1",
+        "rightColumn": 23,
+        "widgetId": "i5kplngd19",
+        "topRow": 25,
+        "bottomRow": 75,
+        "parentRowSpace": 10,
+        "isVisible": true,
+        "type": "DIVIDER_WIDGET",
+        "version": 1,
+        "parentId": "0",
+        "isLoading": false,
+        "parentColumnSpace": 19.75,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 15,
+        "dynamicBindingPathList": [],
+        "orientation": "horizontal",
+        "capType": "nc",
+        "capSide": -1,
+        "strokeStyle": "solid",
+        "dividerColor": "black",
+        "thickness": 2
+      }
+    ]
+  }
+}

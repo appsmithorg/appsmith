@@ -107,7 +107,7 @@ jobs:
       - name: Get specs to run
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          specs_to_run=$(cat app/client/cypress/limited-tests.txt)
+          specs_to_run=$(cat app/client/packages/cypress/limited-tests.txt)
           echo "specs_to_run<<EOF" >> $GITHUB_ENV
           echo "$specs_to_run" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -158,7 +158,7 @@ jobs:
             cicontainer
 
       - name: Setup MSSQL & Arango docker & ElasticSearch containers
-        working-directory: app/client/cypress
+        working-directory: app/client/packages/cypress
         run: |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
@@ -240,7 +240,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           CYPRESS_VERIFY_TIMEOUT: 100000
         run: |
-          cd app/client
+          cd app/client/packages
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
@@ -428,7 +428,7 @@ jobs:
       - name: In case of test failures copy them to a file
         if: failure()
         run: |
-          cd ${{ github.workspace }}/app/client/cypress/
+          cd ${{ github.workspace }}/app/client/packages/cypress/
           find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/e2e/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # reset the failed_spec_ci file in case of success
@@ -463,14 +463,14 @@ jobs:
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
+          path: app/client/packages/cypress/screenshots/
 
       # Upload the snapshots as artifacts for layout validation
       - name: Upload snapshots
         uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
-          path: app/client/cypress/snapshots/
+          path: app/client/packages/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

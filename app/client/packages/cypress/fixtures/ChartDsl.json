@@ -1,0 +1,87 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 11,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "widgetName": "Chart1",
+        "chartType": "BAR_CHART",
+        "chartName": "Sales on working days",
+        "allowScroll": false,
+        "version": 1,
+        "chartData": [
+          {
+            "seriesName": "Sales",
+            "data": "[\n  {\n    \"x\": \"Mon\",\n    \"y\": 10000\n  },\n  {\n    \"x\": \"Tue\",\n    \"y\": 12000\n  },\n  {\n    \"x\": \"Wed\",\n    \"y\": 32000\n  },\n  {\n    \"x\": \"Thu\",\n    \"y\": 28000\n  },\n  {\n    \"x\": \"Fri\",\n    \"y\": 14000\n  },\n  {\n    \"x\": \"Sat\",\n    \"y\": 19000\n  },\n  {\n    \"x\": \"Sun\",\n    \"y\": 36000\n  }\n]"
+          }
+        ],
+        "xAxisName": "Last Week",
+        "yAxisName": "Total Order Revenue $",
+        "type": "CHART_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 0,
+        "rightColumn": 6,
+        "topRow": 0,
+        "bottomRow": 8,
+        "parentId": "0",
+        "widgetId": "d1o9lu9jzs",
+        "dynamicBindingPathList": []
+      },
+      {
+        "isVisible": true,
+        "inputType": "TEXT",
+        "label": "",
+        "widgetName": "Input1",
+        "version": 1,
+        "resetOnSubmit": true,
+        "type": "INPUT_WIDGET_V2",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 8,
+        "rightColumn": 13,
+        "topRow": 5,
+        "bottomRow": 6,
+        "parentId": "0",
+        "widgetId": "y4gcv7cjg0"
+      },
+      {
+        "isVisible": true,
+        "inputType": "TEXT",
+        "label": "",
+        "widgetName": "Input2",
+        "version": 1,
+        "resetOnSubmit": true,
+        "type": "INPUT_WIDGET_V2",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 8,
+        "rightColumn": 13,
+        "topRow": 7,
+        "bottomRow": 7,
+        "parentId": "0",
+        "widgetId": "y4gcv7cjg1"
+      }
+    ]
+  }
+}

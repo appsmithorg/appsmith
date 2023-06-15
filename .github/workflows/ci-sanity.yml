@@ -151,7 +151,7 @@ jobs:
             cicontainer
 
       - name: Setup MSSQL & Arango docker containers
-        working-directory : app/client/cypress
+        working-directory : app/client/packages/cypress
         run : |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
@@ -171,7 +171,7 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          cd app/client
+          cd app/client/packages
           yarn install \
           --cwd cypress \
           --modules-folder ../node_modules
@@ -222,7 +222,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
         run: |
-          cd app/client
+          cd app/client/packages
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
@@ -374,7 +374,7 @@ jobs:
       - name: In case of test failures copy them to a file
         if: failure()
         run: |
-          cd ${{ github.workspace }}/app/client/cypress/
+          cd ${{ github.workspace }}/app/client/packages/cypress/
           find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci_sanity
 
       # Upload failed test list using common path for all matrix job

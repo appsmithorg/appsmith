@@ -1,0 +1,107 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 7,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "inputType": "TEXT",
+        "label": "",
+        "widgetName": "Input1",
+        "type": "INPUT_WIDGET_V2",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 1,
+        "rightColumn": 6,
+        "topRow": 7,
+        "bottomRow": 8,
+        "parentId": "0",
+        "widgetId": "mc0qcr7bsb"
+      },
+      {
+        "isVisible": true,
+        "shouldScrollContents": false,
+        "widgetName": "Tabs1",
+        "tabs": [
+          {
+            "label": "Tab 1",
+            "id": "tab1",
+            "widgetId": "o9ody00ep7"
+          },
+          {
+            "label": "Tab 2",
+            "id": "tab2",
+            "widgetId": "plhuaxd4lo"
+          }
+        ],
+        "shouldShowTabs": true,
+        "defaultTab": "Tab 1",
+        "type": "TABS_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 1,
+        "rightColumn": 9,
+        "topRow": 12,
+        "bottomRow": 19,
+        "parentId": "0",
+        "widgetId": "jd83uvbkmp",
+        "children": [
+          {
+            "type": "CANVAS_WIDGET",
+            "tabId": "tab1",
+            "tabName": "Tab 1",
+            "widgetId": "o9ody00ep7",
+            "parentId": "jd83uvbkmp",
+            "detachFromLayout": true,
+            "children": [],
+            "parentRowSpace": 1,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 592,
+            "topRow": 0,
+            "bottomRow": 280,
+            "isLoading": false,
+            "widgetName": "Canvas1",
+            "renderMode": "CANVAS"
+          },
+          {
+            "type": "CANVAS_WIDGET",
+            "tabId": "tab2",
+            "tabName": "Tab 2",
+            "widgetId": "plhuaxd4lo",
+            "parentId": "jd83uvbkmp",
+            "detachFromLayout": true,
+            "children": [],
+            "parentRowSpace": 1,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 592,
+            "topRow": 0,
+            "bottomRow": 280,
+            "isLoading": false,
+            "widgetName": "Canvas1",
+            "renderMode": "CANVAS"
+          }
+        ]
+      }
+    ]
+  }
+}

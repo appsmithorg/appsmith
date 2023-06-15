@@ -1,0 +1,10 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "invalids": [],
+    "success": false
+  }
+}
