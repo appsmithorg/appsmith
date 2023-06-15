@@ -109,9 +109,9 @@ export default abstract class MySQL extends BaseQueryGenerator {
       payload: {
         body: `UPDATE ${formConfig.tableName} SET ${formConfig.columns
           .map((column) => `${column}= '{{${value}.${column}}}'`)
-          .join(", ")} WHERE ${formConfig.primaryColumn}= {{${where}.${
+          .join(", ")} WHERE ${formConfig.primaryColumn}= '{{${where}.${
           formConfig.primaryColumn
-        }}};`,
+        }}}';`,
       },
       dynamicBindingPathList: [
         {
