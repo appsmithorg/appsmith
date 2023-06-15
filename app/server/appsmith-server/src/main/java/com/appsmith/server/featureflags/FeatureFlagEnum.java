@@ -31,4 +31,6 @@ public enum FeatureFlagEnum {
     // Add EE flags below this line, to avoid conflicts.
     RBAC,
     ask_ai,
+    ask_ai_sql,
+    ask_ai_js,
 }
