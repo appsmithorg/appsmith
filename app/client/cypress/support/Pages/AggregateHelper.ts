@@ -1336,14 +1336,6 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(this.locator._widgetByName(widgetName));
   }
 
-  GetDropTargetId(widgetName: string) {
-    return this.GetWidgetByName(widgetName).invoke("attr", "id");
-  }
-
-  GetModalDropTargetId() {
-    return this.GetElement(this.locator._modal).invoke("attr", "id");
-  }
-
   public EnableAllEditors() {
     this.Sleep(2000);
     cy.get("body").then(($body: any) => {
@@ -1406,6 +1398,14 @@ export class AggregateHelper extends ReusableHelper {
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
     } else apiToValidate && this.AssertNetworkStatus(apiToValidate);
+  }
+
+  public GetDropTargetId(widgetName: string) {
+    return this.GetWidgetByName(widgetName).invoke("attr", "id");
+  }
+
+  public GetModalDropTargetId() {
+    return this.GetElement(this.locator._modal).invoke("attr", "id");
   }
 
   //Not used:
