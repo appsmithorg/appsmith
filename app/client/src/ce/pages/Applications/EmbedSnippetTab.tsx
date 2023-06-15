@@ -9,7 +9,9 @@ import {
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import PrivateEmbeddingContent from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
+import PrivateEmbeddingContent, {
+  PrivateEmbedRampSidebar,
+} from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { ADMIN_SETTINGS_PATH } from "constants/routes";
 import _ from "lodash";
@@ -62,7 +64,15 @@ export function EmbedSnippetTab({
     );
   }
 
-  if (isAppSettings) return <AppSettings />;
+  if (isAppSettings)
+    return (
+      <>
+        <AppSettings />
+        <div className="px-4">
+          <PrivateEmbedRampSidebar />
+        </div>
+      </>
+    );
 
   return <ShareModal />;
 }

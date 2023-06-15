@@ -43,7 +43,7 @@ function PrivateEmbeddingContent(props: {
 }
 
 export default PrivateEmbeddingContent;
-
+// eslint-disable-next-line
 function EmbeddedLink() {
   const appsmithConfigs = getAppsmithConfigs();
   const instanceId = useSelector(getInstanceId);
@@ -71,7 +71,7 @@ function EmbeddedLink() {
   );
 }
 
-function PrivateEmbedRamp() {
+function PrivateEmbedRampModal() {
   return (
     <div className="flex justify-between items-start mt-6">
       <div className="flex flex-col gap-1 w-4/5">
@@ -86,11 +86,23 @@ function PrivateEmbedRamp() {
           color="var(--ads-v2-color-fg-muted)"
           kind="body-s"
         >
-          {createMessage(IN_APP_EMBED_SETTING.rampSubtext)}
+          {createMessage(IN_APP_EMBED_SETTING.rampSubtextModal)}
         </Text>
       </div>
-      <Link kind="secondary" startIcon="link">
+      <Link kind="secondary" startIcon="share-box-line">
         {createMessage(IN_APP_EMBED_SETTING.rampLinktext)}
+      </Link>
+    </div>
+  );
+}
+export function PrivateEmbedRampSidebar() {
+  return (
+    <div className="mt-6">
+      <Text kind="body-m">
+        {createMessage(IN_APP_EMBED_SETTING.rampSubtextSidebar)}
+      </Text>
+      <Link className="!inline" kind="primary">
+        {createMessage(IN_APP_EMBED_SETTING.rampLinktextvariant2)}
       </Link>
     </div>
   );
@@ -106,14 +118,13 @@ function AppSettingsContent({
       <Text className="pt-3 pb-3" kind="heading-xs" renderAs="p">
         {createMessage(IN_APP_EMBED_SETTING.embed)}
       </Text>
-      <div className="flex flex-col gap-1">
-        <Text kind="action-m" renderAs="p">
+      <div className="flex flex-col">
+        <Text kind="body-m" renderAs="p">
           {canMakeAppPublic
             ? createMessage(IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings)
             : createMessage(IN_APP_EMBED_SETTING.secondaryHeading)}
         </Text>
-
-        <EmbeddedLink />
+        <PrivateEmbedRampSidebar />
       </div>
     </div>
   );
@@ -170,7 +181,7 @@ function SnippetTabContent({
           </Button>
         )}
       </div>
-      <PrivateEmbedRamp />
+      <PrivateEmbedRampModal />
     </div>
   );
 }
