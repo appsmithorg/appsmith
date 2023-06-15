@@ -565,7 +565,7 @@ function Pagination(props: PaginationProps) {
               </PaginationSection>
               <PaginationSection>
                 <SubHeading kind="body-m" renderAs={"p"}>
-                  Configure Next Page
+                  Configure next page
                 </SubHeading>
                 {/* Next Limit value */}
                 <PaginationTypeBasedWrapper

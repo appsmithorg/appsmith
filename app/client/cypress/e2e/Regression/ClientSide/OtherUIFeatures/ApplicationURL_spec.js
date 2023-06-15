@@ -1,6 +1,9 @@
-import homePage from "../../../../locators/HomePage";
+import homePageLocators from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Slug URLs", () => {
   let applicationName;
@@ -28,7 +31,7 @@ describe("Slug URLs", () => {
     cy.generateUUID().then((appName) => {
       applicationName = appName;
       cy.AppSetupForRename();
-      cy.get(homePage.applicationName).type(`${appName}` + "{enter}");
+      cy.get(homePageLocators.applicationName).type(`${appName}` + "{enter}");
       cy.wait("@updateApplication").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -42,7 +45,10 @@ describe("Slug URLs", () => {
   });
 
   it("3. Checks if page slug updates on the URL when page name changes", () => {
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Edit name");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page1",
+      action: "Edit name",
+    });
     cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
     cy.get("body").click(0, 0, { force: true });
     cy.wait("@updatePage").should(
@@ -64,8 +70,8 @@ describe("Slug URLs", () => {
     }).then((response) => {
       const application = response.body.data;
       expect(application.applicationVersion).to.equal(1);
-      cy.NavigateToHome();
-      cy.reload();
+      homePage.NavigateToHome();
+      //agHelper.RefreshPage(true, "getReleaseItems");
 
       cy.SearchApp(applicationName);
 
@@ -94,10 +100,12 @@ describe("Slug URLs", () => {
             `{{appsmith.URL.pathname}}`,
           );
 
-          cy.get(".t--draggable-textwidget .bp3-ui-text").should(
-            "contain.text",
-            `/applications/${application.id}/pages/${currentPageId}/edit`,
-          );
+          cy.get(".t--draggable-textwidget .bp3-ui-text")
+            .should(
+              "contain.text",
+              `/applications/${application.id}/pages/${currentPageId}/edit`,
+            )
+            .wait(2000);
 
           cy.get(".t--upgrade").click({ force: true });
 

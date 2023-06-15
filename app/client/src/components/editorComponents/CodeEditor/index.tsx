@@ -854,7 +854,7 @@ class CodeEditor extends Component<Props, State> {
         /*
          * We only want focus to go out for code editors in JS pane with binding prompts
          * This is so the esc closes the binding prompt.
-         * but this is not needed in the JS object editor, since there are no prompts there
+         * but this is not needed in the JS Object editor, since there are no prompts there
          * So we check for the following so the JS editor does not have this behaviour -
          * isFocused : editor is focused
          * hinterOpen : autocomplete hinter is closed
@@ -1137,11 +1137,6 @@ class CodeEditor extends Component<Props, State> {
     changeObj?: CodeMirror.EditorChangeLinkedList,
   ) => {
     const value = this.editor?.getValue() || "";
-    if (changeObj && changeObj.origin === "complete") {
-      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
-        searchString: changeObj.text[0],
-      });
-    }
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&

@@ -1,4 +1,4 @@
-const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
@@ -6,7 +6,9 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(" File Picker Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("a. should test allowed values", function () {
     cy.dragAndDropToWidget("filepickerwidgetv2", "listwidgetv2", {

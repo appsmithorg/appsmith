@@ -1,4 +1,5 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 let widgets = [
   "switchwidget",
   "currencyinputwidget",
@@ -35,16 +36,8 @@ let width = {
 
 describe("Validating Mobile Views for Auto Fill Widgets", function () {
   it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
-    cy.wait(2000);
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
+
     cy.dragAndDropToCanvas("switchwidget", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("currencyinputwidget", { x: 110, y: 210 });
     cy.dragAndDropToCanvas("audiowidget", { x: 250, y: 300 });
@@ -54,8 +47,8 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
     cy.dragAndDropToCanvas("datepickerwidget2", { x: 770, y: 970 });
     cy.dragAndDropToCanvas("phoneinputwidget", { x: 660, y: 810 });
     cy.dragAndDropToCanvas("categorysliderwidget", { x: 620, y: 810 });
-    cy.wait(5000); //for dsl to settle
-    cy.PublishtheApp();
+    cy.wait(5000);
+    _.deployMode.DeployApp();
     cy.wait(2000);
     for (let i = 0; i < widgets.length; i++) {
       cy.get(".t--widget-".concat(widgets[i]))

@@ -1,12 +1,16 @@
-const dsl = require("../../../../fixtures/dynamicHeightCanvasResizeDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with multiple containers and text widget", function () {
   it("1. Validate change with auto height width for widgets", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height";
-    cy.addDsl(dsl);
-    cy.wait(3000); //for dsl to settle
+    cy.fixture("dynamicHeightCanvasResizeDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     cy.get(".t--widget-containerwidget")
       .eq(0)
       .invoke("css", "height")
@@ -14,7 +18,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
         cy.get(".t--widget-textwidget")
           .invoke("css", "height")
           .then((tnewheight) => {
-            cy.openPropertyPane("textwidget");
+            entityExplorer.SelectEntityByName("Text1", "Container1");
             cy.get(".t--widget-textwidget")
               .invoke("css", "height")
               .then((theight) => {
@@ -22,7 +26,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
                 cy.testCodeMirror(textMsg);
                 cy.moveToStyleTab();
                 cy.ChangeTextStyle(
-                  this.data.TextHeading,
+                  this.dataSet.TextHeading,
                   commonlocators.headingTextStyle,
                   textMsg,
                 );
