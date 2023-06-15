@@ -5,6 +5,7 @@ import type { JSEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 import type { createEntityTree } from "./entityTree";
+import { uniq } from "lodash";
 
 export const parsedJSEntitiesCache: Record<string, ParsedJSEntity> = {};
 
@@ -94,26 +95,34 @@ export function parseJSEntity(jsEntity: JSEntity) {
 }
 
 function parseJSObjectBody(jsBody: string) {
-  let response:
-    | { success: false; parsedObject: Record<string, never> }
-    | { success: true; parsedObject: Record<string, TParsedJSProperty> } = {
+  const unsuccessfulParsingResponse = {
     success: false,
     parsedObject: {},
   };
+  const response:
+    | { success: false; parsedObject: Record<string, never> }
+    | { success: true; parsedObject: Record<string, TParsedJSProperty> } =
+    unsuccessfulParsingResponse;
 
   if (isValidJSBody(jsBody)) {
     const { parsedObject: parsedProperties, success } = parseJSObject(jsBody);
     if (success) {
-      response = {
-        success: true,
-        parsedObject: parsedProperties.reduce(
-          (acc: Record<string, TParsedJSProperty>, property) => {
-            const updatedProperties = { ...acc, [property.key]: property };
-            return updatedProperties;
-          },
-          {},
-        ),
-      };
+      // When a parsed object has duplicate keys, the jsobject is invalid and its body (not individual properties) needs to be linted
+      // so we return an empty object
+      const allPropertyKeys = parsedProperties.map((property) => property.key);
+      const uniqueKeys = uniq(allPropertyKeys);
+      return allPropertyKeys.length !== uniqueKeys.length
+        ? unsuccessfulParsingResponse
+        : {
+            success: true,
+            parsedObject: parsedProperties.reduce(
+              (acc: Record<string, TParsedJSProperty>, property) => {
+                const updatedProperties = { ...acc, [property.key]: property };
+                return updatedProperties;
+              },
+              {},
+            ),
+          };
     }
   }
   return response;
