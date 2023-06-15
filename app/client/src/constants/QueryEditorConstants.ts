@@ -15,8 +15,6 @@ export const SQL_DATASOURCES: Array<string> = [
   PluginName.REDSHIFT,
 ];
 
-export const NO_SQL_DATASOURCES: Array<string> = [PluginName.MONGO];
-
 export const PLUGIN_PACKAGE_DBS = [
   PluginPackageName.POSTGRES,
   PluginPackageName.MONGO,

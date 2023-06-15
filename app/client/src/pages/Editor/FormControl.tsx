@@ -15,10 +15,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
 import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
 import FormConfig from "./FormConfig";
-import {
-  NO_SQL_DATASOURCES,
-  QUERY_BODY_FIELDS,
-} from "constants/QueryEditorConstants";
+import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import history from "utils/history";
@@ -34,6 +31,7 @@ import {
   DB_QUERY_DEFAULT_TEMPLATE_TYPE,
 } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
+import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -132,7 +130,7 @@ function FormControl(props: FormControlProps) {
     if (
       showTemplate &&
       !convertFormToRaw &&
-      !NO_SQL_DATASOURCES.includes(pluginName)
+      SQL_DATASOURCES.includes(pluginName)
     ) {
       const defaultTemplate = !!pluginTemplate
         ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
@@ -196,7 +194,7 @@ function FormControl(props: FormControlProps) {
           >
             {showTemplate &&
             !convertFormToRaw &&
-            NO_SQL_DATASOURCES.includes(pluginName) ? (
+            !SQL_DATASOURCES.includes(pluginName) ? (
               <TemplateMenu
                 createTemplate={(templateString: string) =>
                   createTemplate(
