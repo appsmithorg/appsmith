@@ -1324,6 +1324,7 @@ export class DataSources {
     fieldValue: string;
     fieldLabel: string;
   }) {
+    this.agHelper.Sleep();
     this.agHelper
       .GetElement(this._getJSONswitchLocator(fieldProperty))
       .invoke("attr", "data-selected")
