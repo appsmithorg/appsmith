@@ -512,6 +512,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    */
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
+    shouldPersistLocalOrderWhenTableDataChanges = false,
   ) => {
     const { columnOrder = [], primaryColumns = {} } = this.props;
     const derivedColumns = getDerivedColumns(primaryColumns);
@@ -566,8 +567,19 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
           propertiesToAdd["columnOrder"] = newColumnOrder;
 
-          // As the table data changes in Deployed app, we also update the local storage.
-          if (this.props.renderMode === RenderModes.PAGE) {
+          /**
+           * As the table data changes in Deployed app, we also update the local storage.
+           *
+           * this.updateColumnProperties gets executed on mount and on update of the component.
+           * On mount we get new tableColumns that may not have any sticky columns.
+           * This will lead to loss of sticky column that were frozen by the user.
+           * To avoid this and to maintain user's sticky columns we use shouldPersistLocalOrderWhenTableDataChanges below
+           * so as to avoid updating the local storage on mount.
+           **/
+          if (
+            this.props.renderMode === RenderModes.PAGE &&
+            shouldPersistLocalOrderWhenTableDataChanges
+          ) {
             const leftOrder = newColumnOrder.filter(
               (col: string) => tableColumns[col].sticky === StickyType.LEFT,
             );
@@ -687,11 +699,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   componentDidMount() {
     const { canFreezeColumn, renderMode, tableData } = this.props;
 
-    if (canFreezeColumn && renderMode === RenderModes.PAGE) {
-      //dont neet to batch this since single action
-      this.hydrateStickyColumns();
-    }
-
     if (_.isArray(tableData) && !!tableData.length) {
       const newPrimaryColumns = this.createTablePrimaryColumns();
 
@@ -699,6 +706,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       if (newPrimaryColumns && !!Object.keys(newPrimaryColumns).length) {
         this.updateColumnProperties(newPrimaryColumns);
       }
+    }
+
+    if (canFreezeColumn && renderMode === RenderModes.PAGE) {
+      //dont neet to batch this since single action
+      this.hydrateStickyColumns();
     }
   }
 
@@ -767,7 +779,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const newTableColumns = this.createTablePrimaryColumns();
 
         if (newTableColumns) {
-          this.updateColumnProperties(newTableColumns);
+          this.updateColumnProperties(newTableColumns, isTableDataModified);
         }
 
         pushBatchMetaUpdates("filters", [DEFAULT_FILTER]);
@@ -1203,7 +1215,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           updatedOrders.leftOrder,
           updatedOrders.rightOrder,
         );
-        // only a single meta property update no need to batch this
+
         super.batchUpdateWidgetProperty(
           {
             modify: {

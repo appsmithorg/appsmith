@@ -18,6 +18,22 @@ const readTableLocalColumnOrder = (columnOrderKey: string) => {
   }
 };
 
+const freezeColumnFromDropdown = (columnName: string, direction: string) => {
+  agHelper
+    .GetElement(`[data-header=${columnName}] .header-menu .bp3-popover2-target`)
+    .click({ force: true });
+  agHelper.GetNClickByContains(".bp3-menu", `Freeze column ${direction}`);
+};
+
+const checkIfColumnIsFrozenViaCSS = (
+  columnName: string,
+  position = "sticky",
+) => {
+  agHelper
+    .GetElement(table._headerCell(columnName))
+    .should("have.css", "position", position);
+};
+
 const TABLE_DATA_1 = `[
     {
       "step": "#1",
@@ -129,5 +145,53 @@ describe("Table widget v2: tableData change test", function () {
       expect(tableLocalColumnOrder.columnOrder.join("")).equal(
         "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
       );
+  });
+
+  it("2. should test that change in table data maintains the frozen column on refresh of the page", function () {
+    /**
+     * Flow:
+     * 1. Freeze columns with table data 1.
+     * 2. Refresh the page.
+     * 3. Check if the frozen columns are same.
+     * 4. Similarly do the same thing for table data 2.
+     */
+
+    agHelper.ClickButton("Set table data 1");
+
+    table.AssertTableHeaderOrder("statussteptaskaction");
+    let tableLocalColumnOrder = readTableLocalColumnOrder(
+      "tableWidgetColumnOrder",
+    );
+    if (tableLocalColumnOrder)
+      expect(tableLocalColumnOrder.columnOrder.join("")).equal(
+        "statussteptaskaction",
+      );
+
+    freezeColumnFromDropdown("status", "left");
+    freezeColumnFromDropdown("action", "right");
+
+    agHelper.RefreshPage();
+
+    checkIfColumnIsFrozenViaCSS("status");
+    checkIfColumnIsFrozenViaCSS("action");
+
+    agHelper.ClickButton("Set table data 2");
+
+    table.AssertTableHeaderOrder(
+      "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
+    );
+    tableLocalColumnOrder = readTableLocalColumnOrder("tableWidgetColumnOrder");
+    if (tableLocalColumnOrder)
+      expect(tableLocalColumnOrder.columnOrder.join("")).equal(
+        "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
+      );
+
+    freezeColumnFromDropdown("id", "left");
+    freezeColumnFromDropdown("updatedAt", "right");
+
+    agHelper.RefreshPage();
+
+    checkIfColumnIsFrozenViaCSS("id");
+    checkIfColumnIsFrozenViaCSS("updatedAt");
   });
 });
