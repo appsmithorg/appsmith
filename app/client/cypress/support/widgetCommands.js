@@ -1461,7 +1461,8 @@ Cypress.Commands.add("editTableSelectCell", (x, y) => {
   ).scrollIntoView();
   cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
     .invoke("show")
-    .click({ force: true });
+    .should("be.visible")
+    .click({ force: true, delay: 100 });
   cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .select-button`).should(
     "exist",
   );
