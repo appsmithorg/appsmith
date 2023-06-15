@@ -1,13 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import {
-  Button,
-  Divider,
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-  Text,
-} from "design-system";
+import { Button, Divider, Text } from "design-system";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -49,7 +41,6 @@ import {
   ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS,
   createMessage,
   SIGNPOSTING_POPUP_SUBTITLE,
-  SIGNPOSTING_INFO_MENU,
   SIGNPOSTING_SUCCESS_POPUP,
 } from "@appsmith/constants/messages";
 import type { Datasource } from "entities/Datasource";
@@ -93,15 +84,17 @@ const LottieAnimationWrapper = styled.div`
   position: relative;
 `;
 
-const ListItem = styled.div<{ disabled: boolean }>`
-  &:hover {
-    background-color: ${(props) =>
-      !props.disabled ? "var(--ads-v2-color-bg-subtle)" : "transparent"};
-  }
-  padding: var(--ads-v2-spaces-3);
-  padding-right: var(--ads-v2-spaces-2);
+const ListItem = styled.div<{ disabled: boolean; completed: boolean }>`
   border-radius: var(--ads-v2-border-radius);
-  cursor: ${(props) => (!props.disabled ? "pointer" : "not-allowed")};
+  cursor: ${(props) => {
+    if (props.disabled) {
+      return "not-allowed";
+    } else if (props.completed) {
+      return "auto";
+    }
+
+    return "pointer;";
+  }};
 
   // Strikethrought animation
   .signposting-strikethrough {
@@ -152,6 +145,15 @@ const ListItem = styled.div<{ disabled: boolean }>`
       width: 100%;
     }
   }
+`;
+
+const Sibling = styled.div<{ disabled: boolean }>`
+  &:hover {
+    background-color: ${(props) =>
+      !props.disabled ? "var(--ads-v2-color-bg-subtle)" : "transparent"};
+  }
+  padding: var(--ads-v2-spaces-3);
+  padding-right: var(--ads-v2-spaces-2);
 `;
 
 function getSuggestedNextActionAndCompletedTasks(
@@ -246,6 +248,7 @@ function CheckListItem(props: {
         className={classNames({
           "flex items-center justify-between": true,
         })}
+        completed={props.completed}
         disabled={props.disabled}
         onClick={
           props.completed
@@ -255,7 +258,10 @@ function CheckListItem(props: {
               }
         }
       >
-        <div className="flex items-center gap-2.5">
+        <Sibling
+          className="flex flex-1 items-center gap-2.5"
+          disabled={props.disabled}
+        >
           {props.completed ? (
             <LottieAnimationWrapper>
               <LottieAnimationContainer ref={tickMarkRef} />
@@ -302,46 +308,25 @@ function CheckListItem(props: {
               {props.normalText}
             </Text>
           </div>
-        </div>
-        <Menu
-          onOpenChange={(open) => {
-            if (open) {
+        </Sibling>
+
+        <div className="absolute right-6">
+          <Button
+            isDisabled={props.disabled}
+            isIconButton
+            kind="tertiary"
+            onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
                 step: props.step,
               });
-            }
-          }}
-        >
-          <MenuTrigger disabled={props.disabled}>
-            <Button
-              isDisabled={props.disabled}
-              isIconButton
-              kind="tertiary"
-              startIcon="question-line"
-            />
-          </MenuTrigger>
-          <MenuContent
-            align="end"
-            collisionPadding={10}
-            onCloseAutoFocus={(e) => {
-              e.preventDefault();
+              window.open(
+                props.docLink ?? "https://docs.appsmith.com/",
+                "_blank",
+              );
             }}
-          >
-            <MenuItem
-              disabled={props.disabled}
-              onClick={(e) => {
-                window.open(
-                  props.docLink ?? "https://docs.appsmith.com/",
-                  "_blank",
-                );
-                e?.stopPropagation();
-              }}
-              startIcon="book-line"
-            >
-              {createMessage(SIGNPOSTING_INFO_MENU.documentation)}
-            </MenuItem>
-          </MenuContent>
-        </Menu>
+            startIcon="question-line"
+          />
+        </div>
       </ListItem>
       <StyledDivider className="mt-0.5" />
     </div>
