@@ -28,6 +28,7 @@ export class DeployMode {
   public DeployApp(
     eleToCheckInDeployPage: string = this.locator._backToEditor,
     toCheckFailureToast = true,
+    addDebugFlag = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
@@ -36,7 +37,12 @@ export class DeployMode {
     // Stubbing window.open to open in the same tab
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
-        window.location.href = Cypress.config().baseUrl + url.substring(1);
+        const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+        window.location.href = `${updatedUrl}${
+          addDebugFlag
+            ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+            : ""
+        }`;
       });
     });
     cy.get(this.locator._publishButton).click();

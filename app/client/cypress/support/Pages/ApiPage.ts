@@ -394,6 +394,10 @@ export class ApiPage {
     cy.xpath(this._verbToSelect(verb)).should("be.visible").click();
   }
 
+  public AssertAPIVerb(verb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH") {
+    this.agHelper.AssertText(this._apiVerbDropdown, "text", verb);
+  }
+
   ResponseStatusCheck(statusCode: string) {
     this.agHelper.AssertElementVisible(this._responseStatus);
     this.agHelper.GetNAssertContains(this._responseStatus, statusCode);

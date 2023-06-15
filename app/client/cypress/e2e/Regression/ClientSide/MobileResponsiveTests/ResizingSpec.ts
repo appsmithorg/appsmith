@@ -4,7 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const { AggregateHelper: agHelper, EntityExplorer: ee } = ObjectsRegistry;
 
-describe("Resizing Behaviour in Auto Layout", function () {
+describe("Resizing Behaviour in auto-layout", function () {
   before(() => {
     cy.get(commonlocators.autoConvert).click({
       force: true,
