@@ -183,7 +183,7 @@ describe("Git discard changes:", function () {
     agHelper
       .GetElement(gitSyncLocators.discardChanges)
       .children()
-      .should("have.text", "Discard & pull");
+      .should("have.text", "Discard changes");
     agHelper.GetNClick(gitSyncLocators.discardChanges);
     agHelper.AssertContains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
     agHelper
