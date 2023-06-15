@@ -41,7 +41,6 @@ import {
   FIRST_EVAL_REDUX_ACTIONS,
   setDependencyMap,
   setEvaluatedTree,
-  shouldLint,
   shouldLog,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
@@ -537,7 +536,7 @@ function* evaluationChangeListenerSaga(): any {
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions, false, false);
-  yield fork(initiateLinting, true);
+  yield fork(initiateLinting);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -550,7 +549,7 @@ function* evaluationChangeListenerSaga(): any {
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
       yield all([
-        call(initiateLinting, shouldLint(action)),
+        call(initiateLinting),
         call(
           evaluateTreeSaga,
           postEvalActions,

@@ -103,9 +103,9 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   });
 }
 
-export function* initiateLinting(requiresLinting: boolean) {
+export function* initiateLinting() {
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-  if (!requiresLinting || appMode !== APP_MODE.EDIT) return;
+  if (appMode !== APP_MODE.EDIT) return;
 
   const {
     configTree,

@@ -273,10 +273,8 @@ function getPrunedReference(
   }
   const subpaths = toPath(reference);
   let currentString = "";
-  // We want to keep going till we reach top level, but not add top level
-  // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-  // This is mainly to avoid a lot of unnecessary dependency.
-  while (subpaths.length > 1) {
+  // We want to keep going till we reach top level
+  while (subpaths.length > 0) {
     currentString = convertPathToString(subpaths);
     // We've found the dep, add it and return
     if (has(tree, currentString)) {
