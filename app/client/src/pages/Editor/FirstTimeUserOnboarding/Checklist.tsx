@@ -406,7 +406,7 @@ export default function OnboardingChecklist() {
   if (isFirstTimeUserOnboardingComplete) {
     return (
       <>
-        <div className="flex justify-between pb-4 gap-6">
+        <div className="flex justify-between pb-3">
           <Text
             className="flex-1"
             color="var(--ads-v2-color-fg-emphasis)"
@@ -434,7 +434,7 @@ export default function OnboardingChecklist() {
   return (
     <>
       <div className="flex-1">
-        <div className="flex justify-between pb-4">
+        <div className="flex justify-between pb-3">
           <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
             {createMessage(ONBOARDING_CHECKLIST_HEADER)}
           </Text>
@@ -463,7 +463,7 @@ export default function OnboardingChecklist() {
         <StyledDivider className="mt-1" />
       </div>
 
-      <div className="overflow-auto">
+      <div className="overflow-auto min-h-[60px]">
         <CheckListItem
           boldText={createMessage(
             ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold,
