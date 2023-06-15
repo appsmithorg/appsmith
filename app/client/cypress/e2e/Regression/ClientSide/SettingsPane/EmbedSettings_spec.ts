@@ -80,7 +80,7 @@ describe("In-app embed settings", () => {
   });
 
   it("5. Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
-    cy.reload();
+    _.agHelper.RefreshPage();
     _.embedSettings.OpenEmbedSettings();
     _.embedSettings.ToggleShowNavigationBar("true");
     cy.get(_.embedSettings.locators._snippet).should(

@@ -25,7 +25,7 @@ describe("Input widget test with default value from chart datapoint", () => {
       "Default value",
       dataSet.bindChartData + "}}",
     );
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    agHelper.AssertNetworkStatus("@updateLayout");
     ee.SelectEntityByName("Chart1");
     propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
     agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);

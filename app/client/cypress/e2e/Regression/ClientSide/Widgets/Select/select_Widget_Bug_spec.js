@@ -1,12 +1,14 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/formSelectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formSelectDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Select Widget name update", function () {
@@ -203,9 +205,9 @@ describe("Select Widget Functionality", function () {
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
     cy.get(".bp3-disabled").should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".bp3-disabled").should("be.visible");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("enable the widget and check in publish mode", function () {
@@ -223,7 +225,7 @@ describe("Select Widget Functionality", function () {
         "value": "RANDOM5"
       }`,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".bp3-button.select-button")
       .eq(0)
       .should("be.visible")
@@ -232,7 +234,7 @@ describe("Select Widget Functionality", function () {
       "contain.text",
       "RANDOM5",
     );
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
   it("should check that filtering works well using numeric labels", () => {
     cy.openPropertyPane("selectwidget");

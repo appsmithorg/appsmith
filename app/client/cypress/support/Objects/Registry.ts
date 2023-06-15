@@ -23,6 +23,9 @@ import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
+import { DefaultHostPort } from "./Hostport";
+import { AssertHelper } from "../Pages/AssertHelper";
+import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
 
 export class ObjectsRegistry {
@@ -32,6 +35,22 @@ export class ObjectsRegistry {
       ObjectsRegistry.aggregateHelper__ = new AggregateHelper();
     }
     return ObjectsRegistry.aggregateHelper__;
+  }
+
+  private static assertHelper__: AssertHelper;
+  static get AssertHelper(): AssertHelper {
+    if (ObjectsRegistry.assertHelper__ === undefined) {
+      ObjectsRegistry.assertHelper__ = new AssertHelper();
+    }
+    return ObjectsRegistry.assertHelper__;
+  }
+
+  private static reusableHelper__: ReusableHelper;
+  static get ReusableHelper(): ReusableHelper {
+    if (ObjectsRegistry.reusableHelper__ === undefined) {
+      ObjectsRegistry.reusableHelper__ = new ReusableHelper();
+    }
+    return ObjectsRegistry.reusableHelper__;
   }
 
   private static jsEditor__: JSEditor;
@@ -232,6 +251,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.autoLayout__ = new AutoLayout();
     }
     return ObjectsRegistry.autoLayout__;
+  }
+
+  private static defaultHostPort__: DefaultHostPort;
+  static get DefaultHostPort(): DefaultHostPort {
+    if (ObjectsRegistry.defaultHostPort__ === undefined) {
+      ObjectsRegistry.defaultHostPort__ = new DefaultHostPort();
+    }
+    return ObjectsRegistry.defaultHostPort__;
   }
 }
 
