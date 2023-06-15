@@ -11,19 +11,21 @@ import FormControlFactory from "utils/formControl/FormControlFactory";
 
 import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
 import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
 import FormConfig from "./FormConfig";
-import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
+import {
+  NO_SQL_DATASOURCES,
+  QUERY_BODY_FIELDS,
+} from "constants/QueryEditorConstants";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import history from "utils/history";
 import {
   getAction,
   getDatasourceFirstTableName,
-  getPlugins,
+  getPluginNameFromId,
   getPluginTemplates,
 } from "selectors/entitiesSelector";
 import { get } from "lodash";
@@ -32,7 +34,6 @@ import {
   DB_QUERY_DEFAULT_TEMPLATE_TYPE,
 } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
-import type { Plugin } from "api/PluginApi";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -72,7 +73,10 @@ function FormControl(props: FormControlProps) {
   const pluginTemplate = !!formValues?.datasource?.pluginId
     ? pluginTemplates[formValues?.datasource?.pluginId]
     : undefined;
-  const plugins: Plugin[] = useSelector(getPlugins);
+  const pluginId: string = formValues?.pluginId || "";
+  const pluginName: string = useSelector((state: AppState) =>
+    getPluginNameFromId(state, pluginId),
+  );
 
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
   const isNewQuery =
@@ -125,7 +129,11 @@ function FormControl(props: FormControlProps) {
   }
 
   useEffect(() => {
-    if (showTemplate && !convertFormToRaw && !isMongoPlugin()) {
+    if (
+      showTemplate &&
+      !convertFormToRaw &&
+      !NO_SQL_DATASOURCES.includes(pluginName)
+    ) {
       const defaultTemplate = !!pluginTemplate
         ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
         : "";
@@ -170,13 +178,6 @@ function FormControl(props: FormControlProps) {
     );
   };
 
-  const isMongoPlugin = () => {
-    const plugin: Plugin | undefined = plugins.find(
-      (plugin) => plugin?.id === formValues?.pluginId,
-    );
-    return !!plugin && plugin?.packageName === PluginPackageName.MONGO;
-  };
-
   return useMemo(
     () =>
       !hidden ? (
@@ -193,7 +194,9 @@ function FormControl(props: FormControlProps) {
             className={`t--form-control-${props.config.controlType}`}
             data-replay-id={btoa(props.config.configProperty)}
           >
-            {showTemplate && !convertFormToRaw && isMongoPlugin() ? (
+            {showTemplate &&
+            !convertFormToRaw &&
+            NO_SQL_DATASOURCES.includes(pluginName) ? (
               <TemplateMenu
                 createTemplate={(templateString: string) =>
                   createTemplate(
