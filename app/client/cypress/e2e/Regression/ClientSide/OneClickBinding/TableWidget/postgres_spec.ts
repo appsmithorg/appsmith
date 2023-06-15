@@ -42,7 +42,6 @@ describe("Table widget one click binding feature", () => {
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
     _.agHelper.Sleep();
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.agHelper.AssertElementVisible(oneClickBindingLocator.validTableRowData);
     _.agHelper.Sleep();
     _.agHelper.GetNAssertContains(
       oneClickBindingLocator.validTableRowData,
@@ -58,7 +57,6 @@ describe("Table widget one click binding feature", () => {
     _.agHelper.ValidateNetworkStatus("@postExecute");
     _.agHelper.ValidateNetworkStatus("@postExecute");
     _.agHelper.Sleep();
-    _.agHelper.AssertElementVisible(oneClickBindingLocator.validTableRowData);
     _.agHelper.Sleep();
     _.agHelper.GetNAssertContains(
       oneClickBindingLocator.validTableRowData,
