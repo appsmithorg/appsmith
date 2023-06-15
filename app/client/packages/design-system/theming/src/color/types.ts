@@ -34,11 +34,11 @@ export interface ColorModeTheme {
 
     // fg
     fg: string;
+    fgAccent: string;
+    fgNegative: string;
     fgNeutral: string;
     fgPositive: string;
-    fgAccent: string;
     fgWarning: string;
-    fgNegative: string;
     fgOnAccent: string;
     fgOnNeutral: string;
     fgOnPositive: string;
