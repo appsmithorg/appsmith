@@ -23,6 +23,8 @@ export enum PluginPackageName {
   GRAPHQL = "graphql-plugin",
   JS = "js-plugin",
   ORACLE = "oracle-plugin",
+  MY_SQL = "mysql-plugin",
+  MS_SQL = "mssql-plugin",
 }
 
 // more can be added subsequently.

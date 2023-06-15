@@ -64,6 +64,10 @@ export type ActionConfigurationPostgreSQL = {
   pluginSpecifiedTemplates: Array<object>;
 };
 
+export type ActionConfigurationMySQL = {
+  pluginSpecifiedTemplates: Array<object>;
+};
+
 export type GSheetsFormData = {
   entityType: object;
   tableHeaderIndex: object;
