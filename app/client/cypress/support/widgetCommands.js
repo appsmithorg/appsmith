@@ -1477,6 +1477,10 @@ Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
   )
+    .scrollIntoView()
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
+  )
     .click({ force: true })
     .clear({ force: true });
 
