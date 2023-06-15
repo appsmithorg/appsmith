@@ -523,7 +523,7 @@ export class DataSources {
     this.ValidateNSelectDropdown(
       "Authentication type",
       "Please select an option",
-      "Bearer token",
+      "Personal access token",
     );
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Bearer token"),
