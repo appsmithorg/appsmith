@@ -178,7 +178,8 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId);
 
-       StepVerifier.create(datasourceStructureMono)
+       StepVerifier
+               .create(datasourceStructureMono)
                .assertNext(datasourceStructure -> {
                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                    assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -201,7 +202,8 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId);
 
-        StepVerifier.create(datasourceStructureMono)
+        StepVerifier
+                .create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -224,7 +226,8 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId);
 
-        StepVerifier.create(datasourceStructureMono)
+        StepVerifier
+                .create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -244,7 +247,8 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStorageStructure> datasourceStorageStructureMono =
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, defaultEnvironmentId);
 
-        StepVerifier.create(datasourceStorageStructureMono)
+        StepVerifier
+                .create(datasourceStorageStructureMono)
                 .assertNext(datasourceStorageStructure -> {
                     assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
                     assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
@@ -266,7 +270,8 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, null);
 
-        StepVerifier.create(datasourceStructureMono)
+        StepVerifier
+                .create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -310,7 +315,8 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, null);
 
-        StepVerifier.create(datasourceStructureMono)
+        StepVerifier
+                .create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -344,9 +350,10 @@ public class DatasourceStructureSolutionTest {
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
         Mono<DatasourceStructure> datasourceStructureMono =
-                datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, null);
+                datasourceStructureSolution.getStructure(savedDatasource.getId(), Boolean.FALSE, null);
 
-        StepVerifier.create(datasourceStructureMono)
+        StepVerifier
+                .create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables()).isNull();
                     assertThat(datasourceStructure.getError()).isNull();
