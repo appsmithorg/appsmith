@@ -1,10 +1,11 @@
-const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget V2 Sorting", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDslWithPagination").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("verifies that table sorting works for a custom column with computed value even when it is renamed", function () {
