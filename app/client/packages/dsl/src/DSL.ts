@@ -52,7 +52,8 @@ export function nestDSL<W>(
   unnestedDSL: UnnestedDSL<W>,
   widgetId: string = ROOT_CONTAINER_WIDGET_ID,
 ): NestedDSL<W> {
-  return denormalize(widgetId, SCHEMA_BY_ID, unnestedDSL);
+  const entities = { canvasWidgets: unnestedDSL };
+  return denormalize(widgetId, SCHEMA_BY_ID, entities);
 }
 
 // Normalising using widgetName
@@ -71,5 +72,6 @@ export function nestGitDSL<W>(
   unnestedDSL: UnnestedDSL<W>,
   widgetName: string = ROOT_CONTAINER_WIDGET_NAME,
 ): NestedDSL<W> {
-  return denormalize(widgetName, SCHEMA_BY_NAME, unnestedDSL);
+  const entities = { canvasWidgets: unnestedDSL };
+  return denormalize(widgetName, SCHEMA_BY_NAME, entities);
 }
