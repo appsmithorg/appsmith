@@ -52,9 +52,12 @@ class Setters {
 
     if (validationPaths) {
       const validationConfig = validationPaths[propertyPath] || {};
-      const config = { ...validationConfig };
-     const config = { ...validationConfig, params: {...(config.params || {})} };
-     config.params.strict = true;
+
+      const config = {
+        ...validationConfig,
+        params: { ...(validationConfig.params || {}) },
+      };
+      config.params.strict = true;
 
       const { isValid, messages } = validate(
         config,
