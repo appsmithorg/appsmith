@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Text, Link, Button } from "design-system";
+import { Text, Link, Button, Icon } from "design-system";
 import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
@@ -71,6 +71,31 @@ function EmbeddedLink() {
   );
 }
 
+function PrivateEmbedRamp() {
+  return (
+    <div className="flex justify-between items-start mt-6">
+      <div className="flex flex-col gap-1 w-4/5">
+        <div className="flex">
+          <Icon className="mr-1" name="lock-2-line" size="md" />
+          <Text kind="body-m">
+            {createMessage(IN_APP_EMBED_SETTING.privateAppsText)}
+          </Text>
+        </div>
+        <Text
+          className="w-7/10 block"
+          color="var(--ads-v2-color-fg-muted)"
+          kind="body-s"
+        >
+          {createMessage(IN_APP_EMBED_SETTING.rampSubtext)}
+        </Text>
+      </div>
+      <Link kind="secondary" startIcon="link">
+        {createMessage(IN_APP_EMBED_SETTING.rampLinktext)}
+      </Link>
+    </div>
+  );
+}
+
 function AppSettingsContent({
   canMakeAppPublic,
 }: {
@@ -102,28 +127,50 @@ function SnippetTabContent({
   changeTab?: () => void;
 }) {
   return (
-    <div
-      className="flex flex-col gap-1 items-start"
-      data-testid="t--upgrade-content"
-    >
-      <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-s">
-        {canMakeAppPublic
-          ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
-          : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
-      </Text>
+    <div>
+      <div
+        className="flex gap-1 justify-between items-start"
+        data-testid="t--upgrade-content"
+      >
+        <div className="flex flex-col gap-1 items-start">
+          {canMakeAppPublic ? (
+            <>
+              <div className="flex">
+                <Icon className="mr-1" name="global-line" size="md" />
+                <Text kind="body-m">
+                  {createMessage(
+                    IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal,
+                  )}
+                </Text>
+              </div>
+              <Text
+                className="w-7/10"
+                color="var(--ads-v2-color-fg-muted)"
+                kind="body-s"
+              >
+                {createMessage(
+                  IN_APP_EMBED_SETTING.upgradeSubheadingForInviteModal,
+                )}
+              </Text>
+            </>
+          ) : (
+            <Text color="var(--ads-v2-color-fg-emphasis)" kind="body-m">
+              {createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
+            </Text>
+          )}
+        </div>
 
-      <EmbeddedLink />
-
-      {canMakeAppPublic && (
-        <Button
-          className="mt-2"
-          data-testid="t--share-settings-btn"
-          onClick={changeTab}
-          size="md"
-        >
-          Share settings
-        </Button>
-      )}
+        {canMakeAppPublic && (
+          <Button
+            data-testid="t--share-settings-btn"
+            onClick={changeTab}
+            size="sm"
+          >
+            Share settings
+          </Button>
+        )}
+      </div>
+      <PrivateEmbedRamp />
     </div>
   );
 }

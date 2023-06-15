@@ -1613,8 +1613,13 @@ export const IN_APP_EMBED_SETTING = {
     "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
-  upgradeHeadingForInviteModal: () =>
-    "Make your app public in share settings to embed",
+  upgradeHeadingForInviteModal: () => "Public apps",
+  upgradeSubheadingForInviteModal: () =>
+    "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
+  privateAppsText: () => "Private apps",
+  rampSubtext: () =>
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+  rampLinktext: () => "Try Business",
   upgradeContent: () => "Private embedding is now available in",
   appsmithBusinessEdition: () => "Appsmith Business Edition.",
   secondaryHeadingForAppSettings: () => "Make your app public to embed",
