@@ -277,7 +277,7 @@ export class HomePage {
         "X-Requested-By": "Appsmith",
       },
     });
-    this.agHelper.Sleep(); //for logout to complete!
+    this.agHelper.Sleep(2000); //for logout to complete - CI!
   }
 
   public Signout(toNavigateToHome = true) {
