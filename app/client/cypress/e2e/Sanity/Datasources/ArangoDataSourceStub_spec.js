@@ -1,8 +1,5 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper,
-  dataSources = ObjectsRegistry.DataSources;
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("Arango datasource test cases", function () {
   it("1. Create, test, save then delete a Arango datasource", function () {

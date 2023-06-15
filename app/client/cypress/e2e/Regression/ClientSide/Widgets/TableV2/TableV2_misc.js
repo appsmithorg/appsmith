@@ -1,9 +1,11 @@
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { DEFAULT_COLUMN_NAME } from "../../../../../../src/widgets/TableWidgetV2/constants";
 
 describe("tests bug 20663 TypeError: Cannot read properties of undefined", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. when the column label value is a valid string should show the evaluated string", function () {

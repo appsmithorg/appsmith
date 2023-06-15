@@ -1,11 +1,12 @@
-const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the Table and input Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formInputTableV2Dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Input widget test with default value from table widget", function () {

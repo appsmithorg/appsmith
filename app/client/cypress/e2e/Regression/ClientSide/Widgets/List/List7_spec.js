@@ -1,9 +1,11 @@
-const dsl = require("../../../../../fixtures/ListVulnerabilityDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Binding the list widget with text widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("ListVulnerabilityDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Validate that list widget doesn't execute code", function () {
