@@ -3,8 +3,6 @@ package com.appsmith.server.dtos.ce;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -44,8 +42,6 @@ public class UserProfileCE_DTO {
     String useCase;
 
     boolean enableTelemetry = false;
-
-    Map<String, Object> idToken = new HashMap<>();
 
     public boolean isAccountNonExpired() {
         return this.isEnabled;
