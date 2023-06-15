@@ -30,7 +30,7 @@ describe("Test Create Api and Bind to Button widget", function () {
       cy.updateCodeInput($el, "{{Api1.run()}}");
     });
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
@@ -54,7 +54,7 @@ describe("Test Create Api and Bind to Button widget", function () {
       cy.updateCodeInput($el, "{{Api1.run(() => {}, () => {})}}");
     });
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();

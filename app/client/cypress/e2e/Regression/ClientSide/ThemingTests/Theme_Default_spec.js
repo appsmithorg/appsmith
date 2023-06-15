@@ -83,7 +83,7 @@ describe("Theme validation for default data", function () {
     appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
-    cy.get(".cursor-pointer:contains('Applied Theme')").click({ force: true });
+    cy.get(".cursor-pointer:contains('Applied theme')").click({ force: true });
     cy.get(".t--theme-card main > main")
       .first()
       .invoke("css", "background-color")

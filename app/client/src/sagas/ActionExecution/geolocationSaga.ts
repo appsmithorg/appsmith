@@ -102,7 +102,7 @@ function* errorCallbackHandler(triggerMeta: TriggerMeta, listenerId?: string) {
         { error: sanitizeGeolocationError(error) },
         listenerId,
       );
-    logActionExecutionError(error.message, true);
+    yield call(logActionExecutionError, error.message, true);
   }
 }
 
@@ -117,7 +117,7 @@ export function* getCurrentLocationSaga(action: TGetGeoLocationDescription) {
     yield put(setUserCurrentGeoLocation(currentLocation));
     return currentLocation;
   } catch (error) {
-    logActionExecutionError((error as Error).message, true);
+    yield call(logActionExecutionError, (error as Error).message, true);
     if (error instanceof GeolocationPositionError) {
       const sanitizedError = sanitizeGeolocationError(error);
       throw new GeoLocationError(sanitizedError.message, [sanitizedError]);
@@ -135,7 +135,8 @@ export function* watchCurrentLocation(
   if (watchId) {
     // When a watch is already active, we will not start a new watch.
     // at a given point in time, only one watch is active
-    logActionExecutionError(
+    yield call(
+      logActionExecutionError,
       "A watchLocation is already active. Clear it before before starting a new one",
       true,
     );
@@ -165,7 +166,7 @@ export function* watchCurrentLocation(
 
 export function* stopWatchCurrentLocation() {
   if (watchId === undefined) {
-    logActionExecutionError("No location watch active", true);
+    yield call(logActionExecutionError, "No location watch active", true);
     return;
   }
   navigator.geolocation.clearWatch(watchId);

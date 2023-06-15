@@ -1,4 +1,4 @@
-import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
+import { nestDSL, unnestDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -28,7 +28,7 @@ const specialCaseWidgets = ["LIST_WIDGET_V2"];
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
 
 /**
- * This method converts the fixed to Auto layout and updates the positions
+ * This method converts the fixed to auto-layout and updates the positions
  * @param dsl DSL to be Converted
  * @returns dsl in an AutoLayout dsl format
  */
@@ -40,8 +40,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
 
   if (!autoDSL || !autoDSL.children) return autoDSL;
 
-  const normalizedAutoDSL =
-    flattenDSLById<WidgetProps>(autoDSL).entities.canvasWidgets;
+  const normalizedAutoDSL = unnestDSL(autoDSL);
 
   const alteredNormalizedAutoDSL = alterLayoutForDesktop(
     normalizedAutoDSL,
@@ -50,10 +49,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
     true,
   );
 
-  const alteredAutoDSL: DSLWidget = unflattenDSLById<WidgetProps>(
-    MAIN_CONTAINER_WIDGET_ID,
-    { canvasWidgets: alteredNormalizedAutoDSL },
-  );
+  const alteredAutoDSL: DSLWidget = nestDSL(alteredNormalizedAutoDSL);
 
   return alteredAutoDSL;
 }
@@ -90,7 +86,7 @@ export function convertDSLtoAuto(dsl: DSLWidget) {
 /**
  * This is specifically for Auto widget
  * @param dsl
- * @returns auto layout converted Auto Widget
+ * @returns auto-layout converted Auto Widget
  */
 export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
   const { calculatedBottomRow, children, flexLayers } =

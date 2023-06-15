@@ -1,3 +1,7 @@
+type GsheetConfig = {
+  sheetName?: string;
+  tableHeaderIndex?: number;
+};
 export type WidgetQueryGenerationFormConfig = {
   tableName: string;
   datasourceId: string;
@@ -9,7 +13,7 @@ export type WidgetQueryGenerationFormConfig = {
   searchableColumn: string;
   columns: string[];
   primaryColumn: string;
-};
+} & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {
   select?: {
@@ -24,7 +28,7 @@ export type WidgetQueryGenerationConfig = {
   };
   update?: {
     value: string;
-    where: string;
+    where?: string;
   };
   totalRecord: boolean;
 };
@@ -58,4 +62,18 @@ export type ActionConfigurationMongoDB = {
 
 export type ActionConfigurationPostgreSQL = {
   pluginSpecifiedTemplates: Array<object>;
+};
+
+export type GSheetsFormData = {
+  entityType: object;
+  tableHeaderIndex: object;
+  projection: object;
+  queryFormat: object;
+  range: object;
+  where: object;
+  pagination: object;
+  smartSubstitution: object;
+};
+export type ActionConfigurationGSheets = {
+  formData: GSheetsFormData;
 };

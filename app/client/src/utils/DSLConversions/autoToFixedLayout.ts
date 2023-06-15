@@ -1,4 +1,4 @@
-import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
+import { nestDSL, unnestDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -18,7 +18,6 @@ import {
   getLeftColumn,
   getRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
 const deletedResponsiveProperties = [
@@ -34,7 +33,7 @@ const deletedResponsiveProperties = [
 
 /**
  * Main Method to convert Auto DSL to Fixed DSL
- * @param dsl DSL to be Converted to Fixed Layout
+ * @param dsl DSL to be Converted to fixed layout
  * @param destinationLayout Destination Layout Size
  * @returns Converted Fixed DSL
  */
@@ -42,25 +41,23 @@ export default function convertDSLtoFixed(
   dsl: DSLWidget,
   destinationLayout: SupportedLayouts,
 ) {
-  const allWidgets = flattenDSLById<WidgetProps>(dsl).entities.canvasWidgets;
+  const allWidgets = unnestDSL(dsl);
 
   const convertedWidgets = convertNormalizedDSLToFixed(
     allWidgets,
     destinationLayout,
   );
 
-  const convertedDSL = unflattenDSLById<WidgetProps>(MAIN_CONTAINER_WIDGET_ID, {
-    canvasWidgets: convertedWidgets,
-  });
+  const convertedDSL = nestDSL(convertedWidgets);
 
   return convertedDSL;
 }
 
 /**
- * Convert Normalized Auto DSL to Fixed Layout DSL
+ * Convert Normalized Auto DSL to fixed layout DSL
  * @param widgets Normalized Auto DSL to be converted
  * @param destinationLayout Destination Layout Size
- * @returns Converted Normalized Fixed Layout DSL
+ * @returns Converted Normalized fixed layout DSL
  */
 export function convertNormalizedDSLToFixed(
   widgets: CanvasWidgetsReduxState,
@@ -93,7 +90,7 @@ export function convertNormalizedDSLToFixed(
 }
 
 /**
- * Converts Widget with widgetId and it's children to Fixed layout recursively
+ * Converts Widget with widgetId and it's children to fixed layout recursively
  * @param widgets Normalized Auto DSL
  * @param widgetId
  * @param isMobile

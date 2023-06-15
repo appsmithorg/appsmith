@@ -365,7 +365,7 @@ export const actionOperations: ActionOperation[] = [
       createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
   },
   {
-    title: "New JS object",
+    title: "New JS Object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),
