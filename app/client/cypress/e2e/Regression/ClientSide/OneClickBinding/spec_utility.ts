@@ -32,7 +32,9 @@ export class OneClickBinding {
     _.agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
     _.agHelper.GetNClick(
-      oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),0,true
+      oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),
+      0,
+      true,
     );
 
     _.agHelper.AssertElementExist(
