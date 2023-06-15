@@ -71,7 +71,7 @@ describe("Sanitise toast error messages", () => {
 
   it("6. Does not show UncaughtPromiseRejection label when valid page url is not given", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.jsEditor.DisableJSContext("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.GetNClick(
       _.propPane._actionCardByTitle("Execute a JS function"),
     );

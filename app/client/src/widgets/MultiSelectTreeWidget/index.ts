@@ -19,7 +19,7 @@ export const CONFIG = {
   name: "Multi TreeSelect",
   iconSVG: IconSVG,
   needsMeta: true,
-  searchTags: ["dropdown"],
+  searchTags: ["dropdown", "multiselecttree"],
   defaults: {
     rows: 7,
     columns: 20,

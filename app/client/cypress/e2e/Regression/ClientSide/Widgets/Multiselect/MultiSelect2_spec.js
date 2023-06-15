@@ -3,27 +3,28 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/multiSelectDsl.json");
-import data from "../../../../../fixtures/example.json";
+import data from "../../../../../fixtures/TestDataSet1.json";
+
 import {
   PROPERTY_SELECTOR,
-  WIDGET,
   getWidgetSelector,
 } from "../../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("multiSelectDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
-    cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultselectedvalues", "{{ undefined }}");
+    _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(data.input));
+    _.propPane.UpdatePropertyFieldValue(
+      "Default selected values",
+      "{{ undefined }}",
+    );
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-search-input")
       .first()
@@ -127,9 +128,7 @@ describe("MultiSelect Widget Functionality", function () {
   it("5. Dropdown Functionality To Validate Options", function () {
     cy.get(".rc-select-selector").last().click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
-  });
-
-  it("6. Dropdown Functionality To Check Allow select all option", function () {
+    // Dropdown Functionality To Check Allow select all option
     // select all option is not enable
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
@@ -158,8 +157,8 @@ describe("MultiSelect Widget Functionality", function () {
       .should("have.text", "Option 2");
   });
 
-  it("7. Check isDirty meta property", function () {
-    cy.openPropertyPane(WIDGET.TEXT);
+  it("6. Check isDirty meta property", function () {
+    cy.openPropertyPane(_.draggableWidgets.TEXT);
     cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{MultiSelect2.isDirty}}`);
     // Init isDirty by changing defaultOptionValue
     cy.openPropertyPane("multiselectwidgetv2");
@@ -167,19 +166,25 @@ describe("MultiSelect Widget Functionality", function () {
       PROPERTY_SELECTOR.defaultValue,
       '[\n  {\n    "label": "Option 1",\n    "value": "1"\n  }\n]',
     );
-    cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "false");
+    cy.get(getWidgetSelector(_.draggableWidgets.TEXT))
+      .eq(0)
+      .should("contain", "false");
     // Interact with UI
     cy.get(".rc-select-selector").last().click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
     // Check if isDirty is set to true
-    cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "true");
+    cy.get(getWidgetSelector(_.draggableWidgets.TEXT))
+      .eq(0)
+      .should("contain", "true");
     // Reset isDirty by changing defaultOptionValue
     cy.updateCodeInput(
       PROPERTY_SELECTOR.defaultValue,
       '[\n  {\n    "label": "Option 2",\n    "value": "2"\n  }\n]',
     );
     // Check if isDirty is set to false
-    cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "false");
+    cy.get(getWidgetSelector(_.draggableWidgets.TEXT))
+      .eq(0)
+      .should("contain", "false");
   });
 
   const resetTestCases = [
@@ -235,16 +240,16 @@ describe("MultiSelect Widget Functionality", function () {
 
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
-      propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
-      agHelper.PressEscape();
+      _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
+      _.agHelper.PressEscape();
       // set default value
-      propPane.UpdatePropertyFieldValue(
+      _.propPane.UpdatePropertyFieldValue(
         "Default selected values",
         JSON.stringify(defaultValue, null, 2),
       );
       // select other options
-      agHelper.SelectFromMultiSelect(optionsToSelect);
-      agHelper.RemoveMultiSelectItems(optionsToDeselect);
+      _.agHelper.SelectFromMultiSelect(optionsToSelect);
+      _.agHelper.RemoveMultiSelectItems(optionsToDeselect);
 
       // reset multiselect
       cy.get(
@@ -264,33 +269,33 @@ describe("MultiSelect Widget Functionality", function () {
   it("9. Verify MultiSelect deselection behavior", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Options",
       JSON.stringify([{ label: "RED", value: "RED" }]),
     );
-    agHelper.PressEscape();
-    propPane.UpdatePropertyFieldValue("Default selected values", '["RED"]');
-    agHelper.RemoveMultiSelectItems(["RED"]);
+    _.agHelper.PressEscape();
+    _.propPane.UpdatePropertyFieldValue("Default selected values", '["RED"]');
+    _.agHelper.RemoveMultiSelectItems(["RED"]);
     // verify value is equal to default value
     cy.get(getWidgetSelector("textwidget")).eq(1).should("have.text", "");
   });
 
   it("10. Dropdown Functionality To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
       "not.exist",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("11. Dropdown Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
       "be.visible",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

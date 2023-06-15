@@ -10,7 +10,7 @@ describe("Git with Theming:", function () {
   let applicationId = null;
   let applicationName = null;
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
