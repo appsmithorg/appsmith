@@ -122,6 +122,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       <MenuButtonComponent
         {...this.props}
         getVisibleItems={this.getVisibleItems}
+        isAutoLayout={this.isAutoLayoutMode}
         menuDropDownWidth={menuDropDownWidth}
         onItemClicked={this.menuItemClickHandler}
         renderMode={this.props.renderMode}

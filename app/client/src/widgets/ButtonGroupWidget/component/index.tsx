@@ -602,6 +602,7 @@ class ButtonGroupComponent extends React.Component<
                     buttonColor={button.buttonColor}
                     buttonVariant={buttonVariant}
                     disabled={isButtonDisabled}
+                    isAutoLayout={this.props.isAutoLayout}
                     loading={!!loadedBtnId}
                     renderMode={this.props.renderMode}
                   >
@@ -645,6 +646,7 @@ class ButtonGroupComponent extends React.Component<
               buttonColor={button.buttonColor}
               buttonVariant={buttonVariant}
               disabled={isButtonDisabled}
+              isAutoLayout={this.props.isAutoLayout}
               key={button.id}
               loading={!!loadedBtnId}
               onClick={getOnClick(button)}

@@ -294,6 +294,7 @@ export interface PopoverTargetButtonProps {
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
   iconAlign?: Alignment;
+  isAutoLayout: boolean;
   isDisabled?: boolean;
   label?: string;
   placement?: ButtonPlacement;
@@ -308,6 +309,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     buttonVariant,
     iconAlign,
     iconName,
+    isAutoLayout,
     isDisabled,
     label,
     placement,
@@ -321,6 +323,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
+      isAutoLayout={isAutoLayout}
       renderMode={renderMode}
     >
       <BaseButton
@@ -348,6 +351,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     getVisibleItems,
     iconAlign,
     iconName,
+    isAutoLayout,
     isCompact,
     isDisabled,
     label,
@@ -399,6 +403,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           buttonVariant={menuVariant}
           iconAlign={iconAlign}
           iconName={iconName}
+          isAutoLayout={isAutoLayout}
           isDisabled={isDisabled}
           label={label}
           placement={placement}

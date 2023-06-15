@@ -168,6 +168,7 @@ export type ButtonStyleProps = {
   borderRadius?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  isAutoLayout: boolean;
   placement?: ButtonPlacement;
 };
 
@@ -198,6 +199,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={disabled}
+      isAutoLayout={props.isAutoLayout}
       loading={loading}
       onClick={onClick}
       showInAllModes
@@ -252,6 +254,7 @@ interface ButtonComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   isLoading: boolean;
+  isAutoLayout: boolean;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
   buttonColor?: string;
@@ -449,6 +452,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         icon={props.icon}
         iconAlign={props.iconAlign}
         iconName={props.iconName}
+        isAutoLayout={props.isAutoLayout}
         loading={props.isLoading}
         placement={props.placement}
         rightIcon={props.rightIcon}

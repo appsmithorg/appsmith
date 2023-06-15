@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import type { ButtonVariant } from "components/constants";
 import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
@@ -33,6 +33,7 @@ export type ButtonContainerProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   disabled?: boolean;
+  isAutoLayout: boolean;
   loading?: boolean;
   style?: React.CSSProperties;
 };
@@ -46,13 +47,17 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
     height: 100%;
   }
 
-  .auto-layout & > .bp3-button.bp3-fill {
-    display: flex;
-    width: auto;
-    max-width: 352px;
-    min-width: 112px;
-    min-height: 32px;
-  }
+  ${({ isAutoLayout }) =>
+    isAutoLayout &&
+    css`
+      .bp3-button.bp3-fill {
+        display: flex;
+        width: auto;
+        max-width: 352px;
+        min-width: 112px;
+        min-height: 32px;
+      }
+    `}
 
   position: relative;
   &:after {
@@ -75,6 +80,7 @@ type DragContainerProps = ButtonContainerProps & {
   onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode?: RenderMode;
   showInAllModes?: boolean;
+  isAutoLayout: boolean;
 };
 
 export function DragContainer(props: DragContainerProps) {
@@ -87,6 +93,7 @@ export function DragContainer(props: DragContainerProps) {
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
+        isAutoLayout={props.isAutoLayout}
         loading={props.loading}
         onClick={hasOnClick ? props.onClick : undefined}
         style={props.style}

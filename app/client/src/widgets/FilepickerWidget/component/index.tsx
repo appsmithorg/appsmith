@@ -32,6 +32,7 @@ class FilePickerComponent extends React.Component<
       <BaseButton
         buttonColor={Colors.GREEN}
         disabled={this.props.isDisabled}
+        isAutoLayout={false}
         loading={this.props.isLoading}
         onClick={this.openModal}
         text={label}

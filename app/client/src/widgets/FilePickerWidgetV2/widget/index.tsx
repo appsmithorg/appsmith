@@ -830,6 +830,7 @@ class FilePickerWidget extends BaseWidget<
           boxShadow={this.props.boxShadow}
           buttonColor={this.props.buttonColor}
           files={this.props.selectedFiles || []}
+          isAutoLayout={this.isAutoLayoutMode}
           isDisabled={this.props.isDisabled}
           isLoading={this.props.isLoading || this.state.isLoading}
           key={this.props.widgetId}

@@ -54,6 +54,7 @@ export function Button(props: ButtonProps) {
           disabled={props.isDisabled}
           iconAlign={props.action.iconAlign}
           iconName={props.action.iconName}
+          isAutoLayout={false}
           loading={loading}
           onClick={handleClick}
           text={props.action.label}

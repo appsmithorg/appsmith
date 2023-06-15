@@ -52,6 +52,7 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
           buttonVariant={ButtonVariantTypes.SECONDARY}
           className="t--discard-new-row"
           disabled={isSaveLoading}
+          isAutoLayout={false}
           loading={isDiscardLoading}
           onClick={() => {
             setIsDiscardLoading(true);
@@ -68,6 +69,7 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
           buttonVariant={ButtonVariantTypes.PRIMARY}
           className="t--save-new-row"
           disabled={props.disabledAddNewRowSave || isDiscardLoading}
+          isAutoLayout={false}
           loading={isSaveLoading}
           onClick={() => {
             setIsSaveLoading(true);

@@ -64,6 +64,7 @@ class CodeScannerWidget extends BaseWidget<
         buttonColor={this.props.buttonColor || this.props.accentColor}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
+        isAutoLayout={this.isAutoLayoutMode}
         isDisabled={this.props.isDisabled}
         key={this.props.widgetId}
         label={this.props.label}
