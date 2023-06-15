@@ -1,10 +1,11 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const deployMode = ObjectsRegistry.DeployMode;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const homePage = ObjectsRegistry.HomePage;
+import {
+  agHelper,
+  deployMode,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Top + Inline navigation style", function () {
   before(() => {
@@ -156,8 +157,5 @@ describe("Test Top + Inline navigation style", function () {
     deployMode.DeployApp();
     cy.get(appNavigationLocators.userProfileDropdownButton).click();
     cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
-
-    // Back to editor
-    deployMode.NavigateBacktoEditor();
   });
 });

@@ -1,6 +1,5 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
-const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let appId, newWorkspaceName;
@@ -54,13 +53,14 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "contain",
       "template added successfully",
     );
+    _.agHelper.AssertNetworkStatus("updateLayout");
     // [Bug]: Getting 'Resource not found' error on deploying template #17477
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--page-switch-tab")
       .contains("1 Track Applications")
       .click({ force: true });
     cy.wait(4000);
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.wait(2000);
   });
 
@@ -101,5 +101,6 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "contain",
       "template added successfully",
     );
+    _.agHelper.AssertNetworkStatus("updateLayout");
   });
 });

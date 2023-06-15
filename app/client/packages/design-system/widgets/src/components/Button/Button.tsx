@@ -1,27 +1,32 @@
-import React, { forwardRef } from "react";
-import { useVisuallyHidden } from "@react-aria/visually-hidden";
-
-import { Text } from "../Text";
 import type {
   ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
 } from "@design-system/headless";
-import { Spinner } from "../Spinner";
-import { StyledButton } from "./index.styled";
+import React, { forwardRef } from "react";
 import { Icon as HeadlessIcon } from "@design-system/headless";
+import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
-export type ButtonVariants = "primary" | "secondary" | "tertiary";
+import { Text } from "../Text";
+import { Spinner } from "../Spinner";
+import { DragContainer, StyledButton } from "./index.styled";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
-  /**
-   *  @default primary
+  /** variant of the button
+   *
+   * @default "filled"
    */
-  variant?: ButtonVariants;
+  variant?: "filled" | "outlined" | "ghost";
+  /** Color tone of the button */
+  color?: "accent" | "neutral" | "positive" | "negative" | "warning";
+  /** When true, makes the button occupy all the space available */
   isFitContainer?: boolean;
-  isFocused?: boolean;
+  /** Indicates the loading state of the button */
   isLoading?: boolean;
+  /** Icon to be used in the button of the button */
   icon?: React.ReactNode;
+  /** Indicates the position of icon of the button */
   iconPosition?: "start" | "end";
+  /** Makes the button visually and functionaly disabled but focusable */
   visuallyDisabled?: boolean;
 }
 
@@ -30,13 +35,14 @@ export const Button = forwardRef(
     props = useVisuallyDisabled(props);
     const {
       children,
+      color = "accent",
       icon,
       iconPosition = "start",
       isFitContainer = false,
       isLoading,
       // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
       onKeyUp,
-      variant = "primary",
+      variant = "filled",
       visuallyDisabled,
       ...rest
     } = props;
@@ -49,6 +55,7 @@ export const Button = forwardRef(
             <HeadlessIcon>
               <Spinner />
             </HeadlessIcon>
+            {/* TODO(pawan): How to make sure "Loading..." text is internationalized? */}
             <span {...visuallyHiddenProps}>Loading...</span>
           </>
         );
@@ -65,16 +72,22 @@ export const Button = forwardRef(
     return (
       <StyledButton
         aria-busy={isLoading ? true : undefined}
-        aria-disabled={visuallyDisabled || isLoading ? true : undefined}
+        aria-disabled={
+          visuallyDisabled || isLoading || props.isDisabled ? true : undefined
+        }
+        color={color}
         data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? undefined : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
+        draggable
         ref={ref}
+        variant={variant}
         {...rest}
       >
         {renderChildren()}
+        <DragContainer data-hidden="" />
       </StyledButton>
     );
   },
