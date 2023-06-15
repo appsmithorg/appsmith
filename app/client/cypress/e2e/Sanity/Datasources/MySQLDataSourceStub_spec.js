@@ -1,14 +1,8 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-let dataSource = ObjectsRegistry.DataSources;
-
-let datasourceName;
+import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("MySQL datasource test cases", function () {
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
+  let datasourceName;
   it("1. Create, test, save then delete a MySQL datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MySQL).click();
@@ -20,7 +14,7 @@ describe("MySQL datasource test cases", function () {
         fixture: "testAction.json",
       }).as("testDatasource");
       cy.testSaveDatasource(false);
-      dataSource.DeleteDatasouceFromActiveTab(datasourceName);
+      dataSources.DeleteDatasouceFromActiveTab(datasourceName);
     });
   });
 

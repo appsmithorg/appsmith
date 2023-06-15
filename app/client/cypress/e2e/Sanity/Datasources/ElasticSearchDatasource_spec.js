@@ -1,8 +1,8 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+
+import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 let elasticSearchName;
-let dataSource = ObjectsRegistry.DataSources;
 
 describe("Elastic search datasource tests", function () {
   beforeEach(() => {
@@ -26,6 +26,6 @@ describe("Elastic search datasource tests", function () {
     //once we have test values for elastic search we can test and save the datasources.
     // cy.testSaveDatasource();
 
-    dataSource.SaveDSFromDialog(false);
+    dataSources.SaveDSFromDialog(false);
   });
 });

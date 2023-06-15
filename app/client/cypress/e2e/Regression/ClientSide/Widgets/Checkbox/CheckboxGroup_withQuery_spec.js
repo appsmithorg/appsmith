@@ -51,7 +51,7 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.wait(2000);
 
     // deploy the app
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.wait(2000);
 

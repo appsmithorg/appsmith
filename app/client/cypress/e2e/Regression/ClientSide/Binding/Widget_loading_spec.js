@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/rundsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -8,7 +7,9 @@ let datasourceName;
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("rundsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Create a postgres datasource", function () {
@@ -43,7 +44,7 @@ describe("Binding the multiple widgets and validating default data", function ()
   });
 
   it("3. Publish App and validate loading functionalty", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(widgetsPage.widgetBtn).first().click({ force: true });

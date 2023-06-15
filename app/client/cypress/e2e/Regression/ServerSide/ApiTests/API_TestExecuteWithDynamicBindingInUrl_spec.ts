@@ -1,9 +1,10 @@
-const datasourceFormData = require("../../../../fixtures/datasources.json");
+import datasourceFormData from "../../../../fixtures/datasources.json";
 
 import {
   apiPage,
   agHelper,
   jsEditor,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
@@ -37,6 +38,9 @@ describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
     );
     apiPage.RunAPI();
     apiPage.ResponseStatusCheck("200 OK");
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 });
