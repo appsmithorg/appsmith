@@ -186,7 +186,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     }
                 })
                 .map(ResponseDTO::getData)
-                // TODO: Better error handling
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
@@ -216,7 +215,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     }
                 })
                 .map(ResponseDTO::getData)
-                // TODO: Better error handling
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
