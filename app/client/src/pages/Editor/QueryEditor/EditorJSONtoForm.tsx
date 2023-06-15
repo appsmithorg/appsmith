@@ -4,7 +4,10 @@ import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString, noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import { getPluginImages } from "selectors/entitiesSelector";
+import {
+  getPluginImages,
+  getPluginNameFromId,
+} from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { SlashCommand } from "entities/Action";
@@ -81,7 +84,7 @@ import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
@@ -425,6 +428,28 @@ export function EditorJSONtoForm(props: Props) {
   const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
   );
+
+  // get the current action's plugin name
+  const currentActionPluginName = useSelector((state: AppState) =>
+    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
+  );
+
+  let actionBody = "";
+  if (!!currentActionConfig?.actionConfiguration) {
+    if ("formData" in currentActionConfig?.actionConfiguration) {
+      // if the action has a formData (the action is postUQI e.g. Oracle)
+      actionBody =
+        currentActionConfig.actionConfiguration.formData?.body?.data || "";
+    } else {
+      // if the action is pre UQI, the path is different e.g. mySQL
+      actionBody = currentActionConfig.actionConfiguration?.body || "";
+    }
+  }
+
+  // if (the body is empty and the action is an sql datasource) or the user does not have permission, block action execution.
+  const blockExecution =
+    (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
+    !isExecutePermitted;
 
   // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
@@ -912,7 +937,7 @@ export function EditorJSONtoForm(props: Props) {
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
-              isDisabled={!isExecutePermitted}
+              isDisabled={blockExecution}
               isLoading={isRunning}
               onClick={onRunClick}
               size="md"

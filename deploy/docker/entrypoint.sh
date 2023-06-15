@@ -21,6 +21,20 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
     || true
 fi
 
+if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
+
+  ## Trim APPSMITH_FILESTORE_IP and FILE_SHARE_NAME
+  FILESTORE_IP_ADDRESS="$(echo "$FILESTORE_IP_ADDRESS" | xargs)"
+  FILE_SHARE_NAME="$(echo "$FILE_SHARE_NAME" | xargs)"
+
+  echo "Running appsmith for cloudRun"
+  echo "Mounting File Sytem"
+  mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
+  echo "Mounted File Sytem"
+  echo "Setting HOSTNAME for Cloudrun"
+  export HOSTNAME="cloudrun"
+fi
+
 stacks_path=/appsmith-stacks
 
 function get_maximum_heap() {
@@ -96,6 +110,14 @@ setup_proxy_variables() {
     export http_proxy="$HTTP_PROXY"
   elif [[ -n ${http_proxy-} ]]; then
     export HTTP_PROXY="$http_proxy"
+  fi
+}
+
+setup_cdn_variable() {
+  # Ensure APPSMITH_CDN_URL always ends with a trailing /
+  if [[ -n "${APPSMITH_CDN_URL:-}" ]]; then
+    local cdn_url="$(echo "$APPSMITH_CDN_URL" | sed 's,//*$,,')"
+    export APPSMITH_CDN_URL="${cdn_url}/"
   fi
 }
 
@@ -368,9 +390,6 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
-  
-  # Copy Supervisor Listiner confs to conf.d
-  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -510,6 +529,7 @@ init_loading_pages(){
 init_loading_pages
 init_env_file
 setup_proxy_variables
+setup_cdn_variable
 unset_unused_variables
 
 check_mongodb_uri

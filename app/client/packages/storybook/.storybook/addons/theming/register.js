@@ -7,9 +7,10 @@ import {
   ColorControl,
   AddonPanel,
   BooleanControl,
+  NumberControl,
 } from "@storybook/components";
 import { useGlobals } from "@storybook/api";
-import { fontMetricsMap } from "@design-system/widgets";
+import { fontMetrics } from "@design-system/theming";
 import debounce from "lodash/debounce";
 
 const { Select } = Form;
@@ -31,7 +32,6 @@ const StyledSelect = styled(Select)`
   background-repeat: no-repeat, repeat;
   background-position: right 0.8em top 50%, 0 0;
   background-size: 0.65em auto, 100%;
-  max-width: 250px;
 `;
 
 addons.register("widgets/theming", () => {
@@ -43,14 +43,11 @@ addons.register("widgets/theming", () => {
       const { viewMode, storyId } = args;
 
       // show the addon only on wds
-      if (
+      return !!(
         storyId &&
         storyId?.includes("widgets") &&
         !!(viewMode && viewMode.match(/^(story|docs)$/))
-      )
-        return true;
-
-      return false;
+      );
     },
     render: ({ active, key }) => {
       const [globals, updateGlobals] = useGlobals();
@@ -67,7 +64,7 @@ addons.register("widgets/theming", () => {
 
       return (
         <AddonPanel active={active} key={key}>
-          <Wrapper>
+          <Wrapper style={{ maxWidth: "250px" }}>
             <div>
               <H6>Dark mode</H6>
               <BooleanControl
@@ -90,8 +87,8 @@ addons.register("widgets/theming", () => {
                 onChange={(e) => updateGlobal("borderRadius", e.target.value)}
               >
                 <option value="0px">Sharp</option>
-                <option value="0.375rem">Rounded</option>
-                <option value="1rem">Pill</option>
+                <option value="6px">Rounded</option>
+                <option value="14px">Pill</option>
               </StyledSelect>
             </div>
 
@@ -117,7 +114,7 @@ addons.register("widgets/theming", () => {
                 onChange={(e) => updateGlobal("fontFamily", e.target.value)}
               >
                 <option value="">System Default</option>
-                {Object.keys(fontMetricsMap)
+                {Object.keys(fontMetrics)
                   .filter((item) => {
                     return (
                       [
@@ -133,6 +130,20 @@ addons.register("widgets/theming", () => {
                     </option>
                   ))}
               </StyledSelect>
+            </div>
+
+            <div>
+              <H6>Root Unit Ratio</H6>
+              <NumberControl
+                name="root-unit"
+                label="Root Unit"
+                value={globals.rootUnit}
+                defaultValue={globals.rootUnit}
+                min={0.5}
+                max={2}
+                step={0.1}
+                onChange={(value) => updateGlobal("rootUnit", value)}
+              />
             </div>
           </Wrapper>
         </AddonPanel>

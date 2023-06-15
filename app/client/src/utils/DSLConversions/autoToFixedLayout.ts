@@ -33,7 +33,7 @@ const deletedResponsiveProperties = [
 
 /**
  * Main Method to convert Auto DSL to Fixed DSL
- * @param dsl DSL to be Converted to Fixed Layout
+ * @param dsl DSL to be Converted to fixed layout
  * @param destinationLayout Destination Layout Size
  * @returns Converted Fixed DSL
  */
@@ -60,10 +60,10 @@ export default function convertDSLtoFixed(
 }
 
 /**
- * Convert Normalized Auto DSL to Fixed Layout DSL
+ * Convert Normalized Auto DSL to fixed layout DSL
  * @param widgets Normalized Auto DSL to be converted
  * @param destinationLayout Destination Layout Size
- * @returns Converted Normalized Fixed Layout DSL
+ * @returns Converted Normalized fixed layout DSL
  */
 export function convertNormalizedDSLToFixed(
   widgets: CanvasWidgetsReduxState,
@@ -96,7 +96,7 @@ export function convertNormalizedDSLToFixed(
 }
 
 /**
- * Converts Widget with widgetId and it's children to Fixed layout recursively
+ * Converts Widget with widgetId and it's children to fixed layout recursively
  * @param widgets Normalized Auto DSL
  * @param widgetId
  * @param isMobile

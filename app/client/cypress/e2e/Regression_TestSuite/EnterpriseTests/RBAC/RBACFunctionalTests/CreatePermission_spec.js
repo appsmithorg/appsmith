@@ -1,11 +1,12 @@
 import homePageLocators from "../../../../../locators/HomePage";
+import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const locators = require("../../../../../locators/commonlocators.json");
-const testUrl1 = "https://mock-api.appsmith.com/echo/get";
+import datasourceFormData from "../../../../../fixtures/datasources.json";
 const omnibar = require("../../../../../locators/Omnibar.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -348,7 +349,7 @@ describe("Create Permission flow ", function () {
       APIName = uid;
       cy.CreateAPI(APIName);
     });
-    cy.enterDatasource(testUrl1);
+    cy.enterDatasource(datasourceFormData.mockApiUrl);
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
   });
@@ -370,7 +371,7 @@ describe("Create Permission flow ", function () {
       .eq(1)
       .should("have.text", "Create new")
       .next()
-      .should("have.text", "Create a new query, API or JS object");
+      .should("have.text", "Create a new query, API or JS Object");
     cy.get(omnibar.categoryTitle).eq(1).click();
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("POST", "/api/v1/collections/actions").as(
@@ -378,8 +379,7 @@ describe("Create Permission flow ", function () {
     );
 
     // Assert can create JS action from omnibar
-    cy.get(omnibar.createNew).contains("New JS object").click();
-    cy.wait(1000);
+    cy.get(omnibar.createNew).contains("New JS Object").click().wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
