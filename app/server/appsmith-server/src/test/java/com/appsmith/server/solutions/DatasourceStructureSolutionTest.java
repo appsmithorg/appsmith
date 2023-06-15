@@ -321,7 +321,7 @@ public class DatasourceStructureSolutionTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void verifyDefaultEnvironment() {
+    public void verifyEmptyStructureForPluginsWithNoGetStructureImplementation() {
         OAuth2 oAuth2 = new OAuth2();
         oAuth2.setGrantType(OAuth2.Type.CLIENT_CREDENTIALS);
         oAuth2.setAccessTokenUrl("https://mock.code/ouath2/token");
