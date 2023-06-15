@@ -14,7 +14,7 @@ import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 
 const PageTab = styled.div`
   display: flex;
-  max-width: 170px;
+  max-width: 12.5rem;
   align-self: flex-end;
   cursor: pointer;
   text-decoration: none;
