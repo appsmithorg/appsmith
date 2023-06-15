@@ -317,7 +317,9 @@ class CodeEditor extends Component<Props, State> {
     /**
      * Decides if AI is enabled by looking at repo, feature flags, props and environment
      */
-    this.AIEnabled = isAIEnabled(this.props.featureFlags, this.props.mode);
+    this.AIEnabled =
+      isAIEnabled(this.props.featureFlags, this.props.mode) &&
+      Boolean(this.props.AIAssisted);
   }
 
   componentDidMount(): void {
