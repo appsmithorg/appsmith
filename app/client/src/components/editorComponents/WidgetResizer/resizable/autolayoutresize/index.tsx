@@ -38,6 +38,7 @@ import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import { getAutoLayoutCanvasMetaWidth } from "selectors/autoLayoutSelectors";
 import type { StyledComponent } from "styled-components";
+import { getWidgetCssWidth } from "utils/autoLayout/flexWidgetUtils";
 
 export type AutoLayoutResizableProps = {
   hasAutoHeight: boolean;
@@ -517,7 +518,12 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       props.showResizeBoundary ? "show-boundary" : ""
     } ${pointerEvents ? "" : "pointer-event-none"}`;
   }, [props.className, pointerEvents, props.showResizeBoundary]);
-
+  const computedParentWidth = getWidgetCssWidth(
+    props.hasAutoWidth,
+    props.responsiveBehavior,
+    props.componentWidth,
+    parentWidth,
+  );
   return (
     <ResizeWrapper
       className={wrapperClassName}
@@ -529,7 +535,8 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           width:
             props.hasAutoWidth || !isResizing
               ? "100%"
-              : isResizing && `calc(100% + ${newDimensions.width}px)`,
+              : isResizing &&
+                `calc(${computedParentWidth} + ${newDimensions.width}px)`,
           height:
             props.hasAutoHeight || !isResizing
               ? "100%"
