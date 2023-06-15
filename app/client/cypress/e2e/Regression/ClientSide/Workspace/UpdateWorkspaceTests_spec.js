@@ -7,7 +7,7 @@ describe("Update Workspace", function () {
   let appid;
 
   it("1. Open the workspace general settings and update workspace name. The update should reflect in the workspace. It should also reflect in the workspace names on the left side and the workspace dropdown.	", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -26,7 +26,7 @@ describe("Update Workspace", function () {
         `${workspaceId}`,
       );
 
-      cy.NavigateToHome();
+      _.homePage.NavigateToHome();
       cy.get(homePage.leftPanelContainer).within(() => {
         cy.get("span").should((item) => {
           expect(item).to.contain.text(workspaceId);

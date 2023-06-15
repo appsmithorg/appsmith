@@ -1,8 +1,11 @@
 const dsl = require("../../../../fixtures/deprecatedWidgets.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Deprecation warning feature", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("deprecatedWidgets").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("should have deprecation warning on all the deprecated widgets", function () {

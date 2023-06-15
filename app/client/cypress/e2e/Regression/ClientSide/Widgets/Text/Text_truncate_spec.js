@@ -1,9 +1,11 @@
 const dsl = require("../../../../../fixtures/textNewDsl.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget Truncate Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("textNewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Check default overflow property is No overflow", function () {

@@ -1,6 +1,5 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const dsl = require("../../../../fixtures/editorContextdsl.json");
 let propertyControlSelector,
   propertyControlClickSelector,
   propertyControlVerifySelector,
@@ -9,22 +8,20 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-const agHelper = ObjectsRegistry.AggregateHelper;
-const ee = ObjectsRegistry.EntityExplorer;
-const apiPage = ObjectsRegistry.ApiPage;
-
 describe("Canvas context Property Pane", function () {
   before(() => {
-    cy.addDsl(dsl);
-    ee.AddNewPage("New blank page");
+    cy.fixture("editorContextdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
+    _.entityExplorer.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
-    ee.SelectEntityByName(page1, "Pages");
-    apiPage.CreateApi(api1);
-    ee.NavigateToSwitcher("Widgets");
+    _.entityExplorer.SelectEntityByName(page1, "Pages");
+    _.apiPage.CreateApi(api1);
+    _.entityExplorer.NavigateToSwitcher("Widgets");
   });
 
   beforeEach(() => {
-    agHelper.RefreshPage();
+    _.agHelper.RefreshPage();
   });
 
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";
@@ -63,7 +60,7 @@ describe("Canvas context Property Pane", function () {
       //Will modify the dsl to have maybe phone input widget to have a dropdown property control - Sangeeth
       //if (!Cypress.env("AIRGAPPED")) {
       //DropDown Property controls should have focus while switching between widgets, pages and Editor Panes
-      agHelper.RefreshPage();
+      _.agHelper.RefreshPage();
       propertyControlClickSelector = `.t--property-control-googlerecaptchaversion .rc-select-selection-search-input`;
       propertyControlVerifySelector =
         ".t--property-control-googlerecaptchaversion .rc-select-selection-search-input";
@@ -368,7 +365,7 @@ function verifyPropertyPaneContext(
   isStyleTab = false,
 ) {
   //select Button1 widget in page1
-  ee.SelectEntityByName(widgetName, "Widgets");
+  _.entityExplorer.SelectEntityByName(widgetName, "Widgets");
 
   //verify the Button1 is selected in page1
   cy.get(".t--property-pane-title").should("contain", widgetName);
@@ -381,28 +378,28 @@ function verifyPropertyPaneContext(
   focusCallback();
 
   //Select Camera1 widget
-  ee.SelectEntityByName("Camera1", "Widgets");
+  _.entityExplorer.SelectEntityByName("Camera1", "Widgets");
   cy.get(".t--property-pane-title").should("contain", "Camera1");
 
   //Switch back to Button1 widget
-  ee.SelectEntityByName(widgetName, "Widgets");
+  _.entityExplorer.SelectEntityByName(widgetName, "Widgets");
   cy.wait(500);
 
   //assert Callback
   assertCallback();
 
   //switch to page2 and back
-  ee.SelectEntityByName(page2, "Pages");
-  ee.SelectEntityByName("Text1", "Widgets");
+  _.entityExplorer.SelectEntityByName(page2, "Pages");
+  _.entityExplorer.SelectEntityByName("Text1", "Widgets");
   cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
-  ee.SelectEntityByName(page1, "Pages");
+  _.entityExplorer.SelectEntityByName(page1, "Pages");
   cy.wait(500);
 
   //assert Callback
   assertCallback();
 
   //Navigate to API1 Pane and back
-  ee.SelectEntityByName(api1, "Queries/JS");
+  _.entityExplorer.SelectEntityByName(api1, "Queries/JS");
   cy.get(".t--close-editor").click();
   cy.wait(500);
 

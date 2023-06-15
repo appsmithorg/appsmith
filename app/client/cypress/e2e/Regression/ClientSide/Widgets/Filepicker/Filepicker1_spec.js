@@ -1,29 +1,28 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
+import {
+  agHelper,
+  draggableWidgets,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("FilePicker Widget Functionality", function () {
   before(() => {
-    cy.visit("/applications");
-    cy.get(".t--new-button").first().click();
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("filepickerwidgetv2", { x: 200, y: 600 });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.FILEPICKER);
   });
 
-  it("should test allowed values", () => {
-    cy.openPropertyPane("filepickerwidgetv2");
-    cy.get(".t--property-control-allowedfiletypes .t--js-toggle").click({
-      force: true,
-    });
-    cy.testJsontext("allowedfiletypes", `[".csv"]`);
-    cy.get(
+  it("Should test allowed values", () => {
+    entityExplorer.SelectEntityByName("FilePicker1");
+    propPane.EnterJSContext("Allowed file types", `[".csv"]`);
+    agHelper.AssertElementAbsence(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
-    ).should("not.exist");
-    cy.testJsontext("allowedfiletypes", ".csv");
-    cy.get(
+    );
+    propPane.EnterJSContext("Allowed file types", `.csv`);
+    agHelper.AssertElementVisible(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
-    ).should("exist");
-    cy.testJsontext("allowedfiletypes", `[".csv", ".doc"]`);
-    cy.get(
+    );
+    propPane.EnterJSContext("Allowed file types", `[".csv", ".doc"]`);
+    agHelper.AssertElementAbsence(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
-    ).should("not.exist");
+    );
   });
 });

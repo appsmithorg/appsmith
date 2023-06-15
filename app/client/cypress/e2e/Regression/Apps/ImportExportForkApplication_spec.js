@@ -119,9 +119,9 @@ describe("Import, Export and Fork application and validate data binding", functi
             { force: true },
           );
           if (!Cypress.env("AIRGAPPED")) {
-            agHelper.ValidateNetworkStatus("@getReleaseItems");
+            agHelper.AssertNetworkStatus("@getReleaseItems");
           } else {
-            cy.wait(2000);
+            agHelper.Sleep(2000);
           }
 
           // import exported application in new workspace
