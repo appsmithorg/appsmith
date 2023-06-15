@@ -41,12 +41,14 @@ function initializeLinting() {
 export function lintTreeV2({
   cloudHosting,
   configTree,
+  forceLinting = false,
   unevalTree: unEvalTree,
 }: LintTreeRequestPayload) {
   initializeLinting();
-  const { pathsToLint } = isEmpty(cachedEntityTree)
-    ? lintFirstTree(unEvalTree as UnEvalTree, configTree)
-    : lintUpdatedTree(unEvalTree as UnEvalTree, configTree);
+  const { pathsToLint } =
+    isEmpty(cachedEntityTree) || forceLinting
+      ? lintFirstTree(unEvalTree as UnEvalTree, configTree)
+      : lintUpdatedTree(unEvalTree as UnEvalTree, configTree);
 
   const jsPropertiesState = mapValues(parsedJSEntitiesCache, (parsedJSEntity) =>
     parsedJSEntity.getParsedEntityConfig(),

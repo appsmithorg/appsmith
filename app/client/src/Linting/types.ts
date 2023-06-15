@@ -26,6 +26,7 @@ export interface LintTreeRequestPayload {
   unevalTree: DataTree;
   configTree: ConfigTree;
   cloudHosting: boolean;
+  forceLinting?: boolean;
 }
 
 export type LintRequest = {
@@ -36,6 +37,7 @@ export type LintRequest = {
 export type LintTreeSagaRequestData = {
   unevalTree: DataTree;
   configTree: ConfigTree;
+  forceLinting?: boolean;
 };
 export interface lintTriggerPathProps {
   userScript: string;
