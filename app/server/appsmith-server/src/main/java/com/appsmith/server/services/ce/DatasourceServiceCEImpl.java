@@ -730,10 +730,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 });
     }
 
-    // TODO: Remove the following snippet after client side API changes
     @Override
     public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId) {
-        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
+        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT)));
     }
 
 }
