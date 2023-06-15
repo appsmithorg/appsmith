@@ -1,4 +1,8 @@
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
@@ -51,6 +55,7 @@ export const CONFIG = {
     borderColor: Colors.GREY_5,
     backgroundColor: Colors.WHITE,
     minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
+    flexVerticalAlignment: FlexVerticalAlignment.Stretch,
     tabsObj: {
       tab1: {
         label: "Tab 1",

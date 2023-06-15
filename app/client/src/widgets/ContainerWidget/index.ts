@@ -60,7 +60,7 @@ export const CONFIG = {
       ],
     },
     version: 1,
-    flexVerticalAlignment: FlexVerticalAlignment.Top,
+    flexVerticalAlignment: FlexVerticalAlignment.Stretch,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
