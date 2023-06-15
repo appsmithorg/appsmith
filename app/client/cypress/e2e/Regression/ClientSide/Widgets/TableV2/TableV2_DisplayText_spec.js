@@ -57,7 +57,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
           cy.changeColumnType("URL");
         }
       });
-
+    cy.testJsonTextClearMultiline("displaytext");
     cy.testJsontext("displaytext", "{{['X','Y','Z'][currentIndex]}}");
     table.OpenNFilterTable("name", "contains", "Y");
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
@@ -80,7 +80,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
           cy.changeColumnType("URL");
         }
       });
-
+    cy.testJsonTextClearMultiline("displaytext");
     cy.testJsontext("displaytext", "{{['X','Y','Z'][currentIndex]}}");
     cy.sortColumn("name", "ascending");
     cy.readTableV2data(0, 0).then((data) => {
