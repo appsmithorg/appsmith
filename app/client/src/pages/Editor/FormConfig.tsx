@@ -24,7 +24,6 @@ import {
 import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
 import { setFocusableInputField } from "actions/editorContextActions";
 import { Icon, Tooltip } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -76,20 +75,24 @@ export default function FormConfig(props: FormConfigProps) {
   const controlRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch();
   const entityInfo = identifyEntityFromPath(window.location.pathname);
-  const currentEnvionment = getCurrentEnvironment();
-  const configProperty =
-    `datasourceStorages.${currentEnvionment}.` + props.config.configProperty;
 
   const handleOnFocus = () => {
-    if (configProperty) {
+    if (props.config.configProperty) {
       // Need an additional identifier to trigger another render when configProperty
       // are same for two different entitites
-      dispatch(setFocusableInputField(`${entityInfo.id}.${configProperty}`));
+      dispatch(
+        setFocusableInputField(
+          `${entityInfo.id}.${props.config.configProperty}`,
+        ),
+      );
     }
   };
 
   const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
-    getIsInputFieldFocused(state, `${entityInfo.id}.${configProperty}`),
+    getIsInputFieldFocused(
+      state,
+      `${entityInfo.id}.${props.config.configProperty}`,
+    ),
   );
 
   useEffect(() => {
@@ -182,9 +185,6 @@ function renderFormConfigTop(props: {
     url,
     urlText,
   } = { ...props.config };
-  const currentEnvionment = getCurrentEnvironment();
-  const configProperty =
-    `datasourceStorages.${currentEnvionment}.` + props.config.configProperty;
   return (
     <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
@@ -232,7 +232,7 @@ function renderFormConfigTop(props: {
               </FormLabel>
               {props.changesViewType && (
                 <ToggleComponentToJsonHandler
-                  configProperty={configProperty}
+                  configProperty={props.config.configProperty}
                   formName={props.formName}
                 />
               )}

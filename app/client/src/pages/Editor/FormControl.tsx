@@ -22,7 +22,6 @@ import history from "utils/history";
 import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
 import { getAction } from "selectors/entitiesSelector";
 import { get } from "lodash";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -42,15 +41,13 @@ function FormControl(props: FormControlProps) {
 
   // adding this to prevent excessive rerendering
   const [convertFormToRaw, setConvertFormToRaw] = useState(false);
-  const currentEnvionment = getCurrentEnvironment();
-  const configProperty =
-    `datasourceStorages.${currentEnvionment}.` + props.config.configProperty;
-  const viewType = getViewType(formValues, configProperty);
+
+  const viewType = getViewType(formValues, props.config.configProperty);
   const hidden = isHidden(formValues, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
       getConfigErrors(state, {
-        configProperty: configProperty,
+        configProperty: props?.config?.configProperty,
         formName: props.formName,
       }),
     shallowEqual,
@@ -59,7 +56,9 @@ function FormControl(props: FormControlProps) {
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
   const isNewQuery =
     new URLSearchParams(window.location.search).get("showTemplate") === "true";
-  const isQueryBodyField = QUERY_BODY_FIELDS.includes(configProperty);
+  const isQueryBodyField = QUERY_BODY_FIELDS.includes(
+    props?.config?.configProperty,
+  );
 
   const showTemplate =
     isNewQuery && formValues?.datasource?.pluginId && isQueryBodyField;
@@ -85,7 +84,7 @@ function FormControl(props: FormControlProps) {
       miscFormData?.formToNativeQuery &&
       miscFormData.formToNativeQuery?.status === "SUCCESS"
     ) {
-      const configPathValue = get(actionValues, configProperty);
+      const configPathValue = get(actionValues, props.config?.configProperty);
       if (
         !convertFormToRaw &&
         typeof configPathValue === "undefined" &&
@@ -95,7 +94,7 @@ function FormControl(props: FormControlProps) {
         dispatch(
           change(
             props?.formName || QUERY_EDITOR_FORM_NAME,
-            configProperty,
+            props?.config?.configProperty,
             miscFormData.formToNativeQuery?.data,
           ),
         );
@@ -145,7 +144,7 @@ function FormControl(props: FormControlProps) {
         >
           <div
             className={`t--form-control-${props.config.controlType}`}
-            data-replay-id={btoa(configProperty)}
+            data-replay-id={btoa(props.config.configProperty)}
           >
             {showTemplate && !convertFormToRaw ? (
               <TemplateMenu
@@ -153,7 +152,7 @@ function FormControl(props: FormControlProps) {
                   createTemplate(
                     templateString,
                     props?.formName,
-                    configProperty,
+                    props?.config?.configProperty,
                   )
                 }
                 pluginId={formValues?.datasource?.pluginId || ""}
@@ -161,7 +160,7 @@ function FormControl(props: FormControlProps) {
             ) : viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
                 componentControlType={props.config.controlType}
-                configProperty={configProperty}
+                configProperty={props.config.configProperty}
                 customStyles={props?.config?.customStyles}
                 disabled={props.config.disabled}
                 formName={props.formName}
