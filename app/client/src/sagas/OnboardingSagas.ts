@@ -14,6 +14,7 @@ import {
 } from "redux-saga/effects";
 import {
   getFirstTimeUserOnboardingApplicationIds,
+  getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
   removeAllFirstTimeUserOnboardingApplicationIds,
   removeFirstTimeUserOnboardingApplicationId,
   setEnableStartSignposting,
@@ -85,6 +86,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import { isUndefined } from "lodash";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -427,7 +429,6 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: action.payload.applicationId,
   });
-  yield put(setSignpostingOverlay(true));
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
@@ -438,9 +439,23 @@ function* firstTimeUserOnboardingInitSaga(
   if (!isEditorInitialised) {
     yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
+
+  let showOverlay = true;
+
+  // We don't want to show the signposting overlay when we intend to show the
+  // telemetry callout
+  const currentUser: User | undefined = yield select(getCurrentUser);
+  if (currentUser?.isSuperUser && !isAirgapped()) {
+    const isAnonymousDataPopupAlreadyOpen: unknown = yield call(
+      getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
+    );
+    if (!isAnonymousDataPopupAlreadyOpen) {
+      showOverlay = false;
+    }
+  }
+
+  yield put(setSignpostingOverlay(showOverlay));
   // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
-  // is loaded
-  yield put(setSignpostingOverlay(true));
   yield delay(1000);
   yield put({
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,

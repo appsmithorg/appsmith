@@ -94,6 +94,13 @@ export const showSignpostingTooltip = (payload: boolean) => {
   };
 };
 
+export const showAnonymousDataPopup = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_ANONYMOUS_DATA_POPUP,
+    payload,
+  };
+};
+
 export const markStepComplete = () => {
   return {
     type: ReduxActionTypes.GUIDED_TOUR_MARK_STEP_COMPLETED,

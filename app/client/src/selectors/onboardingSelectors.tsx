@@ -56,6 +56,8 @@ export const getSignpostingSetOverlay = (state: AppState) =>
   state.ui.onBoarding.setOverlay;
 export const getSignpostingTooltipVisible = (state: AppState) =>
   state.ui.onBoarding.showSignpostingTooltip;
+export const getIsAnonymousDataPopupVisible = (state: AppState) =>
+  state.ui.onBoarding.showAnonymousDataPopup;
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>
