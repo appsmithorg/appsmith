@@ -30,8 +30,7 @@ describe("Table widget one click binding feature", () => {
     _.agHelper.AssertElementExist(_.table._showPageItemsCount);
     (cy as any).makeColumnEditable("id");
     _.agHelper.GetNClick(_.table._addNewRow, 0, true);
-    const id = Cypress._.random(0, 1e6);
-    (cy as any).enterTableCellValue(0, 0, id);
+    (cy as any).enterTableCellValue(0, 0, 3);
     (cy as any).enterTableCellValue(1, 0, "cypress@appsmith");
     (cy as any).enterTableCellValue(2, 0, " 2016-06-22 19:10:25-07");
     (cy as any).enterTableCellValue(3, 0, " 2016-06-22 19:10:25-07");
