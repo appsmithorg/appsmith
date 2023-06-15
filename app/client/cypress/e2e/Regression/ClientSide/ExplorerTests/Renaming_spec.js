@@ -66,10 +66,10 @@ describe("Api Naming conflict on different pages test", function () {
 });
 
 describe("Entity Naming conflict test", function () {
-  it("3. Expects JS objects and actions to not have identical names on the same page.", function () {
+  it("3. Expects JS Objects and actions to not have identical names on the same page.", function () {
     cy.log("Login Successful");
     ee.ExpandCollapseEntity("Queries/JS", true);
-    // create JS object and name it
+    // create JS Object and name it
     jsEditor.CreateJSObject('return "Hello World";');
     cy.get(`.t--entity-item:contains('JSObject1')`).within(() => {
       cy.get(".t--context-menu").click({ force: true });

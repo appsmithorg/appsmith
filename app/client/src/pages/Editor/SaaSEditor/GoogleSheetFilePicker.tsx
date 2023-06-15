@@ -1,10 +1,14 @@
-import { removeClassFromDocumentBody } from "pages/utils";
+import { removeClassFromDocumentRoot } from "pages/utils";
 import React, { useState, useEffect } from "react";
 import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
 import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  createMessage,
+  GOOGLE_SHEETS_FILE_PICKER_TITLE,
+} from "@appsmith/constants/messages";
 
 interface Props {
   datasourceId: string;
@@ -54,7 +58,6 @@ function GoogleSheetFilePicker({
       // When the reconnect modal the ads modal disables pointer events everywhere else.
       // To enable selection from the google sheets picker we set pointer events auto to it.
       if (!!element) {
-        element.style.opacity = "1";
         element.style.pointerEvents = "auto";
       }
       elements.forEach((element) => {
@@ -97,8 +100,6 @@ function GoogleSheetFilePicker({
   // Ref: https://github.com/appsmithorg/appsmith/issues/22753
   useEffect(() => {
     if (!!pickerVisible) {
-      removeClassFromDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
-
       // Event would be emitted when file picker initialisation is done,
       // but its either showing cookies permission page or the files to select
       AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_INITIATED");
@@ -108,30 +109,48 @@ function GoogleSheetFilePicker({
   // This triggers google's picker object from google apis script to create file picker and display it
   // It takes google sheet token and project id as inputs
   const createPicker = async (accessToken: string, projectID: string) => {
-    const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
+    const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS);
     view.setMimeTypes("application/vnd.google-apps.spreadsheet");
+    view.setMode(google.picker.DocsViewMode.LIST);
+    const title = createMessage(GOOGLE_SHEETS_FILE_PICKER_TITLE);
     const picker = new google.picker.PickerBuilder()
       .enableFeature(google.picker.Feature.NAV_HIDDEN)
       .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
       .setAppId(projectID)
       .setOAuthToken(accessToken)
       .addView(view)
+      .setTitle(title)
       .setCallback(pickerCallback)
       .build();
     picker.setVisible(true);
     setPickerVisible(true);
   };
 
-  const pickerCallback = async (data: any) => {
-    if (data.action === FilePickerActionStatus.LOADED) {
-      // This event would be emitted when file picker is showing files,
-      // and user has to select files or cancel selection
-      AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_LOADED");
+  const addAnalyticalEvents = (data: any) => {
+    switch (data?.action) {
+      case FilePickerActionStatus.LOADED:
+        AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_FILES_LISTED");
+        break;
+      case FilePickerActionStatus.CANCEL:
+        AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_CANCEL");
+        break;
+      case FilePickerActionStatus.PICKED:
+        AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_PICKED", {
+          numberOfSheetsSelected: data?.docs?.length,
+        });
+        break;
+      default:
+        break;
     }
+  };
+
+  const pickerCallback = async (data: any) => {
+    addAnalyticalEvents(data);
     if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED
     ) {
+      removeClassFromDocumentRoot(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
       setPickerVisible(false);
       const fileIds = data?.docs?.map((element: any) => element.id) || [];
       dispatch(

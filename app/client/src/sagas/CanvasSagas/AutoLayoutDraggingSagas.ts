@@ -104,7 +104,7 @@ function* addWidgetAndReorderSaga(
 
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     log.debug(
-      "Auto Layout : add new widget took",
+      "Auto-layout : add new widget took",
       performance.now() - start,
       "ms",
     );
@@ -156,7 +156,7 @@ function* autoLayoutReorderSaga(
 
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(
-      "Auto Layout : reorder computations took",
+      "Auto-layout : reorder computations took",
       performance.now() - start,
       "ms",
     );

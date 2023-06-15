@@ -180,7 +180,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false, true);
   });
 
-  it("5. TC 1928 - Shows correct lint error with Query is created or Deleted", () => {
+  it("5. TC 1928 - Shows correct lint error with Query is created or deleted", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",

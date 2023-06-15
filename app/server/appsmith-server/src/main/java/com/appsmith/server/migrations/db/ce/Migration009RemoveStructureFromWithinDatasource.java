@@ -35,11 +35,11 @@ public class Migration009RemoveStructureFromWithinDatasource {
 
     @Execution
     public void executeMigration() {
-        DatabaseChangelog1.dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
+        DatabaseChangelog1.dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_dsId_envId");
 
         DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceStorageStructure.class,
                 DatabaseChangelog1.makeIndex("datasourceId", "envId")
-                        .unique().named("dsConfigStructure_datasourceId_envId_compound_index")
+                        .unique().named("dsConfigStructure_dsId_envId")
         );
 
         Query query = query(where("structure").exists(true));

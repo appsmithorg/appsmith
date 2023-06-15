@@ -11,6 +11,7 @@ import {
   UPGRADE,
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
+  BUSINESS_TAG,
 } from "@appsmith/constants/messages";
 import {
   Button,
@@ -104,14 +105,6 @@ export type AuthMethodType = {
   icon?: string;
 };
 
-const Label = styled(Tag)<{ business?: boolean }>`
-  ${(props) =>
-    props.business &&
-    `
-    color: var(--ads-v2-color-fg);
-  `};
-`;
-
 const ButtonWrapper = styled.div`
   min-width: 100px;
   text-align: right;
@@ -186,8 +179,8 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         {authMethods &&
           authMethods.map((method) => {
             return (
-              <>
-                <MethodCard key={method.id}>
+              <div key={method.id}>
+                <MethodCard>
                   {method.icon ? (
                     <Icon name={method.icon} size="lg" />
                   ) : (
@@ -201,12 +194,9 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     >
                       {method.label}&nbsp;
                       {method.needsUpgrade && (
-                        <>
-                          <Label business isClosable={false}>
-                            Business
-                          </Label>
-                          &nbsp;
-                        </>
+                        <Tag isClosable={false}>
+                          {createMessage(BUSINESS_TAG)}
+                        </Tag>
                       )}
                       {method.isConnected && (
                         <Tooltip
@@ -248,7 +238,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   <ActionButton method={method} />
                 </MethodCard>
                 <Divider />
-              </>
+              </div>
             );
           })}
       </SettingsFormWrapper>

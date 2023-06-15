@@ -1,8 +1,8 @@
 import React from "react";
 import {
   createMessage,
-  CURRENT_PAGE_DISCARD_WARNING,
   DISCARD_CHANGES_WARNING,
+  DISCARD_MESSAGE,
 } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCurrentPageName } from "selectors/editorSelectors";
@@ -15,9 +15,10 @@ const Container = styled.div`
 `;
 
 export default function DiscardChangesWarning({
-  discardDocUrl,
   onCloseDiscardChangesWarning,
 }: any) {
+  const discardDocUrl =
+    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/commit-and-push";
   const currentPageName = useSelector(getCurrentPageName) || "";
   const modifiedPageList = useSelector(getGitStatus)?.modified.map(
     (page: string) => page.toLocaleLowerCase(),
@@ -43,9 +44,7 @@ export default function DiscardChangesWarning({
       >
         <Text kind="heading-xs">{createMessage(DISCARD_CHANGES_WARNING)}</Text>
         <br />
-        {isCurrentPageDiscardable
-          ? createMessage(CURRENT_PAGE_DISCARD_WARNING, currentPageName)
-          : null}
+        {isCurrentPageDiscardable ? createMessage(DISCARD_MESSAGE) : null}
       </Callout>
     </Container>
   );

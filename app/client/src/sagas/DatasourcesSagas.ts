@@ -2,6 +2,7 @@
 import {
   all,
   call,
+  fork,
   put,
   select,
   take,
@@ -41,7 +42,11 @@ import {
   getDatasourceActionRouteInfo,
   getPlugin,
   getEditorConfig,
+  getPluginByPackageName,
+  getDatasourcesUsedInApplicationByActions,
+  getDatasourceStructureById,
 } from "selectors/entitiesSelector";
+import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import type {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
@@ -60,7 +65,12 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import DatasourcesApi from "api/DatasourcesApi";
-import type { Datasource, TokenResponse } from "entities/Datasource";
+import type {
+  Datasource,
+  DatasourceStructure,
+  MockDatasource,
+  TokenResponse,
+} from "entities/Datasource";
 import { AuthenticationStatus } from "entities/Datasource";
 import { FilePickerActionStatus } from "entities/Datasource";
 import {
@@ -131,7 +141,7 @@ import {
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { toast } from "design-system";
 import { fetchPluginFormConfig } from "actions/pluginActions";
-import { addClassToDocumentBody } from "pages/utils";
+import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import {
   getFormDiffPaths,
@@ -163,6 +173,32 @@ function* fetchDatasourcesSaga(
   }
 }
 
+function* handleFetchDatasourceStructureOnLoad() {
+  try {
+    // we fork to prevent the call from blocking
+    yield fork(fetchDatasourceStructureOnLoad);
+  } catch (error) {}
+}
+
+function* fetchDatasourceStructureOnLoad() {
+  try {
+    // get datasources of all actions used in the the application
+    const datasourcesUsedInApplication: Datasource[] = yield select(
+      getDatasourcesUsedInApplicationByActions,
+    );
+
+    for (const datasource of datasourcesUsedInApplication) {
+      // it is very unlikely for this to happen, but it does not hurt to check.
+      const doesDatasourceStructureAlreadyExist: DatasourceStructure =
+        yield select(getDatasourceStructureById, datasource.id);
+      if (doesDatasourceStructureAlreadyExist) {
+        continue;
+      }
+      yield put(fetchDatasourceStructure(datasource.id, true));
+    }
+  } catch (error) {}
+}
+
 function* fetchMockDatasourcesSaga() {
   try {
     const response: ApiResponse = yield DatasourcesApi.fetchMockDatasources();
@@ -186,6 +222,7 @@ interface addMockDb
       workspaceId: string;
       pluginId: string;
       packageName: string;
+      skipRedirection?: boolean;
     },
     unknown,
     unknown
@@ -195,7 +232,8 @@ interface addMockDb
 
 export function* addMockDbToDatasources(actionPayload: addMockDb) {
   try {
-    const { name, packageName, pluginId, workspaceId } = actionPayload.payload;
+    const { name, packageName, pluginId, skipRedirection, workspaceId } =
+      actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
@@ -220,7 +258,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
+
       const isInGuidedTour: boolean = yield select(inGuidedTour);
+
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
@@ -232,7 +272,10 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           }),
         );
       } else {
-        if (isInGuidedTour) return;
+        if (isInGuidedTour || skipRedirection) {
+          return;
+        }
+
         history.push(
           integrationEditorURL({
             pageId,
@@ -1172,6 +1215,36 @@ function* fetchDatasourceStructureSaga(
   }
 }
 
+function* addAndFetchDatasourceStructureSaga(
+  action: ReduxAction<MockDatasource>,
+) {
+  const plugin: Plugin = yield select((state: AppState) =>
+    getPluginByPackageName(state, action.payload.packageName),
+  );
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+
+  yield put(
+    addMockDatasourceToWorkspace(
+      action.payload.name,
+      workspaceId,
+      plugin.id,
+      plugin.packageName,
+      "",
+      true,
+    ),
+  );
+
+  const result: ReduxAction<Datasource> = yield take([
+    ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS,
+    ReduxActionErrorTypes.ADD_MOCK_DATASOURCES_ERROR,
+  ]);
+
+  if (result.type === ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS) {
+    yield put(fetchDatasourceStructure(result.payload.id, true));
+  }
+}
+
 function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
@@ -1359,12 +1432,7 @@ function* filePickerActionCallbackSaga(
     const authStatus =
       action === FilePickerActionStatus.PICKED
         ? AuthenticationStatus.SUCCESS
-        : AuthenticationStatus.FAILURE;
-    set(
-      datasource,
-      "datasourceConfiguration.authentication.authenticationStatus",
-      authStatus,
-    );
+        : AuthenticationStatus.FAILURE_FILE_NOT_SELECTED;
 
     // Once files are selected in case of import, set this flag
     set(datasource, "isConfigured", true);
@@ -1375,7 +1443,7 @@ function* filePickerActionCallbackSaga(
       pageId: pageId,
       datasourceId: datasource?.id,
       oAuthPassOrFailVerdict:
-        authStatus === AuthenticationStatus.FAILURE
+        authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED
           ? createMessage(FILES_NOT_SELECTED_EVENT)
           : authStatus.toLowerCase(),
       workspaceId: datasource?.workspaceId,
@@ -1610,7 +1678,7 @@ function* loadFilePickerSaga() {
     !!appsmithToken &&
     !!gapiScriptLoaded
   ) {
-    addClassToDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+    addClassToDocumentRoot(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
   }
 }
 
@@ -1622,6 +1690,11 @@ function* updateDatasourceAuthStateSaga(
 ) {
   try {
     const { authStatus, datasource } = actionPayload.payload;
+    set(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationStatus",
+      authStatus,
+    );
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasource(datasource, datasource.id);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -1750,6 +1823,14 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
       datasourceDiscardActionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
+      addAndFetchDatasourceStructureSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      handleFetchDatasourceStructureOnLoad,
     ),
   ]);
 }

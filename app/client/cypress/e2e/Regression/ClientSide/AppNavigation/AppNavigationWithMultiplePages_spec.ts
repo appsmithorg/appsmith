@@ -1,26 +1,26 @@
-import commonlocators from "../../../../locators/commonlocators.json";
-import appNavigationLocators from "../../../../locators/AppNavigation.json";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const deployMode = ObjectsRegistry.DeployMode;
 let currentUrl: string | null = null;
 
 describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
-    _.agHelper.GetNClick(appNavigationLocators.appSettingsButton);
-    _.agHelper.GetNClick(appNavigationLocators.navigationSettingsTab);
+    _.agHelper.GetNClick(_.appSettings.locators._appSettings);
+    _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
     _.agHelper.GetNClick(
-      appNavigationLocators.navigationSettings.orientationOptions.side,
+      _.appSettings.locators._navigationSettings._orientationOptions._side,
     );
     _.agHelper.GetNClickByContains(
-      appNavigationLocators.navigationMenuItem,
+      _.appSettings.locators._navigationMenuItem,
       "Page1",
     );
   });
   it("2. Validate change with height width for fill widget - Input widget", function () {
-    _.autoLayout.ConvertToAutoLayout();
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 100, 200);
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 10, 20);
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      100,
+      200,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.INPUT_V2, 10, 20);
     _.agHelper.Sleep();
     cy.url().then((url) => {
       currentUrl = url;
@@ -28,13 +28,15 @@ describe("Page orientation and navigation related usecases ", function () {
     for (let i = 0; i < 25; i++) {
       _.entityExplorer.AddNewPage();
     }
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 10, 20);
-    _.propPane.navigateToPage("Page1", "onClick");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 10, 20);
+    //_.propPane.navigateToPage("Page1", "onClick");
+    _.propPane.NavigateToPage("Page1", "onClick");
     //cy.navigateOnClick("Page1", "onClick");
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
     _.agHelper.Sleep();
     _.agHelper.GetNClickByContains("button", "Submit");
-    cy.get(appNavigationLocators.navigationMenuItem)
+    _.agHelper
+      .GetElement(_.appSettings.locators._navigationMenuItem)
       .contains("Page1")
       .parent()
       .parent()
@@ -42,7 +44,7 @@ describe("Page orientation and navigation related usecases ", function () {
       .parent()
       .parent()
       .should("have.class", "is-active");
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
   });
   it("3. Navigate to widget url and validate", () => {
     if (currentUrl !== null) {

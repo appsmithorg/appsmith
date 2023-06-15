@@ -77,14 +77,16 @@ export class AggregateHelper {
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
     let pageid: string, layoutId;
-    const appId: string | null = localStorage.getItem("applicationId");
+    let appId: string | null;
     cy.url().then((url) => {
       pageid = url.split("/")[5]?.split("-").pop() as string;
       cy.log(pageid + "page id");
       //Fetch the layout id
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
-        layoutId = JSON.parse(respBody).data.layouts[0].id;
+        const data = JSON.parse(respBody).data;
+        layoutId = data.layouts[0].id;
+        appId = data.applicationId;
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
@@ -317,15 +319,18 @@ export class AggregateHelper {
   }
 
   public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
-    cy.wait(aliasName).then(($apiCall: any) => {
-      expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
-    });
+    // cy.wait(aliasName).then(($apiCall: any) => {
+    //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
+    // });
 
     // should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
+    cy.wait(aliasName)
+      .its("response.body.responseMeta.status")
+      .should("eq", expectedStatus);
 
     //To improve below:
     // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
@@ -550,11 +555,12 @@ export class AggregateHelper {
     index = 0,
     force = false,
     waitTimeInterval = 500,
+    ctrlKey = false,
   ) {
     return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
-      .click({ force: force })
+      .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
   }
 
@@ -896,7 +902,7 @@ export class AggregateHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public UpdateInput(selector: string, value: string, force: false) {
+  public UpdateInput(selector: string, value: string, force = false) {
     this.GetElement(selector)
       .find("input")
       .clear({ force: force })
@@ -941,6 +947,7 @@ export class AggregateHelper {
   public UpdateInputValue(selector: string, value: string) {
     this.GetElement(selector)
       .closest("input")
+      .clear()
       //.type(this.selectAll)
       .type(value, { delay: 0 });
   }
@@ -1210,6 +1217,10 @@ export class AggregateHelper {
 
   GetWidgetHeight(widgetSelector: string) {
     return this.GetElement(widgetSelector).invoke("height");
+  }
+
+  GetWidgetCSSHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("css", "height");
   }
 
   GetWidgetByName(widgetName: string) {

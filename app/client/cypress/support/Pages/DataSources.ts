@@ -13,6 +13,7 @@ const DataSourceKVP = {
   Firestore: "Firestore",
   Elasticsearch: "Elasticsearch",
   Redis: "Redis",
+  Oracle: "Oracle",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -203,6 +204,9 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
+  public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
+  private _getJSONswitchLocator = (fieldLocator: string) =>
+    `[data-testid='${fieldLocator}.data-JS']`;
   _nestedWhereClauseKey = (index: number) =>
     ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
     index +
@@ -242,7 +246,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 0);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.Sleep(500);
+    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("public.users")`,
@@ -433,6 +437,32 @@ export class DataSources {
     );
   }
 
+  public FillOracleDSForm(
+    shouldAddTrailingSpaces = false,
+    username = "",
+    password = "",
+  ) {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["oracle-host"] + "  "
+      : datasourceFormData["oracle-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["oracle-name"] + "  "
+      : datasourceFormData["oracle-name"];
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["oracle-port"].toString(),
+    );
+    cy.get(this._databaseName).clear().type(databaseName);
+    this.ExpandSectionByName("Authentication");
+    cy.get(this._username).type(
+      username == "" ? datasourceFormData["oracle-username"] : username,
+    );
+    cy.get(this._password).type(
+      password == "" ? datasourceFormData["oracle-password"] : password,
+    );
+  }
+
   public FillMongoDSForm(shouldAddTrailingSpaces = false) {
     const hostAddress = shouldAddTrailingSpaces
       ? datasourceFormData["mongo-host"] + "  "
@@ -494,12 +524,12 @@ export class DataSources {
 
   public FillAirtableDSForm() {
     this.ValidateNSelectDropdown(
-      "Authentication Type",
+      "Authentication type",
       "Please select an option",
-      "Bearer Token",
+      "Bearer token",
     );
     this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Bearer Token"),
+      this.locator._inputFieldByName("Bearer token"),
       Cypress.env("AIRTABLE_BEARER"),
     );
     this.agHelper.Sleep();
@@ -807,6 +837,7 @@ export class DataSources {
 
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
     cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
     cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
@@ -832,6 +863,16 @@ export class DataSources {
         expectedStatus,
       );
     }
+  }
+
+  AssertRunButtonDisability(disabled = false) {
+    let query = "";
+    if (disabled) {
+      query = "be.disabled";
+    } else {
+      query = "not.be.disabled";
+    }
+    cy.get(this._runQueryBtn).should(query);
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
@@ -916,7 +957,8 @@ export class DataSources {
       | "Arango"
       | "Firestore"
       | "Elasticsearch"
-      | "Redis",
+      | "Redis"
+      | "Oracle",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -932,6 +974,7 @@ export class DataSources {
         dataSourceName = dsType + " " + guid;
         this.agHelper.RenameWithInPane(dataSourceName, false);
         if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
+        else if (DataSourceKVP[dsType] == "Oracle") this.FillOracleDSForm();
         else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
         else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
@@ -1279,5 +1322,22 @@ export class DataSources {
         );
         break;
     }
+  }
+
+  public EnterJSContext({
+    fieldLabel,
+    fieldProperty,
+    fieldValue,
+  }: {
+    fieldProperty: string;
+    fieldValue: string;
+    fieldLabel: string;
+  }) {
+    this.agHelper.GetNClick(this._getJSONswitchLocator(fieldProperty));
+    this.agHelper.EnterValue(fieldValue, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: fieldLabel,
+    });
   }
 }
