@@ -39,6 +39,7 @@ describe("Fork application across workspaces", function () {
     cy.wait("@postForkAppWorkspace")
       .its("response.body.responseMeta.status")
       .should("eq", 200);
+    cy.wait("@getWorkspace");
     // check that forked application has same dsl
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
