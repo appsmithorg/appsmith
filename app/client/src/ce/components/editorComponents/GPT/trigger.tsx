@@ -6,7 +6,3 @@ export const APPSMITH_AI = "AI";
 export function isAIEnabled(ff: FeatureFlags, modes: TEditorModes) {
   return false;
 }
-
-export function GPTTrigger() {
-  return null;
-}
