@@ -32,10 +32,10 @@ describe("@design-system/widgets/Button", () => {
   });
 
   it("sets variant based on prop", () => {
-    render(<Button variant="primary" />);
+    render(<Button variant="filled" />);
     expect(screen.getByRole("button")).toHaveAttribute(
       "data-variant",
-      "primary",
+      "filled",
     );
   });
 

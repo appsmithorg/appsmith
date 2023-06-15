@@ -1,8 +1,10 @@
-const dsl = require("../../fixtures/tableNewDsl.json");
+import * as _ from "../../support/Objects/ObjectsCore";
 
 describe("prevent duplicate column name in table", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   //todo(yash/tolu/pawan) reverting this test for now

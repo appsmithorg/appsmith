@@ -1,11 +1,12 @@
-const dsl = require("../../../../fixtures/previewMode.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Preview mode functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("previewMode").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Checks entity explorer and property pane visiblity", function () {

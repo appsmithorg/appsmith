@@ -7,7 +7,7 @@ describe("Workspace name validation spec", function () {
   let workspaceId;
   let newWorkspaceName;
   it("1. create workspace with leading space validation", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
 
     cy.wait("@createWorkspace").then((interception) => {
@@ -18,8 +18,8 @@ describe("Workspace name validation spec", function () {
       _.agHelper.ClickOutside();
     });
   });
+
   it("2. creates workspace and checks that workspace name is editable and create workspace with special characters validation", function () {
-    cy.createWorkspace();
     cy.generateUUID().then((uid) => {
       workspaceId =
         "kadjhfkjadsjkfakjdscajdsnckjadsnckadsjcnanakdjsnckjdscnakjdscnnadjkncakjdsnckjadsnckajsdfkjadshfkjsdhfjkasdhfkjasdhfjkasdhjfasdjkfhjhdsfjhdsfjhadasdfasdfadsasdf" +
@@ -28,7 +28,7 @@ describe("Workspace name validation spec", function () {
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
         // check if user icons exists in that workspace on homepage
         cy.get(homePage.workspaceList.concat(workspaceId).concat(")"))
           .scrollIntoView()
@@ -51,7 +51,7 @@ describe("Workspace name validation spec", function () {
         );
       });
     });
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     // create workspace with special character
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
