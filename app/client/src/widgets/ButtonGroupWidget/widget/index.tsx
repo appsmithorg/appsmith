@@ -588,6 +588,7 @@ class ButtonGroupWidget extends BaseWidget<
         buttonClickHandler={this.handleClick}
         buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
+        isAutoLayout={this.isAutoLayoutMode}
         isDisabled={this.props.isDisabled}
         minPopoverWidth={minPopoverWidth}
         orientation={this.props.orientation}

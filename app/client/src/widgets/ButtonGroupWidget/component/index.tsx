@@ -148,6 +148,7 @@ const PopoverStyles = createGlobalStyle<{
 `;
 
 interface ButtonStyleProps {
+  isAutoLayout: boolean;
   isHorizontal: boolean;
   borderRadius?: string;
   buttonVariant?: ButtonVariant; // solid | outline | ghost
@@ -183,10 +184,12 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   align-items: center;
   padding: 0px 10px;
 
-  .auto-layout & {
-    min-height: 32px;
-    min-width: 120px;
-  }
+  ${({ isAutoLayout }) =>
+    isAutoLayout &&
+    `
+      min-height: 32px;
+      min-width: 120px;
+    `};
 
   &:hover,
   &:active,
@@ -608,6 +611,7 @@ class ButtonGroupComponent extends React.Component<
                       buttonVariant={buttonVariant}
                       disabled={isButtonDisabled}
                       iconAlign={button.iconAlign}
+                      isAutoLayout={this.props.isAutoLayout}
                       isHorizontal={isHorizontal}
                       isLabel={!!button.label}
                       key={button.id}
@@ -653,6 +657,7 @@ class ButtonGroupComponent extends React.Component<
                 buttonVariant={buttonVariant}
                 disabled={isButtonDisabled}
                 iconAlign={button.iconAlign}
+                isAutoLayout={this.props.isAutoLayout}
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
                 onClick={getOnClick(button)}
@@ -724,6 +729,7 @@ export interface ButtonGroupComponentProps {
     callback: () => void,
   ) => void;
   groupButtons: Record<string, GroupButtonProps>;
+  isAutoLayout: boolean;
   isDisabled: boolean;
   orientation: string;
   renderMode: RenderMode;
