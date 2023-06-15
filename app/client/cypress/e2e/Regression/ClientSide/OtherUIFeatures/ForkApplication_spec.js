@@ -114,27 +114,25 @@ describe("Fork application across workspaces", function () {
     });
   });
 
-  it.skip("Mark application as forkable", () => {
+  it("Mark application as forkable", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToEmbedSettings();
     _.embedSettings.ToggleMarkForkable();
 
     _.inviteModal.OpenShareModal();
-    _.homePage.InviteUserToApplication(
-      Cypress.env("TESTUSERNAME1"),
-      "App Viewer",
-      false,
-    );
-    _.inviteModal.CloseModal();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.InviteUserToApplication(`${uid}@appsmith.com`, "App Viewer");
+      _.inviteModal.CloseModal();
 
-    _.deployMode.DeployApp();
-    cy.url().then((url) => {
-      forkableAppUrl = url;
-      cy.LogOut();
-      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-      cy.visit(forkableAppUrl);
+      _.deployMode.DeployApp();
 
-      _.agHelper.AssertElementVisible(applicationLocators.forkButton);
+      cy.url().then((url) => {
+        cy.LogOut();
+        cy.Signup(`${uid}@appsmith.com`, uid);
+        cy.visit(url);
+        _.agHelper.AssertElementVisible(applicationLocators.forkButton);
+      });
     });
   });
 });
