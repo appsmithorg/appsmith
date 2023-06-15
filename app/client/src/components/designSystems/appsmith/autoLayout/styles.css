@@ -27,6 +27,7 @@
   flex-wrap: wrap;
   row-gap: 8px;
   flex-basis: auto;
+  border: 1px dashed red;
 
   @media (width > 480px) {
     flex-wrap: nowrap;
