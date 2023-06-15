@@ -255,7 +255,7 @@ public class GitControllerCE {
     public Mono<ResponseDTO<Application>> discardChanges(@PathVariable String defaultApplicationId,
                                                          @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
         log.debug("Going to discard changes for branch {} with defaultApplicationId {}", branchName, defaultApplicationId);
-        return service.discardChanges(defaultApplicationId, branchName)
+        return service.discardChanges(defaultApplicationId, branchName, doPull)
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 
