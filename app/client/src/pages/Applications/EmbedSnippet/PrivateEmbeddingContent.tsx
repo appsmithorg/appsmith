@@ -71,9 +71,9 @@ function EmbeddedLink() {
   );
 }
 
-function PrivateEmbedRampModal() {
+export function PrivateEmbedRampModal() {
   return (
-    <div className="flex justify-between items-start mt-6">
+    <div className="flex justify-between items-start">
       <div className="flex flex-col gap-1 w-4/5">
         <div className="flex">
           <Icon className="mr-1" name="lock-2-line" size="md" />
@@ -138,7 +138,7 @@ function SnippetTabContent({
   changeTab?: () => void;
 }) {
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <div
         className="flex gap-1 justify-between items-start"
         data-testid="t--upgrade-content"

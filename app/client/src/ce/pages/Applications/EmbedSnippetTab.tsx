@@ -10,6 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import PrivateEmbeddingContent, {
+  PrivateEmbedRampModal,
   PrivateEmbedRampSidebar,
 } from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
@@ -140,6 +141,8 @@ function ShareModal() {
         isAppSettings={false}
         snippet={embedSnippet.appViewEndPoint}
       />
+
+      <PrivateEmbedRampModal />
 
       <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
