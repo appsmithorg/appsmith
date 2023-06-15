@@ -48,7 +48,6 @@ import type { ActionEntityConfig } from "entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";
-import { useSelector } from "react-redux";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
@@ -349,6 +348,9 @@ export function* logSuccessfulBindings(
     ? {}
     : { ...successfulBindingsMap.get() };
 
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const instanceId: string = yield select(getInstanceId);
+
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
@@ -402,9 +404,6 @@ export function* logSuccessfulBindings(
             (successfulBindingPaths[evaluatedPath] &&
               successfulBindingPaths[evaluatedPath] !== unevalValue)
           ) {
-            const workspaceId = useSelector(getCurrentWorkspaceId);
-            const instanceId = useSelector(getInstanceId);
-
             AnalyticsUtil.logEvent("ENTITY_BINDING_SUCCESS", {
               unevalValue,
               entityType,
