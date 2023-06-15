@@ -70,6 +70,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   min-width: calc(var(--root-unit) * 7.5);
   text-align: center;
   position: relative;
+  font-weight: 600;
 
   & *:not([data-hidden]) + *:not([data-hidden]) {
     margin-left: var(--spacing-1);

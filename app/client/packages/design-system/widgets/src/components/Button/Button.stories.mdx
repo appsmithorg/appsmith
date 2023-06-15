@@ -64,13 +64,15 @@ There are 4 variants of the button component.
 
 <Canvas>
   <Story name="Semantic">
-    <div style={{ display: "flex", gap: "10px", "flex-wrap": "wrap" }}>
-      {Object.keys(BUTTON_VARIANT).map((variant) =>
-        Object.keys(BUTTON_COLOR).map((color) => (
-          <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
-            <Button variant={variant} color={color} children={color} />
-          </div>
-        )),
+    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+      {["filled", "outlined", "ghost"].map((variant) =>
+        ["accent", "neutral", "positive", "negative", "warning"].map(
+          (color) => (
+            <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
+              <Button variant={variant} color={color} children={color} />
+            </div>
+          ),
+        ),
       )}
     </div>
   </Story>

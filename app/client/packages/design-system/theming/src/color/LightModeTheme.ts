@@ -11,6 +11,7 @@ export class LightModeTheme implements ColorModeTheme {
   private readonly seedHue: number;
   private readonly seedIsAchromatic: boolean;
   private readonly seedIsCold: boolean;
+  private readonly seedIsGreen: boolean;
   private readonly seedIsRed: boolean;
   private readonly seedIsVeryLight: boolean;
   private readonly seedIsYellow: boolean;
@@ -22,6 +23,7 @@ export class LightModeTheme implements ColorModeTheme {
       hue,
       isAchromatic,
       isCold,
+      isGreen,
       isRed,
       isVeryLight,
       isYellow,
@@ -33,6 +35,7 @@ export class LightModeTheme implements ColorModeTheme {
     this.seedHue = hue;
     this.seedIsAchromatic = isAchromatic;
     this.seedIsCold = isCold;
+    this.seedIsGreen = isGreen;
     this.seedIsRed = isRed;
     this.seedIsVeryLight = isVeryLight;
     this.seedIsYellow = isYellow;
@@ -90,6 +93,7 @@ export class LightModeTheme implements ColorModeTheme {
       bdNeutral: this.bdNeutral.toString(),
       bdNeutralHover: this.bdNeutralHover.toString(),
       bdPositive: this.bdPositive.toString(),
+      bdPositiveHover: this.bdPositiveHover.toString(),
       bdWarning: this.bdWarning.toString(),
     };
   };
@@ -243,7 +247,22 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgPositive() {
-    return "#4ade80";
+    const color = this.bgAccent.clone();
+
+    color.oklch.l = 0.62;
+    color.oklch.c = 0.19;
+    color.oklch.h = 145;
+
+    if (this.seedIsGreen && this.seedColor.oklch.c > 0.11) {
+      if (this.seedColor.oklch.h < 145) {
+        color.oklch.h = 155;
+      }
+      if (this.seedColor.oklch.h >= 145) {
+        color.oklch.h = 135;
+      }
+    }
+
+    return color;
   }
 
   private get bgPositiveHover() {
@@ -397,7 +416,19 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get fgPositive() {
-    return "#4ade80";
+    const color = this.bgPositive.clone();
+
+    if (
+      this.seedIsGreen &&
+      !this.seedIsAchromatic &&
+      this.fgAccent.oklch.l > 0.5 &&
+      this.fgAccent.oklch.h < 145
+    ) {
+      color.oklch.c = color.oklch.c + 0.05;
+      color.oklch.h = color.oklch.h - 10;
+    }
+
+    return color;
   }
 
   private get fgWarning() {
@@ -412,13 +443,13 @@ export class LightModeTheme implements ColorModeTheme {
     color.oklch.h = color.oklch.h - 10;
 
     if (
-      this.seedIsRed &&
+      this.seedIsGreen &&
       !this.seedIsAchromatic &&
       this.fgAccent.oklch.l > 0.5 &&
-      this.fgAccent.oklch.h < 28
+      this.fgAccent.oklch.h < 145
     ) {
       color.oklch.c = color.oklch.c + 0.05;
-      color.oklch.h = color.oklch.h - 15;
+      color.oklch.h = color.oklch.h - 10;
     }
 
     return color;
@@ -584,8 +615,52 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private bdPositive() {
-    return "#4ade80";
+  private get bdPositive() {
+    const color = this.bgPositive.clone();
+
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.11 &&
+      this.bdAccent.oklch.h < 145 &&
+      this.bdAccent.oklch.h >= 116
+    ) {
+      color.oklch.h = color.oklch.h + 5;
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.11 &&
+      this.bdAccent.oklch.h >= 145 &&
+      this.bdAccent.oklch.h < 166
+    ) {
+      color.oklch.h = color.oklch.h - 5;
+      color.oklch.l = color.oklch.l + 0.05;
+    }
+
+    return color;
+  }
+
+  private get bdPositiveHover() {
+    const color = this.bdPositive.clone();
+
+    if (this.bdPositive.oklch.l < 0.06) {
+      color.oklch.l = color.oklch.l + 0.6;
+    }
+
+    if (this.bdPositive.oklch.l >= 0.06 && this.bdPositive.oklch.l < 0.25) {
+      color.oklch.l = color.oklch.l + 0.4;
+    }
+
+    if (this.bdPositive.oklch.l >= 0.25 && this.bdPositive.oklch.l < 0.5) {
+      color.oklch.l = color.oklch.l + 0.25;
+    }
+
+    if (this.bdPositive.oklch.l >= 0.5) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    return color;
   }
 
   private get bdWarning() {
