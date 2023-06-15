@@ -9,7 +9,7 @@ export default defineConfig({
   videoUploadOnPasses: false,
   videoCompression: false,
   numTestsKeptInMemory: 5,
-  experimentalMemoryManagement : true,
+  experimentalMemoryManagement: true,
   reporterOptions: {
     reportDir: "results",
     overwrite: false,
@@ -28,7 +28,6 @@ export default defineConfig({
     env: {
       USERNAME: "xxxx",
       PASSWORD: "xxx",
-      },
     },
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
