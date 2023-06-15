@@ -202,7 +202,7 @@ function KeyValueRow(
                   defaultValue: extraData[0]?.initialValue,
                   isKeyFieldValid: isKeyFieldValid,
                   placeholder: props.extraData
-                    ? props.extraData[1]?.placeholderText
+                    ? props.extraData[0]?.placeholderText
                     : `Key ${index + 1}`,
                   isRequired: extraData[0]?.isRequired,
                   name: keyTextFieldName,
@@ -306,7 +306,7 @@ const getType = (dataType: string | undefined) => {
 function renderInput(
   props: InputProps & {
     dataType?: "text" | "number" | "password";
-    placeholderText?: string;
+    placeholder?: string;
     defaultValue: string | number;
     isRequired: boolean;
     isKeyFieldValid?: (value: string) => { isValid: boolean; message: string };
@@ -319,10 +319,7 @@ function renderInput(
   return (
     <StyledInput
       aria-label={
-        props.helperText ||
-        props.defaultValue ||
-        props.placeholderText ||
-        "label"
+        props.helperText || props.defaultValue || props.placeholder || "label"
       }
       defaultValue={props.defaultValue}
       description={props.helperText}
@@ -330,7 +327,7 @@ function renderInput(
       isValid={props.isKeyFieldValid?.(props.input.value).isValid}
       name={props.input?.name}
       onChange={props.input.onChange}
-      placeholder={props.placeholderText}
+      placeholder={props.placeholder}
       size="md"
       type={props.dataType}
       value={props.input.value}
