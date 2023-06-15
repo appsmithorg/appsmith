@@ -25,8 +25,7 @@ describe("Create new workspace and share with a user", function () {
       homePage.CreateNewWorkspace(workspaceId);
       homePage.CreateAppInWorkspace(workspaceId, appid);
 
-      cy.get("h2").contains("Drag and drop a widget here");
-      cy.get(homePageLocators.shareApp).click({ force: true });
+      agHelper.GetNClick(homePageLocators.shareApp, 0, true);
       homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
@@ -65,8 +64,7 @@ describe("Create new workspace and share with a user", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("h2").contains("Drag and drop a widget here");
-    cy.get(homePageLocators.shareApp).click();
+    agHelper.GetNClick(homePageLocators.shareApp, 0, true);
     cy.enablePublicAccess(true);
     deployMode.DeployApp();
     currentUrl = cy.url();
@@ -124,8 +122,7 @@ describe("Create new workspace and share with a user", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("h2").contains("Drag and drop a widget here");
-    cy.get(homePageLocators.shareApp).click();
+    agHelper.GetNClick(homePageLocators.shareApp, 0, true);
     cy.enablePublicAccess(true);
     cy.LogOut();
   });
