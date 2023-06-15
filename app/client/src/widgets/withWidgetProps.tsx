@@ -45,6 +45,7 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -290,6 +291,15 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       } else {
         dispatch(checkContainersForAutoHeightAction());
       }
+    }
+
+    // Sets the min/max height/width of the widget
+    if (isAutoLayout) {
+      const minMaxDimensions = getWidgetMinMaxDimensionsInPixel(
+        widgetProps,
+        mainCanvasWidth,
+      );
+      widgetProps = { ...widgetProps, ...minMaxDimensions };
     }
 
     return <WrappedWidget {...widgetProps} />;

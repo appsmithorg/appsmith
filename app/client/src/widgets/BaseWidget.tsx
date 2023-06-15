@@ -39,7 +39,7 @@ import type {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
@@ -506,6 +506,10 @@ abstract class BaseWidget<
         {content}
       </PositionedContainer>
     );
+  }
+
+  get isAutoLayoutMode() {
+    return this.props.appPositioningType === AppPositioningTypes.AUTO;
   }
 
   addErrorBoundary(content: ReactNode) {
