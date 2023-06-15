@@ -8,6 +8,7 @@ import {
   gitSync,
   homePage,
   jsEditor,
+  deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const pagename = "ChildPage";
@@ -130,8 +131,7 @@ describe("Git sync Bug #10773", function () {
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(1000);
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
