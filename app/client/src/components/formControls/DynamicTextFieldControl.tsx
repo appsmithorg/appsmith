@@ -20,7 +20,6 @@ import {
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
   min-width: 380px;
@@ -29,12 +28,6 @@ const Wrapper = styled.div`
     border-radius: 4px;
     font-size: 14px;
     min-height: calc(100vh / 4);
-  }
-
-  && {
-    .CodeMirror-lines {
-      padding: 10px;
-    }
   }
 `;
 
@@ -62,22 +55,19 @@ class DynamicTextControl extends BaseControl<
     const {
       actionName,
       configProperty,
-      currentEnvironment,
       evaluationSubstitutionType,
       placeholderText,
       pluginName,
       responseType,
     } = this.props;
-    const customConfigProperty =
-      `datasourceStorages.${currentEnvironment}.` + configProperty;
-    const dataTreePath = actionPathFromName(actionName, customConfigProperty);
+    const dataTreePath = actionPathFromName(actionName, configProperty);
     const mode =
       responseType === "TABLE"
         ? getSqlEditorModeFromPluginName(pluginName)
         : EditorModes.JSON_WITH_BINDING;
 
     return (
-      <Wrapper className={`t--${customConfigProperty}`}>
+      <Wrapper className={`t--${configProperty}`}>
         <DynamicTextField
           className="dynamic-text-field"
           dataTreePath={dataTreePath}
@@ -85,7 +75,7 @@ class DynamicTextControl extends BaseControl<
           evaluatedPopUpLabel={this?.props?.label}
           evaluationSubstitutionType={evaluationSubstitutionType}
           mode={mode}
-          name={customConfigProperty}
+          name={this.props.configProperty}
           placeholder={placeholderText}
           showLineNumbers={this.props.showLineNumbers}
           size={EditorSize.EXTENDED}
@@ -104,7 +94,6 @@ export interface DynamicTextFieldProps extends ControlProps {
   evaluationSubstitutionType: EvaluationSubstitutionType;
   mutedHinting?: boolean;
   pluginName: string;
-  currentEnvironment: string;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
@@ -115,14 +104,12 @@ const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
   const pluginName = getPluginNameFromId(state, pluginId);
-  const currentEnvironment = getCurrentEnvironment();
 
   return {
     actionName,
     pluginId,
     responseType: responseTypes[pluginId],
     pluginName,
-    currentEnvironment,
   };
 };
 

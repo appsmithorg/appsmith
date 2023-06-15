@@ -10,7 +10,6 @@ import { SortingSubComponent } from "./utils";
 import { get, isArray } from "lodash";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Button } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -224,11 +223,9 @@ function SortingComponent(props: any) {
 
 export default function SortingControl(props: SortingControlProps) {
   const {
+    configProperty, // JSON path for the where clause data
     formName, // Name of the form, used by redux-form lib to store the data in redux store
   } = props;
-  const currentEnvironment = getCurrentEnvironment();
-  const configProperty =
-    `datasourceStorages.${currentEnvironment}.` + props.configProperty; // JSON path for the where clause data
 
   return (
     <FieldArray

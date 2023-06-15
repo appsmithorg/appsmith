@@ -9,6 +9,7 @@ import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import type FeatureFlags from "entities/FeatureFlags";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const FormContainer = styled.div`
   display: flex;
@@ -90,13 +91,18 @@ export class JSONtoForm<
     multipleConfig?: ControlProps[],
   ) => {
     multipleConfig = multipleConfig || [];
-
+    const currentEnvionment = getCurrentEnvironment();
+    const customConfig = {
+      ...config,
+      configProperty:
+        `datasourceStorages.${currentEnvionment}.` + config.configProperty,
+    };
     try {
-      this.props.setupConfig(config);
+      this.props.setupConfig(customConfig);
       return (
-        <div key={config.configProperty + 123} style={{ marginTop: "16px" }}>
+        <div key={customConfig.configProperty} style={{ marginTop: "16px" }}>
           <FormControl
-            config={config}
+            config={customConfig}
             formName={this.props.formName}
             multipleConfig={multipleConfig}
           />

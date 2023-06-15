@@ -26,7 +26,6 @@ describe("DynamicInputTextControl", () => {
           actionName="Test action"
           configProperty="actionConfiguration.testPath"
           controlType="DYNAMIC_INPUT_TEXT_CONTROL"
-          currentEnvironment="unused_env"
           dataType={"TABLE"}
           formName="TestForm"
           id={"test"}

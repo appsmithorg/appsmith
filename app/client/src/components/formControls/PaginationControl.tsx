@@ -7,7 +7,6 @@ import FormLabel from "components/editorComponents/FormLabel";
 import styled from "styled-components";
 import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
 import { PaginationSubComponent } from "components/formControls/utils";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
@@ -136,6 +135,7 @@ export function Pagination(props: {
 class PaginationControl extends BaseControl<PaginationControlProps> {
   render() {
     const {
+      configProperty, // JSON path for the pagination data
       disabled,
       formName, // Name of the form, used by redux-form lib to store the data in redux store
       isValid,
@@ -144,9 +144,6 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
       tooltipText,
       validationMessage,
     } = this.props;
-    const currentEnvironment = getCurrentEnvironment();
-    const configProperty =
-      `datasourceStorages.${currentEnvironment}.` + this.props.configProperty; // JSON path for the pagination data
 
     return (
       // pagination component

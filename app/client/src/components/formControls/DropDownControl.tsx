@@ -18,7 +18,6 @@ import {
 import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "design-system";
 import { Icon, Option, Select } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const DropdownSelect = styled.div<{
   width: string;
@@ -53,7 +52,7 @@ class DropDownControl extends BaseControl<Props> {
       if (hasDependenciesChanged) {
         this.props.updateConfigPropertyValue(
           this.props.formName,
-          this.props.customConfigProperty,
+          this.props.configProperty,
           [],
         );
       }
@@ -62,7 +61,7 @@ class DropDownControl extends BaseControl<Props> {
     // For entity types to query on the datasource
     // when the command is changed, we want to clear the entity, so users can choose the entity type they want to work with
     // this also prevents the wrong entity type value from being persisted in the event that the new command value does not match the entity type.
-    if (this.props.customConfigProperty === FormDataPaths.ENTITY_TYPE) {
+    if (this.props.configProperty === FormDataPaths.ENTITY_TYPE) {
       const prevCommandValue = get(
         prevProps?.formValues,
         FormDataPaths.COMMAND,
@@ -74,7 +73,7 @@ class DropDownControl extends BaseControl<Props> {
       if (prevCommandValue !== currentCommandValue) {
         this.props.updateConfigPropertyValue(
           this.props.formName,
-          this.props.customConfigProperty,
+          this.props.configProperty,
           "",
         );
       }
@@ -92,14 +91,14 @@ class DropDownControl extends BaseControl<Props> {
 
     return (
       <DropdownSelect
-        className={`t--${this?.props?.customConfigProperty}`}
-        data-testid={this.props.customConfigProperty}
+        className={`t--${this?.props?.configProperty}`}
+        data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}
       >
         <Field
           component={renderDropdown}
-          name={this.props.customConfigProperty}
+          name={this.props.configProperty}
           props={{ ...this.props, width: styles.width }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
@@ -231,7 +230,7 @@ function renderDropdown(
 
   return (
     <Select
-      data-testid={`t--dropdown-${props?.customConfigProperty}`}
+      data-testid={`t--dropdown-${props?.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isLoading={props.isLoading}
@@ -270,7 +269,6 @@ export interface DropDownControlProps extends ControlProps {
   fetchOptionsConditionally?: boolean;
   isLoading: boolean;
   formValues: Partial<Action>;
-  customConfigProperty: string;
 }
 
 type ReduxDispatchProps = {
@@ -290,15 +288,12 @@ const mapStateToProps = (
   isLoading: boolean;
   options: SelectOptionProps[];
   formValues: Partial<Action>;
-  customConfigProperty: string;
 } => {
   // Added default options to prevent error when options is undefined
   let isLoading = false;
   let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
-  const currentEnvionment = getCurrentEnvironment();
-  const customConfigProperty =
-    `datasourceStorages.${currentEnvionment}.` + ownProps.configProperty;
+
   try {
     if (ownProps.fetchOptionsConditionally) {
       const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
@@ -307,7 +302,7 @@ const mapStateToProps = (
     }
   } catch (e) {
   } finally {
-    return { isLoading, options, formValues, customConfigProperty };
+    return { isLoading, options, formValues };
   }
 };
 

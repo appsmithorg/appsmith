@@ -141,12 +141,12 @@ describe.skip("One click binding control", () => {
     );
 
     _.agHelper.TypeText(
-      `[name="datasourceStorages.active_env.datasourceConfiguration.endpoints[0].host"]`,
+      `[name="datasourceStorages.unused_env.datasourceConfiguration.endpoints[0].host"]`,
       "127.0.0.1",
     );
 
     _.agHelper.TypeText(
-      `[name="datasourceStorages.active_env.datasourceConfiguration.endpoints[0].port"]`,
+      `[name="datasourceStorages.unused_env.datasourceConfiguration.endpoints[0].port"]`,
       "8000",
     );
 

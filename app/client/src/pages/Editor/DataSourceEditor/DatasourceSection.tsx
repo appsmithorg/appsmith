@@ -110,7 +110,6 @@ export default class RenderDatasourceInformation extends React.Component<{
               const customConfigProperty =
                 `datasourceStorages.${currentEnvionment}.` + configProperty;
               const reactKey = datasource.id + "_" + label;
-              //Check this case
               if (controlType === "FIXED_KEY_INPUT") {
                 return (
                   <FieldWrapper key={reactKey}>

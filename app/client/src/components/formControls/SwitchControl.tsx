@@ -6,7 +6,6 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import styled from "styled-components";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 type SwitchFieldProps = WrappedFieldProps & {
   label: string;
@@ -52,10 +51,7 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
 
 class SwitchControl extends BaseControl<SwitchControlProps> {
   render() {
-    const { disabled, info, isRequired, label } = this.props;
-    const currentEnvironment = getCurrentEnvironment();
-    const configProperty =
-      `datasourceStorages.${currentEnvironment}.` + this.props.configProperty;
+    const { configProperty, disabled, info, isRequired, label } = this.props;
 
     return (
       <Field

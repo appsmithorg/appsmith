@@ -5,7 +5,6 @@ import type { ControlProps, FormConfigType } from "./BaseControl";
 import { allowedControlTypes } from "components/formControls/utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Colors } from "constants/Colors";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const dropDownFieldConfig: Partial<FormConfigType> = {
   label: "",
@@ -104,7 +103,7 @@ const EntitySelectorWrapper = styled.div<{
 `;
 
 function EntitySelectorComponent(props: any) {
-  const { configProperty, currentEnvironment, schema } = props;
+  const { configProperty, schema } = props;
   const targetRef = useRef<HTMLDivElement>(null);
   // Specify the breakpoint value with an identifier.
   // Here 576 => 280 * 2. Where 280 is the width of a single EntitySelectorComponent
@@ -127,7 +126,7 @@ function EntitySelectorComponent(props: any) {
             !singleSchema.hidden && (
               <EntitySelectorWrapper
                 index={index}
-                key={`ES_FRAG_datasourceStorages.${currentEnvironment}.${singleSchema.configProperty}`}
+                key={`ES_FRAG_${singleSchema.configProperty}`}
                 marginRight={index + 1 === visibleSchemas.length ? "" : "1rem"}
                 size={size}
               >
@@ -136,7 +135,7 @@ function EntitySelectorComponent(props: any) {
                     config={{
                       ...dropDownFieldConfig,
                       ...singleSchema,
-                      key: `ES_datasourceStorages.${currentEnvironment}.${singleSchema.configProperty}`,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
@@ -145,7 +144,7 @@ function EntitySelectorComponent(props: any) {
                     config={{
                       ...inputFieldConfig,
                       ...singleSchema,
-                      key: `ES_datasourceStorages.${currentEnvironment}.${singleSchema.configProperty}`,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
@@ -164,20 +163,17 @@ export default function EntitySelectorControl(
   props: EntitySelectorControlProps,
 ) {
   const {
+    configProperty, // JSON path for the where clause data
     formName, // Name of the form, used by redux-form lib to store the data in redux store
     schema, // Schema is the array of objects that contains specific data for the ES
   } = props;
 
-  const currentEnvironment = getCurrentEnvironment();
-  const configProperty =
-    `datasourceStorages.${currentEnvironment}.` + props.configProperty; // JSON path for the where clause data
   return (
     <EntitySelectorComponent
       configProperty={configProperty}
-      currentEnvironment={currentEnvironment}
       formName={formName}
-      key={`ES_PARENT_datasourceStorages.${currentEnvironment}.${configProperty}`}
-      name={`datasourceStorages.${currentEnvironment}.` + configProperty}
+      key={`ES_PARENT_${configProperty}`}
+      name={configProperty}
       schema={schema}
     />
   );

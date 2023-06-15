@@ -13,7 +13,6 @@ import { change, getFormValues } from "redux-form";
 import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "design-system";
 import { SegmentedControl } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const SegmentedControlWrapper = styled.div<{
   width: string;
@@ -31,19 +30,17 @@ class SegementedControl extends BaseControl<Props> {
         ? this.props.customStyles
         : {}),
     };
-    const customConfigProperty =
-      `datasourceStorages.${this.props.currentEnvironment}.` +
-      this.props.configProperty;
+
     return (
       <SegmentedControlWrapper
-        className={`t--${customConfigProperty}`}
-        data-testid={customConfigProperty}
+        className={`t--${this?.props?.configProperty}`}
+        data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}
       >
         <Field
           component={renderSegementedControl}
-          name={customConfigProperty}
+          name={this.props.configProperty}
           props={{ ...this.props, width: styles.width }}
         />
       </SegmentedControlWrapper>
@@ -65,7 +62,7 @@ function renderSegementedControl(
   let selectedValue: string;
   //Update selected value
   if (isNil(props.input?.value)) {
-    selectedValue = props.initialValue ? (props.initialValue as string) : "";
+    selectedValue = props?.initialValue ? (props.initialValue as string) : "";
   } else {
     selectedValue = props.input?.value;
   }
@@ -86,6 +83,7 @@ function renderSegementedControl(
   const segmentedOptions = options.map((e) => {
     return { label: e.label, value: e.value };
   });
+
   return (
     <SegmentedControl
       defaultValue={props.initialValue as string}
@@ -105,7 +103,6 @@ export interface SegmentedControlProps extends ControlProps {
   fetchOptionsConditionally?: boolean;
   isLoading: boolean;
   formValues: Partial<Action>;
-  currentEnvironment: string;
 }
 
 type ReduxDispatchProps = {
@@ -125,13 +122,11 @@ const mapStateToProps = (
   isLoading: boolean;
   options: SelectOptionProps[];
   formValues: Partial<Action>;
-  currentEnvironment: string;
 } => {
   // Added default options to prevent error when options is undefined
   let isLoading = false;
   let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
-  const currentEnvironment = getCurrentEnvironment();
 
   try {
     if (ownProps.fetchOptionsConditionally) {
@@ -141,7 +136,7 @@ const mapStateToProps = (
     }
   } catch (e) {
   } finally {
-    return { isLoading, options, formValues, currentEnvironment };
+    return { isLoading, options, formValues };
   }
 };
 

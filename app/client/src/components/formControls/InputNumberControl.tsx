@@ -5,7 +5,6 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import NumberField from "components/editorComponents/form/fields/NumberField";
 import { Classes, Text, TextType } from "design-system-old";
 import styled from "styled-components";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const FormGroup = styled.div`
   display: flex;
@@ -36,10 +35,8 @@ export function InputText(props: {
 
 class InputNumberControl extends BaseControl<InputControlProps> {
   render() {
-    const { dataType, label, placeholderText, propertyValue } = this.props;
-    const currentEnvironment = getCurrentEnvironment();
-    const configProperty =
-      `datasourceStorages.${currentEnvironment}.` + this.props.configProperty;
+    const { configProperty, dataType, label, placeholderText, propertyValue } =
+      this.props;
 
     return (
       <InputText

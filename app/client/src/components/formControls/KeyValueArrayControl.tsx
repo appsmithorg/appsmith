@@ -14,7 +14,6 @@ import type { InputProps } from "design-system";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 import { Button, Icon, Input, Text, Tooltip } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -85,9 +84,6 @@ const FlexContainer = styled.div`
 function KeyValueRow(
   props: KeyValueArrayControlProps & WrappedFieldArrayProps,
 ) {
-  const currentEnvionment = getCurrentEnvironment();
-  const customConfigProperty =
-    `datasourceStorages.${currentEnvionment}.` + props.configProperty;
   const { extraData = [] } = props;
   const keyName = getFieldName(extraData[0]?.configProperty);
   const valueName = getFieldName(extraData[1]?.configProperty);
@@ -96,10 +92,7 @@ function KeyValueRow(
 
   const addRow = useCallback(() => {
     if (keyName && valueName) {
-      props.fields.push({
-        [keyName[1]]: "",
-        [valueName[1]]: "",
-      });
+      props.fields.push({ [keyName[1]]: "", [valueName[1]]: "" });
     } else {
       props.fields.push({ key: "", value: "" });
     }
@@ -112,7 +105,7 @@ function KeyValueRow(
         addRow();
         // Since we are initializing one default key value pair, it needs to stored in redux store
         // so that it can be used to initilize datasource config form as well
-        dispatch(setDefaultKeyValPairFlag(customConfigProperty));
+        dispatch(setDefaultKeyValPairFlag(props.configProperty));
       }
     }
   }, [props.fields, keyName, valueName]);
@@ -278,7 +271,6 @@ function KeyValueRow(
 
 class KeyValueArrayControl extends BaseControl<KeyValueArrayControlProps> {
   render() {
-    const currentEnvionment = getCurrentEnvironment();
     const name = getFieldName(this.props.configProperty);
 
     return (
@@ -286,7 +278,7 @@ class KeyValueArrayControl extends BaseControl<KeyValueArrayControlProps> {
         component={KeyValueRow}
         rerenderOnEveryChange={false}
         {...this.props}
-        name={name ? `datasourceStorages.${currentEnvionment}.` + name[0] : ""}
+        name={name ? name[0] : ""}
       />
     );
   }

@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { FieldArray } from "redux-form";
 import type { ControlProps } from "./BaseControl";
 import { Button } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const CenteredIcon = styled(Button)`
   margin-top: 26px;
@@ -109,10 +108,7 @@ function NestedComponents(props: any) {
 }
 
 export default function FieldArrayControl(props: FieldArrayControlProps) {
-  const { formName, schema } = props;
-  const currentEnvironment = getCurrentEnvironment();
-  const configProperty =
-    `datasourceStorages.${currentEnvironment}.` + props.configProperty;
+  const { configProperty, formName, schema } = props;
   return (
     <FieldArray
       component={NestedComponents}

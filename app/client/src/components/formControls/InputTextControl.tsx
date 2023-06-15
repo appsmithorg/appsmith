@@ -10,7 +10,6 @@ import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
 import { Input } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -134,14 +133,9 @@ class InputTextControl extends BaseControl<InputControlProps> {
       validationMessage,
       validator,
     } = this.props;
-    const currentEnvionment = getCurrentEnvironment();
-    const customConfigProperty =
-      `datasourceStorages.${currentEnvionment}.` + configProperty;
+
     return (
-      <FieldWrapper
-        data-testid={customConfigProperty}
-        style={customStyles || {}}
-      >
+      <FieldWrapper data-testid={configProperty} style={customStyles || {}}>
         {this.state.secretDisplayVisible && (
           <SecretDisplayIndicator
             onClick={this.onClickSecretDisplayIndicator}
@@ -158,7 +152,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
           encrypted={encrypted}
           isValid={isValid}
           label={label}
-          name={customConfigProperty}
+          name={configProperty}
           onBlur={this.onBlur}
           onFocus={this.onClickSecretDisplayIndicator}
           placeholder={this.state.secretDisplayVisible ? "" : placeholderText}
