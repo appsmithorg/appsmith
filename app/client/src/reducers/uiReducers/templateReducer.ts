@@ -69,7 +69,9 @@ const templateReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.RESET_TEMPLATE_FILTERS]: (state: TemplatesReduxState) => {
+  [ReduxActionTypes.RESET_TEMPLATE_FILTERS]: (
+    state: TemplatesReduxState,
+  ): TemplatesReduxState => {
     return {
       ...state,
       filters: {},
