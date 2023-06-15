@@ -294,8 +294,7 @@ describe("messages without input", () => {
     { key: "MERGED_SUCCESSFULLY", value: "Merged successfully" },
     {
       key: "DISCARD_CHANGES_WARNING",
-      value:
-        "This action will replace your local changes with the latest remote version.",
+      value: "Discarding these changes will pull previous changes from Git.",
     },
     {
       key: "DISCARD_SUCCESS",
@@ -311,7 +310,7 @@ describe("messages without input", () => {
     },
     {
       key: "DISCARD_CHANGES",
-      value: "Discard & pull",
+      value: "Discard changes",
     },
     {
       key: "IMPORTING_APP_FROM_GIT",
