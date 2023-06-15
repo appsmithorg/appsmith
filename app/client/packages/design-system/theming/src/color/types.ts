@@ -12,6 +12,7 @@ export interface ColorModeTheme {
     bgAccentSubtleActive: string;
     bgAssistive: string;
     bgNegative: string;
+    bgPositive: string;
     fg: string;
     fgAccent: string;
     fgNegative: string;
@@ -26,5 +27,7 @@ export interface ColorModeTheme {
     bdNegativeHover: string;
     bdNeutral: string;
     bdNeutralHover: string;
+    bdPositive: string;
+    bdPositiveHover: string;
   };
 }
