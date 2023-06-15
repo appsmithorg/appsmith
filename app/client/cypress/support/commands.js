@@ -261,7 +261,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
   cy.wait("@postLogout");
 
-  cy.visit("/user/signup", { retries: 2 });
+  cy.visit("/user/signup", { timeout: 60000 });
   cy.wait(4000); //for sign up page to open fully
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")
