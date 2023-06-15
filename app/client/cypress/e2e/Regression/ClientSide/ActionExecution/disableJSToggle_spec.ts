@@ -1,11 +1,14 @@
-import { WIDGET } from "../../../../locators/WidgetLocators";
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
-const { agHelper, apiPage, entityExplorer, propPane } = _;
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  apiPage,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Disable JS toggle when Action selector code is not parsable", () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     entityExplorer.NavigateToSwitcher("Explorer");
     apiPage.CreateApi("Api1", "GET");
     entityExplorer.SelectEntityByName("Button1", "Widgets");

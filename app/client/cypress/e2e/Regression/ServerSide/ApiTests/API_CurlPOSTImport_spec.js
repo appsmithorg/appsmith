@@ -1,13 +1,13 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import ApiEditor from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { dataSources } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function () {
   it("1. Test curl import flow for POST action with JSON body", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       localStorage.setItem("ApiPaneV2", "ApiPaneV2");
       cy.NavigateToApiEditor();
-      _.dataSources.NavigateToDSCreateNew();
+      dataSources.NavigateToDSCreateNew();
       cy.get(ApiEditor.curlImage).click({ force: true });
       cy.get("textarea").type(
         'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
@@ -35,7 +35,7 @@ describe("Test curl import flow", function () {
   it.skip("2. Test curl import flow for POST action with multipart form data", function () {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
-    _.dataSources.NavigateToDSCreateNew();
+    dataSources.NavigateToDSCreateNew();
 
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(

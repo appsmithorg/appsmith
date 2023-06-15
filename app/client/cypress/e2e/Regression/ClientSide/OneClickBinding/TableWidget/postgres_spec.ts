@@ -20,7 +20,9 @@ describe("Table widget one click binding feature", () => {
       );
     });
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+
+    _.agHelper.AssertNetworkStatus("@postExecute");
+
     cy.wait(2000);
     ["id", "gender", "dob", "name", "email", "phoneNo"].forEach((column) => {
       _.agHelper.AssertElementExist(_.table._headerCell(column));
@@ -38,34 +40,49 @@ describe("Table widget one click binding feature", () => {
     _.agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
     (cy as any).wait(2000);
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+
+    _.agHelper.AssertNetworkStatus("@postExecute");
+
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
-    _.agHelper.Sleep();
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.agHelper.Sleep();
-    _.agHelper.GetNAssertContains(
-      oneClickBindingLocator.validTableRowData,
-      "cypress@appsmith",
-    );
+
+    _.agHelper.AssertNetworkStatus("@postExecute");
+
+    _.agHelper.AssertElementExist(_.table._bodyCell("cypress@appsmith"));
+
+    (cy as any).wait(1000);
     _.agHelper.WaitUntilAllToastsDisappear();
+
     (cy as any).editTableCell(1, 0);
     (cy as any).wait(500);
     (cy as any).enterTableCellValue(1, 0, "automation@appsmith{enter}");
     (cy as any).wait(1000);
     (cy as any).AssertTableRowSavable(12, 0);
     (cy as any).saveTableRow(12, 0);
-    _.agHelper.ValidateNetworkStatus("@postExecute");
-    _.agHelper.ValidateNetworkStatus("@postExecute");
-    _.agHelper.Sleep();
-    _.agHelper.Sleep();
-    _.agHelper.GetNAssertContains(
-      oneClickBindingLocator.validTableRowData,
-      "automation@appsmith",
-    );
+
+    _.agHelper.AssertNetworkStatus("@postExecute");
+
+    _.agHelper.AssertNetworkStatus("@postExecute");
+
+    (cy as any).wait(500);
+
     _.agHelper.ClearTextField(_.table._searchInput);
+
+    _.agHelper.TypeText(_.table._searchInput, "automation@appsmith");
+
+    _.agHelper.AssertNetworkStatus("@postExecute");
+
+    (cy as any).wait(2000);
+
+    _.agHelper.AssertElementExist(_.table._bodyCell("automation@appsmith"));
+
+    _.agHelper.ClearTextField(_.table._searchInput);
+
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
-    _.agHelper.Sleep();
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+
+    _.agHelper.AssertNetworkStatus("@postExecute");
+
+    (cy as any).wait(2000);
+
     _.agHelper.AssertElementAbsence(_.table._bodyCell("cypress@appsmith"));
   });
 });

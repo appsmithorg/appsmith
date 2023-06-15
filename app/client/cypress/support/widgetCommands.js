@@ -986,8 +986,9 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.wait(2000);
   cy.selectAction("Delete");
   cy.selectAction("Are you sure?");
-  cy.wait("@deletePage");
-  cy.get("@deletePage").should("have.property", "status", 200);
+  cy.wait("@deletePage")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
 });
 
 Cypress.Commands.add("dropdownDynamic", (text) => {
@@ -1043,7 +1044,9 @@ Cypress.Commands.add("selectTxtSize", (text) => {
 
 Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
-  cy.get('.single-select:contains("Show alert")').click({ force: true });
+  cy.get('.single-select:contains("Show alert")')
+    .click({ force: true })
+    .wait(500);
   agHelper.EnterActionValue("Message", value);
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")
@@ -1382,8 +1385,9 @@ Cypress.Commands.add("deleteQueryOrJS", (Action) => {
   });
   cy.selectAction("Delete");
   cy.selectAction("Are you sure?");
-  cy.wait("@deleteAction");
-  cy.get("@deleteAction").should("have.property", "status", 200);
+  cy.wait("@deleteAction")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
 });
 Cypress.Commands.add(
   "validateNSelectDropdown",
@@ -1676,6 +1680,7 @@ Cypress.Commands.add(
   },
 );
 Cypress.Commands.add("findAndExpandEvaluatedTypeTitle", () => {
+  cy.wait(2500); //for eval popup to open
   cy.get(commonlocators.evaluatedTypeTitle).first().next().find("span").click();
 });
 

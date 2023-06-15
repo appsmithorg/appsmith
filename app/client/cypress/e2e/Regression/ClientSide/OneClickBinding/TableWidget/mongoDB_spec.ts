@@ -28,7 +28,7 @@ describe("one click binding mongodb datasource", function () {
 
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.Sleep(2000);
     //#endregion
@@ -83,7 +83,7 @@ describe("one click binding mongodb datasource", function () {
     (cy as any).saveTableCellValue(searchColumnIndex, 0);
     // save a row with some random text
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
     _.agHelper.AssertElementVisible(_.table._saveNewRow);
     _.agHelper.Sleep();
 
@@ -91,7 +91,7 @@ describe("one click binding mongodb datasource", function () {
     _.agHelper.ClearTextField(_.table._searchInput);
     _.agHelper.TypeText(_.table._searchInput, someText);
     _.agHelper.Sleep();
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
     _.agHelper.AssertElementVisible(oneClickBindingLocator.validTableRowData);
     _.agHelper.Sleep();
 

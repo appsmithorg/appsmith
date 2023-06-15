@@ -27,7 +27,7 @@ export class GeneralSettings {
         );
         this.agHelper.PressEnter();
         this.agHelper.Sleep();
-        this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+        this.agHelper.AssertNetworkStatus("@updateApplication", 200);
         this.appSettings.CheckUrl(appNameToBeVerified, pageName);
         if (reset) {
           this.agHelper.RemoveCharsNType(
@@ -36,7 +36,7 @@ export class GeneralSettings {
             currentAppName as string,
           );
           this.agHelper.PressEnter();
-          this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+          this.agHelper.AssertNetworkStatus("@updateApplication", 200);
           this.appSettings.CheckUrl(currentAppName as string, pageName);
         }
       });
@@ -53,6 +53,6 @@ export class GeneralSettings {
 
   UpdateAppIcon() {
     this.agHelper.GetNClick(this.locators._appNonSelectedIcon, 0);
-    this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+    this.agHelper.AssertNetworkStatus("@updateApplication", 200);
   }
 }

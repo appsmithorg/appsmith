@@ -1,4 +1,4 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -11,10 +11,12 @@ const defaultValue = `
 
 describe("Select Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("emptyDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   beforeEach(() => {
-    cy.wait(7000);
+    cy.wait(2000);
   });
   it("Add new Select widget", () => {
     cy.get(explorer.addWidget).click();
