@@ -13,7 +13,7 @@ function deleteScope(N) {
     return;
   }
   // delete one element
-  cy.get("button.bp3-tag-remove").click({ force: true, multiple: true });
+  cy.get("button.bp3-tag-remove").eq(0).click({ force: true });
   // fetch the list items; there should be N - 1 items
   cy.get(".bp3-tag").should("have.length", N - 1);
   deleteScope(N - 1);

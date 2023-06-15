@@ -1,21 +1,14 @@
-const dsl = require("../../../../../fixtures/dynamicHeightStatboxdsl.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-const data = require("../../../../../fixtures/example.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Statbox Widget Functionality", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+  before(() => {
+    cy.fixture("dynamicHeightStatboxdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
-  });
-
-  it("Verify Statbox can be placed inside another widget", () => {
+  it("1. Verify Statbox can be placed inside another widget", () => {
     cy.get(explorer.addWidget).click();
     // placing statbox widget inside container widget
     cy.dragAndDropToWidget("statboxwidget", "containerwidget", {

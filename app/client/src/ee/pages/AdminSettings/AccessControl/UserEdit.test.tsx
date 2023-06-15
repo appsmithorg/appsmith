@@ -293,4 +293,28 @@ describe("<UserEdit />", () => {
       "removed",
     );
   });
+  it("should show lock icon and disable click for active groups which do not have remove user permission", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    userEvent.click(tabs[0]);
+    const activeGroupsData = allUsers[0].groups;
+    const groupWithNoRemoveUserPermission = activeGroupsData.findIndex(
+      (group: BaseGroupRoleProps) =>
+        !group.userPermissions?.includes("removeUsers:userGroups"),
+    );
+    const activeGroups = screen.queryAllByTestId("t--active-group-row");
+    expect(
+      activeGroups[groupWithNoRemoveUserPermission].querySelectorAll(
+        "[data-testid='t--lock-icon']",
+      ),
+    ).toHaveLength(1);
+    expect(activeGroups[groupWithNoRemoveUserPermission]).not.toHaveClass(
+      "removed",
+    );
+    fireEvent.click(activeGroups[groupWithNoRemoveUserPermission]);
+    expect(activeGroups[groupWithNoRemoveUserPermission]).not.toHaveClass(
+      "removed",
+    );
+  });
 });

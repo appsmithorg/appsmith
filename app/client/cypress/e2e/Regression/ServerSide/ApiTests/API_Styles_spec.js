@@ -1,9 +1,13 @@
 import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
+
+import {
+  entityExplorer,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate API Panel CSS Styles", function () {
   const backgroundColorGray200 = "rgb(227, 232, 239)";
@@ -13,8 +17,7 @@ describe("Validate API Panel CSS Styles", function () {
 
   before(() => {
     //Create test api
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("test_styles");
+    apiPage.CreateApi("test_styles");
   });
 
   it("1.Quick access command background color", function () {
@@ -60,7 +63,7 @@ describe("Validate API Panel CSS Styles", function () {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
-        ee.ExpandCollapseEntity("Queries/JS");
+        entityExplorer.ExpandCollapseEntity("Queries/JS");
         cy.get(commonLocators.entityName).contains("test_styles").click();
         //Click on API search editor
         cy.get(ApiEditor.codeEditorWrapper).first().click();
@@ -82,7 +85,7 @@ describe("Validate API Panel CSS Styles", function () {
           .contains("test_styles")
           .should("not.exist");
         //Delete two datasources
-        ee.ExpandCollapseEntity("Datasources");
+        entityExplorer.ExpandCollapseEntity("Datasources");
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);
       });

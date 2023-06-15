@@ -1,4 +1,9 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  dataSources,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any,
   cities: any,
@@ -7,14 +12,14 @@ let dsName: any,
   cityName = "LA_";
 describe("Validate Firestore DS", () => {
   before("Create a new Firestore DS", () => {
-    _.dataSources.CreateDataSource("Firestore");
+    dataSources.CreateDataSource("Firestore");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
   it("1. Validate List/Create/Update/Get", () => {
-    _.agHelper.GenerateUUID();
+    agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       cityName += uid;
       createCity =
@@ -28,16 +33,16 @@ describe("Validate Firestore DS", () => {
       "population": 3900000,
       "regions": ["west_coast", "socal"]
     }`;
-      _.dataSources.CreateQueryAfterDSSaved();
+      dataSources.CreateQueryAfterDSSaved();
 
       //Create
-      _.dataSources.ValidateNSelectDropdown(
+      dataSources.ValidateNSelectDropdown(
         "Commands",
         "List Documents",
         "Create document",
       );
 
-      _.agHelper.EnterValue(
+      agHelper.EnterValue(
         "cities/{{Math.random().toString(36).substring(2, 24)}}",
         {
           propFieldName: "",
@@ -46,36 +51,36 @@ describe("Validate Firestore DS", () => {
         },
       );
 
-      _.agHelper.EnterValue(createCity, {
+      agHelper.EnterValue(createCity, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Body",
       });
 
-      _.dataSources.RunQuery(); //Create the document
+      dataSources.RunQuery(); //Create the document
 
       //Find the document id of the newly inserted record + Verify List all records
-      _.dataSources.ValidateNSelectDropdown(
+      dataSources.ValidateNSelectDropdown(
         "Commands",
         "Create document",
         "List Documents",
       );
-      _.agHelper.EnterValue("cities", {
+      agHelper.EnterValue("cities", {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Collection Name",
       });
 
-      _.agHelper.TypeDynamicInputValueNValidate(
+      agHelper.TypeDynamicInputValueNValidate(
         "name",
-        _.dataSources._nestedWhereClauseKey(0),
+        dataSources._nestedWhereClauseKey(0),
       );
-      _.agHelper.TypeDynamicInputValueNValidate(
+      agHelper.TypeDynamicInputValueNValidate(
         cityName,
-        _.dataSources._nestedWhereClauseValue(0),
+        dataSources._nestedWhereClauseValue(0),
       );
 
-      _.dataSources.RunQuery();
+      dataSources.RunQuery();
       cy.get("@postExecute").then((resObj: any) => {
         cities = JSON.parse(JSON.stringify(resObj.response.body.data.body));
 
@@ -88,37 +93,37 @@ describe("Validate Firestore DS", () => {
         );
         newCityPath = newCity._ref.path;
 
-        _.agHelper.GetNClick(_.dataSources._whereDelete(0)); //removign where clause, add new condition
-        _.agHelper.TypeDynamicInputValueNValidate(
+        agHelper.GetNClick(dataSources._whereDelete(0)); //removign where clause, add new condition
+        agHelper.TypeDynamicInputValueNValidate(
           "capital",
-          _.dataSources._nestedWhereClauseKey(0),
+          dataSources._nestedWhereClauseKey(0),
         );
-        _.agHelper.TypeDynamicInputValueNValidate(
+        agHelper.TypeDynamicInputValueNValidate(
           "true",
-          _.dataSources._nestedWhereClauseValue(0),
+          dataSources._nestedWhereClauseValue(0),
         );
-        _.dataSources.RunQuery();
+        dataSources.RunQuery();
         cy.get("@postExecute").then((resObj: any) => {
           cities = JSON.stringify(resObj.response.body.data.body);
           cy.wrap(cities).should("deep.equal", "[]"); //validating no record is returned
         });
 
-        _.agHelper.GetNClick(_.dataSources._whereDelete(0)); //removign where clause
+        agHelper.GetNClick(dataSources._whereDelete(0)); //removign where clause
 
         //Update document
-        _.dataSources.ValidateNSelectDropdown(
+        dataSources.ValidateNSelectDropdown(
           "Commands",
           "List Documents",
           "Update document",
         );
 
-        _.agHelper.EnterValue(newCityPath, {
+        agHelper.EnterValue(newCityPath, {
           propFieldName: "",
           directInput: false,
           inputFieldName: "Collection Name",
         });
 
-        _.agHelper.EnterValue(
+        agHelper.EnterValue(
           `{
         "state": "LL"
         }`,
@@ -129,28 +134,28 @@ describe("Validate Firestore DS", () => {
           },
         );
 
-        _.dataSources.RunQuery(); //Update the document
+        dataSources.RunQuery(); //Update the document
 
         //Validate the update happened fine
-        _.dataSources.ValidateNSelectDropdown(
+        dataSources.ValidateNSelectDropdown(
           "Commands",
           "Update document",
           "List Documents",
         );
-        _.agHelper.EnterValue("cities", {
+        agHelper.EnterValue("cities", {
           propFieldName: "",
           directInput: false,
           inputFieldName: "Collection Name",
         });
-        _.agHelper.TypeDynamicInputValueNValidate(
+        agHelper.TypeDynamicInputValueNValidate(
           "name",
-          _.dataSources._nestedWhereClauseKey(0),
+          dataSources._nestedWhereClauseKey(0),
         );
-        _.agHelper.TypeDynamicInputValueNValidate(
+        agHelper.TypeDynamicInputValueNValidate(
           cityName,
-          _.dataSources._nestedWhereClauseValue(0),
+          dataSources._nestedWhereClauseValue(0),
         );
-        _.dataSources.RunQuery();
+        dataSources.RunQuery();
 
         cy.get("@postExecute").then((resObj: any) => {
           cities = JSON.parse(JSON.stringify(resObj.response.body.data.body));
@@ -161,19 +166,19 @@ describe("Validate Firestore DS", () => {
         });
 
         //Get Document
-        _.dataSources.ValidateNSelectDropdown(
+        dataSources.ValidateNSelectDropdown(
           "Commands",
           "List Documents",
           "Get Document",
         );
 
-        _.agHelper.EnterValue(newCityPath, {
+        agHelper.EnterValue(newCityPath, {
           propFieldName: "",
           directInput: false,
           inputFieldName: "Collection/Document path",
         });
 
-        _.dataSources.RunQuery();
+        dataSources.RunQuery();
         cy.get("@postExecute").then((resObj: any) => {
           cities = JSON.parse(JSON.stringify(resObj.response.body.data.body));
           cy.wrap(cities).should("have.property", "name", cityName); //making sure inserted record is returned
@@ -184,19 +189,19 @@ describe("Validate Firestore DS", () => {
 
   it("2. Validate Upsert [Update & Insert]/Delete documents", () => {
     //Validating Upsert
-    _.dataSources.ValidateNSelectDropdown(
+    dataSources.ValidateNSelectDropdown(
       "Commands",
       "Get Document",
       "Upsert Document",
     );
 
-    _.agHelper.EnterValue(newCityPath, {
+    agHelper.EnterValue(newCityPath, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection/Document path",
     });
 
-    _.agHelper.EnterValue(
+    agHelper.EnterValue(
       `{
         "population": 4000000
        }`,
@@ -206,33 +211,33 @@ describe("Validate Firestore DS", () => {
         inputFieldName: "Body",
       },
     );
-    _.dataSources.RunQuery(); //Upsert the document
+    dataSources.RunQuery(); //Upsert the document
 
-    _.dataSources.ValidateNSelectDropdown(
+    dataSources.ValidateNSelectDropdown(
       "Commands",
       "Upsert Document",
       "List Documents",
     );
-    _.agHelper.EnterValue("cities", {
+    agHelper.EnterValue("cities", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection Name",
     });
-    // _.agHelper.EnterValue('["population"]', {
+    // agHelper.EnterValue('["population"]', {
     //   propFieldName: "",
     //   directInput: false,
     //   inputFieldName: "Order By",
     // });
 
-    _.agHelper.TypeDynamicInputValueNValidate(
+    agHelper.TypeDynamicInputValueNValidate(
       "population",
-      _.dataSources._nestedWhereClauseKey(0),
+      dataSources._nestedWhereClauseKey(0),
     );
-    _.agHelper.TypeDynamicInputValueNValidate(
+    agHelper.TypeDynamicInputValueNValidate(
       "4000000",
-      _.dataSources._nestedWhereClauseValue(0),
+      dataSources._nestedWhereClauseValue(0),
     );
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     const expectedKeys = ["_ref", "population"];
     cy.get("@postExecute").then((resObj: any) => {
@@ -244,39 +249,39 @@ describe("Validate Firestore DS", () => {
     });
 
     //Validating Delete
-    _.dataSources.ValidateNSelectDropdown(
+    dataSources.ValidateNSelectDropdown(
       "Commands",
       "List Documents",
       "Delete document",
     );
 
-    _.agHelper.EnterValue(newCityPath, {
+    agHelper.EnterValue(newCityPath, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection/Document path",
     });
-    _.dataSources.RunQuery(); //Delete the record
+    dataSources.RunQuery(); //Delete the record
 
     //Validate Deletion
-    _.dataSources.ValidateNSelectDropdown(
+    dataSources.ValidateNSelectDropdown(
       "Commands",
       "Delete document",
       "List Documents",
     );
-    _.agHelper.EnterValue("cities", {
+    agHelper.EnterValue("cities", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection Name",
     });
-    _.agHelper.TypeDynamicInputValueNValidate(
+    agHelper.TypeDynamicInputValueNValidate(
       "name",
-      _.dataSources._nestedWhereClauseKey(0),
+      dataSources._nestedWhereClauseKey(0),
     );
-    _.agHelper.TypeDynamicInputValueNValidate(
+    agHelper.TypeDynamicInputValueNValidate(
       cityName,
-      _.dataSources._nestedWhereClauseValue(0),
+      dataSources._nestedWhereClauseValue(0),
     );
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       cities = JSON.parse(JSON.stringify(resObj.response.body.data.body));
@@ -288,13 +293,15 @@ describe("Validate Firestore DS", () => {
   });
 
   after("Delete the query & datasource", () => {
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      dsName,
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.SelectEntityByName(dsName, "Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: entityItems.Datasource,
+    });
   });
 });
