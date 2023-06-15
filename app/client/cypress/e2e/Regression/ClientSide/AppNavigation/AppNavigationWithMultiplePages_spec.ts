@@ -21,6 +21,7 @@ describe("Page orientation and navigation related usecases ", function () {
       appSettings.locators._navigationMenuItem,
       "Page1",
     );
+    agHelper.Sleep(3000); //wait a bit before proceeding, for CI!
     agHelper.AssertNetworkStatus("@getWorkspace");
   });
 
