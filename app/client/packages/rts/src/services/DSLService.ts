@@ -1,14 +1,11 @@
-import type { NestedDSL } from "@shared/dsl";
-import { flattenDSLByName, unflattenDSLByName } from "@shared/dsl";
+import { nestGitDSL, unnestGitDSL } from "@shared/dsl";
 
-type DSLWidget = Record<string, any>;
-
-export const getFlattenedDSLForGit = (nestedDSL: NestedDSL<DSLWidget>) => {
-  const { entities } = flattenDSLByName(nestedDSL);
+export const getFlattenedDSLForGit = (nestedDSL) => {
+  const widgets = unnestGitDSL(nestedDSL);
 
   const serializedWidgets = {};
-  Object.keys(entities.canvasWidgets).forEach((widgetName) => {
-    const widget = entities.canvasWidgets[widgetName];
+  Object.keys(widgets).forEach((widgetName) => {
+    const widget = widgets[widgetName];
     let sw: string;
     try {
       sw = JSON.stringify(widget);
@@ -22,7 +19,7 @@ export const getFlattenedDSLForGit = (nestedDSL: NestedDSL<DSLWidget>) => {
 };
 
 export const getNestedDSLFromGit = (flattenedDSL) => {
-  const canvasWidgets = {};
+  const widgets = {};
   Object.keys(flattenedDSL).forEach((widgetName) => {
     const sw = flattenedDSL[widgetName];
     let widget;
@@ -31,10 +28,9 @@ export const getNestedDSLFromGit = (flattenedDSL) => {
     } catch {
       throw new Error(`Widget structure is not valid`);
     }
-    canvasWidgets[widgetName] = widget;
+    widgets[widgetName] = widget;
   });
-  const entities = { canvasWidgets };
 
-  const nestedDSL = unflattenDSLByName("MainContainer", entities);
+  const nestedDSL = nestGitDSL(widgets);
   return nestedDSL;
 };
