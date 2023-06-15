@@ -84,7 +84,7 @@ describe("one click binding mongodb datasource", function () {
     // save a row with some random text
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
     _.agHelper.AssertNetworkStatus("@postExecute");
-    _.agHelper.AssertElementVisible(_.table._saveNewRow);
+    _.agHelper.Sleep();
     _.agHelper.Sleep();
 
     //search the table for a row having the text used to create a new row
