@@ -2,6 +2,7 @@
 import {
   all,
   call,
+  fork,
   put,
   select,
   take,
@@ -42,6 +43,8 @@ import {
   getPlugin,
   getEditorConfig,
   getPluginByPackageName,
+  getDatasourcesUsedInApplicationByActions,
+  getDatasourceStructureById,
 } from "selectors/entitiesSelector";
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import type {
@@ -64,6 +67,7 @@ import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import DatasourcesApi from "api/DatasourcesApi";
 import type {
   Datasource,
+  DatasourceStructure,
   MockDatasource,
   TokenResponse,
 } from "entities/Datasource";
@@ -168,6 +172,32 @@ function* fetchDatasourcesSaga(
       payload: { error },
     });
   }
+}
+
+function* handleFetchDatasourceStructureOnLoad() {
+  try {
+    // we fork to prevent the call from blocking
+    yield fork(fetchDatasourceStructureOnLoad);
+  } catch (error) {}
+}
+
+function* fetchDatasourceStructureOnLoad() {
+  try {
+    // get datasources of all actions used in the the application
+    const datasourcesUsedInApplication: Datasource[] = yield select(
+      getDatasourcesUsedInApplicationByActions,
+    );
+
+    for (const datasource of datasourcesUsedInApplication) {
+      // it is very unlikely for this to happen, but it does not hurt to check.
+      const doesDatasourceStructureAlreadyExist: DatasourceStructure =
+        yield select(getDatasourceStructureById, datasource.id);
+      if (doesDatasourceStructureAlreadyExist) {
+        continue;
+      }
+      yield put(fetchDatasourceStructure(datasource.id, true));
+    }
+  } catch (error) {}
 }
 
 function* fetchMockDatasourcesSaga() {
@@ -1833,6 +1863,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
       addAndFetchDatasourceStructureSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      handleFetchDatasourceStructureOnLoad,
     ),
   ]);
 }
