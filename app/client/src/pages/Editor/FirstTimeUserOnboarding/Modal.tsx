@@ -10,7 +10,10 @@ const SIGNPOSTING_POPUP_WIDTH = "360px";
 
 const StyledMenuContent = styled(MenuContent)<{ animate: boolean }>`
   max-width: ${SIGNPOSTING_POPUP_WIDTH};
-
+  // To handle small screen sizes
+  min-height: 350px;
+  overflow: hidden;
+  display: flex;
   animation-name: slideUpAndFade;
   @keyframes slideUpAndFade {
     from {
@@ -25,6 +28,8 @@ const StyledMenuContent = styled(MenuContent)<{ animate: boolean }>`
 `;
 const Wrapper = styled.div`
   padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
+  display: flex;
+  flex-direction: column;
 `;
 
 function OnboardingModal(props: {

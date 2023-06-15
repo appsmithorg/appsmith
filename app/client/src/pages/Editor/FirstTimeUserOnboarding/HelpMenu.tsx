@@ -66,6 +66,7 @@ function HelpMenu(props: {
     <div
       className={classNames({
         "mt-7": !props.showIntercomConsent,
+        "flex-1": true,
       })}
     >
       {props.showIntercomConsent ? (

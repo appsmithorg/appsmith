@@ -86,6 +86,7 @@ const LottieAnimationWrapper = styled.div`
 
 const ListItem = styled.div<{ disabled: boolean; completed: boolean }>`
   border-radius: var(--ads-v2-border-radius);
+  position: relative;
   cursor: ${(props) => {
     if (props.disabled) {
       return "not-allowed";
@@ -310,7 +311,7 @@ function CheckListItem(props: {
           </div>
         </Sibling>
 
-        <div className="absolute right-6">
+        <div className="absolute right-3">
           <Button
             isDisabled={props.disabled}
             isIconButton
@@ -432,131 +433,146 @@ export default function OnboardingChecklist() {
 
   return (
     <>
-      <div className="flex justify-between pb-4">
-        <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
-          {createMessage(ONBOARDING_CHECKLIST_HEADER)}
+      <div className="flex-1">
+        <div className="flex justify-between pb-4">
+          <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
+            {createMessage(ONBOARDING_CHECKLIST_HEADER)}
+          </Text>
+          <Button
+            isIconButton
+            kind="tertiary"
+            onClick={() => {
+              AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CLOSE_CLICK");
+              dispatch(showSignpostingModal(false));
+            }}
+            startIcon={"close-line"}
+          />
+        </div>
+        <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
+          {createMessage(SIGNPOSTING_POPUP_SUBTITLE)}
         </Text>
-        <Button
-          isIconButton
-          kind="tertiary"
+        <div className="mt-5">
+          <Text
+            color="var(--ads-v2-color-bg-brand-secondary)"
+            kind="heading-xs"
+          >
+            {completedTasks} of 5{" "}
+          </Text>
+          <Text>complete</Text>
+        </div>
+        <StyledDivider className="mt-1" />
+      </div>
+
+      <div className="overflow-auto">
+        <CheckListItem
+          boldText={createMessage(
+            ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold,
+          )}
+          completed={!!(datasources.length || actions.length)}
+          disabled={false}
+          docLink="https://docs.appsmith.com/core-concepts/connecting-to-data-sources"
+          normalText={createMessage(
+            ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal,
+          )}
           onClick={() => {
-            AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CLOSE_CLICK");
+            AnalyticsUtil.logEvent(
+              "SIGNPOSTING_MODAL_CREATE_DATASOURCE_CLICK",
+              {
+                from: "CHECKLIST",
+              },
+            );
             dispatch(showSignpostingModal(false));
+            history.push(
+              integrationEditorURL({
+                pageId,
+                selectedTab: INTEGRATION_TABS.NEW,
+              }),
+            );
           }}
-          startIcon={"close-line"}
+          step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
+        />
+        <CheckListItem
+          boldText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
+          completed={!!actions.length}
+          disabled={!datasources.length && !actions.length}
+          docLink="https://docs.appsmith.com/core-concepts/data-access-and-binding/querying-a-database"
+          normalPrefixText={createMessage(
+            ONBOARDING_CHECKLIST_CREATE_A_QUERY.normalPrefix,
+          )}
+          normalText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
+          onClick={() => {
+            AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_QUERY_CLICK", {
+              from: "CHECKLIST",
+            });
+            dispatch(showSignpostingModal(false));
+            history.push(
+              integrationEditorURL({
+                pageId,
+                selectedTab: INTEGRATION_TABS.ACTIVE,
+              }),
+            );
+            // Event for datasource creation click
+            const entryPoint = DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
+            AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+              entryPoint,
+            });
+          }}
+          step={SIGNPOSTING_STEP.CREATE_A_QUERY}
+        />
+        <CheckListItem
+          boldText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}
+          completed={Object.keys(widgets).length > 1}
+          disabled={false}
+          docLink="https://docs.appsmith.com/reference/widgets"
+          normalText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
+          onClick={() => {
+            AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_ADD_WIDGET_CLICK", {
+              from: "CHECKLIST",
+            });
+            dispatch(showSignpostingModal(false));
+            dispatch(toggleInOnboardingWidgetSelection(true));
+            dispatch(forceOpenWidgetPanel(true));
+            history.push(builderURL({ pageId }));
+          }}
+          step={SIGNPOSTING_STEP.ADD_WIDGETS}
+        />
+        <CheckListItem
+          boldText={createMessage(
+            ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.bold,
+          )}
+          completed={isConnectionPresent}
+          disabled={Object.keys(widgets).length === 1 || !actions.length}
+          docLink="https://docs.appsmith.com/core-concepts/data-access-and-binding/displaying-data-read"
+          normalText={createMessage(
+            ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal,
+          )}
+          onClick={onconnectYourWidget}
+          step={SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET}
+        />
+        <CheckListItem
+          boldText={createMessage(
+            ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.bold,
+          )}
+          completed={isDeployed}
+          disabled={false}
+          normalText={createMessage(
+            ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal,
+          )}
+          onClick={() => {
+            AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_PUBLISH_CLICK", {
+              from: "CHECKLIST",
+            });
+            dispatch(showSignpostingModal(false));
+            dispatch({
+              type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
+              payload: {
+                applicationId,
+              },
+            });
+          }}
+          step={SIGNPOSTING_STEP.DEPLOY_APPLICATIONS}
         />
       </div>
-      <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
-        {createMessage(SIGNPOSTING_POPUP_SUBTITLE)}
-      </Text>
-      <div className="mt-5">
-        <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
-          {completedTasks} of 5{" "}
-        </Text>
-        <Text>complete</Text>
-      </div>
-      <StyledDivider className="mt-1" />
-      <CheckListItem
-        boldText={createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold)}
-        completed={!!(datasources.length || actions.length)}
-        disabled={false}
-        docLink="https://docs.appsmith.com/core-concepts/connecting-to-data-sources"
-        normalText={createMessage(
-          ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal,
-        )}
-        onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_DATASOURCE_CLICK", {
-            from: "CHECKLIST",
-          });
-          dispatch(showSignpostingModal(false));
-          history.push(
-            integrationEditorURL({
-              pageId,
-              selectedTab: INTEGRATION_TABS.NEW,
-            }),
-          );
-        }}
-        step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
-      />
-      <CheckListItem
-        boldText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
-        completed={!!actions.length}
-        disabled={!datasources.length && !actions.length}
-        docLink="https://docs.appsmith.com/core-concepts/data-access-and-binding/querying-a-database"
-        normalPrefixText={createMessage(
-          ONBOARDING_CHECKLIST_CREATE_A_QUERY.normalPrefix,
-        )}
-        normalText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
-        onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_QUERY_CLICK", {
-            from: "CHECKLIST",
-          });
-          dispatch(showSignpostingModal(false));
-          history.push(
-            integrationEditorURL({
-              pageId,
-              selectedTab: INTEGRATION_TABS.ACTIVE,
-            }),
-          );
-          // Event for datasource creation click
-          const entryPoint = DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
-          AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-            entryPoint,
-          });
-        }}
-        step={SIGNPOSTING_STEP.CREATE_A_QUERY}
-      />
-      <CheckListItem
-        boldText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}
-        completed={Object.keys(widgets).length > 1}
-        disabled={false}
-        docLink="https://docs.appsmith.com/reference/widgets"
-        normalText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
-        onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_ADD_WIDGET_CLICK", {
-            from: "CHECKLIST",
-          });
-          dispatch(showSignpostingModal(false));
-          dispatch(toggleInOnboardingWidgetSelection(true));
-          dispatch(forceOpenWidgetPanel(true));
-          history.push(builderURL({ pageId }));
-        }}
-        step={SIGNPOSTING_STEP.ADD_WIDGETS}
-      />
-      <CheckListItem
-        boldText={createMessage(
-          ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.bold,
-        )}
-        completed={isConnectionPresent}
-        disabled={Object.keys(widgets).length === 1 || !actions.length}
-        docLink="https://docs.appsmith.com/core-concepts/data-access-and-binding/displaying-data-read"
-        normalText={createMessage(
-          ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal,
-        )}
-        onClick={onconnectYourWidget}
-        step={SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET}
-      />
-      <CheckListItem
-        boldText={createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.bold)}
-        completed={isDeployed}
-        disabled={false}
-        normalText={createMessage(
-          ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal,
-        )}
-        onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_PUBLISH_CLICK", {
-            from: "CHECKLIST",
-          });
-          dispatch(showSignpostingModal(false));
-          dispatch({
-            type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-            payload: {
-              applicationId,
-            },
-          });
-        }}
-        step={SIGNPOSTING_STEP.DEPLOY_APPLICATIONS}
-      />
     </>
   );
 }
