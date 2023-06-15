@@ -81,8 +81,6 @@ export const dataTreeTypeDefCreator = (
           extraDefsToDefine,
         );
         jsPropertiesDef[funcName] = funcTypeDef;
-        // To also show funcName.data in autocompletion hint, we explictly add it here
-        jsPropertiesDef[`${funcName}.data`] = funcTypeDef.data;
       }
 
       for (let i = 0; i < entityConfig?.variables?.length; i++) {
@@ -159,20 +157,24 @@ export function generateTypeDef(
 
 export const flattenDef = (def: Def, entityName: string): Def => {
   const flattenedDef = def;
-  if (isTrueObject(def[entityName])) {
-    Object.entries(def[entityName]).forEach(([key, value]) => {
-      if (!key.startsWith("!")) {
-        flattenedDef[`${entityName}.${key}`] = value;
-        if (isTrueObject(value)) {
-          Object.entries(value).forEach(([subKey, subValue]) => {
-            if (!subKey.startsWith("!")) {
-              flattenedDef[`${entityName}.${key}.${subKey}`] = subValue;
-            }
-          });
-        }
-      }
+  if (!isTrueObject(def[entityName])) return flattenedDef;
+  Object.entries(def[entityName]).forEach(([key, value]) => {
+    if (key.startsWith("!")) return;
+    const keyIsValid = isValidVariableName(key);
+    const parentCompletion = !keyIsValid
+      ? `${entityName}["${key}"]`
+      : `${entityName}.${key}`;
+    flattenedDef[parentCompletion] = value;
+    if (!isTrueObject(value)) return;
+    Object.entries(value).forEach(([subKey, subValue]) => {
+      if (subKey.startsWith("!")) return;
+      const childKeyIsValid = isValidVariableName(subKey);
+      const childCompletion = !childKeyIsValid
+        ? `${parentCompletion}["${subKey}"]`
+        : `${parentCompletion}.${subKey}`;
+      flattenedDef[childCompletion] = subValue;
     });
-  }
+  });
   return flattenedDef;
 };
 

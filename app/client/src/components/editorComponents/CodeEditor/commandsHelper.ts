@@ -101,7 +101,11 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
               to: editor.getCursor(),
               selectedHint: 1,
             };
-            CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+            function handleSelection(selected: CommandsCompletion) {
+              currentSelection = selected;
+              CodeMirror.off(hints, "pick", handleSelection);
+            }
+            function handlePick(selected: CommandsCompletion) {
               update(value.slice(0, slashIndex) + selected.text);
               setTimeout(() => {
                 editor.focus();
@@ -129,10 +133,10 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
               } catch (e) {
                 log.debug(e, "Error logging slash command");
               }
-            });
-            CodeMirror.on(hints, "select", (selected: CommandsCompletion) => {
-              currentSelection = selected;
-            });
+              CodeMirror.off(hints, "pick", handlePick);
+            }
+            CodeMirror.on(hints, "pick", handleSelection);
+            CodeMirror.on(hints, "select", handlePick);
             return hints;
           },
           extraKeys: {
