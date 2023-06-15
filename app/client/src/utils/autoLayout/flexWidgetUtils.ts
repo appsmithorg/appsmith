@@ -231,10 +231,11 @@ export function getWidgetCssWidth(
   hasAutoWidth?: boolean,
   responsiveBehavior?: ResponsiveBehavior,
   columns?: number,
+  parentWidth?: number,
 ): string | undefined {
   if (responsiveBehavior !== ResponsiveBehavior.Fill) {
     if (hasAutoWidth) return "auto";
-    if (columns) return `${columns}%`;
+    if (columns && parentWidth) return `${parentWidth * 0.01 * columns}px`;
   }
   return;
 }
