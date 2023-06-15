@@ -6,7 +6,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe("one click binding mongodb datasource", function () {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 800,600);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 800, 600);
   });
 
   it("1. test connect datasource", () => {
