@@ -192,8 +192,7 @@ describe("Git import flow ", function () {
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Switch to master and verify data in edit and view mode", () => {
