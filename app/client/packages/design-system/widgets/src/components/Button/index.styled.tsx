@@ -3,32 +3,9 @@ import { Button as HeadlessButton } from "@design-system/headless";
 
 import type { ButtonProps } from "./Button";
 
-export const BUTTON_ICON_POSITIONS = ["start", "end"] as const;
-
-export type ButtonIconPosition = (typeof BUTTON_ICON_POSITIONS)[number];
-
-export const BUTTON_VARIANT = {
-  filled: "filled",
-  outlined: "outlined",
-  ghost: "ghost",
-} as const;
-
-export type ButtonVariant =
-  (typeof BUTTON_VARIANT)[keyof typeof BUTTON_VARIANT];
-
-export const BUTTON_COLOR = {
-  accent: "accent",
-  neutral: "neutral",
-  positive: "positive",
-  negative: "negative",
-  warning: "warning",
-} as const;
-
-export type ButtonColor = (typeof BUTTON_COLOR)[keyof typeof BUTTON_COLOR];
-
 export const buttonStyles = css<ButtonProps>`
-  ${({ color = BUTTON_COLOR.accent, variant = BUTTON_VARIANT.filled }) => {
-    if (variant === BUTTON_VARIANT.filled) {
+  ${({ color = "accent", variant = "filled" }) => {
+    if (variant === "filled") {
       return css`
         background-color: var(--color-bg-${color});
         color: var(--color-fg-on-${color});
@@ -44,7 +21,7 @@ export const buttonStyles = css<ButtonProps>`
       `;
     }
 
-    if (variant === BUTTON_VARIANT.outlined) {
+    if (variant === "outlined") {
       return css`
         background-color: transparent;
         color: var(--color-fg-${color});
@@ -61,7 +38,7 @@ export const buttonStyles = css<ButtonProps>`
       `;
     }
 
-    if (variant === BUTTON_VARIANT.ghost) {
+    if (variant === "ghost") {
       return css`
         background: transparent;
         color: var(--color-fg-${color});
