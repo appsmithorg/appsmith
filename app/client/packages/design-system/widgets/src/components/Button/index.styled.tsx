@@ -95,6 +95,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
 
   &[data-loading] {
     cursor: default;
+    /** adding opacity 1 here because we are lowering opacity for aria-disabled and when loading is true, aria-disabled is also true  */
     opacity: 1;
   }
 
