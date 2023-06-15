@@ -258,8 +258,8 @@ export function extractReferencesFromJSSnippet(
   tree: Record<string, unknown>,
 ) {
   const { references } = extractIdentifierInfoFromCode(jsSnippet, 2);
-  const prunedReferences = references.map((reference) =>
-    getPrunedReference(reference, tree),
+  const prunedReferences = flatten(
+    references.map((reference) => getPrunedReference(reference, tree)),
   );
   return uniq(prunedReferences);
 }
@@ -267,21 +267,23 @@ export function extractReferencesFromJSSnippet(
 function getPrunedReference(
   reference: string,
   tree: Record<string, unknown>,
-): string {
+): string[] {
   if (has(tree, reference)) {
-    return reference;
+    return [reference];
   }
   const subpaths = toPath(reference);
   let currentString = "";
+  const references = [];
   // We want to keep going till we reach top level
   while (subpaths.length > 0) {
     currentString = convertPathToString(subpaths);
+    references.push(currentString);
     // We've found the dep, add it and return
     if (has(tree, currentString)) {
-      return currentString;
+      return references;
     }
     subpaths.pop();
   }
 
-  return reference;
+  return references;
 }
