@@ -1,7 +1,5 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { Text, Link, Button, Icon } from "design-system";
-import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
@@ -10,14 +8,8 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import styled from "styled-components";
-
-const StyledLink = styled(Link)`
-  text-decoration: underline !important;
-  display: inline;
-`;
+import { getRampLink, showProductRamps } from "utils/ProductRamps";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 
 function PrivateEmbeddingContent(props: {
   userAppPermissions: any[];
@@ -43,69 +35,56 @@ function PrivateEmbeddingContent(props: {
 }
 
 export default PrivateEmbeddingContent;
-// eslint-disable-next-line
-function EmbeddedLink() {
-  const appsmithConfigs = getAppsmithConfigs();
-  const instanceId = useSelector(getInstanceId);
-
-  return (
-    <Text kind="action-m">
-      {createMessage(IN_APP_EMBED_SETTING.upgradeContent)}&nbsp;
-      <StyledLink
-        onClick={() => {
-          window.open(
-            PRICING_PAGE_URL(
-              appsmithConfigs.pricingUrl,
-              appsmithConfigs.cloudHosting ? "Cloud" : "CE",
-              instanceId,
-            ),
-            "_blank",
-          );
-        }}
-        rel="noreferrer"
-        to="#"
-      >
-        {createMessage(IN_APP_EMBED_SETTING.appsmithBusinessEdition)}
-      </StyledLink>
-    </Text>
-  );
-}
 
 export function PrivateEmbedRampModal() {
-  return (
-    <div className="flex justify-between items-start">
-      <div className="flex flex-col gap-1 w-4/5">
-        <div className="flex">
-          <Icon className="mr-1" name="lock-2-line" size="md" />
-          <Text kind="body-m">
-            {createMessage(IN_APP_EMBED_SETTING.privateAppsText)}
+  if (showProductRamps(RAMP_NAME.PRIVATE_EMBED)) {
+    return (
+      <div className="flex justify-between items-start">
+        <div className="flex flex-col gap-1 w-4/5">
+          <div className="flex">
+            <Icon className="mr-1" name="lock-2-line" size="md" />
+            <Text kind="body-m">
+              {createMessage(IN_APP_EMBED_SETTING.privateAppsText)}
+            </Text>
+          </div>
+          <Text
+            className="w-7/10 block"
+            color="var(--ads-v2-color-fg-muted)"
+            kind="body-s"
+          >
+            {createMessage(IN_APP_EMBED_SETTING.rampSubtextModal)}
           </Text>
         </div>
-        <Text
-          className="w-7/10 block"
-          color="var(--ads-v2-color-fg-muted)"
-          kind="body-s"
+        <Link
+          kind="secondary"
+          startIcon="share-box-line"
+          to={getRampLink("share_modal")}
         >
-          {createMessage(IN_APP_EMBED_SETTING.rampSubtextModal)}
-        </Text>
+          {createMessage(IN_APP_EMBED_SETTING.rampLinktext)}
+        </Link>
       </div>
-      <Link kind="secondary" startIcon="share-box-line">
-        {createMessage(IN_APP_EMBED_SETTING.rampLinktext)}
-      </Link>
-    </div>
-  );
+    );
+  }
+  return null;
 }
 export function PrivateEmbedRampSidebar() {
-  return (
-    <div className="mt-6">
-      <Text kind="body-m">
-        {createMessage(IN_APP_EMBED_SETTING.rampSubtextSidebar)}
-      </Text>
-      <Link className="!inline" kind="primary">
-        {createMessage(IN_APP_EMBED_SETTING.rampLinktextvariant2)}
-      </Link>
-    </div>
-  );
+  if (showProductRamps(RAMP_NAME.PRIVATE_EMBED)) {
+    return (
+      <div className="mt-6">
+        <Text kind="body-m">
+          {createMessage(IN_APP_EMBED_SETTING.rampSubtextSidebar)}
+        </Text>
+        <Link
+          className="!inline"
+          kind="primary"
+          to={getRampLink("app_settings")}
+        >
+          {createMessage(IN_APP_EMBED_SETTING.rampLinktextvariant2)}
+        </Link>
+      </div>
+    );
+  }
+  return null;
 }
 
 function AppSettingsContent({
