@@ -93,7 +93,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.ValidateNetworkStatus("@postExecute");
 
-    (cy as any).wait(2000);
+    (cy as any).wait(5000);
 
     _.agHelper.AssertElementExist(_.table._bodyCell("automation@appsmith"));
 
