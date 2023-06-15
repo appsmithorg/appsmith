@@ -347,7 +347,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "connection.ssl.authTypeControl",
             "Use Self-Signed Certificate",
             "",
-            false,
+            true,
           )}
         </FormInputContainer>
         {this.renderSelfSignedCertificateFields()}
@@ -705,9 +705,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
     const isConnectSelfSigned = _.get(connection, "ssl.authTypeControl");
 
+    if (
+      !isAuthenticationTypeOAuth2 ||
+      !(isGrantTypeAuthorizationCode || isConnectSelfSigned)
+    )
+      return null;
+
     return (
       <Collapsible title="Advanced Settings">
-        {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
+        {isGrantTypeAuthorizationCode && (
           <FormInputContainer
             data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
           >
@@ -730,7 +736,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             )}
           </FormInputContainer>
         )}
-        {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
+        {isGrantTypeAuthorizationCode && (
           <FormInputContainer
             data-replay-id={btoa(
               "authentication.refreshTokenClientCredentialsLocation",
@@ -755,7 +761,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             )}
           </FormInputContainer>
         )}
-        {isAuthenticationTypeOAuth2 && isConnectSelfSigned && (
+        {isConnectSelfSigned && (
           <FormInputContainer data-replay-id={btoa("selfsignedcert")}>
             {this.renderCheckboxViaFormControl(
               "authentication.useSelfSignedCert",
