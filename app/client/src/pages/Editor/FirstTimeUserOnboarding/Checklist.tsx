@@ -216,6 +216,7 @@ function CheckListItem(props: {
   completed: boolean;
   step: SIGNPOSTING_STEP;
   docLink?: string;
+  testid: string;
 }) {
   const stepState = useSelector((state) =>
     getSignpostingStepStateByStep(state, props.step),
@@ -250,6 +251,7 @@ function CheckListItem(props: {
           "flex items-center justify-between": true,
         })}
         completed={props.completed}
+        data-testid={props.testid}
         disabled={props.disabled}
         onClick={
           props.completed
@@ -406,7 +408,10 @@ export default function OnboardingChecklist() {
   if (isFirstTimeUserOnboardingComplete) {
     return (
       <>
-        <div className="flex justify-between pb-3">
+        <div
+          className="flex justify-between pb-3"
+          data-testid="checklist-completion-banner"
+        >
           <Text
             className="flex-1"
             color="var(--ads-v2-color-fg-emphasis)"
@@ -454,6 +459,7 @@ export default function OnboardingChecklist() {
         <div className="mt-5">
           <Text
             color="var(--ads-v2-color-bg-brand-secondary)"
+            data-testid="checklist-completion-info"
             kind="heading-xs"
           >
             {completedTasks} of 5{" "}
@@ -462,8 +468,10 @@ export default function OnboardingChecklist() {
         </div>
         <StyledDivider className="mt-1" />
       </div>
-
-      <div className="overflow-auto min-h-[60px]">
+      <div
+        className="overflow-auto min-h-[60px]"
+        data-testid="checklist-wrapper"
+      >
         <CheckListItem
           boldText={createMessage(
             ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold,
@@ -490,6 +498,7 @@ export default function OnboardingChecklist() {
             );
           }}
           step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
+          testid={"checklist-datasource"}
         />
         <CheckListItem
           boldText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
@@ -518,6 +527,7 @@ export default function OnboardingChecklist() {
             });
           }}
           step={SIGNPOSTING_STEP.CREATE_A_QUERY}
+          testid={"checklist-action"}
         />
         <CheckListItem
           boldText={createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}
@@ -535,6 +545,7 @@ export default function OnboardingChecklist() {
             history.push(builderURL({ pageId }));
           }}
           step={SIGNPOSTING_STEP.ADD_WIDGETS}
+          testid={"checklist-widget"}
         />
         <CheckListItem
           boldText={createMessage(
@@ -548,6 +559,7 @@ export default function OnboardingChecklist() {
           )}
           onClick={onconnectYourWidget}
           step={SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET}
+          testid={"checklist-connection"}
         />
         <CheckListItem
           boldText={createMessage(
@@ -571,6 +583,7 @@ export default function OnboardingChecklist() {
             });
           }}
           step={SIGNPOSTING_STEP.DEPLOY_APPLICATIONS}
+          testid={"checklist-deploy"}
         />
       </div>
     </>
