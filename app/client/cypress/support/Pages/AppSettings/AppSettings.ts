@@ -23,6 +23,7 @@ export class AppSettings {
       },
     },
     _navigationMenuItem: ".t--page-switch-tab",
+    _sideNavbar: ".t--app-viewer-navigation-sidebar",
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
     _updateStatus: ".ads-v2-icon.rotate",
