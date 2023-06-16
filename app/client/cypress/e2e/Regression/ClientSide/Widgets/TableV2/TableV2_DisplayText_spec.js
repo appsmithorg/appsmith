@@ -36,7 +36,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
     _.agHelper.GetNClick(colSettings);
     cy.changeColumnType("URL");
     cy.testJsontext("displaytext", "{{['X','Y','Z'][currentIndex]}}");
-    cy.get(publish.searchInput).first().type("X");
+    cy.get(table._searchInput).type("X");
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("X");
     });
