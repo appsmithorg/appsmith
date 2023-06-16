@@ -245,6 +245,7 @@ class ScopeMatchRule implements AutocompleteRule {
 export class AutocompleteSorter {
   static entityDefInfo: DataTreeDefEntityInformation | undefined;
   static currentFieldInfo: FieldEntityInformation;
+  static bestMatchEndIndex: number;
   static sort(
     completions: Completion[],
     currentFieldInfo: FieldEntityInformation,
@@ -253,6 +254,7 @@ export class AutocompleteSorter {
   ) {
     AutocompleteSorter.entityDefInfo = entityDefInfo;
     AutocompleteSorter.currentFieldInfo = currentFieldInfo;
+
     const sortedScoredCompletions = completions
       .sort((compA, compB) => {
         return compA.text.toLowerCase().localeCompare(compB.text.toLowerCase());
@@ -270,6 +272,7 @@ export class AutocompleteSorter {
       ),
       3,
     );
+    AutocompleteSorter.bestMatchEndIndex = bestMatchEndIndex;
     const sortedCompletions = sortedScoredCompletions.map(
       (comp) => comp.completion,
     );

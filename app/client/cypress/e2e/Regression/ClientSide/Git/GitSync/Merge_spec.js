@@ -7,7 +7,7 @@ let childBranchKey = "ChildBranch";
 let mainBranch = "master";
 describe("Git sync modal: merge tab", function () {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;

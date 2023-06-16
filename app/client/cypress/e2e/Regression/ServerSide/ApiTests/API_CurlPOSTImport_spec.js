@@ -1,6 +1,6 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import ApiEditor from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { dataSources } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function () {
   it("1. Test curl import flow for POST action with JSON body", function () {

@@ -78,7 +78,7 @@ export class PageSettings {
             newPageName,
           );
           this.agHelper.PressEnter();
-          this.agHelper.ValidateNetworkStatus("@updatePage", 200);
+          this.agHelper.AssertNetworkStatus("@updatePage", 200);
           this.appSettings.CheckUrl(appName as string, pageNameToBeVerified);
           if (reset) {
             this.agHelper.RemoveCharsNType(
@@ -87,7 +87,7 @@ export class PageSettings {
               currentPageName as string,
             );
             this.agHelper.PressEnter();
-            this.agHelper.ValidateNetworkStatus("@updatePage", 200);
+            this.agHelper.AssertNetworkStatus("@updatePage", 200);
             this.appSettings.CheckUrl(
               appName as string,
               currentPageName as string,
@@ -114,7 +114,7 @@ export class PageSettings {
             );
           }
           this.agHelper.PressEnter();
-          this.agHelper.ValidateNetworkStatus("@updatePage", 200);
+          this.agHelper.AssertNetworkStatus("@updatePage", 200);
           this.appSettings.CheckUrl(appName as string, "", customSlug);
         });
       });
@@ -131,12 +131,12 @@ export class PageSettings {
 
   TogglePageNavigation() {
     this.agHelper.GetNClick(this.locators._showPageNavSwitch);
-    this.agHelper.ValidateNetworkStatus("@updatePage", 200);
+    this.agHelper.AssertNetworkStatus("@updatePage", 200);
   }
 
   ToggleHomePage() {
     this.agHelper.GetNClick(this.locators._setAsHomePageSwitch);
-    this.agHelper.ValidateNetworkStatus("@makePageDefault", 200);
+    this.agHelper.AssertNetworkStatus("@makePageDefault", 200);
   }
 
   AssertHomePage(pageName: string) {

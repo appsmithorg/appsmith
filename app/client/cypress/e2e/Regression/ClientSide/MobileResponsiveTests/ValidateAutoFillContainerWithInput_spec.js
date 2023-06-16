@@ -1,9 +1,10 @@
-const dsl = require("../../../../fixtures/autoLayoutContainerWidgetDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Validating Mobile Views", function () {
   it("1. Validate change with height width for widgets", function () {
-    cy.addDsl(dsl);
-    cy.wait(5000); //for dsl to settle
+    cy.fixture("autoLayoutContainerWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     //cy.openPropertyPane("containerwidget");
     cy.get(".t--entity-name:contains('Container1')").click({ force: true });
     cy.get(".t--widget-containerwidget")
@@ -14,7 +15,7 @@ describe("Validating Mobile Views", function () {
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")
           .then((newheight) => {
-            cy.PublishtheApp();
+            _.deployMode.DeployApp();
             cy.get(".t--widget-containerwidget")
               .first()
               .invoke("css", "height")
