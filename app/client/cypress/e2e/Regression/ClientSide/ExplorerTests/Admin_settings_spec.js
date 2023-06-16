@@ -146,10 +146,8 @@ describe("Admin settings page", function () {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
     cy.get(adminsSettings.saveButton).click();
-    cy.wait("@postEnvVariables").then((interception) => {
-      expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
-        instanceName,
-      );
+    cy.wait("@postTenantConfig").then((interception) => {
+      expect(interception.request.body.instanceName).to.equal(instanceName);
     });
     cy.get(adminsSettings.restartNotice).should("be.visible");
     cy.wait(3000);
@@ -181,10 +179,8 @@ describe("Admin settings page", function () {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
     cy.get(adminsSettings.saveButton).click();
-    cy.wait("@postEnvVariables").then((interception) => {
-      expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
-        instanceName,
-      );
+    cy.wait("@postTenantConfig").then((interception) => {
+      expect(interception.request.body.instanceName).to.equal(instanceName);
       expect(interception.request.body.APPSMITH_MAIL_FROM).to.equal(
         `${fromAddress}@appsmith.com`,
       );
