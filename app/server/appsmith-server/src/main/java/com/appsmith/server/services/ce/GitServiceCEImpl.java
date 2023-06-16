@@ -2220,6 +2220,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         branchName);
                             })
                             .onErrorResume(throwable -> {
+                                log.error("Git Discard & Rebase failed {}", throwable.getMessage());
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "discard changes", "Please create a new branch and resolve the conflicts on remote repository before proceeding ahead."));
                             })
                             .flatMap(applicationJson ->
