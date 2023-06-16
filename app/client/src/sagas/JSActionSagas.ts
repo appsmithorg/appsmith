@@ -269,15 +269,6 @@ export function* deleteJSCollectionSaga(
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
-    const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-
-    yield put(
-      updateAndSaveLayout(widgets, {
-        shouldReplay: false,
-        isRetry: false,
-        updatedWidgetIds: [],
-      }),
-    );
 
     if (isValidResponse) {
       // @ts-expect-error: response.data is of type unknown
@@ -297,6 +288,15 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
+
+      const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+      yield put(
+        updateAndSaveLayout(widgets, {
+          shouldReplay: false,
+          isRetry: false,
+          updatedWidgetIds: [],
+        }),
+      );
     }
   } catch (error) {
     yield put(deleteJSCollectionError({ id: actionPayload.payload.id }));
