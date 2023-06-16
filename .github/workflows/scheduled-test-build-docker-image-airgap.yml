@@ -1,0 +1,271 @@
+name: Scheduled Test Build Docker Image Airgap
+
+on:
+  # This workflow will run everyday at 07:00 AM IST (01:30 AM UTC)
+  schedule:
+    - cron: '5 6 * * *'
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+jobs:
+
+  server-build:
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  client-build-airgap:
+    name: client-build-airgap
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
+
+  rts-build:
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  build-docker-image:
+    needs: [ client-build-airgap, server-build, rts-build ]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
+
+  perf-test:
+    needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test
+    uses: ./.github/workflows/perf-test.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
+
+  ci-test:
+    needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: ci-test
+    uses: ./.github/workflows/ci-test.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
+
+  ci-test-result:
+    needs: [ci-test]
+    if: always() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository))
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - run: echo "All ci-test matrices completed"
+
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
+      # Download failed_spec_ci list for all CI container jobs
+      - uses: actions/download-artifact@v3
+        if: needs.ci-test.result != 'success'
+        id: download_ci
+        with:
+          name: failed-spec-ci
+          path: ~/failed_spec_ci
+
+      # In case for any ci job failure, create combined failed spec
+      - name: "combine all specs for CI"
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/combined_failed_spec_ci
+          cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
+
+      # Force save the CI failed spec list into a cache
+      - name: Store the combined run result for CI
+        if: needs.ci-test.result != 'success'
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/combined_failed_spec_ci
+          key: ${{ github.run_id }}-"ci-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      # Upload combined failed CI spec list to a file
+      # This is done for debugging.
+      - name: upload combined failed spec
+        if: needs.ci-test.result != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
+
+      - name: Return status for ui-matrix
+        run: |
+          if [[ "${{ needs.ci-test.result }}" == "success" ]]; then
+            echo "Integration tests completed successfully!";
+            exit 0;
+          elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
+            echo "Integration tests were skipped";
+            exit 1;
+          else
+            echo "Integration tests have failed";
+            exit 1;
+          fi
+
+  package:
+    needs: ci-test
+    runs-on: ubuntu-latest
+    # Set permissions since we're using OIDC token authentication between Depot and GitHub
+    permissions:
+      contents: read
+      id-token: write
+
+    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
+    if: (success() && github.ref == 'refs/heads/master') ||
+      ( always() &&
+      (
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+      )
+      )
+      )
+
+    steps:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v3
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: client-build-airgap
+          path: app/client
+
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p app/client/build_airgap
+          tar -xvf app/client/build.tar -C app/client/build_airgap
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/client/packages/rts/dist
+
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/client/packages/rts/dist/rts-dist.tar -C app/client/packages/rts/
+          echo "Cleaning up the tar files"
+          rm app/client/packages/rts/dist/rts-dist.tar
+
+      # Here, the github.ref_name gives us the branch name. Example: refs/heads/master => master
+      # The 'tag' variable is used to tag the docker image with that branch name.
+      # The 'branch_basename' variable is used to tag the docker image with the branch name without the semantic prefix 'ci/','feat/' etc.. prefix.
+      # We need both because with airgap we can manually trigger workflow from any branch (not just release branch) and we need to tag the docker image with the branch name.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          echo tag=$(echo ${{github.ref_name}}) >> $GITHUB_OUTPUT
+          echo branch_basename=$(basename ${{github.ref_name}}) >> $GITHUB_OUTPUT
+
+      - name: Get the airgapped version tag to tag airgap docker image
+        id: airgap_vars
+        run: |
+          if [[ ${{steps.vars.outputs.tag}} == "ci/airgap-"* ]]; then
+            echo airgap_tag=$(echo "${{ steps.vars.outputs.tag }}" | cut -d'-' -f2-) >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push airgap release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_RELEASE }}
+            APPSMITH_AIRGAP_ENABLED=true
+            APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.vars.outputs.branch_basename}}
+
+      - name: Build and push airgap master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_AIRGAP_ENABLED=true
+            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY }}
+            APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:nightly
+
+      # assert if we have the version tag for airgap image
+      - name: Build and push airgap tagged image to Docker Hub with latest and version tags
+        if: success() && ${{steps.airgap_vars.outputs.airgap_tag}} && github.event_name == 'workflow_dispatch'
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_AIRGAP_ENABLED=true
+            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY }}
+            APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.airgap_vars.outputs.airgap_tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:latest
+

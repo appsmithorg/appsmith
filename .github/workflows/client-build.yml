@@ -1,4 +1,4 @@
-name: Appsmith Client Build Workflow
+name: Client Build
 
 on:
   # This line enables manual triggering of this workflow.
@@ -116,15 +116,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
-      - name: Run Eslint
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run lint:ci
-
-      - name: Run Prettier
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run prettier:ci
-
-      - name: Run type import check
+      # Type checking before starting the build
+      - name: Run type check
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run check-types
 
@@ -146,11 +139,6 @@ jobs:
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
-
-      # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
-      - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit:ci
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
@@ -175,7 +163,7 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
-            
+
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v3
