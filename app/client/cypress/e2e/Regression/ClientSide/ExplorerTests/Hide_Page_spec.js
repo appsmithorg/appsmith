@@ -1,5 +1,5 @@
 const pages = require("../../../../locators/Pages.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const pageOne = "MyPage1";
 const pageTwo = "MyPage2";
@@ -14,15 +14,15 @@ describe("Hide / Show page test functionality", function () {
     });
     cy.get(pages.hidePage).click({ force: true });
     cy.ClearSearch();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--page-switch-tab").should("have.length", 2);
     //Show page test
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.get(`.t--entity-name:contains('MyPage2')`).trigger("mouseover");
     cy.hoverAndClick("MyPage2");
     cy.selectAction("Show");
     cy.ClearSearch();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--page-switch-tab").should("have.length", 3);
   });
 });

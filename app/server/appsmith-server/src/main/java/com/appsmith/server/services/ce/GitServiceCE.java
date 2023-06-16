@@ -70,7 +70,7 @@ public interface GitServiceCE {
 
     Mono<Application> deleteBranch(String defaultApplicationId, String branchName);
 
-    Mono<Application> discardChanges(String defaultApplicationId, String branchName);
+    Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull);
 
     Mono<List<GitDocsDTO>> getGitDocUrls();
 

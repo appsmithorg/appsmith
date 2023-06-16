@@ -1,5 +1,5 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import * as _ from "../../../support/Objects/ObjectsCore";
+import { dataSources } from "../../../support/Objects/ObjectsCore";
 let datasourceName;
 
 describe("Postgres datasource test cases", function () {
@@ -8,10 +8,10 @@ describe("Postgres datasource test cases", function () {
   });
 
   it("1. Create, test, save then delete a postgres datasource", function () {
-    _.dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Postgres");
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = JSON.stringify(httpResponse.response.body.data.name);
-      _.dataSources.DeleteDatasouceFromActiveTab(
+      dataSources.DeleteDatasouceFromActiveTab(
         datasourceName.replace(/['"]+/g, ""),
       );
     });

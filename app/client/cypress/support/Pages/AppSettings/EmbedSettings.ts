@@ -44,7 +44,7 @@ export class EmbedSettings {
     input.invoke("attr", "checked").then((value) => {
       if (value !== check) {
         this.agHelper.GetNClick(this.locators._showNavigationBar);
-        this.agHelper.ValidateNetworkStatus("@updateApplication");
+        this.agHelper.AssertNetworkStatus("@updateApplication");
       }
     });
   }
@@ -59,7 +59,7 @@ export class EmbedSettings {
           this.agHelper.GetNClick(this.locators._confirmForking);
         }
 
-        this.agHelper.ValidateNetworkStatus("@updateApplication");
+        this.agHelper.AssertNetworkStatus("@updateApplication");
       }
     });
   }
