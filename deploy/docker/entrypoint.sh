@@ -354,7 +354,7 @@ init_postgres() {
       chown postgres:postgres "$POSTGRES_DB_PATH"
 
       # Initialize the postgres db file system
-      su -m postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
 
       # Start the postgres server in daemon mode
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
