@@ -1,12 +1,15 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import ApiEditor from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function () {
   it("1. Test curl import flow for POST action with JSON body", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       localStorage.setItem("ApiPaneV2", "ApiPaneV2");
-      _.dataSources.FillCurlNImport(
+      dataSources.FillCurlNImport(
         'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
           datasourceFormData["echoApiUrl"],
         {
@@ -14,7 +17,7 @@ describe("Test curl import flow", function () {
           parseSpecialCharSequences: false,
         },
       );
-      _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
+      agHelper.AssertNetworkExecutionSuccess("@postExecute");
       cy.get("@curlImport").then((response) => {
         cy.expect(response.response.body.responseMeta.success).to.eq(true);
         cy.get(apiwidget.ApiName)
@@ -29,7 +32,7 @@ describe("Test curl import flow", function () {
 
   it("2. Test curl import flow for POST action with multipart form data", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
-      _.dataSources.FillCurlNImport(
+      dataSources.FillCurlNImport(
         `curl --request POST ${datasourceFormData["multipartAPI"]} -F 'randomKey=randomValue' --form 'randomKey2=\"randomValue2\"'`,
       );
       cy.get("@postExecute").then((response) => {
@@ -39,7 +42,7 @@ describe("Test curl import flow", function () {
         cy.expect(response.response.body.data.body.data.randomKey).to.eq(
           "randomValue",
         );
-        _.apiPage.ValidateHeaderParams({
+        apiPage.ValidateHeaderParams({
           key: "Content-Type",
           value: "multipart/form-data",
         });

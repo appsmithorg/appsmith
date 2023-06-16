@@ -24,10 +24,10 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "https://dev.appsmith.com/",
+    baseUrl: "http://localhost/",
     env: {
-      USERNAME: "xxxx",
-      PASSWORD: "xxx",
+      USERNAME: "parthvi12@appsmith.com",
+      PASSWORD: "qwerty",
     },
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
