@@ -163,7 +163,7 @@ export function useDatasource(searchText: string) {
       mockDatasourceOptions = mockDatasourceOptions.concat(
         mockDatasources
 
-          .filter(({ name, packageName }) => {
+          .filter(({ packageName }) => {
             if (!WidgetQueryGeneratorRegistry.has(packageName)) {
               return false;
             }

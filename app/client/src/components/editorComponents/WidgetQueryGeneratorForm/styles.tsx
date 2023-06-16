@@ -1,6 +1,5 @@
-import { Colors } from "constants/Colors";
 import { Button } from "design-system";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 
 export const Wrapper = styled.div``;
