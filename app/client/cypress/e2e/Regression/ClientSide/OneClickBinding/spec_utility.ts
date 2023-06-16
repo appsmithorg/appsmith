@@ -30,23 +30,12 @@ export class OneClickBinding {
       200,
     );
 
-    agHelper.Sleep(3000);
-
     agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
     agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
     agHelper.Sleep(3000); //for tables to populate for CI runs
+
     agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
-
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.tableOrSpreadsheetDropdown,
-    );
-
-    agHelper.GetNClick(
-      oneClickBindingLocator.tableOrSpreadsheetDropdown,
-      0,
-      true,
-    );
 
     agHelper.GetNClick(
       oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),

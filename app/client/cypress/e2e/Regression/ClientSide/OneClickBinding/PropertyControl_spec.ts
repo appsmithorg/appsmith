@@ -31,7 +31,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     entityExplorer.NavigateToSwitcher("Explorer", 0, true);
 
-    dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+    dataSources.CreateMockDB("users").then(($createdMockUsers) => {
       dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
     });
 
@@ -110,8 +110,8 @@ describe("excludeForAirgap", "One click binding control", () => {
     propPane.ToggleJSMode("Table data", false);
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from Users",
-      "Users",
+      "New from users",
+      "users",
       "public.users",
       "gender",
     );
@@ -121,7 +121,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     propPane.MoveToTab("Content");
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from sample Movies",
+      "New from sample movies",
       "movies",
       "movies",
       "status",
@@ -134,17 +134,6 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.UpdateInputValue(dataSources._host, "127.0.0.1");
     agHelper.UpdateInputValue(dataSources._port, "8000");
-
-    dataSources.SaveDatasource();
-
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-
-    agHelper.TypeText(
-      `[name="datasourceConfiguration.endpoints[0].port"]`,
-      "8000",
-    );
 
     dataSources.SaveDatasource();
 
@@ -260,10 +249,6 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.datasourceSearch,
       "myinvalidds123",
     );
-
-    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).equals(0);
-    });
 
     agHelper.AssertElementAbsence(oneClickBindingLocator.datasourceSelector());
 
