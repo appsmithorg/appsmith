@@ -61,12 +61,13 @@ export function Navigation() {
     currentApplicationDetails?.applicationDetail?.navigationSetting
       ?.orientation,
   ]);
-
-  if (showNavBar) {
-    AnalyticsUtil.logEvent("APP_VIEW_WITH_NAVBAR_FLAG", {
-      appUrl: currentApplicationDetails?.id,
-    });
-  }
+  useEffect(() => {
+    if (showNavBar && currentApplicationDetails) {
+      AnalyticsUtil.logEvent("APP_VIEW_WITH_NAVBAR_FLAG", {
+        appUrl: currentApplicationDetails?.id,
+      });
+    }
+  }, [showNavBar, currentApplicationDetails]);
 
   const renderNavigation = () => {
     if (
