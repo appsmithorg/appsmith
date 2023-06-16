@@ -61,10 +61,8 @@ class MockWorkerClass implements WorkerClass {
         body: { data: message.body.data },
       };
       this.sendEvent({ data: response });
-      // @ts-expect-error: setTimeout return type mismatch
       this.responses.delete(counter);
     }, this.delayMilliSeconds);
-    // @ts-expect-error: setTimeout return type mismatch
     this.responses.add(counter);
   }
 

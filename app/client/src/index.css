@@ -44,7 +44,7 @@ body.dragging * {
   outline-offset: 0 !important;
 }
 
-body.overlay {
+#root.overlay {
   opacity: 0;
   pointer-events: none;
 }

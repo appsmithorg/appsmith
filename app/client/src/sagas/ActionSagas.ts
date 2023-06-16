@@ -9,6 +9,7 @@ import {
 import {
   all,
   call,
+  fork,
   put,
   race,
   select,
@@ -16,7 +17,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
@@ -68,6 +69,7 @@ import {
   getActions,
   getCurrentPageNameByActionId,
   getDatasource,
+  getDatasourceStructureById,
   getDatasources,
   getEditorConfig,
   getPageNameByPageId,
@@ -136,6 +138,7 @@ import {
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -256,12 +259,28 @@ export function* createActionSaga(
       const newAction = response.data;
       // @ts-expect-error: type mismatch ActionCreateUpdateResponse vs Action
       yield put(createActionSuccess(newAction));
+
+      // we fork to prevent the call from blocking
+      yield fork(fetchActionDatasourceStructure, newAction);
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACTION_ERROR,
       payload: actionPayload.payload,
     });
+  }
+}
+
+function* fetchActionDatasourceStructure(action: ActionCreateUpdateResponse) {
+  if (action.datasource?.id) {
+    const doesDatasourceStructureAlreadyExist: DatasourceStructure =
+      yield select(getDatasourceStructureById, action.datasource.id);
+    if (doesDatasourceStructureAlreadyExist) {
+      return;
+    }
+    yield put(fetchDatasourceStructure(action.datasource.id, true));
+  } else {
+    return;
   }
 }
 
@@ -632,14 +651,12 @@ function* copyActionSaga(
 
     // checking if there is existing datasource to be added to the action payload
     const existingDatasource = datasources.find(
-      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       (d: Datasource) => d.id === response.data.datasource.id,
     );
 
     let payload = response.data;
 
     if (existingDatasource) {
-      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       payload = { ...payload, datasource: existingDatasource };
     }
 
