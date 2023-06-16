@@ -1,4 +1,4 @@
-name: Client Build
+name: Client Prettier
 
 on:
   # This line enables manual triggering of this workflow.
@@ -61,16 +61,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Create a run record exactly at the time of merge to release to
-      # ensure we compare run details with code at this point
-      - name: Create Perf Meta
-        continue-on-error: true
-        run: |
-          PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
-          -U aforce_admin -d perf-infra -c \
-          "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active)
-          VALUES ('${{github.repository}}', '${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
-
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         uses: actions/cache@v3
@@ -111,46 +101,10 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
-      # Type checking before starting the build
-      - name: Run type check
+      # Run the Prettier for client and packages
+      - name: Run Prettier
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run check-types
-
-      - name: Set the build environment based on the branch
-        if: steps.run_result.outputs.run_result != 'success'
-        id: vars
-        run: |
-          echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
-          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-              echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
-          fi
-          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
-          fi
-          # Since this is an unreleased build, we set the version to incremented version number with
-          # a `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
-          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
-
-      # We burn React environment & the Segment analytics key into the build itself.
-      # This is to ensure that we don't need to configure it in each installation
-      - name: Create the bundle
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
-          else
-            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
-          fi
-          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
-            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
-            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
-            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
-            REACT_APP_VERSION_EDITION="Community" \
-            yarn build
+        run: yarn run prettier:ci
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
@@ -160,25 +114,6 @@ jobs:
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
-
-      # Restore the previous built bundle if present. If not push the newly built into the cache
-      - name: Restore the previous bundle
-        uses: actions/cache@v3
-        with:
-          path: |
-            app/client/build/
-          key: ${{ github.run_id }}-${{ github.job }}-client
-
-      - name: Pack the client build directory
-        run: |
-          tar -cvf ./build.tar -C build .
-
-      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload react build bundle
-        uses: actions/upload-artifact@v3
-        with:
-          name: client-build
-          path: app/client/build.tar
 
       # Set status = success
       - name: Save the status of the run

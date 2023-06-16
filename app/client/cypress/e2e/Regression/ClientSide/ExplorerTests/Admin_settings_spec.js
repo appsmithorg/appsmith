@@ -29,6 +29,9 @@ describe("Admin settings page", function () {
     cy.intercept("PUT", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
     }).as("postEnvVariables");
+    cy.intercept("PUT", "/api/v1/tenants", {
+      body: { responseMeta: { status: 200, success: true }, data: {} },
+    }).as("postTenantConfig");
   });
 
   it("1. should test that settings page is accessible to super user", () => {

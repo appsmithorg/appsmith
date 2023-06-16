@@ -80,9 +80,6 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   needsUpgrade: true,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,
-  upgradeLogEventName: "ADMIN_SETTINGS_UPGRADE_WATERMARK",
-  upgradeIntercomMessage:
-    "Hello, I would like to upgrade and remove the watermark.",
 };
 
 export enum AppsmithFrameAncestorsSetting {
