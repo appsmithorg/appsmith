@@ -63,7 +63,7 @@ export function Navigation() {
   ]);
 
   if (showNavBar) {
-    AnalyticsUtil.logEvent("APP_VIEW_APP_WITH_NAVBAR_FLAG", {
+    AnalyticsUtil.logEvent("APP_VIEW_WITH_NAVBAR_FLAG", {
       appUrl: currentApplicationDetails?.id,
     });
   }
