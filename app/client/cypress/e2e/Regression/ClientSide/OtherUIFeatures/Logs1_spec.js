@@ -9,7 +9,7 @@ const {
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
-let logString, dataSet;
+let logString;
 
 const generateTestLogString = () => {
   const randString = Cypress._.random(0, 1e4);
@@ -18,11 +18,6 @@ const generateTestLogString = () => {
 };
 
 describe("Debugger logs", function () {
-  before(() => {
-    cy.fixture("testdata").then(function (data) {
-      dataSet = data;
-    });
-  });
   this.beforeEach(() => {
     logString = generateTestLogString();
   });

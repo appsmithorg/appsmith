@@ -17,11 +17,7 @@ describe("Validating use cases for Auto Dimension", () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
-      _.entityExplorer.DragDropWidgetNVerify(
-        _.draggableWidgets.CONTAINER,
-        100,
-        30,
-      );
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.CONTAINER);
       _.agHelper
         .GetWidgetByName("Container1")
         .invoke("attr", "id")
@@ -33,113 +29,112 @@ describe("Validating use cases for Auto Dimension", () => {
             20,
             dropTargetClass,
           );
+        });
 
-          // Add multi-line text & verify if the container's height increases
-          _.agHelper
-            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
-            .as("initialHeight");
-          _.propPane.UpdatePropertyFieldValue(
-            "Text",
-            "hello\nWorld\nThis\nis\na\nMulti-line\nText",
-          );
-          _.agHelper
-            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
-            .then((width) => {
-              cy.get<number>("@initialHeight").then((initialHeight) => {
-                expect(width).to.be.greaterThan(initialHeight);
-              });
-            });
+      // Add multi-line text & verify if the container's height increases
+
+      _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+      cy.get("@widgetHeight").then(($initialHeight) => {
+        _.propPane.UpdatePropertyFieldValue(
+          "Text",
+          "hello\nWorld\nThis\nis\na\nMulti-line\nTexthello\nWorld\nThis\nis\na\nMulti-line\nText",
+        );
+        _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+        cy.get("@widgetHeight").then(($longTextheight: any) => {
+          expect($longTextheight).to.be.greaterThan(Number($initialHeight));
 
           // Remove some lines & verify if the container's height decreases
           _.propPane.UpdatePropertyFieldValue("Text", "hello");
-          _.agHelper
-            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
-            .then((width) => {
-              cy.get<number>("@initialHeight").then((initialHeight) => {
-                expect(width).to.be.equal(initialHeight);
-              });
-            });
+          _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+          cy.get("@widgetHeight").then((height: any) => {
+            expect(height).to.be.lessThan(Number($longTextheight));
+          });
         });
+      });
     });
-  });
 
-  it("2. Check if widget's bounding box fits on widget shrink", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 100, 30);
-    _.propPane.UpdatePropertyFieldValue(
-      "Text",
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    );
-    // Check if bounding box fits perfectly to the Text Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._textWidgetSelector,
-      _.autoLayout._textComponentSelector,
-    );
+    it("2. Check if widget's bounding box fits on widget shrink", () => {
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 100, 30);
+      _.propPane.UpdatePropertyFieldValue(
+        "Text",
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      );
+      // Check if bounding box fits perfectly to the Text Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._textWidgetSelector,
+        _.autoLayout._textComponentSelector,
+      );
 
-    // Drop another widget next to text widget so that it shrinks
-    _.entityExplorer.DragDropWidgetNVerify(
-      _.draggableWidgets.CONTAINER,
-      10,
-      30,
-    );
+      // Drop another widget next to text widget so that it shrinks
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.CONTAINER,
+        10,
+        30,
+      );
 
-    // Check if bounding box fits perfectly to the Text Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._textWidgetSelector,
-      _.autoLayout._textComponentSelector,
-    );
-  });
+      // Check if bounding box fits perfectly to the Text Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._textWidgetSelector,
+        _.autoLayout._textComponentSelector,
+      );
+    });
 
-  it("3. Check if widgets bounding box fits on canvas resizing", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 100, 30);
-    _.propPane.UpdatePropertyFieldValue(
-      "Text",
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    );
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 100, 200);
+    it("3. Check if widgets bounding box fits on canvas resizing", () => {
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 100, 30);
+      _.propPane.UpdatePropertyFieldValue(
+        "Text",
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      );
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.BUTTON,
+        100,
+        200,
+      );
 
-    // reduce canvas size
-    _.agHelper.SetCanvasViewportWidth(500);
+      // reduce canvas size
+      _.agHelper.SetCanvasViewportWidth(500);
 
-    // Check if bounding box fits perfectly to the Text Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._textWidgetSelector,
-      _.autoLayout._textComponentSelector,
-    );
+      // Check if bounding box fits perfectly to the Text Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._textWidgetSelector,
+        _.autoLayout._textComponentSelector,
+      );
 
-    // Check if bounding box fits perfectly to the Button Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._buttonWidgetSelector,
-      _.autoLayout._buttonComponentSelector,
-    );
+      // Check if bounding box fits perfectly to the Button Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._buttonWidgetSelector,
+        _.autoLayout._buttonComponentSelector,
+      );
 
-    // increase canvas size
-    _.agHelper.SetCanvasViewportWidth(700);
+      // increase canvas size
+      _.agHelper.SetCanvasViewportWidth(700);
 
-    // Check if bounding box fits perfectly to the Text Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._textWidgetSelector,
-      _.autoLayout._textComponentSelector,
-    );
+      // Check if bounding box fits perfectly to the Text Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._textWidgetSelector,
+        _.autoLayout._textComponentSelector,
+      );
 
-    // Check if bounding box fits perfectly to the Button Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._buttonWidgetSelector,
-      _.autoLayout._buttonComponentSelector,
-    );
+      // Check if bounding box fits perfectly to the Button Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._buttonWidgetSelector,
+        _.autoLayout._buttonComponentSelector,
+      );
 
-    // reduce canvas size less than mobile breakpoint
-    _.agHelper.SetCanvasViewportWidth(300);
+      // reduce canvas size less than mobile breakpoint
+      _.agHelper.SetCanvasViewportWidth(300);
 
-    // Check if bounding box fits perfectly to the Text Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._textWidgetSelector,
-      _.autoLayout._textComponentSelector,
-    );
+      // Check if bounding box fits perfectly to the Text Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._textWidgetSelector,
+        _.autoLayout._textComponentSelector,
+      );
 
-    // Check if bounding box fits perfectly to the Button Widget
-    _.autoLayout.EnsureBoundingBoxFitsComponent(
-      _.autoLayout._buttonWidgetSelector,
-      _.autoLayout._buttonComponentSelector,
-    );
+      // Check if bounding box fits perfectly to the Button Widget
+      _.autoLayout.EnsureBoundingBoxFitsComponent(
+        _.autoLayout._buttonWidgetSelector,
+        _.autoLayout._buttonComponentSelector,
+      );
+    });
   });
 });

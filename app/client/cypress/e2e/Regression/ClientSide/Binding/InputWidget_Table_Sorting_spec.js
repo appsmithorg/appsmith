@@ -1,23 +1,21 @@
-const dsl = require("../../../../fixtures/formInputTableDsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the Table and input Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formInputTableDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Input widget test with default value from table widget", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.SelectEntityByName("Input1", "Form1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@updateLayout")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
   });
 
   it("2. Validation of data displayed in input widgets based on sorting", function () {

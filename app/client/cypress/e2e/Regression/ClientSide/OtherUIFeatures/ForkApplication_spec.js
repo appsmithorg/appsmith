@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/basicDsl.json");
 import homePage from "../../../../locators/HomePage";
 import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
@@ -12,7 +11,9 @@ let forkableAppUrl;
 
 describe("Fork application across workspaces", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("basicDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check if the forked application has the same dsl as the original", function () {
@@ -26,7 +27,7 @@ describe("Fork application across workspaces", function () {
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -35,9 +36,10 @@ describe("Fork application across workspaces", function () {
     cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
-    cy.wait("@postForkAppWorkspace").then((httpResponse) => {
-      expect(httpResponse.status).to.equal(200);
-    });
+    cy.wait("@postForkAppWorkspace")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
+    cy.wait("@getWorkspace");
     // check that forked application has same dsl
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
@@ -51,7 +53,7 @@ describe("Fork application across workspaces", function () {
   });
 
   it("2. Non signed user should be able to fork a public forkable app", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
@@ -71,7 +73,7 @@ describe("Fork application across workspaces", function () {
         cy.wait(2000);
       }
       cy.get("#sidebar").should("be.visible");
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       _.agHelper.Sleep(2000);
       cy.get("button:contains('Share')").first().click({ force: true });
       // _.agHelper.Sleep(1000);
