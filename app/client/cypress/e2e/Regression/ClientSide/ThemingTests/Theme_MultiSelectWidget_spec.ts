@@ -15,9 +15,9 @@ describe("Theme validation usecase for multi-select widget", function () {
   });
   it("2. validate Border type selection", function () {
     agHelper.AssertElementLength(theme.locators._border, 3);
-    theme.AssertBorderPopoverText(0, "none", 1);
-    theme.AssertBorderPopoverText(1, "M", 2);
-    theme.AssertBorderPopoverText(2, "L", 3);
+    theme.AssertBorderPopoverText(0, "none", 0);
+    theme.AssertBorderPopoverText(1, "M", 1);
+    theme.AssertBorderPopoverText(2, "L", 2);
     theme.ToggleSection("Border");
   });
   it("3.validate Shadow type selection", function () {

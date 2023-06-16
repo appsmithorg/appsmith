@@ -22,7 +22,7 @@ export class ThemeSettings {
       type +
       "')]",
     _border: ".t--theme-appBorderRadius",
-    _popover: ".rc-tooltip-inner",
+    _popover: ".rc-tooltip-inner span",
     _appliedThemeSection: ".cursor-pointer:contains('Applied theme')",
     _appliedThemecard: ".t--theme-card main > main",
     _testWidgetMutliSelect:
