@@ -9,7 +9,7 @@ import {
 describe("Preview mode functionality", function () {
   before(() => {
     cy.fixture("previewMode").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 

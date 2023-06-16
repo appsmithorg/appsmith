@@ -89,7 +89,7 @@ export class DeployMode {
 
   public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
-    cy.get(this.locator._backToEditor).click({ force: true });
+    this.agHelper.GetNClick(this.locator._backToEditor).click({ force: true });
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
     this.assertHelper.AssertDocumentReady();

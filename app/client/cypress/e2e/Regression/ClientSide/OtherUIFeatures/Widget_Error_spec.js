@@ -5,6 +5,7 @@ import {
   debuggerHelper,
   table,
   propPane,
+  agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget error state", function () {
@@ -12,7 +13,7 @@ describe("Widget error state", function () {
 
   before(() => {
     cy.fixture("buttondsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
