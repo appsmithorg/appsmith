@@ -16,8 +16,6 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
 
   it("2. Validate Describe & verify query response", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
     agHelper.RenameWithInPane("verifyDescribe");
     runQueryNValidate("Describe customers;", [
@@ -49,8 +47,6 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
 
   it("3. Validate SHOW & verify query response", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
     agHelper.RenameWithInPane("verifyShow");
     runQueryNValidate("SHOW tables;", ["Tables_in_fakeapi"]);

@@ -31,12 +31,7 @@ describe("Check Suggested Widgets Feature in auto-layout", function () {
 
   it("2. Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM configs LIMIT 10;");
+    _.dataSources.EnterQuery("SELECT * FROM configs LIMIT 10;");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Mock the response for this test

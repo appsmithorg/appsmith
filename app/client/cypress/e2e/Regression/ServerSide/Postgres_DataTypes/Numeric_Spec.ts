@@ -17,8 +17,6 @@ describe("Numeric Datatype tests", function () {
   it("1. Creating table - numerictypes", () => {
     query = `create table numerictypes (serialId SERIAL not null primary key, bigintId bigint not null, decimalId decimal not null, numericId numeric not null)`;
     _.dataSources.NavigateFromActiveDS(dsName, true);
-    // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
     _.dataSources.EnterQuery(query);
     _.agHelper.RenameWithInPane("createTable");
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);

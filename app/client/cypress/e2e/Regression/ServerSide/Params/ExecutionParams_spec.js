@@ -26,18 +26,11 @@ describe("API Panel Test Functionality", function () {
 
   it("2. Create and runs query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch).last().click({ force: true });
-    cy.xpath(queryLocators.query).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from {{ this.params.tableName || 'users' }} limit 10", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    dataSources.EnterQuery(
+      "select * from {{ this.params.tableName || 'users' }} limit 10",
+    );
     cy.WaitAutoSave();
     cy.runQuery();
   });

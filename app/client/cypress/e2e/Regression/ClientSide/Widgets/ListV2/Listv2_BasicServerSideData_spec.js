@@ -16,8 +16,6 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Create sample(mock) user database.
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        // Resetting the default query and rewriting a new one
-        _.dataSources.EnterQuery("");
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
@@ -33,8 +31,6 @@ describe("List widget v2 - Basic server side data tests", () => {
         _.dataSources.NavigateToActiveTab();
         cy.wait(1000);
         _.dataSources.CreateQueryFromActiveTab($dsName, false);
-        // Resetting the default query and rewriting a new one
-        _.dataSources.EnterQuery("");
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
@@ -361,20 +357,8 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       //.1: Click on Write query area
 
-      // Resetting the default query and rewriting a new one
-      _.dataSources.EnterQuery("");
-      cy.xpath(queryLocators.query).click({
-        force: true,
-      });
+      _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");
 
-      // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users LIMIT 20;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
       cy.WaitAutoSave();
 
       cy.runQuery();
@@ -416,20 +400,8 @@ describe("List widget v2 - Basic server side data tests", () => {
       });
 
       //.1: Click on Write query area
-      // Resetting the default query and rewriting a new one
-      _.dataSources.EnterQuery("");
-      cy.xpath(queryLocators.query).click({
-        force: true,
-      });
+      _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");
 
-      // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users LIMIT 20;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
       cy.WaitAutoSave();
 
       cy.runQuery();

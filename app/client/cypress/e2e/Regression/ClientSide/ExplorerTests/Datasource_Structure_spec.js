@@ -70,8 +70,6 @@ describe("Entity explorer datasource structure", function () {
 
   it("2. Refresh datasource structure", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
 
     //cy.GlobalSearchEntity(datasourceName);
     // cy.get(`.t--entity.datasource:contains(${datasourceName})`)
@@ -87,7 +85,7 @@ describe("Entity explorer datasource structure", function () {
     const tableName = Math.random()
       .toString(36)
       .replace(/[^a-z]+/g, "");
-    cy.typeValueNValidate(`CREATE TABLE public.${tableName} ( ID int );`);
+    dataSources.EnterQuery(`CREATE TABLE public.${tableName} ( ID int );`);
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.request.requestParams.Query.value).to.contain(

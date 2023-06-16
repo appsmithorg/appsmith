@@ -18,8 +18,6 @@ describe("Array Datatype tests", function () {
   it("1. Creating table query - arraytypes + Bug 14493", () => {
     query = `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`;
     _.dataSources.NavigateFromActiveDS(dsName, true);
-    // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
     _.agHelper.RenameWithInPane("createTable");
     _.dataSources.EnterQuery(query);
     _.dataSources.RunQuery();
@@ -162,8 +160,6 @@ describe("Array Datatype tests", function () {
     _.agHelper.RenameWithInPane("verifyArrayFunctions");
 
     query = `SELECT name FROM arraytypes WHERE pay_by_quarter[1] <> pay_by_quarter[2];`;
-    // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
     _.dataSources.EnterQuery(query);
     _.dataSources.RunQuery();
     _.dataSources.AssertQueryResponseHeaders(["name"]);

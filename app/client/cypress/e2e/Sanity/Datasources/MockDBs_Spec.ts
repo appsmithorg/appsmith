@@ -44,8 +44,6 @@ describe(
       _.dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
         _.dataSources.CreateQueryFromActiveTab(mockDBName, false);
-        // Resetting the default query and rewriting a new one
-        _.dataSources.EnterQuery("");
         _.dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         _.dataSources.RunQueryNVerifyResponseViews(10);
         _.dataSources.NavigateToActiveTab();
@@ -56,8 +54,6 @@ describe(
           );
 
         _.entityExplorer.CreateNewDsQuery(mockDBName);
-        // Resetting the default query and rewriting a new one
-        _.dataSources.EnterQuery("");
         _.dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         _.dataSources.RunQueryNVerifyResponseViews(10, false);
         _.dataSources.NavigateToActiveTab();

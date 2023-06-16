@@ -35,8 +35,6 @@ describe("Json & JsonB Datatype tests", function () {
   it("1. Creating table query - jsonbooks", () => {
     query = `CREATE TABLE jsonbooks(serialId SERIAL PRIMARY KEY, details JSON)`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
@@ -57,38 +55,28 @@ describe("Json & JsonB Datatype tests", function () {
   it("3. Creating all queries - jsonbooks", () => {
     query = `INSERT INTO jsonbooks(details) VALUES('{"customer": "{{InsertJSONForm.formData.customer}}", "title": "{{InsertJSONForm.formData.title}}", "type": {{InsertJSONForm.formData.type}}, "info": {"published": {{InsertJSONForm.formData.info.published}}, "price": {{InsertJSONForm.formData.info.price}}}}');`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `UPDATE public."jsonbooks" SET "details" = '{"customer": "{{UpdateJSONForm.formData.customer}}", "title": "{{UpdateJSONForm.formData.title}}", "type": {{UpdateJSONForm.formData.type}}, "info": {"published": {{UpdateJSONForm.formData.info.published}}, "price": {{UpdateJSONForm.formData.info.price}}}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `DELETE FROM public."jsonbooks" WHERE serialId ={{Table1.selectedRow.serialid}}`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
     query = `DELETE FROM public."jsonbooks"`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."jsonbooks"`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
@@ -192,8 +180,6 @@ describe("Json & JsonB Datatype tests", function () {
 
     //Verifying -> - returns results in json format
     query = `SELECT details -> 'title' AS "BookTitle" FROM jsonbooks;`;
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("verifyJsonFunctions");
     dataSources.RunQuery();
@@ -352,16 +338,12 @@ describe("Json & JsonB Datatype tests", function () {
   it("15. Creating enum & table queries - jsonBbooks", () => {
     query = `CREATE TYPE genres AS ENUM ('Fiction', 'Thriller', 'Horror', 'Marketing & Sales', 'Self-Help', 'Psychology', 'Law', 'Politics', 'Productivity', 'Reference', 'Spirituality');`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createEnum");
     dataSources.RunQuery();
 
     query = `CREATE TABLE "jsonBbooks" (serialId SERIAL PRIMARY KEY, details JSONB)`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
@@ -386,52 +368,38 @@ describe("Json & JsonB Datatype tests", function () {
   it("17. Creating all queries - jsonBbooks", () => {
     query = `INSERT INTO "jsonBbooks"(details) VALUES('{"title": "{{InsertJSONForm.formData.title}}", "genres": {{InsertJSONForm.formData.genres}}, "info": {"published": {{InsertJSONForm.formData.info.published}}, "publishedDate": "{{InsertJSONForm.formData.info.publishedDate}}"}}');`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `UPDATE public."jsonBbooks" SET "details" = '{"title": "{{UpdateJSONForm.formData.title}}", "genres": {{UpdateJSONForm.formData.genres}}, "info": {"published": {{UpdateJSONForm.formData.info.published}}, "publishedDate": "{{UpdateJSONForm.formData.info.publishedDate}}"}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `SELECT * from enum_range(NULL::genres)`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("getEnum");
 
     query = `DELETE FROM public."jsonBbooks" WHERE serialId ={{Table1.selectedRow.serialid}}`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
     query = `DELETE FROM public."jsonBbooks"`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."jsonBbooks"`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
     query = `drop type genres`;
     ee.CreateNewDsQuery(dsName);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropEnum");
 
@@ -563,8 +531,6 @@ describe("Json & JsonB Datatype tests", function () {
 
     //Verifying @> contains
     query = `SELECT '["Fiction", "Thriller", "Horror"]'::jsonb @> '["Fiction", "Horror"]'::jsonb as "Result1", '["Fiction", "Horror"]'::jsonb @> '["Fiction", "Thriller", "Horror"]'::jsonb as "Result2", '{"name": "Alice", "agent": {"bot": true} }'::jsonb -> 'agent' ->> 'bot' is not null as "Filter"`;
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["Result1", "Result2", "Filter"]);

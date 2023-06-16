@@ -23,7 +23,6 @@ describe("Block Action Execution when no field is present", () => {
 
       agHelper.Sleep(1000);
       dataSources.CreateQueryAfterDSSaved();
-      dataSources.EnterQuery("");
       dataSources.EnterQuery("SELECT * from users");
       dataSources.AssertRunButtonDisability(false);
       dataSources.EnterQuery("");
@@ -39,7 +38,6 @@ describe("Block Action Execution when no field is present", () => {
 
       agHelper.Sleep(1000);
       dataSources.CreateQueryAfterDSSaved();
-      dataSources.EnterQuery("");
       dataSources.EnterQuery("SELECT * from users");
       dataSources.AssertRunButtonDisability(false);
       dataSources.EnterQuery("");

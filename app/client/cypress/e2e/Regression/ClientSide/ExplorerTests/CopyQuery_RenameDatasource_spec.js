@@ -35,10 +35,7 @@ describe("Entity explorer tests related to copy query", function () {
       200,
     );
 
-    // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
-
-    cy.get(".CodeMirror textarea").first().focus().type("select * from users");
+    _.dataSources.EnterQuery("select * from users");
 
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });

@@ -31,16 +31,10 @@ describe("MySQL noise test", function () {
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
     cy.get(queryLocators.queryNameField).type("NoiseTestQuery");
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     // mySQL query to fetch data
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    dataSources.EnterQuery(
+      "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10",
+    );
     cy.WaitAutoSave();
     cy.runQuery();
     cy.NavigateToAPI_Panel();

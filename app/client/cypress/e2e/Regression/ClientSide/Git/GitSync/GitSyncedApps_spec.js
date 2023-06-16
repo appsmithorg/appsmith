@@ -292,17 +292,7 @@ describe("Git sync apps", function () {
       });
     cy.get(queryLocators.queryNameField).type("get_users");
     cy.get(queryLocators.switch).last().click({ force: true });
-    // Resetting the default query and rewriting a new one
-    _.dataSources.EnterQuery("");
-    cy.xpath(queryLocators.query).click({ force: true });
-    // writing query to get the schema
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
     cy.WaitAutoSave();
     cy.runQuery();
     // create a new page

@@ -26,8 +26,6 @@ describe("DateTime Datatype tests", function () {
     tstz TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, dater date NOT NULL, timer time NOT NULL,
     timertz time with time zone not null default now(), intervaler interval not null);`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locator._codeMirrorTextArea);
