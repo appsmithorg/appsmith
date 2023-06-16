@@ -79,18 +79,46 @@ describe("In-app embed settings", () => {
     ValidateSyncWithInviteModal("false");
   });
 
-  it("5. Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
+  it("5. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=false] Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
     _.agHelper.RefreshPage();
     _.embedSettings.OpenEmbedSettings();
+    _.embedSettings.TogglePublicAccess(true);
     _.embedSettings.ToggleShowNavigationBar("true");
-    cy.get(_.embedSettings.locators._snippet).should(
-      "contain.text",
-      "navbar=true",
+    _.agHelper.GetNAssertElementText(
+      _.embedSettings.locators._snippet,
+      "embed=true",
+      "not.contain.text",
     );
     _.embedSettings.ToggleShowNavigationBar("false");
-    cy.get(_.embedSettings.locators._snippet).should(
-      "not.contain.text",
+    _.agHelper.GetNAssertElementText(
+      _.embedSettings.locators._snippet,
+      "embed=true",
+      "contain.text",
+    );
+  });
+
+  it("6. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=true] Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlagsComplement.json",
+    }).as("featureFlags");
+    _.agHelper.RefreshPage();
+
+    _.embedSettings.OpenEmbedSettings();
+    _.embedSettings.TogglePublicAccess(true);
+    _.embedSettings.ToggleShowNavigationBar("true");
+    _.agHelper.GetNAssertElementText(
+      _.embedSettings.locators._snippet,
       "navbar=true",
+      "contain.text",
+    );
+    _.embedSettings.ToggleShowNavigationBar("false");
+    _.agHelper.GetNAssertElementText(
+      _.embedSettings.locators._snippet,
+      "navbar=true",
+      "not.contain.text",
     );
   });
 });

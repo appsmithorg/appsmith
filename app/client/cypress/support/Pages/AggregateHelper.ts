@@ -234,7 +234,11 @@ export class AggregateHelper extends ReusableHelper {
   public GetNAssertElementText(
     selector: string,
     text: string,
-    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
+    textPresence:
+      | "have.text"
+      | "not.have.text"
+      | "contain.text"
+      | "not.contain.text" = "have.text",
     index = 0,
   ) {
     if (index >= 0)
