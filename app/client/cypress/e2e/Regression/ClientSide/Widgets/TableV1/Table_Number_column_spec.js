@@ -1,9 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const dsl = require("../../../../../fixtures/basicNumberDataTableDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Validate Table Widget Table data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("basicNumberDataTableDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Check number key in table data convert table binding and header properly", function () {

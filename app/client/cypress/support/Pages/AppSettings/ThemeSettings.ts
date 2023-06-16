@@ -92,7 +92,7 @@ export class ThemeSettings {
     );
     this.agHelper.Sleep();
     this.agHelper.GetNClick(this.locators._border, index);
-    this.agHelper.ValidateNetworkStatus("@updateTheme", 200);
+    this.agHelper.AssertNetworkStatus("@updateTheme", 200);
   }
 
   public ToggleSection(section: string) {
@@ -119,6 +119,6 @@ export class ThemeSettings {
     this.agHelper
       .GetElement(this.locators._boxShadow(text))
       .click({ force: true });
-    this.agHelper.ValidateNetworkStatus("@updateTheme", 200);
+    this.agHelper.AssertNetworkStatus("@updateTheme", 200);
   }
 }

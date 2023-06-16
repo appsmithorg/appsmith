@@ -10,7 +10,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 let themeFont;
-let themeBackgroudColor;
 
 describe("Theme validation usecases", function () {
   it("1. Drag and drop form widget and validate Default font and list of font validation", function () {
@@ -29,15 +28,15 @@ describe("Theme validation usecases", function () {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
     agHelper.AssertElementLength(theme.locators._border, 3);
     theme.AssertBorderPopoverText(0, "none", 1);
     theme.AssertBorderPopoverText(1, "M", 2);
     theme.AssertBorderPopoverText(2, "L", 3);
-    cy.get(themelocator.border).eq(2).click({ force: true });
+    agHelper.GetNClick(themelocator.border, 2, true);
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -87,7 +86,6 @@ describe("Theme validation usecases", function () {
           );
           //themeFont = `${$childElem.children().last().text()}, sans-serif`;
           themeFont = `Poppins, sans-serif`;
-
           agHelper.ContainsNClick("Font");
           agHelper.Sleep();
           theme.ChooseColorType("Primary");
@@ -103,7 +101,7 @@ describe("Theme validation usecases", function () {
           agHelper.ContainsNClick("Color");
           appSettings.ClosePane();
           //Publish the App and validate Font across the app
-          cy.PublishtheApp();
+          _.deployMode.DeployApp();
           cy.get(".bp3-button:contains('Sub')").should(
             "have.css",
             "font-family",
@@ -116,10 +114,10 @@ describe("Theme validation usecases", function () {
           );
         });
     });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. Validate Default Theme change across application", function () {
-    cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
@@ -135,8 +133,8 @@ describe("Theme validation usecases", function () {
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
@@ -150,13 +148,12 @@ describe("Theme validation usecases", function () {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
-            appSettings.ClosePane();
+            _.appSettings.ClosePane();
           });
       });
   });
 
   it("3. Validate Theme change across application", function () {
-    cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
@@ -173,8 +170,8 @@ describe("Theme validation usecases", function () {
 
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     // select a theme
@@ -220,7 +217,7 @@ describe("Theme validation usecases", function () {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
-            appSettings.ClosePane();
+            _.appSettings.ClosePane();
           });
       });
     cy.get(formWidgetsPage.formD).click();
@@ -238,7 +235,7 @@ describe("Theme validation usecases", function () {
       .and("eq", "rgb(126, 34, 206)");
 
     //Publish the App and validate Theme across the app
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     //Bug Form backgroud colour reset in Publish mode
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
