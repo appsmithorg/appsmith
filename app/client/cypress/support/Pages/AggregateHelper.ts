@@ -651,7 +651,7 @@ export class AggregateHelper extends ReusableHelper {
         .eq(index)
         .scrollIntoView()
         .realTouch({ position: "center" })
-        .realHover()
+        .realHover({ pointer: "mouse" })
         //.trigger("mousemove", { eventConstructor: "MouseEvent" })
         .wait(waitTimeInterval)
     );
@@ -1402,7 +1402,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public VisitNAssert(url: string, apiToValidate = "") {
-    cy.visit(url);
+    cy.visit(url, { timeout: 60000 });
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
     } else apiToValidate && this.AssertNetworkStatus(apiToValidate);

@@ -117,9 +117,9 @@ export class Table {
     type: "Edit" | "Visibility" | "Editable",
   ) => {
     const classMap = {
-      Edit: ".t--edit-column-btn",
-      Visibility: ".t--show-column-btn",
-      Editable: ".t--card-checkbox",
+      Edit: "t--edit-column-btn",
+      Visibility: "t--show-column-btn",
+      Editable: "t--card-checkbox",
     };
     const classToCheck = classMap[type];
     return `//input[@placeholder='Column title'][@value='${columnName}']/parent::div/parent::div/parent::div/parent::div/following-sibling::div/*[contains(@class, '${classToCheck}')]`;
