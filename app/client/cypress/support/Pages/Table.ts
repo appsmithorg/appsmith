@@ -602,4 +602,15 @@ export class Table {
     this.propPane.EnterJSContext("Table data", JSON.stringify(sampleTableData));
     this.ChangeColumnType("action", "Button", "v2");
   }
+
+  public sortColumn(columnName: string, direction: string) {
+    cy.get(
+      ` ${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`,
+    ).click({ force: true });
+    cy.get(".bp3-menu")
+      .contains(`Sort column ${direction}`)
+      .click({ force: true });
+
+    cy.wait(500);
+  }
 }

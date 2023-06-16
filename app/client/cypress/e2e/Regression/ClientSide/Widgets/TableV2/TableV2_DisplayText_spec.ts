@@ -1,7 +1,5 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { table } from "../../../../../support/Objects/ObjectsCore";
-const publish = require("../../../../../locators/publishWidgetspage.json");
 
 const data = [
   {
@@ -18,7 +16,7 @@ const data = [
 describe("Table V2 sort & filter using display text functionality", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
-    cy.openPropertyPane("tablewidgetv2");
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
     _.table.AddSampleTableData();
     _.propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
     cy.wait("@updateLayout");
@@ -26,22 +24,25 @@ describe("Table V2 sort & filter using display text functionality", () => {
   });
 
   beforeEach(() => {
-    cy.openPropertyPane("tablewidgetv2");
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
   });
 
   it("1. should search against display text when on client search", () => {
     _.propPane.TogglePropertyState("clientsidesearch", "On");
     cy.wait(2000);
+    table.ChangeColumnType("name", "URL", "v2");
     const colSettings = table._columnSettingsV2("name");
     _.agHelper.GetNClick(colSettings);
-    cy.changeColumnType("URL");
-    cy.testJsontext("displaytext", "{{['X','Y','Z'][currentIndex]}}");
+    _.propPane.UpdatePropertyFieldValue(
+      "Display text",
+      "{{['X','Y','Z'][currentIndex]}}",
+    );
     cy.get(table._searchInput).type("X");
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("X");
     });
     cy.get(table._searchInput).clear();
-    cy.backFromPropertyPanel();
+    _.propPane.NavigateBackToPropertyPane();
   });
 
   it("2. should filter column using display text when filters are applied", () => {
@@ -53,17 +54,21 @@ describe("Table V2 sort & filter using display text functionality", () => {
       .then((text) => {
         columnType = text;
         if (columnType !== "URL") {
-          cy.changeColumnType("URL");
+          _.propPane.NavigateBackToPropertyPane();
+          _.table.ChangeColumnType("name", "URL", "v2");
+          _.agHelper.GetNClick(colSettings);
         }
       });
-    cy.testJsonTextClearMultiline("displaytext");
-    cy.testJsontext("displaytext", "{{['X','Y','Z'][currentIndex]}}");
+    _.propPane.UpdatePropertyFieldValue(
+      "Display text",
+      "{{['X','Y','Z'][currentIndex]}}",
+    );
     table.OpenNFilterTable("name", "contains", "Y");
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("Y");
     });
     table.RemoveFilter();
-    cy.backFromPropertyPanel();
+    _.propPane.NavigateBackToPropertyPane();
   });
 
   it("3. should sort column using display text", () => {
@@ -73,22 +78,25 @@ describe("Table V2 sort & filter using display text functionality", () => {
     cy.get(".t--property-control-columntype span.rc-select-selection-item span")
       .invoke("text")
       .then((text) => {
-        console.log(text);
         columnType = text;
         if (columnType !== "URL") {
-          cy.changeColumnType("URL");
+          _.propPane.NavigateBackToPropertyPane();
+          _.table.ChangeColumnType("name", "URL", "v2");
+          _.agHelper.GetNClick(colSettings);
         }
       });
-    cy.testJsonTextClearMultiline("displaytext");
-    cy.testJsontext("displaytext", "{{['X','Y','Z'][currentIndex]}}");
-    cy.sortColumn("name", "ascending");
-    cy.readTableV2data(0, 0).then((data) => {
+    _.propPane.UpdatePropertyFieldValue(
+      "Display text",
+      "{{['X','Y','Z'][currentIndex]}}",
+    );
+    table.sortColumn("name", "ascending");
+    table.ReadTableRowColumnData(0, 0, "v2").then((data) => {
       expect(data).to.eq("X");
     });
-    cy.readTableV2data(1, 0).then((data) => {
+    table.ReadTableRowColumnData(1, 0, "v2").then((data) => {
       expect(data).to.eq("Y");
     });
-    cy.readTableV2data(2, 0).then((data) => {
+    table.ReadTableRowColumnData(2, 0, "v2").then((data) => {
       expect(data).to.eq("Z");
     });
   });
