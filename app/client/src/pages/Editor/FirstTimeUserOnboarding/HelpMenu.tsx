@@ -9,7 +9,6 @@ import moment from "moment";
 import styled from "styled-components";
 import { triggerWelcomeTour } from "./Utils";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { IntercomConsent } from "../HelpButton";
 import classNames from "classnames";
@@ -59,7 +58,6 @@ function HelpMenu(props: {
   showIntercomConsent: boolean;
 }) {
   const dispatch = useDispatch();
-  const applicationId = useSelector(getCurrentApplicationId);
   const user = useSelector(getCurrentUser);
 
   return (
@@ -80,7 +78,7 @@ function HelpMenu(props: {
             <Button
               kind="secondary"
               onClick={() => {
-                triggerWelcomeTour(dispatch, applicationId);
+                triggerWelcomeTour(dispatch);
                 AnalyticsUtil.logEvent("SIGNPOSTING_WELCOME_TOUR_CLICK");
               }}
               startIcon={"guide"}

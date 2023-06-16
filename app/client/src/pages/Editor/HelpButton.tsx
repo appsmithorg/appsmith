@@ -35,7 +35,6 @@ import {
 import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
 import { showSignpostingModal } from "actions/onboardingActions";
 import { triggerWelcomeTour } from "./FirstTimeUserOnboarding/Utils";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
@@ -164,7 +163,6 @@ function HelpButton() {
   const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
   const unreadSteps = useSelector(getSignpostingUnreadSteps);
   const setOverlay = useSelector(getSignpostingSetOverlay);
-  const currentApplicationId = useSelector(getCurrentApplicationId);
   const isAirgappedInstance = isAirgapped();
   const showUnreadSteps =
     !!unreadSteps.length &&
@@ -251,7 +249,7 @@ function HelpButton() {
                 <>
                   <MenuItem
                     onSelect={() => {
-                      triggerWelcomeTour(dispatch, currentApplicationId);
+                      triggerWelcomeTour(dispatch);
                       AnalyticsUtil.logEvent("HELP_MENU_WELCOME_TOUR_CLICK");
                     }}
                     startIcon="guide"
