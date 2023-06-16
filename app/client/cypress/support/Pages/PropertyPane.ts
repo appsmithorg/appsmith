@@ -477,10 +477,10 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
   }
 
-  public AssertJSToggleDisabled(property: string) {
-    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
-      "be.disabled",
-    );
+  public AssertJSToggleState(property: string, state: "enabled" | "disabled") {
+    cy.get(
+      this.locator._jsToggle(property.toLowerCase().replaceAll(" ", "")),
+    ).should(`be.${state}`);
   }
 
   public AssertSelectValue(value: string) {
