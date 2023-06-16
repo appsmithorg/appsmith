@@ -150,8 +150,8 @@ export class EntityExplorer {
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).should(
-      "have.length",
+    this.agHelper.AssertElementLength(
+      this._entityNameInExplorer(entityNameinLeftSidebar),
       1,
     );
   }
@@ -318,12 +318,24 @@ export class EntityExplorer {
       .first()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
-    cy.get(dropTargetId ? dropTargetId : this.locator._dropHere)
+    cy.get(
+      dropTargetId
+        ? this.locator._widgetInCanvas(dropTargetId) +
+            " " +
+            this.locator._dropHere
+        : this.locator._dropHere,
+    )
       .first()
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.Sleep(200);
-    cy.get(dropTargetId ? dropTargetId : this.locator._dropHere)
+    cy.get(
+      dropTargetId
+        ? this.locator._widgetInCanvas(dropTargetId) +
+            " " +
+            this.locator._dropHere
+        : this.locator._dropHere,
+    )
       .first()
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
@@ -331,11 +343,15 @@ export class EntityExplorer {
       cy.get(".t--modal-widget").should("exist");
     } else {
       if (dropTargetId) {
-        cy.get(
-          `${dropTargetId} ${this.locator._widgetInCanvas(widgetType)}`,
-        ).should("exist");
+        this.agHelper.AssertElementExist(
+          `${this.locator._widgetInCanvas(
+            dropTargetId,
+          )} ${this.locator._widgetInCanvas(widgetType)}`,
+        );
       } else {
-        cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+        this.agHelper.AssertElementExist(
+          this.locator._widgetInCanvas(widgetType),
+        );
       }
     }
     this.agHelper.Sleep(200); //waiting a bit for widget properties to open

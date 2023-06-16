@@ -353,7 +353,7 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
           echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
-          echo COMMIT_INFO_MESSAGE=Run from $(git rev-parse --abbrev-ref HEAD) on commit $(git show -s --pretty=%H | cut -c 1-7)>> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=Run from $(git rev-parse --abbrev-ref HEAD) on commit $(git show -s --pretty=%H | cut -c 1-7) >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
@@ -417,7 +417,7 @@ jobs:
           CYPRESS_AIRGAPPED: ${{ inputs.airgap-enabled }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE || github.event.pull_request.title }} -- ${{env.commit-info-instance}}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
@@ -480,7 +480,7 @@ jobs:
           CYPRESS_AIRGAPPED: ${{ inputs.airgap-enabled }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE || github.event.pull_request.title }} -- ${{env.commit-info-instance}}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}

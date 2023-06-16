@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
 import { ReusableHelper } from "../Objects/ReusableHelper";
+import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
 
 type ElementType = string | JQuery<HTMLElement>;
@@ -10,7 +11,7 @@ type ElementType = string | JQuery<HTMLElement>;
 interface DeleteParams {
   action: "Copy to page" | "Move to page" | "Delete" | "Prettify code";
   subAction?: string;
-  entityType?: EntityItems;
+  entityType?: EntityItemsType;
   toastToValidate?: string;
 }
 interface SubActionParams {
@@ -645,11 +646,15 @@ export class AggregateHelper extends ReusableHelper {
 
   public HoverElement(selector: string, index = 0, waitTimeInterval = 100) {
     //this.ScrollTo(this.GetElement(selector))
-    return this.GetElement(selector)
-      .eq(index)
-      .scrollIntoView()
-      .realHover()
-      .wait(waitTimeInterval);
+    return (
+      this.GetElement(selector)
+        .eq(index)
+        .scrollIntoView()
+        .realTouch({ position: "center" })
+        .realHover({ pointer: "mouse" })
+        //.trigger("mousemove", { eventConstructor: "MouseEvent" })
+        .wait(waitTimeInterval)
+    );
   }
 
   public GetSiblingNClick(
@@ -885,7 +890,10 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public DeleteEntityNAssert(entityType: EntityItems, toAssertAction = true) {
+  public DeleteEntityNAssert(
+    entityType: EntityItemsType,
+    toAssertAction = true,
+  ) {
     if (entityType != EntityItems.Widget)
       this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
     toAssertAction && this.assertHelper.AssertDelete(entityType);
@@ -1316,15 +1324,15 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
-  public GetWidgetWidth(widgetSelector: string) {
+  public GetWidth(widgetSelector: string) {
     this.GetElement(widgetSelector).then(($element) => {
-      cy.wrap(Number($element.width())).as("widgetWidth");
+      cy.wrap(Number($element.width())).as("eleWidth");
     });
   }
 
-  public GetWidgetHeight(widgetSelector: string) {
+  public GetHeight(widgetSelector: string) {
     this.GetElement(widgetSelector).then(($element) => {
-      cy.wrap(Number($element.height())).as("widgetHeight");
+      cy.wrap(Number($element.height())).as("eleHeight");
     });
   }
 
@@ -1394,7 +1402,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public VisitNAssert(url: string, apiToValidate = "") {
-    cy.visit(url);
+    cy.visit(url, { timeout: 60000 });
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
     } else apiToValidate && this.AssertNetworkStatus(apiToValidate);
