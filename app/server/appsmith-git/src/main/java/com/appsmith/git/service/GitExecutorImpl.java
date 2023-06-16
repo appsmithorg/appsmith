@@ -558,6 +558,16 @@ public class GitExecutorImpl implements GitExecutor {
         .subscribeOn(scheduler);
     }
 
+    private int getModifiedQueryCount(Set<String> jsObjectsModified, int modifiedCount, String filePath) {
+        String queryName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        String pageName = filePath.split("/")[1];
+        if (!jsObjectsModified.contains(pageName + queryName)) {
+            jsObjectsModified.add(pageName + queryName);
+            modifiedCount++;
+        }
+        return modifiedCount;
+    }
+
     @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
@@ -792,14 +802,13 @@ public class GitExecutorImpl implements GitExecutor {
                         if (result.getStatus().isSuccessful()) {
                             return Mono.just(true);
                         } else {
-                            log.error("Error while rebasing the branch, {}, {}", result.getStatus().name(), result.getConflicts());
-                            git.rebase().setUpstream("origin/" + branchName).setOperation(RebaseCommand.Operation.ABORT).call();
-                            return Mono.error(new Exception("Error while rebasing the branch, " + result.getStatus().name()));
-
+                            log.error("Error while rebasing the branch, {}", result.getStatus().name());
+                            git.rebase().setUpstream("origin/master").setOperation(RebaseCommand.Operation.ABORT).call();
+                            return Mono.just(false);
                         }
                     } catch (GitAPIException | IOException e) {
                         log.error("Error while rebasing the branch, {}", e.getMessage());
-                        return Mono.error(e);
+                        return Mono.just(false);
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
