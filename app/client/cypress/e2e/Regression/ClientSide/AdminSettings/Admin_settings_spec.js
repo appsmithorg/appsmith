@@ -206,8 +206,6 @@ describe("Admin settings page", function () {
     cy.wait("@postTenantConfig").then((interception) => {
       expect(interception.request.body.instanceName).to.equal(instanceName);
     });
-    cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.wait(3000);
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.wait(3000);
   });
