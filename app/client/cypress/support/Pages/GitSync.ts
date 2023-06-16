@@ -229,7 +229,7 @@ export class GitSync {
     this.agHelper.GetNClick(this._bottomBarCommit);
     this.agHelper.AssertElementVisible(this._gitSyncModal);
     this.agHelper.AssertElementVisible(this._discardChanges);
-    this.agHelper.ClickButton("Discard changes");
+    this.agHelper.ClickButton("Discard & Pull");
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
     );
