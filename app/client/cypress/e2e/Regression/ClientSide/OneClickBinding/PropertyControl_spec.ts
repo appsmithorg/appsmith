@@ -93,19 +93,15 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
 
-<<<<<<< HEAD
-    propPane.UpdatePropertyFieldValue("Table data", "");
-=======
-    _.propPane.AssertJSToggleState("Table data", "enabled");
+    propPane.AssertJSToggleState("Table data", "enabled");
 
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data1}}");
+    propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data1}}");
 
-    _.propPane.AssertJSToggleState("Table data", "disabled");
+    propPane.AssertJSToggleState("Table data", "disabled");
 
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data}}");
+    propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data}}");
 
-    _.propPane.AssertJSToggleState("Table data", "enabled");
->>>>>>> d04df34037 (feat: [one click binding] allow switching between js mode and non js mode on property control)
+    propPane.AssertJSToggleState("Table data", "enabled");
 
     propPane.ToggleJSMode("Table data", false);
 
