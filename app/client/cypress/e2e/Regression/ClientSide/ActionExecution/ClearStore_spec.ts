@@ -1,9 +1,15 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("clearStore Action test", () => {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Feature 11639 : Clear all store value", function () {
@@ -25,7 +31,7 @@ describe("clearStore Action test", () => {
     }`;
 
     // Create js object
-    _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -33,40 +39,40 @@ describe("clearStore Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.UpdatePropertyFieldValue("Label", "");
-    _.propPane.TypeTextIntoField("Label", "StoreValue");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "");
+    propPane.TypeTextIntoField("Label", "StoreValue");
     cy.get("@jsObjName").then((jsObj: any) => {
-      _.propPane.SelectJSFunctionToExecute(
+      propPane.SelectJSFunctionToExecute(
         "onClick",
         jsObj as string,
         "storeValue",
       );
     });
 
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    _.entityExplorer.SelectEntityByName("Button2", "Widgets");
-    _.propPane.UpdatePropertyFieldValue("Label", "");
-    _.propPane.TypeTextIntoField("Label", "ClearStore");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    entityExplorer.SelectEntityByName("Button2", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "");
+    propPane.TypeTextIntoField("Label", "ClearStore");
     cy.get("@jsObjName").then((jsObj: any) => {
-      _.propPane.SelectJSFunctionToExecute(
+      propPane.SelectJSFunctionToExecute(
         "onClick",
         jsObj as string,
         "clearStore",
       );
     });
 
-    _.deployMode.DeployApp();
-    _.agHelper.ClickButton("StoreValue");
-    _.agHelper.AssertContains(
+    deployMode.DeployApp();
+    agHelper.ClickButton("StoreValue");
+    agHelper.AssertContains(
       JSON.stringify({
         val1: "value 1",
         val2: "value 2",
         val3: "value 3",
       }),
     );
-    _.agHelper.ClickButton("ClearStore");
-    _.agHelper.AssertContains(JSON.stringify({}));
-    _.deployMode.NavigateBacktoEditor();
+    agHelper.ClickButton("ClearStore");
+    agHelper.AssertContains(JSON.stringify({}));
+    deployMode.NavigateBacktoEditor();
   });
 });

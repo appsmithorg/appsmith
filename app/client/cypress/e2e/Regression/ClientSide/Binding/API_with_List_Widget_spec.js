@@ -1,7 +1,5 @@
 /// <reference types="Cypress" />
 
-const dsl = require("../../../../fixtures/listwidgetdsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiLocators from "../../../../locators/ApiEditor";
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -9,11 +7,13 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Test Create Api and Bind to List widget", function () {
   let valueToTest;
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("listwidgetdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Test_Add users api and execute api", function () {
-    _.apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
+    _.apiPage.CreateAndFillApi(this.dataSet.userApi + "/mock-api?records=10");
     cy.RunAPI();
     cy.get(apiLocators.jsonResponseTab).click();
     cy.get(apiLocators.responseBody)
@@ -41,7 +41,7 @@ describe("Test Create Api and Bind to List widget", function () {
       .then((text) => {
         expect(text).to.equal(valueToTest);
       });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
@@ -66,7 +66,7 @@ describe("Test Create Api and Bind to List widget", function () {
   });
 
   it("3. Test_Validate the list widget ", function () {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
@@ -82,7 +82,7 @@ describe("Test Create Api and Bind to List widget", function () {
       .then((text) => {
         expect(text).to.equal(valueToTest);
       });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

@@ -8,8 +8,8 @@ describe("Auto conversion algorithm usecases for auto-layout", function () {
     cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(5000); //for dsl to settle
-    _.agHelper.GetElement("@getPage").then((httpResponse) => {
+    //cy.openPropertyPane("containerwidget");
+    cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       testHeight = data.layouts[0].dsl.bottomRow;
     });

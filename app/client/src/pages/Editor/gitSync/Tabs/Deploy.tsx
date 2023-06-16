@@ -25,6 +25,7 @@ import {
 } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
+  getDiscardDocUrl,
   getGitCommitAndPushError,
   getGitDiscardError,
   getGitStatus,
@@ -112,6 +113,7 @@ function Deploy() {
   const pullFailed = useSelector(getPullFailed);
   const commitInputRef = useRef<HTMLInputElement>(null);
   const upstreamErrorDocumentUrl = useSelector(getUpstreamErrorDocUrl);
+  const discardDocUrl = useSelector(getDiscardDocUrl);
   const [commitMessage, setCommitMessage] = useState(
     gitMetaData?.remoteUrl && lastDeployedAt ? "" : FIRST_COMMIT,
   );
@@ -408,6 +410,7 @@ function Deploy() {
 
           {showDiscardWarning && (
             <DiscardChangesWarning
+              discardDocUrl={discardDocUrl}
               onCloseDiscardChangesWarning={onCloseDiscardWarning}
             />
           )}

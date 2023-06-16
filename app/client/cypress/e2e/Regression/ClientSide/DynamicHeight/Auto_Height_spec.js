@@ -1,5 +1,3 @@
-const dsl = require("../../../../fixtures/dynamicHeightContainerCheckboxdsl.json");
-const cdsl = require("../../../../fixtures/dynamicHeigthContainerFixedDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   entityExplorer,
@@ -16,9 +14,11 @@ describe("Dynamic Height Width validation", function () {
   });
 
   it("1. Validate change with auto height width for widgets", function () {
-    cy.addDsl(dsl);
-    cy.wait(3000); //for dsl to settle
+    cy.fixture("dynamicHeightContainerCheckboxdsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     entityExplorer.SelectEntityByName("Container1", "Widgets");
+    //cy.changeLayoutHeight(commonlocators.autoHeight);
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     cy.moveToStyleTab();
     cy.get(".t--property-control-fontsize .rc-select")
@@ -91,8 +91,11 @@ describe("Dynamic Height Width validation", function () {
   });
 
   it("2. Validate container with auto height and child widgets with fixed height", function () {
-    cy.addDsl(cdsl);
-    cy.wait(3000); //for dsl to settle
+    cy.fixture("dynamicHeigthContainerFixedDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
+    //cy.openPropertyPane("containerwidget");
+    //cy.changeLayoutHeight(commonlocators.autoHeight);
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
