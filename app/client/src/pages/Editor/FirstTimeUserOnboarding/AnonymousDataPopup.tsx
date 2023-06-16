@@ -8,6 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import { TELEMETRY_DOCS_PAGE_URL } from "./constants";
+import type { EventName } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export default function AnonymousDataPopup(props: {
@@ -18,11 +19,12 @@ export default function AnonymousDataPopup(props: {
   }, []);
 
   const handleLinkClick = (link: string) => {
-    if (link === ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH) {
-      AnalyticsUtil.logEvent("VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT");
-    } else if (link === TELEMETRY_DOCS_PAGE_URL) {
-      AnalyticsUtil.logEvent("LEARN_MORE_TELEMETRY_CALLOUT");
-    }
+    const eventName: { [key: string]: EventName } = {
+      ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH:
+        "VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT",
+      TELEMETRY_DOCS_PAGE_URL: "LEARN_MORE_TELEMETRY_CALLOUT",
+    };
+    AnalyticsUtil.logEvent(eventName[link]);
     window.open(link, "_blank");
   };
 
