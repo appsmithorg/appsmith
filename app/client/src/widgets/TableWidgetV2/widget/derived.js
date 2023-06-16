@@ -367,7 +367,7 @@ export default {
                 const column = primaryColumns[sortByColumnOriginalId];
                 if (column && column.displayText) {
                   if (_.isString(column.displayText)) {
-                    return false;
+                    return sortByOrder(false);
                   } else if (_.isArray(column.displayText)) {
                     return sortByOrder(
                       column.displayText[a.__originalIndex__]
