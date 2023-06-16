@@ -58,6 +58,7 @@ export type EventName =
   | "SIDEBAR_NAVIGATION"
   | "PUBLISH_APP"
   | "PREVIEW_APP"
+  | "APP_VIEW_APP_WITH_NAVBAR_FLAG"
   | "EDITOR_OPEN"
   | "CREATE_ACTION"
   | "SAVE_SAAS"

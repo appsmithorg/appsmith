@@ -24,12 +24,14 @@ import Sidebar from "./Sidebar";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function Navigation() {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed") === "true";
-  const hideHeader = isEmbed && !(queryParams.get("navbar") === "true");
+  const showNavBar = queryParams.get("navbar") === "true";
+  const hideHeader = isEmbed && !showNavBar;
   const [isMenuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const pageId = useSelector(getCurrentPageId);
@@ -59,6 +61,12 @@ export function Navigation() {
     currentApplicationDetails?.applicationDetail?.navigationSetting
       ?.orientation,
   ]);
+
+  if (showNavBar) {
+    AnalyticsUtil.logEvent("APP_VIEW_APP_WITH_NAVBAR_FLAG", {
+      appUrl: currentApplicationDetails?.id,
+    });
+  }
 
   const renderNavigation = () => {
     if (
