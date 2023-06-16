@@ -56,31 +56,6 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      */
     Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
 
-//    default Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-//        Properties properties = new Properties();
-//        return Mono.fromCallable(() -> addAuthParamsToConnectionConfig(datasourceConfiguration, properties))
-//                .map(properties1 -> addPluginSpecificProperties(datasourceConfiguration, properties1))
-//                .flatMap(properties1 -> createConnectionClient(datasourceConfiguration, properties1))
-//                .onErrorResume(error -> {
-//                    // We always expect to have an error object, but the error object may not be well-formed
-//                    final String errorMessage = error.getMessage();
-//                    throw new RuntimeException(errorMessage);
-//                })
-//                .subscribeOn(Schedulers.boundedElastic());
-//    }
-//
-//    default Mono<C> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-//        return this.datasourceCreate(datasourceConfiguration);
-//    }
-//
-//    default <T> T addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, T properties) {
-//        return properties;
-//    }
-//
-//    default <T> T addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, T properties) {
-//        return properties;
-//    }
-
     /**
      * This function is used to bring down/destroy the connection to the data source.
      *

@@ -1,4 +1,4 @@
-package com.appsmith.external.datasource.connectionproperties;
+package com.external.plugins.dto;
 
 import java.util.Properties;
 import lombok.Data;

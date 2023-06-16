@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.datasource.connectionproperties.ArangoDBConnectionProperties;
+import com.external.plugins.dto.ArangoDBConnectionProperties;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -15,7 +15,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
-import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB.Builder;

@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.datasource.connectionproperties.SnowflakeConnectionProperties;
+import com.external.plugins.dto.SnowflakeConnectionProperties;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -12,10 +12,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
-import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
-import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.SqlUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -24,7 +22,6 @@ import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -40,7 +37,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;

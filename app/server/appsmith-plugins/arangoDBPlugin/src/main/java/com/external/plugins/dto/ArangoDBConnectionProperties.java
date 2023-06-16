@@ -1,4 +1,4 @@
-package com.appsmith.external.datasource.connectionproperties;
+package com.external.plugins.dto;
 
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Endpoint;

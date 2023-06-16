@@ -5,6 +5,21 @@ import java.util.Properties;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+/**
+ * This is an intermediate interface in the hierarchy of pluginExecutor interface and its implementations.
+ *
+ * This is introduced to keep a subset of implementations keep working with the original mechanism while SQL based
+ * plugins to be moved to use template method pattern for datasourceCreate method.
+ *
+ * Once all implementations are moved to template method pattern, the template method defined in this interface can
+ * be moved to pluginExecutor interface and this interface can be removed
+ *
+ * This interface is added temporarily to refactor classes in phases. Reference diagram
+ * <a href="file:../resources/template_pattern_createDatasource.png">template_pattern_createDatasource.png</a>
+ *
+ * @param <C> datasource generic type
+ * @param <T> connection properties generic type
+ */
 public interface PluginExecutorConnectionParam<C, T> extends PluginExecutor<C> {
     default Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration, T connectionProperties) {
         return Mono.fromCallable(() -> addAuthParamsToConnectionConfig(datasourceConfiguration, connectionProperties))
