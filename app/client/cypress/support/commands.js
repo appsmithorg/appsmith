@@ -1123,6 +1123,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("GET", "/settings/general").as("getGeneral");
   cy.intercept("GET", "/api/v1/tenants/current").as("signUpLogin");
+  cy.intercept("PUT", "/api/v1/tenants", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("postTenant");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
