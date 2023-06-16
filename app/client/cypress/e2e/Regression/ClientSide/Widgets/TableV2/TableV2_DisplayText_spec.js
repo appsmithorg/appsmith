@@ -1,10 +1,8 @@
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { table } from "../../../../../support/Objects/ObjectsCore";
 const publish = require("../../../../../locators/publishWidgetspage.json");
 
-const propPane = ObjectsRegistry.PropertyPane;
 const data = [
   {
     name: "C.COM",
@@ -19,9 +17,10 @@ const data = [
 
 describe("Table V2 sort & filter using display text functionality", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
     cy.openPropertyPane("tablewidgetv2");
-    propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
+    _.table.AddSampleTableData();
+    _.propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
     cy.wait("@updateLayout");
     cy.wait(1000);
   });
