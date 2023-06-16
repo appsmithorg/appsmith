@@ -318,7 +318,7 @@ function CheckListItem(props: {
             isDisabled={props.disabled}
             isIconButton
             kind="tertiary"
-            onClick={() => {
+            onClick={(e) => {
               AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
                 step: props.step,
               });
@@ -326,6 +326,7 @@ function CheckListItem(props: {
                 props.docLink ?? "https://docs.appsmith.com/",
                 "_blank",
               );
+              e.stopPropagation();
             }}
             startIcon="question-line"
           />
