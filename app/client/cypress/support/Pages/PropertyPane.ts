@@ -429,12 +429,9 @@ export class PropertyPane {
   }
 
   public Search(query: string) {
-    cy.get(this._propertyPaneSearchInput)
-      .first()
-      .then((el: any) => {
-        cy.get(el).clear();
-        if (query) cy.get(el).type(query, { force: true });
-      });
+    this.agHelper.ClearTextField(this._propertyPaneSearchInput);
+    this.agHelper.TypeText(this._propertyPaneSearchInput, query);
+    this.agHelper.Sleep();
   }
 
   public ToggleSection(section: string) {
