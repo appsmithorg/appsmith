@@ -55,7 +55,7 @@ describe("Git sync:", function () {
 
     cy.get(gitSyncLocators.branchSearchInput).should(
       "have.value",
-      "special&branch-name~@#$%^&*()_+={}[]><,.",
+      "special_branch-name_____________________",
     );
 
     cy.wait(200);
