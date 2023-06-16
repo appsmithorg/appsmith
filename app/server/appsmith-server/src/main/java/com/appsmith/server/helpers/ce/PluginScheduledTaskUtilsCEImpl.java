@@ -83,7 +83,6 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
                     final Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin> newPlugins = tuple.getT2();
                     final List<Plugin> updatablePlugins = new ArrayList<>();
                     final List<Plugin> insertablePlugins = new ArrayList<>();
-                    modifyDatasourceUiConfigForRemotePlugins(newPlugins);
                     newPlugins.forEach((k, v) -> {
                         if (availablePlugins.containsKey(k)) {
                             v.setId(availablePlugins.get(k).getId());
@@ -117,20 +116,5 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
                             .zipWith(workspaceFlux)
                             .then();
                 });
-    }
-
-    private void modifyDatasourceUiConfigForRemotePlugins(Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin> remotePluginsFromCloud) {
-        String form = "form";
-        String children = "children";
-        String configProperty = "configProperty";
-        String datasourceStorageActiveEnv = "datasourceStorages.active_env.";
-
-        remotePluginsFromCloud.forEach((key, val)-> {
-            if (val.getDatasourceUiConfig().containsKey(form)) {
-                List<Map> childList = (List<Map>) ((List<Map>) val.getDatasourceUiConfig().get(form)).get(0).get(children);
-                childList
-                        .forEach(child -> child.put(configProperty, datasourceStorageActiveEnv + child.get(configProperty)));
-            }
-        });
     }
 }
