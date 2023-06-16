@@ -17,7 +17,7 @@ export const CONFIG = {
   },
   type: Widget.getWidgetType(),
   name: "TreeSelect",
-  searchTags: ["dropdown"],
+  searchTags: ["dropdown", "singleselecttree"],
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {

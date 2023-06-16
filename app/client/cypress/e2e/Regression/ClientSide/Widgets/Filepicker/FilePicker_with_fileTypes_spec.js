@@ -1,10 +1,11 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/filepickerDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("FilePicker Widget Functionality with different file types", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("filepickerDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check file upload of type jpeg", function () {

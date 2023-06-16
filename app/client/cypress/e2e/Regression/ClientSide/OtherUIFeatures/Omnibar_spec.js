@@ -1,19 +1,23 @@
 const omnibar = require("../../../../locators/Omnibar.json");
-const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
   const jsObjectName = "Omnibar2";
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("omnibarDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
-    _.agHelper.AssertNewTabOpened(() => {
+    agHelper.AssertNewTabOpened(() => {
       cy.xpath('//span[text()="Learn more"]').click();
     });
   });
@@ -87,18 +91,18 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
 
-    cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).contains("Create new").click();
-    cy.wait(1000);
-    cy.get(omnibar.createNew).contains("New blank API").click();
-    cy.wait(1000);
-    cy.wait("@createNewApi");
-    cy.renameWithInPane(apiName);
+    agHelper.GetNClick(omnibar.globalSearch, 0, true);
+    agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
+    agHelper.AssertElementVisible(omnibar.blankAPI);
+    agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
+    agHelper.AssertNetworkStatus("@createNewApi", 201);
+    entityExplorer.SelectEntityByName("Api1");
+    agHelper.AssertURL("/api");
+    agHelper.RenameWithInPane(apiName);
 
-    cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).contains("Create new").click();
-    cy.wait(1000);
-    cy.get(omnibar.createNew).contains("New cURL import").click();
+    agHelper.GetNClick(omnibar.globalSearch, 0, true);
+    agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
+    agHelper.GetNClickByContains(omnibar.createNew, "New cURL import");
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
@@ -121,17 +125,20 @@ describe("Omnibar functionality test cases", () => {
           win.location.href = "https://discord.com/invite/rBTTVJp";
         }).as("discordLink");
       });
-      // clicking on discord link should open discord
-      cy.get(omnibar.discordLink).click();
-      cy.get("@discordLink").should("be.called");
-      cy.wait(500);
-      cy.go(-1);
-      cy.wait(2000);
+      cy.url().then(($urlBeforeDiscord) => {
+        // clicking on discord link should open discord
+        cy.get(omnibar.discordLink).click();
+        cy.get("@discordLink").should("be.called");
+        cy.wait(2000);
+        //cy.go(-1);
+        cy.visit($urlBeforeDiscord);
+        cy.wait(4000); //for page to load
+      });
     },
   );
 
   it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).contains("Navigate").click();
     // verify recently opened items with their subtext i.e page name
@@ -171,15 +178,20 @@ describe("Omnibar functionality test cases", () => {
       cy.get(omnibar.categoryTitle)
         .contains("Search documentation")
         .click({ force: true });
-      cy.get(omnibar.openDocumentationLink)
-        .invoke("removeAttr", "target")
-        .click()
-        .wait(2000);
-      cy.url().should(
-        "contain",
-        "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
-      ); // => true
-      cy.go(-1);
+      cy.url().then(($urlBeforeDocu) => {
+        cy.get(omnibar.openDocumentationLink)
+          .invoke("removeAttr", "target")
+          .click()
+          .wait(2000);
+        cy.url().should(
+          "contain",
+          "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
+        ); // => true
+        cy.wait(2000);
+        //cy.go(-1);
+        cy.visit($urlBeforeDocu);
+        cy.wait(2000);
+      });
     },
   );
 });

@@ -5,7 +5,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import type { TenantReduxState } from "./tenantReducer";
-import { tenantConfigConnection } from "@appsmith/utils/adminSettingsHelpers";
+import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 
 export const initialState: SettingsReduxState = {
   isLoading: false,
@@ -48,10 +48,9 @@ export const handlers = {
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
     const configs: any = {};
-    Object.keys(tenantConfigConnection).forEach((key) => {
+    tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
-        configs[tenantConfigConnection[key]] =
-          action.payload?.tenantConfiguration?.[key];
+        configs[key] = action.payload?.tenantConfiguration?.[key];
       }
     });
     return {
@@ -68,10 +67,9 @@ export const handlers = {
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
     const configs: any = {};
-    Object.keys(tenantConfigConnection).forEach((key) => {
+    tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
-        configs[tenantConfigConnection[key]] =
-          action.payload?.tenantConfiguration?.[key];
+        configs[key] = action.payload?.tenantConfiguration?.[key];
       }
     });
     return {

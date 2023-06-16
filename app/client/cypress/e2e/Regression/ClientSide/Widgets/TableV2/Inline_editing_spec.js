@@ -1,18 +1,18 @@
-const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.RestoreLocalStorageCache();
+    cy.fixture("Table/InlineEditingDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";
@@ -636,7 +636,9 @@ describe("Table widget inline editing functionality", () => {
   });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
-    cy.addDsl(dsl);
+    cy.fixture("Table/InlineEditingDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);
@@ -739,14 +741,13 @@ describe("Table widget inline editing functionality", () => {
   });
 
   it("27. should check if updatedRowIndex is getting updated for multi row update mode", () => {
-    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 400, 400);
     cy.get(".t--widget-textwidget").should("exist");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{Table1.updatedRowIndex}}`,
     );
-
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 300, 300);
     cy.get(".t--widget-buttonwidget").should("exist");
     cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
     cy.updateCodeInput(".t--property-control-label", "Reset");
@@ -762,11 +763,13 @@ describe("Table widget inline editing functionality", () => {
     cy.wait(1000);
 
     // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.
+    //_.table.EditTableCell(0, 0, "#12");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "#12").type("{enter}");
     cy.get(commonlocators.textWidgetContainer).should("contain.text", 0);
 
     // case 2: check if the updateRowIndex is -1 when widget is reset
+    //_.table.EditTableCell(0, 1, "#13");//Method to be improve!
     cy.editTableCell(0, 1);
     cy.enterTableCellValue(0, 1, "#13").type("{enter}");
     cy.get(commonlocators.textWidgetContainer).should("contain.text", 1);
