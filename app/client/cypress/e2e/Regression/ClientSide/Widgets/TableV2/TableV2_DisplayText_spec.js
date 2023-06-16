@@ -31,7 +31,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
   });
 
   it("1. should search against display text when on client search", () => {
-    _.propPane.ToggleOnOrOff("clientsidesearch", "On");
+    _.propPane.TogglePropertyState("clientsidesearch", "On");
     cy.wait(2000);
     const colSettings = table._columnSettingsV2("name");
     _.agHelper.GetNClick(colSettings);
