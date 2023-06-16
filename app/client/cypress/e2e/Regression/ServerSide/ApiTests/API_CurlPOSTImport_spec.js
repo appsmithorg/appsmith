@@ -1,6 +1,6 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import ApiEditor from "../../../../locators/ApiEditor";
-import { dataSources } from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function () {
   it("1. Test curl import flow for POST action with JSON body", function () {
@@ -14,7 +14,7 @@ describe("Test curl import flow", function () {
           parseSpecialCharSequences: false,
         },
       );
-      _.agHelper.ValidateNetworkStatus("@postExecute");
+      _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
       cy.get("@curlImport").then((response) => {
         cy.expect(response.response.body.responseMeta.success).to.eq(true);
         cy.get(apiwidget.ApiName)
@@ -32,9 +32,17 @@ describe("Test curl import flow", function () {
       _.dataSources.FillCurlNImport(
         `curl --request POST ${datasourceFormData["multipartAPI"]} -F 'randomKey=randomValue' --form 'randomKey2=\"randomValue2\"'`,
       );
-      _.apiPage.ValidateHeaderParams({
-        key: "Content-Type",
-        value: "multipart/form-data",
+      cy.get("@postExecute").then((response) => {
+        cy.log(response);
+        cy.expect(response.response.body.responseMeta.success).to.eq(true);
+        // Asserting if the form key value are returned in the response
+        cy.expect(response.response.body.data.body.data.randomKey).to.eq(
+          "randomValue",
+        );
+        _.apiPage.ValidateHeaderParams({
+          key: "Content-Type",
+          value: "multipart/form-data",
+        });
       });
     });
   });
