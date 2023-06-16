@@ -1,12 +1,12 @@
 let appId;
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
+import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "excludeForAirgap",
   "Checks for analytics for enableTelemtry",
   function () {
     before(() => {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").should("be.checked"); //Bug 21191
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").uncheck({

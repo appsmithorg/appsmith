@@ -235,7 +235,7 @@ describe("Lint error reporting", () => {
 
     //Test in Table for no error when using {{currentRow}}
     entityExplorer.SelectEntityByName("Table1", "Widgets");
-    agHelper.GetNClick(table._columnSettings("step"));
+    agHelper.GetNClick(table._columnSettings("step", "Edit"));
     agHelper.AssertElementAbsence(locators._lintErrorElement);
 
     propPane.UpdatePropertyFieldValue("Computed value", "{{currentRow}}");

@@ -169,11 +169,14 @@ after(function () {
   if (RapidMode.config.enabled) {
     return;
   }
-  //-- Deleting the application by Api---//
-  cy.DeleteAppByApi();
-  //-- LogOut Application---//
-  cy.LogOut();
-
+  if (Cypress.env("CYPRESS_CI") === "1") {
+    //-- Deleting the application by Api---//
+    cy.DeleteAppByApi();
+    //-- LogOut Application---//
+    cy.LogOut();
+  } else {
+    cy.log("Running locally, hence skipping app delete!");
+  }
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");
