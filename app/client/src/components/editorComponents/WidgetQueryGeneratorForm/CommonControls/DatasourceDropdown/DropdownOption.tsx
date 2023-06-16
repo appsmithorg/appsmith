@@ -28,13 +28,14 @@ type Props = {
   label?: JSX.Element | string;
   leftIcon?: JSX.Element;
   rightIcon?: JSX.Element;
+  className?: string;
 };
 
 export function DropdownOption(props: Props) {
-  const { label, leftIcon, rightIcon } = props;
+  const { className, label, leftIcon, rightIcon } = props;
 
   return (
-    <Container>
+    <Container className={className}>
       <LeftSection>
         {leftIcon && <IconContainer>{leftIcon}</IconContainer>}
         <Label>{label}</Label>

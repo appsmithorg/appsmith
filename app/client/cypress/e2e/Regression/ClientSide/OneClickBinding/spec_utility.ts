@@ -1,5 +1,6 @@
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
+import { __asyncGenerator } from "tslib";
 
 export class OneClickBinding {
   public ChooseAndAssertForm(
@@ -9,6 +10,15 @@ export class OneClickBinding {
     column?: string,
   ) {
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+
+    cy.get("body").then(($ele) => {
+      if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
+        const length = $ele.find(oneClickBindingLocator.loadMore).length;
+        new Array(length).fill(" ").forEach((d, i) => {
+          agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
+        });
+      }
+    });
 
     agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
 
@@ -20,12 +30,23 @@ export class OneClickBinding {
       200,
     );
 
-    agHelper.Sleep(500);
+    agHelper.Sleep(3000);
+
     agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
     agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
     agHelper.Sleep(3000); //for tables to populate for CI runs
     agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
+
+    agHelper.AssertElementExist(
+      oneClickBindingLocator.tableOrSpreadsheetDropdown,
+    );
+
+    agHelper.GetNClick(
+      oneClickBindingLocator.tableOrSpreadsheetDropdown,
+      0,
+      true,
+    );
 
     agHelper.GetNClick(
       oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),

@@ -4,6 +4,7 @@ import {
   agHelper,
   dataSources,
   propPane,
+  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
@@ -28,10 +29,13 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.datasourceOtherActionsSelector,
     );
 
-    entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Explorer", 0, true);
+
     dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
       dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
     });
+
+    cy.wait(500);
 
     entityExplorer.NavigateToSwitcher("Widgets");
     entityExplorer.NavigateToSwitcher("Explorer");
@@ -42,7 +46,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     );
 
     agHelper.AssertElementLength(
-      oneClickBindingLocator.datasourceQuerySelector,
+      oneClickBindingLocator.datasourceQuerySelector(),
       1,
     );
 
@@ -83,7 +87,7 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.datasourceDropdownOptionSelector("Query1"),
     );
 
-    agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector, 0);
+    agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector(), 0);
 
     agHelper.AssertElementExist(
       oneClickBindingLocator.dropdownOptionSelector("Query1"),
@@ -137,6 +141,26 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
+    agHelper.TypeText(
+      `[name="datasourceConfiguration.endpoints[0].port"]`,
+      "8000",
+    );
+
+    dataSources.SaveDatasource();
+
+    entityExplorer.NavigateToSwitcher("Widgets");
+
+    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+
+    cy.get("body").then(($ele) => {
+      if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
+        const length = $ele.find(oneClickBindingLocator.loadMore).length;
+        new Array(length).fill(" ").forEach((d, i) => {
+          agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
+        });
+      }
+    });
+
     agHelper.GetNClick(
       oneClickBindingLocator.datasourceSelector("myinvalidds"),
     );
@@ -144,6 +168,107 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.tableError(
         "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",
       ),
+    );
+  });
+
+  it("should check that load more options and search", () => {
+    propPane.MoveToTab("Style");
+
+    propPane.MoveToTab("Content");
+
+    entityExplorer.NavigateToSwitcher("Explorer");
+
+    [1, 2, 3].forEach(() => {
+      apiPage.CreateAndFillApi("http://www.example.com");
+    });
+
+    entityExplorer.NavigateToSwitcher("Widgets");
+
+    entityExplorer.SelectEntityByName("Table1");
+
+    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+
+    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
+      expect($ele.length).equals(2);
+    });
+
+    agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
+
+    agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
+
+    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
+      expect($ele.length).greaterThan(2);
+    });
+
+    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
+      expect($ele.length).equals(2);
+    });
+
+    agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
+
+    agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
+
+    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
+      expect($ele.length).greaterThan(2);
+    });
+  });
+
+  it("should test the search input function", () => {
+    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
+      expect($ele.length).greaterThan(2);
+    });
+
+    agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api1");
+
+    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
+      expect($ele.length).equals(1);
+    });
+
+    agHelper.AssertElementExist(
+      oneClickBindingLocator.datasourceQueryBindHeaderSelector,
+    );
+
+    agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api123");
+
+    agHelper.AssertElementAbsence(
+      oneClickBindingLocator.datasourceQuerySelector(),
+    );
+
+    agHelper.AssertElementAbsence(
+      oneClickBindingLocator.datasourceQueryBindHeaderSelector,
+    );
+
+    agHelper.ClearTextField(oneClickBindingLocator.datasourceSearch);
+
+    //
+
+    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
+      expect($ele.length).greaterThan(2);
+    });
+
+    agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "myinvalidds");
+
+    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
+      expect($ele.length).equals(1);
+    });
+
+    agHelper.AssertElementExist(
+      oneClickBindingLocator.datasourceGenerateAQuerySelector,
+    );
+
+    agHelper.TypeText(
+      oneClickBindingLocator.datasourceSearch,
+      "myinvalidds123",
+    );
+
+    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
+      expect($ele.length).equals(0);
+    });
+
+    agHelper.AssertElementAbsence(oneClickBindingLocator.datasourceSelector());
+
+    agHelper.AssertElementAbsence(
+      oneClickBindingLocator.datasourceGenerateAQuerySelector,
     );
   });
 });

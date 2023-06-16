@@ -5,7 +5,7 @@ import { noop, set } from "lodash";
 import { CommonControls } from "./CommonControls";
 import { ConnectData } from "./ConnectData";
 import { DatasourceSpecificControls } from "./DatasourceSpecificControls";
-import { GlobalStyles, Wrapper } from "./styles";
+import { Wrapper } from "./styles";
 import WidgetSpecificControls from "./WidgetSpecificControls";
 import { useDispatch, useSelector } from "react-redux";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -237,7 +237,6 @@ function WidgetQueryGeneratorForm(props: Props) {
 
   return (
     <Wrapper>
-      <GlobalStyles />
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
         <CommonControls />
         <DatasourceSpecificControls />
