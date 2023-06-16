@@ -379,11 +379,11 @@ function Pagination(props: PaginationProps) {
               value: PaginationType.NONE,
             },
             {
-              label: "Paginate using limit and offset",
+              label: "Paginate via limit and offset",
               value: PaginationType.PAGE_NO,
             },
             {
-              label: "Paginate using cursor",
+              label: "Paginate via cursor based",
               value: PaginationType.CURSOR,
             },
           ]}
