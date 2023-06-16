@@ -1,14 +1,23 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
-let dsName: any, query: string;
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  deployMode,
+  appSettings,
+  dataSources,
+  table,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Boolean & Enum Datatype tests", function () {
+  let dsName: any, query: string;
+
   before("Create Postgress DS, Add dsl, Appply theme", () => {
     cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
-    _.appSettings.OpenPaneAndChangeThemeColors(-18, -20);
-    _.dataSources.CreateDataSource("Postgres");
+    appSettings.OpenPaneAndChangeThemeColors(-18, -20);
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -16,197 +25,203 @@ describe("Boolean & Enum Datatype tests", function () {
 
   it("1. Creating enum & table queries - boolenumtypes + Bug 14493", () => {
     query = `CREATE TYPE weekdays AS ENUM ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');`;
-    _.dataSources.CreateQueryAfterDSSaved(query, "createEnum");
-    _.dataSources.RunQuery();
+    dataSources.CreateQueryAfterDSSaved(query, "createEnum");
+    dataSources.RunQuery();
 
     query = `create table boolenumtypes (serialId SERIAL not null primary key, workingDay weekdays, AreWeWorking boolean)`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
-    _.dataSources.RunQuery();
+    dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
+    dataSources.RunQuery();
 
-    _.entityExplorer.ExpandCollapseEntity("Datasources");
-    _.entityExplorer.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
-    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-    _.agHelper.AssertElementVisible(
-      _.entityExplorer._entityNameInExplorer("public.boolenumtypes"),
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementVisible(
+      entityExplorer._entityNameInExplorer("public.boolenumtypes"),
     );
 
     //Select query:
-    _.entityExplorer.ActionTemplateMenuByEntityName(
+    entityExplorer.ActionTemplateMenuByEntityName(
       "public.boolenumtypes",
       "SELECT",
     );
-    _.agHelper.RenameWithInPane("selectRecords");
-    _.dataSources.RunQuery();
-    _.agHelper
-      .GetText(_.dataSources._noRecordFound)
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     //Other queries
     query = `INSERT INTO public."boolenumtypes" ("workingday", "areweworking") VALUES ({{Insertworkingday.selectedOptionValue}}, {{Insertareweworking.isSwitchedOn}})`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
+    dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
 
     query = `UPDATE public."boolenumtypes" SET "workingday" = {{Updateworkingday.selectedOptionValue}}, "areweworking" = {{Updateareweworking.isSwitchedOn}} WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "updateRecord");
+    dataSources.CreateQueryFromOverlay(dsName, query, "updateRecord");
 
     query = `SELECT * from enum_range(NULL::weekdays)`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "getEnum");
+    dataSources.CreateQueryFromOverlay(dsName, query, "getEnum");
 
     query = `DELETE FROM public."boolenumtypes" WHERE serialId ={{Table1.selectedRow.serialid}}`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "deleteRecord");
+    dataSources.CreateQueryFromOverlay(dsName, query, "deleteRecord");
 
     query = `DELETE FROM public."boolenumtypes"`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "deleteAllRecords");
+    dataSources.CreateQueryFromOverlay(dsName, query, "deleteAllRecords");
 
     query = `DROP table public."boolenumtypes"`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "dropTable");
+    dataSources.CreateQueryFromOverlay(dsName, query, "dropTable");
 
     query = `drop type weekdays`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "dropEnum");
+    dataSources.CreateQueryFromOverlay(dsName, query, "dropEnum");
 
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    _.entityExplorer.ExpandCollapseEntity(dsName, false);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("2. Inserting record - boolenumtypes", () => {
-    _.entityExplorer.SelectEntityByName("Page1");
-    _.deployMode.DeployApp();
-    _.table.WaitForTableEmpty(); //asserting _.table is empty before inserting!
-    _.agHelper.ClickButton("Run InsertQuery");
-    _.agHelper.AssertElementVisible(_.locators._modal);
-    _.agHelper.SelectDropDown("Monday");
-    _.agHelper.ToggleSwitch("Areweworking");
-    _.agHelper.ClickButton("Insert");
-    _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    entityExplorer.SelectEntityByName("Page1");
+    deployMode.DeployApp();
+    table.WaitForTableEmpty(); //asserting table is empty before inserting!
+    agHelper.ClickButton("Run InsertQuery");
+    agHelper.AssertElementVisible(locators._modal);
+    agHelper.SelectDropDown("Monday");
+    agHelper.ToggleSwitch("Areweworking");
+    agHelper.ClickButton("Insert");
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    _.table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Monday");
     });
-    _.table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("true");
     });
   });
 
   it("3. Inserting another record - boolenumtypes", () => {
-    _.agHelper.ClickButton("Run InsertQuery");
-    _.agHelper.AssertElementVisible(_.locators._modal);
-    _.agHelper.SelectDropDown("Saturday");
-    _.agHelper.ToggleSwitch("Areweworking", "uncheck");
-    _.agHelper.ClickButton("Insert");
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+    agHelper.ClickButton("Run InsertQuery");
+    agHelper.AssertElementVisible(locators._modal);
+    agHelper.SelectDropDown("Saturday");
+    agHelper.ToggleSwitch("Areweworking", "uncheck");
+    agHelper.ClickButton("Insert");
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    _.table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Saturday");
     });
-    _.table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("false");
     });
   });
 
   it("4. Inserting another record - boolenumtypes", () => {
-    _.agHelper.ClickButton("Run InsertQuery");
-    _.agHelper.AssertElementVisible(_.locators._modal);
-    _.agHelper.SelectDropDown("Friday");
-    _.agHelper.ToggleSwitch("Areweworking", "uncheck");
-    _.agHelper.ClickButton("Insert");
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
+    agHelper.ClickButton("Run InsertQuery");
+    agHelper.AssertElementVisible(locators._modal);
+    agHelper.SelectDropDown("Friday");
+    agHelper.ToggleSwitch("Areweworking", "uncheck");
+    agHelper.ClickButton("Insert");
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    _.table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Friday");
     });
-    _.table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("false");
     });
   });
 
   it("5. Updating record - boolenumtypes", () => {
-    _.table.SelectTableRow(2);
-    _.agHelper.ClickButton("Run UpdateQuery");
-    _.agHelper.AssertElementVisible(_.locators._modal);
-    _.agHelper.ToggleSwitch("Areweworking", "check");
-    _.agHelper.ClickButton("Update");
-    _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Update did not fail
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run UpdateQuery"));
-    _.table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
+    table.SelectTableRow(2);
+    agHelper.ClickButton("Run UpdateQuery");
+    agHelper.AssertElementVisible(locators._modal);
+    agHelper.ToggleSwitch("Areweworking", "check");
+    agHelper.ClickButton("Update");
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    _.table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Friday");
     });
-    _.table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("true");
     });
   });
 
   it("6. Validating Enum Ordering", () => {
-    _.deployMode.NavigateBacktoEditor();
-    _.table.WaitUntilTableLoad();
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
     query = `SELECT * FROM boolenumtypes WHERE workingday > 'Tuesday';`;
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.CreateNewDsQuery(dsName);
-    _.agHelper.RenameWithInPane("verifyEnumOrdering");
-    _.dataSources.EnterQuery(query);
-    _.dataSources.RunQuery();
-    _.dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.CreateNewDsQuery(dsName);
+    agHelper.RenameWithInPane("verifyEnumOrdering");
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
       expect($cellData).to.eq("Saturday");
     });
-    _.dataSources.ReadQueryTableResponse(4).then(($cellData) => {
+    dataSources.ReadQueryTableResponse(4).then(($cellData) => {
       expect($cellData).to.eq("Friday");
     });
 
     query = `SELECT * FROM boolenumtypes WHERE workingday = (SELECT MIN(workingday) FROM boolenumtypes);`;
-    _.dataSources.EnterQuery(query);
-    _.dataSources.RunQuery();
-    _.dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
       expect($cellData).to.eq("Monday");
     });
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("7. Deleting records - boolenumtypes", () => {
-    _.entityExplorer.SelectEntityByName("Page1");
-    _.deployMode.DeployApp();
-    _.table.WaitUntilTableLoad();
-    _.table.SelectTableRow(1);
-    _.agHelper.ClickButton("DeleteQuery", 1);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.Sleep(2500); //Allwowing time for delete to be success
-    _.table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+    entityExplorer.SelectEntityByName("Page1");
+    deployMode.DeployApp();
+    table.WaitUntilTableLoad();
+    table.SelectTableRow(1);
+    agHelper.ClickButton("DeleteQuery", 1);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(2500); //Allwowing time for delete to be success
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
-    _.table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
 
     //Deleting all records from table
-    _.agHelper.GetNClick(_.locators._deleteIcon);
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.agHelper.Sleep(2000);
-    _.table.WaitForTableEmpty();
+    agHelper.GetNClick(locators._deleteIcon);
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.Sleep(2000);
+    table.WaitForTableEmpty();
   });
 
   it("8. Inserting another record (to check serial column) - boolenumtypes", () => {
-    _.agHelper.ClickButton("Run InsertQuery");
-    _.agHelper.AssertElementVisible(_.locators._modal);
-    _.agHelper.SelectDropDown("Wednesday");
-    _.agHelper.ToggleSwitch("Areweworking", "check");
-    _.agHelper.ClickButton("Insert");
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    agHelper.ClickButton("Run InsertQuery");
+    agHelper.AssertElementVisible(locators._modal);
+    agHelper.SelectDropDown("Wednesday");
+    agHelper.ToggleSwitch("Areweworking", "check");
+    agHelper.ClickButton("Insert");
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    _.table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Wednesday");
     });
-    _.table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("true");
     });
   });
@@ -216,33 +231,36 @@ describe("Boolean & Enum Datatype tests", function () {
     () => {
       //Drop table:
 
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.SelectEntityByName("dropTable");
-      _.dataSources.RunQuery();
-      _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0"); //Success response for dropped _.table!
+      deployMode.NavigateBacktoEditor();
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      entityExplorer.SelectEntityByName("dropTable");
+      dataSources.RunQuery();
+      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+        expect($cellData).to.eq("0"); //Success response for dropped table!
       });
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources");
-      _.entityExplorer.ExpandCollapseEntity(dsName);
-      _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-      _.agHelper.AssertElementAbsence(
-        _.entityExplorer._entityNameInExplorer("public.boolenumtypes"),
+      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      entityExplorer.ExpandCollapseEntity("Datasources");
+      entityExplorer.ExpandCollapseEntity(dsName);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: dsName,
+        action: "Refresh",
+      });
+      agHelper.AssertElementAbsence(
+        entityExplorer._entityNameInExplorer("public.boolenumtypes"),
       );
-      _.entityExplorer.ExpandCollapseEntity(dsName, false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources", false);
+      entityExplorer.ExpandCollapseEntity(dsName, false);
+      entityExplorer.ExpandCollapseEntity("Datasources", false);
 
       //Delete queries
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.DeleteAllQueriesForDB(dsName);
+      dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      entityExplorer.DeleteAllQueriesForDB(dsName);
 
       //Delete ds
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      deployMode.DeployApp();
+      deployMode.NavigateBacktoEditor();
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
     },
   );
 });

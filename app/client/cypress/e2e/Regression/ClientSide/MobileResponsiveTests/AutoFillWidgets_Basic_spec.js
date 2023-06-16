@@ -47,8 +47,8 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
     cy.dragAndDropToCanvas("datepickerwidget2", { x: 770, y: 970 });
     cy.dragAndDropToCanvas("phoneinputwidget", { x: 660, y: 810 });
     cy.dragAndDropToCanvas("categorysliderwidget", { x: 620, y: 810 });
-    cy.wait(5000); //for dsl to settle
-    cy.PublishtheApp();
+    cy.wait(5000);
+    _.deployMode.DeployApp();
     cy.wait(2000);
     for (let i = 0; i < widgets.length; i++) {
       cy.get(".t--widget-".concat(widgets[i]))

@@ -4,14 +4,19 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  jsEditor,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   let postgresDatasourceName;
 
   it("1. Checks undo/redo in datasource forms", () => {
-    _.dataSources.NavigateToDSCreateNew();
+    dataSources.NavigateToDSCreateNew();
     cy.get(datasource.PostgreSQL).click({ force: true });
     cy.generateUUID().then((uid) => {
       postgresDatasourceName = uid;
@@ -22,27 +27,29 @@ describe("Undo/Redo functionality", function () {
         .type(postgresDatasourceName, { force: true })
         .should("have.value", postgresDatasourceName)
         .blur();
-    });
-    cy.get(datasourceEditor.sectionAuthentication).click();
-    cy.get(datasourceEditor.username).type(
-      datasourceFormData["postgres-username"],
-    );
-    cy.get(datasourceEditor.password).type(
-      datasourceFormData["postgres-password"],
-    );
-    cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
 
-    cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(`${datasourceEditor.sectionAuthentication} .ads-v2-icon`).should(
-      "exist",
-    );
-    cy.get(".t--application-name").click({ force: true });
-    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
-    cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
-      multiple: true,
+      cy.get(datasourceEditor.sectionAuthentication).click();
+      cy.get(datasourceEditor.username).type(
+        datasourceFormData["postgres-username"],
+      );
+      cy.get(datasourceEditor.password).type(
+        datasourceFormData["postgres-password"],
+      );
+      //cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
+
+      cy.get("body").type(`{${modifierKey}}z`);
+      cy.get(`${datasourceEditor.sectionAuthentication} .ads-v2-icon`).should(
+        "exist",
+      );
+      cy.get(".t--application-name").click({ force: true }).wait(500);
+      cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+      cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+        force: true,
+      });
+      cy.get(datasourceEditor.password).should("be.empty").wait(1000);
+      cy.get(datasourceEditor.saveBtn).click({ force: true });
+      dataSources.AssertDSActive(postgresDatasourceName);
     });
-    cy.get(datasourceEditor.username).should("be.empty");
-    cy.get(datasourceEditor.saveBtn).click({ force: true });
   });
 
   it("2. Checks undo/redo for Api pane", function () {
@@ -54,6 +61,8 @@ describe("Undo/Redo functionality", function () {
       "https://mock-api.appsmith.com/users", //testing placeholder!
     );
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    agHelper.RemoveTooltip("Add a new query/JS Object");
+
     cy.get(`${apiwidget.headerKey}`).type("Authorization");
     cy.get("body").click(0, 0);
     cy.get(apiwidget.settings).click({ force: true });
@@ -87,7 +96,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("3. Checks undo/redo in query editor", () => {
-    cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
+    dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
     // Resetting the default query and rewriting a new one
     _.dataSources.EnterQuery("");
     cy.get(".CodeMirror textarea").first().focus().type("{{FirstAPI}}", {
@@ -129,7 +138,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("4. Checks undo/redo in JS Objects", () => {
-    _.jsEditor.NavigateToNewJSEditor();
+    jsEditor.NavigateToNewJSEditor();
     cy.wait(1000);
     cy.get(".CodeMirror textarea")
       .first()

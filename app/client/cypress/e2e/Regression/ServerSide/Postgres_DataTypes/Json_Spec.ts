@@ -1,15 +1,17 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let dsName: any, query: string;
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources,
-  table = ObjectsRegistry.Table,
-  locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode,
-  appSettings = ObjectsRegistry.AppSettings;
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  appSettings,
+  dataSources,
+  table,
+  entityItems,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Json & JsonB Datatype tests", function () {
+  let dsName: any, query: string;
+
   before("Importing App & setting theme", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -18,7 +20,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("Widgets");
+    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
@@ -38,13 +40,18 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    ee.SelectEntityByName(dsName, "Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(ee._entityNameInExplorer("public.jsonbooks"));
+    entityExplorer.SelectEntityByName(dsName, "Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementVisible(
+      entityExplorer._entityNameInExplorer("public.jsonbooks"),
+    );
   });
 
   it("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
-    ee.ActionTemplateMenuByEntityName("public.jsonbooks", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("public.jsonbooks", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
@@ -54,42 +61,42 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("3. Creating all queries - jsonbooks", () => {
     query = `INSERT INTO jsonbooks(details) VALUES('{"customer": "{{InsertJSONForm.formData.customer}}", "title": "{{InsertJSONForm.formData.title}}", "type": {{InsertJSONForm.formData.type}}, "info": {"published": {{InsertJSONForm.formData.info.published}}, "price": {{InsertJSONForm.formData.info.price}}}}');`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `UPDATE public."jsonbooks" SET "details" = '{"customer": "{{UpdateJSONForm.formData.customer}}", "title": "{{UpdateJSONForm.formData.title}}", "type": {{UpdateJSONForm.formData.type}}, "info": {"published": {{UpdateJSONForm.formData.info.published}}, "price": {{UpdateJSONForm.formData.info.price}}}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `DELETE FROM public."jsonbooks" WHERE serialId ={{Table1.selectedRow.serialid}}`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
     query = `DELETE FROM public."jsonbooks"`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."jsonbooks"`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity(dsName, false);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("4. Inserting record - jsonbooks", () => {
-    ee.SelectEntityByName("Page1");
+    entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Customer", "Lily Bush");
     deployMode.EnterJSONInputValue("Title", "PostgreSQL for Beginners");
@@ -98,8 +105,8 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.EnterJSONInputValue("Price", "150");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -110,7 +117,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("5. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Customer", "Josh William");
     deployMode.EnterJSONInputValue("Title", "Ivanhoe");
@@ -119,7 +126,7 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.EnterJSONInputValue("Price", "400");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -130,7 +137,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("6. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Customer", "Mary Clark");
     deployMode.EnterJSONInputValue("Title", "The Pragmatic Programmer");
@@ -139,7 +146,7 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.EnterJSONInputValue("Price", "360");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -151,7 +158,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("7. Updating record - jsonbooks", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Title", " Bill"); //Adding Bill to name
     agHelper.ToggleSwitch("Published", "uncheck", true);
@@ -159,8 +166,8 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.EnterJSONInputValue("Price", "660");
 
     agHelper.ClickButton("Update");
-    agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
@@ -175,7 +182,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("8. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
 
     //Verifying -> - returns results in json format
@@ -248,18 +255,21 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("3");
     });
 
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Queries/JS", false);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("9. Deleting records - jsonbooks", () => {
-    ee.SelectEntityByName("Page1");
+    entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
@@ -270,15 +280,15 @@ describe("Json & JsonB Datatype tests", function () {
   });
 
   it("10. Deleting all records from table - jsonbooks", () => {
-    agHelper.GetNClick(locator._deleteIcon);
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.GetNClick(locators._deleteIcon);
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
   it("11. Inserting another record (to check serial column) - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Customer", "Bob Sim");
     deployMode.EnterJSONInputValue("Title", "Treasure Island");
@@ -286,12 +296,12 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.ToggleSwitch("Published", "uncheck", true);
 
     deployMode.EnterJSONInputValue("Price", "80");
-    agHelper.AssertElementVisible(locator._visibleTextDiv("Out of range!"));
+    agHelper.AssertElementVisible(locators._visibleTextDiv("Out of range!"));
     deployMode.ClearJSONFieldValue("Price");
     deployMode.EnterJSONInputValue("Price", "800");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
@@ -302,25 +312,30 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("12. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("dropTable");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.jsonbooks"));
-    ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("Datasources", false);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementAbsence(
+      entityExplorer._entityNameInExplorer("public.jsonbooks"),
+    );
+    entityExplorer.ExpandCollapseEntity(dsName, false);
+    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.DeleteAllQueriesForDB(dsName);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.DeleteAllQueriesForDB(dsName);
   });
 
   //#endregion
@@ -331,7 +346,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.fixture("Datatypes/JsonBDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("Widgets");
+    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 
@@ -343,21 +358,27 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.RunQuery();
 
     query = `CREATE TABLE "jsonBbooks" (serialId SERIAL PRIMARY KEY, details JSONB)`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    ee.SelectEntityByName(dsName, "Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    ee.ExpandCollapseEntity(dsName);
+    entityExplorer.SelectEntityByName(dsName, "Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    entityExplorer.ExpandCollapseEntity(dsName);
     agHelper.AssertElementVisible(
-      ee._entityNameInExplorer("public.jsonBbooks"),
+      entityExplorer._entityNameInExplorer("public.jsonBbooks"),
     );
   });
 
   it("16. Creating SELECT query - jsonBbooks + Bug 14493", () => {
-    ee.ActionTemplateMenuByEntityName("public.jsonBbooks", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName(
+      "public.jsonBbooks",
+      "SELECT",
+    );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
@@ -367,59 +388,59 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("17. Creating all queries - jsonBbooks", () => {
     query = `INSERT INTO "jsonBbooks"(details) VALUES('{"title": "{{InsertJSONForm.formData.title}}", "genres": {{InsertJSONForm.formData.genres}}, "info": {"published": {{InsertJSONForm.formData.info.published}}, "publishedDate": "{{InsertJSONForm.formData.info.publishedDate}}"}}');`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `UPDATE public."jsonBbooks" SET "details" = '{"title": "{{UpdateJSONForm.formData.title}}", "genres": {{UpdateJSONForm.formData.genres}}, "info": {"published": {{UpdateJSONForm.formData.info.published}}, "publishedDate": "{{UpdateJSONForm.formData.info.publishedDate}}"}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `SELECT * from enum_range(NULL::genres)`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("getEnum");
 
     query = `DELETE FROM public."jsonBbooks" WHERE serialId ={{Table1.selectedRow.serialid}}`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
     query = `DELETE FROM public."jsonBbooks"`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."jsonBbooks"`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
     query = `drop type genres`;
-    ee.CreateNewDsQuery(dsName);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropEnum");
 
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity(dsName, false);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("18. Inserting record - jsonbooks", () => {
-    ee.SelectEntityByName("Page1");
+    entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Title", "Sleeping Beauties");
     agHelper.ToggleSwitch("Published", "check", true);
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
-    agHelper.GetNClick(locator._datePicker(5));
+    agHelper.GetNClick(locators._datePicker(5));
     agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect("Genres", [
       "Fiction",
@@ -428,8 +449,8 @@ describe("Json & JsonB Datatype tests", function () {
     ]);
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -440,14 +461,14 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("19. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Title", "Deep Work");
     agHelper.ToggleSwitch("Published", "check", true);
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
-    agHelper.GetNClick(locator._datePicker(15));
+    agHelper.GetNClick(locators._datePicker(15));
     agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect("Genres", [
       "Productivity",
@@ -455,7 +476,7 @@ describe("Json & JsonB Datatype tests", function () {
     ]);
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -466,19 +487,19 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("20. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Title", "Siddhartha");
     agHelper.ToggleSwitch("Published", "uncheck", true);
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
-    agHelper.GetNClick(locator._datePicker(15));
+    agHelper.GetNClick(locators._datePicker(15));
     agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect("Genres", ["Fiction", "Spirituality"]);
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -490,7 +511,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("21. Updating record - jsonbooks", () => {
     //table.SelectTableRow(0);
     agHelper.ClickButton("Run UpdateQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.ClearJSONFieldValue("Title");
     deployMode.EnterJSONInputValue("Title", "The Dictator''s Handbook"); //Adding Bill to name
@@ -498,7 +519,7 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
-    agHelper.GetNClick(locator._datePicker(25));
+    agHelper.GetNClick(locators._datePicker(25));
     agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect(
       "Genres",
@@ -509,8 +530,8 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.SelectJsonFormMultiSelect("Genres", ["Law", "Politics"]);
 
     agHelper.ClickButton("Update");
-    agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
@@ -525,7 +546,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("22. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyJsonBFunctions");
 
@@ -593,18 +614,21 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("true");
     });
 
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Queries/JS", false);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("23. Deleting records - jsonbooks", () => {
-    ee.SelectEntityByName("Page1");
+    entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
@@ -615,22 +639,22 @@ describe("Json & JsonB Datatype tests", function () {
   });
 
   it("24. Deleting all records from table - jsonbooks", () => {
-    agHelper.GetNClick(locator._deleteIcon);
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.GetNClick(locators._deleteIcon);
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
   it("25. Inserting another record (to check serial column) - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     deployMode.EnterJSONInputValue("Title", "Influence");
     agHelper.ToggleSwitch("Published", "check", true);
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
-    agHelper.GetNClick(locator._datePicker(16));
+    agHelper.GetNClick(locators._datePicker(16));
     agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
 
     deployMode.SelectJsonFormMultiSelect("Genres", [
@@ -640,7 +664,7 @@ describe("Json & JsonB Datatype tests", function () {
     ]);
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
@@ -651,27 +675,30 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("26. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("dropTable");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
     agHelper.AssertElementAbsence(
-      ee._entityNameInExplorer("public.jsonBbooks"),
+      entityExplorer._entityNameInExplorer("public.jsonBbooks"),
     );
-    ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("Datasources", false);
+    entityExplorer.ExpandCollapseEntity(dsName, false);
+    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("27. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.DeleteAllQueriesForDB(dsName);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.DeleteAllQueriesForDB(dsName);
   });
 
   //#endregion
@@ -679,7 +706,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("28. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

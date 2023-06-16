@@ -1,5 +1,4 @@
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
-const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -9,9 +8,11 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("List widget v2 - Basic server side data tests", () => {
   before(() => {
+    cy.fixture("Listv2/listWithServerSideData").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     // Open Datasource editor
     if (!Cypress.env("AIRGAPPED")) {
-      cy.addDsl(dslWithServerSide);
       cy.wait(2000);
       // Create sample(mock) user database.
       _.dataSources.CreateMockDB("Users").then((dbName) => {
@@ -24,7 +25,6 @@ describe("List widget v2 - Basic server side data tests", () => {
       });
       _.entityExplorer.SelectEntityByName("Page1");
     } else {
-      cy.addDsl(dslWithServerSide);
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($dsName) => {

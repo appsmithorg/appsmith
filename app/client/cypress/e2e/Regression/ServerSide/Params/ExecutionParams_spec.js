@@ -1,7 +1,7 @@
-const dsl = require("../../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let dataSources = ObjectsRegistry.DataSources;
@@ -9,7 +9,9 @@ let dataSources = ObjectsRegistry.DataSources;
 describe("API Panel Test Functionality", function () {
   let datasourceName;
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("executionParamsDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   beforeEach(() => {
     cy.startRoutesForDatasource();
@@ -72,7 +74,7 @@ describe("API Panel Test Functionality", function () {
     );
 
     // Publish the app
-    cy.PublishtheApp();
+    deployMode.DeployApp();
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {
