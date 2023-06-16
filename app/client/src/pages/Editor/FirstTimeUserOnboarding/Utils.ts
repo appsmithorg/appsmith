@@ -1,14 +1,9 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { removeFirstTimeUserOnboardingApplicationId } from "actions/onboardingActions";
 import { APPLICATIONS_URL } from "constants/routes";
 import type { Dispatch } from "react";
 import history from "utils/history";
-export const triggerWelcomeTour = (
-  dispatch: Dispatch<any>,
-  applicationId: string,
-) => {
+export const triggerWelcomeTour = (dispatch: Dispatch<any>) => {
   history.push(APPLICATIONS_URL);
-  dispatch(removeFirstTimeUserOnboardingApplicationId(applicationId));
   dispatch({
     type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
   });
