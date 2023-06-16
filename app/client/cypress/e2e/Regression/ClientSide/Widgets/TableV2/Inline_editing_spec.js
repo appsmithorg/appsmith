@@ -1,17 +1,23 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  table,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe("Table widget inline editing functionality", () => {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
     cy.fixture("Table/InlineEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -637,7 +643,7 @@ describe("Table widget inline editing functionality", () => {
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
     cy.fixture("Table/InlineEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
@@ -661,33 +667,40 @@ describe("Table widget inline editing functionality", () => {
   });
 
   it("24. should check that doesn't grow taller when text wrapping is disabled", () => {
-    cy.openPropertyPane("tablewidgetv2");
-    cy.makeColumnEditable("step");
-    cy.editTableCell(0, 0);
-    cy.get(
-      "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "32px");
-    cy.enterTableCellValue(0, 0, "this is a very long cell value");
-    cy.get(
-      "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "32px");
+    entityExplorer.SelectEntityByName("Table1");
+    table.EnableEditableOfColumn("step");
+    table.EditTableCell(0, 0, "", false);
+    agHelper.GetHeight(table._editCellEditor);
+    cy.get("@eleHeight").then(($initiaHeight) => {
+      expect(Number($initiaHeight)).to.eq(28);
+      table.EditTableCell(
+        1,
+        0,
+        "this is a very long cell value to check the height of the cell is growing accordingly",
+        false,
+      );
+      agHelper.GetHeight(table._editCellEditor);
+      cy.get("@eleHeight").then(($newHeight) => {
+        expect(Number($newHeight)).to.eq(Number($initiaHeight));
+      });
+    });
   });
 
   it("25. should check that grows taller when text wrapping is enabled", () => {
-    cy.openPropertyPane("tablewidgetv2");
-    cy.makeColumnEditable("step");
-    cy.editColumn("step");
-    cy.get(".t--property-control-cellwrapping .ads-v2-switch").click({
-      force: true,
+    entityExplorer.SelectEntityByName("Table1");
+    table.EnableEditableOfColumn("step");
+    table.EditColumn("step");
+    propPane.TogglePropertyState("Cell Wrapping", "On");
+    table.EditTableCell(
+      0,
+      0,
+      "this is a very long cell value to check the height of the cell is growing accordingly",
+      false,
+    );
+    agHelper.GetHeight(table._editCellEditor);
+    cy.get("@eleHeight").then(($newHeight) => {
+      expect(Number($newHeight)).to.be.greaterThan(34);
     });
-    cy.editTableCell(0, 0);
-    cy.get(
-      "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "34px");
-    cy.enterTableCellValue(0, 0, "this is a very long cell value");
-    cy.get(
-      "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("not.have.css", "height", "34px");
   });
 
   it("26. should check if updatedRowIndex is getting updated for single row update mode", () => {
@@ -741,13 +754,13 @@ describe("Table widget inline editing functionality", () => {
   });
 
   it("27. should check if updatedRowIndex is getting updated for multi row update mode", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 400, 400);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 400, 400);
     cy.get(".t--widget-textwidget").should("exist");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{Table1.updatedRowIndex}}`,
     );
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 300, 300);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
     cy.get(".t--widget-buttonwidget").should("exist");
     cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
     cy.updateCodeInput(".t--property-control-label", "Reset");
@@ -756,30 +769,25 @@ describe("Table widget inline editing functionality", () => {
       `{{resetWidget("Table1",true)}}`,
     );
 
-    cy.openPropertyPane("tablewidgetv2");
-
-    cy.makeColumnEditable("step");
-    cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
-    cy.wait(1000);
+    entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.SelectEntityByName("Table1");
+    table.EnableEditableOfColumn("step");
+    agHelper.GetNClick(table._updateMode("Multi"));
 
     // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.
-    //_.table.EditTableCell(0, 0, "#12");
-    cy.editTableCell(0, 0);
-    cy.enterTableCellValue(0, 0, "#12").type("{enter}");
+    table.EditTableCell(0, 0, "#12");
     cy.get(commonlocators.textWidgetContainer).should("contain.text", 0);
 
     // case 2: check if the updateRowIndex is -1 when widget is reset
-    //_.table.EditTableCell(0, 1, "#13");//Method to be improve!
-    cy.editTableCell(0, 1);
-    cy.enterTableCellValue(0, 1, "#13").type("{enter}");
+    table.EditTableCell(1, 0, "#13");
     cy.get(commonlocators.textWidgetContainer).should("contain.text", 1);
+
     cy.contains("Reset").click({ force: true });
     cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
     // case 3: check if the updatedRowIndex changes to -1 when the table data changes.
     cy.wait(1000);
-    cy.editTableCell(0, 2);
-    cy.enterTableCellValue(0, 2, "#14").type("{enter}");
+    table.EditTableCell(2, 0, "#14");
     cy.get(commonlocators.textWidgetContainer).should("contain.text", 2);
     cy.openPropertyPane("tablewidgetv2");
     cy.get(widgetsPage.tabedataField).type("{backspace}");

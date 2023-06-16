@@ -33,20 +33,20 @@ describe("Validating use cases for Auto Dimension", () => {
 
       // Add multi-line text & verify if the container's height increases
 
-      agHelper.GetWidgetHeight(autoLayout._containerWidgetSelector);
-      cy.get("@widgetHeight").then(($initialHeight) => {
+      agHelper.GetHeight(autoLayout._containerWidgetSelector);
+      cy.get("@eleHeight").then(($initialHeight) => {
         propPane.UpdatePropertyFieldValue(
           "Text",
           "hello\nWorld\nThis\nis\na\nMulti-line\nTexthello\nWorld\nThis\nis\na\nMulti-line\nText",
         );
-        agHelper.GetWidgetHeight(autoLayout._containerWidgetSelector);
-        cy.get("@widgetHeight").then(($longTextheight: any) => {
+        agHelper.GetHeight(autoLayout._containerWidgetSelector);
+        cy.get("@eleHeight").then(($longTextheight: any) => {
           expect($longTextheight).to.be.greaterThan(Number($initialHeight));
 
           // Remove some lines & verify if the container's height decreases
           propPane.UpdatePropertyFieldValue("Text", "hello");
-          agHelper.GetWidgetHeight(autoLayout._containerWidgetSelector);
-          cy.get("@widgetHeight").then((height: any) => {
+          agHelper.GetHeight(autoLayout._containerWidgetSelector);
+          cy.get("@eleHeight").then((height: any) => {
             expect(height).to.be.lessThan(Number($longTextheight));
           });
         });
