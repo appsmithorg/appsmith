@@ -865,10 +865,13 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       getConfigInitialValues,
       formConfig,
     );
-    const payload = merge(initialValues, datasource);
-    payload.datasourceStorages[currentEnvironment].isConfigured = false; // imported datasource as not configured yet
+    const payload = merge(
+      initialValues,
+      datasource.datasourceStorages[currentEnvironment],
+    );
+    payload.isConfigured = false; // imported datasource as not configured yet
     const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
-      payload.datasourceStorages[currentEnvironment],
+      payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
