@@ -1,10 +1,11 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 
 describe("Switchgroup Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(5000);
+    cy.fixture("emptyDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Add a new switch group widget with others", () => {

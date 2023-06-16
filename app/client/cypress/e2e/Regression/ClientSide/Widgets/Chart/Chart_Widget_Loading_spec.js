@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/ChartLoadingDsl.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -6,7 +5,9 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let dsname;
 describe("Chart Widget Skeleton Loading Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("ChartLoadingDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it(

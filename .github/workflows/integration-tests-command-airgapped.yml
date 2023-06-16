@@ -2,39 +2,40 @@ name: Appsmith External Integration Test Workflow - Airgapped
 
 on:
   # This workflow is only triggered by the ok to test command dispatch
-  repository_dispatch:
-    types: [ ok-to-test-command ]
+  workflow_dispatch:
+  # repository_dispatch:
+  #   types: [ ok-to-test-command ]
 
 jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      # This step creates a comment on the PR with a link to this workflow run.
-      - name: Add a comment on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body: |
-            Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Workflow: `${{ github.workflow }}`.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            PR: ${{ github.event.client_payload.pull_request.number }}.
-            Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-638dd7cd2913ba43778b915e?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
-            airgap-enabled: `${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}`.
+  # notify:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     # This step creates a comment on the PR with a link to this workflow run.
+  #     - name: Add a comment on the PR with link to workflow run
+  #       uses: peter-evans/create-or-update-comment@v2
+  #       with:
+  #         issue-number: 0
+  #         body: |
+  #           Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+  #           Workflow: `${{ github.workflow }}`.
+  #           Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+  #           PR: 0.
+  #           Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-638dd7cd2913ba43778b915e?pr=0&runId=${{ github.run_id }}_${{github.run_attempt}}>
+  #           airgap-enabled: `${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}`.
 
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
 
   client-build:
     name: client-build
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
       airgap-enabled: "true"
 
   rts-build:
@@ -42,21 +43,21 @@ jobs:
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
 
   test-shared-modules:
     name: shared-modules
     uses: ./.github/workflows/shared-modules.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
 
   test-appsmithctl:
     name: appsmithctl
     uses: ./.github/workflows/appsmithctl.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
 
   build-docker-image:
     needs: [ client-build, server-build, rts-build ]
@@ -66,7 +67,7 @@ jobs:
     uses: ./.github/workflows/build-docker-image.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
       airgap-enabled: "true"
 
   ci-test:
@@ -77,7 +78,7 @@ jobs:
     uses: ./.github/workflows/ci-test.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
       airgap-enabled: "true"
 
   perf-test:
@@ -88,7 +89,7 @@ jobs:
     uses: ./.github/workflows/perf-test.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
       airgap-enabled: "true"
 
   ci-test-result-airgapped:
@@ -164,91 +165,91 @@ jobs:
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Add a comment on the PR with new CI failures
-        if: needs.ci-test.result != 'success'
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
+      # - name: Add a comment on the PR with new CI failures
+      #   if: needs.ci-test.result != 'success'
+      #   uses: peter-evans/create-or-update-comment@v1
+      #   with:
+      #     issue-number: 0
+      #     body: |
+      #       Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+      #       Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+      #       The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
+      #       To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
-      - name: Add a comment on the PR when ci-test is success
-        if: needs.ci-test.result == 'success'
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            All cypress tests have passed 🎉
+      # - name: Add a comment on the PR when ci-test is success
+      #   if: needs.ci-test.result == 'success'
+      #   uses: peter-evans/create-or-update-comment@v1
+      #   with:
+      #     issue-number: 0
+      #     body: |
+      #       Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+      #       Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+      #       All cypress tests have passed 🎉
 
 
       # Update check run called "ci-test-result"
-      - name: Mark ci-test-result-airgapped job as complete
-        uses: actions/github-script@v6
-        id: update-check-run
-        if: ${{ always() }}
-        env:
-          run_id: ${{ github.run_id }}
-          repository: ${{ github.repository }}
-          number: ${{ github.event.client_payload.pull_request.number }}
-          job: ${{ github.job }}
-          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
-          conclusion: ${{ job.status }}
-          matrix_result: ${{ toJson(needs.ci-test) }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pull } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: process.env.number
-            });
-            const ref = pull.head.sha;
+      # - name: Mark ci-test-result-airgapped job as complete
+      #   uses: actions/github-script@v6
+      #   id: update-check-run
+      #   if: ${{ always() }}
+      #   env:
+      #     run_id: ${{ github.run_id }}
+      #     repository: ${{ github.repository }}
+      #     number: 0
+      #     job: ${{ github.job }}
+      #     # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+      #     conclusion: ${{ job.status }}
+      #     matrix_result: ${{ toJson(needs.ci-test) }}
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const { data: pull } = await github.rest.pulls.get({
+      #         ...context.repo,
+      #         pull_number: process.env.number
+      #       });
+      #       const ref = pull.head.sha;
 
-            const { data: checks } = await github.rest.checks.listForRef({
-              ...context.repo,
-              ref
-            });
+      #       const { data: checks } = await github.rest.checks.listForRef({
+      #         ...context.repo,
+      #         ref
+      #       });
 
-            const check = checks.check_runs.filter(c => c.name === process.env.job);
+      #       const check = checks.check_runs.filter(c => c.name === process.env.job);
 
-            if(check.length == 0) {
-              const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.rest.checks.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head_sha: head_sha,
-                name: process.env.job,
-                status: 'completed',
-                conclusion: JSON.parse(process.env.matrix_result).result,
-                output: {
-                  title: "Integration tests result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-              });
+      #       if(check.length == 0) {
+      #         const head_sha = pull.head.sha;
+      #         const { data: completed_at } = await github.rest.checks.create({
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           head_sha: head_sha,
+      #           name: process.env.job,
+      #           status: 'completed',
+      #           conclusion: JSON.parse(process.env.matrix_result).result,
+      #           output: {
+      #             title: "Integration tests result for ok to test",
+      #             summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+      #           }
+      #         });
 
-              return completed_at;
-            } else {
-              try {
-                const { data: result } = await github.rest.checks.update({
-                  ...context.repo,
-                  check_run_id: check[0].id,
-                  status: 'completed',
-                  conclusion: JSON.parse(process.env.matrix_result).result,
-                    output: {
-                      title: "Integration tests result for ok to test",
-                      summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                    }
-                });
-                console.log({ result });
-                return result;
-              } catch(e) {
-                console.error({ error: e.message });
-              }
-            }
+      #         return completed_at;
+      #       } else {
+      #         try {
+      #           const { data: result } = await github.rest.checks.update({
+      #             ...context.repo,
+      #             check_run_id: check[0].id,
+      #             status: 'completed',
+      #             conclusion: JSON.parse(process.env.matrix_result).result,
+      #               output: {
+      #                 title: "Integration tests result for ok to test",
+      #                 summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+      #               }
+      #           });
+      #           console.log({ result });
+      #           return result;
+      #         } catch(e) {
+      #           console.error({ error: e.message });
+      #         }
+      #       }
 
       - name: Dump the client payload context
         env:
@@ -259,71 +260,71 @@ jobs:
         if: needs.ci-test.result != 'success' || needs.perf-test.result != 'success'
         run: exit 1
 
-  airgap-package:
-    needs: [ ci-test ]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/client
-    # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+  # airgap-package:
+  #   needs: [ ci-test ]
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: app/client
+  #   # Run this job only if all the previous steps are a success and the reference if the release or master branch
+  #   if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
 
-    steps:
-      # Update check run called "package"
-      - name: Mark airgap-package job as complete
-        uses: actions/github-script@v6
-        id: update-check-run
-        if: ${{ always() }}
-        env:
-          run_id: ${{ github.run_id }}
-          repository: ${{ github.repository }}
-          number: ${{ github.event.client_payload.pull_request.number }}
-          job: ${{ github.job }}
-          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
-          conclusion: ${{ job.status }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pull } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: process.env.number
-            });
-            const ref = pull.head.sha;
+  #   steps:
+  #     # Update check run called "package"
+  #     - name: Mark airgap-package job as complete
+  #       uses: actions/github-script@v6
+  #       id: update-check-run
+  #       if: ${{ always() }}
+  #       env:
+  #         run_id: ${{ github.run_id }}
+  #         repository: ${{ github.repository }}
+  #         number: 0
+  #         job: ${{ github.job }}
+  #         # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+  #         conclusion: ${{ job.status }}
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         script: |
+  #           const { data: pull } = await github.rest.pulls.get({
+  #             ...context.repo,
+  #             pull_number: process.env.number
+  #           });
+  #           const ref = pull.head.sha;
 
-            const { data: checks } = await github.rest.checks.listForRef({
-              ...context.repo,
-              ref
-            });
+  #           const { data: checks } = await github.rest.checks.listForRef({
+  #             ...context.repo,
+  #             ref
+  #           });
 
-            const check = checks.check_runs.filter(c => c.name === process.env.job);
+  #           const check = checks.check_runs.filter(c => c.name === process.env.job);
 
-            if(check.length == 0) {
-              const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.rest.checks.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head_sha: head_sha,
-                name: process.env.job,
-                status: 'completed',
-                conclusion: process.env.conclusion,
-                output: {
-                  title: "Package result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-              });
+  #           if(check.length == 0) {
+  #             const head_sha = pull.head.sha;
+  #             const { data: completed_at } = await github.rest.checks.create({
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               head_sha: head_sha,
+  #               name: process.env.job,
+  #               status: 'completed',
+  #               conclusion: process.env.conclusion,
+  #               output: {
+  #                 title: "Package result for ok to test",
+  #                 summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+  #               }
+  #             });
 
-              return completed_at;
-            } else {
-              const { data: result } = await github.rest.checks.update({
-              ...context.repo,
-              check_run_id: check[0].id,
-              status: 'completed',
-              conclusion: process.env.conclusion,
-                output: {
-                  title: "Package result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-            });
+  #             return completed_at;
+  #           } else {
+  #             const { data: result } = await github.rest.checks.update({
+  #             ...context.repo,
+  #             check_run_id: check[0].id,
+  #             status: 'completed',
+  #             conclusion: process.env.conclusion,
+  #               output: {
+  #                 title: "Package result for ok to test",
+  #                 summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+  #               }
+  #           });
 
-            return result;
-            }
+  #           return result;
+  #           }

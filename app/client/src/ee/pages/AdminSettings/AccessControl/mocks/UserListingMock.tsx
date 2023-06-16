@@ -7,9 +7,18 @@ export const allUsers: UserProps[] = [
       {
         id: "1",
         name: "Administrator",
+        userPermissions: ["removeUsers:userGroups"],
       },
-      { id: "2", name: "Test_Admin" },
-      { id: "3", name: "HR_Admin" },
+      {
+        id: "2",
+        name: "Test_Admin",
+        userPermissions: ["removeUsers:userGroups"],
+      },
+      {
+        id: "3",
+        name: "HR_Admin",
+        userPermissions: [],
+      },
     ],
     allGroups: [
       {
@@ -51,8 +60,16 @@ export const allUsers: UserProps[] = [
   {
     name: "Sangy Sivan",
     groups: [
-      { id: "4", name: "App Viewer" },
-      { id: "3", name: "HR_Admin" },
+      {
+        id: "4",
+        name: "App Viewer",
+        userPermissions: ["removeUsers:userGroups"],
+      },
+      {
+        id: "3",
+        name: "HR_Admin",
+        userPermissions: ["removeUsers:userGroups"],
+      },
     ],
     allGroups: [
       {
@@ -94,8 +111,16 @@ export const allUsers: UserProps[] = [
   {
     name: "SS Sivan",
     groups: [
-      { id: "4", name: "App Viewer" },
-      { id: "3", name: "HR_Admin" },
+      {
+        id: "4",
+        name: "App Viewer",
+        userPermissions: ["removeUsers:userGroups"],
+      },
+      {
+        id: "3",
+        name: "HR_Admin",
+        userPermissions: ["removeUsers:userGroups"],
+      },
     ],
     allGroups: [
       {
