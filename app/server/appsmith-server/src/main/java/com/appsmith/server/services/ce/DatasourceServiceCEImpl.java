@@ -2,14 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
-import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.MustacheBindingToken;
-import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QDatasource;
+import com.appsmith.external.models.*;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -22,13 +15,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.DatasourceContextService;
-import com.appsmith.server.services.DatasourceStorageService;
-import com.appsmith.server.services.PluginService;
-import com.appsmith.server.services.SequenceService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.*;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
@@ -49,14 +36,7 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
@@ -732,8 +712,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId) {
-        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT)));
+        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
 }
