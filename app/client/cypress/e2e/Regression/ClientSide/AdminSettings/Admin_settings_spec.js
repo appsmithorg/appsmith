@@ -238,6 +238,8 @@ describe("Admin settings page", function () {
     cy.get(adminsSettings.saveButton).click();
     cy.wait("@postTenantConfig").then((interception) => {
       expect(interception.request.body.instanceName).to.equal(instanceName);
+    });
+    cy.wait("@postEnvVariables").then((interception) => {
       expect(interception.request.body.APPSMITH_MAIL_FROM).to.equal(
         `${fromAddress}@appsmith.com`,
       );
