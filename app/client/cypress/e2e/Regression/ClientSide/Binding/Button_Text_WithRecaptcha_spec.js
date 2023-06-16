@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/buttonRecaptchaDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -7,7 +6,9 @@ describe(
   "Binding the Button widget with Text widget using Recpatcha v3",
   function () {
     before(() => {
-      cy.addDsl(dsl);
+      cy.fixture("buttonRecaptchaDsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
 
     it("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function () {

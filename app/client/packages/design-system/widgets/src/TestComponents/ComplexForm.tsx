@@ -36,7 +36,7 @@ export const ComplexForm = () => {
       >
         <Tooltip>
           <TooltipTrigger>
-            <Button variant="secondary">Cancel</Button>
+            <Button variant="outlined">Cancel</Button>
           </TooltipTrigger>
           <TooltipContent>
             If you cancel, you will lose your order

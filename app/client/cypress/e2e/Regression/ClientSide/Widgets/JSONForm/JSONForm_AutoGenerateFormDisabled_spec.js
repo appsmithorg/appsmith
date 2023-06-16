@@ -1,23 +1,19 @@
-const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form Widget AutoGenerate Disabled", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("generates fields with valid source data json", () => {
-    const formDsl = JSON.parse(
-      JSON.stringify(jsonFormDslWithSchemaAndWithoutSourceData),
-    );
-
-    cy.addDsl(formDsl);
+    cy.fixture("jsonFormDslWithSchemaAndWithoutSourceData").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
 
     cy.openPropertyPane("jsonformwidget");
 
@@ -117,11 +113,9 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
   });
 
   it("modifies field when generate form button is pressed", () => {
-    const formDsl = JSON.parse(
-      JSON.stringify(jsonFormDslWithSchemaAndWithoutSourceData),
-    );
-
-    cy.addDsl(formDsl);
+    cy.fixture("jsonFormDslWithSchemaAndWithoutSourceData").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
 
     cy.openPropertyPane("jsonformwidget");
 
