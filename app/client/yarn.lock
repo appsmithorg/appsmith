@@ -9647,7 +9647,7 @@ __metadata:
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
     design-system: "npm:@appsmithorg/design-system@2.1.11-alpha.3"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.8"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.9"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
