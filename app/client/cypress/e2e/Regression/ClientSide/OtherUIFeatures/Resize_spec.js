@@ -1,13 +1,15 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/CanvasResizeDsl.json");
 import {
   entityExplorer,
   propPane,
+  agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Canvas Resize", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("CanvasResizeDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   it("1. Deleting bottom widget should resize canvas", function () {
     const InitHeight = "2950px";

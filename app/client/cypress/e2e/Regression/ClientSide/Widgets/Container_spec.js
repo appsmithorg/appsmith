@@ -1,8 +1,10 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/containerdsl.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 const boxShadowOptions = {
   none: "none",
   S: "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
@@ -12,8 +14,9 @@ const boxShadowOptions = {
 
 describe("Container Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(4000); //for dsl to settle!
+    cy.fixture("containerdsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("Container Widget Functionality", function () {
@@ -65,7 +68,7 @@ describe("Container Widget Functionality", function () {
       .eq(0)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
   it("Container Widget Functionality To Verify The Colour", function () {
     cy.get(widgetsPage.containerD)
@@ -78,7 +81,7 @@ describe("Container Widget Functionality", function () {
   });
 
   it("Test border width and verify", function () {
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("job", "Widgets");
     cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");

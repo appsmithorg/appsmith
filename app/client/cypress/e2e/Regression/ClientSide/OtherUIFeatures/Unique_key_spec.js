@@ -1,5 +1,3 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/basicDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import {
@@ -17,7 +15,9 @@ describe("Unique react keys", function () {
 
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    cy.fixture("basicDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Should not create duplicate versions of widget on drop from explorer", function () {

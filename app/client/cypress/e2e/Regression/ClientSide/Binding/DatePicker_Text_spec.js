@@ -1,15 +1,20 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const dsl = require("../../../../fixtures/uiBindDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the Datepicker and Text Widget", function () {
   let nextDay;
   let dateDp2;
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("uiBindDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
   it.skip("1. DatePicker-Text, Validate selectedDate functionality", function () {
@@ -33,7 +38,7 @@ describe("Binding the Datepicker and Text Widget", function () {
       cy.wait("@updateLayout");
       cy.wait("@updateLayout");
 
-      cy.PublishtheApp();
+      deployMode.DeployApp();
 
       /**
        * Change the date in DatePicker1 in Publish mode and validate the same in Text Widget
@@ -93,12 +98,12 @@ describe("Binding the Datepicker and Text Widget", function () {
       .eq(1)
       .should("have.value", dateDp2);
 
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
     cy.get(publishPage.datepickerWidget + commonlocators.inputField)
       .eq(1)
       .should("have.value", dateDp2);
-    cy.get(publishPage.backToEditor).click({ force: true });
+    deployMode.NavigateBacktoEditor();
   });
 
   it("4. DatePicker-Text, Validate Multiple Binding", function () {
@@ -112,9 +117,9 @@ describe("Binding the Datepicker and Text Widget", function () {
       "{{DatePicker1.isDisabled}} DatePicker {{DatePicker2.isDisabled}}",
     );
     cy.get(commonlocators.labelTextStyle).should("contain.text", "DatePicker");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(commonlocators.labelTextStyle).should("contain.text", "DatePicker");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    deployMode.NavigateBacktoEditor();
   });
 
   it.skip("5. Checks if on deselection of date triggers the onDateSelected action or not.", function () {

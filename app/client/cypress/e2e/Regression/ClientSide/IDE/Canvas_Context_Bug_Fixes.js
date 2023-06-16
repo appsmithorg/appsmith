@@ -1,10 +1,14 @@
-const dsl = require("../../../../fixtures/Bugs/CheckboxGroupInListWidgetDsl.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Canvas context Property Pane", function () {
   it("1. Bug 18191: Unable to delete checkbox child when it is inside list widget #18191", () => {
-    cy.addDsl(dsl);
+    cy.fixture("Bugs/CheckboxGroupInListWidgetDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     entityExplorer.ExpandCollapseEntity("List1");
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     //check number of options

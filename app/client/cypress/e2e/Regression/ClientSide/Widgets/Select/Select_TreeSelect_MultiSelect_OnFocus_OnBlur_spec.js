@@ -1,23 +1,22 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/selectMultiSelectTreeSelectWidgetDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("selectMultiSelectTreeSelectWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. onDropdownOpen and onDropdownClose should be triggered from the select widget", () => {
     cy.openPropertyPane("selectwidget");
 
-    cy.get(widgetsPage.toggleOnDropdownOpen).click({ force: true });
-    cy.testJsontext(
-      "ondropdownopen",
+    _.propPane.EnterJSContext(
+      "onDropdownOpen",
       "{{showAlert('Select1 dropdown opened', 'success')}}",
     );
-    cy.get(widgetsPage.toggleOnDropdownClose).click({ force: true });
-    cy.testJsontext(
-      "ondropdownclose",
+    _.propPane.EnterJSContext(
+      "onDropdownClose",
       "{{showAlert('Select1 dropdown closed', 'success')}}",
     );
 
@@ -29,15 +28,12 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
 
   it("2. onDropdownOpen and onDropdownClose should be triggered from the multiselect widget", () => {
     cy.openPropertyPane("multiselectwidgetv2");
-
-    cy.get(widgetsPage.toggleOnDropdownOpen).click({ force: true });
-    cy.testJsontext(
-      "ondropdownopen",
+    _.propPane.EnterJSContext(
+      "onDropdownOpen",
       "{{showAlert('MultiSelect1 dropdown opened', 'success')}}",
     );
-    cy.get(widgetsPage.toggleOnDropdownClose).click({ force: true });
-    cy.testJsontext(
-      "ondropdownclose",
+    _.propPane.EnterJSContext(
+      "onDropdownClose",
       "{{showAlert('MultiSelect1 dropdown closed', 'success')}}",
     );
 
@@ -49,17 +45,15 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
 
   it("3. onDropdownOpen and onDropdownClose should be triggered from the treeselect widget", () => {
     cy.openPropertyPane("singleselecttreewidget");
-
-    cy.get(widgetsPage.toggleOnDropdownOpen).click({ force: true });
-    cy.testJsontext(
-      "ondropdownopen",
+    _.propPane.EnterJSContext(
+      "onDropdownOpen",
       "{{showAlert('TreeSelect1 dropdown opened', 'success')}}",
     );
-    cy.get(widgetsPage.toggleOnDropdownClose).click({ force: true });
-    cy.testJsontext(
-      "ondropdownclose",
+    _.propPane.EnterJSContext(
+      "onDropdownClose",
       "{{showAlert('TreeSelect1 dropdown closed', 'success')}}",
     );
+
     cy.wait(500);
     cy.get(formWidgetsPage.treeSelect).first().click({ force: true });
     cy.validateToastMessage("TreeSelect1 dropdown opened");
@@ -70,16 +64,15 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
   it("4. onDropdownOpen and onDropdownClose should be triggered from the multitreeselect widget", () => {
     cy.openPropertyPane("multiselecttreewidget");
 
-    cy.get(widgetsPage.toggleOnDropdownOpen).click({ force: true });
-    cy.testJsontext(
-      "ondropdownopen",
+    _.propPane.EnterJSContext(
+      "onDropdownOpen",
       "{{showAlert('MultiTreeSelect1 dropdown opened', 'success')}}",
     );
-    cy.get(widgetsPage.toggleOnDropdownClose).click({ force: true });
-    cy.testJsontext(
-      "ondropdownclose",
+    _.propPane.EnterJSContext(
+      "onDropdownClose",
       "{{showAlert('MultiTreeSelect1 dropdown closed', 'success')}}",
     );
+
     cy.wait(500);
     cy.get(formWidgetsPage.multiTreeSelect).last().click({ force: true });
     cy.validateToastMessage("MultiTreeSelect1 dropdown opened");

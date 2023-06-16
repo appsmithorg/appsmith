@@ -1,31 +1,30 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const dsl = require("../../../../fixtures/formWithInputdsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 import {
-  entityExplorer,
   agHelper,
+  entityExplorer,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
-  cy.addDsl(dsl);
+  cy.fixture("formWithInputdsl").then((val) => {
+    agHelper.AddDsl(val);
+  });
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function () {
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    entityExplorer.SelectEntityByName("Form1");
-    cy.widgetText(
-      "FormTest",
-      formWidgetsPage.formWidget,
-      widgetsPage.widgetNameSpan,
-    );
-    cy.get("body").click();
+    entityExplorer.SelectEntityByName("Form1", "Widgets");
+    propPane.RenameWidget("Form1", "FormTest");
+    entityExplorer.SelectEntityByName("FormTest", "Widgets");
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(commonlocators.toastBody).first().contains("Copied").click();
+    cy.get(commonlocators.toastBody)
+      .first()
+      .contains("Copied FormTest")
+      .click();
     cy.get("body").type(`{${modifierKey}}v`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -33,6 +32,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       200,
     );
     cy.wait(1000);
+    entityExplorer.ExpandCollapseEntity("FormTest");
     entityExplorer.SelectEntityByName("FormTestCopy");
     cy.get("body").type("{del}", { force: true });
     cy.wait("@updateLayout").should(
@@ -40,15 +40,14 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       "response.body.responseMeta.status",
       200,
     );
-    agHelper.WaitUntilAllToastsDisappear();
-    agHelper.Sleep(1000);
+    agHelper.Sleep();
     cy.get("body").type(`{${modifierKey}}z`, { force: true });
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.ExpandCollapseEntity("FormTest");
-    entityExplorer.ActionContextMenuByEntityName(
-      "FormTestCopy",
-      "Show bindings",
-    );
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "FormTestCopy",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");

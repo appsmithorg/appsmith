@@ -1,11 +1,13 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/filePickerV2_reset_check_dsl.json");
 const Layoutpage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("File Picker Widget V2 Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("filePickerV2_reset_check_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Check if the uploaded data does not reset when tab switch in the TabsWidget", () => {

@@ -1,12 +1,12 @@
-const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
-import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let ee = ObjectsRegistry.EntityExplorer;
+import {
+  entityExplorer,
+  deployMode,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Generate New CRUD Page Inside from entity explorer", function () {
   let datasourceName;
@@ -17,16 +17,10 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
   });
 
   it("1. Create new app and Generate CRUD page using a new datasource", function () {
-    cy.NavigateToHome();
-    cy.get(homePage.createNew).first().click({ force: true });
-
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-
-    cy.get(generatePage.generateCRUDPageActionCard).click();
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    entityExplorer.AddNewPage("Generate page with data");
+    //cy.get(generatePage.generateCRUDPageActionCard).click();
     cy.get(generatePage.selectDatasourceDropdown).click();
 
     cy.contains("Connect new datasource").click({ force: true });
@@ -35,7 +29,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     cy.fillAmazonS3DatasourceForm();
 
     cy.generateUUID().then((uid) => {
-      datasourceName = `Amazon S3 MOCKDS ${uid}`;
+      datasourceName = `S3 Mock ${uid}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
     });
@@ -138,7 +132,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     cy.get(datasourceEditor.AmazonS3).click({ force: true }).wait(1000);
 
     cy.generateUUID().then((uid) => {
-      datasourceName = `Amazon S3 MOCKDS ${uid}`;
+      datasourceName = `S3 MocDs ${uid}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
     });
@@ -175,7 +169,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     );
 
     cy.get("@dSName").then((dbName) => {
-      ee.AddNewPage("Generate page with data");
+      entityExplorer.AddNewPage("Generate page with data");
       cy.get(generatePage.selectDatasourceDropdown).click();
       cy.get(generatePage.datasourceDropdownOption).contains(dbName).click();
     });
@@ -222,7 +216,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     cy.wait(2000);
     cy.selectEntityByName("Page3");
     cy.wait(1000);
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.wait(3000);
     cy.get(commonlocators.toastAction).should("not.exist");
     // .its("length")
@@ -235,7 +229,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
 
     // .should("contain.text", 'The action "ListFiles" has failed.');
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    deployMode.NavigateBacktoEditor();
     cy.wait(2000);
 
     //cy.VerifyErrorMsgAbsence('The action "ListFiles" has failed.')

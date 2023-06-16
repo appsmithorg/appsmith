@@ -3,14 +3,18 @@ const widgetLocators = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/replay.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("replay").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. checks undo/redo for new widgets", function () {

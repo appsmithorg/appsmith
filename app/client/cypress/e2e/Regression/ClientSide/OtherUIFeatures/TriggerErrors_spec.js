@@ -1,12 +1,15 @@
 import {
   entityExplorer,
   debuggerHelper,
+  agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../fixtures/debuggerTableDsl.json");
 
 describe("Trigger errors in the debugger", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("debuggerTableDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   it("1. Trigger errors need to be shown in the errors tab", function () {
     entityExplorer.SelectEntityByName("Table1");

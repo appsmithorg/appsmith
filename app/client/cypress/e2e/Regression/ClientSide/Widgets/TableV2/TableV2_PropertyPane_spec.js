@@ -2,17 +2,19 @@ import {
   entityExplorer,
   table,
   propPane,
+  agHelper,
+  deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDatawithEmptyKeys.json");
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDslWithPagination").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   // To be done:
@@ -66,13 +68,13 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onRowSelected", "Row is selected");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
     // Verify Row is selected by showing the message
     cy.get(commonlocators.toastmsg).contains("Row is selected");
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("4. Verify On Search Text Change Action", function () {
@@ -80,13 +82,13 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
     cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
     // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("5. Check On Page Change Action", function () {
@@ -97,13 +99,13 @@ describe("Table Widget V2 property pane feature validation", function () {
     });
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onPageChange", "Page Changed");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.wait(2000);
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
     // Verify the page is changed
     cy.get(commonlocators.toastmsg).contains("Page Changed");
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("6. Check open section and column data in property pane", function () {
@@ -333,10 +335,10 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Chage deat search text value to "data"
     cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "data");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("13. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function () {
@@ -378,7 +380,9 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("14. It provides currentRow and currentIndex properties in min validation field", function () {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDslWithPagination").then((val) => {
+      agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");

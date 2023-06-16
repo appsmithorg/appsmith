@@ -874,8 +874,8 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 export const DISCARD_CHANGES_WARNING = () =>
-  "This action will replace your local changes with the latest remote version.";
-export const DISCARD_CHANGES = () => "Discard & pull";
+  "Discarding these changes will pull previous changes from Git.";
+export const DISCARD_CHANGES = () => "Discard changes";
 
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
@@ -891,8 +891,6 @@ export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
 export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
-export const DISCARD_MESSAGE = () =>
-  `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
 // GIT DEPLOY end
 
 // GIT CHANGE LIST begin
@@ -1181,7 +1179,7 @@ export const FORM_LOGIN_DESC = () =>
 export const GOOGLE_AUTH_DESC = () =>
   "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).";
 export const GITHUB_AUTH_DESC = () =>
-  "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).";
+  "Enable your workspace to sign in with GitHub (OAuth 2.0) single sign-on (SSO).";
 export const SAML_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred SAML2 compliant provider.";
 export const OIDC_AUTH_DESC = () =>

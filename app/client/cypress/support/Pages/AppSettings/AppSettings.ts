@@ -25,6 +25,7 @@ export class AppSettings {
     _navigationMenuItem: ".t--page-switch-tab",
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
+    _updateStatus: ".ads-v2-icon.rotate",
   };
 
   public errorMessageSelector = (fieldId: string) => {
@@ -81,6 +82,7 @@ export class AppSettings {
     customSlug?: string,
     editMode = true,
   ) {
+    this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
     cy.location("pathname").then((pathname) => {
       if (customSlug && customSlug.length > 0) {
         const pageId = pathname.split("/")[2]?.split("-").pop();

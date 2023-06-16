@@ -1,9 +1,13 @@
-const dsl = require("../../../../fixtures/TextTabledsl.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Property pane connections error state", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("TextTabledsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check if the connection shows an error state when a connection has an error", function () {
