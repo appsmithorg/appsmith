@@ -516,9 +516,9 @@ class AnalyticsUtil {
       finalEventData = {
         ...eventData,
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
-        instanceId,
       };
     }
+    finalEventData = { ...finalEventData, instanceId };
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
