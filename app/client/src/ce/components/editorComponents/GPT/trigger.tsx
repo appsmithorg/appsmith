@@ -1,5 +1,5 @@
 import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 export const APPSMITH_AI = "AI";
 
 /* eslint-disable-next-line */
