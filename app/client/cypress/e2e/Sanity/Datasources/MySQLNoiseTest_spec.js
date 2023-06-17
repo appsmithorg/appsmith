@@ -1,11 +1,7 @@
 const queryLocators = require("../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
-import { agHelper } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
-
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-
-let dataSources = ObjectsRegistry.DataSources;
 
 describe("MySQL noise test", function () {
   let datasourceName;

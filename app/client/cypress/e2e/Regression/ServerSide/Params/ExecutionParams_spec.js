@@ -1,10 +1,11 @@
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
-
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let dataSources = ObjectsRegistry.DataSources;
+import {
+  agHelper,
+  deployMode,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel Test Functionality", function () {
   let datasourceName;
