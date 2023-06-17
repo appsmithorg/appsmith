@@ -6,11 +6,11 @@ let themeFont;
 
 describe("Theme validation usecase for multi-select widget", function () {
   it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
-    //cy.reload(); // To remove the rename tooltip
-    _.entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 300, 80);
-    cy.get(themelocator.canvas).click({ force: true });
-    cy.wait(2000);
-
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.MULTISELECT,
+      300,
+      80,
+    );
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToThemeSettings();
     //Border validation
