@@ -200,7 +200,8 @@ describe("Admin settings page", function () {
       cy.get("a")
         .should("have.attr", "target", "_blank")
         .invoke("removeAttr", "target")
-        .click();
+        .click()
+        .wait(3000); //for page to load fully;
       cy.url().should("contain", GOOGLE_MAPS_SETUP_DOC);
     });
   });
@@ -252,7 +253,8 @@ describe("Admin settings page", function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click();
+          .click()
+          .wait(3000); //for page to load fully;
         cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
       });
     },
@@ -271,7 +273,8 @@ describe("Admin settings page", function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click();
+          .click()
+          .wait(3000); //for page to load fully
         cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
       });
     },
