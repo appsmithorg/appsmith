@@ -282,10 +282,7 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Set Pull Request Title
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-            echo "The pull request title is: $PR_TITLE"
+        run: echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -318,7 +315,7 @@ jobs:
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            echo "COMMIT_INFO_MESSAGE=${{ env.PR_TITLE }}" >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=Merge run $PR_TITLE" >> $GITHUB_ENV
           fi
 
       - name: Run the cypress test
@@ -383,23 +380,23 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      - name: Retrieve Retry Attempt Count
-        run: |
-          retry_count=$((GITHUB_RUN_NUMBER - 1))
-          echo "Retry attempt count: $retry_count" >> $GITHUB_OUTPUT
+      # - name: Retrieve Retry Attempt Count
+      #   run: |
+      #     retry_count=$((GITHUB_RUN_NUMBER - 1))
+      #     echo "Retry attempt count: $retry_count" >> $GITHUB_OUTPUT
 
-      - name: Save Git values for Retry
-        run: |
-          PR_NUMBER=${{ inputs.pr }}
-          echo COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} run on PR# ${{ inputs.pr }} >> $GITHUB_ENV
+      # - name: Save Git values for Retry
+      #   run: |
+      #     PR_NUMBER=${{ inputs.pr }}
+      #     echo COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} of OkToTest on PR# ${{ inputs.pr }} >> $GITHUB_ENV
 
-      - name: Set Re-try Commit Message
-        run: |
-          if [[ ${{ inputs.pr }} -ne 0 ]]; then
-            echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
-          else
-            echo "COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} on ${{ env.PR_TITLE }}" >> $GITHUB_ENV
-          fi
+      # - name: Set Re-try Commit Message
+      #   run: |
+      #     if [[ ${{ inputs.pr }} -ne 0 ]]; then
+      #       echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+      #     else
+      #       echo "COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} of Merge on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
+      #     fi
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
