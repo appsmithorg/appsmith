@@ -78,7 +78,7 @@ before(function () {
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
-  cy.visit("/setup/welcome");
+  cy.visit("/setup/welcome", { timeout: 60000 });
   cy.wait("@getMe");
   cy.wait(2000);
   cy.url().then((url) => {
