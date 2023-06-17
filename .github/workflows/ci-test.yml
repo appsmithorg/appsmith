@@ -253,7 +253,7 @@ jobs:
         # using GitHub Actions environment file
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
-          echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
+          echo COMMIT_INFO_BRANCH=$(git --git-dir=.git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
           echo COMMIT_INFO_MESSAGE=Run from PR# ${{ inputs.pr }} on commit $(git show -s --pretty=%H | cut -c 1-7) >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
