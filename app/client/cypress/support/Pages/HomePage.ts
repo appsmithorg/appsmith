@@ -6,6 +6,7 @@ export class HomePage {
   private locator = ObjectsRegistry.CommonLocators;
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private onboarding = ObjectsRegistry.Onboarding;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _inviteButton = ".t--invite-user-btn";
   private _username = "input[name='username']";
@@ -227,7 +228,7 @@ export class HomePage {
 
   public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
-    this.agHelper.AssertNetworkStatus("@createNewApplication", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
 
     if (skipSignposting) {
@@ -235,6 +236,7 @@ export class HomePage {
       this.onboarding.closeIntroModal();
       this.onboarding.skipSignposting();
     }
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   //Maps to CreateAppForWorkspace in command.js
