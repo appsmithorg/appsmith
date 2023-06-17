@@ -248,13 +248,20 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
+      - name: Set Pull Request Title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          run: |
+            echo "The pull request title is: $PR_TITLE"
+
       - name: Save Git values
         # pass env variables from this step to other steps
         # using GitHub Actions environment file
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
-          echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
-          echo COMMIT_INFO_MESSAGE=Run from $(git rev-parse --abbrev-ref HEAD) on commit $(git show -s --pretty=%H | cut -c 1-7)>> $GITHUB_ENV
+          PR_NUMBER=${{ inputs.pr }}
+          echo COMMIT_INFO_BRANCH=$(git ls-remote origin "pull/$PR_NUMBER/head" | cut -d$'\t' -f2 | sed 's#refs/heads/##') >> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=OkToTest run on PR# ${{ inputs.pr }} >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
@@ -272,6 +279,14 @@ jobs:
           echo SHA $COMMIT_INFO_SHA
           echo Timestamp $COMMIT_INFO_TIMESTAMP
           echo Remote $COMMIT_INFO_REMOTE
+
+      - name: Set Commit Message
+        run: |
+          if [[ ${{ inputs.pr }} -ne 0 ]]; then
+            echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+          else
+            echo "COMMIT_INFO_MESSAGE=${{ env.PR_TITLE }}" >> $GITHUB_ENV
+          fi
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
@@ -318,7 +333,7 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE || github.event.pull_request.title }}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
@@ -333,6 +348,24 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+
+      - name: Retrieve Retry Attempt Count
+        run: |
+          retry_count=$((GITHUB_RUN_NUMBER - 1))
+          echo "Retry attempt count: $retry_count" >> $GITHUB_OUTPUT
+
+      - name: Save Git values for Retry
+        run: |
+          PR_NUMBER=${{ inputs.pr }}
+          echo COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} run on PR# ${{ inputs.pr }} >> $GITHUB_ENV
+
+      - name: Set Re-try Commit Message
+        run: |
+          if [[ ${{ inputs.pr }} -ne 0 ]]; then
+            echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+          else
+            echo "COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} on ${{ env.PR_TITLE }}" >> $GITHUB_ENV
+          fi
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
@@ -380,7 +413,7 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE || github.event.pull_request.title }}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           headless: true

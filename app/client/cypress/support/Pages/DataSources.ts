@@ -35,6 +35,7 @@ export class DataSources {
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
   private hp = ObjectsRegistry.DefaultHostPort;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
@@ -397,10 +398,6 @@ export class DataSources {
       this.agHelper.Sleep();
     });
     this.agHelper.RemoveTooltip("Add a new datasource");
-
-    // cy.get(this._dsCreateNewTab)
-    //   .should("be.visible")
-    //   .click({ force: true });
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -410,9 +407,10 @@ export class DataSources {
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._mockDB(dbName));
+    this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
-      .wait("@getMockDb")
-      .then(($createdMock) => $createdMock.response?.body.data.name);
+      .get("@getMockDb")
+      .then(($createdMock: any) => $createdMock.response?.body.data.name);
   }
 
   public FillPostgresDSForm(
