@@ -97,7 +97,7 @@ describe("Theme validation usecases", function () {
           cy.get(themelocator.inputColor).should("have.value", "#15803d");
           cy.get(themelocator.inputColor).clear({ force: true });
           cy.wait(2000);
-          cy.get(themelocator.inputColor).type("red");
+          _.theme.ChangeThemeColor("red", "Background");
           cy.get(themelocator.inputColor).should("have.value", "red");
           cy.wait(2000);
 
@@ -111,7 +111,7 @@ describe("Theme validation usecases", function () {
           cy.get(themelocator.inputColor).should("have.value", "#15803d");
           cy.get(themelocator.inputColor).clear({ force: true });
           cy.wait(2000);
-          cy.get(themelocator.inputColor).click().type("Black");
+          _.theme.ChangeThemeColor("Black", "Primary");
           cy.get(themelocator.inputColor).should("have.value", "Black");
           cy.wait(2000);
           cy.contains("Color").click({ force: true });

@@ -55,6 +55,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("5. Delete the applications & workspace - Success/failing JSObj", () => {
     homePage.NavigateToHome();
+    agHelper.WaitUntilAllToastsDisappear();
     homePage.DeleteApplication("JSOnloadImportTest");
     homePage.DeleteApplication("JSOnloadImportTest (1)");
 

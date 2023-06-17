@@ -182,12 +182,12 @@ export class AutoLayout {
     );
 
     // Increase the length of button label & verify if the component expands
-    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector);
-    cy.get("@widgetWidth").then(($initialWidth) => {
+    this.agHelper.GetWidth(this._buttonWidgetSelector);
+    cy.get("@eleWidth").then(($initialWidth) => {
       this.propPane.UpdatePropertyFieldValue("Label", "Lengthy Button Label");
       this.agHelper.Sleep(); //to allow time for widget to resize itself before checking width again!
-      this.agHelper.GetWidgetWidth(this._buttonWidgetSelector);
-      cy.get("@widgetWidth").then((width: any) => {
+      this.agHelper.GetWidth(this._buttonWidgetSelector);
+      cy.get("@eleWidth").then((width: any) => {
         //cy.get<number>("@initialWidth").then((initialWidth) => {
         expect(width).to.be.greaterThan(Number($initialWidth));
         //});
@@ -201,12 +201,12 @@ export class AutoLayout {
     );
 
     // Decrease the length of button label & verify if the component shrinks
-    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector);
-    cy.get("@widgetWidth").then(($initialWidth) => {
+    this.agHelper.GetWidth(this._buttonWidgetSelector);
+    cy.get("@eleWidth").then(($initialWidth) => {
       this.propPane.UpdatePropertyFieldValue("Label", "Label");
       this.agHelper.Sleep(); //to allow time for widget to resize itself before checking width again!
-      this.agHelper.GetWidgetWidth(this._buttonWidgetSelector);
-      cy.get("@widgetWidth").then((width: any) => {
+      this.agHelper.GetWidth(this._buttonWidgetSelector);
+      cy.get("@eleWidth").then((width: any) => {
         expect(width).to.be.lessThan(Number($initialWidth));
       });
     });
@@ -241,15 +241,15 @@ export class AutoLayout {
 
     // Add multi-line text & verify if the component's height increases
 
-    this.agHelper.GetWidgetHeight(this._textWidgetSelector);
-    cy.get("@widgetHeight").then(($initialHeight) => {
+    this.agHelper.GetHeight(this._textWidgetSelector);
+    cy.get("@eleHeight").then(($initialHeight) => {
       this.propPane.UpdatePropertyFieldValue(
         "Text",
         "hello\nWorld\nThis\nis\na\nMulti-line\nText",
       );
       this.agHelper.Sleep(); //to allow time for widget to resize itself before checking height again!
-      this.agHelper.GetWidgetHeight(this._textWidgetSelector);
-      cy.get("@widgetHeight").then((height: any) => {
+      this.agHelper.GetHeight(this._textWidgetSelector);
+      cy.get("@eleHeight").then((height: any) => {
         expect(height).to.be.greaterThan(Number($initialHeight));
       });
     });
@@ -262,12 +262,12 @@ export class AutoLayout {
 
     // Remove some lines & verify if the component's height decreases
 
-    this.agHelper.GetWidgetHeight(this._textWidgetSelector);
-    cy.get("@widgetHeight").then(($initialHeight) => {
+    this.agHelper.GetHeight(this._textWidgetSelector);
+    cy.get("@eleHeight").then(($initialHeight) => {
       this.propPane.UpdatePropertyFieldValue("Text", "hello\nWorld\nblabla");
       this.agHelper.Sleep(); //to allow time for widget to resize itself before checking width again!
-      this.agHelper.GetWidgetHeight(this._textWidgetSelector);
-      cy.get("@widgetHeight").then((height: any) => {
+      this.agHelper.GetHeight(this._textWidgetSelector);
+      cy.get("@eleHeight").then((height: any) => {
         expect(height).to.be.lessThan(Number($initialHeight));
       });
     });
