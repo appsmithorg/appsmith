@@ -284,7 +284,7 @@ jobs:
       - name: Set Pull Request Title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-          run: |
+        run: |
             echo "The pull request title is: $PR_TITLE"
 
       - name: Save Git values
