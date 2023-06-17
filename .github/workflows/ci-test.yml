@@ -253,7 +253,7 @@ jobs:
         # using GitHub Actions environment file
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
-          echo COMMIT_INFO_BRANCH=$(git --git-dir=.git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
+          echo COMMIT_INFO_BRANCH=$(git ls-remote origin "refs/pull/${{ inputs.pr }}/head" | cut -d$'\t' -f2 | sed 's#refs/heads/##') >> $GITHUB_ENV
           echo COMMIT_INFO_MESSAGE=Run from PR# ${{ inputs.pr }} on commit $(git show -s --pretty=%H | cut -c 1-7) >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
@@ -263,7 +263,7 @@ jobs:
           # delete the .git folder afterwords to use the environment values
           rm -rf .git
 
-      - name: Show Git values
+     - name: Show Git values
         run: |
           echo Branch $COMMIT_INFO_BRANCH
           echo Message $COMMIT_INFO_MESSAGE
@@ -273,13 +273,14 @@ jobs:
           echo Timestamp $COMMIT_INFO_TIMESTAMP
           echo Remote $COMMIT_INFO_REMOTE
 
-      - name: Set Commit Message
+    - name: Set Commit Message
         run: |
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
-            echo COMMIT_INFO_MESSAGE="${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            echo COMMIT_INFO_MESSAGE="${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
           fi
+
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'

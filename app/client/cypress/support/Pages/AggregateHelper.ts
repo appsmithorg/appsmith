@@ -715,12 +715,9 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
     parseSpecialCharSeq = false,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.eq(index).focus().wait(100).type(value, {
+    return this.GetElement(selector).eq(index).focus().wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
-      //delay: 3,
+      delay: 5,
       force: true,
     });
   }
