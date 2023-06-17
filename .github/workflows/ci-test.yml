@@ -263,7 +263,7 @@ jobs:
           # delete the .git folder afterwords to use the environment values
           rm -rf .git
 
-     - name: Show Git values
+      - name: Show Git values
         run: |
           echo Branch $COMMIT_INFO_BRANCH
           echo Message $COMMIT_INFO_MESSAGE
@@ -273,7 +273,7 @@ jobs:
           echo Timestamp $COMMIT_INFO_TIMESTAMP
           echo Remote $COMMIT_INFO_REMOTE
 
-    - name: Set Commit Message
+      - name: Set Commit Message
         run: |
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
