@@ -19,7 +19,7 @@ let themeFont;
 
 describe("Theme validation usecases", function () {
   it("1. Drag and drop form widget and validate Default font and list of font validation", function () {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM, 300, 80);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
     agHelper.GetNClick(locators._canvas);
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
@@ -92,7 +92,7 @@ describe("Theme validation usecases", function () {
           cy.get(themelocator.inputColor).should("have.value", "#15803d");
           cy.get(themelocator.inputColor).clear({ force: true });
           cy.wait(2000);
-          theme.ChangeThemeColor(21, "Background");
+          theme.ChangeThemeColor(16, "Background");
           cy.get(themelocator.inputColor).should("have.value", "#dc2626"); //Red
           cy.wait(2000);
 
@@ -106,7 +106,7 @@ describe("Theme validation usecases", function () {
           cy.get(themelocator.inputColor).should("have.value", "#15803d");
           cy.get(themelocator.inputColor).clear({ force: true });
           cy.wait(2000);
-          theme.ChangeThemeColor(14, "Primary");
+          theme.ChangeThemeColor(9, "Primary");
           cy.get(themelocator.inputColor).should("have.value", "#18181b"); //Black
           cy.wait(2000);
           cy.contains("Color").click({ force: true });
