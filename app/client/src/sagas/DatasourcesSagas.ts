@@ -236,12 +236,13 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
     const pageId: string = yield select(getCurrentPageId);
-    const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
-      name,
-      workspaceId,
-      pluginId,
-      packageName,
-    );
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.addMockDbToDatasources(
+        name,
+        workspaceId,
+        pluginId,
+        packageName,
+      );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -254,8 +255,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
-      // @ts-expect-error: response is of type unknown
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
+      // fetch datasource structure for the created mock datasource.
+      yield put(fetchDatasourceStructure(response.data.id, true));
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
 
@@ -266,7 +268,6 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           generateTemplateFormURL({
             pageId,
             params: {
-              // @ts-expect-error: response.data is of type unknown
               datasourceId: response.data.id,
             },
           }),
