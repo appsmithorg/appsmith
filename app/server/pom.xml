@@ -116,6 +116,7 @@
 
     <modules>
         <module>reactive-caching</module>
+        <module>appsmith-reactive-profiling</module>
         <module>appsmith-interfaces</module>
         <module>appsmith-plugins</module>
         <module>appsmith-server</module>
