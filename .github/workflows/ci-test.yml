@@ -282,8 +282,9 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Set Pull Request Title
-        run: |
-          echo "${{ toJson(github.event) }}"
+        env:
+          EVENT_COMMITS: ${{ toJson(github.event.commits) }}
+        run: echo "$EVENT_COMMITS"
 
       - name: Save Git values
         # pass env variables from this step to other steps
