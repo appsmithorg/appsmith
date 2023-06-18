@@ -273,8 +273,6 @@ jobs:
             "url": "https://github.com/appsmithorg/appsmith/commit/99f6e2cf296286ac13ad2bacf8548e249f9e6e72"
              }
             ]
-
-      - name: Extract Commit Message
         run: |
           echo "${{ env.EVENT_COMMITS }}" | yq e 'select(di == 0) | .[:index("\\n")]' -
 
