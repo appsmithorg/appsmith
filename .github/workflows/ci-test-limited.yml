@@ -252,8 +252,31 @@ jobs:
 
       - name: Set Pull Request Title
         env:
-          EVENT_COMMITS: ${{ toJson(github.event.commits) }}
-        run: echo "$EVENT_COMMITS"
+          EVENT_COMMITS: >-
+            [
+             {
+              "author": {
+              "email": "91450662+Aishwarya-U-R@users.noreply.github.com",
+              "name": "Aishwarya-U-R",
+              "username": "Aishwarya-U-R"
+              },
+            "committer": {
+              "email": "noreply@github.com",
+              "name": "GitHub",
+              "username": "web-flow"
+             },
+            "distinct": true,
+            "id": "99f6e2cf296286ac13ad2bacf8548e249f9e6e72",
+            "message": "test: Cypress (#24586)\n\n## Description\r\n- This PR adds the No Error toast to NavigateBacktoEditor() which\r\nsometimes results in Edit page not being load in CI runs",
+            "timestamp": "2023-06-18T17:15:26+05:30",
+            "tree_id": "b3963ce08ea43195531853cc3ea802336c11fa7b",
+            "url": "https://github.com/appsmithorg/appsmith/commit/99f6e2cf296286ac13ad2bacf8548e249f9e6e72"
+             }
+            ]
+
+      - name: Extract Commit Message
+        run: |
+          echo "${{ env.EVENT_COMMITS }}" | yq e 'select(di == 0) | .[:index("\\n")]' -
 
       - name: Save Git values
         # pass env variables from this step to other steps
