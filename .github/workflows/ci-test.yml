@@ -320,7 +320,7 @@ jobs:
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            echo COMMIT_INFO_MESSAGE="${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{print $1}' >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{print $1}' >> $GITHUB_ENV
           fi
 
       - name: Run the cypress test
