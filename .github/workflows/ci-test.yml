@@ -248,11 +248,11 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
-      - name: Set Pull Request Title
-        env:
-          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
-        run: |
-          echo "${{ env.EVENT_COMMITS }}" | yq e 'select(di == 0) | .[:index("\\n")]' -
+      # - name: Set Pull Request Title
+      #   env:
+      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+      #   run: |
+      #     echo "${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{print $1}'
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -281,11 +281,13 @@ jobs:
           echo Remote $COMMIT_INFO_REMOTE
 
       - name: Set Commit Message
+        env:
+          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            echo "COMMIT_INFO_MESSAGE=Merge run $PR_TITLE" >> $GITHUB_ENV
+            echo COMMIT_INFO_MESSAGE=Merge run "${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{print $1}' >> $GITHUB_ENV
           fi
 
       - name: Run the cypress test
