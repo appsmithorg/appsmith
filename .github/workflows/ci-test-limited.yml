@@ -250,13 +250,11 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
-      - name: Set Pull Request Title
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PR_TITLE=$(git log -1 --pretty=format:"%s" $GITHUB_REF)
-          echo "${{ toJson(github.event) }}"
-          echo "PR Title: $PR_TITLE"
+      # - name: Set Pull Request Title
+      #   env:
+      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+      #   run: |
+      #     echo "test: Cypress (#24586)\n\n## Description\r\n- This PR adds the No Error toast to NavigateBacktoEditor() which\r\nsometimes results in Edit page not being load in CI runs" | awk -F '\\\\n' '{sub(/.*#/, "#", $1); sub(/).*/, "", $1); print $1}'
 
       - name: Save Git values
         # pass env variables from this step to other steps
