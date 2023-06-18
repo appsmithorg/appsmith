@@ -28,7 +28,7 @@ describe.skip("one click binding mongodb datasource", function () {
 
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.Sleep(2000);
     //#endregion

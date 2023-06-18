@@ -93,7 +93,7 @@ export class DeployMode {
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
     this.assertHelper.AssertDocumentReady();
-    this.agHelper.AssertNetworkStatus("@getWorkspace");
+    this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
   }
 
