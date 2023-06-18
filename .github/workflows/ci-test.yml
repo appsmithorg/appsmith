@@ -249,9 +249,12 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Set Pull Request Title
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          PR_TITLE=$(git log -1 --pretty=format:"%s" $GITHUB_REF)
+          echo "${{ toJson(github.event) }}"
+          echo "PR Title: $PR_TITLE"
 
       - name: Save Git values
         # pass env variables from this step to other steps
