@@ -250,6 +250,11 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
+      - name: Set Pull Request Title
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+
       - name: Save Git values
         # pass env variables from this step to other steps
         # using GitHub Actions environment file
