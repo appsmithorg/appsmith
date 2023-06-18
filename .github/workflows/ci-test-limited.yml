@@ -252,8 +252,11 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Set Pull Request Title
+        env:
+          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
-          echo "test: Cypress (#24586)\n\n## Description\r\n- This PR adds the No Error toast to NavigateBacktoEditor() which\r\nsometimes results in Edit page not being load in CI runs" |  awk -F '\\\\n' '{print $1}'
+          echo "${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{match($0, /#([0-9]+)/, result); if(result) print result[0]}'
+          echo "test: Cypress (#24586)\n\n## Description\r\n- This PR adds the No Error toast to NavigateBacktoEditor() which\r\nsometimes results in Edit page not being load in CI runs" | awk -F '\\\\n' '{match($0, /#([0-9]+)/, result); if(result) print result[0]}'
 
       - name: Save Git values
         # pass env variables from this step to other steps
