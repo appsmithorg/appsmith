@@ -383,29 +383,6 @@ export class AggregateHelper extends ReusableHelper {
       .should("eq", expectedRes);
   }
 
-  public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
-    // cy.wait(aliasName).then(($apiCall: any) => {
-    //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
-    // });
-
-    // cy.wait(aliasName).should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   expectedStatus,
-    // );
-    this.Sleep(); //Wait a bit for call to finish!
-    aliasName = aliasName.startsWith("@") ? aliasName : "@" + aliasName;
-    cy.wait(aliasName);
-    cy.get(aliasName)
-      .its("response.body.responseMeta.status")
-      .should("eq", expectedStatus);
-
-    //To improve below:
-    // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
-    //   expect(response.status).to.be.oneOf([expectedStatus]);
-    // });
-  }
-
   public AssertNetworkDataNestedProperty(
     aliasName: string,
     expectedPath: string,
@@ -865,7 +842,7 @@ export class AggregateHelper extends ReusableHelper {
       this.assertHelper.AssertDocumentReady();
     });
     this.Sleep(2000);
-    this.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
+    this.assertHelper.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
@@ -1402,7 +1379,8 @@ export class AggregateHelper extends ReusableHelper {
     cy.visit(url, { timeout: 60000 });
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
-    } else apiToValidate && this.AssertNetworkStatus(apiToValidate);
+    } else
+      apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
 
   //Not used:

@@ -282,7 +282,12 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Set Pull Request Title
-        run: echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_TITLE=$(git log -1 --pretty=format:"%s" $GITHUB_REF)
+          echo "${{ toJson(github.event) }}"
+          echo "PR Title: $PR_TITLE"
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -290,7 +295,7 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
           PR_NUMBER=${{ inputs.pr }}
-          echo COMMIT_INFO_BRANCH=$(git ls-remote origin "pull/$PR_NUMBER/head" | cut -d$'\t' -f2 | sed 's#refs/heads/##') >> $GITHUB_ENV
+          echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
           echo COMMIT_INFO_MESSAGE=OkToTest run on PR# ${{ inputs.pr }} >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV

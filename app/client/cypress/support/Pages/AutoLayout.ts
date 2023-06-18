@@ -16,6 +16,7 @@ export class AutoLayout {
   private propPane = ObjectsRegistry.PropertyPane;
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locators = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   _buttonWidgetSelector = this.locators._widgetInDeployed(WIDGET.BUTTON);
   _buttonComponentSelector =
@@ -50,13 +51,13 @@ export class AutoLayout {
 
     this.agHelper.GetNClick(this.convertDialogButton, 0, true);
 
-    this.agHelper.AssertNetworkStatus("@updateApplication");
+    this.assertHelper.AssertNetworkStatus("@updateApplication");
     if (isNotNewApp) {
-      this.agHelper.AssertNetworkStatus("@snapshotSuccess", 201);
+      this.assertHelper.AssertNetworkStatus("@snapshotSuccess", 201);
     }
 
     this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
-    this.agHelper.AssertNetworkStatus("@getWorkspace"); //getWorkspace for Edit page!
+    this.assertHelper.AssertNetworkStatus("@getWorkspace"); //getWorkspace for Edit page!
 
     this.VerifyIsAutoLayout();
   }
@@ -82,8 +83,8 @@ export class AutoLayout {
       }
     });
 
-    this.agHelper.AssertNetworkStatus("@updateApplication");
-    this.agHelper.AssertNetworkStatus("@snapshotSuccess", 201);
+    this.assertHelper.AssertNetworkStatus("@updateApplication");
+    this.assertHelper.AssertNetworkStatus("@snapshotSuccess", 201);
 
     this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
     cy.wait(2000);

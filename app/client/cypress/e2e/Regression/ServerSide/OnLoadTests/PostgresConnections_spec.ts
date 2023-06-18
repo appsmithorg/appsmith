@@ -5,6 +5,7 @@ import {
   deployMode,
   dataSources,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 let guid: any, dsName_1: any, dsName_2: any;
 
@@ -85,7 +86,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
         "Default selected value",
         "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
       );
-      agHelper.AssertNetworkStatus("@updateLayout", 200);
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
     }
   });
 

@@ -5,6 +5,7 @@ type RightPaneTabs = "datasources" | "connections";
 export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _createapi = ".t--createBlankApiCard";
   _resourceUrl = ".t--dataSourceField";
@@ -87,7 +88,7 @@ export class ApiPage {
       this.agHelper.GetNClick(this._blankAPI, 0, true);
       this.agHelper.RemoveTooltip("Add a new query/JS Object");
     }
-    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     // cy.get("@createNewApi").then((response: any) => {
     //     expect(response.response.body.responseMeta.success).to.eq(true);
@@ -424,7 +425,7 @@ export class ApiPage {
   CreateGraphqlApi(apiName = "") {
     cy.get(this.locator._createNew).click({ force: true });
     cy.get(this._blankGraphqlAPI).click({ force: true });
-    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);
     cy.get(this._resourceUrl).should("be.visible");
