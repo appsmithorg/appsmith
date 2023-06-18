@@ -75,15 +75,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     }
 
     @Override
-    public Mono<Tenant> getDefaultTenant() {
-        // Get the default tenant object from the DB and then populate the relevant user permissions in that
-        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
-        return repository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
-                        .switchIfEmpty(Mono.just(tenant)));
-    }
-
-    @Override
     public Mono<Tenant> getDefaultTenant(AclPermission aclPermission) {
         return repository.findBySlug(FieldName.DEFAULT, aclPermission);
     }
@@ -236,11 +227,5 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         return tenant.getTenantConfiguration() != null &&
                 tenant.getTenantConfiguration().getLicense() != null &&
                 tenant.getTenantConfiguration().getLicense().getKey() != null;
-    }
-
-    @Override
-    public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
-        return getDefaultTenantId()
-                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
     }
 }

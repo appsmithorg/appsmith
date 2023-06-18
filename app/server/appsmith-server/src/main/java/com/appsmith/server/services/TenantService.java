@@ -10,7 +10,6 @@ import reactor.core.publisher.Mono;
 public interface TenantService extends TenantServiceCE {
     Mono<Tenant> findById(String id, AclPermission aclPermission);
     Mono<Tenant> save(Tenant tenant);
-    Mono<Tenant> getDefaultTenant();
 
     Mono<Tenant> getDefaultTenant(AclPermission aclPermission);
 
@@ -50,6 +49,4 @@ public interface TenantService extends TenantServiceCE {
      * @return Boolean
      */
     Boolean isValidLicenseConfiguration(Tenant tenant);
-
-    Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration);
 }
