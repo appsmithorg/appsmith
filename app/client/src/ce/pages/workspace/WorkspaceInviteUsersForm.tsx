@@ -60,8 +60,8 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import { getRampLink, showProductRamps } from "utils/ProductRamps";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { getRampLink, showProductRamps } from "selectors/rampSelectors";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -256,16 +256,20 @@ function InviteUserText({
 }: {
   isApplicationInvite: boolean;
 }) {
+  const rampLinkSelector = getRampLink("app_share");
+  const userInviteRampSelector = showProductRamps(RAMP_NAME.INVITE_USER_TO_APP);
+  const rampLink = useSelector(rampLinkSelector);
+  const canShowUserInviteRamp = useSelector(userInviteRampSelector);
   return (
     <Text
       color="var(--ads-v2-color-fg)"
       data-testid="helper-message"
       kind="action-m"
     >
-      {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) && isApplicationInvite ? (
+      {canShowUserInviteRamp && isApplicationInvite ? (
         <>
           {createMessage(INVITE_USER_RAMP_TEXT)}
-          <Link kind="primary" target="_blank" to={getRampLink("app_share")}>
+          <Link kind="primary" target="_blank" to={rampLink}>
             {createMessage(BUSINESS_EDITION_TEXT)}
           </Link>
         </>
@@ -278,6 +282,9 @@ function InviteUserText({
 
 export function CustomRolesRamp() {
   const [dynamicProps, setDynamicProps] = useState<any>({});
+  const rampLinkSelector = getRampLink("workspace_share");
+  const rampLink = useSelector(rampLinkSelector);
+
   const rampText = (
     <Text color="var(--ads-v2-color-white)" kind="action-m">
       {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
@@ -286,7 +293,7 @@ export function CustomRolesRamp() {
         kind="primary"
         onClick={() => {
           setDynamicProps({ visible: false });
-          window.open(getRampLink("workspace_share"), "_blank");
+          window.open(rampLink, "_blank");
           // This reset of prop is required because, else the tooltip will be controlled by the state
           setTimeout(() => {
             setDynamicProps({});
@@ -451,6 +458,9 @@ function WorkspaceInviteUsersForm(props: any) {
     }
   };
 
+  const customRoleRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
+  const canShowCustomRoleRamp = useSelector(customRoleRampSelector);
+
   return (
     <WorkspaceInviteWrapper>
       <StyledForm
@@ -542,7 +552,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   </div>
                 </Option>
               ))}
-              {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+              {canShowCustomRoleRamp && (
                 <Option disabled>
                   <CustomRolesRamp />
                 </Option>

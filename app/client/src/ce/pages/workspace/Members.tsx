@@ -38,8 +38,8 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
 import { CustomRolesRamp } from "./WorkspaceInviteUsersForm";
-import { showProductRamps } from "utils/ProductRamps";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { showProductRamps } from "selectors/rampSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -124,7 +124,7 @@ export const UserCard = styled(Card)`
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   padding: ${(props) =>
-    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
+    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`};
   width: 100%;
   height: 201px;
   margin: auto;
@@ -314,6 +314,9 @@ export default function MemberSettings(props: PageProps) {
     }
   }, [searchValue, membersData]);
 
+  const customRoleRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
+  const canShowCustomRoleRamp = useSelector(customRoleRampSelector);
+
   const columns = [
     {
       Header: createMessage(() =>
@@ -416,7 +419,7 @@ export default function MemberSettings(props: PageProps) {
                 </div>
               </Option>
             ))}
-            {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+            {canShowCustomRoleRamp && (
               <Option disabled>
                 <CustomRolesRamp />
               </Option>
@@ -559,7 +562,7 @@ export default function MemberSettings(props: PageProps) {
                           </div>
                         </Option>
                       ))}
-                      {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                      {canShowCustomRoleRamp && (
                         <Option disabled>
                           <CustomRolesRamp />
                         </Option>
