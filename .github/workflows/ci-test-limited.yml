@@ -253,7 +253,7 @@ jobs:
       - name: Set Pull Request Title
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_TITLE: ${{ github.event }}
         run: |
           echo "PR Title: $PR_TITLE"
 
