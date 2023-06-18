@@ -253,7 +253,6 @@ jobs:
       - name: Set Pull Request Title
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITEVENT_PR_TITLE: ${{ github.event }}
         run: |
           PR_TITLE=$(git log -1 --pretty=format:"%s" $GITHUB_REF)
           echo "${{ toJson(github.event) }}"
