@@ -252,11 +252,8 @@ jobs:
 
       - name: Set Pull Request Title
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PR_TITLE=$(git log -1 --pretty=format:"%s" $GITHUB_REF)
-          echo "${{ toJson(github.event) }}"
-          echo "PR Title: $PR_TITLE"
+          EVENT_COMMITS: ${{ toJson(github.event.commits) }}
+        run: echo "$EVENT_COMMITS"
 
       - name: Save Git values
         # pass env variables from this step to other steps
