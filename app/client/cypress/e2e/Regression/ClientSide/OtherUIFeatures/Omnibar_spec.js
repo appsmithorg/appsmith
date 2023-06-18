@@ -3,6 +3,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
   entityExplorer,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
@@ -95,7 +96,7 @@ describe("Omnibar functionality test cases", () => {
     agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
     agHelper.AssertElementVisible(omnibar.blankAPI);
     agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
-    agHelper.AssertNetworkStatus("@createNewApi", 201);
+    assertHelper.AssertNetworkStatus("@createNewApi", 201);
     entityExplorer.SelectEntityByName("Api1");
     agHelper.AssertURL("/api");
     agHelper.RenameWithInPane(apiName);

@@ -1,3 +1,4 @@
+import { assertHelper } from "../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 type filedTypeValues =
@@ -21,6 +22,7 @@ export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
@@ -121,7 +123,7 @@ export class PropertyPane {
     this.OpenJsonFormFieldSettings(fieldName);
     this.agHelper.SelectDropdownList("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
-    this.agHelper.AssertNetworkStatus("@updateLayout");
+    this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
   public NavigateBackToPropertyPane() {
@@ -493,7 +495,7 @@ export class PropertyPane {
       .should("have.value", newName)
       .blur();
     this.agHelper.PressEnter();
-    this.agHelper.AssertNetworkStatus("@updateWidgetName");
+    this.assertHelper.AssertNetworkStatus("@updateWidgetName");
     this.agHelper.Sleep();
   }
 

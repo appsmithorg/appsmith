@@ -22,6 +22,7 @@ export class JSEditor {
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
   public propPane = ObjectsRegistry.PropertyPane;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   //#region Element locators
   _runButton = "button.run-js-action";
@@ -132,7 +133,7 @@ export class JSEditor {
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
     //Checking JS object was created successfully
-    this.agHelper.AssertNetworkStatus("@jsCollections", 200);
+    this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
     this.agHelper.PressEnter(); //for name to settle
