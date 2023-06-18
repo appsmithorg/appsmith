@@ -250,8 +250,9 @@ jobs:
 
       - name: Set Pull Request Title
         env:
-          EVENT_COMMITS: ${{ toJson(github.event.commits) }}
-        run: echo "$EVENT_COMMITS"
+          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+        run: |
+          echo "${{ env.EVENT_COMMITS }}" | yq e 'select(di == 0) | .[:index("\\n")]' -
 
       - name: Save Git values
         # pass env variables from this step to other steps
