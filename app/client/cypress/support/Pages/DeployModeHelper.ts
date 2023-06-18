@@ -92,6 +92,9 @@ export class DeployMode {
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast("There was an unexpcted error"),
+    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
     this.assertHelper.AssertDocumentReady();
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
