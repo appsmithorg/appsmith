@@ -251,10 +251,11 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Set Pull Request Title
-        uses: cypress-io/github-action@v2
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "PR Title: $PR_TITLE"
 
       - name: Save Git values
         # pass env variables from this step to other steps
