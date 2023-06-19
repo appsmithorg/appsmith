@@ -126,7 +126,7 @@ export function* updateLayoutForMobileCheckpoint(
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
     log.debug(
-      "Auto Layout : updating layout for mobile viewport took",
+      "Auto-layout : updating layout for mobile viewport took",
       performance.now() - start,
       "ms",
     );
@@ -159,7 +159,7 @@ export function* updateLayoutPositioningSaga(
 
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-    //Convert Fixed Layout to Auto
+    //Convert fixed layout to auto-layout
     if (payloadPositioningType === AppPositioningTypes.AUTO) {
       const denormalizedDSL = unflattenDSLById<WidgetProps>(
         MAIN_CONTAINER_WIDGET_ID,
@@ -177,7 +177,7 @@ export function* updateLayoutPositioningSaga(
 
       yield call(recalculateAutoLayoutColumnsAndSave);
     }
-    // Convert Auto layout to fixed
+    // Convert auto-layout to fixed
     else {
       yield put(
         updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),

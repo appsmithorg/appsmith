@@ -8,7 +8,7 @@ describe("Create workspace and a new app / delete and recreate app", function ()
   let workspaceId;
   let appid;
   it("1. Create app within an workspace and delete and re-create another app with same name", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceId = uid;
@@ -31,7 +31,7 @@ describe("Create workspace and a new app / delete and recreate app", function ()
       }
       cy.get(application.closeModalPopupMember).click({ force: true });
       cy.DeleteAppByApi();
-      cy.NavigateToHome();
+      _.homePage.NavigateToHome();
       _.homePage.CreateAppInWorkspace(uid, uid);
     });
   });

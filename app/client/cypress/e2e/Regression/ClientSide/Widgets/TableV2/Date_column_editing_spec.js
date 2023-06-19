@@ -1,13 +1,11 @@
-const dsl = require("../../../../../fixtures/Table/DateCellEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Table/DateCellEditingDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. should check that edit check box is enabled for date type column in the columns list", () => {

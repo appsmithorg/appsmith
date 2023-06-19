@@ -25,7 +25,6 @@
   "codeTextArea": "//div[@class='CodeMirror-code']//span/span",
   "searchFilefield": "//input[@placeholder='Search File Prefix']",
   "copyURLicon": "//button/span[@icon='link']",
-  "deleteFileicon": "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]",
   "snipeableTable": "//input[@type='search']",
   "suggestedWidgetDropdown": "//div[contains(@class, 't--suggested-widget-SELECT_WIDGET')]",
   "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",

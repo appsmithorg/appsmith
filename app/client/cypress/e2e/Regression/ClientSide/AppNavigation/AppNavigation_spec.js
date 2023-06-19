@@ -1,11 +1,11 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const deployMode = ObjectsRegistry.DeployMode;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const homePage = ObjectsRegistry.HomePage;
-const ee = ObjectsRegistry.EntityExplorer;
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("General checks for app navigation", function () {
   it("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
@@ -15,7 +15,7 @@ describe("General checks for app navigation", function () {
     deployMode.NavigateBacktoEditor();
 
     // Navigation should appear alongside app header when there are two pages
-    ee.AddNewPage();
+    entityExplorer.AddNewPage();
     deployMode.DeployApp();
     cy.get(appNavigationLocators.topStacked).should("exist");
   });

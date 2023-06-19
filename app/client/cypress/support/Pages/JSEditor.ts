@@ -22,6 +22,7 @@ export class JSEditor {
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
   public propPane = ObjectsRegistry.PropertyPane;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   //#region Element locators
   _runButton = "button.run-js-action";
@@ -59,7 +60,7 @@ export class JSEditor {
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS object')";
+  private _newJSobj = "span:contains('New JS Object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
@@ -127,21 +128,20 @@ export class JSEditor {
   //#region Page functions
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
+
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
+    //Checking JS object was created successfully
+    this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
-    cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-
-    cy.wait(1000);
-
+    //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
+    this.agHelper.PressEnter(); //for name to settle
+    this.agHelper.Sleep();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
-    //Checking JS object was created successfully
-    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
 
     this.agHelper.Sleep();
   }
@@ -181,7 +181,7 @@ export class JSEditor {
 
     this.agHelper.AssertAutoSave();
     if (prettify) {
-      this.agHelper.ActionContextMenuWithInPane("Prettify code");
+      this.agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
       this.agHelper.AssertAutoSave();
     }
 
@@ -212,7 +212,8 @@ export class JSEditor {
         this.agHelper.Paste(el, newContent);
       });
     this.agHelper.Sleep(2000); //Settling time for edited js code
-    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify code");
+    toPrettify &&
+      this.agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
   }
 
@@ -229,32 +230,8 @@ export class JSEditor {
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
-    this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
-  }
-
-  public DisableJSContext(endp: string) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
-  }
-
-  public EnableJSContext(endp: string) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (!classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
   }
 
   public RenameJSObjFromPane(renameVal: string) {
@@ -268,7 +245,10 @@ export class JSEditor {
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
-    this.ee.ActionContextMenuByEntityName("RenamedJSObject", "Edit name");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: entityName,
+      action: "Edit name",
+    });
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
@@ -283,7 +263,10 @@ export class JSEditor {
   }
 
   public ValidateDefaultJSObjProperties(jsObjName: string) {
-    this.ee.ActionContextMenuByEntityName(jsObjName, "Show bindings");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: jsObjName,
+      action: "Show bindings",
+    });
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);

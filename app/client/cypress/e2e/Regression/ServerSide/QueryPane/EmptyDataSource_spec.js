@@ -1,6 +1,8 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
-let datasourceName;
+import {
+  agHelper,
+  dataSources,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Create a query with a empty datasource, run, save the query", function () {
   beforeEach(() => {
@@ -8,16 +10,19 @@ describe("Create a query with a empty datasource, run, save the query", function
   });
 
   it("1. Create a empty datasource", function () {
-    _.dataSources.NavigateToDSCreateNew();
-    _.dataSources.CreatePlugIn("PostgreSQL");
-    _.dataSources.SaveDatasource();
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    dataSources.SaveDatasource();
 
     //Create a query for empty/incorrect datasource and validate
-    _.dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
-    _.dataSources.RunQuery({ toValidateResponse: false });
+    dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.get("[data-testid=t--query-error]").contains(
       "[Missing endpoint., Missing username for authentication.]",
     );
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 });

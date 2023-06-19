@@ -4,7 +4,12 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  dataSources,
+  entityExplorer,
+  agHelper,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
 let datasourceName;
@@ -25,9 +30,9 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.wait(2000);
     cy.get(".t--entity-name").contains("Page1").click({ force: true });
     cy.wait(2000);
-    _.dataSources.NavigateToDSCreateNew();
-    _.dataSources.CreatePlugIn("PostgreSQL");
-    _.dataSources.FillPostgresDSForm();
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    dataSources.FillPostgresDSForm();
     // checking that conflicting names are not allowed
     cy.get(".t--edit-datasource-name").click();
     cy.get(".t--edit-datasource-name input")
@@ -83,8 +88,10 @@ describe("Entity explorer tests related to query and datasource", function () {
 
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });
-
-    _.entityExplorer.ActionContextMenuByEntityName("Query1", "Show bindings");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Query1",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -94,21 +101,28 @@ describe("Entity explorer tests related to query and datasource", function () {
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
     cy.get(".t--entity-property-close").click(); //closing Bindings overlay
-    _.entityExplorer.ActionContextMenuByEntityName("Query1", "Edit name");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Query1",
+      action: "Edit name",
+    });
     cy.EditApiNameFromExplorer("MyQuery");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "MyQuery",
-      "Move to page",
-      pageid,
-    );
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "MyQuery",
+      action: "Move to page",
+      subAction: pageid,
+      toastToValidate: "action moved to page",
+    });
     cy.wait(2000);
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.SelectEntityByName("MyQuery");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("MyQuery");
     cy.wait(2000);
     cy.runQuery();
 
     //deleteQuery & DS
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    dataSources.DeleteDatasouceFromActiveTab(datasourceName);
   });
 });
