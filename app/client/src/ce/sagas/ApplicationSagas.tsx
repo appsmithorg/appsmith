@@ -101,6 +101,7 @@ import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
+import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
@@ -121,7 +122,6 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
-import PageApi from "../../api/PageApi";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
