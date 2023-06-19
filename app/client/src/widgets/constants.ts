@@ -41,9 +41,9 @@ export type AutoLayoutConfig = {
   widgetSize?: Array<WidgetSizeConfig>;
   // Indicates if the widgets resize handles should be disabled
   disableResizeHandles?: ResizableOptions;
-  // default values for the widget specifi to auto layout
+  // default values for the widget specifi to auto-layout
   defaults?: Partial<WidgetConfigProps>;
-  // default values for the properties that are hidden/disabled in auto layout
+  // default values for the properties that are hidden/disabled in auto-layout
   disabledPropsDefaults?: Partial<WidgetProps>;
 };
 

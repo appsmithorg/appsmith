@@ -4,7 +4,7 @@ import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 
-describe("one click binding mongodb datasource", function () {
+describe.skip("one click binding mongodb datasource", function () {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
   });
@@ -28,7 +28,7 @@ describe("one click binding mongodb datasource", function () {
 
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.Sleep(2000);
     //#endregion

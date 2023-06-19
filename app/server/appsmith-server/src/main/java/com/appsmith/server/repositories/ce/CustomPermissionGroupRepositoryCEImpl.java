@@ -74,6 +74,11 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
+    public Mono<Set<String>> getCurrentUserPermissionGroups() {
+        return super.getCurrentUserPermissionGroups();
+    }
+
+    @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
         Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).in(userIds);
         return queryAll(List.of(assignedToUserIdCriteria),

@@ -1,8 +1,10 @@
-const dsl = require("../../../../fixtures/TableClientSearch.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("TableClientSearch").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Validate onSearchTextChanged function is called when configured for search text", function () {

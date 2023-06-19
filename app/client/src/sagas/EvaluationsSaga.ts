@@ -65,7 +65,10 @@ import {
 } from "actions/globalSearchActions";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
+  TriggerKind,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
@@ -402,6 +405,7 @@ function* executeAsyncJSFunction(
       type: ENTITY_TYPE.JSACTION,
     },
     triggerPropertyName: `${collectionName}.${action.name}`,
+    triggerKind: TriggerKind.JS_FUNCTION_EXECUTION,
   };
   const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   const response: JSFunctionExecutionResponse = yield call(

@@ -1,6 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -8,7 +7,9 @@ const iconAlignmentProperty = ".t--property-control-position";
 
 describe("Button Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("newFormDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
@@ -60,7 +61,7 @@ describe("Button Widget Functionality", function () {
   it("2. Button-Color Validation", function () {
     // Change button color
     cy.changeButtonColor("rgb(255, 0, 0)");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
     // Button default variant validation", function () {
     // Checks whether the default variant is PRIMARY or not
     cy.openPropertyPane("buttonwidget");
@@ -74,13 +75,13 @@ describe("Button Widget Functionality", function () {
   it("3. Button-Name validation", function () {
     //changing the Button Name
     cy.widgetText(
-      this.data.ButtonName,
+      this.dataSet.ButtonName,
       widgetsPage.buttonWidget,
       widgetsPage.widgetNameSpan,
     );
 
     //Changing the text on the Button
-    cy.testJsontext("label", this.data.ButtonLabel);
+    cy.testJsontext("label", this.dataSet.ButtonLabel);
 
     cy.assertPageSave();
 
@@ -88,13 +89,14 @@ describe("Button Widget Functionality", function () {
     cy.get(widgetsPage.buttonWidget).trigger("mouseover");
     cy.get(widgetsPage.buttonWidget + " span.bp3-button-text").should(
       "have.text",
-      this.data.ButtonLabel,
+      this.dataSet.ButtonLabel,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.buttonWidget + " span.bp3-button-text").should(
       "have.text",
-      this.data.ButtonLabel,
+      this.dataSet.ButtonLabel,
     );
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Button-Disable Validation", function () {
@@ -104,12 +106,12 @@ describe("Button Widget Functionality", function () {
       widgetsPage.buttonWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateDisableWidget(
       publishPage.buttonWidget,
       commonlocators.disabledField,
     );
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
 
     //Uncheck the disabled checkbox and validate
     cy.openPropertyPane("buttonwidget");
@@ -118,11 +120,12 @@ describe("Button Widget Functionality", function () {
       widgetsPage.buttonWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateEnableWidget(
       publishPage.buttonWidget,
       commonlocators.disabledField,
     );
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Toggle JS - Button-Disable Validation", function () {
@@ -133,12 +136,12 @@ describe("Button Widget Functionality", function () {
       widgetsPage.buttonWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateDisableWidget(
       publishPage.buttonWidget,
       commonlocators.disabledField,
     );
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
 
     //Uncheck the disabled checkbox and validate
     cy.openPropertyPane("buttonwidget");
@@ -147,25 +150,27 @@ describe("Button Widget Functionality", function () {
       widgetsPage.buttonWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateEnableWidget(
       publishPage.buttonWidget,
       commonlocators.disabledField,
     );
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. Button-Unckeck Visible field Validation", function () {
     //Uncheck the disabled checkbox and validate
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.buttonWidget).should("not.exist");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
 
     //Check the disableed checkbox and Validate
     cy.openPropertyPane("buttonwidget");
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.buttonWidget).should("be.visible");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("7. Toggle JS - Button-Unckeck Visible field Validation", function () {
@@ -173,15 +178,16 @@ describe("Button Widget Functionality", function () {
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.EnableAllCodeEditors();
     cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.buttonWidget).should("not.exist");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
     //Check the disabled checkbox using JS and Validate
     cy.openPropertyPane("buttonwidget");
     cy.EnableAllCodeEditors();
     cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.buttonWidget).should("be.visible");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it(
@@ -210,17 +216,12 @@ describe("Button Widget Functionality", function () {
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.propPane.CopyWidgetFromPropertyPane("Submitbutton");
     //cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
-    cy.goToEditFromPublish();
-
+    //_.deployMode.NavigateBacktoEditor();
     // Delete the button widget
 
     _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     _.propPane.DeleteWidgetFromPropertyPane("SubmitbuttonCopy");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.buttonWidget).should("not.exist");
-  });
-
-  afterEach(() => {
-    cy.goToEditFromPublish();
   });
 });
