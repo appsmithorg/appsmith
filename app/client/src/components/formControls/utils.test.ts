@@ -21,7 +21,11 @@ describe("isHidden test", () => {
     const hiddenTrueInputs: any = [
       { values: { name: "Name" }, hidden: true },
       {
-        values: { name: "Name", number: 2, email: "temp@temp.com" },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name", number: 2, email: "temp@temp.com" },
+          },
+        },
         hidden: {
           conditionType: "AND",
           conditions: [
@@ -49,7 +53,11 @@ describe("isHidden test", () => {
         },
       },
       {
-        values: { name: "Name" },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name" },
+          },
+        },
         hidden: {
           path: "name",
           value: "Name",
@@ -57,7 +65,11 @@ describe("isHidden test", () => {
         },
       },
       {
-        values: { name: "Name", config: { type: "EMAIL" } },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name", config: { type: "EMAIL" } },
+          },
+        },
         hidden: {
           path: "name.config.type",
           value: "USER_ID",
@@ -83,7 +95,11 @@ describe("isHidden test", () => {
     const hiddenFalseInputs: any = [
       { values: { name: "Name" }, hidden: false },
       {
-        values: { name: "Name" },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name" },
+          },
+        },
         hidden: {
           path: "name",
           value: "Different Name",
@@ -91,7 +107,11 @@ describe("isHidden test", () => {
         },
       },
       {
-        values: { name: "Name", config: { type: "EMAIL" } },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name", config: { type: "EMAIL" } },
+          },
+        },
         hidden: {
           path: "config.type",
           value: "EMAIL",
@@ -99,7 +119,11 @@ describe("isHidden test", () => {
         },
       },
       {
-        values: { name: "Name", config: { type: "Different BODY" } },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name", config: { type: "Different BODY" } },
+          },
+        },
         hidden: {
           path: "config.type",
           value: ["EMAIL", "BODY"],
@@ -107,7 +131,11 @@ describe("isHidden test", () => {
         },
       },
       {
-        values: { name: "Name", config: { type: "BODY" } },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name", config: { type: "BODY" } },
+          },
+        },
         hidden: {
           path: "config.type",
           value: ["EMAIL", "BODY"],
@@ -126,13 +154,21 @@ describe("isHidden test", () => {
         values: undefined,
       },
       {
-        values: { name: "Name" },
+        values: {
+          datasourceStorages: {
+            unused_env: { name: "Name" },
+          },
+        },
       },
       {
         values: {
-          name: "Name",
-          config: { type: "EMAIL", name: "TEMP" },
-          contact: { number: 1234, address: "abcd" },
+          datasourceStorages: {
+            unused_env: {
+              name: "Name",
+              config: { type: "EMAIL", name: "TEMP" },
+              contact: { number: 1234, address: "abcd" },
+            },
+          },
         },
         hidden: {
           conditionType: "AND",
@@ -299,7 +335,11 @@ describe("getConfigInitialValues test", () => {
 
 describe("caculateIsHidden test", () => {
   it("calcualte hidden field value", () => {
-    const values = { name: "Name" };
+    const values = {
+      datasourceStorages: {
+        unused_env: { name: "Name" },
+      },
+    };
     const hiddenTruthy: HiddenType = {
       path: "name",
       comparison: "EQUALS",
