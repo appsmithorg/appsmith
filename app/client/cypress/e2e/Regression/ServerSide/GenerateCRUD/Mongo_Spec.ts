@@ -9,6 +9,7 @@ import {
   dataSources,
   table,
   locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate Mongo CRUD with JSON Form", () => {
@@ -32,7 +33,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
-    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
@@ -91,12 +92,12 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     idIndex: number,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
-    agHelper.AssertNetworkStatus("@getActions", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@getActions", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.AssertNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table

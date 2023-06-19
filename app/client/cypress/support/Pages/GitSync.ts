@@ -6,6 +6,7 @@ export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   private hostPort = ObjectsRegistry.DefaultHostPort;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _connectGitBottomBar = ".t--connect-git-bottom-bar";
   private _gitSyncModal = "[data-testid=t--git-sync-modal]";
@@ -126,7 +127,7 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("Connect");
       if (assertConnect) {
-        this.agHelper.AssertNetworkStatus("@connectGitLocalRepo");
+        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
@@ -159,7 +160,7 @@ export class GitSync {
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
       this.agHelper.AssertElementVisible(this._branchName(branch + uid));
-      this.agHelper.AssertNetworkStatus("getBranch");
+      this.assertHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");
     });
   }
@@ -229,7 +230,7 @@ export class GitSync {
     this.agHelper.GetNClick(this._bottomBarCommit);
     this.agHelper.AssertElementVisible(this._gitSyncModal);
     this.agHelper.AssertElementVisible(this._discardChanges);
-    this.agHelper.ClickButton("Discard changes");
+    this.agHelper.ClickButton("Discard & pull");
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
     );
@@ -291,7 +292,7 @@ export class GitSync {
         // cy.intercept("POST", "/api/v1/git/connect/app/*", {
         //   fixture: "/Bugs/GitConnectResponse.json",
         // });
-        this.agHelper.AssertNetworkStatus("@connectGitLocalRepo");
+        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
       }
       this.CloseGitSyncModal();
     });

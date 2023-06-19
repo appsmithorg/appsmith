@@ -8,6 +8,7 @@ import {
   dataSources,
   table,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
@@ -23,7 +24,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
 
-    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "film");
 
@@ -71,7 +72,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
       "Connect new datasource",
     );
     dataSources.CreateDataSource("Postgres", false);
-    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
 
@@ -125,12 +126,12 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     jsonFromHeader: string,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.AssertNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table
