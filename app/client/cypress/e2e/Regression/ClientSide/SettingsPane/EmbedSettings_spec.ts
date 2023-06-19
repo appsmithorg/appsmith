@@ -1,78 +1,79 @@
 import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  embedSettings,
+  inviteModal,
+  agHelper,
+  appSettings,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("In-app embed settings", () => {
   function ValidateSyncWithInviteModal(showNavigationBar: "true" | "false") {
-    _.embedSettings.OpenEmbedSettings();
-    _.embedSettings.ToggleShowNavigationBar("true");
-    _.inviteModal.OpenShareModal();
-    _.inviteModal.SelectEmbedTab();
+    embedSettings.OpenEmbedSettings();
+    embedSettings.ToggleShowNavigationBar("true");
+    inviteModal.OpenShareModal();
+    inviteModal.SelectEmbedTab();
     const assertion =
       showNavigationBar === "true" ? "be.checked" : "not.be.checked";
-    _.agHelper
-      .GetElement(_.embedSettings.locators._showNavigationBar)
+    agHelper
+      .GetElement(embedSettings.locators._showNavigationBar)
       .should(assertion);
-    _.inviteModal.CloseModal();
+    inviteModal.CloseModal();
   }
 
   it("1. Embed settings on App settings should show upgrade content if application is not public", () => {
     if (CURRENT_REPO === REPO.CE) {
-      _.embedSettings.OpenEmbedSettings();
-      _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
-      _.agHelper.AssertElementAbsence(
-        _.inviteModal.locators._shareSettingsButton,
-      );
-      _.agHelper.GetNAssertContains(
-        _.inviteModal.locators._upgradeContent,
+      embedSettings.OpenEmbedSettings();
+      agHelper.AssertElementExist(inviteModal.locators._upgradeContent);
+      agHelper.AssertElementAbsence(inviteModal.locators._shareSettingsButton);
+      agHelper.GetNAssertContains(
+        inviteModal.locators._upgradeContent,
         "Appsmith Business Edition",
       );
-      _.appSettings.ClosePane();
+      appSettings.ClosePane();
     }
   });
 
   it("2. Embed settings on Share modal should show upgrade content if application is not public", () => {
     if (CURRENT_REPO === REPO.CE) {
-      _.inviteModal.OpenShareModal();
-      _.inviteModal.SelectEmbedTab();
-      _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
-      _.agHelper.AssertElementExist(
-        _.inviteModal.locators._shareSettingsButton,
-      );
+      inviteModal.OpenShareModal();
+      inviteModal.SelectEmbedTab();
+      agHelper.AssertElementExist(inviteModal.locators._upgradeContent);
+      agHelper.AssertElementExist(inviteModal.locators._shareSettingsButton);
 
-      _.agHelper.GetNAssertContains(
-        _.inviteModal.locators._upgradeContent,
+      agHelper.GetNAssertContains(
+        inviteModal.locators._upgradeContent,
         "Appsmith Business Edition",
       );
-      _.inviteModal.enablePublicAccessViaShareSettings("true");
+      inviteModal.enablePublicAccessViaShareSettings("true");
     }
   });
 
   it("3. Change embedding restriction link on Share modal should redirect to Admin settings general page", () => {
-    _.inviteModal.OpenShareModal();
+    inviteModal.OpenShareModal();
     if (CURRENT_REPO === REPO.EE) {
-      _.inviteModal.enablePublicAccessViaInviteTab("true");
+      inviteModal.enablePublicAccessViaInviteTab("true");
     }
-    _.inviteModal.SelectEmbedTab();
-    cy.get(_.inviteModal.locators._restrictionChange).should(
+    inviteModal.SelectEmbedTab();
+    cy.get(inviteModal.locators._restrictionChange).should(
       "have.attr",
       "href",
       "/settings",
     );
-    _.inviteModal.CloseModal();
+    inviteModal.CloseModal();
   });
 
   it("4. Change embedding restriction link on App settings should redirect to Admin settings general page", () => {
-    _.embedSettings.OpenEmbedSettings();
-    cy.get(_.inviteModal.locators._restrictionChange).should(
+    embedSettings.OpenEmbedSettings();
+    cy.get(inviteModal.locators._restrictionChange).should(
       "have.attr",
       "href",
       "/settings",
     );
-    _.appSettings.ClosePane();
+    appSettings.ClosePane();
 
     //Check embed preview show/hides navigation bar according to setting
-    _.inviteModal.ValidatePreviewEmbed("true");
-    _.inviteModal.ValidatePreviewEmbed("false");
+    inviteModal.ValidatePreviewEmbed("true");
+    inviteModal.ValidatePreviewEmbed("false");
 
     //Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal
     ValidateSyncWithInviteModal("true");
@@ -83,18 +84,18 @@ describe("In-app embed settings", () => {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
     }).as("featureFlags");
-    _.agHelper.RefreshPage();
-    _.embedSettings.OpenEmbedSettings();
-    _.embedSettings.TogglePublicAccess(true);
-    _.embedSettings.ToggleShowNavigationBar("true");
-    _.agHelper.GetNAssertElementText(
-      _.embedSettings.locators._snippet,
+    agHelper.RefreshPage();
+    embedSettings.OpenEmbedSettings();
+    embedSettings.TogglePublicAccess(true);
+    embedSettings.ToggleShowNavigationBar("true");
+    agHelper.GetNAssertElementText(
+      embedSettings.locators._snippet,
       "embed=true",
       "not.contain.text",
     );
-    _.embedSettings.ToggleShowNavigationBar("false");
-    _.agHelper.GetNAssertElementText(
-      _.embedSettings.locators._snippet,
+    embedSettings.ToggleShowNavigationBar("false");
+    agHelper.GetNAssertElementText(
+      embedSettings.locators._snippet,
       "embed=true",
       "contain.text",
     );
@@ -104,19 +105,19 @@ describe("In-app embed settings", () => {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlagsComplement.json",
     }).as("featureFlags");
-    _.agHelper.RefreshPage();
+    agHelper.RefreshPage();
 
-    _.embedSettings.OpenEmbedSettings();
-    _.embedSettings.TogglePublicAccess(true);
-    _.embedSettings.ToggleShowNavigationBar("true");
-    _.agHelper.GetNAssertElementText(
-      _.embedSettings.locators._snippet,
+    embedSettings.OpenEmbedSettings();
+    embedSettings.TogglePublicAccess(true);
+    embedSettings.ToggleShowNavigationBar("true");
+    agHelper.GetNAssertElementText(
+      embedSettings.locators._snippet,
       "navbar=true",
       "contain.text",
     );
-    _.embedSettings.ToggleShowNavigationBar("false");
-    _.agHelper.GetNAssertElementText(
-      _.embedSettings.locators._snippet,
+    embedSettings.ToggleShowNavigationBar("false");
+    agHelper.GetNAssertElementText(
+      embedSettings.locators._snippet,
       "navbar=true",
       "not.contain.text",
     );
