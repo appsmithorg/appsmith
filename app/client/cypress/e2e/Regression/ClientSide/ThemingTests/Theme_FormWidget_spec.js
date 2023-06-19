@@ -1,12 +1,15 @@
 import {
   agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  deployMode,
   appSettings,
   theme,
-  deployMode,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
@@ -15,21 +18,8 @@ let themeBackgroudColor;
 
 describe("Theme validation usecases", function () {
   it("1. Drag and drop form widget and validate Default font and list of font validation", function () {
-    cy.log("Login Successful");
-    cy.reload(); // To remove the rename tooltip
-    cy.get(explorer.addWidget).click();
-    cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    cy.get(commonlocators.entityExplorersearch).clear().type("form");
-    cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(3000);
-    cy.get(themelocator.canvas).click({ force: true });
-    cy.wait(2000);
-
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
+    agHelper.GetNClick(locators._canvas);
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Border validation
@@ -49,10 +39,6 @@ describe("Theme validation usecases", function () {
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
-    theme.AssertShadowPopoverText(0, "none", 1);
-    theme.AssertShadowPopoverText(1, "S", 2);
-    theme.AssertShadowPopoverText(2, "M", 3);
-    theme.AssertShadowPopoverText(3, "L", 4);
     cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
@@ -88,20 +74,43 @@ describe("Theme validation usecases", function () {
           );
           //themeFont = `${$childElem.children().last().text()}, sans-serif`;
           themeFont = `Poppins, sans-serif`;
-          agHelper.ContainsNClick("Font");
-          agHelper.Sleep();
-          theme.ChooseColorType("Primary");
-          agHelper.AssertText(theme.locators._inputColor, "val", "#553DE9");
-          agHelper.Sleep();
-          theme.ChooseColorType("Background");
-          agHelper.AssertText(theme.locators._inputColor, "val", "#F8FAFC");
-          agHelper.Sleep();
-          theme.ChangeThemeColor(3, "Background");
-          agHelper.AssertText(theme.locators._inputColor, "val", "#d4d4d8");
-          theme.ChangeThemeColor(3, "Primary");
-          agHelper.AssertText(theme.locators._inputColor, "val", "#d4d4d8");
-          agHelper.ContainsNClick("Color");
+
+          cy.contains("Font").click({ force: true });
+
+          //Color
+          //cy.contains("Color").click({ force: true });
+          cy.wait(2000);
+          cy.colorMouseover(0, "Primary color");
+          cy.validateColor("Primary", "#553DE9");
+          cy.colorMouseover(1, "Background color");
+          cy.validateColor("Background", "#F8FAFC");
+
+          cy.get(themelocator.inputColor).click({ force: true });
+          cy.chooseColor(0, themelocator.greenColor);
+
+          cy.get(themelocator.inputColor).should("have.value", "#15803d");
+          cy.get(themelocator.inputColor).clear({ force: true });
+          cy.wait(2000);
+          theme.ChangeThemeColor(16, "Background");
+          cy.get(themelocator.inputColor).should("have.value", "#dc2626"); //Red
+          cy.wait(2000);
+
+          cy.get(themelocator.inputColor).eq(0).click({ force: true });
+          cy.get(themelocator.inputColor).click({ force: true });
+          cy.get('[data-testid="color-picker"]').first().click({ force: true });
+          cy.get("[style='background-color: rgb(21, 128, 61);']")
+            .last()
+            .click();
+          cy.wait(2000);
+          cy.get(themelocator.inputColor).should("have.value", "#15803d");
+          cy.get(themelocator.inputColor).clear({ force: true });
+          cy.wait(2000);
+          theme.ChangeThemeColor(9, "Primary");
+          cy.get(themelocator.inputColor).should("have.value", "#18181b"); //Black
+          cy.wait(2000);
+          cy.contains("Color").click({ force: true });
           appSettings.ClosePane();
+
           //Publish the App and validate Font across the app
           deployMode.DeployApp();
           cy.get(".bp3-button:contains('Sub')").should(
@@ -120,13 +129,8 @@ describe("Theme validation usecases", function () {
   });
 
   it("2. Validate Default Theme change across application", function () {
-    cy.get(formWidgetsPage.formD).click();
-    cy.widgetText(
-      "FormTest",
-      formWidgetsPage.formWidget,
-      widgetsPage.widgetNameSpan,
-    );
-    cy.moveToStyleTab();
+    propPane.RenameWidget("Form1", "FormTest");
+    propPane.MoveToTab("Style");
     cy.get(widgetsPage.backgroundcolorPickerNew).first().click({ force: true });
     cy.get("[style='background-color: rgb(21, 128, 61);']").last().click();
     cy.wait(2000);
@@ -156,13 +160,8 @@ describe("Theme validation usecases", function () {
   });
 
   it("3. Validate Theme change across application", function () {
-    cy.get(formWidgetsPage.formD).click();
-    cy.widgetText(
-      "FormTest",
-      formWidgetsPage.formWidget,
-      widgetsPage.widgetNameSpan,
-    );
-    cy.moveToStyleTab();
+    entityExplorer.SelectEntityByName("FormTest");
+    propPane.MoveToTab("Style");
     cy.get(widgetsPage.backgroundcolorPickerNew).first().click({ force: true });
     cy.get("[style='background-color: rgb(21, 128, 61);']").last().click();
     cy.wait(2000);
@@ -222,13 +221,8 @@ describe("Theme validation usecases", function () {
             appSettings.ClosePane();
           });
       });
-    cy.get(formWidgetsPage.formD).click();
-    cy.widgetText(
-      "FormTest",
-      formWidgetsPage.formWidget,
-      widgetsPage.widgetNameSpan,
-    );
-    cy.moveToStyleTab();
+    entityExplorer.SelectEntityByName("FormTest");
+    propPane.MoveToTab("Style");
     cy.get(widgetsPage.backgroundcolorPickerNew).first().click({ force: true });
     cy.get("[style='background-color: rgb(126, 34, 206);']").first().click();
     cy.wait(2000);

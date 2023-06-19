@@ -1,6 +1,6 @@
 import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
 import React from "react";
-import type { ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   constructor(props: OneClickBindingControlProps) {
@@ -15,9 +15,16 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
    * Commenting out as we're not able to switch between the js modes without value being overwritten
    * with default value by platform
    */
-  // static canDisplayValueInUI(config: ControlData, value: string): boolean {
-  //   return /^{{[^.]*\.data}}$/gi.test(value);
-  // }
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return [
+      /^{{[^.]*\.data}}$/gi, // {{query1.data}}
+      /^{{}}$/, // {{}}
+    ].some((d) => d.test(value));
+  }
+
+  static shouldValidateValueOnDynamicPropertyOff() {
+    return false;
+  }
 
   public onUpdatePropertyValue = (
     value = "",

@@ -4,6 +4,7 @@ export class PageSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private homePage = ObjectsRegistry.HomePage;
   private appSettings = ObjectsRegistry.AppSettings;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private locators = {
     _pageNameField: "#t--page-settings-name",
@@ -78,7 +79,7 @@ export class PageSettings {
             newPageName,
           );
           this.agHelper.PressEnter();
-          this.agHelper.AssertNetworkStatus("@updatePage", 200);
+          this.assertHelper.AssertNetworkStatus("@updatePage", 200);
           this.appSettings.CheckUrl(appName as string, pageNameToBeVerified);
           if (reset) {
             this.agHelper.RemoveCharsNType(
@@ -87,7 +88,7 @@ export class PageSettings {
               currentPageName as string,
             );
             this.agHelper.PressEnter();
-            this.agHelper.AssertNetworkStatus("@updatePage", 200);
+            this.assertHelper.AssertNetworkStatus("@updatePage", 200);
             this.appSettings.CheckUrl(
               appName as string,
               currentPageName as string,
@@ -114,7 +115,7 @@ export class PageSettings {
             );
           }
           this.agHelper.PressEnter();
-          this.agHelper.AssertNetworkStatus("@updatePage", 200);
+          this.assertHelper.AssertNetworkStatus("@updatePage", 200);
           this.appSettings.CheckUrl(appName as string, "", customSlug);
         });
       });
@@ -131,12 +132,12 @@ export class PageSettings {
 
   TogglePageNavigation() {
     this.agHelper.GetNClick(this.locators._showPageNavSwitch);
-    this.agHelper.AssertNetworkStatus("@updatePage", 200);
+    this.assertHelper.AssertNetworkStatus("@updatePage", 200);
   }
 
   ToggleHomePage() {
     this.agHelper.GetNClick(this.locators._setAsHomePageSwitch);
-    this.agHelper.AssertNetworkStatus("@makePageDefault", 200);
+    this.assertHelper.AssertNetworkStatus("@makePageDefault", 200);
   }
 
   AssertHomePage(pageName: string) {

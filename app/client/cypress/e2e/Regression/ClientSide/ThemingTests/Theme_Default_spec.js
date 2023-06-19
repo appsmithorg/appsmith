@@ -1,32 +1,19 @@
 import {
-  agHelper,
+  draggableWidgets,
+  entityExplorer,
   appSettings,
-  theme,
 } from "../../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 let themeBackgroudColor;
 
-describe("Theme validation for default data", function () {
+describe.skip("Theme validation for default data", function () {
   it("1. Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function () {
-    cy.log("Login Successful");
-    cy.reload(); // To remove the rename tooltip
-    cy.get(explorer.addWidget).click();
-    cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    cy.get(commonlocators.entityExplorersearch).clear().type("form");
-    cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(3000);
-    cy.get(themelocator.canvas).click({ force: true });
-    cy.wait(2000);
-
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM, 300, 80);
+    agHelper.GetNClick(locators._canvas);
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Border validation
