@@ -1,6 +1,6 @@
 const queryLocators = require("../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
-import { agHelper } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("MySQL noise test", function () {
@@ -29,15 +29,10 @@ describe("MySQL noise test", function () {
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
     cy.get(queryLocators.queryNameField).type("NoiseTestQuery");
-    cy.get(queryLocators.templateMenu).click();
     // mySQL query to fetch data
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    dataSources.EnterQuery(
+      "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10",
+    );
     cy.WaitAutoSave();
     cy.runQuery();
     cy.NavigateToAPI_Panel();
