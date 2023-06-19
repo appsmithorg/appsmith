@@ -37,4 +37,12 @@ public class ImportActionResultDTO {
         unpublishedCollectionIdToActionIdsMap = new HashMap<>();
         publishedCollectionIdToActionIdsMap = new HashMap<>();
     }
+
+    /**
+     * Method to get a gist of the result. Primarily used for logging.
+     * @return
+     */
+    public String getGist() {
+        return String.format("existing actions: %d, imported actions: %d", existingActions.size(), importedActionIds.size());
+    }
 }

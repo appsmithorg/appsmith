@@ -710,7 +710,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         resultDTO.getSavedActionCollectionMap().put(idFromJsonFile, actionCollection);
                     }
                 }
-
+                log.info("Saving action collections in bulk. New: {}, Updated: {}",
+                        newActionCollections.size(),
+                        existingActionCollections.size()
+                );
                 return repository.bulkInsert(newActionCollections)
                         .then(repository.bulkUpdate(existingActionCollections))
                         .thenReturn(resultDTO);

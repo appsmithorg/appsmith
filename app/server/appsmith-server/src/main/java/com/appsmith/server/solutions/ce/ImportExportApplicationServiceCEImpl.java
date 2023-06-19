@@ -928,7 +928,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
 
-        Mono<Application> importedApplicationMono = pluginRepository.findAll()
+        final Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
                     final String pluginReference = StringUtils.isEmpty(plugin.getPluginName()) ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
@@ -1170,6 +1170,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return importedNewPagesMono
                             .collectList()
                             .map(newPageList -> {
+                                log.info("New pages imported for application: {}", savedApp.getId());
                                 Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
                                 applicationPages.put(EDIT, unpublishedPages);
                                 applicationPages.put(VIEW, publishedPages);
@@ -1267,6 +1268,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .map(applicationPageMap -> {
+                    log.info("Imported pages. Edit: {}, View: {}", applicationPageMap.get(EDIT).size(), applicationPageMap.get(VIEW).size());
+                    log.info("Importing actions for applicationId: {}, ", importedApplication.getId());
                     // Set page sequence based on the order for published and unpublished pages
                     importedApplication.setPages(applicationPageMap.get(EDIT));
                     importedApplication.setPublishedPages(applicationPageMap.get(VIEW));
@@ -1274,6 +1277,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(newActionService.importActions(importedNewActionList, importedApplication, branchName, pageNameMap, pluginMap, datasourceMap, permissionProvider))
                 .flatMap(importActionResultDTO -> {
+                    log.info("Actions imported. applicationId {}, result: {}", importedApplication.getId(), importActionResultDTO.getGist());
                     // Updating the existing application for git-sync
                     // During partial import/appending to the existing application keep the resources
                     // attached to the application:
@@ -1287,6 +1291,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 invalidActionIds.add(action.getId());
                             }
                         }
+                        log.info("Deleting {} actions which are no more used", invalidActionIds.size());
                         return Flux.fromIterable(invalidActionIds)
                                 .flatMap(actionId -> newActionService.deleteUnpublishedAction(actionId)
                                         // return an empty action so that the filter can remove it from the list
@@ -1301,16 +1306,19 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return Mono.just(importActionResultDTO);
                 })
-                .flatMap(importActionResultDTO ->
-                        actionCollectionService.importActionCollections(importActionResultDTO, importedApplication, branchName, importedActionCollectionList, pluginMap, pageNameMap, permissionProvider)
-                                .zipWith(Mono.just(importActionResultDTO))
-                )
+                .flatMap(importActionResultDTO -> {
+                    log.info("Importing action collections for applicationId {}", importedApplication.getId());
+                    return actionCollectionService.importActionCollections(importActionResultDTO, importedApplication, branchName, importedActionCollectionList, pluginMap, pageNameMap, permissionProvider)
+                            .zipWith(Mono.just(importActionResultDTO));
+                })
                 .flatMap(resultDtos -> {
                     ImportActionCollectionResultDTO importActionCollectionResultDTO = resultDtos.getT1();
                     ImportActionResultDTO importActionResultDTO = resultDtos.getT2();
                     List<String> savedCollectionIds = importActionCollectionResultDTO.getSavedActionCollectionIds();
+                    log.info("Action collections imported. applicationId {}, result: {}", importedApplication.getId(), importActionCollectionResultDTO.getGist());
                     return newActionService.updateActionsWithImportedCollectionIds(importActionCollectionResultDTO, importActionResultDTO)
                             .flatMap(actionAndCollectionMapsDTO -> {
+                                log.info("Updated actions with imported collection ids. applicationId {}", importedApplication.getId());
                                 // Updating the existing application for git-sync
                                 // During partial import/appending to the existing application keep the resources
                                 // attached to the application:
@@ -1324,6 +1332,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             invalidCollectionIds.add(collection.getId());
                                         }
                                     }
+                                    log.info("Deleting {} action collections which are no more used", invalidCollectionIds.size());
                                     return Flux.fromIterable(invalidCollectionIds)
                                             .flatMap(collectionId -> actionCollectionService.deleteWithoutPermissionUnpublishedActionCollection(collectionId)
                                                     // return an empty collection so that the filter can remove it from the list
@@ -1385,8 +1394,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     log.error("Error importing application. Error: {}", errorMessage, throwable);
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
-                .as(transactionalOperator::transactional)
-                ;
+                .as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
@@ -1550,12 +1558,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
     }
 
-    // This method will update the action id in saved page for layoutOnLoadAction
-    private Mono<NewPage> mapActionAndCollectionIdWithPageLayout(NewPage page,
-                                                                 Map<String, String> actionIdMap,
-                                                                 Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
-                                                                 Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
-
+    private Set<String> getLayoutOnLoadActionsForPage(NewPage page,
+                                                      Map<String, String> actionIdMap,
+                                                      Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
+                                                      Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
         Set<String> layoutOnLoadActions = new HashSet<>();
         if (page.getUnpublishedPage().getLayouts() != null) {
 
@@ -1592,49 +1598,60 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         layoutOnLoadActions.remove(null);
-        return Flux.fromIterable(layoutOnLoadActions)
-                .flatMap(newActionService::findById)
-                .map(newAction -> {
-                    final String defaultActionId = newAction.getDefaultResources().getActionId();
-                    if (page.getUnpublishedPage().getLayouts() != null) {
-                        final String defaultCollectionId = newAction.getUnpublishedAction().getDefaultResources().getCollectionId();
-                        page.getUnpublishedPage().getLayouts().forEach(layout -> {
-                            if (layout.getLayoutOnLoadActions() != null) {
-                                layout.getLayoutOnLoadActions()
-                                        .forEach(onLoadAction -> onLoadAction
-                                                .stream()
-                                                .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
-                                                .forEach(actionDTO -> {
-                                                    actionDTO.setDefaultActionId(defaultActionId);
-                                                    actionDTO.setDefaultCollectionId(defaultCollectionId);
-                                                })
-                                        );
-                            }
-                        });
-                    }
+        return layoutOnLoadActions;
+    }
 
-                    if (page.getPublishedPage() != null && page.getPublishedPage().getLayouts() != null) {
-                        page.getPublishedPage().getLayouts().forEach(layout -> {
-                            if (layout.getLayoutOnLoadActions() != null) {
-                                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
-                                        .stream()
-                                        .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
-                                        .forEach(actionDTO -> {
-                                            actionDTO.setDefaultActionId(defaultActionId);
-                                            if (newAction.getPublishedAction() != null
-                                                    && newAction.getPublishedAction().getDefaultResources() != null) {
-                                                actionDTO.setDefaultCollectionId(
-                                                        newAction.getPublishedAction().getDefaultResources().getCollectionId()
-                                                );
-                                            }
-                                        })
-                                );
-                            }
-                        });
-                    }
-                    return newAction;
-                })
-                .then(Mono.just(page));
+    // This method will update the action id in saved page for layoutOnLoadAction
+    private Mono<NewPage> mapActionAndCollectionIdWithPageLayout(NewPage newPage,
+                                                                 Map<String, String> actionIdMap,
+                                                                 Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
+                                                                 Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
+
+        return Mono.just(newPage)
+                .flatMap(page -> {
+                    return newActionService.findAllById(getLayoutOnLoadActionsForPage(page, actionIdMap, unpublishedActionIdToCollectionIdsMap, publishedActionIdToCollectionIdsMap))
+                            .map(newAction -> {
+                                final String defaultActionId = newAction.getDefaultResources().getActionId();
+                                if (page.getUnpublishedPage().getLayouts() != null) {
+                                    final String defaultCollectionId = newAction.getUnpublishedAction().getDefaultResources().getCollectionId();
+                                    page.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                        if (layout.getLayoutOnLoadActions() != null) {
+                                            layout.getLayoutOnLoadActions()
+                                                    .forEach(onLoadAction -> onLoadAction
+                                                            .stream()
+                                                            .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
+                                                            .forEach(actionDTO -> {
+                                                                actionDTO.setDefaultActionId(defaultActionId);
+                                                                actionDTO.setDefaultCollectionId(defaultCollectionId);
+                                                            })
+                                                    );
+                                        }
+                                    });
+                                }
+
+                                if (page.getPublishedPage() != null && page.getPublishedPage().getLayouts() != null) {
+                                    page.getPublishedPage().getLayouts().forEach(layout -> {
+                                        if (layout.getLayoutOnLoadActions() != null) {
+                                            layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
+                                                    .stream()
+                                                    .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
+                                                    .forEach(actionDTO -> {
+                                                        actionDTO.setDefaultActionId(defaultActionId);
+                                                        if (newAction.getPublishedAction() != null
+                                                                && newAction.getPublishedAction().getDefaultResources() != null) {
+                                                            actionDTO.setDefaultCollectionId(
+                                                                    newAction.getPublishedAction().getDefaultResources().getCollectionId()
+                                                            );
+                                                        }
+                                                    })
+                                            );
+                                        }
+                                    });
+                                }
+                                return newAction;
+                            }).collectList()
+                            .thenReturn(page);
+                });
     }
 
     /**
@@ -1955,19 +1972,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     /**
      * To send analytics event for import and export of application
      *
-     * @param applicationId Id of application being imported or exported
+     * @param application   Application object imported or exported
      * @param event         AnalyticsEvents event
      * @return The application which is imported or exported
      */
-    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
 
-        return applicationService.findById(applicationId, Optional.empty())
-                .flatMap(application -> {
-                    return Mono.zip(Mono.just(application), workspaceService.getById(application.getWorkspaceId()));
-                })
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    Workspace workspace = tuple.getT2();
+    private Mono<Application> sendImportExportApplicationAnalyticsEvent(Application application, AnalyticsEvents event) {
+        return workspaceService.getById(application.getWorkspaceId())
+                .flatMap(workspace -> {
                     final Map<String, Object> eventData = Map.of(
                             FieldName.APPLICATION, application,
                             FieldName.WORKSPACE, workspace
@@ -1981,5 +1993,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return analyticsService.sendObjectEvent(event, application, data);
                 });
+    }
+
+    /**
+     * To send analytics event for import and export of application
+     *
+     * @param applicationId Id of application being imported or exported
+     * @param event         AnalyticsEvents event
+     * @return The application which is imported or exported
+     */
+    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
+        return applicationService.findById(applicationId, Optional.empty())
+                .flatMap(application -> sendImportExportApplicationAnalyticsEvent(application, event));
     }
 }

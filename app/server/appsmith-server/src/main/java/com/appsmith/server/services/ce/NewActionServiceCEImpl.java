@@ -652,6 +652,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
+    public Flux<NewAction> findAllById(Iterable<String> id) {
+        return repository.findAllById(id)
+                .flatMap(this::sanitizeAction);
+    }
+
+    @Override
     public Mono<NewAction> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission)
                 .flatMap(this::sanitizeAction);
@@ -1760,6 +1766,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                 }
 
+                log.info("Saving actions in bulk. New: {}, Updated: {}", newNewActionList.size(), existingNewActionList.size());
+
                 // Save all the new actions in bulk
                 return repository.bulkInsert(newNewActionList)
                         .then(repository.bulkUpdate(existingNewActionList))
@@ -1774,67 +1782,67 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ImportActionResultDTO importActionResultDTO) {
 
         ImportedActionAndCollectionMapsDTO mapsDTO = new ImportedActionAndCollectionMapsDTO();
-        return Flux.fromIterable(importActionCollectionResultDTO.getSavedActionCollectionMap().entrySet())
-                .flatMap(entry -> {
-                    String importedActionCollectionId = entry.getKey();
-                    ActionCollection savedActionCollection = entry.getValue();
-                    final String savedActionCollectionId = savedActionCollection.getId();
-                    final String defaultCollectionId = savedActionCollection.getDefaultResources().getCollectionId();
-                    List<String> collectionIds = List.of(savedActionCollectionId, defaultCollectionId);
+        final HashSet<String> actionIds = new HashSet<>();
 
-                    importActionResultDTO.getUnpublishedCollectionIdToActionIdsMap()
-                            .getOrDefault(importedActionCollectionId, Map.of())
-                            .forEach((defaultActionId, actionId) -> {
-                                mapsDTO.getUnpublishedActionIdToCollectionIdMap().putIfAbsent(actionId, collectionIds);
-                            });
+        for (Map.Entry<String, ActionCollection> entry : importActionCollectionResultDTO.getSavedActionCollectionMap().entrySet()) {
+            String importedActionCollectionId = entry.getKey();
+            ActionCollection savedActionCollection = entry.getValue();
+            final String savedActionCollectionId = savedActionCollection.getId();
+            final String defaultCollectionId = savedActionCollection.getDefaultResources().getCollectionId();
+            List<String> collectionIds = List.of(savedActionCollectionId, defaultCollectionId);
 
-                    importActionResultDTO.getPublishedCollectionIdToActionIdsMap()
-                            .getOrDefault(importedActionCollectionId, Map.of())
-                            .forEach((defaultActionId, actionId) -> {
-                                mapsDTO.getPublishedActionIdToCollectionIdMap().putIfAbsent(actionId, collectionIds);
-                            });
+            importActionResultDTO.getUnpublishedCollectionIdToActionIdsMap()
+                    .getOrDefault(importedActionCollectionId, Map.of())
+                    .forEach((defaultActionId, actionId) -> {
+                        mapsDTO.getUnpublishedActionIdToCollectionIdMap().putIfAbsent(actionId, collectionIds);
+                    });
 
-                    final HashSet<String> actionIds = new HashSet<>();
-                    actionIds.addAll(mapsDTO.getUnpublishedActionIdToCollectionIdMap().keySet());
-                    actionIds.addAll(mapsDTO.getPublishedActionIdToCollectionIdMap().keySet());
+            importActionResultDTO.getPublishedCollectionIdToActionIdsMap()
+                    .getOrDefault(importedActionCollectionId, Map.of())
+                    .forEach((defaultActionId, actionId) -> {
+                        mapsDTO.getPublishedActionIdToCollectionIdMap().putIfAbsent(actionId, collectionIds);
+                    });
 
-                    return repository.findAllById(actionIds)
-                            .map(newAction -> {
-                                // Update collectionId and defaultCollectionIds in actionDTOs
-                                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
-                                ActionDTO publishedAction = newAction.getPublishedAction();
+            actionIds.addAll(mapsDTO.getUnpublishedActionIdToCollectionIdMap().keySet());
+            actionIds.addAll(mapsDTO.getPublishedActionIdToCollectionIdMap().keySet());
+        }
 
-                                if (!CollectionUtils.isEmpty(mapsDTO.getUnpublishedActionIdToCollectionIdMap())
-                                        && mapsDTO.getUnpublishedActionIdToCollectionIdMap().containsKey(newAction.getId())) {
+        return repository.findAllById(actionIds)
+                .map(newAction -> {
+                    // Update collectionId and defaultCollectionIds in actionDTOs
+                    ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                    ActionDTO publishedAction = newAction.getPublishedAction();
 
-                                    unpublishedAction.setCollectionId(
-                                            mapsDTO.getUnpublishedActionIdToCollectionIdMap().get(newAction.getId()).get(0)
-                                    );
-                                    if (unpublishedAction.getDefaultResources() != null
-                                            && org.apache.commons.lang3.StringUtils.isEmpty(unpublishedAction.getDefaultResources().getCollectionId())) {
+                    if (!CollectionUtils.isEmpty(mapsDTO.getUnpublishedActionIdToCollectionIdMap())
+                            && mapsDTO.getUnpublishedActionIdToCollectionIdMap().containsKey(newAction.getId())) {
 
-                                        unpublishedAction.getDefaultResources().setCollectionId(
-                                                mapsDTO.getUnpublishedActionIdToCollectionIdMap().get(newAction.getId()).get(1)
-                                        );
-                                    }
-                                }
-                                if (!org.apache.commons.collections.CollectionUtils.sizeIsEmpty(mapsDTO.getPublishedActionIdToCollectionIdMap())
-                                        && !org.apache.commons.collections.CollectionUtils.isEmpty(mapsDTO.getPublishedActionIdToCollectionIdMap().get(newAction.getId()))) {
+                        unpublishedAction.setCollectionId(
+                                mapsDTO.getUnpublishedActionIdToCollectionIdMap().get(newAction.getId()).get(0)
+                        );
+                        if (unpublishedAction.getDefaultResources() != null
+                                && org.apache.commons.lang3.StringUtils.isEmpty(unpublishedAction.getDefaultResources().getCollectionId())) {
 
-                                    publishedAction.setCollectionId(
-                                            mapsDTO.getPublishedActionIdToCollectionIdMap().get(newAction.getId()).get(0)
-                                    );
+                            unpublishedAction.getDefaultResources().setCollectionId(
+                                    mapsDTO.getUnpublishedActionIdToCollectionIdMap().get(newAction.getId()).get(1)
+                            );
+                        }
+                    }
+                    if (!CollectionUtils.isEmpty(mapsDTO.getPublishedActionIdToCollectionIdMap())
+                            && mapsDTO.getPublishedActionIdToCollectionIdMap().containsKey(newAction.getId())) {
 
-                                    if (publishedAction.getDefaultResources() != null
-                                            && org.apache.commons.lang3.StringUtils.isEmpty(publishedAction.getDefaultResources().getCollectionId())) {
+                        publishedAction.setCollectionId(
+                                mapsDTO.getPublishedActionIdToCollectionIdMap().get(newAction.getId()).get(0)
+                        );
 
-                                        publishedAction.getDefaultResources().setCollectionId(
-                                                mapsDTO.getPublishedActionIdToCollectionIdMap().get(newAction.getId()).get(1)
-                                        );
-                                    }
-                                }
-                                return newAction;
-                            });
+                        if (publishedAction.getDefaultResources() != null
+                                && org.apache.commons.lang3.StringUtils.isEmpty(publishedAction.getDefaultResources().getCollectionId())) {
+
+                            publishedAction.getDefaultResources().setCollectionId(
+                                    mapsDTO.getPublishedActionIdToCollectionIdMap().get(newAction.getId()).get(1)
+                            );
+                        }
+                    }
+                    return newAction;
                 })
                 .collectList()
                 .flatMap(actions -> repository.bulkUpdate(actions))

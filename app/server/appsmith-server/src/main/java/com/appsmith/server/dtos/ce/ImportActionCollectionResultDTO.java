@@ -18,4 +18,15 @@ public class ImportActionCollectionResultDTO {
 
     // list of _id fields of the saved action collections, we'll need them later
     List<String> savedActionCollectionIds = new ArrayList<>();
+
+    /**
+     * Method to get a gist of the result. Primarily used for logging.
+     * @return
+     */
+    public String getGist() {
+        return String.format("existing action collections: %d, imported action collections: %d",
+                existingActionCollections.size(),
+                savedActionCollectionIds.size()
+        );
+    }
 }
