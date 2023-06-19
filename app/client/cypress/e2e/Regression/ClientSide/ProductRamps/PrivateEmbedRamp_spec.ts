@@ -66,8 +66,11 @@ describe("Private embed in-app ramp", () => {
         Cypress.env("TESTUSERNAME1"),
         "Developer",
       );
-      cy.LogOut();
-      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+      _.homePage.Signout(false);
+      _.homePage.LogintoApp(
+        Cypress.env("TESTUSERNAME1"),
+        Cypress.env("TESTPASSWORD1"),
+      );
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         let appName: any = uid;
