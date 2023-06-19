@@ -347,7 +347,7 @@ init_postgres() {
 
     if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
         echo "Found existing Postgres, Skipping initialization"
-        # chown -R postgres:postgres "$POSTGRES_DB_PATH"
+        chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
       mkdir -p "$POSTGRES_DB_PATH"
