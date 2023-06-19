@@ -71,7 +71,10 @@ function HelpMenu(props: {
         <IntercomConsent showIntercomConsent={props.setShowIntercomConsent} />
       ) : (
         <>
-          <Text color="var(--ads-v2-color-bg-brand-secondary)">
+          <Text
+            color="var(--ads-v2-color-bg-brand-secondary)"
+            kind="heading-xs"
+          >
             Help & Resources
           </Text>
           <div className="flex gap-2 flex-wrap mt-2">

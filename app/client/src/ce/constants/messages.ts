@@ -987,7 +987,7 @@ export const SIGNPOSTING_POPUP_SUBTITLE = () =>
 export const SIGNPOSTING_SUCCESS_POPUP = {
   title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
   subtitle: () =>
-    "You can carry on here, or explore templates to build applications quickly. If you are still not sure, checkout our documentation.",
+    "You can carry on building the app from here on. If you are still not sure, checkout our documentation or try guided tour.",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Button, Divider, Text } from "design-system";
+import { Button, Divider, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -245,7 +245,7 @@ function CheckListItem(props: {
   }, [tickMarkRef?.current, props.completed, stepState?.read]);
 
   return (
-    <div className="flex pt-2 flex-1 flex-col">
+    <div className="flex pt-0.5 flex-1 flex-col">
       <ListItem
         className={classNames({
           "flex items-center justify-between": true,
@@ -312,25 +312,32 @@ function CheckListItem(props: {
             </Text>
           </div>
         </Sibling>
-
-        <div className="absolute right-3">
-          <Button
-            isDisabled={props.disabled}
-            isIconButton
-            kind="tertiary"
-            onClick={(e) => {
-              AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
-                step: props.step,
-              });
-              window.open(
-                props.docLink ?? "https://docs.appsmith.com/",
-                "_blank",
-              );
-              e.stopPropagation();
-            }}
-            startIcon="question-line"
-          />
-        </div>
+        <Tooltip
+          align={{
+            targetOffset: [13, 0],
+          }}
+          content="Open documentation"
+          placement={"bottomLeft"}
+        >
+          <div className="absolute right-3">
+            <Button
+              isDisabled={props.disabled}
+              isIconButton
+              kind="tertiary"
+              onClick={(e) => {
+                AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
+                  step: props.step,
+                });
+                window.open(
+                  props.docLink ?? "https://docs.appsmith.com/",
+                  "_blank",
+                );
+                e.stopPropagation();
+              }}
+              startIcon="book-line"
+            />
+          </div>
+        </Tooltip>
       </ListItem>
       <StyledDivider className="mt-0.5" />
     </div>
