@@ -55,12 +55,18 @@ export function PrivateEmbedRampModal() {
           <Text
             className="w-7/10 block"
             color="var(--ads-v2-color-fg-muted)"
+            data-testid="t--private-embed-settings-ramp"
             kind="body-s"
           >
             {createMessage(IN_APP_EMBED_SETTING.rampSubtextModal)}
           </Text>
         </div>
-        <Link kind="secondary" startIcon="share-box-line" to={rampLink}>
+        <Link
+          data-testid="t--private-embed-ramp-link"
+          kind="secondary"
+          startIcon="share-box-line"
+          to={rampLink}
+        >
           {createMessage(IN_APP_EMBED_SETTING.rampLinktext)}
         </Link>
       </div>
@@ -75,11 +81,16 @@ export function PrivateEmbedRampSidebar() {
   const canShowRamp = useSelector(showRampSelector);
   if (canShowRamp) {
     return (
-      <div className="mt-6">
+      <div className="mt-6" data-testid="t--private-embed-settings-ramp">
         <Text kind="body-m">
           {createMessage(IN_APP_EMBED_SETTING.rampSubtextSidebar)}
         </Text>
-        <Link className="!inline" kind="primary" to={rampLink}>
+        <Link
+          className="!inline"
+          data-testid="t--private-embed-ramp-link"
+          kind="primary"
+          to={rampLink}
+        >
           {createMessage(IN_APP_EMBED_SETTING.rampLinktextvariant2)}
         </Link>
       </div>
