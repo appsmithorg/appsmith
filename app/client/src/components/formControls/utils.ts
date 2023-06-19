@@ -18,7 +18,6 @@ import {
   FIELD_REQUIRED_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const getTrimmedData = (formData: any) => {
   const dataType = getType(formData);
@@ -186,11 +185,7 @@ export const caculateIsHidden = (
     let valueAtPath;
     let value, comparison;
     if ("path" in hiddenConfig) {
-      const currentEnvironment = getCurrentEnvironment();
-      valueAtPath = get(
-        values,
-        `datasourceStorages.${currentEnvironment}.` + hiddenConfig.path,
-      );
+      valueAtPath = get(values, hiddenConfig.path);
     }
     if ("value" in hiddenConfig) {
       value = hiddenConfig.value;
