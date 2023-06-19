@@ -87,6 +87,7 @@ describe("In-app embed settings", () => {
     agHelper.RefreshPage();
     embedSettings.OpenEmbedSettings();
     embedSettings.TogglePublicAccess(true);
+    agHelper.Sleep();
     embedSettings.ToggleShowNavigationBar("true");
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
@@ -109,6 +110,7 @@ describe("In-app embed settings", () => {
 
     embedSettings.OpenEmbedSettings();
     embedSettings.TogglePublicAccess(true);
+    agHelper.Sleep();
     embedSettings.ToggleShowNavigationBar("true");
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
