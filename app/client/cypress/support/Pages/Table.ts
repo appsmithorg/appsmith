@@ -62,7 +62,8 @@ export class Table {
     this._tableWidgetVersion(version) +
     ` .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   _editCellIconDiv = ".t--editable-cell-icon";
-  _editCellEditorInput = ".t--inlined-cell-editor input";
+  _editCellEditor = ".t--inlined-cell-editor";
+  _editCellEditorInput = this._editCellEditor + " input";
   _tableRowColumnDataVersion = (version: "v1" | "v2") =>
     `${version == "v1" ? " div div" : " .cell-wrapper"}`;
   _tableRowColumnData = (
@@ -111,12 +112,30 @@ export class Table {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown";
   private _downloadBtn = ".t--table-download-btn";
   private _downloadOption = ".t--table-download-data-option";
-  _columnSettings = (columnName: string) =>
-    "//input[@placeholder='Column title'][@value='" +
-    columnName +
-    "']/parent::div/parent::div/parent::div/parent::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
-  _columnSettingsV2 = (columnName: string) =>
-    `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
+  _columnSettings = (
+    columnName: string,
+    type: "Edit" | "Visibility" | "Editable",
+  ) => {
+    const classMap = {
+      Edit: "t--edit-column-btn",
+      Visibility: "t--show-column-btn",
+      Editable: "t--card-checkbox",
+    };
+    const classToCheck = classMap[type];
+    return `//input[@placeholder='Column title'][@value='${columnName}']/parent::div/parent::div/parent::div/parent::div/following-sibling::div/*[contains(@class, '${classToCheck}')]`;
+  };
+  _columnSettingsV2 = (
+    columnName: string,
+    type: "Edit" | "Visibility" | "Editable",
+  ) => {
+    const classMap = {
+      Edit: ".t--edit-column-btn",
+      Visibility: ".t--show-column-btn",
+      Editable: ".t--card-checkbox",
+    };
+    const classToCheck = classMap[type];
+    return `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] ${classToCheck}`;
+  };
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
   _headerCell = (column: string) =>
@@ -129,6 +148,8 @@ export class Table {
   _newRow = ".new-row";
   _connectDataHeader = ".t--cypress-table-overlay-header";
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
+  _updateMode = (mode: "Single" | "Multi") =>
+    "//span[text()='" + mode + " Row']/ancestor::div";
 
   public WaitUntilTableLoad(
     rowIndex = 0,
@@ -483,7 +504,7 @@ export class Table {
   ) {
     this.EditColumn(columnName, tableVersion);
     this.agHelper.SelectDropdownList("Column type", newDataType);
-    this.agHelper.AssertNetworkStatus("@updateLayout");
+    this.assertHelper.AssertNetworkStatus("@updateLayout");
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }
 
@@ -506,7 +527,7 @@ export class Table {
       cy.url().should("eql", expectedURL);
       this.assertHelper.AssertDocumentReady();
       cy.visit($currentUrl);
-      this.agHelper.AssertNetworkStatus("@" + networkCall);
+      this.assertHelper.AssertNetworkStatus("@" + networkCall);
       this.WaitUntilTableLoad(0, 0, tableVersion);
     });
   }
@@ -525,13 +546,36 @@ export class Table {
   public EditColumn(columnName: string, tableVersion: "v1" | "v2") {
     const colSettings =
       tableVersion == "v1"
-        ? this._columnSettings(columnName)
-        : this._columnSettingsV2(columnName);
+        ? this._columnSettings(columnName, "Edit")
+        : this._columnSettingsV2(columnName, "Edit");
     this.agHelper.GetNClick(colSettings);
   }
 
-  //Method to be improved!
-  public EditTableCell(rowIndex: number, colIndex: number, newValue: string) {
+  public EnableVisibilityOfColumn(
+    columnName: string,
+    tableVersion: "v1" | "v2",
+  ) {
+    const colSettings =
+      tableVersion == "v1"
+        ? this._columnSettings(columnName, "Visibility")
+        : this._columnSettingsV2(columnName, "Visibility");
+    this.agHelper.GetNClick(colSettings);
+  }
+
+  public EnableEditableOfColumn(columnName: string, tableVersion: "v1" | "v2") {
+    const colSettings =
+      tableVersion == "v1"
+        ? this._columnSettings(columnName, "Editable")
+        : this._columnSettingsV2(columnName, "Editable");
+    this.agHelper.GetNClick(colSettings);
+  }
+
+  public EditTableCell(
+    rowIndex: number,
+    colIndex: number,
+    newValue = "",
+    toSaveNewValue = true,
+  ) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
@@ -541,13 +585,16 @@ export class Table {
         " " +
         this._editCellEditorInput,
     );
-    this.agHelper.UpdateInputValue(
-      this._tableRow(rowIndex, colIndex, "v2") +
-        " " +
-        this._editCellEditorInput,
-      newValue,
-    );
-    this.agHelper.PressEnter();
+    if (newValue) {
+      this.agHelper.UpdateInputValue(
+        this._tableRow(rowIndex, colIndex, "v2") +
+          " " +
+          this._editCellEditorInput,
+        newValue,
+      );
+    }
+    toSaveNewValue &&
+      this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
   }
 
   public DeleteColumn(colId: string) {

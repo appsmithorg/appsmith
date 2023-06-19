@@ -10,6 +10,7 @@ import {
   table,
   draggableWidgets,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 let jsName: any, dsName: any;
 
@@ -242,7 +243,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
       action: "Delete",
       entityType: entityItems.Query,
     });
-    agHelper.AssertNetworkStatus("@deleteAction", 200);
+    assertHelper.AssertNetworkStatus("@deleteAction", 200);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: jsName as string,
       action: "Delete",
@@ -251,6 +252,6 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     // //Bug 12532
     // entityExplorer.ExpandCollapseEntity('Datasources')
     // entityExplorer.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
-    // agHelper.AssertNetworkStatus("@deleteAction", 200)
+    // assertHelper.AssertNetworkStatus("@deleteAction", 200)
   });
 });
