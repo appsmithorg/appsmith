@@ -5,7 +5,7 @@ describe("Private embed in-app ramp", () => {
   function checkRampLink(section: string) {
     const escapedSection = section.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
     const regexPattern = new RegExp(
-      `https:\\/\\/www\\.appsmith\\.com\\/pricing\\?source=CE&instance=.+&feature=GAC&section=${escapedSection}`,
+      `https:\\/\\/www\\.appsmith\\.com\\/pricing\\?source=CE&instance=.+&feature=private_embeds&section=${escapedSection}`,
     );
 
     cy.get(_.inviteModal.locators._privateEmbedRampLink)

@@ -38,7 +38,10 @@ function PrivateEmbeddingContent(props: {
 export default PrivateEmbeddingContent;
 
 export function PrivateEmbedRampModal() {
-  const rampLinkSelector = getRampLink("share_modal");
+  const rampLinkSelector = getRampLink({
+    section: "share_modal",
+    feature: "private_embeds",
+  });
   const rampLink = useSelector(rampLinkSelector);
   const showRampSelector = showProductRamps(RAMP_NAME.PRIVATE_EMBED);
   const canShowRamp = useSelector(showRampSelector);
@@ -75,7 +78,10 @@ export function PrivateEmbedRampModal() {
   return null;
 }
 export function PrivateEmbedRampSidebar() {
-  const rampLinkSelector = getRampLink("app_settings");
+  const rampLinkSelector = getRampLink({
+    section: "app_settings",
+    feature: "private_embeds",
+  });
   const rampLink = useSelector(rampLinkSelector);
   const showRampSelector = showProductRamps(RAMP_NAME.PRIVATE_EMBED);
   const canShowRamp = useSelector(showRampSelector);

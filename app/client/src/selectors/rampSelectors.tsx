@@ -13,12 +13,18 @@ const { cloudHosting, pricingUrl } = getAppsmithConfigs();
 const tenantState = (state: AppState) => state.tenant;
 const uiState = (state: AppState) => state.ui;
 
-export const getRampLink = (section: string) =>
+export const getRampLink = ({
+  feature,
+  section,
+}: {
+  section: string;
+  feature: string;
+}) =>
   createSelector(tenantState, (tenant) => {
     const instanceId = tenant?.instanceId;
     const source = cloudHosting ? "cloud" : "CE";
     const RAMP_LINK_TO = PRICING_PAGE_URL(pricingUrl, source, instanceId);
-    return `${RAMP_LINK_TO}&feature=GAC&section=${section}`;
+    return `${RAMP_LINK_TO}&feature=${feature}&section=${section}`;
   });
 
 export const showProductRamps = (rampName: string) =>
