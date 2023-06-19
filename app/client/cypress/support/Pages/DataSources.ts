@@ -558,7 +558,7 @@ export class DataSources {
     //     "ServiceAccCreds.private_key  is " +
     //       JSON.stringify(ServiceAccCreds.private_key),
     //   );
-    this.agHelper.UpdateFieldLongInput(
+    this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
       JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
     );

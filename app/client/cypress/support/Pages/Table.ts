@@ -562,7 +562,10 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public EnableEditableOfColumn(columnName: string, tableVersion: "v1" | "v2") {
+  public EnableEditableOfColumn(
+    columnName: string,
+    tableVersion: "v1" | "v2" = "v2",
+  ) {
     const colSettings =
       tableVersion == "v1"
         ? this._columnSettings(columnName, "Editable")
@@ -588,15 +591,20 @@ export class Table {
         this._editCellEditorInput,
     );
     if (newValue) {
-      this.agHelper.UpdateInputValue(
-        this._tableRow(rowIndex, colIndex, "v2") +
-          " " +
-          this._editCellEditorInput,
-        newValue,
-      );
+      this.UpdateTableCell(rowIndex, colIndex, newValue);
     }
     toSaveNewValue &&
       this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
+    this.agHelper.Sleep();
+  }
+
+  public UpdateTableCell(rowIndex: number, colIndex: number, newValue = "") {
+    this.agHelper.UpdateInputValue(
+      this._tableRow(rowIndex, colIndex, "v2") +
+        " " +
+        this._editCellEditorInput,
+      newValue,
+    );
   }
 
   public DeleteColumn(colId: string) {

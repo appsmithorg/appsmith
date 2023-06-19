@@ -226,8 +226,12 @@ export class AggregateHelper extends ReusableHelper {
       //cy.log(selector, "selector");
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
-          ? cy.xpath(selector, { timeout: timeout })
-          : cy.get(selector, { timeout: timeout });
+          ? cy.xpath(selector, {
+              timeout: timeout,
+            })
+          : cy.get(selector, {
+              timeout: timeout,
+            });
     } else locator = cy.wrap(selector);
     return locator;
   }
@@ -280,9 +284,20 @@ export class AggregateHelper extends ReusableHelper {
     shouldSleep = true,
     force = true,
   ) {
-    cy.xpath(this.locator._spanButton(btnVisibleText))
+    this.GetElement(this.locator._spanButton(btnVisibleText))
       .eq(index)
-      .scrollIntoView()
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+          } else {
+            $element[0].scrollIntoView();
+          }
+          return $element;
+        });
+      })
       .click({ force: force });
     shouldSleep && this.Sleep();
   }
@@ -395,15 +410,9 @@ export class AggregateHelper extends ReusableHelper {
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
-      cy.xpath(this.locator._selectWidgetDropdown(endpoint))
-        .first()
-        .scrollIntoView()
-        .click();
+      this.GetNClick(this.locator._selectWidgetDropdown(endpoint));
     } else {
-      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endpoint))
-        .first()
-        .scrollIntoView()
-        .click();
+      this.GetNClick(this.locator._selectWidgetDropdownInDeployed(endpoint));
     }
     if (endpoint == "selectwidget")
       cy.get(this.locator._selectOptionValue(dropdownOption)).click({
@@ -438,7 +447,8 @@ export class AggregateHelper extends ReusableHelper {
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
     cy.log(finalSelector);
-    cy.xpath(finalSelector).eq(index).scrollIntoView().click();
+
+    this.GetNClick(finalSelector, index);
     cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
     this.Sleep(); //for selected value to reflect!
   }
@@ -454,9 +464,22 @@ export class AggregateHelper extends ReusableHelper {
     check = true,
     endpoint = "multiselectwidgetv2",
   ) {
-    cy.get(this.locator._widgetInDeployed(endpoint) + " div.rc-select-selector")
+    this.GetElement(
+      this.locator._widgetInDeployed(endpoint) + " div.rc-select-selector",
+    )
       .eq(index)
-      .scrollIntoView()
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+          } else {
+            $element[0].scrollIntoView();
+          }
+          return $element;
+        });
+      })
       .then(($element: any) => {
         // here, we try to click on downArrow in dropdown of multiSelect.
         // the position is calculated from top left of the element
@@ -541,9 +564,20 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
     parseSpecialCharacters = false,
   ) {
-    cy.xpath(this.locator._actionTextArea(actionName))
+    this.GetElement(this.locator._actionTextArea(actionName))
       .eq(index)
-      .scrollIntoView()
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+          } else {
+            $element[0].scrollIntoView();
+          }
+          return $element;
+        });
+      })
       .parents(".CodeMirror")
       .first()
       .then((ins: any) => {
@@ -561,9 +595,20 @@ export class AggregateHelper extends ReusableHelper {
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
-        cy.xpath(this.locator._actionTextArea(actionName))
+        this.GetElement(this.locator._actionTextArea(actionName))
           .eq(index)
-          .scrollIntoView()
+          .then(($element) => {
+            cy.get("body").then(($body) => {
+              if (
+                $body[0].contains($element[0]) &&
+                $element[0].offsetParent !== null
+              ) {
+              } else {
+                $element[0].scrollIntoView();
+              }
+              return $element;
+            });
+          })
           .click({ force: true })
           .focused()
           .clear({
@@ -571,9 +616,21 @@ export class AggregateHelper extends ReusableHelper {
           });
       }
       this.Sleep();
-      cy.xpath(this.locator._actionTextArea(actionName))
+
+      this.GetElement(this.locator._actionTextArea(actionName))
         .eq(index)
-        .scrollIntoView()
+        .then(($element) => {
+          cy.get("body").then(($body) => {
+            if (
+              $body[0].contains($element[0]) &&
+              $element[0].offsetParent !== null
+            ) {
+            } else {
+              $element[0].scrollIntoView();
+            }
+            return $element;
+          });
+        })
         .then((el: any) => {
           if (paste) {
             //input.invoke("val", value);
@@ -602,7 +659,18 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     return this.GetElement(selector)
       .eq(index)
-      .scrollIntoView()
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+          } else {
+            $element[0].scrollIntoView();
+          }
+          return $element;
+        });
+      })
       .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
   }
@@ -615,18 +683,39 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     return this.GetElement(selector)
       .eq(index)
-      .scrollIntoView()
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+          } else {
+            $element[0].scrollIntoView();
+          }
+          return $element;
+        });
+      })
       .realHover()
       .click({ force: force })
       .wait(waitTimeInterval);
   }
 
   public HoverElement(selector: string, index = 0, waitTimeInterval = 100) {
-    //this.ScrollTo(this.GetElement(selector))
     return (
       this.GetElement(selector)
         .eq(index)
-        .scrollIntoView()
+        .then(($element) => {
+          cy.get("body").then(($body) => {
+            if (
+              $body[0].contains($element[0]) &&
+              $element[0].offsetParent !== null
+            ) {
+            } else {
+              $element[0].scrollIntoView();
+            }
+            return $element;
+          });
+        })
         .realTouch({ position: "center" })
         .realHover({ pointer: "mouse" })
         //.trigger("mousemove", { eventConstructor: "MouseEvent" })
@@ -645,7 +734,18 @@ export class AggregateHelper extends ReusableHelper {
       .siblings(siblingSelector)
       .first()
       .eq(index)
-      .scrollIntoView()
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+          } else {
+            $element[0].scrollIntoView();
+          }
+          return $element;
+        });
+      })
       .click({ force: force })
       .wait(waitTimeInterval);
   }
@@ -1006,9 +1106,9 @@ export class AggregateHelper extends ReusableHelper {
     // });
   }
 
-  public UpdateFieldLongInput(selector: string, value: string) {
+  public UpdateFieldInput(selector: string, value: string) {
     this.GetElement(selector)
-      .find("input")
+      .closest("input")
       .invoke("attr", "value", value)
       .trigger("input");
     this.Sleep(); //for value set to settle
@@ -1034,9 +1134,10 @@ export class AggregateHelper extends ReusableHelper {
   public UpdateInputValue(selector: string, value: string) {
     this.GetElement(selector)
       .closest("input")
+      .scrollIntoView()
       .clear()
       //.type(this.selectAll)
-      .type(value, { delay: 0 });
+      .type(value, { delay: 2 });
   }
 
   public BlurCodeInput(selector: string) {
@@ -1219,7 +1320,18 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     return this.GetElement(selector, timeout)
       .eq(index)
-      .scrollIntoView()
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+          } else {
+            $element[0].scrollIntoView();
+          }
+          return $element;
+        });
+      })
       .should("be.visible");
   }
 
@@ -1235,6 +1347,25 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertElementExist(selector: ElementType, index = 0, timeout = 20000) {
     return this.GetElement(selector, timeout).eq(index).should("exist");
+  }
+
+  public ScrollIntoView(selector: ElementType, index = 0) {
+    return this.GetElement(selector)
+      .eq(index)
+      .then(($element) => {
+        cy.get("body").then(($body) => {
+          if (
+            $body[0].contains($element[0]) &&
+            $element[0].offsetParent !== null
+          ) {
+            //dont do anything if element is visible in viewport
+          } else {
+            $element[0].scrollIntoView();
+            // Perform actions on the element after scrolling
+          }
+          return $element;
+        });
+      });
   }
 
   public AssertElementLength(

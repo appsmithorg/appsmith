@@ -13,7 +13,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe("one click binding mongodb datasource", function () {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 500, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
   });
 
   it("1. test connect datasource", () => {

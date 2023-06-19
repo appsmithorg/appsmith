@@ -8,7 +8,7 @@ export default defineConfig({
   videoUploadOnPasses: false,
   videoCompression: false,
   numTestsKeptInMemory: 5,
-  experimentalMemoryManagement : true,
+  experimentalMemoryManagement: true,
   reporterOptions: {
     reportDir: "results",
     overwrite: false,
@@ -18,6 +18,7 @@ export default defineConfig({
   chromeWebSecurity: false,
   viewportHeight: 1280,
   viewportWidth: 1600,
+  scrollBehavior: "center",
   retries: {
     runMode: 1,
     openMode: 0,
