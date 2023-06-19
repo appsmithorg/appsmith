@@ -1,13 +1,21 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Linting async JSFunctions bound to data fields", () => {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {
-    _.apiPage.CreateApi();
+    apiPage.CreateApi();
     const JS_OBJECT_CONTENT = `export default {
           myFun1: () => {
               //write code here
@@ -18,18 +26,18 @@ describe("Linting async JSFunctions bound to data fields", () => {
           }
       }`;
 
-    _.jsEditor.CreateJSObject(JS_OBJECT_CONTENT, {
+    jsEditor.CreateJSObject(JS_OBJECT_CONTENT, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun2()}}");
-    _.agHelper.AssertElementVisible(_.locators._evaluateMsg);
-    _.agHelper.ContainsNClick("View source"); // should route to jsobject page
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun2()}}");
+    agHelper.AssertElementVisible(locators._evaluateMsg);
+    agHelper.ContainsNClick("View source"); // should route to jsobject page
 
-    _.agHelper.AssertElementLength(_.locators._lintWarningElement, 1);
+    agHelper.AssertElementLength(locators._lintWarningElement, 1);
 
     MouseHoverNVerify(
       "myFun2",
@@ -37,7 +45,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
       false,
     );
     // remove async tag from function
-    _.jsEditor.EditJSObj(`export default {
+    jsEditor.EditJSObj(`export default {
         myFun1: () => {
             //write code here
             Api1.run()
@@ -47,10 +55,10 @@ describe("Linting async JSFunctions bound to data fields", () => {
         }
     }`);
 
-    _.agHelper.AssertElementAbsence(_.locators._lintWarningElement);
+    agHelper.AssertElementAbsence(locators._lintWarningElement);
 
     // Add async tag from function
-    _.jsEditor.EditJSObj(`export default {
+    jsEditor.EditJSObj(`export default {
         myFun1: () => {
             //write code here
             Api1.run()
@@ -60,18 +68,18 @@ describe("Linting async JSFunctions bound to data fields", () => {
         }
     }`);
 
-    _.agHelper.AssertElementLength(_.locators._lintWarningElement, 1);
+    agHelper.AssertElementLength(locators._lintWarningElement, 1);
     MouseHoverNVerify(
       "myFun2",
       `Cannot bind async functions to data fields. Convert this to a sync function or remove references to "JSObject1.myFun2" on the following data field: Button1.text`,
       false,
     );
 
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun1()}}");
-    _.agHelper.AssertElementVisible(_.locators._evaluateMsg);
-    _.agHelper.ContainsNClick("View source"); // should route to jsobject page
-    _.agHelper.AssertElementLength(_.locators._lintWarningElement, 2);
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun1()}}");
+    agHelper.AssertElementVisible(locators._evaluateMsg);
+    agHelper.ContainsNClick("View source"); // should route to jsobject page
+    agHelper.AssertElementLength(locators._lintWarningElement, 2);
     MouseHoverNVerify(
       "myFun1",
       `Functions bound to data fields cannot execute async code. Remove async statements highlighted below or remove references to "JSObject1.myFun1" on the following data field: Button1.text`,
@@ -82,7 +90,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
       `Cannot execute async code on functions bound to data fields`,
       false,
     );
-    _.jsEditor.EditJSObj(`export default {
+    jsEditor.EditJSObj(`export default {
         myFun1: () => {
             //write code here
             Api1.run()
@@ -92,9 +100,9 @@ describe("Linting async JSFunctions bound to data fields", () => {
         }
     }`);
     // Remove binding from label, and add to onClick. Expect no error
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.UpdatePropertyFieldValue("Label", "Click here");
-    _.propPane.EnterJSContext(
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "Click here");
+    propPane.EnterJSContext(
       "onClick",
       `{{
           () => {
@@ -102,31 +110,31 @@ describe("Linting async JSFunctions bound to data fields", () => {
           JSObject1.myFun2()
       }}}`,
     );
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.agHelper.AssertElementAbsence(_.locators._lintWarningElement);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    agHelper.AssertElementAbsence(locators._lintWarningElement);
   });
 
   function MouseHoverNVerify(lintOn: string, debugMsg: string, isError = true) {
-    _.agHelper.Sleep();
+    agHelper.Sleep();
     const element = isError
-      ? cy.get(_.locators._lintErrorElement)
-      : cy.get(_.locators._lintWarningElement);
+      ? cy.get(locators._lintErrorElement)
+      : cy.get(locators._lintWarningElement);
     element.contains(lintOn).should("exist").first().trigger("mouseover");
-    _.agHelper.AssertContains(debugMsg);
+    agHelper.AssertContains(debugMsg);
   }
 
   after(() => {
     //deleting all test data
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Api1",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "JSObject1",
-      "Delete",
-      "Are you sure?",
-    );
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Api1",
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
   });
 });

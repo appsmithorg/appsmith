@@ -17,7 +17,7 @@ describe("DocumentViewer Widget Functionality", () => {
   it("2. Modify visibility & Publish app & verify", () => {
     ee.NavigateToSwitcher("Explorer");
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
-    propPane.ToggleOnOrOff("Visible", "Off");
+    propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
       "not.exist",
@@ -27,7 +27,7 @@ describe("DocumentViewer Widget Functionality", () => {
 
   it("3. Change visibility & Publish app & verify again", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
-    propPane.ToggleOnOrOff("Visible", "On");
+    propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp();
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should("exist");
     deployMode.NavigateBacktoEditor();

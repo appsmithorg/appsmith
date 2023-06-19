@@ -56,4 +56,5 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
 
+    void populateDefaultResources(ActionCollection actionCollection, ActionCollection branchedActionCollection,String branchName);
 }

@@ -5,8 +5,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import ActionAPI from "api/ActionAPI";
-import { Button } from "design-system";
-import { TextType, Text } from "design-system-old";
+import { Button, Spinner, Text } from "design-system";
 import styled from "styled-components";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import LoadingOverlayScreen from "./LoadingOverlayScreen";
@@ -29,6 +28,10 @@ const LoadingProgressWrapper = styled.div`
   height: 100%;
 `;
 
+const InProgressText = styled(Text)`
+  text-align: center;
+`;
+
 const handleCancelActionExecution = () => {
   ActionAPI.abortActionExecutionTokenSource.cancel();
 };
@@ -46,9 +49,10 @@ const ActionExecutionInProgressView = ({
     <LoadingProgressWrapper>
       <LoadingOverlayScreen theme={theme} />
       <LoadingOverlayContainer>
-        <Text textAlign="center" type={TextType.P1}>
+        <Spinner size="md" />
+        <InProgressText kind="body-m" renderAs="p">
           {createMessage(ACTION_EXECUTION_MESSAGE, actionType)}
-        </Text>
+        </InProgressText>
         <Button
           className={`t--cancel-action-button`}
           kind="secondary"

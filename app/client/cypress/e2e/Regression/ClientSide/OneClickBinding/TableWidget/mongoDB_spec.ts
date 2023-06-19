@@ -1,7 +1,8 @@
-import { WIDGET } from "../../../../../locators/WidgetLocators";
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "../spec_utility";
-import locators from "../../../../../locators/OneClickBindingLocator";
+import { OneClickBinding } from "../spec_utility";
+
+const oneClickBinding = new OneClickBinding();
 
 describe.skip("one click binding mongodb datasource", function () {
   before(() => {
@@ -15,16 +16,19 @@ describe.skip("one click binding mongodb datasource", function () {
     _.dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-      (cy as any).openPropertyPane(WIDGET.TABLE);
-
-      ChooseAndAssertForm(`New from ${dsName}`, dsName, "netflix", "creator");
+      oneClickBinding.ChooseAndAssertForm(
+        `New from ${dsName}`,
+        dsName,
+        "netflix",
+        "creator",
+      );
     });
 
-    _.agHelper.GetNClick(locators.connectData);
+    _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    cy.wait("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.Sleep(2000);
     //#endregion
@@ -36,7 +40,7 @@ describe.skip("one click binding mongodb datasource", function () {
     _.agHelper.Sleep();
     // check if the table rows are present for the given search entry
     _.agHelper.GetNAssertContains(
-      '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
+      oneClickBindingLocator.validTableRowData,
       rowWithAValidText,
     );
     //#endregion
@@ -89,7 +93,7 @@ describe.skip("one click binding mongodb datasource", function () {
 
     //check if that row is present
     _.agHelper.GetNAssertContains(
-      '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
+      oneClickBindingLocator.validTableRowData,
       someText,
     );
     //#endregion

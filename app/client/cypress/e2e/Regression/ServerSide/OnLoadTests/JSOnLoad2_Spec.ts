@@ -1,32 +1,40 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  jsEditor,
+  deployMode,
+  homePage,
+  dataSources,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 let datasourceName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewWorkspace("JSOnLoadTest");
+    homePage.NavigateToHome();
+    homePage.CreateNewWorkspace("JSOnLoadTest");
   });
 
   it("1. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while imported", () => {
-    _.homePage.ImportApp("ImportApps/JSOnLoadImport.json", "JSOnLoadTest");
+    homePage.ImportApp("ImportApps/JSOnLoadImport.json", "JSOnLoadTest");
     cy.wait("@importNewApplication").then(() => {
-      _.agHelper.Sleep();
-      _.dataSources.ReconnectDataSource("MySQL-Ds", "MySQL");
+      agHelper.Sleep();
+      dataSources.ReconnectDataSource("MySQL-Ds", "MySQL");
     });
     AssertJSOnPageLoad("runSpaceCraftImages", true);
   });
 
   it("2. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while forked", () => {
-    _.homePage.NavigateToHome();
-    _.homePage.ForkApplication("JSOnloadImportTest");
+    homePage.NavigateToHome();
+    homePage.ForkApplication("JSOnloadImportTest");
     AssertJSOnPageLoad("runSpaceCraftImages");
   });
 
   it("3. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while imported - failing JSObj", () => {
-    _.homePage.ImportApp("ImportApps/JSOnLoadFailureTest.json", "JSOnLoadTest");
+    homePage.ImportApp("ImportApps/JSOnLoadFailureTest.json", "JSOnLoadTest");
     cy.wait("@importNewApplication").then(() => {
-      _.homePage.AssertImportToast();
+      homePage.AssertImportToast();
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
@@ -36,8 +44,8 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("4. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while forked - failing JSObj", () => {
-    _.homePage.NavigateToHome();
-    _.homePage.ForkApplication("JSOnLoadFailureTest");
+    homePage.NavigateToHome();
+    homePage.ForkApplication("JSOnLoadFailureTest");
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
@@ -46,49 +54,50 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("5. Delete the applications & workspace - Success/failing JSObj", () => {
-    _.homePage.NavigateToHome();
-    _.homePage.DeleteApplication("JSOnloadImportTest");
-    _.homePage.DeleteApplication("JSOnloadImportTest (1)");
+    homePage.NavigateToHome();
+    agHelper.WaitUntilAllToastsDisappear();
+    homePage.DeleteApplication("JSOnloadImportTest");
+    homePage.DeleteApplication("JSOnloadImportTest (1)");
 
-    _.homePage.DeleteApplication("JSOnLoadFailureTest");
-    _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    //_.homePage.DeleteWorkspace("JSOnLoadTest");
+    homePage.DeleteApplication("JSOnLoadFailureTest");
+    homePage.DeleteApplication("JSOnLoadFailureTest (1)");
+    //homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
-  it("6. Tc #1910 - Verify the Number of confirmation models of JS object on page load", () => {
-    _.homePage.CreateAppInWorkspace("JSOnLoadTest");
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
-    _.dataSources.CreateDataSource("Postgres");
+  it("6. Tc #1910 - Verify the Number of confirmation models of JS Object on page load", () => {
+    homePage.CreateAppInWorkspace("JSOnLoadTest");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    entityExplorer.NavigateToSwitcher("Explorer");
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then((dsName) => {
       datasourceName = dsName;
-      _.dataSources.CreateQueryAfterDSSaved(
+      dataSources.CreateQueryAfterDSSaved(
         `SELECT * FROM public."astronauts" LIMIT 1;`,
         "getastronauts",
       );
-      _.dataSources.CreateQueryFromOverlay(
+      dataSources.CreateQueryFromOverlay(
         datasourceName,
         `SELECT * FROM public."category" LIMIT 1;`,
         "getcategory",
       );
-      _.dataSources.CreateQueryFromOverlay(
+      dataSources.CreateQueryFromOverlay(
         datasourceName,
         `SELECT * FROM public."city" LIMIT 1;`,
         "getcity",
       );
-      _.dataSources.CreateQueryFromOverlay(
+      dataSources.CreateQueryFromOverlay(
         datasourceName,
         `SELECT * FROM public."film" LIMIT 1;`,
         "getfilm",
       );
-      _.dataSources.CreateQueryFromOverlay(
+      dataSources.CreateQueryFromOverlay(
         datasourceName,
         `SELECT * FROM public."hogwartsstudents" LIMIT 1;`,
         "gethogwartsstudents",
       );
     });
 
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
         astros: () => {
           return getastronauts.run();	},
@@ -104,10 +113,10 @@ describe("JSObjects OnLoad Actions tests", function () {
       },
     );
 
-    _.jsEditor.EnableDisableAsyncFuncSettings("astros", true, true);
-    _.jsEditor.EnableDisableAsyncFuncSettings("city", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("astros", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("city", true, true);
 
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
         cat: () => {
           return getcategory.run();	},
@@ -123,10 +132,10 @@ describe("JSObjects OnLoad Actions tests", function () {
       },
     );
 
-    _.jsEditor.EnableDisableAsyncFuncSettings("cat", true, true);
-    _.jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("cat", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, true);
 
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
         film: async () => {
           return getfilm.run();
@@ -139,39 +148,39 @@ describe("JSObjects OnLoad Actions tests", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    _.jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
 
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     for (let dialog = 1; dialog <= 5; dialog++) {
-      _.jsEditor.ConfirmationClick("Yes");
-      _.agHelper.Sleep(500);
+      jsEditor.ConfirmationClick("Yes");
+      agHelper.Sleep(500);
     }
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     for (let dialog = 1; dialog <= 5; dialog++) {
-      _.jsEditor.ConfirmationClick("Yes");
-      _.agHelper.Sleep(500);
+      jsEditor.ConfirmationClick("Yes");
+      agHelper.Sleep(500);
     }
   });
 
-  it("7. Tc #1909 - Verify the sequence of of JS object on page load", () => {
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.SelectEntityByName("JSObject1");
-    _.jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
-    _.jsEditor.EnableDisableAsyncFuncSettings("city", true, false);
-    _.entityExplorer.SelectEntityByName("JSObject2");
-    _.jsEditor.EnableDisableAsyncFuncSettings("cat", true, false);
-    _.jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, false);
-    _.entityExplorer.SelectEntityByName("JSObject3");
-    _.jsEditor.EnableDisableAsyncFuncSettings("film", true, false);
+  it("7. Tc #1909 - Verify the sequence of of JS Object on page load", () => {
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("city", true, false);
+    entityExplorer.SelectEntityByName("JSObject2");
+    jsEditor.EnableDisableAsyncFuncSettings("cat", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, false);
+    entityExplorer.SelectEntityByName("JSObject3");
+    jsEditor.EnableDisableAsyncFuncSettings("film", true, false);
 
-    _.entityExplorer.SelectEntityByName("Page1");
-    _.agHelper.RefreshPage();
+    entityExplorer.SelectEntityByName("Page1");
+    agHelper.RefreshPage();
 
-    _.agHelper.ValidateToastMessage("ran successfully", 0, 5);
+    agHelper.ValidateToastMessage("ran successfully", 0, 5);
   });
 
   it("8. Tc 51, 52 Verify that JS editor function has a settings button available for functions marked async", () => {
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
         myVar2: {},
@@ -191,11 +200,11 @@ describe("JSObjects OnLoad Actions tests", function () {
       },
     );
 
-    _.jsEditor.VerifyAsyncFuncSettings("myFun2", false, false);
-    _.jsEditor.VerifyAsyncFuncSettings("myFun3", false, false);
-    _.jsEditor.VerifyAsyncFuncSettings("myFun4", false, false);
-    _.jsEditor.VerifyAsyncFuncSettings("myFun5", false, false);
-    _.jsEditor.VerifyAsyncFuncSettings("myFun6", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun2", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun3", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun4", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun5", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun6", false, false);
 
     VerifyFunctionDropdown(
       ["myFun1", "myFun7"],
@@ -204,13 +213,12 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
-      _.entityExplorer.ActionContextMenuByEntityName(
-        jsName as string,
-        "Delete",
-        "Are you sure?",
-        true,
-      );
+      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: jsName as string,
+        action: "Delete",
+        entityType: entityItems.JSObject,
+      });
     });
   });
 
@@ -219,32 +227,32 @@ describe("JSObjects OnLoad Actions tests", function () {
     shouldCheckImport = false,
     faliureMsg = "",
   ) {
-    _.agHelper.AssertElementVisible(
-      _.jsEditor._dialogBody("JSObject1." + jsMethod),
+    agHelper.AssertElementVisible(
+      jsEditor._dialogBody("JSObject1." + jsMethod),
     );
-    _.jsEditor.ConfirmationClick("No");
-    _.agHelper.Sleep(1000);
+    jsEditor.ConfirmationClick("No");
+    agHelper.Sleep(1000);
 
-    shouldCheckImport && _.homePage.AssertNCloseImport();
+    shouldCheckImport && homePage.AssertNCloseImport();
 
-    _.deployMode.DeployApp();
-    _.agHelper.AssertElementVisible(
-      _.jsEditor._dialogBody("JSObject1." + jsMethod),
+    deployMode.DeployApp();
+    agHelper.AssertElementVisible(
+      jsEditor._dialogBody("JSObject1." + jsMethod),
     );
-    _.jsEditor.ConfirmationClick("Yes");
-    if (faliureMsg) _.agHelper.ValidateToastMessage(faliureMsg);
-    else _.agHelper.Sleep(3000);
-    _.deployMode.NavigateBacktoEditor();
-    _.jsEditor.ConfirmationClick("No");
-    _.agHelper.Sleep(2000);
+    jsEditor.ConfirmationClick("Yes");
+    if (faliureMsg) agHelper.ValidateToastMessage(faliureMsg);
+    else agHelper.Sleep(3000);
+    deployMode.NavigateBacktoEditor();
+    jsEditor.ConfirmationClick("No");
+    agHelper.Sleep(2000);
   }
 
   function VerifyFunctionDropdown(
     syncFunctions: string[],
     asyncFunctions: string[],
   ) {
-    cy.get(_.jsEditor._funcDropdown).click();
-    cy.get(_.jsEditor._funcDropdownOptions).then(function ($ele) {
+    cy.get(jsEditor._funcDropdown).click();
+    cy.get(jsEditor._funcDropdownOptions).then(function ($ele) {
       expect($ele.eq(0).text()).to.be.oneOf(syncFunctions);
       expect($ele.eq(1).text()).to.be.oneOf(asyncFunctions);
       expect($ele.eq(2).text()).to.be.oneOf(asyncFunctions);
@@ -253,6 +261,6 @@ describe("JSObjects OnLoad Actions tests", function () {
       expect($ele.eq(5).text()).to.be.oneOf(asyncFunctions);
       expect($ele.eq(6).text()).to.be.oneOf(syncFunctions);
     });
-    cy.get(_.jsEditor._funcDropdown).click();
+    cy.get(jsEditor._funcDropdown).click();
   }
 });

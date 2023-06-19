@@ -32,6 +32,8 @@ A tooltip is a small pop-up that appears when a user places their cursor over an
   <Story name="Tooltip">{Template.bind({})}</Story>
 </Canvas>
 
+<ArgsTable story="Tooltip" of={Tooltip} />
+
 # Placement
 
 The placement of the tooltip can be changed by passing the `placement` prop.
@@ -41,25 +43,25 @@ The placement of the tooltip can be changed by passing the `placement` prop.
     <ButtonGroup>
       <Tooltip placement="left">
         <TooltipTrigger>
-          <Button variant="secondary">Left</Button>
+          <Button variant="outlined">Left</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
       </Tooltip>
       <Tooltip placement="top">
         <TooltipTrigger>
-          <Button variant="secondary">Top</Button>
+          <Button variant="outlined">Top</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
       </Tooltip>
       <Tooltip placement="bottom">
         <TooltipTrigger>
-          <Button variant="secondary">Bottom</Button>
+          <Button variant="outlined">Bottom</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
       </Tooltip>
       <Tooltip placement="right">
         <TooltipTrigger>
-          <Button variant="secondary">Right</Button>
+          <Button variant="outlined">Right</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
       </Tooltip>
