@@ -26,6 +26,7 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { deleteCanvasCardsState } from "actions/editorActions";
 import styled from "styled-components";
 import { showAnonymousDataPopup } from "actions/onboardingActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -47,6 +48,19 @@ export default function AnonymousDataPopup() {
   const hideAnonymousDataPopup = () => {
     dispatch(showAnonymousDataPopup(false));
     setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+  };
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("DISPLAY_TELEMETRY_CALLOUT");
+  }, []);
+
+  const handleLinkClick = (link: string) => {
+    if (link === ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH) {
+      AnalyticsUtil.logEvent("VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT");
+    } else if (link === TELEMETRY_DOCS_PAGE_URL) {
+      AnalyticsUtil.logEvent("LEARN_MORE_TELEMETRY_CALLOUT");
+    }
+    window.open(link, "_blank");
   };
 
   const showShowAnonymousDataPopup = async () => {
@@ -88,11 +102,12 @@ export default function AnonymousDataPopup() {
         links={[
           {
             children: createMessage(ADMIN_SETTINGS),
-            to: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+            onClick: () =>
+              handleLinkClick(ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH),
           },
           {
             children: createMessage(LEARN_MORE),
-            to: TELEMETRY_DOCS_PAGE_URL,
+            onClick: () => handleLinkClick(TELEMETRY_DOCS_PAGE_URL),
           },
         ]}
         onClose={hideAnonymousDataPopup}

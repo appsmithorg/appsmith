@@ -322,6 +322,9 @@ export type EventName =
   | "GOOGLE_SHEET_FILE_PICKER_PICKED"
   | "TELEMETRY_DISABLED"
   | "HELP_MENU_WELCOME_TOUR_CLICK"
+  | "DISPLAY_TELEMETRY_CALLOUT"
+  | "VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT"
+  | "LEARN_MORE_TELEMETRY_CALLOUT"
   | AI_EVENTS
   | ONE_CLICK_BINDING_EVENT_NAMES;
 
@@ -515,9 +518,9 @@ class AnalyticsUtil {
       finalEventData = {
         ...eventData,
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
-        instanceId,
       };
     }
+    finalEventData = { ...finalEventData, instanceId };
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);

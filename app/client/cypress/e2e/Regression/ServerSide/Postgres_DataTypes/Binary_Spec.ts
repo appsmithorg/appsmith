@@ -254,7 +254,6 @@ describe.skip("Binary Datatype tests", function () {
 
     //Validating zero octet
     query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
