@@ -377,6 +377,9 @@ abstract class BaseWidget<
   };
 
   getComponentDimensions = () => {
+    if (this.isAutoLayoutMode) {
+      return this.getAutoLayoutComponentDimensions();
+    }
     return this.calculateWidgetBounds(
       this.props.rightColumn,
       this.props.leftColumn,
@@ -629,6 +632,9 @@ abstract class BaseWidget<
     ).autoDimension;
     if (isFunction(autoDimensionConfig)) {
       autoDimensionConfig = autoDimensionConfig(this.props);
+    }
+    if (this.props.isListItemContainer && autoDimensionConfig) {
+      autoDimensionConfig.height = false;
     }
 
     return (
