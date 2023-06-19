@@ -60,9 +60,9 @@ jobs:
   ci-test-limited-existing-docker-image:
     # Only run if the previous run-id is provided
     if: inputs.previous_run_id != '0'
-    name: ci-test-limited
+    name: ci-test-limited-existing-image
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
     with:
       pr: 0
-      previous-workflow-run-id: ${{ fromJson(github.event.inputs.previous_run_id) }}
+      previous-workflow-run-id: ${{ fromJson(inputs.previous_run_id) }}

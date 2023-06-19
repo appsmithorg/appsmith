@@ -4,7 +4,7 @@ describe("Validating Mobile Views for Hug Widget", function () {
   it("1. Validate change with height width for hug widget - image widget", function () {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("imagewidget", { x: 300, y: 600 });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--widget-imagewidget").first().should("be.visible");
   });
   //Added viewports of iphone14 and samsung galaxy s22 for testing purpose

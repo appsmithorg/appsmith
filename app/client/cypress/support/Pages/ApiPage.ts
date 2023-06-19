@@ -5,6 +5,7 @@ type RightPaneTabs = "datasources" | "connections";
 export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _createapi = ".t--createBlankApiCard";
   _resourceUrl = ".t--dataSourceField";
@@ -82,10 +83,12 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      cy.get(this.locator._createNew).click();
-      cy.get(this._blankAPI).eq(0).click({ force: true });
+      this.agHelper.RemoveEvaluatedPopUp();
+      this.agHelper.GetHoverNClick(this.locator._createNew);
+      this.agHelper.GetNClick(this._blankAPI, 0, true);
+      this.agHelper.RemoveTooltip("Add a new query/JS Object");
     }
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     // cy.get("@createNewApi").then((response: any) => {
     //     expect(response.response.body.responseMeta.success).to.eq(true);
@@ -127,13 +130,17 @@ export class ApiPage {
     cy.get(this._apiRunBtn).should(query);
   }
 
-  EnterURL(url: string) {
+  EnterURL(url: string, validateEvaluatedValue = false, evaluatedValue = "") {
     this.agHelper.EnterValue(url, {
       propFieldName: this._resourceUrl,
       directInput: true,
       inputFieldName: "",
     });
     this.agHelper.AssertAutoSave();
+
+    if (validateEvaluatedValue) {
+      this.agHelper.VerifyEvaluatedValue(evaluatedValue);
+    }
   }
 
   EnterHeader(hKey: string, hValue: string, index = 0) {
@@ -212,12 +219,12 @@ export class ApiPage {
   ) {
     this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
     toValidateResponse &&
-      this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+      this.agHelper.AssertNetworkExecutionSuccess("@postExecute");
 
     // Asserting Network result
     validateNetworkAssertOptions?.expectedPath &&
       validateNetworkAssertOptions?.expectedRes &&
-      this.agHelper.ValidateNetworkDataAssert(
+      this.agHelper.AssertNetworkDataNestedProperty(
         "@postExecute",
         validateNetworkAssertOptions.expectedPath,
         validateNetworkAssertOptions.expectedRes,
@@ -418,7 +425,7 @@ export class ApiPage {
   CreateGraphqlApi(apiName = "") {
     cy.get(this.locator._createNew).click({ force: true });
     cy.get(this._blankGraphqlAPI).click({ force: true });
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);
     cy.get(this._resourceUrl).should("be.visible");

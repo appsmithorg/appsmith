@@ -5,7 +5,7 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 describe("Pre git connection spec:", function () {
   it("1. Deploy menu at the application dropdown menu", () => {
     // create new app
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
