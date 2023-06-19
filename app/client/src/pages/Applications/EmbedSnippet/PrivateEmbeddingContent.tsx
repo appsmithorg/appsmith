@@ -123,31 +123,23 @@ function SnippetTabContent({
         data-testid="t--upgrade-content"
       >
         <div className="flex flex-col gap-1 items-start">
-          {canMakeAppPublic ? (
-            <>
-              <div className="flex">
-                <Icon className="mr-1" name="global-line" size="md" />
-                <Text kind="body-m">
-                  {createMessage(
-                    IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal,
-                  )}
-                </Text>
-              </div>
-              <Text
-                className="w-7/10"
-                color="var(--ads-v2-color-fg-muted)"
-                kind="body-s"
-              >
-                {createMessage(
-                  IN_APP_EMBED_SETTING.upgradeSubheadingForInviteModal,
-                )}
-              </Text>
-            </>
-          ) : (
-            <Text color="var(--ads-v2-color-fg-emphasis)" kind="body-m">
-              {createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
+          <div className="flex">
+            <Icon className="mr-1" name="global-line" size="md" />
+            <Text kind="body-m">
+              {createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)}
             </Text>
-          )}
+          </div>
+          <Text
+            className={canMakeAppPublic ? "w-7/10" : ""}
+            color="var(--ads-v2-color-fg-muted)"
+            kind="body-s"
+          >
+            {createMessage(
+              canMakeAppPublic
+                ? IN_APP_EMBED_SETTING.upgradeSubheadingForInviteModal
+                : IN_APP_EMBED_SETTING.upgradeHeading,
+            )}
+          </Text>
         </div>
 
         {canMakeAppPublic && (

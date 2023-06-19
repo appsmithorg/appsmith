@@ -1612,7 +1612,7 @@ export const IN_APP_EMBED_SETTING = {
   forkLabelTooltip: () =>
     "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
-    "Please contact your workspace admin to make the app public before embedding",
+    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
   upgradeHeadingForInviteModal: () => "Public apps",
   upgradeSubheadingForInviteModal: () =>
     "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
