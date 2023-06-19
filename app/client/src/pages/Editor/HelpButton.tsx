@@ -248,6 +248,7 @@ function HelpButton() {
               {!isAirgappedInstance && (
                 <>
                   <MenuItem
+                    data-testid="editor-welcome-tour"
                     onSelect={() => {
                       triggerWelcomeTour(dispatch);
                       AnalyticsUtil.logEvent("HELP_MENU_WELCOME_TOUR_CLICK");

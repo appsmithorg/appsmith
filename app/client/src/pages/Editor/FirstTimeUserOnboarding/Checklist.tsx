@@ -445,6 +445,7 @@ export default function OnboardingChecklist() {
             {createMessage(ONBOARDING_CHECKLIST_HEADER)}
           </Text>
           <Button
+            data-testid="signposting-modal-close-btn"
             isIconButton
             kind="tertiary"
             onClick={() => {

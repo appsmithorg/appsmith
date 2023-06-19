@@ -41,6 +41,7 @@ function OnboardingModal(props: {
     <StyledMenuContent
       animate={props.setOverlay}
       collisionPadding={10}
+      data-testid="signposting-modal"
       onInteractOutside={() => {
         dispatch(showSignpostingModal(false));
       }}

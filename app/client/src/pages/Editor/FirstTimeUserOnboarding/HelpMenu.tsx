@@ -76,6 +76,7 @@ function HelpMenu(props: {
           </Text>
           <div className="flex gap-2 flex-wrap mt-2">
             <Button
+              data-testid="editor-welcome-tour"
               kind="secondary"
               onClick={() => {
                 triggerWelcomeTour(dispatch);
