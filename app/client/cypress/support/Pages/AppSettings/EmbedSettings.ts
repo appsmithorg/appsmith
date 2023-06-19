@@ -42,16 +42,14 @@ export class EmbedSettings {
     );
   }
 
-  public ToggleShowNavigationBar(check: true | false = true) {
-    this.agHelper
-      .GetElement(this.locators._showNavigationBar)
-      .invoke("prop", "checked")
-      .then((isChecked) => {
-        if (isChecked !== check) {
-          this.agHelper.GetNClick(this.locators._showNavigationBar);
-          this.assertHelper.AssertNetworkStatus("@updateApplication");
-        }
-      });
+  public ToggleShowNavigationBar(check: "true" | "false" = "true") {
+    const input = this.agHelper.GetElement(this.locators._showNavigationBar);
+    input.invoke("attr", "checked").then((value) => {
+      if (value !== check) {
+        this.agHelper.GetNClick(this.locators._showNavigationBar);
+        this.assertHelper.AssertNetworkStatus("@updateApplication");
+      }
+    });
   }
 
   public ToggleMarkForkable(check: "true" | "false" = "true") {
