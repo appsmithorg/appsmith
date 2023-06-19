@@ -403,7 +403,7 @@ export class Table {
     cy.get(this._searchText).eq(index).type(searchTxt);
   }
 
-  public resetSearch() {
+  public ResetSearch() {
     this.agHelper.GetNClick(this._searchBoxCross);
   }
 
@@ -411,7 +411,7 @@ export class Table {
     cellDataAfterSearchRemoved: string,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    this.resetSearch();
+    this.ResetSearch();
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftSearchRemoved: any) => {
         expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);

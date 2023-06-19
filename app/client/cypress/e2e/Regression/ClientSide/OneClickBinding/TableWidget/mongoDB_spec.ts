@@ -57,11 +57,8 @@ describe("one click binding mongodb datasource", function () {
     const someUUID = Cypress._.random(0, 1e6);
     const enteredSomeValue = "123" + someUUID;
 
-    table.EditTableCell(0, someColumnIndex, enteredSomeValue);
-    //(cy as any).editTableCell(someColumnIndex, 0);
     //update the first value of the row
-
-    //(cy as any).enterTableCellValue(someColumnIndex, 0, enteredSomeValue);
+    table.EditTableCell(0, someColumnIndex, enteredSomeValue);
     agHelper.Sleep();
     //commit that update
     (cy as any).saveTableRow(12, 0);
@@ -76,8 +73,7 @@ describe("one click binding mongodb datasource", function () {
 
     //#region check if the table insert operation works
     //clear input
-    table.resetSearch();
-    // cy.get(".t--widget-tablewidgetv2 .t--search-input input").clear();
+    table.ResetSearch();
 
     //lets create a new row and check to see the insert operation is working
     agHelper.GetNClick(table._addNewRow);
@@ -85,13 +81,12 @@ describe("one click binding mongodb datasource", function () {
 
     const someText = "new row " + Cypress._.random(0, 1e6);
     const searchColumnIndex = 3;
-    (cy as any).enterTableCellValue(searchColumnIndex, 0, someText);
-
+    table.EditTableCell(0, searchColumnIndex, someText);
     (cy as any).saveTableCellValue(searchColumnIndex, 0);
     // save a row with some random text
     agHelper.GetNClick(table._saveNewRow, 0, true);
 
-    agHelper.Sleep(5000);
+    agHelper.Sleep(2000);
 
     //search the table for a row having the text used to create a new row
     agHelper.ClearTextField(table._searchInput);

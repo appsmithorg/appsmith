@@ -735,9 +735,12 @@ export class DataSources {
     this.AssertDSActive(datasourceName)
       .scrollIntoView()
       .should("be.visible")
-      .closest(this._datasourceCard)
-      .within(() => {
-        this.agHelper.GetNClick(btnLocator, 0, true);
+      .then(($element) => {
+        cy.wrap($element)
+          .closest(this._datasourceCard)
+          .within(() => {
+            this.agHelper.GetNClick(btnLocator, 0, true);
+          });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
     createQuery &&
