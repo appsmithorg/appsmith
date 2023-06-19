@@ -1,8 +1,10 @@
-const dsl = require("../../../../../fixtures/Table/ImageResizeDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Image Resize feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Table/ImageResizeDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Verify image size on selecting different Image Sizes", function () {

@@ -1,22 +1,22 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/formWithRTEDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("RichTextEditor Widget Functionality in Form", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formWithRTEDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
-    cy.wait(7000);
     cy.openPropertyPane("richtexteditorwidget");
   });
 
   it("RichTextEditor required functionality", function () {
     //changing the Text Name
     cy.widgetText(
-      this.data.RichTextEditorName,
+      this.dataSet.RichTextEditorName,
       formWidgetsPage.richTextEditorWidget,
       widgetsPage.widgetNameSpan,
     );
@@ -37,8 +37,5 @@ describe("RichTextEditor Widget Functionality in Form", function () {
     );
 
     cy.get(".t--draggable-formbuttonwidget button").should("be.disabled");
-  });
-  afterEach(() => {
-    cy.goToEditFromPublish();
   });
 });

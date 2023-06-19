@@ -7,7 +7,9 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 Filtered Table data in autocomplete", function () {
   before("Table Widget V2 Functionality", () => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2AndTextDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("tablewidgetv2");
     cy.wait("@updateLayout");
   });

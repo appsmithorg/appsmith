@@ -30,6 +30,7 @@ export const CONFIG = {
   name: "Stats Box",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["statbox"],
   isCanvas: true,
   canvasHeightOffset: (props: WidgetProps): number => {
     const offset =

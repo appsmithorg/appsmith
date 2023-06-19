@@ -1,28 +1,27 @@
-const dsl = require("../../../../../fixtures/dynamicHeightStatboxdsl.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
-const data = require("../../../../../fixtures/example.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
+import {
+  agHelper,
+  draggableWidgets,
+  entityExplorer,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Statbox Widget Functionality", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
-  });
-
-  it("Verify Statbox can be placed inside another widget", () => {
-    cy.get(explorer.addWidget).click();
-    // placing statbox widget inside container widget
-    cy.dragAndDropToWidget("statboxwidget", "containerwidget", {
-      x: 100,
-      y: 100,
+  before(() => {
+    cy.fixture("dynamicHeightStatboxdsl").then((val) => {
+      agHelper.AddDsl(val);
     });
-    cy.openPropertyPaneWithIndex("statboxwidget", 1);
-    cy.openPropertyPaneWithIndex("statboxwidget", 0);
+  });
+
+  it("1. Verify Statbox can be placed inside another widget", () => {
+    // placing statbox widget inside container widget
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.STATBOX,
+      300,
+      100,
+      draggableWidgets.CONTAINER,
+    );
+    entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.AssertEntityPresenceInExplorer("Statbox1");
+    entityExplorer.ExpandCollapseEntity("Container1");
+    entityExplorer.AssertEntityPresenceInExplorer("Statbox2");
   });
 });
