@@ -371,7 +371,7 @@ class CodeMirrorTernService {
           caseInsensitive: true,
           guess: false,
           inLiteral: true,
-          expandWordForward: false,
+          depth: 2,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -481,7 +481,6 @@ class CodeMirrorTernService {
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
     query.includeKeywords = true;
-    query.depth = 0;
     query.sort = true;
     if (query.end == null) {
       const positions = pos || doc.doc.getCursor("end");

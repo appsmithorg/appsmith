@@ -97,7 +97,7 @@ class NoDeepNestedSuggestionsRule implements AutocompleteRule {
   static threshold = -Infinity;
   computeScore(completion: Completion): number {
     let score = 0;
-    if (completion.text.split(".").length > 2)
+    if (completion.text.split(".").length > 3)
       score = NoDeepNestedSuggestionsRule.threshold;
     return score;
   }
