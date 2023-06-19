@@ -6,6 +6,7 @@ import {
   entityExplorer,
   agHelper,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -153,7 +154,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "response.body.responseMeta.status",
       200,
     ); //This verifies the Select on the table, ie page is created fine
-    agHelper.AssertNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     cy.ClickGotIt();
     cy.wait(3000);

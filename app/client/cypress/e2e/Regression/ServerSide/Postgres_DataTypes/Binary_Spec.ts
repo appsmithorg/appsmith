@@ -7,6 +7,7 @@ import {
   entityItems,
   dataSources,
   table,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe.skip("Binary Datatype tests", function () {
@@ -198,8 +199,8 @@ describe.skip("Binary Datatype tests", function () {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //Allowing time for delete to be success
     agHelper.Sleep(6000); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
