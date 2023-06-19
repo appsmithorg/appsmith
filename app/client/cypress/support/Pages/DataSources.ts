@@ -462,6 +462,32 @@ export class DataSources {
     );
   }
 
+  public FillOracleDSForm(
+    shouldAddTrailingSpaces = false,
+    username = "",
+    password = "",
+  ) {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["oracle-host"] + "  "
+      : datasourceFormData["oracle-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["oracle-name"] + "  "
+      : datasourceFormData["oracle-name"];
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["oracle-port"].toString(),
+    );
+    cy.get(this._databaseName).clear().type(databaseName);
+    this.ExpandSectionByName("Authentication");
+    cy.get(this._username).type(
+      username == "" ? datasourceFormData["oracle-username"] : username,
+    );
+    cy.get(this._password).type(
+      password == "" ? datasourceFormData["oracle-password"] : password,
+    );
+  }
+
   public FillMongoDSForm(shouldAddTrailingSpaces = false) {
     const hostAddress = shouldAddTrailingSpaces
       ? this.hp.mongo_host + "  "

@@ -83,6 +83,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2189,7 +2190,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<Application> discardChanges(String defaultApplicationId, String branchName) {
+    public Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull) {
 
         if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
@@ -2226,12 +2227,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(applicationJson ->
                                     importExportApplicationService
                                             .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
-                            );
-                })
-                .flatMap(application -> releaseFileLock(defaultApplicationId)
-                        .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
-                .map(responseUtils::updateApplicationWithDefaultResources);
-
+                                );
+                    })
+                    .flatMap(application -> releaseFileLock(defaultApplicationId)
+                            .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES.getEventName(), application, null)))
+                    .map(responseUtils::updateApplicationWithDefaultResources);
+        }
 
         return Mono.create(sink -> discardChangeMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())

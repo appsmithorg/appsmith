@@ -23,8 +23,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.RebaseCommand;
-import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
@@ -558,6 +556,16 @@ public class GitExecutorImpl implements GitExecutor {
         .subscribeOn(scheduler);
     }
 
+    private int getModifiedQueryCount(Set<String> jsObjectsModified, int modifiedCount, String filePath) {
+        String queryName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        String pageName = filePath.split("/")[1];
+        if (!jsObjectsModified.contains(pageName + queryName)) {
+            jsObjectsModified.add(pageName + queryName);
+            modifiedCount++;
+        }
+        return modifiedCount;
+    }
+
     @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
@@ -717,7 +725,7 @@ public class GitExecutorImpl implements GitExecutor {
                 config.save();
                 return git.getRepository().getBranch();
             }
-        }).timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+        })
         .subscribeOn(scheduler);
     }
 
