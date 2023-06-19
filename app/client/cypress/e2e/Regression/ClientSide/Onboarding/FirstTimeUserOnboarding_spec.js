@@ -91,7 +91,8 @@ describe("FirstTimeUserOnboarding", function () {
       });
 
       agHelper.GetNClick(OnboardingLocator.checklistDeployBtn);
-      agHelper.GetNAssertContains(OnboardingLocator.checklistStatus, "5 of 5");
+      agHelper.GetNClick(debuggerHelper.locators._helpButton);
+      agHelper.AssertElementExist(OnboardingLocator.checklistCompletionBanner);
       agHelper.AssertElementAbsence(OnboardingLocator.checklistDeployBtn);
 
       cy.window().then((window) => {
@@ -109,7 +110,6 @@ describe("FirstTimeUserOnboarding", function () {
       cy.get(OnboardingLocator.checklistStatus).should("be.visible");
       cy.get(OnboardingLocator.checklistStatus).should("contain", "0 of 5");
 
-      agHelper.GetNClick(debuggerHelper.locators._helpButton);
       agHelper
         .GetElement(OnboardingLocator.checklistDatasourceBtn)
         .realHover()
@@ -176,8 +176,8 @@ describe("FirstTimeUserOnboarding", function () {
       });
       cy.get(OnboardingLocator.checklistDeployBtn).should("be.visible");
       cy.get(OnboardingLocator.checklistDeployBtn).click();
-      cy.get(OnboardingLocator.checklistStatus).should("contain", "5 of 5");
-      cy.get(OnboardingLocator.checklistDeployBtn).should("not.exist");
+      agHelper.AssertElementExist(OnboardingLocator.checklistCompletionBanner);
+      agHelper.AssertElementAbsence(OnboardingLocator.checklistDeployBtn);
       cy.window().then((window) => {
         window.open = open;
       });
@@ -186,6 +186,7 @@ describe("FirstTimeUserOnboarding", function () {
 
   it("3. onboarding flow - should check directly opening widget pane", function () {
     cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
@@ -204,6 +205,7 @@ describe("FirstTimeUserOnboarding", function () {
 
   it("4. onboarding flow - new apps created should start with signposting", function () {
     cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
 
     homePage.NavigateToHome();
     homePage.CreateNewApplication(false);

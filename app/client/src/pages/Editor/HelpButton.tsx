@@ -31,6 +31,7 @@ import {
   getSignpostingSetOverlay,
   getSignpostingTooltipVisible,
   getSignpostingUnreadSteps,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
 import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
 import { showSignpostingModal } from "actions/onboardingActions";
@@ -159,6 +160,7 @@ function HelpButton() {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const showSignpostingTooltip = useSelector(getSignpostingTooltipVisible);
   const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
   const unreadSteps = useSelector(getSignpostingUnreadSteps);
@@ -245,7 +247,7 @@ function HelpButton() {
             <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
           ) : (
             <>
-              {!isAirgappedInstance && (
+              {!isAirgappedInstance && !guidedTourEnabled && (
                 <>
                   <MenuItem
                     data-testid="editor-welcome-tour"

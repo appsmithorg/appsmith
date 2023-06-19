@@ -1,6 +1,5 @@
 {
   "introModal": "[data-testid='signposting-modal']",
-  "introModalWelcomeTourBtn": "[data-testid='statusbar-skip']",
   "introModalCloseBtn": "[data-testid='signposting-modal-close-btn']",
   "checklistStatus": "[data-testid='checklist-completion-info']",
   "checklistDatasourceBtn": "[data-testid='checklist-datasource']",
@@ -18,5 +17,7 @@
   "datasourceBackBtn": ".t--back-button",
   "dropTarget": ".t--drop-target",
   "textWidgetName": ".t--widget-textwidget",
-  "welcomeTourBtn": ".t--start-building"
+  "welcomeTourBtn": ".t--start-building",
+  "editorWelcomeTourBtn": "[data-testid='editor-welcome-tour']",
+  "checklistCompletionBanner": "[data-testid='checklist-completion-banner']"
 }

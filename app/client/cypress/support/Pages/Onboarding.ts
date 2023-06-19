@@ -32,7 +32,7 @@ export class Onboarding {
     this._aggregateHelper
       .GetElement(OnboardingLocator.checklistConnectionBtn)
       .realHover()
-      .should("have.css", "cursor", "auto");
+      .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistActionBtn).click();
     cy.get(OnboardingLocator.createQuery).should("be.visible");
@@ -78,8 +78,6 @@ export class Onboarding {
     });
     cy.get(OnboardingLocator.checklistDeployBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistDeployBtn).click();
-    cy.get(OnboardingLocator.checklistStatus).should("contain", "5 of 5");
-    cy.get(OnboardingLocator.checklistDeployBtn).should("not.exist");
     cy.window().then((window) => {
       window.open = open;
     });
