@@ -223,8 +223,8 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.l = 0.94;
     }
 
-    if (this.seedChroma > 0.1 && this.seedIsCold) {
-      color.oklch.c = 0.1;
+    if (this.seedChroma > 0.09 && this.seedIsCold) {
+      color.oklch.c = 0.09;
     }
 
     if (this.seedChroma > 0.06 && !this.seedIsCold) {
@@ -239,11 +239,19 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentSubtleHover() {
-    return this.bgAccentSubtle.clone().lighten(0.02);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.02;
+
+    return color;
   }
 
   private get bgAccentSubtleActive() {
-    return this.bgAccentSubtle.clone().darken(0.01);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.01;
+
+    return color;
   }
 
   private get bgPositive() {
