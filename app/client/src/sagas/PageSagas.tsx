@@ -613,7 +613,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           correctWidget: JSON.stringify(normalizedWidgets),
         });
         yield put(
-          updateAndSaveLayout(normalizedWidgets.entities.canvasWidgets, {
+          updateAndSaveLayout(normalizedWidgets, {
             isRetry: true,
           }),
         );
