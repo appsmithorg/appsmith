@@ -6,16 +6,13 @@ require("cypress-file-upload");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
-const commonlocators = require("../locators/commonlocators.json");
 const queryEditor = require("../locators/QueryEditor.json");
-const widgetsPage = require("../locators/Widgets.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
 const queryLocators = require("../locators/QueryEditor.json");
-const { AggregateHelper } = ObjectsRegistry;
-const { PropertyPane } = ObjectsRegistry;
+const { AggregateHelper, DataSources, PropertyPane } = ObjectsRegistry;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -33,8 +30,7 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
 });
 
 Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
-  cy.NavigateToQueryEditor();
-  cy.NavigateToActiveTab();
+  DataSources.NavigateToActiveTab();
 
   cy.get(datasource.datasourceCard)
     .contains(datasourceName)
@@ -48,8 +44,7 @@ Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
 });
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
-  cy.NavigateToQueryEditor();
-  cy.NavigateToActiveTab();
+  DataSources.NavigateToActiveTab();
 
   cy.get(datasource.datasourceCard)
     .contains(datasourceName)
@@ -170,9 +165,6 @@ Cypress.Commands.add("CreateMockQuery", (queryName) => {
     force: true,
   });
   cy.assertPageSave();
-  cy.get(queryEditor.templateMenu + " div")
-    .contains("Select")
-    .click({ force: true });
   cy.runQuery();
   // cy.wait(3000);
   // cy.get(queryEditor.runQuery)
