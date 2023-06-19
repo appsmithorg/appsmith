@@ -1,15 +1,20 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 import apiPage from "../../../../locators/ApiEditor";
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   let apiData;
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2WidgetDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   it("1. Test_Add users api and execute api", function () {
-    cy.createAndFillApi(this.data.userApi, "/mock-api?records=100");
+    cy.createAndFillApi(this.dataSet.userApi, "/mock-api?records=100");
     cy.RunAPI();
     cy.get(apiPage.jsonResponseTab).click();
     cy.get(apiPage.responseBody)
@@ -37,7 +42,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.readTableV2data("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       apiData = JSON.stringify(interception.response.body.data.body[0].name);
     });

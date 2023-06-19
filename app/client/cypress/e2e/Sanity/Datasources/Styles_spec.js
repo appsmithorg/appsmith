@@ -1,4 +1,5 @@
-import * as _ from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
+
 let dsName;
 describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   const backgroundColorGray700 = "rgb(76, 86, 100)";
@@ -6,14 +7,14 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   const backgroundColorGray2 = "rgba(0, 0, 0, 0)";
 
   before("Creating mock db for test case 4 validations", () => {
-    _.dataSources.CreateMockDB("Users").then((mockDBName) => {
+    dataSources.CreateMockDB("Users").then((mockDBName) => {
       dsName = mockDBName;
     });
   });
 
   it("1. Mock datasource card design", () => {
-    _.dataSources.NavigateToDSCreateNew();
-    _.agHelper.Sleep(200);
+    dataSources.NavigateToDSCreateNew();
+    agHelper.Sleep(200);
     //Card container style
     cy.datasourceCardContainerStyle(".t--mock-datasource-list");
     //Datasource card
@@ -35,7 +36,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   });
 
   it("2. Database datasource card design", () => {
-    _.dataSources.NavigateToDSCreateNew();
+    dataSources.NavigateToDSCreateNew();
     //Card container style
     cy.datasourceCardContainerStyle(
       "[data-testid=database-datasource-card-container]",
@@ -59,7 +60,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   });
 
   it("3. New API datasource card design", () => {
-    _.dataSources.NavigateToDSCreateNew();
+    dataSources.NavigateToDSCreateNew();
     //Card container style
     cy.datasourceCardContainerStyle(
       "[data-testid=newapi-datasource-card-container]",
@@ -82,7 +83,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
 
   it("4. Datasource Active card styles", () => {
     // Action button icon placement
-    _.dataSources.NavigateToActiveTab();
+    dataSources.NavigateToActiveTab();
     //Icon should be placed left to the text.
     cy.get(".t--create-query span");
 
@@ -145,7 +146,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   });
 
   after(() => {
-    _.dataSources.DeleteDatasouceFromActiveTab(dsName);
-    //_.entityExplorer.ActionContextMenuByEntityName(dsName, "Delete");//Since Users is not appearing in EntityExplorer, this has potential to fail
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    //entityExplorer.ActionContextMenuByEntityName(dsName, "Delete");//Since Users is not appearing in EntityExplorer, this has potential to fail
   });
 });

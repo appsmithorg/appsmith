@@ -3,66 +3,59 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Container Widget Functionality", function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(5000);
+    cy.fixture("listdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. List-Unckeck Visible field Validation", function () {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Uncheck the disabled checkbox and validate
-    cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.propPane.TogglePropertyState("Visible", "Off");
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("not.exist");
-    cy.get(publishPage.backToEditor).click({ force: true });
-  });
-
-  it("2. List-Check Visible field Validation", function () {
+    _.deployMode.NavigateBacktoEditor();
+    // List-Check Visible field Validation
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Check the disableed checkbox and Validate
-    cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.propPane.TogglePropertyState("Visible", "On");
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("be.visible");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Toggle JS - List-Unckeck Visible field Validation", function () {
+  it("2. Toggle JS - List-Unckeck Visible field Validation", function () {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Uncheck the disabled checkbox using JS and validate
-    cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.propPane.EnterJSContext("Visible", "false");
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("not.exist");
-    cy.get(publishPage.backToEditor).click({ force: true });
-  });
-
-  it("4. Toggle JS - List-Check Visible field Validation", function () {
+    _.deployMode.NavigateBacktoEditor();
+    //Toggle JS - List-Check Visible field Validation
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Check the disabled checkbox using JS and Validate
-    cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
+    _.propPane.EnterJSContext("Visible", "true");
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("be.visible");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("5. checks if list shows correct no. of items", function () {
+  it("3. checks if list shows correct no. of items", function () {
     // Verify the length of list
     cy.get(commonlocators.containerWidget).then(function ($lis) {
       expect($lis).to.have.length(2);
     });
-  });
-
-  it("6. checks currentItem binding", function () {
+    //checks currentItem binding
     // Open property pane
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("List1");
@@ -79,7 +72,7 @@ describe("Container Widget Functionality", function () {
     });
   });
 
-  it("7. doesn't alter the no of items present when invalid item spacing is entered", () => {
+  it("4. doesn't alter the no of items present when invalid item spacing is entered", () => {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     cy.moveToStyleTab();
@@ -99,7 +92,7 @@ describe("Container Widget Functionality", function () {
     cy.closePropertyPane();
   });
 
-  it("8. checks button action", function () {
+  it("5. checks button action", function () {
     // Open property pane
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("List1");
@@ -108,8 +101,7 @@ describe("Container Widget Functionality", function () {
     cy.testJsontext("label", `{{currentItem.last_name}}`);
     cy.addAction("{{currentItem.last_name}}", "onClick");
     cy.wait(3000);
-    cy.PublishtheApp();
-    cy.wait(2000);
+    _.deployMode.DeployApp();
     // Verify Widget Button by clicking on it
     cy.get(widgetsPage.widgetBtn).should("have.length", 2);
     cy.get(widgetsPage.widgetBtn).closest("div").first().click({ force: true });
@@ -117,10 +109,9 @@ describe("Container Widget Functionality", function () {
     cy.get(commonlocators.toastmsg).contains(items[0].last_name);
   });
 
-  it("9. it checks onListItem click action", function () {
+  it("6. it checks onListItem click action", function () {
     // Verify Clicking on list item shows message of first name
-    cy.get(publishPage.backToEditor).click({ force: true });
-    // Open property pane
+    _.deployMode.NavigateBacktoEditor(); // Open property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
     // Verify Action type and Message of List Item
@@ -128,7 +119,7 @@ describe("Container Widget Functionality", function () {
     // Write binding inside the Message code textarea
     cy.addAction("{{currentItem.first_name}}", "onListItemClick");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Click on list first item
     cy.get(
       "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
@@ -144,7 +135,7 @@ describe("Container Widget Functionality", function () {
     cy.get(commonlocators.toastmsg).contains(items[0].first_name);
   });
 
-  it("10. it checks pagination", function () {
+  it("7. it checks pagination", function () {
     // clicking on second pagination button
     cy.get(`${commonlocators.paginationButton}-2`).click();
 
@@ -153,20 +144,20 @@ describe("Container Widget Functionality", function () {
       expect($lis.eq(0)).to.contain(items[2].first_name);
       expect($lis.eq(1)).to.contain(items[3].first_name);
     });
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("11. ListWidget-Copy & Delete Verification", function () {
+  it("8. ListWidget-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
     _.propPane.CopyWidgetFromPropertyPane("List1");
     _.propPane.DeleteWidgetFromPropertyPane("List1Copy");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Verify the copied list widget is deleted
     cy.get(commonlocators.containerWidget).should("have.length", 2);
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("12. List widget background colour and deploy ", function () {
+  it("9. List widget background colour and deploy ", function () {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
@@ -176,7 +167,7 @@ describe("Container Widget Functionality", function () {
     cy.wait(1000);
     cy.selectColor("itembackgroundcolor");
     // Click on Deploy and ensure it is deployed appropriately
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Ensure List Background Color
     cy.get(widgetsPage.listWidget).should(
       "have.css",
@@ -189,10 +180,10 @@ describe("Container Widget Functionality", function () {
       "background-color",
       "rgb(126, 34, 206)",
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("13. Toggle JS - List widget background colour and deploy ", function () {
+  it("10. Toggle JS - List widget background colour and deploy ", function () {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
@@ -204,7 +195,7 @@ describe("Container Widget Functionality", function () {
     cy.get(widgetsPage.itemBackgroundColorToggle).click({ force: true });
     cy.testJsontext("itembackgroundcolor", "#38AFF4");
     // Click on Deploy and ensure it is deployed appropriately
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Ensure List Background Color
     cy.get(widgetsPage.listWidget).should(
       "have.css",
@@ -217,34 +208,36 @@ describe("Container Widget Functionality", function () {
       "background-color",
       "rgb(56, 175, 244)",
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("14. Add new item in the list widget array object", function () {
+  it("11. Add new item in the list widget array object", function () {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
     //Add the new item in the list
-    cy.testJsontext("items", JSON.stringify(this.data.ListItems));
+    _.propPane.UpdatePropertyFieldValue(
+      "Items",
+      JSON.stringify(this.dataSet.ListItems),
+    );
     cy.wait(2000);
-    cy.PublishtheApp();
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("15. Adding large item Spacing for item card", function () {
+  it("12. Adding large item Spacing for item card", function () {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
-
-    cy.moveToStyleTab();
+    _.propPane.MoveToTab("Style");
     // Scroll down to Styles and Add item spacing for item card
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", 12);
     cy.wait(2000);
     // Click on Deploy and ensure it is deployed appropriately
-    cy.PublishtheApp();
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("16. Renaming the widget from Property pane and Entity explorer ", function () {
+  it("13. Renaming the widget from Property pane and Entity explorer ", function () {
     // Open Property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
@@ -267,11 +260,7 @@ describe("Container Widget Functionality", function () {
       widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
       "List1",
     );
-    cy.PublishtheApp();
-    cy.get(publishPage.backToEditor).click({ force: true });
-  });
-
-  afterEach(() => {
-    // put your clean up code if any
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

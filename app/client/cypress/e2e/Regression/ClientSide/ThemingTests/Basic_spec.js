@@ -1,12 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/replay.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const ee = ObjectsRegistry.EntityExplorer,
-  appSettings = ObjectsRegistry.AppSettings;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const containerShadowElement = `${widgetsPage.containerWidget}`;
 
@@ -24,8 +19,8 @@ describe("App Theming funtionality", function () {
     themesSection(sectionName, themeName) + "/following-sibling::button";
 
   it("1. Checks if theme can be changed to one of the existing themes", function () {
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     // select a theme
@@ -56,17 +51,17 @@ describe("App Theming funtionality", function () {
 
   it("2. Checks if theme can be edited", function () {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
-    appSettings.ClosePane();
+    _.appSettings.ClosePane();
 
     // drop a button & container widget and click on body
-    ee.NavigateToSwitcher("Widgets");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
     cy.get("canvas").first(0).trigger("click", { force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
 
     //Click the back button //Commenting below since expanded by default
     //cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
@@ -91,7 +86,7 @@ describe("App Theming funtionality", function () {
         );
 
         // publish the app
-        // cy.PublishtheApp();
+        // _.deployMode.DeployApp();
         cy.get(widgetsPage.widgetBtn).should(
           "have.css",
           "border-radius",
@@ -190,17 +185,17 @@ describe("App Theming funtionality", function () {
 
     cy.wait(200);
     cy.get(commonlocators.toastMsg).contains("Theme testtheme saved");
-    appSettings.ClosePane();
+    _.appSettings.ClosePane();
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
-    ee.NavigateToSwitcher("Widgets");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("iconbuttonwidget", { x: 200, y: 300 });
     cy.assertPageSave();
     cy.get("canvas").first(0).trigger("click", { force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //#region Change Font & verify widgets:
     // cy.contains("Font")
     //   .click({ force: true })
@@ -692,7 +687,7 @@ describe("App Theming funtionality", function () {
   });
 
   it("8. Verify widgets conform to the selected theme in Publish mode", () => {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     //cy.wait(4000); //for theme to settle
 
@@ -720,11 +715,11 @@ describe("App Theming funtionality", function () {
     cy.get(widgetsPage.widgetBtn).should("have.css", "box-shadow", "none"); //Shadow
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
 
-    cy.get(publish.backToEditor).click({ force: true }).wait(3000);
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
-    ee.NavigateToSwitcher("Widgets");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.assertPageSave();
     cy.moveToStyleTab();
@@ -788,7 +783,7 @@ describe("App Theming funtionality", function () {
 
     cy.assertPageSave();
     cy.wait(2000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     //Verify Background color
     cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
@@ -836,12 +831,11 @@ describe("App Theming funtionality", function () {
       "none",
     );
 
-    cy.get(publish.backToEditor).click({ force: true }).wait(1000);
-
+    _.deployMode.NavigateBacktoEditor();
     //Resetting back to theme
-    ee.NavigateToSwitcher("Explorer");
-    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
-    ee.SelectEntityByName("Button2");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
+    _.entityExplorer.SelectEntityByName("Button2");
     cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
@@ -864,7 +858,7 @@ describe("App Theming funtionality", function () {
     );
 
     //the new widget with reverted styles also conforming to theme
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Inter, sans-serif"); //Font
@@ -920,14 +914,14 @@ describe("App Theming funtionality", function () {
     ); //Since Shadow revert option does not exixts
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
 
-    cy.get(publish.backToEditor).click({ force: true }).wait(2000);
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("10. Verify Chainging theme should not affect Individual widgets with changed Color, Border radius, Shadow & can revert to newly selected theme", () => {
     cy.get("canvas").first(0).trigger("click", { force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
 
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
@@ -937,9 +931,9 @@ describe("App Theming funtionality", function () {
       .wait(2000);
 
     //Change individual widget properties for Button1
-    ee.NavigateToSwitcher("Explorer");
-    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
-    ee.SelectEntityByName("Button1");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
+    _.entityExplorer.SelectEntityByName("Button1");
     cy.moveToStyleTab();
 
     //Change Color & verify
@@ -1004,7 +998,7 @@ describe("App Theming funtionality", function () {
     cy.assertPageSave();
 
     //Add deploy mode verification here also!
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     //Verify Background color
     cy.get(".t--widget-button1 button").should(
@@ -1051,12 +1045,11 @@ describe("App Theming funtionality", function () {
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     );
 
-    cy.get(publish.backToEditor).click({ force: true }).wait(1000);
-
+    _.deployMode.NavigateBacktoEditor();
     //Resetting back to theme
-    ee.NavigateToSwitcher("Explorer");
-    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
-    ee.SelectEntityByName("Button1");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
+    _.entityExplorer.SelectEntityByName("Button1");
     cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
@@ -1080,7 +1073,7 @@ describe("App Theming funtionality", function () {
     );
 
     //the new widget with reverted styles also conforming to theme
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Rubik, sans-serif"); //Font for Rounded theme
@@ -1137,6 +1130,6 @@ describe("App Theming funtionality", function () {
     ); //Since Shadow revert option does not exixts
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
 
-    cy.get(publish.backToEditor).click({ force: true }).wait(1000);
+    _.deployMode.NavigateBacktoEditor();
   });
 });

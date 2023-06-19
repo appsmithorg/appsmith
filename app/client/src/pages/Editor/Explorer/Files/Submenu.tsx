@@ -150,6 +150,7 @@ export default function ExplorerSubMenu({
             <Text kind="heading-xs">Create new</Text>
           </div>
           <SearchInput
+            autoFocus
             data-testId="t--search-file-operation"
             onChange={onChange}
             placeholder="Search datasources"

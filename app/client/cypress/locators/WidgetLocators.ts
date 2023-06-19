@@ -38,6 +38,8 @@ export const WIDGET = {
   MODAL: "modalwidget",
   FORM: "formwidget",
   ICONBUTTON: "iconbuttonwidget",
+  IMAGE: "imagewidget",
+  STATBOX: "statboxwidget",
 } as const;
 
 // property pane element selector are maintained here
