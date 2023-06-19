@@ -19,7 +19,7 @@ let inputHeight = 0;
 const tabsMinHeight = 300 - WIDGET_PADDING;
 let dropTargetClass = "";
 describe("validate auto height for tabs widget on auto layout canvas", () => {
-  it("tabs widget should maintain a minHeight of 30 rows", () => {
+  it("1. tabs widget should maintain a minHeight of 30 rows", () => {
     /**
      * Convert app to AutoLayout
      */
@@ -66,7 +66,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
     });
   });
 
-  it("should update height on adding child widgets", () => {
+  it("2. should update height on adding child widgets", () => {
     // Add a child Table widget to the container.
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.TABLE,
@@ -89,7 +89,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
   });
 
-  it("should update height on toggling visibility of tabs header", () => {
+  it("3. should update height on toggling visibility of tabs header", () => {
     // Hide tabs header.
     tabs.toggleShowTabHeader(
       false,
@@ -121,7 +121,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
   });
 
-  it("should update height on switching tabs", () => {
+  it("4. should update height on switching tabs", () => {
     // Switch to tab 2.
     agHelper.GetNClick(tabs.getTabSelectorByWidgetName("Tabs1", "tab2"));
 
@@ -147,7 +147,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
   });
 
-  it("should update height on flex wrap at mobile viewport", () => {
+  it("5. should update height on flex wrap at mobile viewport", () => {
     // add an input widget to the tabs widget, in the first row.
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.INPUT_V2,
@@ -181,7 +181,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
   });
 
-  it("should update height on switching tabs at mobile viewport", () => {
+  it("6. should update height on switching tabs at mobile viewport", () => {
     // Switch to tab 2.
     agHelper.GetNClick(tabs.getTabSelectorByWidgetName("Tabs1", "tab2"));
 
@@ -207,7 +207,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
   });
 
-  it("should update height on deleting child widgets", () => {
+  it("7. should update height on deleting child widgets", () => {
     // Switch to desktop viewport
     agHelper.SetCanvasViewportWidth(1024);
     agHelper.Sleep(2000);

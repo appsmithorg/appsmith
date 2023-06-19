@@ -17,7 +17,7 @@ let containerHeight = 0;
 let inputHeight = 0;
 let dropTargetClass = "";
 describe("validate auto height for form widget on auto layout canvas", () => {
-  it("form widget height should update on adding or deleting child widgets", () => {
+  it("1. form widget height should update on adding or deleting child widgets", () => {
     /**
      * Convert app to AutoLayout
      */
@@ -94,7 +94,7 @@ describe("validate auto height for form widget on auto layout canvas", () => {
     });
   });
 
-  it("form widget should update height upon flex wrap on mobile viewport", () => {
+  it("2. form widget should update height upon flex wrap on mobile viewport", () => {
     // add an input widget to the container.
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.INPUT_V2,

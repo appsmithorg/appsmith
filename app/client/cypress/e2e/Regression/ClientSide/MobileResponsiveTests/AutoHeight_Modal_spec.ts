@@ -21,7 +21,7 @@ let inputHeight = 0;
 let iconHeight = 0;
 let dropTargetClass = "";
 describe("validate auto height for modal widget on auto layout canvas", () => {
-  it("modal widget height should update on adding or deleting child widgets", () => {
+  it("1. modal widget height should update on adding or deleting child widgets", () => {
     /**
      * Convert app to AutoLayout
      */
@@ -92,7 +92,7 @@ describe("validate auto height for modal widget on auto layout canvas", () => {
     });
   });
 
-  it("modal widget should update height upon flex wrap on mobile viewport", () => {
+  it("2. modal widget should update height upon flex wrap on mobile viewport", () => {
     // add an input widget to the container.
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.INPUT_V2,

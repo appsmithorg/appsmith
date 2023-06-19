@@ -15,7 +15,7 @@ const containerPadding = 16;
 let inputHeight = 0;
 let dropTargetClass = "";
 describe("Validate auto height for container widget on auto layout canvas", () => {
-  it("parent height should update on adding or deleting child widgets", () => {
+  it("1. parent height should update on adding or deleting child widgets", () => {
     /**
      * Convert app to AutoLayout
      */
@@ -93,7 +93,7 @@ describe("Validate auto height for container widget on auto layout canvas", () =
     });
   });
 
-  it("container widget should update height upon flex wrap on mobile viewport", () => {
+  it("2. container widget should update height upon flex wrap on mobile viewport", () => {
     // add an input widget to the container.
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.INPUT_V2,

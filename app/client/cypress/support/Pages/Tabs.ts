@@ -11,7 +11,7 @@ export class Tabs {
 
   public toggleShowTabHeader(showTabs = true, selector: string) {
     this.agHelper.GetNClick(selector).then(() => {
-      this.propPane.ToggleOnOrOff(
+      this.propPane.TogglePropertyState(
         this._showTabsProperty,
         showTabs ? "On" : "Off",
       );
