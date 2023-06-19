@@ -51,8 +51,10 @@ export default function AnonymousDataPopup() {
   };
 
   useEffect(() => {
-    AnalyticsUtil.logEvent("DISPLAY_TELEMETRY_CALLOUT");
-  }, []);
+    if (isAnonymousDataPopupVisible) {
+      AnalyticsUtil.logEvent("DISPLAY_TELEMETRY_CALLOUT");
+    }
+  }, [isAnonymousDataPopupVisible]);
 
   const handleLinkClick = (link: string) => {
     if (link === ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH) {
