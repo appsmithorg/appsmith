@@ -579,7 +579,9 @@ export class Table {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
-    ); //not working consistenly
+      0,
+      true,
+    );
     this.agHelper.AssertElementVisible(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
