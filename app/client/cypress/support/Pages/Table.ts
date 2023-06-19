@@ -604,13 +604,11 @@ export class Table {
   }
 
   public sortColumn(columnName: string, direction: string) {
-    cy.get(
-      ` ${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`,
-    ).click({ force: true });
-    cy.get(".bp3-menu")
-      .contains(`Sort column ${direction}`)
-      .click({ force: true });
-
-    cy.wait(500);
+    const selector = `${this._columnHeaderDiv(
+      columnName,
+    )} .header-menu .bp3-popover2-target`;
+    this.agHelper.GetNClick(selector, 0, true);
+    this.agHelper.GetNClickByContains(".bp3-menu", `Sort column ${direction}`);
+    this.agHelper.Sleep(500);
   }
 }
