@@ -129,6 +129,10 @@ describe("Tern server", () => {
     ];
 
     testCases.forEach((testCase) => {
+      MockCodemirrorEditor.getTokenAt.mockReturnValueOnce({
+        type: "string",
+        string: "",
+      });
       const request = CodemirrorTernService.buildRequest(testCase.input, {});
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
@@ -190,6 +194,10 @@ describe("Tern server", () => {
       MockCodemirrorEditor.getDoc.mockReturnValueOnce(
         testCase.input.codeEditor.doc,
       );
+      MockCodemirrorEditor.getTokenAt.mockReturnValueOnce({
+        type: "string",
+        string: "",
+      });
 
       const mockAddFile = jest.fn();
       CodemirrorTernService.server.addFile = mockAddFile;
