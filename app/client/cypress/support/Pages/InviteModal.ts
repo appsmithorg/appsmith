@@ -74,7 +74,7 @@ export class InviteModal {
     cy.wait(4000);
   }
 
-  public ValidatePreviewEmbed(toShowNavBar: "true" | "false" = "true") {
+  public ValidatePreviewEmbed(toShowNavBar: true | false = true) {
     this.OpenShareModal();
     this.SelectEmbedTab();
     this.embedSettings.ToggleShowNavigationBar(toShowNavBar);
