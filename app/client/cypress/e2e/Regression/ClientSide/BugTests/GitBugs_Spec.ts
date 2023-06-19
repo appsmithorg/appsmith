@@ -22,7 +22,7 @@ describe("Git Bugs", function () {
     cy.get("@postExecute").should("not.exist");
     _.gitSync.CloseGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
   });
 
   it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {
@@ -51,7 +51,7 @@ describe("Git Bugs", function () {
       true,
       true,
     );
-    _.jsEditor.DisableJSContext("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("Page2", "Pages");
     _.entityExplorer.SelectEntityByName("Text1", "Widgets");
@@ -65,8 +65,8 @@ describe("Git Bugs", function () {
     _.agHelper
       .GetText(_.locators._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
-    _.agHelper.ValidateURL("branch=" + repoName); //Validate we are still in Git branch
-    _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
+    _.agHelper.AssertURL("branch=" + tempBranch); //Validate we are still in Git branch
+    _.agHelper.AssertURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
   it("4. Bug 24206 : Open repository button is not functional in git sync modal", function () {
@@ -84,6 +84,7 @@ describe("Git Bugs", function () {
     _.gitSync.OpenRepositoryAndVerify();
     cy.get("@repoURL").should("be.called");
   });
+
   // it.only("4. Import application json and validate headers", () => {
   //   _.homePage.NavigateToHome();
   //   _.homePage.ImportApp("DeleteGitRepos.json");

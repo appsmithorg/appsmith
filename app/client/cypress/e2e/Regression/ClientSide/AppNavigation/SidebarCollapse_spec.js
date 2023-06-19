@@ -1,7 +1,5 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const deployMode = ObjectsRegistry.DeployMode;
+import { deployMode } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Sidebar Collapse", function () {
   it("1. Sidebar collapse button should be there", () => {

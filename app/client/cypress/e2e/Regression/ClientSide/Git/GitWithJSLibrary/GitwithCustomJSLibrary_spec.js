@@ -8,7 +8,7 @@ let repoName;
 
 describe("excludeForAirgap", "Tests JS Library with Git", () => {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -23,7 +23,7 @@ describe("excludeForAirgap", "Tests JS Library with Git", () => {
 
   it("1. Install JS Library and commit changes, create branch and verify JS library changes are present on new branch ", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
+    _.installer.OpenInstaller();
     _.installer.installLibrary("uuidjs", "UUID");
     cy.commitAndPush();
     // create new branch
@@ -60,7 +60,7 @@ describe("excludeForAirgap", "Tests JS Library with Git", () => {
     cy.switchGitBranch(tempBranch);
     _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
     _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
+    _.installer.OpenInstaller();
     _.installer.installLibrary("jspdf", "jspdf");
     //cy.commitAndPush();
 
