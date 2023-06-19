@@ -10,8 +10,8 @@ import { getUnevalEntityTree } from "./entityTree";
 import DependencyMap from "entities/DependencyMap";
 import { getAllPathsFromNode } from "./entityPath";
 import { lintingDependencyMap } from "./lintingDependencyMap";
-import { getParsedJSEntity } from "./parseJSEntity";
 import { entityFns } from "workers/Evaluation/fns";
+import { parsedJSCache } from "./parseJSEntity";
 
 function isDataField(fullPath: string, entityTree: TEntityTree) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
@@ -178,9 +178,9 @@ export function isAsyncJSFunction(
 ) {
   const { entityName: jsObjectName, propertyPath } =
     getEntityNameAndPropertyPath(jsFnFullname);
-  const parsedJSEntity = getParsedJSEntity(jsObjectName);
+  const parsedJSEntity = parsedJSCache[jsObjectName];
   if (!parsedJSEntity) return false;
-  const config = parsedJSEntity.getParsedEntityConfig();
+  const config = parsedJSEntity.parsedEntityConfig;
   const propertyConfig = config[propertyPath];
   if (!propertyConfig) return false;
   return (

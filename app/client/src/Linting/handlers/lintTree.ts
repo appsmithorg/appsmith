@@ -1,5 +1,7 @@
 import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import type { TEntityTree } from "../utils/entityTree";
+import { getEntityTreeDifferences } from "../utils/entityTree";
+import { updateTreeWithParsedJS } from "../utils/entityTree";
 import { getUnevalEntityTree } from "../utils/entityTree";
 import { createEntityTree } from "../utils/entityTree";
 import { isEmpty, mapValues } from "lodash";
@@ -8,7 +10,6 @@ import {
   getAllPaths,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { diff } from "deep-diff";
 import {
   addAppsmithGlobalFnsToDependencyMap,
   lintingDependencyMap,
@@ -21,20 +22,17 @@ import { sortDifferencesByType } from "Linting/utils/sortDifferencesByType";
 import { getAllPathsFromNode } from "Linting/utils/entityPath";
 import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
 import { getLintErrorsFromTree } from "Linting/utils/lintTree";
-import {
-  parsedJSEntitiesCache,
-  updateTreeWithParsedJS,
-} from "Linting/utils/parseJSEntity";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import { isDynamicLeaf } from "Linting/utils/entityPath";
-import { isJSEntity } from "Linting/lib/entity";
+import { clearParsedJSCache, parsedJSCache } from "Linting/utils/parseJSEntity";
 
-let cachedEntityTree: TEntityTree = {};
+export let cachedEntityTree: TEntityTree = {};
 
 function initializeLinting() {
   if (isEmpty(cachedEntityTree)) {
     addAppsmithGlobalFnsToDependencyMap(AppsmithFunctionsWithFields);
     jsActionsInDataField.initialize();
+    clearParsedJSCache();
   }
 }
 
@@ -50,8 +48,9 @@ export function lintTreeV2({
       ? lintFirstTree(unEvalTree as UnEvalTree, configTree)
       : lintUpdatedTree(unEvalTree as UnEvalTree, configTree);
 
-  const jsPropertiesState = mapValues(parsedJSEntitiesCache, (parsedJSEntity) =>
-    parsedJSEntity.getParsedEntityConfig(),
+  const jsPropertiesState = mapValues(
+    parsedJSCache,
+    ({ parsedEntityConfig }) => parsedEntityConfig,
   ) as TJSPropertiesState;
 
   const lintTreeResponse: LintTreeResponse = {
@@ -222,18 +221,4 @@ function lintUpdatedTree(
     pathsToLint,
     entityTree,
   };
-}
-
-export function getEntityTreeDifferences(
-  oldEntityTree: TEntityTree,
-  entityTree: TEntityTree,
-) {
-  const oldEntityTreeForDiff = mapValues(oldEntityTree, (entity) =>
-    isJSEntity(entity) ? entity.getEntityForDiff() : entity.getRawEntity(),
-  );
-  const newEntityTreeForDiff = mapValues(entityTree, (entity) =>
-    isJSEntity(entity) ? entity.getEntityForDiff() : entity.getRawEntity(),
-  );
-
-  return diff(oldEntityTreeForDiff, newEntityTreeForDiff);
 }

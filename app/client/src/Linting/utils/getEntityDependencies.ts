@@ -4,7 +4,6 @@ import type {
   TEntity,
   WidgetEntity,
 } from "Linting/lib/entity";
-import { isJSEntity } from "Linting/lib/entity";
 import {
   addWidgetPropertyDependencies,
   convertPathToString,
@@ -105,7 +104,7 @@ function getDependencyFromEntityPath(
   entity: TEntity,
 ): TDependencyMap {
   const unevalPropValue = get(
-    isJSEntity(entity) ? entity.getParsedEntity() : entity.getRawEntity(),
+    entity.getRawEntity(),
     propertyPath,
     "",
   ).toString();

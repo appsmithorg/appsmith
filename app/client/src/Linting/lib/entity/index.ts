@@ -18,8 +18,13 @@ import type {
   DataTreeEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { ParsedJSEntity } from "Linting/utils/parseJSEntity";
-import type { TParsedJSProperty } from "@shared/ast";
+import type { Diff } from "deep-diff";
+
+export type TEntityParser = (entity: TEntity) => unknown;
+export type TDiffGenerator = (
+  entity1?: TEntity,
+  entity2?: TEntity,
+) => Diff<unknown>[] | undefined;
 
 enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -38,23 +43,46 @@ export type IEntity<
   getType(): ENTITY_TYPE;
   getRawEntity(): T;
   getConfig(): K;
+  computeDifference(entity?: TEntity): ReturnType<TDiffGenerator>;
 };
 
 export default class EntityFactory {
   static getEntity<
     T extends DataTreeEntity,
     K extends DataTreeEntityConfig | undefined,
-  >(entity: T, config: K) {
+    P extends TEntityParser,
+    D extends TDiffGenerator,
+  >(entity: T, config: K, entityParser: P, diffGenerator: D) {
     if (isWidget(entity)) {
-      return new WidgetEntity(entity, config as TWidgetEntityConfig);
+      return new WidgetEntity(
+        entity,
+        config as TWidgetEntityConfig,
+        entityParser,
+        diffGenerator,
+      );
     } else if (isJSAction(entity)) {
-      return new JSEntity(entity, config as TJSActionEntityConfig);
+      return new JSEntity(
+        entity,
+        config as TJSActionEntityConfig,
+        entityParser,
+        diffGenerator,
+      );
     } else if (isAction(entity)) {
-      return new ActionEntity(entity, config as TActionEntityConfig);
+      return new ActionEntity(
+        entity,
+        config as TActionEntityConfig,
+        entityParser,
+        diffGenerator,
+      );
     } else if (isAppsmith(entity)) {
-      return new AppsmithEntity(entity);
+      return new AppsmithEntity(entity, undefined, entityParser, diffGenerator);
     } else {
-      return new PagelistEntity(entity as TPageListEntity);
+      return new PagelistEntity(
+        entity as TPageListEntity,
+        undefined,
+        entityParser,
+        diffGenerator,
+      );
     }
   }
 }
@@ -64,9 +92,18 @@ export class ActionEntity
 {
   private entity: TActionEntity;
   private config: TActionEntityConfig;
-  constructor(entity: TActionEntity, config: TActionEntityConfig) {
+  entityParser: TEntityParser;
+  diffGenerator: TDiffGenerator;
+  constructor(
+    entity: TActionEntity,
+    config: TActionEntityConfig,
+    entityParser: TEntityParser,
+    diffGenerator: TDiffGenerator,
+  ) {
     this.entity = entity;
     this.config = config;
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType() {
     return ENTITY_TYPE.ACTION;
@@ -83,6 +120,9 @@ export class ActionEntity
   getConfig() {
     return this.config;
   }
+  computeDifference(oldEntity?: TEntity) {
+    return this.diffGenerator(oldEntity, this);
+  }
 }
 
 export class WidgetEntity
@@ -90,9 +130,18 @@ export class WidgetEntity
 {
   private entity: TWidgetEntity;
   private config: TWidgetEntityConfig;
-  constructor(entity: TWidgetEntity, config: TWidgetEntityConfig) {
+  entityParser: TEntityParser;
+  diffGenerator: TDiffGenerator;
+  constructor(
+    entity: TWidgetEntity,
+    config: TWidgetEntityConfig,
+    entityParser: TEntityParser,
+    diffGenerator: TDiffGenerator,
+  ) {
     this.entity = entity;
     this.config = config;
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType(): ENTITY_TYPE {
     return ENTITY_TYPE.WIDGET;
@@ -109,20 +158,29 @@ export class WidgetEntity
   getConfig() {
     return this.config;
   }
+  computeDifference(oldEntity?: TEntity) {
+    return this.diffGenerator(oldEntity, this);
+  }
 }
 
 export class JSEntity
   implements IEntity<TJSActionEntity, TJSActionEntityConfig>
 {
-  private entity: TJSActionEntity;
+  entity: TJSActionEntity;
   private config: TJSActionEntityConfig;
-  private parsedEntity: Record<string, string>;
-  private parsedEntityConfig: Record<string, TParsedJSProperty>;
-  constructor(entity: TJSActionEntity, config: TJSActionEntityConfig) {
+  entityParser: TEntityParser;
+  diffGenerator: TDiffGenerator;
+
+  constructor(
+    entity: TJSActionEntity,
+    config: TJSActionEntityConfig,
+    entityParser: TEntityParser,
+    diffGenerator: TDiffGenerator,
+  ) {
     this.entity = entity;
     this.config = config;
-    this.parsedEntity = { body: entity.body };
-    this.parsedEntityConfig = {};
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType() {
     return ENTITY_TYPE.JSACTION;
@@ -142,33 +200,26 @@ export class JSEntity
   isEqual(body: string) {
     return body === this.getRawEntity().body;
   }
-  setParsedEntity(parsedJSEntity: ParsedJSEntity) {
-    this.parsedEntity = parsedJSEntity.getParsedEntity();
-    this.parsedEntityConfig = parsedJSEntity.getParsedEntityConfig();
-  }
-  getParsedEntity() {
-    return this.parsedEntity;
-  }
-  getParsedEntityConfig() {
-    return this.parsedEntityConfig;
-  }
-  getEntityForDiff() {
-    const val: Record<string, string> = {};
-    for (const [propertyName, value] of Object.entries(this.parsedEntity)) {
-      val[propertyName] = getHashedConfigString(
-        value,
-        this.parsedEntityConfig[propertyName],
-      );
-    }
-    return val;
+  computeDifference(oldEntity?: TEntity) {
+    return this.diffGenerator(oldEntity, this);
   }
 }
 
 export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
   private entity: TPageListEntity;
   private config: undefined;
-  constructor(entity: TPageListEntity) {
+  entityParser: TEntityParser = this.getRawEntity;
+  diffGenerator: TDiffGenerator;
+  constructor(
+    entity: TPageListEntity,
+    config: undefined,
+    entityParser: TEntityParser,
+    diffGenerator: TDiffGenerator,
+  ) {
     this.entity = entity;
+    this.config = config;
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType() {
     return ENTITY_TYPE.PAGELIST;
@@ -185,13 +236,26 @@ export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
   getId() {
     return "pageList";
   }
+  computeDifference(oldEntity?: TEntity) {
+    return this.diffGenerator(oldEntity, this);
+  }
 }
 
 export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
   private entity: TAppsmithEntity;
   private config: undefined;
-  constructor(entity: TAppsmithEntity) {
+  entityParser: TEntityParser = this.getRawEntity;
+  diffGenerator: TDiffGenerator;
+  constructor(
+    entity: TAppsmithEntity,
+    config: undefined,
+    entityParser: TEntityParser,
+    diffGenerator: TDiffGenerator,
+  ) {
     this.entity = entity;
+    this.config = config;
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType() {
     return ENTITY_TYPE.APPSMITH;
@@ -207,6 +271,9 @@ export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
   }
   getId(): string {
     return "appsmith";
+  }
+  computeDifference(oldEntity?: TEntity) {
+    return this.diffGenerator(oldEntity, this);
   }
 }
 
@@ -237,17 +304,4 @@ export function isDynamicEntity(
     ENTITY_TYPE.WIDGET,
     ENTITY_TYPE.ACTION,
   ].includes(entity.getType());
-}
-
-function getHashedConfigString(
-  propertyValue: string,
-  config?: TParsedJSProperty,
-) {
-  if (!config) return propertyValue;
-  const {
-    position: { endColumn, endLine, startColumn, startLine },
-    value,
-  } = config;
-
-  return value + `${startColumn}${endColumn}${startLine}${endLine}`;
 }

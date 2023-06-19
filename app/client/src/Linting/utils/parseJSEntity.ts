@@ -1,105 +1,103 @@
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
-import type { JSEntity } from "Linting/lib/entity";
+import type { TEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
-import type { createEntityTree } from "./entityTree";
 import { uniq } from "lodash";
-
-export const parsedJSEntitiesCache: Record<string, ParsedJSEntity> = {};
-
-export class ParsedJSEntity {
-  private entity: Record<string, string> = { body: "" };
-  private entityConfig: Record<string, TParsedJSProperty> = {};
-
-  constructor(
-    jsObjectBody: string,
-    jsObjectProperties: Record<string, TParsedJSProperty>,
-  ) {
-    const parsedJS: Record<string, string> = {
-      body: jsObjectBody,
-    };
-    const parsedJSConfig: Record<string, Partial<TParsedJSProperty>> = {};
-
-    for (const [propertyName, parsedPropertyDetails] of Object.entries(
-      jsObjectProperties,
-    )) {
-      const { position, rawContent, type, value } = parsedPropertyDetails;
-      parsedJS[propertyName] = value;
-      if (isJSFunctionProperty(parsedPropertyDetails)) {
-        parsedJSConfig[propertyName] = {
-          isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
-          position,
-          value: rawContent,
-        };
-      } else if (type !== "literal") {
-        parsedJSConfig[propertyName] = {
-          position: position,
-          value: rawContent,
-        };
-      }
-    }
-
-    this.entity = parsedJS;
-    this.entityConfig = parsedJSConfig as any; // Fix type during eval-linting split
-  }
-
-  getParsedEntity() {
-    return this.entity;
-  }
-  getParsedEntityConfig() {
-    return this.entityConfig;
-  }
-}
-
-export function updateTreeWithParsedJS(
-  entityTree: ReturnType<typeof createEntityTree>,
-) {
-  for (const entity of Object.values(entityTree)) {
-    if (!isJSEntity(entity)) continue;
-    const parsedJSEntity = parseJSEntity(entity);
-    const rawEntity = entity.getRawEntity();
-    for (const [key, value] of Object.entries(
-      parsedJSEntity.getParsedEntity(),
-    )) {
-      rawEntity[key] = value;
-    }
-    entity.setParsedEntity(parsedJSEntity);
-  }
-  return entityTree;
-}
+import type { JSVarProperty } from "@shared/ast";
+import type { JSFunctionProperty } from "@shared/ast";
 
 function isValidJSBody(jsBody: string) {
   return !!jsBody.trim() && validJSBodyRegex.test(jsBody);
 }
 
-export function parseJSEntity(jsEntity: JSEntity) {
-  const jsEntityBody = jsEntity.getRawEntity().body;
-  const jsEntityName = jsEntity.getName();
-  const cachedJSEntity = parsedJSEntitiesCache[jsEntityName];
-  // When body is the unchanged, used cached value
+type TParsedJSEntity = Record<string, string> & {
+  body: string;
+};
+
+type TParsedJSEntityConfig = Record<string, TParsedJSProperty>;
+
+export let parsedJSCache: Record<
+  string,
+  { parsedEntity: TParsedJSEntity; parsedEntityConfig: TParsedJSEntityConfig }
+> = {};
+
+export function clearParsedJSCache() {
+  parsedJSCache = {};
+}
+
+export function parseJSEntity(entity: TEntity) {
+  if (!isJSEntity(entity)) return {};
+  const jsEntityBody = entity.getRawEntity().body;
+  const jsEntityName = entity.getName();
+  const cachedParsedJSEntity = parsedJSCache[jsEntityName];
   if (
-    cachedJSEntity &&
-    jsEntity.isEqual(cachedJSEntity.getParsedEntity().body)
+    cachedParsedJSEntity &&
+    entity.isEqual(cachedParsedJSEntity.parsedEntity.body)
   ) {
-    return cachedJSEntity;
+    return {
+      parsedEntity: cachedParsedJSEntity.parsedEntity,
+      parsedEntityConfig: cachedParsedJSEntity.parsedEntityConfig,
+    };
   }
 
-  const { parsedObject } = parseJSObjectBody(jsEntityBody);
-  const parsedJSEntity = new ParsedJSEntity(jsEntityBody, parsedObject);
+  const { parsedObject, success } = parseJSObjectBody(jsEntityBody);
 
-  parsedJSEntitiesCache[jsEntityName] = parsedJSEntity;
+  if (!success) {
+    // Save parsed entity to cache
+    parsedJSCache[jsEntityName] = {
+      parsedEntity: { body: jsEntityBody },
+      parsedEntityConfig: {},
+    };
+    return {
+      parsedEntity: { body: jsEntityBody },
+      parsedEntityConfig: {},
+    };
+  }
 
-  return parsedJSEntity;
+  const parsedJSEntity: TParsedJSEntity = {
+    body: jsEntityBody,
+  };
+  const parsedJSEntityConfig: TParsedJSEntityConfig = {};
+
+  for (const [propertyName, parsedPropertyDetails] of Object.entries(
+    parsedObject,
+  )) {
+    const { position, rawContent, type, value } = parsedPropertyDetails;
+    parsedJSEntity[propertyName] = value;
+    if (isJSFunctionProperty(parsedPropertyDetails)) {
+      parsedJSEntityConfig[propertyName] = {
+        isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
+        position,
+        value: rawContent,
+      } as JSFunctionProperty;
+    } else if (type !== "literal") {
+      parsedJSEntityConfig[propertyName] = {
+        position: position,
+        value: rawContent,
+      } as JSVarProperty;
+    }
+  }
+
+  // Save parsed entity to cache
+  parsedJSCache[jsEntityName] = {
+    parsedEntity: parsedJSEntity,
+    parsedEntityConfig: parsedJSEntityConfig,
+  };
+
+  return {
+    parsedEntity: parsedJSEntity,
+    parsedEntityConfig: parsedJSEntityConfig,
+  };
 }
 
 function parseJSObjectBody(jsBody: string) {
   const unsuccessfulParsingResponse = {
     success: false,
     parsedObject: {},
-  };
-  const response:
+  } as const;
+  let response:
     | { success: false; parsedObject: Record<string, never> }
     | { success: true; parsedObject: Record<string, TParsedJSProperty> } =
     unsuccessfulParsingResponse;
@@ -111,23 +109,20 @@ function parseJSObjectBody(jsBody: string) {
       // so we return an empty object
       const allPropertyKeys = parsedProperties.map((property) => property.key);
       const uniqueKeys = uniq(allPropertyKeys);
-      return allPropertyKeys.length !== uniqueKeys.length
-        ? unsuccessfulParsingResponse
-        : {
-            success: true,
-            parsedObject: parsedProperties.reduce(
-              (acc: Record<string, TParsedJSProperty>, property) => {
-                const updatedProperties = { ...acc, [property.key]: property };
-                return updatedProperties;
-              },
-              {},
-            ),
-          };
+      const hasUniqueKeys = allPropertyKeys.length === uniqueKeys.length;
+      if (hasUniqueKeys) {
+        response = {
+          success: true,
+          parsedObject: parsedProperties.reduce(
+            (acc: Record<string, TParsedJSProperty>, property) => {
+              const updatedProperties = { ...acc, [property.key]: property };
+              return updatedProperties;
+            },
+            {},
+          ),
+        } as const;
+      }
     }
   }
   return response;
-}
-
-export function getParsedJSEntity(jsObjectName: string) {
-  return parsedJSEntitiesCache[jsObjectName];
 }
