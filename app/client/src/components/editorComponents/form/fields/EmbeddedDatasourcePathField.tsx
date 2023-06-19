@@ -65,6 +65,7 @@ import {
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { isString } from "lodash";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -422,9 +423,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
       let evaluatedPath = "path" in entity.config ? entity.config.path : "";
 
-      if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
-        evaluatedPath = extractApiUrlPath(evaluatedPath);
+      if (evaluatedPath) {
+        if (isString(evaluatedPath) && evaluatedPath.indexOf("?") > -1) {
+          evaluatedPath = extractApiUrlPath(evaluatedPath);
+        } else {
+          evaluatedPath = JSON.stringify(evaluatedPath);
+        }
       }
+
       const evaluatedQueryParameters = entity?.config?.queryParameters
         ?.filter((p: KeyValuePair) => !!p?.key)
         .map(
