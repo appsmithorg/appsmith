@@ -68,14 +68,16 @@ export class EmbedSettings {
   }
 
   public TogglePublicAccess(check: true | false = true) {
-    const input = this.agHelper.GetElement(
-      this.locators._enablePublicAccessSettingsPage,
-    );
-    input.invoke("attr", "checked").then((value) => {
-      if (value !== check.toString()) {
-        this.agHelper.GetNClick(this.locators._enablePublicAccessSettingsPage);
-        this.assertHelper.AssertNetworkStatus("@changeAccess");
-      }
-    });
+    this.agHelper
+      .GetElement(this.locators._enablePublicAccessSettingsPage)
+      .invoke("prop", "checked")
+      .then((isChecked) => {
+        if (isChecked !== check) {
+          this.agHelper.GetNClick(
+            this.locators._enablePublicAccessSettingsPage,
+          );
+          this.assertHelper.AssertNetworkStatus("@changeAccess");
+        }
+      });
   }
 }
