@@ -1,58 +1,100 @@
 package com.appsmith.git.helpers;
 
-import com.appsmith.util.WebClientUtils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import reactor.netty.resources.ConnectionProvider;
 
-import java.time.Duration;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class DSLTransformerHelper {
 
-    private final String RTS_BASE_URL = "http:localhost:8091";
+    private static final String WIDGET_NAME = "widgetName";
 
-    private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
-            .maxConnections(100)
-            .maxIdleTime(Duration.ofSeconds(30))
-            .maxLifeTime(Duration.ofSeconds(40))
-            .pendingAcquireTimeout(Duration.ofSeconds(10))
-            .pendingAcquireMaxCount(-1)
-            .build());
+    private static final String WIDGET_ID = "widgetId";
 
-    public List<JSONObject> getNormalizedDSL(JSONObject dsl) {
-        return webClient.post()
-                .uri(RTS_BASE_URL+ "/rts-api/v1/git/dsl/normalize")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(dsl))
-                .retrieve()
-                .bodyToMono(WidgetDSL.class)
-                .onErrorResume(error -> {
-                    log.error("Error while normalizing DSL from CS API {}", error.getMessage());
-                    return Mono.error(new RuntimeException("Error while normalizing DSL from CS API"));
-                })
-                .block()
-                .getWidgets();
+    private static final String PARENT_ID = "parentId";
+
+    private static final String WIDGET_TYPE = "type";
+
+    private static final String CHILDREN = "children";
+
+    public static Map<String, JSONObject> flatten(JSONObject jsonObject) {
+        Map<String, JSONObject> flattenedMap = new HashMap<>();
+        flattenHelper(jsonObject, flattenedMap, "");
+        return flattenedMap;
     }
 
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    static class WidgetDSL {
-        List<JSONObject> widgets;
+    private static void flattenHelper(JSONObject jsonObject, Map<String, JSONObject> flattenedMap, String prefix) {
+        try {
+            String widgetName = jsonObject.getString("widgetName");
+            String widgetType = jsonObject.getString("type");
+            boolean isCanvasWidget = "CANVAS_WIDGET".equals(widgetType);
+
+            if (!isCanvasWidget) {
+                flattenedMap.put(prefix + widgetName, removeChildren(jsonObject));
+            } 
+
+            if (jsonObject.has("children")) {
+                JSONArray children = jsonObject.getJSONArray("children");
+                for (int i = 0; i < children.length(); i++) {
+                    JSONObject child = children.getJSONObject(i);
+                    flattenHelper(child, flattenedMap, isCanvasWidget ? prefix : prefix + widgetName + ".");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static JSONObject removeChildren(JSONObject jsonObject) {
+        JSONObject updatedObject = new JSONObject(jsonObject.toString());
+        updatedObject.remove("children");
+        return updatedObject;
+    }
+
+    public static JSONObject constructNested(Map<String, JSONObject> flattenedMap) {
+        return constructNestedHelper(flattenedMap, "", null);
+    }
+
+    private static JSONObject constructNestedHelper(Map<String, JSONObject> flattenedMap, String prefix, JSONObject parent) {
+        JSONObject nestedObject = new JSONObject();
+        try {
+            nestedObject.put("widgetName", prefix);
+
+            if (parent != null) {
+                JSONArray childrenArray = new JSONArray();
+                childrenArray.put(nestedObject);
+                parent.put("children", childrenArray);
+            }
+
+            for (Map.Entry<String, JSONObject> entry : flattenedMap.entrySet()) {
+                String key = entry.getKey();
+                if (key.startsWith(prefix)) {
+                    String childKey = key.substring(prefix.length());
+                    if (childKey.contains(".")) {
+                        String[] nestedKeys = childKey.split("\\.", 2);
+                        constructNestedHelper(flattenedMap, prefix + nestedKeys[0] + ".", nestedObject);
+                    } else {
+                        nestedObject.put(childKey, entry.getValue());
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return nestedObject;
     }
 }

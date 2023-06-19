@@ -54,8 +54,10 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -236,19 +238,25 @@ public class FileUtilsImpl implements FileInterface {
                     Set<Map.Entry<String, Object>> pageEntries = applicationGitReference.getPages().entrySet();
 
                     Set<String> validPages = new HashSet<>();
+                    Set<String> validWidgets = new HashSet<>();
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
-                            HashMap<String, Object> widgetsFlattened = (HashMap<String, Object>) getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
-                            widgetsFlattened.forEach((key, val) -> {
-                                // Save Widgets
+                            Map<String, JSONObject> result =  DSLTransformerHelper.flatten(new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
+                            result.forEach((key, jsonObject) -> {
+                                // get path with splitting the name via key
+                                String widgetName = key.substring(key.lastIndexOf("." ) + 1 );
+                                String childPath = key.replace(".", "/").replace("MainContainer", "");
+                                Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
+
                                 saveWidgets(
-                                        new JSONObject(gson.toJson(val, Map.class)),
-                                        key,
-                                        pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                                        jsonObject,
+                                        widgetName,
+                                        path
+                                );
                             });
                             // Remove deleted widgets from the file system
                             //scanAndDeleteFileForDeletedResources(widgetsFlattened.keySet(), pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
