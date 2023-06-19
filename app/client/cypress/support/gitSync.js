@@ -412,7 +412,7 @@ Cypress.Commands.add("gitDiscardChanges", () => {
   //cy.wait(6000);
   cy.get(gitSyncLocators.discardChanges)
     .children()
-    .should("have.text", "Discard & pull");
+    .should("have.text", "Discard changes");
 
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());

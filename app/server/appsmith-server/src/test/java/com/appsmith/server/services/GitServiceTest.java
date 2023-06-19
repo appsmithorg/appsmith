@@ -3159,7 +3159,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.rebaseBranch(Mockito.any(Path.class), Mockito.anyString()))
-                .thenReturn(Mono.just(true));
+                .thenReturn(Mono.just(Boolean.TRUE));
 
         Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
