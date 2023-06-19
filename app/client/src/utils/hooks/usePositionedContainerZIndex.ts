@@ -22,6 +22,8 @@ export const usePositionedContainerZIndex = (
       // dragging mode use cases
       if (!isThisWidgetDragging && droppableWidget) {
         return Layers.positionedWidget + 1;
+      } else if (isThisWidgetDragging) {
+        return Layers.positionedWidget;
       } else {
         // all non container widgets should go last into the background to not interfere with mouse move
         // since it is not technically dragged but just drawn on canvas as  the mouse moves.

@@ -6,6 +6,7 @@ import Debugger from "components/editorComponents/Debugger";
 import {
   getCurrentPageId,
   getCurrentPageName,
+  getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import NavigationPreview from "./NavigationPreview";
@@ -63,6 +64,7 @@ function WidgetsEditor() {
   const isPreviewMode = useSelector(previewModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -240,6 +242,14 @@ function WidgetsEditor() {
 
             {!isMultiPane && <PropertyPaneContainer />}
           </div>
+          {isAutoLayout && (
+            <canvas
+              height={20}
+              id="widget-drag-image"
+              style={{ position: "absolute" }}
+              width={100}
+            />
+          )}
         </>
       )}
     </EditorContextProvider>

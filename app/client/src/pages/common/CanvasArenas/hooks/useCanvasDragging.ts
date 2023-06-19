@@ -59,9 +59,19 @@ export const useCanvasDragging = (
   const canvasScale = useSelector(getCanvasScale);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
 
-  const canvasPosition = useRef<{ top: number; left: number }>({
+  const canvasPosition = useRef<{
+    top: number;
+    left: number;
+    scrollOffset: number;
+  }>({
     top: 0,
     left: 0,
+    scrollOffset: 0,
+  });
+
+  const dragPosition = useRef<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
   });
   let { devicePixelRatio: scale = 1 } = window;
   scale *= canvasScale;
@@ -72,11 +82,9 @@ export const useCanvasDragging = (
     defaultHandlePositions,
     draggingSpaces,
     getSnappedXY,
-    isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
-    isNewWidgetInitialTargetCanvas,
     isResizing,
     lastDraggedCanvas,
     occSpaces,
@@ -221,7 +229,10 @@ export const useCanvasDragging = (
             if (useAutoLayout) {
               const delta = {
                 left: e.clientX - canvasPosition.current.left,
-                top: e.clientY - canvasPosition.current.top,
+                top:
+                  e.clientY -
+                  canvasPosition.current.top +
+                  canvasPosition.current.scrollOffset,
               };
               const dropInfo: HighlightInfo | undefined = getDropPosition(
                 snapColumnSpace,
@@ -300,10 +311,8 @@ export const useCanvasDragging = (
                 left: 0,
                 top: 0,
               };
-            canvasPosition.current = {
-              left: canvasRect.left,
-              top: canvasRect.top,
-            };
+            canvasPosition.current.left = canvasRect.left;
+            canvasPosition.current.top = canvasRect.top;
             onMouseMove(e, over);
           }
         };
@@ -573,10 +582,15 @@ export const useCanvasDragging = (
                 scrollParent?.scrollHeight +
                 scrollParent?.scrollTop -
                 (lastScrollHeight + lastScrollTop);
-              onMouseMove({
-                offsetX: lastMouseMoveEvent.offsetX,
-                offsetY: lastMouseMoveEvent.offsetY + delta,
-              });
+              if (useAutoLayout) {
+                canvasPosition.current.scrollOffset =
+                  scrollParent?.scrollTop || 0;
+              } else {
+                onMouseMove({
+                  offsetX: lastMouseMoveEvent.offsetX,
+                  offsetY: lastMouseMoveEvent.offsetY + delta,
+                });
+              }
             }
           }, 0);
         const onMouseOver = (e: any) => {
@@ -584,6 +598,21 @@ export const useCanvasDragging = (
         };
 
         const onDragOver = (e: any) => {
+          e.preventDefault();
+          const x = e.clientX,
+            y = e.clientY;
+
+          if (
+            x &&
+            y &&
+            (dragPosition.current.x !== x || dragPosition.current.y !== y)
+          ) {
+            onDragMove(e);
+            dragPosition.current = { x, y };
+          }
+        };
+
+        const onDragMove = (e: any) => {
           e.preventDefault();
           if (
             !isResizing &&
@@ -608,10 +637,8 @@ export const useCanvasDragging = (
                 left: 0,
                 top: 0,
               };
-            canvasPosition.current = {
-              left: canvasRect.left,
-              top: canvasRect.top,
-            };
+            canvasPosition.current.left = canvasRect.left;
+            canvasPosition.current.top = canvasRect.top;
           }
 
           onDrag(e);
@@ -626,7 +653,10 @@ export const useCanvasDragging = (
           ) {
             const delta = {
               left: e.clientX - canvasPosition.current.left,
-              top: e.clientY - canvasPosition.current.top,
+              top:
+                e.clientY -
+                canvasPosition.current.top +
+                canvasPosition.current.scrollOffset,
             };
 
             //temp start
@@ -693,15 +723,22 @@ export const useCanvasDragging = (
             scrollObj.lastDeltaLeft = delta.left;
             scrollObj.lastDeltaTop = delta.top;
           } else {
-            onDragOver(e);
+            onDragMove(e);
           }
+        };
+
+        const onDragEnter = (e: any) => {
+          onDragOver(e);
         };
 
         const onDropInCanvas = (e: DragEvent) => {
           if (isDragging && canvasIsDragging) {
             const delta = {
               left: e.clientX - canvasPosition.current.left,
-              top: e.clientY - canvasPosition.current.top,
+              top:
+                e.clientY -
+                canvasPosition.current.top +
+                canvasPosition.current.scrollOffset,
             };
             const dropInfo: HighlightInfo | undefined = getDropPosition(
               snapColumnSpace,
@@ -718,9 +755,22 @@ export const useCanvasDragging = (
           resetDragging();
         };
 
+        const onDragEnd = () => {
+          startPoints.top = defaultHandlePositions.top;
+          startPoints.left = defaultHandlePositions.left;
+          resetCanvasState();
+
+          resetDragging();
+        };
+
         //Initialize Listeners
         const initializeListeners = () => {
           if (useAutoLayout) {
+            slidingArenaRef.current?.addEventListener(
+              "dragenter",
+              onDragEnter,
+              false,
+            );
             slidingArenaRef.current?.addEventListener(
               "dragover",
               onDragOver,
@@ -736,6 +786,8 @@ export const useCanvasDragging = (
               onDropInCanvas,
               false,
             );
+            document.body.addEventListener("dragend", onDragEnd, false);
+            window.addEventListener("dragend", onDragEnd, false);
           } else {
             slidingArenaRef.current?.addEventListener(
               "mousemove",
@@ -775,12 +827,12 @@ export const useCanvasDragging = (
             scrollParent
           ) {
             initializeListeners();
-            if (
-              (isChildOfCanvas || isNewWidgetInitialTargetCanvas) &&
-              slidingArenaRef.current
-            ) {
-              slidingArenaRef.current.style.zIndex = "2";
-            }
+            // if (
+            //   (isChildOfCanvas || isNewWidgetInitialTargetCanvas) &&
+            //   slidingArenaRef.current
+            // ) {
+            //   slidingArenaRef.current.style.zIndex = "2";
+            // }
           }
         };
         startDragging();
@@ -806,6 +858,11 @@ export const useCanvasDragging = (
           );
           document.body.removeEventListener("mouseup", onMouseUp);
           window.removeEventListener("mouseup", onMouseUp);
+          slidingArenaRef.current?.removeEventListener(
+            "dragenter",
+            onDragEnter,
+            false,
+          );
           slidingArenaRef.current?.removeEventListener(
             "dragover",
             onDragOver,

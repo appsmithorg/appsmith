@@ -9,6 +9,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { useSelector } from "react-redux";
 import { getIsAutoLayout } from "selectors/editorSelectors";
+import { useDragImageGenerator } from "./useDragImageGenerator";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -76,6 +77,7 @@ function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const isAutoLayout = useSelector(getIsAutoLayout);
   const { deselectAll } = useWidgetSelection();
+  const { getWidgetDragImage, resetCanvas } = useDragImageGenerator();
 
   const onDragStart = (e: DragEvent) => {
     e.stopPropagation();
@@ -91,22 +93,13 @@ function WidgetCard(props: CardProps) {
           widgetId: generateReactKey(),
         }),
       );
-      const img = new Image();
-      img.src = props.details.icon;
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-      canvas.width = 100;
-      canvas.height = 20;
-      if (context) {
-        context.fillStyle = "#333333";
-        context.fillRect(0, 0, canvas.width, canvas.height);
 
-        context.fillStyle = "#999999";
-        context.font = "bold 13px Arial";
-        context.fillText(props.details.displayName, 5, 15);
-      }
-      e.dataTransfer.setDragImage(img, -25, -25);
-      //document.body.appendChild(canvas);
+      const canvas = getWidgetDragImage(props.details.displayName);
+      e.dataTransfer.setDragImage(canvas, 0, 0);
+
+      setTimeout(() => {
+        resetCanvas();
+      }, 100);
     } else {
       e.preventDefault();
     }

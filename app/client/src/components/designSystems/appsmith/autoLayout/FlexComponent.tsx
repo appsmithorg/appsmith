@@ -64,6 +64,7 @@ const FlexWidget = styled.div`
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+
   const {
     maxHeight,
     maxWidth,
@@ -106,6 +107,12 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.focused,
     props.selected,
   );
+
+  useEffect(() => {
+    if (ref.current?.style) {
+      ref.current.style.zIndex = zIndex.toString();
+    }
+  }, [zIndex]);
 
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
@@ -171,7 +178,6 @@ export function FlexComponent(props: AutoLayoutProps) {
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
       display: "flex",
-      zIndex,
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
         zIndex: onHoverZIndex + " !important",

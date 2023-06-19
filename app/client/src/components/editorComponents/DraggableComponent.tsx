@@ -22,6 +22,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { useDragImageGenerator } from "pages/Editor/useDragImageGenerator";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -123,6 +124,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isCurrentWidgetResizing = isResizing && isSelected;
   const showBoundary =
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
+  const { getWidgetDragImage, resetCanvas } = useDragImageGenerator();
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
@@ -197,20 +199,12 @@ function DraggableComponent(props: DraggableComponentProps) {
           "text",
           JSON.stringify(props.widgetId || "widget"),
         );
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.width = 100;
-        canvas.height = 20;
-        if (context) {
-          context.fillStyle = "#333333";
-          context.fillRect(0, 0, canvas.width, canvas.height);
+        const canvas = getWidgetDragImage(props.widgetName);
+        e.dataTransfer.setDragImage(canvas, 0, 0);
 
-          context.fillStyle = "#999999";
-          context.font = "bold 13px Arial";
-          context.fillText(props.widgetName, 5, 15);
-        }
-        e.dataTransfer.setDragImage(canvas, -25, -25);
-        document.body.appendChild(canvas);
+        setTimeout(() => {
+          resetCanvas();
+        }, 100);
       } else {
         e.preventDefault();
       }
