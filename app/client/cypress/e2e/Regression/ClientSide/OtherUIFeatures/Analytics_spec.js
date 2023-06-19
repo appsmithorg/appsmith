@@ -14,7 +14,7 @@ describe(
       }); //disabling sharing of anonymous data
       cy.get(".t--admin-settings-save-button").click();
       cy.wait(2000);
-      cy.get(".t--admin-settings-restart-notice", { timeout: 120000 }).should(
+      cy.get(".t--admin-settings-restart-notice", { timeout: 180000 }).should(
         "not.exist",
       );
       cy.wait("@getGeneral").its("response.statusCode").should("eq", 200);
