@@ -78,6 +78,13 @@ export class Onboarding {
     });
     cy.get(OnboardingLocator.checklistDeployBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistDeployBtn).click();
+    this._aggregateHelper.AssertElementAbsence(OnboardingLocator.introModal);
+    this._aggregateHelper.Sleep();
+
+    this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
+    this._aggregateHelper.AssertElementExist(
+      OnboardingLocator.checklistCompletionBanner,
+    );
     cy.window().then((window) => {
       window.open = open;
     });
