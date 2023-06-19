@@ -10,6 +10,7 @@ import {
   table,
   entityItems,
   locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
@@ -57,7 +58,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
    INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2188,'Kind''s Jack and Jill Food Center','I','110 S Main Sigourney, IA 525910000 (41.333550830000036, -92.20522134099997)',NULL);
    INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2190,'Central City Liquor, Inc.','A','1460 2nd Ave Des Moines, IA 503140000 (41.60557033500004, -93.61982683699995)',NULL);`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateStores");
     dataSources.EnterQuery(tableCreateQuery);
     agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -185,8 +185,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       ),
     );
     agHelper.ClickButton("Confirm");
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); // for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "store_id");
@@ -282,8 +282,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //asserting only Update JSON form is present, &  Insert Modal is closed
     agHelper.Sleep(2000); //for Insert to reflect!
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Insert to reflect!
     agHelper
       .GetElementLength(locators._jsonFormWidget)
@@ -339,8 +339,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       ),
     );
     agHelper.ClickButton("Confirm");
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Delete to reflect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     table.ReadTableRowColumnData(0, 0, "v1", 200).then(($cellData) => {
@@ -363,7 +363,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("12. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE Stores;";
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropStores");
     dataSources.EnterQuery(deleteTblQuery);
     agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -398,12 +397,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     jsonFromHeader: string,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.AssertNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
 
@@ -457,8 +456,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063 - for common table columns
     agHelper.Sleep(2000); //for update to reflect!
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex);
 
     //validating update happened fine!

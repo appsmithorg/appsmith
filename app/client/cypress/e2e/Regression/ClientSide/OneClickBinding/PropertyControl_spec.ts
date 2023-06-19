@@ -93,7 +93,15 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
 
-    propPane.UpdatePropertyFieldValue("Table data", "");
+    propPane.AssertJSToggleState("Table data", "enabled");
+
+    propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data1}}");
+
+    propPane.AssertJSToggleState("Table data", "disabled");
+
+    propPane.UpdatePropertyFieldValue("Table data", "{{Query1.data}}");
+
+    propPane.AssertJSToggleState("Table data", "enabled");
 
     propPane.ToggleJSMode("Table data", false);
 
