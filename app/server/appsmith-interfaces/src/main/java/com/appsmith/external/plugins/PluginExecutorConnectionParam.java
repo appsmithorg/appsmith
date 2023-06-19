@@ -25,11 +25,6 @@ public interface PluginExecutorConnectionParam<C, T> extends PluginExecutor<C> {
         return Mono.fromCallable(() -> addAuthParamsToConnectionConfig(datasourceConfiguration, connectionProperties))
                 .map(properties1 -> addPluginSpecificProperties(datasourceConfiguration, properties1))
                 .flatMap(properties1 -> createConnectionClient(datasourceConfiguration, properties1))
-                .onErrorResume(error -> {
-                    // We always expect to have an error object, but the error object may not be well-formed
-                    final String errorMessage = error.getMessage();
-                    throw new RuntimeException(errorMessage);
-                })
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
