@@ -1,6 +1,9 @@
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { InlineEditingSaveOptions } from "./constants";
 import type { TableWidgetProps } from "./constants";
@@ -19,6 +22,7 @@ export const CONFIG = {
   needsHeightForContent: true,
   defaults: {
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: 28,
     canFreezeColumn: true,
