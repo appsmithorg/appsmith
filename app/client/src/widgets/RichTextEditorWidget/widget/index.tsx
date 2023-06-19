@@ -51,6 +51,7 @@ class RichTextEditorWidget extends BaseWidget<
               "Sets the input type of the default text property in widget.",
             label: "Input Type",
             controlType: "ICON_TABS",
+            defaultValue: "html",
             fullWidth: true,
             options: [
               {
@@ -69,7 +70,7 @@ class RichTextEditorWidget extends BaseWidget<
             propertyName: "defaultText",
             helpText:
               "Sets the default text of the widget. The text is updated if the default text changes",
-            label: "Default Value",
+            label: "Default value",
             controlType: "INPUT_TEXT",
             placeholderText: "<b>Hello World</b>",
             isBindProperty: true,
@@ -112,13 +113,14 @@ class RichTextEditorWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],
@@ -201,7 +203,7 @@ class RichTextEditorWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -243,11 +245,11 @@ class RichTextEditorWidget extends BaseWidget<
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -257,7 +259,7 @@ class RichTextEditorWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
@@ -303,11 +305,11 @@ class RichTextEditorWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -319,11 +321,11 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -335,7 +337,7 @@ class RichTextEditorWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",

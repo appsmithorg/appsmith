@@ -1,18 +1,17 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -102,7 +101,7 @@ public class ActionCollectionDTO {
     List<ActionDTO> archivedActions = List.of();
 
     // JS collection fields
-    // This is the raw body that contains the entire JS object definition as the user has written it
+    // This is the raw body that contains the entire JS Object definition as the user has written it
     @JsonView(Views.Public.class)
     String body;
 

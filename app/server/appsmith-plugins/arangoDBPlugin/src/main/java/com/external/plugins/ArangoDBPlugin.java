@@ -1,6 +1,8 @@
 package com.external.plugins;
 
 import com.external.plugins.dto.ArangoDBConnectionProperties;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -10,10 +12,9 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.arangodb.ArangoCursor;
@@ -25,6 +26,8 @@ import com.arangodb.entity.CollectionEntity;
 import com.arangodb.model.CollectionsReadOptions;
 import com.external.plugins.exceptions.ArangoDBErrorMessages;
 import com.external.plugins.exceptions.ArangoDBPluginError;
+import com.external.utils.ArangoDBErrorUtils;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -36,6 +39,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +52,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
+import static com.external.plugins.exceptions.ArangoDBErrorMessages.DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
 import static com.external.utils.SSLUtils.isCaCertificateAvailable;
 import static com.external.utils.SSLUtils.setSSLContext;
 import static com.external.utils.SSLUtils.setSSLParam;
@@ -60,6 +65,7 @@ public class ArangoDBPlugin extends BasePlugin {
     private static String WRITES_EXECUTED_KEY = "writesExecuted";
     private static String WRITES_IGNORED_KEY = "writesIgnored";
     private static String RETURN_KEY = "return";
+    public static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
     public ArangoDBPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -70,6 +76,8 @@ public class ArangoDBPlugin extends BasePlugin {
     public static class ArangoDBPluginExecutor implements PluginExecutorConnectionParam<ArangoDatabase, ArangoDBConnectionProperties> {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
+
+        public static AppsmithPluginErrorUtils arangoDBErrorUtils = ArangoDBErrorUtils.getInstance();
 
         @Override
         public Mono<ActionExecutionResult> execute(ArangoDatabase db,
@@ -320,8 +328,10 @@ public class ArangoDBPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         log.error("Error when testing ArangoDB datasource.", error);
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));
-                    });
+                        return Mono.just(new DatasourceTestResult(arangoDBErrorUtils.getReadableError(error)));
+                    })
+                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS),
+                            Mono.just(new DatasourceTestResult(DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG)));
         }
 
         @Override

@@ -1,38 +1,15 @@
 import styled, { css } from "styled-components";
 
+import type { TypographyVariant } from "@design-system/theming";
+import type { FlattenSimpleInterpolation } from "styled-components";
 import type { TextProps } from "./Text";
-import { createTypographyStyles } from "../../utils/typography";
 
-const shouldForwardProp = (prop: any) => {
-  const propsToOmit = [
-    "fontWeight",
-    "fontStyle",
-    "color",
-    "textAlign",
-    "textDecoration",
-    "lineClamp",
-  ];
-
-  return !propsToOmit.includes(prop);
+type StyledTextProp = TextProps & {
+  typography?: {
+    [key in TypographyVariant]?: FlattenSimpleInterpolation;
+  };
 };
 
-const typographyStyles = css`
-  ${(props: TextProps) => {
-    const { capHeight = 10, fontFamily, lineGap = 8 } = props;
-    const styles = createTypographyStyles({ fontFamily, lineGap, capHeight });
-
-    return styles;
-  }}
-`;
-
-/**
- * adds Truncate styles
- * truncate -> trucate text to single line
- * lineClamp -> truncate text to multiple lines
- *
- * @param {TextProps} props
- * @returns {string}
- */
 const truncateStyles = css`
   ${(props: TextProps) => {
     const { lineClamp } = props;
@@ -44,25 +21,49 @@ const truncateStyles = css`
           -webkit-line-clamp: ${lineClamp};
           -webkit-box-orient: vertical;
           overflow: hidden;
-          text-overflow: ellipsis;
-          word-break: break-all;
+          overflow-wrap: break-word;
         }
       `;
     }
 
-    return "";
-  }}
+    return css`
+      span {
+        overflow-wrap: break-word;
+      }
+    `;
+  }}}
 `;
 
-export const StyledText = styled.div.withConfig({
-  shouldForwardProp,
-})<TextProps>`
-  color: ${({ color }) => color};
-  font-weight: ${({ fontWeight }) => fontWeight};
-  text-decoration: ${({ textDecoration }) => textDecoration};
-  font-style: ${({ fontStyle }) => fontStyle};
+export const StyledText = styled.div<StyledTextProp>`
+  font-weight: ${({ isBold }) => (isBold ? "bold" : "normal")};
+  font-style: ${({ isItalic }) => (isItalic ? "italic" : "normal")};
   text-align: ${({ textAlign }) => textAlign};
+  width: 100%;
 
   ${truncateStyles}
-  ${typographyStyles}
+
+  ${({ typography, variant }) => {
+    if (variant && typography) {
+      return typography?.[variant];
+    }
+
+    return typography?.body;
+  }}
+
+  color: ${({ type }) => {
+    switch (true) {
+      case type === "default":
+        return "inherit";
+      case type === "neutral":
+        return "var(--color-fg-neutral)";
+      case type === "positive":
+        return "var(--color-fg-positive)";
+      case type === "warn":
+        return "var(--color-fg-warn)";
+      case type === "negative":
+        return "var(--color-fg-negative)";
+      default:
+        return "inherit";
+    }
+  }}
 `;

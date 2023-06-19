@@ -79,10 +79,8 @@ public class ImportApplicationTransactionServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    private ApplicationJson applicationJson = new ApplicationJson();
-
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
+    private ApplicationJson applicationJson = new ApplicationJson();
 
     @BeforeEach
     public void setup() {
@@ -145,7 +143,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier
@@ -172,7 +170,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier

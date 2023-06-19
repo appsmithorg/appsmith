@@ -1,22 +1,11 @@
 import type { Template } from "api/TemplatesApi";
 import React from "react";
-import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
 import DatasourceChip from "../DatasourceChip";
-import { Colors } from "constants/Colors";
-import {
-  Button,
-  FontWeight,
-  getTypographyByKey,
-  IconPositions,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Text } from "design-system";
 import {
   createMessage,
   DATASOURCES,
-  FORK_THIS_TEMPLATE,
   FUNCTION,
   INDUSTRY,
   NOTE,
@@ -25,11 +14,6 @@ import {
   WIDGET_USED,
 } from "@appsmith/constants/messages";
 import WidgetInfo from "../WidgetInfo";
-import ForkTemplate from "../ForkTemplate";
-import { templateIdUrl } from "RouteBuilder";
-import { useQuery } from "pages/Editor/utils";
-import { useSelector } from "react-redux";
-import { getForkableWorkspaces } from "selectors/templatesSelectors";
 
 export const DescriptionWrapper = styled.div`
   display: flex;
@@ -64,10 +48,6 @@ export const StyledDatasourceChip = styled(DatasourceChip)`
     height: 25px;
     width: 25px;
   }
-  span {
-    ${getTypographyByKey("h4")}
-    color: ${Colors.EBONY_CLAY};
-  }
 `;
 
 export const TemplatesWidgetList = styled.div`
@@ -84,79 +64,44 @@ export const TemplateDatasources = styled.div`
 
 type TemplateDescriptionProps = {
   template: Template;
-  hideForkButton?: boolean;
 };
-
-const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
 
 function TemplateDescription(props: TemplateDescriptionProps) {
   const { template } = props;
-  const params = useParams<{
-    templateId: string;
-  }>();
-  const history = useHistory();
-  const query = useQuery();
-  const workspaceList = useSelector(getForkableWorkspaces);
 
-  const onForkButtonTrigger = () => {
-    history.replace(
-      `${templateIdUrl({ id: template.id })}?${SHOW_FORK_MODAL_PARAM}=true`,
-    );
-  };
-
-  const onForkModalClose = () => {
-    history.replace(`${templateIdUrl({ id: template.id })}`);
-  };
   return (
     <DescriptionWrapper>
       <DescriptionColumn>
         <Section>
-          <Text type={TextType.H1}>{createMessage(OVERVIEW)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(OVERVIEW)}
+          </Text>
           <div className="section-content">
-            <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-              {template.description}
-            </Text>
-          </div>
-          {!props.hideForkButton && !!workspaceList.length && (
-            <ForkTemplate
-              onClose={onForkModalClose}
-              showForkModal={!!query.get(SHOW_FORK_MODAL_PARAM)}
-              templateId={params.templateId}
-            >
-              <Button
-                className="template-fork-button"
-                data-cy="template-fork-button"
-                icon="fork-2"
-                iconPosition={IconPositions.left}
-                onClick={onForkButtonTrigger}
-                size={Size.large}
-                tag="button"
-                text={createMessage(FORK_THIS_TEMPLATE)}
-                width="228px"
-              />
-            </ForkTemplate>
-          )}
-        </Section>
-        <Section>
-          <Text type={TextType.H1}>{createMessage(FUNCTION)}</Text>
-          <div className="section-content">
-            <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-              {template.functions.join(" • ")}
-            </Text>
+            <Text kind="body-m">{template.description}</Text>
           </div>
         </Section>
         <Section>
-          <Text type={TextType.H1}>{createMessage(INDUSTRY)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(FUNCTION)}
+          </Text>
           <div className="section-content">
-            <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-              {template.useCases.join(" • ")}
-            </Text>
+            <Text kind="body-m">{template.functions.join(" • ")}</Text>
+          </div>
+        </Section>
+        <Section>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(INDUSTRY)}
+          </Text>
+          <div className="section-content">
+            <Text kind="body-m">{template.useCases.join(" • ")}</Text>
           </div>
         </Section>
       </DescriptionColumn>
       <DescriptionColumn>
         <Section>
-          <Text type={TextType.H1}>{createMessage(DATASOURCES)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(DATASOURCES)}
+          </Text>
           <div className="section-content">
             <TemplateDatasources>
               {template.datasources.map((packageName) => {
@@ -169,15 +114,15 @@ function TemplateDescription(props: TemplateDescriptionProps) {
               })}
             </TemplateDatasources>
             <div className="datasource-note">
-              <Text type={TextType.H4}>{createMessage(NOTE)} </Text>
-              <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                {createMessage(NOTE_MESSAGE)}
-              </Text>
+              <Text kind="body-m">{createMessage(NOTE)}</Text>
+              <Text kind="body-m">{createMessage(NOTE_MESSAGE)}</Text>
             </div>
           </div>
         </Section>
         <Section>
-          <Text type={TextType.H1}>{createMessage(WIDGET_USED)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(WIDGET_USED)}
+          </Text>
           <div className="section-content">
             <TemplatesWidgetList>
               {template.widgets.map((widgetType) => {

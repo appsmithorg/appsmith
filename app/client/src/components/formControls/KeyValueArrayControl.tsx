@@ -10,19 +10,10 @@ import type { ControlProps, ControlData } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { Colors } from "constants/Colors";
-import type { TextInputProps } from "design-system-old";
-import {
-  Case,
-  Classes,
-  Icon,
-  IconSize,
-  Text,
-  TextInput,
-  TextType,
-} from "design-system-old";
+import type { InputProps } from "design-system";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
+import { Button, Icon, Input, Text, Tooltip } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -31,54 +22,61 @@ export interface KeyValueArrayControlProps extends ControlProps {
   actionConfig?: any;
   extraData?: ControlData[];
   isRequired?: boolean;
+  showHeader?: boolean;
+  headerTooltips?: {
+    key?: string;
+    value?: string;
+  };
 }
 
 const FormRowWithLabel = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
+  align-items: start;
+  margin-bottom: 5px;
   & svg {
     cursor: pointer;
   }
+  .form-input-field {
+    width: 270px;
+    + .form-input-field {
+      margin-left: 5px;
+    }
+  }
 `;
 
-const StyledTextInput = styled(TextInput)`
-  min-width: 66px;
+const StyledInput = styled(Input)`
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
     margin: 0px;
   }
 `;
 
-const CenteredIcon = styled(Icon)`
-  align-self: center;
-  margin-left: 15px;
+const StyledButton = styled(Button)`
+  margin-left: 5px;
 `;
+const AddMoreButton = styled(Button)``;
 
-const AddMoreAction = styled.div`
-  width: fit-content;
-  cursor: pointer;
+const FlexContainer = styled.div`
   display: flex;
-  margin-top: 16px;
-  margin-left: 12px;
-  .${Classes.TEXT} {
-    margin-left: 8px;
-    color: ${Colors.GRAY};
-  }
-  svg {
-    fill: ${Colors.GRAY};
-    path {
-      fill: unset;
-    }
-  }
+  align-items: center;
+  width: calc(100% - 30px);
+  margin-bottom: 8px;
 
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${Colors.CHARCOAL};
+  .key-value {
+    line-height: 1;
+    flex: 1;
+    display: flex;
+    align-items: center;
+
+    .ads-v2-icon {
+      cursor: pointer;
+      margin-left: 8px;
     }
-    svg {
-      fill: ${Colors.CHARCOAL};
+
+    label:first-child {
+      font-weight: normal;
     }
   }
 `;
@@ -122,7 +120,7 @@ function KeyValueRow(
     }
   }, [props.fields]);
 
-  const keyFieldValidate = useCallback(
+  const isKeyFieldValid = useCallback(
     (value: string) => {
       if (value && keyFieldProps?.validationRegex) {
         const regex = new RegExp(keyFieldProps?.validationRegex);
@@ -131,14 +129,55 @@ function KeyValueRow(
           ? { isValid: true }
           : { isValid: false, message: keyFieldProps.validationMessage };
       }
-
-      return undefined;
+      return { isValid: true };
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
   );
 
   return typeof props.fields.getAll() === "object" ? (
     <>
+      {props.showHeader && (
+        <FlexContainer>
+          <div className="key-value">
+            <Text kind="body-m" renderAs="label">
+              Key
+            </Text>
+            {props.headerTooltips && (
+              <Tooltip
+                content={props.headerTooltips.key}
+                placement="right"
+                trigger="hover"
+              >
+                <Icon
+                  className={"help-icon"}
+                  color="var(--ads-v2-color-fg)"
+                  name="question-line"
+                  size="md"
+                />
+              </Tooltip>
+            )}
+          </div>
+          <div className="key-value">
+            <Text kind="body-m" renderAs="label">
+              Value
+            </Text>
+            {props.headerTooltips && (
+              <Tooltip
+                content={props.headerTooltips.value}
+                placement="right"
+                trigger="hover"
+              >
+                <Icon
+                  className={"help-icon"}
+                  color="var(--ads-v2-color-fg)"
+                  name="question-line"
+                  size="md"
+                />
+              </Tooltip>
+            )}
+          </div>
+        </FlexContainer>
+      )}
       {props.fields.map((field: any, index: number) => {
         let keyTextFieldName = `${field}.key`;
         let valueTextFieldName = `${field}.value`;
@@ -150,56 +189,57 @@ function KeyValueRow(
           valueTextFieldName = `${field}.${valueName[1]}`;
 
         return (
-          <FormRowWithLabel
-            key={index}
-            style={{ marginTop: index > 0 ? "16px" : "0px" }}
-          >
+          <FormRowWithLabel key={index}>
             <div
+              className="form-input-field"
               data-replay-id={btoa(keyTextFieldName)}
-              style={{ width: "20vw" }}
             >
               <Field
-                component={renderTextInput}
+                component={renderInput}
                 name={keyTextFieldName}
                 props={{
                   dataType: getType(extraData[0]?.dataType),
                   defaultValue: extraData[0]?.initialValue,
-                  keyFieldValidate,
+                  isKeyFieldValid: isKeyFieldValid,
                   placeholder: props.extraData
-                    ? props.extraData[1]?.placeholderText
-                    : "",
+                    ? props.extraData[0]?.placeholderText
+                    : `Key ${index + 1}`,
                   isRequired: extraData[0]?.isRequired,
                   name: keyTextFieldName,
                 }}
               />
             </div>
             {!props.actionConfig && (
-              <div style={{ marginLeft: "16px", width: "20vw" }}>
+              <div className="form-input-field">
                 <div
                   data-replay-id={btoa(valueTextFieldName)}
                   style={{ display: "flex", flexDirection: "row" }}
                 >
                   <Field
-                    component={renderTextInput}
+                    component={renderInput}
                     name={valueTextFieldName}
                     props={{
                       dataType: getType(extraData[1]?.dataType),
                       defaultValue: extraData[1]?.initialValue,
                       placeholder: props.extraData
                         ? props.extraData[1]?.placeholderText
-                        : "",
+                        : `Value ${index + 1}`,
                       name: valueTextFieldName,
                       isRequired: extraData[1]?.isRequired,
                     }}
                   />
-                  <CenteredIcon
-                    className="t--delete-field"
-                    name="delete"
-                    onClick={() => props.fields.remove(index)}
-                    size={IconSize.LARGE}
-                  />
                 </div>
               </div>
+            )}
+            {!props.actionConfig && (
+              <StyledButton
+                className="t--delete-field"
+                isIconButton
+                kind="tertiary"
+                onClick={() => props.fields.remove(index)}
+                size="md"
+                startIcon="delete"
+              />
             )}
 
             {props.actionConfig && (
@@ -216,12 +256,15 @@ function KeyValueRow(
           </FormRowWithLabel>
         );
       })}
-      <AddMoreAction className="t--add-field" onClick={addRow}>
-        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
-        <Text case={Case.UPPERCASE} type={TextType.H5}>
-          Add more
-        </Text>
-      </AddMoreAction>
+      <AddMoreButton
+        className="t--add-field t--addApiHeader btn-add-more"
+        kind="tertiary"
+        onClick={addRow}
+        size="md"
+        startIcon="add-more"
+      >
+        Add more
+      </AddMoreButton>
     </>
   ) : null;
 }
@@ -260,14 +303,13 @@ const getType = (dataType: string | undefined) => {
   }
 };
 
-function renderTextInput(
-  props: TextInputProps & {
+function renderInput(
+  props: InputProps & {
     dataType?: "text" | "number" | "password";
     placeholder?: string;
     defaultValue: string | number;
     isRequired: boolean;
-    keyFieldValidate?: (value: string) => { isValid: boolean; message: string };
-    errorMsg?: string;
+    isKeyFieldValid?: (value: string) => { isValid: boolean; message: string };
     helperText?: string;
   } & {
     meta: Partial<WrappedFieldMetaProps>;
@@ -275,17 +317,20 @@ function renderTextInput(
   },
 ): JSX.Element {
   return (
-    <StyledTextInput
-      dataType={props.dataType}
+    <StyledInput
+      aria-label={
+        props.helperText || props.defaultValue || props.placeholder || "label"
+      }
       defaultValue={props.defaultValue}
-      errorMsg={props.errorMsg}
-      helperText={props.helperText}
+      description={props.helperText}
+      errorMessage={props.isKeyFieldValid?.(props.input.value).message}
+      isValid={props.isKeyFieldValid?.(props.input.value).isValid}
       name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
-      validator={props.keyFieldValidate}
+      size="md"
+      type={props.dataType}
       value={props.input.value}
-      width="100%"
     />
   );
 }

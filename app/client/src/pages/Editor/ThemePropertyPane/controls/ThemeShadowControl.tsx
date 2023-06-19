@@ -1,12 +1,11 @@
 import React, { useCallback } from "react";
 import type { AppTheme } from "entities/AppTheming";
-import { ButtonGroup, TooltipComponent } from "design-system-old";
-import { invertedBoxShadowOptions } from "constants/ThemeConstants";
-import { importRemixIcon } from "design-system-old";
-
-const CloseLineIcon = importRemixIcon(
-  () => import("remixicon-react/CloseLineIcon"),
-);
+import { Icon } from "design-system";
+import {
+  invertedBoxShadowOptions,
+  sizeMappings,
+} from "constants/ThemeConstants";
+import { SegmentedControl } from "design-system";
 
 interface ThemeBoxShadowControlProps {
   options: {
@@ -41,34 +40,25 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
   );
 
   const selectedOptionKey = selectedOption
-    ? [invertedBoxShadowOptions[selectedOption]]
-    : [];
+    ? invertedBoxShadowOptions[selectedOption]
+    : "";
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
-    icon: (
-      <TooltipComponent
-        content={optionKey}
-        key={optionKey}
-        openOnTargetFocus={false}
-      >
-        <div
-          className="flex items-center justify-center w-5 h-5 bg-white  t--theme-appBoxShadow"
-          style={{ boxShadow: options[optionKey] }}
-        >
-          {options[optionKey] === "none" && (
-            <CloseLineIcon className="text-gray-700" />
-          )}
-        </div>
-      </TooltipComponent>
-    ),
+    label:
+      optionKey === "none" ? (
+        <Icon name="close-line" size="md" />
+      ) : (
+        sizeMappings[optionKey]
+      ),
     value: optionKey,
   }));
 
   return (
-    <ButtonGroup
+    <SegmentedControl
+      isFullWidth={false}
+      onChange={onChangeShadow}
       options={buttonGroupOptions}
-      selectButton={onChangeShadow}
-      values={selectedOptionKey}
+      value={selectedOptionKey}
     />
   );
 }

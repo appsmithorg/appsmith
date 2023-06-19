@@ -114,7 +114,7 @@ export const contentConfig = [
       {
         propertyName: "sourceData",
         helpText: "Input JSON sample for default form layout",
-        label: "Source Data",
+        label: "Source data",
         controlType: "INPUT_TEXT",
         placeholderText: '{ "name": "John", "age": 24 }',
         isBindProperty: true,
@@ -136,7 +136,7 @@ export const contentConfig = [
         propertyName: "autoGenerateForm",
         helpText:
           "Caution: When auto generate form is enabled, the form fields would regenerate if there is any change of source data (keys change or value type changes eg from string to number). If disabled then the fields and their configuration won't change with the change of source data.",
-        label: "Auto Generate Form",
+        label: "Auto generate form",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -150,7 +150,7 @@ export const contentConfig = [
         controlType: "BUTTON",
         isJSConvertible: false,
         isBindProperty: false,
-        buttonLabel: "Generate Form",
+        buttonLabel: "Generate form",
         onClick: onGenerateFormClick,
         isDisabled: generateFormCTADisabled,
         isTriggerProperty: false,
@@ -166,7 +166,7 @@ export const contentConfig = [
       {
         propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
         helpText: "Field configuration",
-        label: "Field Configuration",
+        label: "Field configuration",
         controlType: "FIELD_CONFIGURATION",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -201,7 +201,7 @@ export const contentConfig = [
       {
         propertyName: "useSourceData",
         helpText: "Use source data for hidden fields to show them in form data",
-        label: "Hidden Fields in Data",
+        label: "Hidden fields in data",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -210,7 +210,7 @@ export const contentConfig = [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,
@@ -223,7 +223,7 @@ export const contentConfig = [
         propertyName: "disabledWhenInvalid",
         helpText:
           "Disables the submit button when the parent form has a required widget that is not filled",
-        label: "Disabled Invalid Forms",
+        label: "Disabled invalid forms",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -243,7 +243,7 @@ export const contentConfig = [
       {
         propertyName: "scrollContents",
         helpText: "Allows scrolling of the form",
-        label: "Scroll Contents",
+        label: "Scroll contents",
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -251,8 +251,8 @@ export const contentConfig = [
       },
       {
         propertyName: "showReset",
-        helpText: "Show/Hide reset form button",
-        label: "Show Reset",
+        helpText: "Show/hide reset form button",
+        label: "Show reset",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -262,7 +262,7 @@ export const contentConfig = [
       {
         propertyName: "submitButtonLabel",
         helpText: "Changes the label of the submit button",
-        label: "Submit Button Label",
+        label: "Submit button label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -271,7 +271,7 @@ export const contentConfig = [
       {
         propertyName: "resetButtonLabel",
         helpText: "Changes the label of the reset button",
-        label: "Reset Button Label",
+        label: "Reset button label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -303,7 +303,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       {
         propertyName: `${prefix}.buttonColor`,
         helpText: "Changes the color of the button",
-        label: "Button Color",
+        label: "Button color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -312,8 +312,9 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       },
       {
         propertyName: `${prefix}.buttonVariant`,
-        label: "Button Variant",
+        label: "Button variant",
         controlType: "ICON_TABS",
+        defaultValue: ButtonVariantTypes.PRIMARY,
         fullWidth: true,
         helpText: "Sets the variant of the icon button",
         options: [
@@ -347,7 +348,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       },
       {
         propertyName: `${prefix}.borderRadius`,
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
@@ -357,7 +358,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       },
       {
         propertyName: `${prefix}.boxShadow`,
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
@@ -405,14 +406,15 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
-        fullWidth: true,
+        defaultValue: "left",
+        fullWidth: false,
         options: [
           {
-            icon: "VERTICAL_LEFT",
+            startIcon: "skip-left-line",
             value: "left",
           },
           {
-            icon: "VERTICAL_RIGHT",
+            startIcon: "skip-right-line",
             value: "right",
           },
         ],
@@ -474,7 +476,7 @@ export const styleConfig = [
         propertyName: "backgroundColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        label: "Background Color",
+        label: "Background color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -485,7 +487,7 @@ export const styleConfig = [
         propertyName: "borderColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        label: "Border Color",
+        label: "Border color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -495,12 +497,12 @@ export const styleConfig = [
     ],
   },
   {
-    sectionName: "Border and Shadow",
+    sectionName: "Border and shadow",
     children: [
       {
         propertyName: "borderWidth",
         helpText: "Enter value for border width",
-        label: "Border Width",
+        label: "Border width",
         placeholderText: "Enter value in px",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
@@ -510,7 +512,7 @@ export const styleConfig = [
       {
         propertyName: "borderRadius",
         helpText: "Enter value for border radius",
-        label: "Border Radius",
+        label: "Border radius",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
         isBindProperty: true,
@@ -519,7 +521,7 @@ export const styleConfig = [
       },
       {
         propertyName: "boxShadow",
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
@@ -531,11 +533,11 @@ export const styleConfig = [
     ],
   },
   {
-    sectionName: "Submit Button Styles",
+    sectionName: "Submit button styles",
     children: generateButtonStyleControlsV2For("submitButtonStyles"),
   },
   {
-    sectionName: "Reset Button Styles",
+    sectionName: "Reset button styles",
     children: generateButtonStyleControlsV2For("resetButtonStyles"),
     dependencies: ["showReset"],
     hidden: (props: JSONFormWidgetProps) => !props.showReset,

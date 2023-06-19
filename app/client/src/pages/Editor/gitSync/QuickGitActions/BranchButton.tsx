@@ -5,47 +5,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
-import { Colors } from "constants/Colors";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
-import {
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
-import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Button, Tooltip } from "design-system";
+import { isEllipsisActive } from "../../../../utils/helpers";
 
-const ButtonContainer = styled.div`
+const ButtonContainer = styled(Button)`
   display: flex;
   align-items: center;
-
-  & .label {
-    color: ${(props) => props.theme.colors.editorBottomBar.branchBtnText};
-    ${getTypographyByKey("p1")};
-    line-height: 18px;
-  }
-
-  & .icon {
-    height: 24px;
-  }
-
   margin: 0 ${(props) => props.theme.spaces[4]}px;
-  cursor: pointer;
-
-  &:hover svg path {
-    fill: ${Colors.CHARCOAL};
-  }
-
-  & .label {
-    width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  max-width: 122px;
+  min-width: unset !important;
 `;
 
 function BranchButton() {
@@ -54,7 +27,7 @@ function BranchButton() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const fetchBranches = () => dispatch(fetchBranchesInit());
-  const labelTarget = useRef<HTMLDivElement>(null);
+  const labelTarget = useRef<HTMLSpanElement>(null);
   const status = useSelector(getGitStatus);
 
   useEffect(() => {
@@ -80,27 +53,28 @@ function BranchButton() {
       placement="top-start"
     >
       <Tooltip
-        boundary="window"
         content={currentBranch || ""}
-        disabled={!isEllipsisActive(labelTarget.current)}
-        hoverOpenDelay={1}
-        position="top-left"
+        isDisabled={!isEllipsisActive(labelTarget.current)}
+        placement="topLeft"
       >
         <ButtonContainer
           className="t--branch-button"
-          data-testid={"t--branch-button-container"}
+          data-testid={"t--branch-button-currentBranch"}
+          kind="secondary"
+          startIcon="git-branch"
         >
-          <div className="icon">
-            <Icon name="git-branch" size={IconSize.XXXXL} />
-          </div>
-          <div
-            className="label"
-            data-testid={"t--branch-button-currentBranch"}
+          <span
             ref={labelTarget}
+            style={{
+              maxWidth: "82px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
           >
             {currentBranch}
-            {!status?.isClean && "*"}
-          </div>
+          </span>
+          {!status?.isClean && "*"}
         </ButtonContainer>
       </Tooltip>
     </Popover2>

@@ -3,23 +3,39 @@ export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;
 
-  private locators = {
-    _appSettings: "#t--app-settings-cta",
+  public locators = {
+    _appSettings: ".t--app-settings-cta",
     _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
+    _navigationSettingsTab: "#t--navigation-settings-header",
+    _navigationSettings: {
+      _showNavbar: "#t--navigation-settings-show-navbar",
+      _showSignIn: "#t--navigation-settings-show-sign-in",
+      _orientation: ".t--navigation-settings-orientation",
+      _navStyle: ".t--navigation-settings-navStyle",
+      _colorStyle: ".t--navigation-settings-colorStyle",
+      _orientationOptions: {
+        _top: ".t--navigation-settings-orientation .ads-v2-segmented-control-value-top",
+        _side:
+          ".t--navigation-settings-orientation .ads-v2-segmented-control-value-side",
+      },
+    },
+    _navigationMenuItem: ".t--page-switch-tab",
+    _sideNavbar: ".t--app-viewer-navigation-sidebar",
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
+    _updateStatus: ".ads-v2-icon.rotate",
   };
 
   public errorMessageSelector = (fieldId: string) => {
     fieldId = fieldId[0] === "#" ? fieldId.slice(1, fieldId.length) : fieldId;
-    return `//input[@id='${fieldId}']/following-sibling::div/span`;
+    return `//input[@id='${fieldId}']/parent::div/following-sibling::span`;
   };
 
   public OpenAppSettings() {
-    this.agHelper.GetNClick(this.locators._appSettings);
+    this.agHelper.GetNClick(this.locators._appSettings, 0, true);
   }
 
   public ClosePane() {
@@ -57,6 +73,7 @@ export class AppSettings {
     this.GoToThemeSettings();
     this.theme.ChangeThemeColor(primaryColorIndex, "Primary");
     this.theme.ChangeThemeColor(backgroundColorIndex, "Background");
+    this.agHelper.Sleep();
     this.ClosePane();
   }
 
@@ -66,6 +83,7 @@ export class AppSettings {
     customSlug?: string,
     editMode = true,
   ) {
+    this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
     cy.location("pathname").then((pathname) => {
       if (customSlug && customSlug.length > 0) {
         const pageId = pathname.split("/")[2]?.split("-").pop();

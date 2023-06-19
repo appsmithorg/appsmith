@@ -34,6 +34,7 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const AddLineIcon = importRemixIcon(
   () => import("remixicon-react/AddLineIcon"),
@@ -59,7 +60,7 @@ export const useFilteredFileOperations = (query = "") => {
     (plugin) => plugin.type === PluginType.API,
   );
   const newApiActionIdx = actionOperations.findIndex(
-    (op) => op.title === "New Blank API",
+    (op) => op.title === "New blank API",
   );
   if (newApiActionIdx > -1) {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
@@ -104,7 +105,7 @@ export const getFilteredAndSortedFileOperations = (
   const fileOperations: ActionOperation[] = [];
   if (!canCreateActions) return fileOperations;
 
-  // Add JS object operation
+  // Add JS Object operation
   fileOperations.push(actionOperations[2]);
   // Add app datasources
   if (appWideDS.length > 0 || otherDS.length > 0) {
@@ -118,7 +119,7 @@ export const getFilteredAndSortedFileOperations = (
     if (showCreateQuery) {
       fileOperations.push({
         desc: "",
-        title: "CREATE A QUERY",
+        title: "Create a query",
         kind: SEARCH_ITEM_TYPES.sectionTitle,
       });
     }
@@ -171,20 +172,24 @@ export const getFilteredAndSortedFileOperations = (
   if (canCreateDatasource) {
     filteredFileOperations.push({
       desc: "Create a new datasource in the organisation",
-      title: "New Datasource",
+      title: "New datasource",
       icon: (
         <EntityIcon>
           <AddLineIcon size={22} />
         </EntityIcon>
       ),
       kind: SEARCH_ITEM_TYPES.actionOperation,
-      redirect: (pageId: string) => {
+      redirect: (pageId: string, entryPoint: string) => {
         history.push(
           integrationEditorURL({
             pageId,
             selectedTab: INTEGRATION_TABS.NEW,
           }),
         );
+        // Event for datasource creation click
+        AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+          entryPoint,
+        });
       },
     });
   }

@@ -5,14 +5,14 @@
       "id": 1,
       "children": [
         {
-          "label": "Connection Mode",
+          "label": "Connection mode",
           "configProperty": "datasourceConfiguration.connection.mode",
-          "controlType": "DROP_DOWN",
+          "controlType": "SEGMENTED_CONTROL",
           "isRequired": true,
           "initialValue": "READ_WRITE",
           "options": [
             {
-              "label": "Read Only",
+              "label": "Read only",
               "value": "READ_ONLY"
             },
             {
@@ -25,22 +25,24 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host address",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
+              "validationRegex": "^((?![/:]).)*$",
+              "placeholderText": "myapp.abcde.mysql.net"
             },
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "placeholderText": "3306"
             }
           ]
         },
         {
-          "label": "Database Name",
+          "label": "Database name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Database name",
@@ -78,7 +80,7 @@
       "sectionName": "SSL (optional)",
       "children": [
         {
-          "label": "SSL Mode",
+          "label": "SSL mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "initialValue": "DEFAULT",

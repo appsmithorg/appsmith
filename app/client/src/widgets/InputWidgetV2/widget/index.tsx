@@ -271,11 +271,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         "!doc": "The text value of the input",
         "!url": "https://docs.appsmith.com/widget-reference/input",
       },
-      inputText: {
-        "!type": "string",
-        "!doc": "The unformatted text value of the input",
-        "!url": "https://docs.appsmith.com/widget-reference/input",
-      },
       isValid: "bool",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
@@ -290,7 +285,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             {
               helpText: "Changes the type of data captured in the input",
               propertyName: "inputType",
-              label: "Data Type",
+              label: "Data type",
               controlType: "DROP_DOWN",
               options: [
                 {
@@ -323,7 +318,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Value",
+              label: "Default value",
               controlType: "INPUT_TEXT",
               placeholderText: "John Doe",
               isBindProperty: true,
@@ -363,7 +358,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             {
               helpText: "Sets maximum allowed text length",
               propertyName: "maxChars",
-              label: "Max Characters",
+              label: "Max characters",
               controlType: "INPUT_TEXT",
               placeholderText: "255",
               isBindProperty: true,
@@ -460,14 +455,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Position",
               helpText: "Sets the icon alignment of input field",
               controlType: "ICON_TABS",
-              fullWidth: true,
+              defaultValue: "left",
+              fullWidth: false,
               options: [
                 {
-                  icon: "VERTICAL_LEFT",
+                  startIcon: "skip-left-line",
                   value: "left",
                 },
                 {
-                  icon: "VERTICAL_RIGHT",
+                  startIcon: "skip-right-line",
                   value: "right",
                 },
               ],

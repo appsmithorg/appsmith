@@ -53,6 +53,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -99,11 +100,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final TransactionalOperator transactionalOperator;
 
 
     public static final Integer EVALUATION_VERSION = 2;
 
-
+    @Override
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -211,26 +213,34 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return Boolean.TRUE;
     }
 
+    private PageDTO getDslEscapedPage(PageDTO page) {
+        List<Layout> layouts = page.getLayouts();
+        if (layouts == null || layouts.isEmpty()) {
+            return page;
+        }
+        for (Layout layout : layouts) {
+            if (layout.getDsl() == null ||
+                    layout.getMongoEscapedWidgetNames() == null ||
+                    layout.getMongoEscapedWidgetNames().isEmpty()) {
+                continue;
+            }
+            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+        }
+        page.setLayouts(layouts);
+        return page;
+    }
+
+    @Override
+    public Mono<PageDTO> getPage(NewPage newPage, boolean viewMode) {
+        return newPageService.getPageByViewMode(newPage, viewMode)
+                .map(page -> getDslEscapedPage(page));
+    }
+
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
         AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findPageById(pageId, permission, viewMode)
-                .map(newPage -> {
-                    List<Layout> layouts = newPage.getLayouts();
-                    if (layouts == null || layouts.isEmpty()) {
-                        return newPage;
-                    }
-                    for (Layout layout : layouts) {
-                        if (layout.getDsl() == null ||
-                                layout.getMongoEscapedWidgetNames() == null ||
-                                layout.getMongoEscapedWidgetNames().isEmpty()) {
-                            continue;
-                        }
-                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                    }
-                    newPage.setLayouts(layouts);
-                    return newPage;
-                })
+                .map(newPage -> getDslEscapedPage(newPage))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
     }
 
@@ -241,7 +251,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> {
-                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage.getId(), viewMode));
+                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -703,13 +713,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
-        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+        // 1. Find valid application to clone, depending on branch
+        Mono<Application> applicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
                     if (StringUtils.isEmpty(branchName)
                             && !Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
-                            && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                            && !application.getGitApplicationMetadata().getBranchName()
+                            .equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(
                                 application.getGitApplicationMetadata().getDefaultBranchName(),
                                 applicationId,
@@ -720,9 +733,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .cache();
 
-        // Find the name for the cloned application which wouldn't lead to duplicate key exception
+        // 2. Find the name for the cloned application which wouldn't lead to duplicate key exception
         Mono<String> newAppNameMono = applicationMono
-                .flatMap(application -> applicationService.findAllApplicationsByWorkspaceId(application.getWorkspaceId())
+                .flatMap(application -> applicationService
+                        // TODO: Convert this into a query that projects only application names
+                        .findAllApplicationsByWorkspaceId(application.getWorkspaceId())
                         .map(Application::getName)
                         .collect(Collectors.toSet())
                         .map(appNames -> {
@@ -741,6 +756,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(tuple -> {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
+
+                    // 3. Set up fields for copy of application
 
                     // Remove the git related data before cloning
                     sourceApplication.setGitApplicationMetadata(null);
@@ -764,10 +781,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .zipWith(userMono)
                             .flatMap(applicationUserTuple2 -> {
                                 Application application1 = applicationUserTuple2.getT1();
-                                application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
+                                // setting modified by to current user
+                                application1.setModifiedBy(applicationUserTuple2.getT2().getUsername());
                                 return applicationService.createDefaultApplication(application1);
                             })
-                            // Now fetch the pages of the source application, clone and add them to this new application
+                            // 4. Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
                                         String pageId = applicationPage.getId();
@@ -789,7 +807,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         return applicationService.save(savedApplication);
                                     })
                             )
-                            // duplicate the source application's themes if required i.e. if they were customized
+                            // 5. Duplicate the source application's themes if required i.e. if they were customized
                             .flatMap(application ->
                                     themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application)
                                             .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application))
@@ -803,6 +821,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             )
+                            // 6. Publish copy of application
                             .flatMap(application -> publish(application.getId(), false))
                             .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
@@ -934,7 +953,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getDeletePermission())
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
-                .map(responseUtils::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources)
+                .as(transactionalOperator::transactional);
     }
 
     /**
@@ -1195,18 +1215,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // which creates problem if we hit duplicate key exception
         return applicationMono
                 .flatMap(application1 ->
-                    this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
+                        this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
                 )
                 .switchIfEmpty(Mono.defer(() ->
-                    applicationWithPoliciesMono
-                            .zipWith(userMono)
-                            .flatMap(tuple -> {
-                                Application application1 = tuple.getT1();
-                                application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                                // We can't use create or createApplication method here as we are expecting update operation if the
-                                // _id is available with application object
-                                return applicationService.save(application);
-                            })
+                        applicationWithPoliciesMono
+                                .zipWith(userMono)
+                                .flatMap(tuple -> {
+                                    Application application1 = tuple.getT1();
+                                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                                    // We can't use create or createApplication method here as we are expecting update operation if the
+                                    // _id is available with application object
+                                    return applicationService.save(application);
+                                })
                 ));
     }
 

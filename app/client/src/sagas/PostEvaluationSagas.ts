@@ -23,18 +23,17 @@ import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
+  JS_EXECUTION_FAILURE,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
-  JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
@@ -42,13 +41,15 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import type FeatureFlags from "entities/FeatureFlags";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
+import { toast } from "design-system";
 import type { ActionEntityConfig } from "entities/DataTree/types";
-import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
+import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
+import { logActionExecutionError } from "./ActionExecution/errorUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -239,9 +240,8 @@ export function* evalErrorHandler(
         if (error.context) {
           // Add more info about node for the toast
           const { dependencyMap, diffs, entityType, node } = error.context;
-          Toaster.show({
-            text: `${error.message} Node was: ${node}`,
-            variant: Variant.danger,
+          toast.show(`${error.message} Node was: ${node}`, {
+            kind: "error",
           });
           AppsmithConsole.error({
             text: `${error.message} Node was: ${node}`,
@@ -271,9 +271,8 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
-        Toaster.show({
-          text: createMessage(ERROR_EVAL_ERROR_GENERIC),
-          variant: Variant.danger,
+        toast.show(createMessage(ERROR_EVAL_ERROR_GENERIC), {
+          kind: "error",
         });
         break;
       }
@@ -301,9 +300,8 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
-        Toaster.show({
-          text: `${error.message} at: ${error.context?.entity.name}`,
-          variant: Variant.danger,
+        toast.show(`${error.message} at: ${error.context?.entity.name}`, {
+          kind: "error",
         });
         AppsmithConsole.error({
           text: `${error.message} at: ${error.context?.propertyPath}`,
@@ -323,6 +321,16 @@ export function* evalErrorHandler(
   });
 }
 
+export function* dynamicTriggerErrorHandler(errors: any[]) {
+  if (errors.length > 0) {
+    for (const error of errors) {
+      const errorMessage =
+        error.errorMessage.message.message || error.errorMessage.message;
+      yield call(logActionExecutionError, errorMessage, true);
+    }
+  }
+}
+
 export function* logSuccessfulBindings(
   unEvalTree: UnEvalTree,
   dataTree: DataTree,
@@ -339,6 +347,9 @@ export function* logSuccessfulBindings(
   const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
     ? {}
     : { ...successfulBindingsMap.get() };
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const instanceId: string = yield select(getInstanceId);
 
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
@@ -398,6 +409,8 @@ export function* logSuccessfulBindings(
               entityType,
               propertyPath,
               isUndefined,
+              orgId: workspaceId,
+              instanceId,
             });
           }
         }
@@ -456,10 +469,8 @@ export function* updateTernDefinitions(
     dataTree,
     configTree,
   );
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
     dataTreeForAutocomplete,
-    !!featureFlags.JS_EDITOR,
     jsData,
     configTree,
   );

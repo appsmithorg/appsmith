@@ -15,7 +15,8 @@ public class DatasourceUtils {
 
     protected static HeaderUtils headerUtils = new HeaderUtils();
 
-    public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+    public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration,
+                                          boolean isEmbeddedDatasource) {
         /**
          * We don't verify whether the URL is in valid format because it can contain mustache template keys, and so
          * look invalid at this point, but become valid after mustache rendering. So we just check if URL field has
@@ -25,7 +26,19 @@ public class DatasourceUtils {
         Set<String> invalids = new HashSet<>();
 
         if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
-            invalids.add("Missing URL.");
+            if (isEmbeddedDatasource) {
+                /**
+                 * Deliberately skipping adding any invalidity message here because based on the current parsing logic the
+                 * client can skip adding a URL to embedded datasource and instead add the entire URL to
+                 * `actionConfiguration.path`.
+                 * ref: https://theappsmith.slack.com/archives/C040LHZN03V/p1686478370473659?thread_ts=1686300736
+                 * .679729&cid=C040LHZN03V
+                 */
+            }
+            else {
+                invalids.add("Missing URL.");
+            }
+
         }
 
         final String contentTypeError = headerUtils.verifyContentType(datasourceConfiguration.getHeaders());

@@ -28,8 +28,8 @@ import { setAppViewHeaderHeight } from "actions/appViewActions";
 export function Navigation() {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
-  const isEmbed = queryParams.get("embed");
-  const hideHeader = !!isEmbed;
+  const isEmbed = queryParams.get("embed") === "true";
+  const hideHeader = isEmbed && !(queryParams.get("navbar") === "true");
   const [isMenuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const pageId = useSelector(getCurrentPageId);
@@ -79,6 +79,7 @@ export function Navigation() {
               isMenuOpen={isMenuOpen}
               pages={pages}
               setMenuOpen={setMenuOpen}
+              showUserSettings={!isEmbed}
             />
           ) : (
             <Sidebar
@@ -86,6 +87,7 @@ export function Navigation() {
               currentUser={currentUser}
               currentWorkspaceId={currentWorkspaceId}
               pages={pages}
+              showUserSettings={!isEmbed}
             />
           )}
         </>
@@ -100,6 +102,7 @@ export function Navigation() {
         isMenuOpen={isMenuOpen}
         pages={pages}
         setMenuOpen={setMenuOpen}
+        showUserSettings={!isEmbed}
       />
     );
   };

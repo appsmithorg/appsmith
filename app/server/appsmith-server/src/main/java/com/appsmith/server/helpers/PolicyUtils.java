@@ -42,6 +42,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @Component
 @AllArgsConstructor
@@ -79,7 +81,7 @@ public class PolicyUtils {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
                 Set<String> permissionGroups = new HashSet<>();
-                if(policy.getPermissionGroups() != null) {
+                if (policy.getPermissionGroups() != null) {
                     permissionGroups.addAll(policy.getPermissionGroups());
                 }
                 if (policyMap1.get(permission).getPermissionGroups() != null) {
@@ -297,12 +299,12 @@ public class PolicyUtils {
 
     public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
-        if(StringUtils.hasLength(application.getEditModeThemeId())) {
+        if (StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
                     themeRepository.findById(application.getEditModeThemeId(), READ_THEMES)
             );
         }
-        if(StringUtils.hasLength(application.getPublishedModeThemeId())) {
+        if (StringUtils.hasLength(application.getPublishedModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
                     themeRepository.findById(application.getPublishedModeThemeId(), READ_THEMES)
             );
@@ -374,29 +376,6 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Boolean isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
-
-        if (policies == null || policies.isEmpty()) {
-            return false;
-        }
-
-        Optional<Policy> requestedPermissionPolicyOptional = policies.stream().filter(policy -> {
-            if (policy.getPermission().equals(permission)) {
-                Set<String> users = policy.getUsers();
-                if (users.contains(username)) {
-                    return true;
-                }
-            }
-            return false;
-        }).findFirst();
-
-        if (requestedPermissionPolicyOptional.isPresent()) {
-            return true;
-        }
-
-        return false;
-    }
-
     public Set<String> findUsernamesWithPermission(Set<Policy> policies, AclPermission permission) {
         if (CollectionUtils.isNotEmpty(policies) && permission != null) {
             final String permissionString = permission.getValue();
@@ -408,6 +387,28 @@ public class PolicyUtils {
         }
 
         return Collections.emptySet();
+    }
+
+    public static boolean isPermissionPresentInPolicies(String permission, Set<Policy> policies, Set<String> userPermissionGroupIds) {
+
+        Optional<Policy> interestingPolicyOptional = policies.stream()
+                .filter(policy -> policy.getPermission().equals(permission))
+                .findFirst();
+        if (interestingPolicyOptional.isEmpty()) {
+            return FALSE;
+        }
+
+        Policy interestingPolicy = interestingPolicyOptional.get();
+        Set<String> permissionGroupsIds = interestingPolicy.getPermissionGroups();
+        if (permissionGroupsIds == null || permissionGroupsIds.isEmpty()) {
+            return FALSE;
+        }
+
+        return userPermissionGroupIds.stream()
+                .filter(permissionGroupsIds::contains)
+                .findFirst()
+                .map(permissionGroup -> TRUE)
+                .orElse(FALSE);
     }
 
 }

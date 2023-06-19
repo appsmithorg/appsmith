@@ -1,8 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
@@ -11,7 +9,6 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -101,9 +98,11 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 
-    public Mono<NewAction> sanitizeAction(NewAction action);
+    Mono<NewAction> sanitizeAction(NewAction action);
 
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
+
+    void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
 }

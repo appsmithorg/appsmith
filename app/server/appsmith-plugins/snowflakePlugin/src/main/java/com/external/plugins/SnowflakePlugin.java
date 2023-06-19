@@ -22,6 +22,7 @@ import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -193,6 +194,7 @@ public class SnowflakePlugin extends BasePlugin {
             snowflakeConnectionProperties.getProperties().setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
             snowflakeConnectionProperties.getProperties().setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
             snowflakeConnectionProperties.getProperties().setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
+
             /**
              * Setting the value for setInitializationFailTimeout to -1 to
              * bypass any connection attempt and validation during startup

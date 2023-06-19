@@ -16,7 +16,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
+    private final ForkExamplesWorkspace examplesWorkspaceCloner;
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
@@ -66,7 +66,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      * In the process, the client browser will also set the session ID in the cookie against the server's API domain.
      *
      * @param webFilterExchange WebFilterExchange instance for the current request.
-     * @param authentication Authentication object, needs to have a non-null principal object.
+     * @param authentication    Authentication object, needs to have a non-null principal object.
      * @return Publishes empty, that completes after handler tasks are finished.
      */
     @Override
@@ -126,7 +126,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                                 handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
                             }
                             return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
-                });
+                        });
             } else {
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
@@ -139,10 +139,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                             log.debug("AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms", pair.getT1());
                             return pair.getT2();
                         })
-                        .flatMap(defaultApplication -> handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
-                );
+                        .flatMap(defaultApplication -> redirectHelper.handleRedirect(webFilterExchange, defaultApplication, true)
+                        );
             } else {
-                redirectionMono = handleRedirect(webFilterExchange, null, finalIsFromSignup);
+                redirectionMono = redirectHelper.handleRedirect(webFilterExchange, null, finalIsFromSignup);
             }
         }
 
@@ -178,7 +178,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         FieldName.MODE_OF_LOGIN, modeOfLogin
                                 )
                         ));
-                        monos.add(examplesWorkspaceCloner.cloneExamplesWorkspace());
+                        monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
                     }
 
                     monos.add(analyticsService.sendObjectEvent(
@@ -229,7 +229,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         }
 
         return applicationMono
-                .flatMap(application1 ->applicationPageService.createApplication(application1));
+                .flatMap(application1 -> applicationPageService.createApplication(application1));
     }
 
     /**
@@ -263,66 +263,16 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
         boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
-            if (isDefaultRedirectUrl(redirectUrl) && defaultApplication != null) {
+            if (redirectHelper.isDefaultRedirectUrl(redirectUrl) && defaultApplication != null) {
                 addFirstTimeExperienceParam = true;
                 HttpHeaders headers = exchange.getRequest().getHeaders();
                 redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
             }
-            redirectUrl = buildSignupSuccessUrl(redirectUrl, addFirstTimeExperienceParam);
+            redirectUrl = redirectHelper.buildSignupSuccessUrl(redirectUrl, addFirstTimeExperienceParam);
         }
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
     }
 
-    /**
-     * Checks if the provided url is default redirect url
-     *
-     * @param url which needs to be checked
-     * @return true if default url. false otherwise
-     */
-    private boolean isDefaultRedirectUrl(String url) {
-        if (StringUtils.isEmpty(url)) {
-            return true;
-        }
-        try {
-            return URI.create(url).getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL);
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
 
-    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
-        ServerWebExchange exchange = webFilterExchange.getExchange();
-
-        // On authentication success, we send a redirect to the client's home page. This ensures that the session
-        // is set in the cookie on the browser.
-        return Mono.just(exchange.getRequest())
-                .flatMap(redirectHelper::getRedirectUrl)
-                .map(s -> {
-                    String url = s;
-                    if (isFromSignup) {
-                        boolean addFirstTimeExperienceParam = false;
-
-                        // only redirect to default application if the redirectUrl contains no other url
-                        if (isDefaultRedirectUrl(url) && defaultApplication != null) {
-                            addFirstTimeExperienceParam = true;
-                            HttpHeaders headers = exchange.getRequest().getHeaders();
-                            url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
-                        }
-                        // This redirectUrl will be used by the client to redirect after showing a welcome page.
-                        url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
-                    }
-                    return url;
-                })
-                .map(URI::create)
-                .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
-    }
-
-    private String buildSignupSuccessUrl(String redirectUrl, boolean enableFirstTimeUserExperience) {
-        String url = SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
-        if (enableFirstTimeUserExperience) {
-            url += "&" + FIRST_TIME_USER_EXPERIENCE_PARAM + "=true";
-        }
-        return url;
-    }
 }

@@ -9,18 +9,19 @@ export default [
     children: [
       {
         propertyName: "scannerLayout",
-        label: "Scanner Layout",
+        label: "Scanner layout",
         controlType: "ICON_TABS",
+        defaultValue: ScannerLayout.ALWAYS_ON,
         fullWidth: true,
         helpText:
           'Sets how the code scanner will look and behave. If set to "Always on", the scanner will be visible and scanning all the time. If set to "Click to Scan", the scanner will pop up inside a modal and start scanning when the user clicks on the button.',
         options: [
           {
-            label: "Always On",
+            label: "Always on",
             value: ScannerLayout.ALWAYS_ON,
           },
           {
-            label: "Click to Scan",
+            label: "Click to scan",
             value: ScannerLayout.CLICK_TO_SCAN,
           },
         ],
@@ -70,7 +71,7 @@ export default [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,

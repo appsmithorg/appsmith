@@ -46,7 +46,7 @@ export enum SEARCH_CATEGORY_ID {
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
   INIT = "INIT",
-  ACTION_OPERATION = "Create New",
+  ACTION_OPERATION = "Create new",
 }
 
 export enum SEARCH_ITEM_TYPES {
@@ -155,19 +155,19 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     desc: createMessage(NAV_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: {
-    title: "Create New",
+    title: "Create new",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.ACTION_OPERATION,
     desc: createMessage(ACTION_OPERATION_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
-    title: "Use Snippets",
+    title: "Use snippets",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
     desc: createMessage(SNIPPET_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
-    title: "Search Documentation",
+    title: "Search documentation",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
     desc: createMessage(DOC_DESCRIPTION),
@@ -350,14 +350,14 @@ export type ActionOperation = {
 
 export const actionOperations: ActionOperation[] = [
   {
-    title: "New Blank API",
+    title: "New blank API",
     desc: "Create a new API",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (pageId: string, location: EventLocation) =>
       createNewApiAction(pageId, location),
   },
   {
-    title: "New Blank GraphQL API",
+    title: "New blank GraphQL API",
     desc: "Create a new API",
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
@@ -373,7 +373,7 @@ export const actionOperations: ActionOperation[] = [
       createNewJSCollection(pageId, from),
   },
   {
-    title: "New cURL Import",
+    title: "New cURL import",
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,

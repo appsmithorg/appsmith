@@ -12,6 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -30,7 +31,6 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { selectFeatureFlags } from "./usersSelectors";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
   EVAL_ERROR_PATH,
@@ -42,6 +42,7 @@ import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLib
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -60,20 +61,35 @@ export const getDatasourcesStructure = (
   return state.entities.datasources.structure;
 };
 
-export const getDatasourceStructureById =
-  (id: string) =>
-  (state: AppState): DatasourceStructure => {
-    return state.entities.datasources.structure[id];
-  };
+export const getDatasourceStructureById = (
+  state: AppState,
+  id: string,
+): DatasourceStructure => {
+  return state.entities.datasources.structure[id];
+};
 
 export const getDatasourceTableColumns =
   (datasourceId: string, tableName: string) => (state: AppState) => {
-    const structure = getDatasourceStructureById(datasourceId)(state);
+    const structure = getDatasourceStructureById(state, datasourceId);
 
     if (structure) {
       const table = structure.tables?.find((d) => d.name === tableName);
 
       return table?.columns;
+    }
+  };
+export const getDatasourceTablePrimaryColumn =
+  (datasourceId: string, tableName: string) => (state: AppState) => {
+    const structure = getDatasourceStructureById(state, datasourceId);
+
+    if (structure) {
+      const table = structure.tables?.find((d) => d.name === tableName);
+
+      if (table) {
+        const primaryKey = table.keys?.find((d) => d.type === "primary key");
+
+        return primaryKey?.columnNames?.[0];
+      }
     }
   };
 
@@ -153,6 +169,21 @@ export const getPluginPackageFromDatasourceId = (
 
   if (!plugin) return undefined;
   return plugin.packageName;
+};
+
+export const getPluginIdFromDatasourceId = (
+  state: AppState,
+  datasourceId: string,
+): string | undefined => {
+  const datasource = state.entities.datasources.list.find(
+    (datasource) => datasource.id === datasourceId,
+  );
+
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === datasource?.pluginId,
+  );
+
+  return plugin?.id;
 };
 
 export const getPluginNameFromId = (
@@ -758,30 +789,25 @@ export const selectFilesForExplorer = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
   selectDatasourceIdToNameMap,
-  selectFeatureFlags,
-  (actions, jsActions, datasourceIdToNameMap, featureFlags) => {
-    const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
-    const files = [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
-      (acc, file) => {
-        let group = "";
-        if (file.config.pluginType === PluginType.JS) {
-          group = "JS Objects";
-        } else if (file.config.pluginType === PluginType.API) {
-          group = isEmbeddedRestDatasource(file.config.datasource)
-            ? "APIs"
-            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-        } else {
-          group = datasourceIdToNameMap[file.config.datasource.id];
-        }
-        acc = acc.concat({
-          type: file.config.pluginType,
-          entity: file,
-          group,
-        });
-        return acc;
-      },
-      [] as Array<ExplorerFileEntity>,
-    );
+  (actions, jsActions, datasourceIdToNameMap) => {
+    const files = [...actions, ...jsActions].reduce((acc, file) => {
+      let group = "";
+      if (file.config.pluginType === PluginType.JS) {
+        group = "JS Objects";
+      } else if (file.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(file.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[file.config.datasource.id];
+      }
+      acc = acc.concat({
+        type: file.config.pluginType,
+        entity: file,
+        group,
+      });
+      return acc;
+    }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
       (file) => file.group?.toLowerCase(),
@@ -1062,4 +1088,28 @@ export const getDatasourceScopeValue = (
     (option: any) => option.value === scopeValue,
   )?.label;
   return label;
+};
+
+export const getDatasourcesUsedInApplicationByActions = (
+  state: AppState,
+): Datasource[] => {
+  const actions = getActions(state);
+  const datasources = getDatasources(state);
+  const datasourceIdsUsedInCurrentApplication = actions.reduce(
+    (acc, action: ActionData) => {
+      if (
+        isStoredDatasource(action.config.datasource) &&
+        action.config.datasource.id
+      ) {
+        acc.add(action.config.datasource.id);
+      }
+      return acc;
+    },
+    new Set(),
+  );
+  return datasources.filter(
+    (ds) =>
+      datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+      ds.id !== TEMP_DATASOURCE_ID,
+  );
 };

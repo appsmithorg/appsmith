@@ -4,7 +4,7 @@ import { reduxForm, formValueSelector } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "@appsmith/constants/forms";
 import type { RouteComponentProps } from "react-router-dom";
-import { useHistory, useLocation, withRouter, Link } from "react-router-dom";
+import { useHistory, useLocation, withRouter } from "react-router-dom";
 import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
@@ -23,8 +23,8 @@ import {
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { Button, FormGroup, FormMessage, Size } from "design-system-old";
-
+import { FormGroup } from "design-system-old";
+import { Button, Link, Callout } from "design-system";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
 import type { SignupFormValues } from "pages/UserAuth/helpers";
@@ -47,6 +47,8 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
+import Helmet from "react-helmet";
+import { useHtmlPageTitle } from "@appsmith/utils";
 
 declare global {
   interface Window {
@@ -93,6 +95,7 @@ export function SignUp(props: SignUpFormProps) {
   const socialLoginList = useSelector(getThirdPartyAuths);
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
+  const htmlPageTitle = useHtmlPageTitle();
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
@@ -147,10 +150,12 @@ export function SignUp(props: SignUpFormProps) {
   };
 
   const footerSection = (
-    <div className="px-2 py-4 text-base text-center border-b">
+    <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
       {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
       <Link
-        className="t--sign-up ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)]"
+        className="t--sign-up t--signup-link pl-[var(--ads-v2\-spaces-3)]"
+        kind="primary"
+        target="_self"
         to={AUTH_LOGIN_URL}
       >
         {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
@@ -164,7 +169,11 @@ export function SignUp(props: SignUpFormProps) {
       subtitle={createMessage(SIGNUP_PAGE_SUBTITLE)}
       title={createMessage(SIGNUP_PAGE_TITLE)}
     >
-      {showError && <FormMessage intent="danger" message={errorMessage} />}
+      <Helmet>
+        <title>{htmlPageTitle}</title>
+      </Helmet>
+
+      {showError && <Callout kind="error">{errorMessage}</Callout>}
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
@@ -200,9 +209,9 @@ export function SignUp(props: SignUpFormProps) {
           </FormGroup>
           <FormActions>
             <Button
-              disabled={shouldDisableSignupButton}
-              fill
+              isDisabled={shouldDisableSignupButton}
               isLoading={submitting}
+              kind="primary"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
@@ -211,11 +220,11 @@ export function SignUp(props: SignUpFormProps) {
                   PerformanceTransactionName.SIGN_UP,
                 );
               }}
-              size={Size.large}
-              tag="button"
-              text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+              size="md"
               type="submit"
-            />
+            >
+              {createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+            </Button>
           </FormActions>
         </SpacedSubmitForm>
       )}

@@ -183,7 +183,8 @@ public class RestApiPlugin extends BasePlugin {
                         objectMapper, hintMessages, errorResult, requestCaptureFilter
                     )
                     .onErrorResume(error -> {
-                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                        boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest, isBodySentWithApiRequest));
                         errorResult.setIsExecutionSuccess(false);
                         if (! (error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(RestApiPluginError.API_EXECUTION_FAILED, RestApiErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, error);

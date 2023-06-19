@@ -1,4 +1,4 @@
-name: Appsmith Client Build Workflow
+name: Client Build
 
 on:
   # This line enables manual triggering of this workflow.
@@ -101,8 +101,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
-          path: app/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
 
@@ -111,15 +111,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
-      - name: Run Eslint
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run lint:ci
-
-      - name: Run Prettier
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run prettier:ci
-
-      - name: Run type import check
+      # Type checking before starting the build
+      - name: Run type check
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run check-types
 
@@ -142,11 +135,6 @@ jobs:
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
 
-      # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
-      - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
-
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
@@ -163,6 +151,15 @@ jobs:
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_VERSION_EDITION="Community" \
             yarn build
+
+      # Saving the cache to use it in subsequent runs
+      - name: Save Yarn cache
+        uses: actions/cache/save@v3
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle

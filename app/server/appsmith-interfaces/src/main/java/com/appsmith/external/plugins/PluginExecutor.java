@@ -10,7 +10,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import io.micrometer.observation.ObservationRegistry;
@@ -20,7 +19,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.pf4j.ExtensionPoint;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
@@ -31,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
@@ -54,7 +53,32 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param datasourceConfiguration
      * @return Connection object
      */
-    Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+//    Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+
+    default Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        Properties properties = new Properties();
+        return Mono.fromCallable(() -> addAuthParamsToConnectionConfig(datasourceConfiguration, properties))
+                .map(properties1 -> addPluginSpecificProperties(datasourceConfiguration, properties1))
+                .flatMap(properties1 -> createConnectionClient(datasourceConfiguration, properties1))
+                .onErrorResume(error -> {
+                    // We always expect to have an error object, but the error object may not be well-formed
+                    final String errorMessage = error.getMessage();
+                    throw new RuntimeException(errorMessage);
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    default Mono<C> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return this.datasourceCreate(datasourceConfiguration);
+    }
+
+    default Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
+
+    default Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
 
     /**
      * This function is used to bring down/destroy the connection to the data source.
@@ -71,8 +95,8 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param datasourceConfiguration
      * @return boolean
      */
-    default boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-        return CollectionUtils.isEmpty(validateDatasource(datasourceConfiguration));
+    default boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration, boolean isEmbeddedDatasource) {
+        return isEmpty(validateDatasource(datasourceConfiguration, isEmbeddedDatasource));
     }
 
     /**
@@ -87,6 +111,14 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @return Set                      : The set of invalid strings informing the user of all the invalid fields
      */
     Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration);
+    default Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration,
+                                           boolean isEmbeddedDatasource) {
+        if (!isEmbeddedDatasource) {
+            return this.validateDatasource(datasourceConfiguration);
+        }
+
+        return Set.of();
+    }
 
     /**
      * This function tests the datasource by executing a test query or hitting the endpoint to check the correctness
@@ -142,19 +174,6 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @return
      */
     default Mono<DatasourceStructure> getStructure(C connection, DatasourceConfiguration datasourceConfiguration) {
-        return Mono.empty();
-    }
-
-    /**
-     * This function executes the DB query to fetch details about the datasource when we don't want to create new action
-     * just to get the information about the datasource
-     * e.g. Get Spreadsheets from Google Drive, Get first row in datasource etc.
-     *
-     * @param pluginSpecifiedTemplates
-     * @param datasourceConfiguration
-     * @return
-     */
-    default Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates, DatasourceConfiguration datasourceConfiguration) {
         return Mono.empty();
     }
 
@@ -215,7 +234,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                                       ExecuteActionDTO executeActionDTO) {
         //Do variable substitution
         //Do this only if params have been provided in the execute command
-        if (executeActionDTO != null && !CollectionUtils.isEmpty(executeActionDTO.getParams())) {
+        if (executeActionDTO != null && !isEmpty(executeActionDTO.getParams())) {
             Map<String, String> replaceParamsMap = executeActionDTO
                     .getParams()
                     .stream()

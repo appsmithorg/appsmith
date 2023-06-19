@@ -5,14 +5,15 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint --cache .",
-    "prettier": "prettier --check .",
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier",
     "build:tokens": "npx ts-node ./src/utils/buildTokens.ts"
-  },
-  "devDependencies": {
-    "eslint": "^8.38.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
+  },
+  "dependencies": {
+    "@capsizecss/core": "^3.1.1",
+    "@capsizecss/metrics": "^1.2.0"
   }
 }

@@ -184,7 +184,7 @@ public class LayoutActionServiceTest {
             dsl2.put("primaryColumns", primaryColumns);
             final ArrayList<Object> objects = new ArrayList<>();
             JSONArray temp2 = new JSONArray();
-            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
             dsl2.put("dynamicBindingPathList", temp2);
             objects.add(dsl2);
             dsl.put("children", objects);
@@ -209,7 +209,7 @@ public class LayoutActionServiceTest {
                                 .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
             gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
@@ -397,7 +397,7 @@ public class LayoutActionServiceTest {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ firstAction.data }}");
 
@@ -430,7 +430,7 @@ public class LayoutActionServiceTest {
         dsl = new JSONObject();
         dsl.put("widgetName", "firstWidget");
         temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ secondAction.data }}");
 
@@ -647,7 +647,7 @@ public class LayoutActionServiceTest {
         JSONObject firstWidget = new JSONObject();
         firstWidget.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         firstWidget.put("dynamicBindingPathList", temp);
         firstWidget.put("testField", "{{ firstAction.data }}");
         children.add(firstWidget);
@@ -655,7 +655,7 @@ public class LayoutActionServiceTest {
         JSONObject secondWidget = new JSONObject();
         secondWidget.put("widgetName", "secondWidget");
         temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         secondWidget.put("dynamicBindingPathList", temp);
         secondWidget.put("testField", "{{ firstWidget.testField }}");
         children.add(secondWidget);
@@ -663,7 +663,7 @@ public class LayoutActionServiceTest {
         JSONObject thirdWidget = new JSONObject();
         thirdWidget.put("widgetName", "thirdWidget");
         temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         thirdWidget.put("dynamicBindingPathList", temp);
         thirdWidget.put("testField", "{{ secondAction.data }}");
         children.add(thirdWidget);
@@ -741,7 +741,7 @@ public class LayoutActionServiceTest {
         JSONObject firstWidget = new JSONObject();
         firstWidget.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         firstWidget.put("dynamicBindingPathList", temp);
         firstWidget.put("testField", "{{ firstAction.data }}");
         children.add(firstWidget);
@@ -840,7 +840,7 @@ public class LayoutActionServiceTest {
         JSONObject firstWidget = new JSONObject();
         firstWidget.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         firstWidget.put("dynamicBindingPathList", temp);
         firstWidget.put("testField", "{{ firstAction.data }}");
         children.add(firstWidget);
@@ -848,7 +848,7 @@ public class LayoutActionServiceTest {
         JSONObject secondWidget = new JSONObject();
         secondWidget.put("widgetName", "secondWidget");
         temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         secondWidget.put("dynamicBindingPathList", temp);
         secondWidget.put("testField", "{{ firstWidget.testField }}");
         children.add(secondWidget);
@@ -925,7 +925,7 @@ public class LayoutActionServiceTest {
         for (int i = 0; i < testPages.size(); i++) {
             PageDTO page = testPages.get(i);
             Layout layout = page.getLayouts().get(0);
-            layout.setDsl(createTestDslWithTestWidget("Layout"+(i+1)));
+            layout.setDsl(createTestDslWithTestWidget("Layout" + (i + 1)));
 
             UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayoutDTO = new UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO();
             pageLayoutDTO.setPageId(page.getId());
@@ -1235,6 +1235,7 @@ public class LayoutActionServiceTest {
 
     /**
      * Creates a DSL JSON based on the provided parameters
+     *
      * @return JSONObject of the DSL
      */
     private JSONObject createTestDslWithTestWidget(String testWidgetName) throws JsonProcessingException {

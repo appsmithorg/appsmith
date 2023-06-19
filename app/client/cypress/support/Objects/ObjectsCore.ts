@@ -1,6 +1,9 @@
+import { WIDGET } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
+import { EntityItems } from "../Pages/AssertHelper";
 
 export const agHelper = ObjectsRegistry.AggregateHelper;
+export const assertHelper = ObjectsRegistry.AssertHelper;
 export const locators = ObjectsRegistry.CommonLocators;
 export const entityExplorer = ObjectsRegistry.EntityExplorer;
 export const jsEditor = ObjectsRegistry.JSEditor;
@@ -15,7 +18,7 @@ export const theme = ObjectsRegistry.ThemeSettings;
 export const gitSync = ObjectsRegistry.GitSync;
 export const apiPage = ObjectsRegistry.ApiPage;
 export const adminSettings = ObjectsRegistry.AdminSettings;
-export const dataSources = ObjectsRegistry?.DataSources;
+export const dataSources = ObjectsRegistry.DataSources;
 export const inviteModal = ObjectsRegistry.InviteModal;
 export const table = ObjectsRegistry.Table;
 export const debuggerHelper = ObjectsRegistry.DebuggerHelper;
@@ -23,3 +26,8 @@ export const templates = ObjectsRegistry.Templates;
 export const peekOverlay = ObjectsRegistry.PeekOverlay;
 export const installer = ObjectsRegistry.LibraryInstaller;
 export const onboarding = ObjectsRegistry.Onboarding;
+export const autoLayout = ObjectsRegistry.AutoLayout;
+export const draggableWidgets = WIDGET;
+export const fakerHelper = ObjectsRegistry.FakerHelper;
+export const hostPort = ObjectsRegistry.DefaultHostPort;
+export const entityItems = EntityItems;

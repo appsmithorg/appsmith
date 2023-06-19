@@ -1,8 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.ActionCollection;
@@ -11,12 +13,10 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
@@ -171,7 +171,7 @@ public class ActionCollectionServiceTest {
             dsl2.put("primaryColumns", primaryColumns);
             final ArrayList<Object> objects = new ArrayList<>();
             JSONArray temp2 = new JSONArray();
-            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
             dsl2.put("dynamicBindingPathList", temp2);
             objects.add(dsl2);
             dsl.put("children", objects);
