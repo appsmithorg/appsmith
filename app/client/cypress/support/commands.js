@@ -271,12 +271,15 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.password).type(pword);
   cy.get(signupPage.submitBtn).click();
   cy.wait(1000);
-  cy.get(signupPage.roleDropdown).click();
-  cy.get(signupPage.dropdownOption).click();
-  cy.get(signupPage.useCaseDropdown).click();
-  cy.get(signupPage.dropdownOption).click();
-  cy.get(signupPage.roleUsecaseSubmit).click({ force: true });
-
+  cy.get("body").then(($body) => {
+    if ($body.find(signupPage.roleDropdown).length > 0) {
+      cy.get(signupPage.roleDropdown).click();
+      cy.get(signupPage.dropdownOption).click();
+      cy.get(signupPage.useCaseDropdown).click();
+      cy.get(signupPage.dropdownOption).click();
+      cy.get(signupPage.roleUsecaseSubmit).click({ force: true });
+    }
+  });
   cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
@@ -1120,6 +1123,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("GET", "/settings/general").as("getGeneral");
   cy.intercept("GET", "/api/v1/tenants/current").as("signUpLogin");
+  cy.intercept("PUT", "/api/v1/tenants", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("postTenant");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1273,7 +1279,7 @@ Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
       timeout: 30000,
     });
   }
-  //agHelper.AssertNetworkStatus("@sucessSave", 200);
+  //assertHelper.AssertNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(
