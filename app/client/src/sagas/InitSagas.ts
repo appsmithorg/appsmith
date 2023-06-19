@@ -47,8 +47,11 @@ import {
   isViewerPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
-import { identifyEntityFromPath } from "../navigation/FocusEntity";
-import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
+import {
+  GIT_BRANCH_QUERY_KEY,
+  matchBuilderPath,
+  matchViewerPath,
+} from "../constants/routes";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -92,8 +95,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       engine.loadAppData,
       action.payload,
     );
-    yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
+    yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
@@ -170,12 +173,15 @@ function* eagerPageInitSaga() {
   const url = window.location.pathname;
   const search = window.location.search;
   if (isEditorPath(url)) {
-    const { pageId } = identifyEntityFromPath(url);
+    const {
+      params: { applicationId, pageId },
+    } = matchBuilderPath(url);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
     if (pageId) {
       yield put(
         initEditor({
           pageId,
+          applicationId,
           branch,
           mode: APP_MODE.EDIT,
         }),
