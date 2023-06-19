@@ -75,6 +75,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
               "Application imported successfully",
             );
           }
+          cy.wait("@getWorkspace");
           // check datasource configured success modal
           cy.get(".t--import-app-success-modal").should("be.visible");
           cy.get(".t--import-app-success-modal").should(
@@ -83,6 +84,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           );
           cy.get(".t--import-success-modal-got-it").click({ force: true });
           cy.get(".t--import-app-success-modal").should("not.exist");
+          cy.wait("@getWorkspace");
 
           const uuid = () => Cypress._.random(0, 1e4);
           const name = uuid();

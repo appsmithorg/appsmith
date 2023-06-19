@@ -13,7 +13,7 @@ describe("Verify various Table property bugs", function () {
       "Table data",
       JSON.stringify(this.dataSet.TableURLColumnType),
     );
-    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
+    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
     _.agHelper.PressEscape();
     //Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
@@ -59,7 +59,7 @@ describe("Verify various Table property bugs", function () {
 
   it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function () {
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-    _.agHelper.GetNClick(_.table._columnSettings("image"));
+    _.agHelper.GetNClick(_.table._columnSettings("image", "Edit"));
 
     _.propPane.UpdatePropertyFieldValue(
       "Display text",
@@ -100,7 +100,7 @@ describe("Verify various Table property bugs", function () {
 
   it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function () {
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-    _.agHelper.GetNClick(_.table._columnSettings("image"));
+    _.agHelper.GetNClick(_.table._columnSettings("image", "Edit"));
 
     _.propPane.UpdatePropertyFieldValue(
       "Display text",
