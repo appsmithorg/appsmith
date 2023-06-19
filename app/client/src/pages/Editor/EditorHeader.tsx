@@ -258,7 +258,6 @@ export function EditorHeader(props: EditorHeaderProps) {
       });
     }
   };
-  console.log({ currentApplicationName });
 
   const updateApplicationDispatch = (
     id: string,
