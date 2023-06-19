@@ -2246,6 +2246,7 @@ __metadata:
   dependencies:
     "@capsizecss/core": ^3.1.1
     "@capsizecss/metrics": ^1.2.0
+    lodash: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -2298,6 +2299,7 @@ __metadata:
     "@design-system/theming": "workspace:^"
     "@react-aria/utils": ^3.16.0
     "@react-aria/visually-hidden": ^3.8.0
+    classnames: "*"
     colorjs.io: ^0.4.3
     eslint-plugin-storybook: ^0.6.10
   peerDependencies:
@@ -20792,7 +20794,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.x, lodash@npm:^4, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.7.0, lodash@npm:~4.17.21":
+"lodash@npm:*, lodash@npm:4.x, lodash@npm:^4, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.7.0, lodash@npm:~4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7

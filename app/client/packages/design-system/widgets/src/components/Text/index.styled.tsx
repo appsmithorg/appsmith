@@ -6,7 +6,7 @@ import type { TextProps } from "./Text";
 
 type StyledTextProp = TextProps & {
   typography?: {
-    [key in TypographyVariant]?: FlattenSimpleInterpolation;
+    [key in keyof typeof TypographyVariant]?: FlattenSimpleInterpolation;
   };
 };
 
@@ -40,15 +40,7 @@ export const StyledText = styled.div<StyledTextProp>`
   text-align: ${({ textAlign }) => textAlign};
   width: 100%;
 
-  ${truncateStyles}
-
-  ${({ typography, variant }) => {
-    if (variant && typography) {
-      return typography?.[variant];
-    }
-
-    return typography?.body;
-  }}
+  ${truncateStyles};
 
   color: ${({ type }) => {
     switch (true) {
@@ -65,5 +57,5 @@ export const StyledText = styled.div<StyledTextProp>`
       default:
         return "inherit";
     }
-  }}
+  }};
 `;

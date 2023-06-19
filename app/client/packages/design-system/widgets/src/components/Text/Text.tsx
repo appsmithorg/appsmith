@@ -1,11 +1,13 @@
-import type { Ref } from "react";
+import { getTypographyClassName } from "@design-system/theming";
 import React, { forwardRef } from "react";
 import { StyledText } from "./index.styled";
-import { useThemeContext } from "@design-system/theming";
+import classNames from "classnames";
+
+import type { Ref } from "react";
 import type { TypographyVariant, TypographyType } from "@design-system/theming";
 
 export interface TextProps {
-  variant?: TypographyVariant;
+  variant?: keyof typeof TypographyVariant;
   type?: TypographyType;
   isBold?: boolean;
   isItalic?: boolean;
@@ -29,18 +31,15 @@ export const Text = forwardRef(
       ...rest
     } = props;
 
-    const theme = useThemeContext();
-
     return (
       <StyledText
-        className={className}
+        className={classNames(className, getTypographyClassName(variant))}
         isBold={isBold}
         isItalic={isItalic}
         lineClamp={lineClamp}
         ref={ref}
         textAlign={textAlign}
         type={type}
-        typography={theme?.typography}
         variant={variant}
         {...rest}
       >

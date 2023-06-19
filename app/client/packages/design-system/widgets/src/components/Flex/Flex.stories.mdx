@@ -1,0 +1,22 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import { Flex } from "./";
+
+<Meta
+  title="Design-system/widgets/Flex"
+  component={Flex}
+  args={{
+    children: "Flex",
+  }}
+/>
+
+export const Template = (args) => <Flex {...args} />;
+
+# Button
+
+A button is a clickable element that is used to trigger an action.
+
+<Canvas>
+  <Story name="Flex">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Flex" of={Flex} />

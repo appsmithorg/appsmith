@@ -20,7 +20,7 @@ export const ComplexForm = () => {
     >
       <Text variant="heading">Your order</Text>
 
-      <Text>Choose your favorite dishes and place an order</Text>
+      <Text>The delivery time depends on the traffic density</Text>
 
       <CheckboxGroup isEmphasized label="Dishes">
         <Checkbox value="Hamburger">Hamburger</Checkbox>

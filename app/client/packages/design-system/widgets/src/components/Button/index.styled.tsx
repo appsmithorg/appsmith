@@ -64,10 +64,10 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   cursor: pointer;
   outline: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  height: calc(var(--root-unit) * 8);
   border-radius: var(--border-radius-1);
   user-select: none;
-  min-width: calc(var(--root-unit) * 7.5);
+  height: var(--sizing-8);
+  min-width: var(--sizing-8);
   text-align: center;
   position: relative;
   font-weight: 600;
@@ -93,8 +93,8 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(var(--sizing-root-unit) * 5);
-    width: calc(var(--sizing-root-unit) * 5);
+    height: var(--sizing-5);
+    width: var(--sizing-5);
   }
 
   /**
