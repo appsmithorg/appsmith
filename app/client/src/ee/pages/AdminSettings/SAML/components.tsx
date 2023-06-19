@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import FormTextField from "components/utils/ReduxFormTextField";
 import FormTextAreaField from "pages/Settings/FormGroup/TextAreaField";
@@ -7,6 +7,8 @@ import { createMessage } from "@appsmith/constants/messages";
 import { SettingsFormWrapper } from "pages/Settings/components";
 import { Icon, Text, Tooltip } from "design-system";
 import { SettingTypes } from "../config/types";
+import KeyValueArrayControl from "components/formControls/KeyValueArrayControl";
+import InputTextControl from "components/propertyControls/InputTextControl";
 
 export const Info = styled(Text)`
   margin: 16px 0;
@@ -79,6 +81,45 @@ export const StyledAsterisk = styled(Text)`
   margin-left: 2px;
 `;
 
+const AccordionWrapper = styled.div`
+  margin-top: 40px;
+`;
+
+const AccordionHeader = styled(Text)`
+  margin-bottom: ${(props) => props.theme.spaces[9]}px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const AccordionBody = styled.div`
+  & .hide {
+    display: none;
+  }
+`;
+
+const Line = styled.hr`
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid var(--ads-v2-color-border);
+  margin: 0 16px;
+  flex: 1 0 auto;
+}
+`;
+
+const AdvancedSettingsWrapper = styled.div`
+  .field-label {
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-input-field {
+    flex: 1 0 0;
+  }
+`;
+
 export type InputProps = {
   className?: string;
   placeholder?: string;
@@ -86,7 +127,7 @@ export type InputProps = {
   name: string;
   subText?: string;
   hint?: string;
-  type?: "Area" | "Text";
+  type?: "Area" | "Text" | "KeyValueFieldArray";
   isRequired?: boolean;
 };
 
@@ -148,5 +189,62 @@ export function RenderForm(props: { inputs: InputProps[] }) {
         <Input key={eachInput.name} {...eachInput} />
       ))}
     </>
+  );
+}
+
+export function Accordion(props: any) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { label, settings } = props;
+
+  return (
+    <AccordionWrapper>
+      {label && (
+        <AccordionHeader
+          color="var(--ads-v2-color-fg)"
+          data-testid="admin-settings-form-group-label"
+          kind="heading-s"
+          onClick={() => setIsOpen(!isOpen)}
+          renderAs="label"
+        >
+          <span>{createMessage(() => label)}</span>
+          <Line />
+          <Icon name={isOpen ? "expand-less" : "expand-more"} size="md" />
+        </AccordionHeader>
+      )}
+      {isOpen && (
+        <AccordionBody>
+          {settings.map((eachInput: any) => (
+            <AdvancedSettingsWrapper key={eachInput.name}>
+              <Text
+                className="field-label"
+                color="var(--ads-v2-color-fg)"
+                kind="body-m"
+                renderAs="label"
+              >
+                {eachInput.label}
+              </Text>
+              {eachInput.type === "KeyValueFieldArray" ? (
+                <KeyValueArrayControl
+                  configProperty={eachInput.name}
+                  controlType={typeof InputTextControl}
+                  formName={eachInput.name}
+                  headerTooltips={{
+                    key: "The key under which the claim would be present in the appsmith.user.userClaims object in your application.",
+                    value: "SAML claim name",
+                  }}
+                  id={eachInput.name}
+                  isValid
+                  label={eachInput.label}
+                  name={eachInput.name}
+                  showHeader
+                />
+              ) : (
+                <Input {...eachInput} />
+              )}
+            </AdvancedSettingsWrapper>
+          ))}
+        </AccordionBody>
+      )}
+    </AccordionWrapper>
   );
 }

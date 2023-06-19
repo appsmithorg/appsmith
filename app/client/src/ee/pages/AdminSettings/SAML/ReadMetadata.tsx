@@ -11,7 +11,7 @@ import SaveAdminSettings from "pages/Settings/SaveSettings";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import CopyUrlForm from "pages/Settings/FormGroup/CopyUrlForm";
 import type { InputProps } from "./components";
-import { BodyContainer, Info, RenderForm } from "./components";
+import { Accordion, BodyContainer, Info, RenderForm } from "./components";
 import { getSettingDetail, getSettingLabel } from ".";
 import { SSO_IDENTITY_PROVIDER_FORM } from "@appsmith/constants/forms";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
@@ -49,6 +49,7 @@ export type MenuItemsProps = {
   subText: string;
   callout?: string;
   inputs: InputProps[];
+  advanced?: InputProps[];
 };
 
 export enum MENU_ITEM {
@@ -73,6 +74,15 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
         isRequired: true,
       },
     ],
+    advanced: [
+      {
+        className: "t--sso-saml-claims",
+        label: "Claims",
+        name: "claims",
+        isRequired: false,
+        type: "KeyValueFieldArray",
+      },
+    ],
   },
   {
     id: "APPSMITH_SSO_SAML_METADATA_XML",
@@ -88,6 +98,15 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
         name: "metadataXml",
         type: "Area",
         isRequired: true,
+      },
+    ],
+    advanced: [
+      {
+        className: "t--sso-saml-claims",
+        label: "Claims",
+        name: "claims",
+        isRequired: false,
+        type: "KeyValueFieldArray",
       },
     ],
   },
@@ -127,6 +146,15 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
         isRequired: true,
       },
     ],
+    advanced: [
+      {
+        className: "t--sso-saml-claims",
+        label: "Claims",
+        name: "claims",
+        isRequired: false,
+        type: "KeyValueFieldArray",
+      },
+    ],
   },
 ];
 
@@ -141,7 +169,8 @@ export type MetadataFormValuesType = {
 const allSAMLSetupOptions = Object.values(MENU_ITEMS_MAP);
 
 type FormProps = {
-  settings: Record<string, string>;
+  settings: Record<string, any>;
+  settingsConfig: Record<string, any>;
   isSaving: boolean;
 };
 
@@ -170,21 +199,30 @@ function MetadataForm(
         method: pageTitle,
       });
     }
-    _.forEach(props.settings, (value, settingName) => {
-      props.settings[settingName] = "";
+    _.forEach(props.settingsConfig, (value, settingName) => {
+      if (settingName !== "claims") {
+        props.settingsConfig[settingName] = "";
+      }
     });
+    if (
+      props.settingsConfig["claims"] === "" ||
+      props.settingsConfig["claims"]?.length === 0
+    ) {
+      delete props.settingsConfig["claims"];
+    }
     if (activeTabIndex === 2) {
-      props.settings[
+      props.settingsConfig[
         "metadataEntityId"
       ] = `${window.location.origin}${BASE_URL}auth/realms/appsmith`;
     }
-    props.initialize(props.settings);
+    props.initialize(props.settingsConfig);
   };
 
   useEffect(onClear, [activeTabIndex]);
 
   const submit = () => {
     const {
+      claims,
       metadataEmail,
       metadataEntityId,
       metadataPubCert,
@@ -192,6 +230,16 @@ function MetadataForm(
       metadataUrl,
       metadataXml,
     } = props.settings;
+    let claimsKeyValueObj = {};
+    if (claims) {
+      claimsKeyValueObj = {
+        claims: claims.reduce(
+          (obj: any, item: any) =>
+            Object.assign(obj, { [item.key]: item.value }),
+          {},
+        ),
+      };
+    }
     if (activeTabIndex === 0 && metadataUrl?.toString().trim()) {
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
         method: pageTitle,
@@ -199,6 +247,7 @@ function MetadataForm(
       });
       dispatch(
         fetchSamlMetadata({
+          ...(claims ? claimsKeyValueObj : {}),
           isEnabled: true,
           importFromUrl: metadataUrl,
         }),
@@ -210,6 +259,7 @@ function MetadataForm(
       });
       dispatch(
         fetchSamlMetadata({
+          ...(claims ? claimsKeyValueObj : {}),
           isEnabled: true,
           importFromXml: metadataXml,
         }),
@@ -227,6 +277,7 @@ function MetadataForm(
       });
       dispatch(
         fetchSamlMetadata({
+          ...(claims ? claimsKeyValueObj : {}),
           isEnabled: true,
           configuration: {
             singleSignOnServiceUrl: metadataSsoUrl,
@@ -264,6 +315,7 @@ function MetadataForm(
         {providerForm.subText}
       </Info>
       <RenderForm inputs={providerForm.inputs} />
+      <Accordion label="Advanced" settings={providerForm.advanced} />
       {isSavable && (
         <SaveAdminSettings
           isSaving={props.isSaving}
@@ -299,13 +351,25 @@ const MetadataReduxForm = connect(
   ) => {
     const newProps: any = {
       settings: {},
+      settingsConfig: {
+        claims: [{ key: "", value: "" }],
+      },
       isSaving: getSettingsSavingState(state),
     };
     _.forEach(MENU_ITEMS_MAP, (setting, index) => {
       if (index === props.activeTabIndex) {
         _.forEach(setting.inputs, (input) => {
           const fieldValue = selector(state, input.name);
-          if (fieldValue !== newProps.settings[input.name]) {
+          if (fieldValue !== newProps.settingsConfig[input.name]) {
+            newProps.settings[input.name] = fieldValue;
+          }
+        });
+        _.forEach(setting.advanced, (input) => {
+          const fieldValue = selector(state, input.name);
+          if (
+            JSON.stringify(fieldValue) !==
+            JSON.stringify(newProps.settingsConfig[input.name])
+          ) {
             newProps.settings[input.name] = fieldValue;
           }
         });

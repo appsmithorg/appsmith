@@ -3,7 +3,7 @@ name: Scheduled Test Build Docker Image Airgap
 on:
   # This workflow will run everyday at 07:00 AM IST (01:30 AM UTC)
   schedule:
-    - cron: '5 6 * * *'
+    - cron: '30 9 * * *'
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
@@ -78,6 +78,30 @@ jobs:
         shell: bash
     steps:
       - run: echo "All ci-test matrices completed"
+
+      - name: Slack Notification on failure
+        if: needs.ci-test.result != 'success'
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: stabilizing-cypress
+          SLACK_COLOR: '#FF0000' 
+          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_MESSAGE: 'There are build failures.'
+          SLACK_TITLE: Scheduled airgap run
+          SLACK_USERNAME: Github Scheduler
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
+
+      - name: Slack Notification on success
+        if: needs.ci-test.result == 'success'
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: stabilizing-cypress
+          SLACK_COLOR: '#00FF00' 
+          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_MESSAGE: 'All Cypress tests passed :tada:.'
+          SLACK_TITLE: Scheduled airgap run
+          SLACK_USERNAME: Github Scheduler
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
 
       # Deleting the existing dir's if any
       - name: Delete existing directories

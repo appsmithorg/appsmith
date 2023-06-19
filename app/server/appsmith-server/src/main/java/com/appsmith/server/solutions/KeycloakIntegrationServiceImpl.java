@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -21,19 +22,23 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
@@ -335,7 +340,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
     }
 
     @Override
-    public Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest) {
+    public Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest, Map<String, String> claims) {
 
         WebClient.Builder webClientBuilder = WebClient.builder();
         webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON));
@@ -349,7 +354,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-        return getAccessTokenForAdministrativeTask()
+        Mono<Boolean> idpCreateMono = getAccessTokenForAdministrativeTask()
                 .flatMap(accessToken -> {
                     webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
                     WebClient webClient = webClientBuilder.build();
@@ -370,6 +375,83 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 return Mono.just(TRUE);
                             });
                 });
+
+        // Now create mappers in IDP for the custom claims if present.
+        if (CollectionUtils.isEmpty(claims)) {
+            return idpCreateMono;
+        }
+
+        Set<String> customClaims = claims.keySet();
+        List<Mono<Boolean>> mapperCreateMonos = new ArrayList<>();
+        for (String claim : customClaims) {
+            mapperCreateMonos.add(createSamlIdentityProviderMapperOnKeycloak(claim, claims.get(claim)));
+        }
+
+        return idpCreateMono
+                .thenMany(Flux.fromIterable(mapperCreateMonos))
+                .flatMap(mono -> mono)
+                .collectList()
+                .thenReturn(TRUE);
+    }
+
+    private Mono<Boolean> createSamlIdentityProviderMapperOnKeycloak(String claim, String samlClaim) {
+
+        Map<String, Object> mapperCreateRequest = new HashMap();
+        mapperCreateRequest.put("identityProviderAlias", IDP_NAME);
+        mapperCreateRequest.put("identityProviderMapper", IDP_NAME + "-user-attribute-idp-mapper");
+        mapperCreateRequest.put("name", "idp-mapper-" + claim);
+
+        Map<String, Object> mapperConfiguration = new HashMap();
+        mapperConfiguration.put("syncMode", "FORCE");
+        mapperConfiguration.put("are.attribute.values.regex", false);
+        mapperConfiguration.put("group", "");
+        mapperConfiguration.put("attribute.name", samlClaim);
+        mapperConfiguration.put("attribute.friendly.name", "");
+        mapperConfiguration.put("attribute.name.format", "ATTRIBUTE_FORMAT_UNSPECIFIED");
+        mapperConfiguration.put("user.attribute", getUserAttribute(claim));
+
+        mapperCreateRequest.put("config", mapperConfiguration);
+
+        WebClient.Builder webClientBuilder = WebClient.builder();
+        webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON));
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        try {
+            uriBuilder.uri(new URI(IDENTITY_PROVIDER_URI + "/instances/saml/mappers"));
+        } catch (URISyntaxException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+        }
+
+        URI uri = uriBuilder.build(true).toUri();
+
+        Mono<Boolean> idpMapperCreateMono = getAccessTokenForAdministrativeTask()
+                .flatMap(accessToken -> {
+                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+                    WebClient webClient = webClientBuilder.build();
+
+                    return webClient
+                            .method(HttpMethod.POST)
+                            .uri(uri)
+                            .body(BodyInserters.fromValue(mapperCreateRequest))
+                            .exchange()
+                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                            .flatMap(stringResponseEntity -> {
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+                                if (!statusCode.is2xxSuccessful()) {
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
+                                }
+
+                                return Mono.just(TRUE);
+                            });
+                });
+
+        return idpMapperCreateMono;
+    }
+
+    @NotNull
+    private static String getUserAttribute(String claim) {
+        return "user-attribute-" + claim;
     }
 
     private String generateErrorMessage(ResponseEntity<byte[]> stringResponseEntity) {
@@ -404,7 +486,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
     }
 
     @Override
-    public Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration, String baseUrl) {
+    public Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration, String baseUrl, Map<String, String> claims) {
 
         if (configuration == null || configuration.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "SAML configuration"));
@@ -431,10 +513,11 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         configuration.put("postBindingResponse", true);
         configuration.put("postBindingAuthnRequest", true);
         configuration.put("validateSignature", false);
-        configuration.put("syncMode", "IMPORT");
+        // Using FORCE sync to ensure that every time the user logs in, the SAML attribute updates the user attribute
+        configuration.put("syncMode", "FORCE");
         configuration.put("nameIDPolicyFormat", emailField);
 
-        return createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(configuration, baseUrl));
+        return createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(configuration, baseUrl), claims);
 
     }
 
@@ -461,7 +544,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
 
     @Override
-    public Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request, String baseUrl) {
+    public Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request, String baseUrl, Map<String, String> claims) {
 
         WebClient.Builder webClientBuilder = WebClient.builder();
         webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON));
@@ -477,7 +560,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
 
         return importSamlConfigFromUrl(request, baseUrl)
-                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(parsedConfigMap, baseUrl)));
+                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(parsedConfigMap, baseUrl), claims));
 
     }
 
@@ -564,14 +647,14 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
     }
 
     @Override
-    public Mono<Boolean> createSamlIdentityProviderFromXml(String importFromXml, String baseUrl) {
+    public Mono<Boolean> createSamlIdentityProviderFromXml(String importFromXml, String baseUrl, Map<String, String> claims) {
 
         String decodedXML = StringEscapeUtils.unescapeHtml4(importFromXml);
         byte[] xmlBytes = decodedXML.getBytes(StandardCharsets.UTF_8);
         DataBuffer dataBuffer = dataBufferFactory.wrap(xmlBytes);
 
         return importSamlConfigFromData(dataBuffer)
-                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(parsedConfigMap, baseUrl)));
+                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(parsedConfigMap, baseUrl), claims));
 
     }
 
@@ -630,6 +713,76 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 }
 
                                 return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
+                            });
+                });
+    }
+
+    @Override
+    public Mono<Boolean> addClientClaims(Map<String, String> claims, String baseUrl) {
+
+        Set<String> customClaims = claims.keySet();
+
+        List<Mono<Boolean>> mapperCreateMonos = new ArrayList<>();
+        for (String claim : customClaims) {
+            mapperCreateMonos.add(createClientMapperOnKeycloak(claim));
+        }
+
+        return Flux.merge(mapperCreateMonos)
+                .then(Mono.just(TRUE));
+    }
+
+    private Mono<Boolean> createClientMapperOnKeycloak(String claim) {
+        Map<String, Object> clientMapperRepresentation = new HashMap();
+        clientMapperRepresentation.put("protocol", "openid-connect");
+        clientMapperRepresentation.put("protocolMapper", "oidc-usermodel-attribute-mapper");
+        clientMapperRepresentation.put("name", "client-mapper-" + claim);
+
+        Map<String, String> config = new HashMap<>();
+        config.put("user.attribute", getUserAttribute(claim));
+        config.put("claim.name", claim);
+        config.put("jsonType.label", "");
+        config.put("id.token.claim", "false");
+        config.put("access.token.claim", "false");
+        config.put("userinfo.token.claim", "true");
+        config.put("multivalued", "true");
+        config.put("aggregate.attrs", "false");
+
+        clientMapperRepresentation.put("config", config);
+
+        WebClient.Builder webClientBuilder = WebClient.builder();
+        webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON));
+
+        return Mono.zip(getAccessTokenForAdministrativeTask(), getInternalClientId(CLIENT))
+                .flatMap(tuple -> {
+                    String accessToken = tuple.getT1();
+                    String internalClientId = tuple.getT2();
+
+                    UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+                    try {
+                        uriBuilder.uri(new URI(CLIENT_URI + "/" + internalClientId + "/protocol-mappers/models"));
+                    } catch (URISyntaxException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    }
+
+                    URI uri = uriBuilder.build(true).toUri();
+
+                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+                    WebClient webClient = webClientBuilder.build();
+
+                    return webClient
+                            .method(HttpMethod.POST)
+                            .uri(uri)
+                            .body(BodyInserters.fromValue(clientMapperRepresentation))
+                            .exchange()
+                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                            .flatMap(stringResponseEntity -> {
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+                                if (!statusCode.is2xxSuccessful()) {
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
+                                }
+
+                                return Mono.just(TRUE);
                             });
                 });
     }

@@ -37,7 +37,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
     dataSources.CreateDataSource("Mongo", false);
 
-    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "friends");
 
@@ -845,7 +845,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     //Delete the test data
     // entityExplorer.expandCollapseEntity("Pages")
     // entityExplorer.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
-    // agHelper.AssertNetworkStatus("@deletePage", 200);
+    // assertHelper.AssertNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
@@ -858,11 +858,11 @@ describe("Validate Mongo Query Pane Validations", () => {
     idIndex: number,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    agHelper.AssertNetworkStatus("@getActions", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@getActions", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
     deployMode.DeployApp();

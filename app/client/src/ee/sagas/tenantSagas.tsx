@@ -48,6 +48,7 @@ import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
 import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -57,19 +58,21 @@ export function* fetchCurrentTenantConfigSaga(): any {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const payload = response.data as any;
+      const data = response.data as any;
 
       // If the tenant config is not present, we need to set the default config
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
         payload: {
-          ...payload,
+          ...data,
           tenantConfiguration: {
             ...CE_defaultBrandingConfig,
-            ...payload.tenantConfiguration,
+            ...data.tenantConfiguration,
           },
         },
       });
+
+      AnalyticsUtil.initInstanceId(data.instanceId);
     }
   } catch (error) {
     const errorObj = error as APIResponseError;
