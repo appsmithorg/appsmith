@@ -56,3 +56,8 @@ export const PRIVATE_EMBED: SupportedRampsType = {
     [RAMP_FOR_ROLES.APP_VIEWER]: false,
   },
 };
+export const PRODUCT_RAMPS_LIST: { [key: string]: SupportedRampsType } = {
+  [RAMP_NAME.INVITE_USER_TO_APP]: INVITE_USER_TO_APP,
+  [RAMP_NAME.CUSTOM_ROLES]: CUSTOM_ROLES,
+  [RAMP_NAME.PRIVATE_EMBED]: PRIVATE_EMBED,
+};

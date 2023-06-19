@@ -8,8 +8,9 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getRampLink, showProductRamps } from "utils/ProductRamps";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { useSelector } from "react-redux";
+import { getRampLink, showProductRamps } from "selectors/rampSelectors";
 
 function PrivateEmbeddingContent(props: {
   userAppPermissions: any[];
@@ -37,7 +38,11 @@ function PrivateEmbeddingContent(props: {
 export default PrivateEmbeddingContent;
 
 export function PrivateEmbedRampModal() {
-  if (showProductRamps(RAMP_NAME.PRIVATE_EMBED)) {
+  const rampLinkSelector = getRampLink("share_modal");
+  const rampLink = useSelector(rampLinkSelector);
+  const showRampSelector = showProductRamps(RAMP_NAME.PRIVATE_EMBED);
+  const canShowRamp = useSelector(showRampSelector);
+  if (canShowRamp) {
     return (
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-1 w-4/5">
@@ -55,11 +60,7 @@ export function PrivateEmbedRampModal() {
             {createMessage(IN_APP_EMBED_SETTING.rampSubtextModal)}
           </Text>
         </div>
-        <Link
-          kind="secondary"
-          startIcon="share-box-line"
-          to={getRampLink("share_modal")}
-        >
+        <Link kind="secondary" startIcon="share-box-line" to={rampLink}>
           {createMessage(IN_APP_EMBED_SETTING.rampLinktext)}
         </Link>
       </div>
@@ -68,17 +69,17 @@ export function PrivateEmbedRampModal() {
   return null;
 }
 export function PrivateEmbedRampSidebar() {
-  if (showProductRamps(RAMP_NAME.PRIVATE_EMBED)) {
+  const rampLinkSelector = getRampLink("app_settings");
+  const rampLink = useSelector(rampLinkSelector);
+  const showRampSelector = showProductRamps(RAMP_NAME.PRIVATE_EMBED);
+  const canShowRamp = useSelector(showRampSelector);
+  if (canShowRamp) {
     return (
       <div className="mt-6">
         <Text kind="body-m">
           {createMessage(IN_APP_EMBED_SETTING.rampSubtextSidebar)}
         </Text>
-        <Link
-          className="!inline"
-          kind="primary"
-          to={getRampLink("app_settings")}
-        >
+        <Link className="!inline" kind="primary" to={rampLink}>
           {createMessage(IN_APP_EMBED_SETTING.rampLinktextvariant2)}
         </Link>
       </div>
