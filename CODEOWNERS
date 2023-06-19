@@ -21,3 +21,10 @@ app/client/jest.config.js @KelvinOm
 app/client/package.json @KelvinOm
 app/client/tsconfig.json @KelvinOm
 app/client/tsconfig.path.json @KelvinOm
+
+# App viewers pod
+app/client/src/widgets/* @appsmithorg/app-viewers
+app/client/src/components/propertyControls/* @appsmithorg/app-viewers
+app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192 @berzerkeer
+app/client/src/WidgetQueryGenerators/* @sbalaji1192 @berzerkeer
+app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @sbalaji1192 @berzerkeer
