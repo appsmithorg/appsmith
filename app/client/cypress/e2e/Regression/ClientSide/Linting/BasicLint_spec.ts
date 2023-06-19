@@ -47,7 +47,6 @@ const clickButtonAndAssertLintError = (
 const createMySQLDatasourceQuery = () => {
   // Create Query
   dataSources.NavigateFromActiveDS(dsName, true);
-  agHelper.GetNClick(dataSources._templateMenu);
   const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
   dataSources.EnterQuery(tableCreateQuery);
 };

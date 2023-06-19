@@ -35,6 +35,7 @@ export class DataSources {
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
   private hp = ObjectsRegistry.DefaultHostPort;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
@@ -238,7 +239,7 @@ export class DataSources {
       `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -251,11 +252,11 @@ export class DataSources {
     );
     this.agHelper.GetNClick(this._mockDB("Users"));
     this.agHelper.Sleep(500);
-    this.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -397,10 +398,6 @@ export class DataSources {
       this.agHelper.Sleep();
     });
     this.agHelper.RemoveTooltip("Add a new datasource");
-
-    // cy.get(this._dsCreateNewTab)
-    //   .should("be.visible")
-    //   .click({ force: true });
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -410,9 +407,10 @@ export class DataSources {
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._mockDB(dbName));
+    this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
-      .wait("@getMockDb")
-      .then(($createdMock) => $createdMock.response?.body.data.name);
+      .get("@getMockDb")
+      .then(($createdMock: any) => $createdMock.response?.body.data.name);
   }
 
   public FillPostgresDSForm(
@@ -579,7 +577,7 @@ export class DataSources {
   public FillUnAuthenticatedGraphQLDSForm() {
     this.agHelper.GetNClick(this._createBlankGraphQL);
     this.apiPage.EnterURL(this.hp.GraphqlApiUrl_TED);
-    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -624,7 +622,7 @@ export class DataSources {
 
   public SaveDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
     this.agHelper.AssertContains("datasource created");
 
     // cy.wait("@saveDatasource")
@@ -635,12 +633,12 @@ export class DataSources {
 
   public AuthAPISaveAndAuthorize() {
     cy.get(this._saveAndAuthorizeDS).click();
-    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public UpdateDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    // this.agHelper.AssertNetworkStatus("@updateDatasource", 200);
+    // this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     this.agHelper.AssertContains("datasource updated");
   }
 
@@ -708,7 +706,7 @@ export class DataSources {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
-      this.agHelper.AssertNetworkStatus(
+      this.assertHelper.AssertNetworkStatus(
         "@deleteDatasource",
         expectedRes as number,
       );
@@ -749,7 +747,7 @@ export class DataSources {
         20000,
       );
     !createQuery &&
-      this.agHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
+      this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
   public AssertDSActive(dsName: string) {
@@ -777,7 +775,7 @@ export class DataSources {
         this.agHelper.GetNClick(this._createQuery, 0, true);
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
-    //this.agHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
     this.agHelper.AssertElementVisible(
       this.locator._spanButton("Run"),
       0,
@@ -787,7 +785,7 @@ export class DataSources {
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
-    //this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
     this.agHelper.AssertElementVisible(
       this.locator._spanButton("Run"),
       0,
@@ -795,7 +793,6 @@ export class DataSources {
     );
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query);
     }
   }
@@ -999,7 +996,6 @@ export class DataSources {
     this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query, sleep);
     }
     if (queryName) this.agHelper.RenameWithInPane(queryName);
@@ -1116,7 +1112,7 @@ export class DataSources {
         true,
         0,
       );
-      this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+      this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       this.agHelper.AssertContains("datasource created");
     } else
       this.agHelper.GetNClick(
@@ -1240,7 +1236,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._consentSubmit);
 
     //Validate save
-    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public FillAPIOAuthForm(

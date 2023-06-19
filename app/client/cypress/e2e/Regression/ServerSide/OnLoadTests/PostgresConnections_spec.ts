@@ -5,6 +5,7 @@ import {
   deployMode,
   dataSources,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 let guid: any, dsName_1: any, dsName_2: any;
 
@@ -60,7 +61,6 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       //Create 10 queries
       for (let i = 1; i <= 10; i++) {
         dataSources.NavigateFromActiveDS(dsName_2, true);
-        agHelper.GetNClick(dataSources._templateMenu);
         agHelper.RenameWithInPane("Query_" + i);
         const userCreateQuery = `select table_name from information_schema.tables where table_schema='public' and table_type='BASE TABLE';`;
         dataSources.EnterQuery(userCreateQuery);
@@ -85,13 +85,12 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
         "Default selected value",
         "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
       );
-      agHelper.AssertNetworkStatus("@updateLayout", 200);
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
     }
   });
 
   it("4. Run query to drop any open connections before deploy and then deploy app", () => {
     dataSources.NavigateFromActiveDS(dsName_1, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("check_number_of_connections_1");
     const userName = "test_conn_user_" + guid;
     const dropConnections =
@@ -114,7 +113,6 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
 
   it("5. Run query to check number of open connections after deploy", () => {
     dataSources.NavigateFromActiveDS(dsName_2, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("check_number_of_connections_2");
     const checkNoOfConnQuery =
       `select count(*) from pg_stat_activity where usename='test_conn_user_` +

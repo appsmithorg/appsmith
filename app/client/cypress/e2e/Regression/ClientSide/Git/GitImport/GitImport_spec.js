@@ -209,8 +209,7 @@ describe("Git import flow ", function () {
     _.table.AssertTableLoaded(0, 1, "v1");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
