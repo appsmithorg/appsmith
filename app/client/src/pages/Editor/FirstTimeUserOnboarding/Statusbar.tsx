@@ -1,5 +1,5 @@
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
@@ -11,48 +11,10 @@ import {
   getPageActions,
   getSavedDatasources,
 } from "selectors/entitiesSelector";
-import styled from "styled-components";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
-
-const ProgressContainer = styled.div<StatusProgressbarContainerType>`
-  background-color: ${(props) =>
-    props.active
-      ? "var(--ads-v2-color-bg-brand-emphasis-plus)"
-      : "var(--ads-v2-color-bg-subtle)"};
-  border-radius: var(--ads-v2-border-radius);
-  overflow: hidden;
-  margin-top: 12px;
-`;
-
-const Progressbar = styled.div<StatusProgressbarType>`
-  width: ${(props) => props.percentage}%;
-  height: 6px;
-  background: ${(props) =>
-    props.active
-      ? "var(--ads-v2-color-bg)"
-      : "var(--ads-v2-color-bg-brand-emphasis-plus)"};
-  transition: width 0.3s ease, background 0.3s ease;
-  border-radius: var(--ads-v2-border-radius);
-`;
-
-type StatusProgressbarType = {
-  percentage: number;
-  active: boolean;
-};
-type StatusProgressbarContainerType = {
-  active: boolean;
-};
-
-export function StatusProgressbar(props: StatusProgressbarType) {
-  return (
-    <ProgressContainer {...props}>
-      <Progressbar {...props} />
-    </ProgressContainer>
-  );
-}
 
 const useStatusListener = () => {
   const datasources = useSelector(getSavedDatasources);
