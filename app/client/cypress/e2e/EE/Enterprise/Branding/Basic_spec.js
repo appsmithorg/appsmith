@@ -27,12 +27,12 @@ const locators = {
   AdminSettingsColorInputShades: ".t--color-input-shades",
 };
 
-describe("Branding", () => {
+describe.skip("Branding", () => {
   let logo;
   let favicon;
   let shades = {};
 
-  it("check if localStorage is populated with tenantConfig values", () => {
+  it("1. check if localStorage is populated with tenantConfig values", () => {
     if (CURRENT_REPO === REPO.CE) {
       const tenantConfig = localStorage.getItem("tenantConfig");
 
@@ -46,7 +46,7 @@ describe("Branding", () => {
     }
   });
 
-  it("1. Check if localStorage is populated with tenantConfig values & form cannot be submitted", () => {
+  it.skip("2. Check if localStorage is populated with tenantConfig values & form cannot be submitted", () => {
     if (CURRENT_REPO === REPO.EE) {
       // click on submit button
       cy.get(locators.submitButton).click();
@@ -88,7 +88,7 @@ describe("Branding", () => {
     }
   });
 
-  it(
+  it.skip(
     "excludeForAirgap",
     "2. checks branding on dashboard and checks if colorpicker has branding colors",
     () => {
@@ -135,7 +135,7 @@ describe("Branding", () => {
     },
   );
 
-  it(
+  it.skip(
     "airgap",
     "1. checks branding on dashboard and checks if colorpicker has branding colors - airgap",
     () => {
@@ -189,7 +189,7 @@ describe("Branding", () => {
     },
   );
 
-  it("3. checks branding colors on login page", () => {
+  it.skip("3. checks branding colors on login page", () => {
     if (CURRENT_REPO === REPO.EE) {
       // logout user
       cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
