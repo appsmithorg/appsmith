@@ -10,7 +10,7 @@ describe("Verify various Table_Filter combinations", function () {
       "Table data",
       JSON.stringify(this.dataSet.TableInput),
     );
-    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
+    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
     _.agHelper.PressEscape();
     /*
       Changing id and orderAmount to "Plain text" column type
