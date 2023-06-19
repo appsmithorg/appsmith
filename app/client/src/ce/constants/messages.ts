@@ -318,7 +318,7 @@ export const SAVE_DATASOURCE = () => "Save as datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
-  "Edit Datasource to access authentication settings";
+  "Edit datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "Enable";
