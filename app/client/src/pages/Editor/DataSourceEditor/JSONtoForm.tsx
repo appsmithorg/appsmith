@@ -9,7 +9,6 @@ import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import type FeatureFlags from "entities/FeatureFlags";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const FormContainer = styled.div`
   display: flex;
@@ -40,6 +39,7 @@ export interface JSONtoFormProps {
   datasourceId: string;
   featureFlags?: FeatureFlags;
   setupConfig: (config: ControlProps) => void;
+  currentEnvionment: string;
 }
 
 export class JSONtoForm<
@@ -66,7 +66,7 @@ export class JSONtoForm<
     // when feature flag is removed
     if (
       isHidden(
-        this.props.formData,
+        this.props.formData.datasourceStorages[this.props.currentEnvionment],
         section.hidden,
         this.props?.featureFlags,
         false, // viewMode is false here.
@@ -91,11 +91,11 @@ export class JSONtoForm<
     multipleConfig?: ControlProps[],
   ) => {
     multipleConfig = multipleConfig || [];
-    const currentEnvionment = getCurrentEnvironment();
     const customConfig = {
       ...config,
       configProperty:
-        `datasourceStorages.${currentEnvionment}.` + config.configProperty,
+        `datasourceStorages.${this.props.currentEnvionment}.` +
+        config.configProperty,
     };
     try {
       this.props.setupConfig(customConfig);
@@ -134,7 +134,9 @@ export class JSONtoForm<
           // when feature flag is removed
           if (
             isHidden(
-              this.props.formData,
+              this.props.formData.datasourceStorages[
+                this.props.currentEnvionment
+              ],
               propertyControlOrSection.hidden,
               this.props?.featureFlags,
               false,

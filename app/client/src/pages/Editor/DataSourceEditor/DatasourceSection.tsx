@@ -96,7 +96,14 @@ export default class RenderDatasourceInformation extends React.Component<{
     return (
       <React.Fragment key={datasource.id}>
         {map(section.children, (section) => {
-          if (isHidden(datasource, section.hidden, undefined, viewMode))
+          if (
+            isHidden(
+              datasource.datasourceStorages[currentEnvionment],
+              section.hidden,
+              undefined,
+              viewMode,
+            )
+          )
             return null;
           if ("children" in section) {
             if (isKVArray(section.children)) {

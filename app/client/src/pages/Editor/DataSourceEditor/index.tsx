@@ -80,6 +80,7 @@ import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransf
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
+import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -192,7 +193,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       requiredFields: {},
       configDetails: {},
       filterParams: {
-        id: "",
+        id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
         showFilterPane: false,
@@ -516,6 +517,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditorForm
           applicationId={this.props.applicationId}
+          currentEnvionment={this.state.filterParams.id}
           datasourceId={datasourceId}
           formConfig={formConfig}
           formData={formData}

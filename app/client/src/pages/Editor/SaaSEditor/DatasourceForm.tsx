@@ -76,6 +76,7 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
+import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -155,6 +156,7 @@ type RouteProps = {
 type SaasEditorWrappperState = {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
+  currentEditingEnvironment: string;
 };
 class SaasEditorWrapper extends React.Component<
   SaasEditorWrappperProps,
@@ -165,6 +167,7 @@ class SaasEditorWrapper extends React.Component<
     this.state = {
       requiredFields: {},
       configDetails: {},
+      currentEditingEnvironment: DEFAULT_ENV_ID,
     };
   }
 
@@ -198,6 +201,7 @@ class SaasEditorWrapper extends React.Component<
       <SaaSEditor
         {...this.props}
         configDetails={this.state.configDetails}
+        currentEnvionment={this.state.currentEditingEnvironment}
         requiredFields={this.state.requiredFields}
         setupConfig={this.setupConfig}
       />
