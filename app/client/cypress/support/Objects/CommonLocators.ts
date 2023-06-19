@@ -196,6 +196,7 @@ export class CommonLocators {
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
+  _viewModeShare = "[data-testid='viewmode-share']";
   _exitPreviewMode = "[data-testid='preview-mode']";
   _ds_imageSelector = ".ads-dialog-trigger";
   _ds_imageSelector_label = ".ads-dialog-trigger .label";
