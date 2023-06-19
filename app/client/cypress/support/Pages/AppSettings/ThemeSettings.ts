@@ -2,6 +2,7 @@ import { __assign } from "tslib";
 import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class ThemeSettings {
+  private assertHelper = ObjectsRegistry.AssertHelper;
   private agHelper = ObjectsRegistry.AggregateHelper;
   public locators = {
     _changeThemeBtn: ".t--change-theme-btn",
@@ -93,7 +94,7 @@ export class ThemeSettings {
     );
     this.agHelper.Sleep();
     this.agHelper.GetNClick(this.locators._border, index);
-    this.agHelper.AssertNetworkStatus("@updateTheme", 200);
+    this.assertHelper.AssertNetworkStatus("@updateTheme", 200);
   }
 
   public ToggleSection(section: string) {
@@ -120,6 +121,6 @@ export class ThemeSettings {
     this.agHelper
       .GetElement(this.locators._boxShadow(text))
       .click({ force: true });
-    this.agHelper.AssertNetworkStatus("@updateTheme", 200);
+    this.assertHelper.AssertNetworkStatus("@updateTheme", 200);
   }
 }
