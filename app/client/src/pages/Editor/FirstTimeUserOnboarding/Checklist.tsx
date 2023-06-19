@@ -42,6 +42,7 @@ import {
   createMessage,
   SIGNPOSTING_POPUP_SUBTITLE,
   SIGNPOSTING_SUCCESS_POPUP,
+  SIGNPOSTING_TOOLTIP,
 } from "@appsmith/constants/messages";
 import type { Datasource } from "entities/Datasource";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -234,7 +235,8 @@ function CheckListItem(props: {
       if (!stepState?.read) {
         anim.play();
       } else {
-        // We want to show animation only for the first time. After we show the last frame only.
+        // We want to show animation only for the first time. Once completed we show the last frame.
+        // Here 60 is the last frame
         anim.goToAndStop(60, true);
       }
 
@@ -316,7 +318,7 @@ function CheckListItem(props: {
           align={{
             targetOffset: [13, 0],
           }}
-          content="Open documentation"
+          content={createMessage(SIGNPOSTING_TOOLTIP.DOCUMENTATION.content)}
           placement={"bottomLeft"}
         >
           <div className="absolute right-3">

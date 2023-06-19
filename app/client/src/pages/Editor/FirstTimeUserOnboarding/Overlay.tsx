@@ -32,7 +32,7 @@ function Overlay() {
   if (signpostingEnabled && setOverlay) {
     return (
       <StyledOverlay
-        className="fixed top-0 w-full h-full overflow-hidden signposting-overlay z-[9]"
+        className="fixed top-0 w-full h-full overflow-hidden"
         onClick={() => {
           dispatch(showSignpostingModal(false));
         }}

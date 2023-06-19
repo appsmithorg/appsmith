@@ -15,7 +15,7 @@ export class Onboarding {
     this._aggregateHelper
       .GetElement(OnboardingLocator.checklistConnectionBtn)
       .realHover()
-      .should("have.css", "cursor", "pointer");
+      .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
     if (Cypress.env("AIRGAPPED")) {

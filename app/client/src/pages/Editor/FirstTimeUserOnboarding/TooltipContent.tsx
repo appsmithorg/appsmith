@@ -19,6 +19,15 @@ import {
 } from "selectors/entitiesSelector";
 import { useIsWidgetActionConnectionPresent } from "../utils";
 import { showSignpostingTooltip } from "actions/onboardingActions";
+import { SIGNPOSTING_STEP } from "./Utils";
+
+const SIGNPOSTING_STEPS = [
+  SIGNPOSTING_STEP.CONNECT_A_DATASOURCE,
+  SIGNPOSTING_STEP.CREATE_A_QUERY,
+  SIGNPOSTING_STEP.ADD_WIDGETS,
+  SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET,
+  SIGNPOSTING_STEP.DEPLOY_APPLICATIONS,
+];
 
 function TooltipContent(props: { showSignpostingTooltip: boolean }) {
   const datasources = useSelector(getSavedDatasources);
@@ -54,6 +63,7 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
     if (!props.showSignpostingTooltip) return;
 
     const timer = setTimeout(() => {
+      // After a step is completed we want to show the tooltip for 8 seconds and then hide it.
       dispatch(showSignpostingTooltip(false));
     }, 8000);
 
@@ -99,7 +109,7 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
     content = createMessage(SIGNPOSTING_TOOLTIP.DEFAULT.content);
   }
 
-  if (completedTasks === 5)
+  if (completedTasks === SIGNPOSTING_STEPS.length)
     return <>{createMessage(SIGNPOSTING_SUCCESS_POPUP.title)}</>;
 
   return (
@@ -107,7 +117,7 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
       {title}
       <br />
       <br />
-      {completedTasks === 4 && (
+      {completedTasks === SIGNPOSTING_STEPS.length - 1 && (
         <>
           {lastStepContent}
           <br />

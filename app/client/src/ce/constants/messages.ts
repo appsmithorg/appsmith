@@ -1040,6 +1040,9 @@ export const SIGNPOSTING_TOOLTIP = {
   DEPLOY_APPLICATION: {
     content: () => "Deploy you application to see what you’ve built.",
   },
+  DOCUMENTATION: {
+    content: () => "Open documentation",
+  },
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
