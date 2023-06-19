@@ -7,6 +7,7 @@ import {
   table,
   entityItems,
   locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Json & JsonB Datatype tests", function () {
@@ -275,8 +276,8 @@ describe("Json & JsonB Datatype tests", function () {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
@@ -644,8 +645,8 @@ describe("Json & JsonB Datatype tests", function () {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted

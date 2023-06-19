@@ -234,7 +234,7 @@ describe("Debugger logs", function () {
     _.jsEditor.RunJSObj();
     _.agHelper.GetNClick(_.jsEditor._logsTab);
     _.debuggerHelper.DoesConsoleLogExist(`${logString}`);
-    _.debuggerHelper.Assert_Consecutive_Console_Log_Count(5);
+    _.debuggerHelper.AssertConsecutiveConsoleLogCount(5);
   });
 
   it("8. Console log should not mutate the passed object", function () {
