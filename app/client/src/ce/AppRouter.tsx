@@ -148,8 +148,11 @@ function AppRouter(props: {
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
-    initCurrentPage();
   }, []);
+
+  useEffect(() => {
+    initCurrentPage();
+  });
 
   useBrandingTheme();
 

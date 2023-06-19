@@ -45,7 +45,7 @@ import { safeCrashAppRequest } from "../actions/errorActions";
 import {
   isEditorPath,
   isViewerPath,
-} from "../ce/pages/Editor/Explorer/helpers";
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";

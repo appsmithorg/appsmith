@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
@@ -202,7 +201,7 @@ type EditorHeaderProps = {
   publishedTime?: string;
   workspaceId: string;
   applicationId?: string;
-  currentApplication?: ApplicationPayload;
+  currentApplicationName?: string;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
@@ -225,7 +224,7 @@ const theme = getTheme(ThemeMode.LIGHT);
 export function EditorHeader(props: EditorHeaderProps) {
   const {
     applicationId,
-    currentApplication,
+    currentApplicationName,
     isPublishing,
     pageId,
     publishApplication,
@@ -253,14 +252,13 @@ export function EditorHeader(props: EditorHeaderProps) {
   const handlePublish = () => {
     if (applicationId) {
       publishApplication(applicationId);
-
-      const appName = currentApplication ? currentApplication.name : "";
       AnalyticsUtil.logEvent("PUBLISH_APP", {
         appId: applicationId,
-        appName,
+        appName: currentApplicationName,
       });
     }
   };
+  console.log({ currentApplicationName });
 
   const updateApplicationDispatch = (
     id: string,
@@ -389,7 +387,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 defaultSavingState={
                   isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
                 }
-                defaultValue={currentApplication?.name || ""}
+                defaultValue={currentApplicationName || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 fill
                 isError={isErroredSavingName}
@@ -528,7 +526,7 @@ const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   workspaceId: getCurrentWorkspaceId(state),
   applicationId: getCurrentApplicationId(state),
-  currentApplication: state.ui.applications.currentApplication,
+  currentApplicationName: state.ui.applications.currentApplication?.name,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state) as string,
   sharedUserList: getAllUsers(state),
