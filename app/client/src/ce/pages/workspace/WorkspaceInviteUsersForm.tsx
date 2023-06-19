@@ -263,7 +263,7 @@ function InviteUserText({
   return (
     <Text
       color="var(--ads-v2-color-fg)"
-      data-testid="helper-message"
+      data-testid="t--invite-user-helper-message"
       kind="action-m"
     >
       {canShowUserInviteRamp && isApplicationInvite ? (

@@ -18,6 +18,7 @@ export class InviteModal {
     _upgradeButton: "[data-testid='t--upgrade-btn']",
     _upgradeContent: "[data-testid='t--upgrade-content']",
     _restrictionChange: "[data-testid='t--change-embedding-restriction']",
+    _inviteUserMessage: "[data-testid='t--invite-user-helper-message']",
   };
 
   public SelectInviteTab() {
