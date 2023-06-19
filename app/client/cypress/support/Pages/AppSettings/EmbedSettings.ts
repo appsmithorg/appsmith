@@ -74,11 +74,7 @@ export class EmbedSettings {
     input.invoke("attr", "checked").then((value) => {
       if (value !== check.toString()) {
         this.agHelper.GetNClick(this.locators._enablePublicAccessSettingsPage);
-        cy.wait("@changeAccess").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
+        this.assertHelper.AssertNetworkStatus("@changeAccess");
       }
     });
   }
