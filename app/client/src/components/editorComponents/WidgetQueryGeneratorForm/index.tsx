@@ -8,8 +8,6 @@ import { DatasourceSpecificControls } from "./DatasourceSpecificControls";
 import { Wrapper } from "./styles";
 import WidgetSpecificControls from "./WidgetSpecificControls";
 import { useDispatch, useSelector } from "react-redux";
-import { executeCommandAction } from "actions/apiPaneActions";
-import { SlashCommand } from "entities/Action";
 import {
   getisOneClickBindingConnectingForWidget,
   getIsOneClickBindingOptionsVisibility,
@@ -35,7 +33,6 @@ type WidgetQueryGeneratorFormContextType = {
     property: string | Record<string, unknown>,
     value?: unknown,
   ) => void;
-  addSnippet: () => void;
   addBinding: (binding?: string, makeDynamicPropertyPath?: boolean) => void;
   isSourceOpen: boolean;
   onSourceClose: () => void;
@@ -56,7 +53,6 @@ const DEFAULT_CONFIG_VALUE = {
 const DEFAULT_CONTEXT_VALUE = {
   config: DEFAULT_CONFIG_VALUE,
   updateConfig: noop,
-  addSnippet: noop,
   addBinding: noop,
   widgetId: "",
   propertyValue: "",
@@ -74,8 +70,6 @@ export const WidgetQueryGeneratorFormContext =
 type Props = {
   propertyPath: string;
   propertyValue: string;
-  expectedType?: string;
-  entityId: string;
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
   widgetId: string;
   errorMsg: string;
@@ -86,15 +80,7 @@ function WidgetQueryGeneratorForm(props: Props) {
 
   const [pristine, setPristine] = useState(true);
 
-  const {
-    entityId,
-    errorMsg,
-    expectedType,
-    onUpdate,
-    propertyPath,
-    propertyValue,
-    widgetId,
-  } = props;
+  const { errorMsg, onUpdate, propertyPath, propertyValue, widgetId } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);
 
@@ -177,23 +163,6 @@ function WidgetQueryGeneratorForm(props: Props) {
     );
   };
 
-  const addSnippet = useCallback(() => {
-    dispatch(
-      executeCommandAction({
-        actionType: SlashCommand.NEW_SNIPPET,
-        args: {
-          entityType: "widget",
-          expectedType: expectedType || "Array",
-          entityId: entityId,
-          propertyPath: propertyPath,
-        },
-        callback: (snippet: string) => {
-          onUpdate(snippet, true);
-        },
-      }),
-    );
-  }, [propertyPath, entityId, expectedType, onUpdate]);
-
   const addBinding = useCallback(
     (binding?: string, makeDynamicPropertyPath?: boolean) => {
       onUpdate(binding, makeDynamicPropertyPath);
@@ -207,7 +176,6 @@ function WidgetQueryGeneratorForm(props: Props) {
         ...config,
       },
       updateConfig,
-      addSnippet,
       addBinding,
       propertyValue,
       widgetId,
@@ -219,7 +187,6 @@ function WidgetQueryGeneratorForm(props: Props) {
   }, [
     config,
     updateConfig,
-    addSnippet,
     addBinding,
     propertyValue,
     widgetId,

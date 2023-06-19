@@ -24,12 +24,7 @@ import {
 import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
-import {
-  Binding,
-  DatasourceImage,
-  ImageWrapper,
-  Placeholder,
-} from "../../styles";
+import { DatasourceImage, ImageWrapper, Placeholder } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptionType } from "../../types";
 import { invert } from "lodash";
@@ -51,7 +46,6 @@ function filterOption(option: DropdownOptionType, searchText: string) {
 export function useDatasource(searchText: string) {
   const {
     addBinding,
-    addSnippet,
     config,
     errorMsg,
     isSourceOpen,
@@ -293,24 +287,8 @@ export function useDatasource(searchText: string) {
           });
         },
       },
-      {
-        id: "Insert binding",
-        label: "Insert binding",
-        value: "Insert binding",
-        icon: <Binding>{"{ }"}</Binding>,
-        onSelect: () => {
-          addBinding("{{}}", true);
-
-          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
-            widgetName: widget.widgetName,
-            widgetType: widget.type,
-            propertyName: propertyName,
-            selectedAction: "Binding",
-          });
-        },
-      },
     ];
-  }, [currentPageId, history, addBinding, addSnippet, propertyName]);
+  }, [currentPageId, history, propertyName]);
 
   const queries = useSelector(getActionsForCurrentPage);
 
@@ -383,21 +361,16 @@ export function useDatasource(searchText: string) {
     }
   }, [isSourceOpen]);
 
-  const [
-    filteredDatasourceOptions,
-    filteredOtherOptions,
-    filteredQueryOptions,
-  ] = useMemo(() => {
+  const [filteredDatasourceOptions, filteredQueryOptions] = useMemo(() => {
     return [
       datasourceOptions.filter((d) => filterOption(d, searchText)),
-      otherOptions.filter((d) => filterOption(d, searchText)),
       queryOptions.filter((d) => filterOption(d, searchText)),
     ];
   }, [searchText, datasourceOptions, otherOptions, queryOptions]);
 
   return {
     datasourceOptions: filteredDatasourceOptions,
-    otherOptions: filteredOtherOptions,
+    otherOptions,
     selected: (() => {
       let source;
 

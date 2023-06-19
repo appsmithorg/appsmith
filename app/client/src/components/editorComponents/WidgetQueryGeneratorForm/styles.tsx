@@ -58,16 +58,6 @@ export const DatasourceImage = styled.img`
   width: auto;
 `;
 
-export const Binding = styled.div`
-  display: flex;
-  font-size: 12px;
-  font-weight: 700;
-  position: relative;
-  left: 1px;
-  top: -1px;
-  color: var(--ads-v2-color-fg);
-`;
-
 export const ErrorMessage = styled.div`
   font-weight: 400;
   font-size: 12px;

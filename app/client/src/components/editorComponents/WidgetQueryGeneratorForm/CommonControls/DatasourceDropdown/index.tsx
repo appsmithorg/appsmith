@@ -124,7 +124,7 @@ function DatasourceDropdown() {
               data-testId="t--one-click-binding-datasource--search"
               onChange={onChange}
               size="md"
-              type="search"
+              type="text"
               value={searchText}
             />
 
