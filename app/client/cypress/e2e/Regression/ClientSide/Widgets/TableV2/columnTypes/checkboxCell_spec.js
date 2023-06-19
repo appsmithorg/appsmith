@@ -1,10 +1,8 @@
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const publishPage = require("../../../../../../locators/publishWidgetspage.json");
 const commonLocators = require("../../../../../../locators/commonlocators.json");
 import widgetsJson from "../../../../../../locators/Widgets.json";
-
-const propPane = ObjectsRegistry.PropertyPane;
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 const tableData = `[
     {
@@ -37,9 +35,7 @@ describe("Checkbox column type funtionality test", () => {
       x: 150,
       y: 300,
     });
-    cy.openPropertyPane("tablewidgetv2");
-    propPane.RemoveText("tabledata");
-    propPane.UpdatePropertyFieldValue("Table data", tableData);
+    _.propPane.EnterJSContext("Table data", tableData);
     cy.editColumn("completed");
     cy.changeColumnType("Checkbox");
   });
@@ -48,25 +44,22 @@ describe("Checkbox column type funtionality test", () => {
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + checkboxSelector).should("exist");
     });
-  });
-
-  it("2. Toggle visiblity", () => {
-    propPane.ToggleOnOrOff("Visible", "off");
-    cy.PublishtheApp();
+    // Toggle visiblity
+    _.propPane.TogglePropertyState("Visible", "off");
+    _.deployMode.DeployApp();
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector).should("not.exist");
     });
-    cy.get(publishPage.backToEditor).click();
-
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("completed");
-    propPane.ToggleOnOrOff("Visible");
+    _.propPane.TogglePropertyState("Visible");
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + checkboxSelector).should("exist");
     });
   });
 
-  it("3. Check the horizontal, vertical alignment of checkbox, and the cell background color", () => {
+  it("2. Check the horizontal, vertical alignment of checkbox, and the cell background color", () => {
     cy.moveToStyleTab();
     // Check horizontal alignment
     cy.get("[data-value='CENTER']").first().click();
@@ -92,17 +85,17 @@ describe("Checkbox column type funtionality test", () => {
     });
   });
 
-  it("4. Verify disabled(editable off), enabled states and interactions on checkbox", () => {
+  it("3. Verify disabled(editable off), enabled states and interactions on checkbox", () => {
     cy.moveToContentTab();
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + checkboxSelector;
 
       // Verify if checkbox is disabled when Editable is off
-      propPane.ToggleOnOrOff("Editable", "off");
+      _.propPane.TogglePropertyState("Editable", "off");
       cy.get(selector).should("be.disabled");
 
       // Verify if checkbox is enabled when Editable is on
-      propPane.ToggleOnOrOff("Editable");
+      _.propPane.TogglePropertyState("Editable");
       cy.get(selector).should("be.enabled");
 
       // Verify checked and unchecked
@@ -114,13 +107,13 @@ describe("Checkbox column type funtionality test", () => {
 
       // Check if onCheckChange is availabe when Editable is true and hidden on false
       cy.get(".t--add-action-onCheckChange").should("be.visible");
-      propPane.ToggleOnOrOff("Editable", "off");
+      _.propPane.TogglePropertyState("Editable", "off");
       cy.get(".t--add-action-onCheckChange").should("not.exist");
 
       // Verify on check change handler
-      propPane.ToggleOnOrOff("Editable");
-      propPane.SelectPlatformFunction("onCheckChange", "Show alert");
-      agHelper.EnterActionValue("Message", "This is a test message");
+      _.propPane.TogglePropertyState("Editable");
+      _.propPane.SelectPlatformFunction("onCheckChange", "Show alert");
+      _.agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);
       cy.get("div.Toastify__toast")
@@ -129,7 +122,7 @@ describe("Checkbox column type funtionality test", () => {
     });
   });
 
-  it("5. Verify filter condition", () => {
+  it("4. Verify filter condition", () => {
     cy.get(widgetsJson.tableFilterPaneToggle).click();
     cy.get(publishPage.attributeDropdown).click();
     cy.get(".t--dropdown-option").contains("completed").click();
@@ -159,12 +152,12 @@ describe("Checkbox column type funtionality test", () => {
     });
   });
 
-  it("6. Verify if onCheckChange is hidden on custom columns", () => {
+  it("5. Verify if onCheckChange is hidden on custom columns", () => {
     cy.get(commonLocators.editPropBackButton).click();
     cy.get(widgetsJson.addColumn).click();
     cy.editColumn("customColumn1");
     cy.changeColumnType("Checkbox");
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Computed value",
       '{{currentRow["completed"]}}',
     );

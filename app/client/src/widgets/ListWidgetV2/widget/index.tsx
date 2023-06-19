@@ -564,7 +564,7 @@ class ListWidget extends BaseWidget<
       });
     }
 
-    //To Add Auto Layout flex layer for meta Canvas Widgets
+    //To Add auto-layout flex layer for meta Canvas Widgets
     if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
       metaWidget.flexLayers = getMetaFlexLayers(
         metaWidget.flexLayers,
@@ -623,7 +623,10 @@ class ListWidget extends BaseWidget<
     const templateBottomRow = this.getTemplateBottomRow();
     const containerVerticalPadding = WIDGET_PADDING * 2;
     const itemsCount = (listData || []).length;
-    const templateHeight = templateBottomRow * parentRowSpace;
+    let templateHeight = templateBottomRow * parentRowSpace;
+    if (this.isAutoLayoutMode) {
+      templateHeight = this.getMainContainer()?.height ?? 100;
+    }
 
     const averageItemSpacing = itemsCount
       ? (itemSpacing - containerVerticalPadding) *
@@ -1293,7 +1296,10 @@ class ListWidget extends BaseWidget<
       selectedItemKey,
     } = this.props;
     const startIndex = this.metaWidgetGenerator.getStartIndex();
-    const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
+    let templateHeight = this.getTemplateBottomRow() * parentRowSpace;
+    if (this.isAutoLayoutMode) {
+      templateHeight = this.getMainContainer()?.height ?? 100;
+    }
 
     if (isLoading) {
       return (

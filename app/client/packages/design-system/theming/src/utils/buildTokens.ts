@@ -1,9 +1,9 @@
 import fs from "fs";
 import { TokensAccessor, defaultTokens } from "../";
-import type { TokenSource } from "./";
+import type { TokenSource } from "../token";
 
 fs.writeFileSync(
-  `${__dirname}/../tokens/themeTokens.json`,
+  `${__dirname}/../token/themeTokens.json`,
   `${JSON.stringify(
     new TokensAccessor(defaultTokens as TokenSource).getAllTokens(),
     null,

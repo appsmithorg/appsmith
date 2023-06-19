@@ -13,7 +13,7 @@ import DraggableComponent from "components/editorComponents/DraggableComponent";
 import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import ResizableComponent from "components/editorComponents/ResizableComponent";
+import ResizableComponent from "components/editorComponents/WidgetResizer/ResizableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -24,7 +24,6 @@ import type {
   RenderMode,
   WidgetType,
 } from "constants/WidgetConstants";
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import {
   GridDefaults,
   RenderModes,
@@ -39,13 +38,13 @@ import type {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import type { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -66,12 +65,11 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
-import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
-import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import AutoLayoutResizableComponent from "components/editorComponents/WidgetResizer/AutoLayoutResizableComponent";
 
 /***
  * BaseWidget
@@ -343,7 +341,45 @@ abstract class BaseWidget<
     return this.props.referencedWidgetId || this.props.widgetId;
   };
 
+  getAutoLayoutComponentDimensions = () => {
+    const {
+      bottomRow,
+      leftColumn,
+      mobileBottomRow = 0,
+      mobileLeftColumn = 0,
+      mobileRightColumn = 0,
+      mobileTopRow = 0,
+      rightColumn,
+      topRow,
+    } = this.props;
+    const widthFromGridProps =
+      ((rightColumn - leftColumn) * 100) / GridDefaults.DEFAULT_GRID_COLUMNS;
+    const heightFromGridProps =
+      (bottomRow - topRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    const mobileWidthValuesExist = mobileRightColumn + mobileLeftColumn > 0;
+    const mobileHeightValuesExist = mobileBottomRow + mobileTopRow > 0;
+    const mobileWidthFromGridProps = mobileWidthValuesExist
+      ? ((mobileRightColumn - mobileLeftColumn) * 100) /
+        GridDefaults.DEFAULT_GRID_COLUMNS
+      : widthFromGridProps;
+    const mobileHeightFromGridProps = mobileHeightValuesExist
+      ? (mobileRightColumn - mobileLeftColumn) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      : heightFromGridProps;
+    return {
+      componentWidth: this.props.isMobile
+        ? this.props.mobileWidth || mobileWidthFromGridProps
+        : this.props.width || widthFromGridProps,
+      componentHeight: this.props.isMobile
+        ? this.props.mobileHeight || mobileHeightFromGridProps
+        : this.props.height || heightFromGridProps,
+    };
+  };
+
   getComponentDimensions = () => {
+    if (this.isAutoLayoutMode) {
+      return this.getAutoLayoutComponentDimensions();
+    }
     return this.calculateWidgetBounds(
       this.props.rightColumn,
       this.props.leftColumn,
@@ -413,6 +449,10 @@ abstract class BaseWidget<
     );
   }, JSON.stringify);
 
+  get isAutoLayoutMode() {
+    return this.props.appPositioningType === AppPositioningTypes.AUTO;
+  }
+
   render() {
     return this.getWidgetView();
   }
@@ -424,10 +464,28 @@ abstract class BaseWidget<
    * @param content
    */
   makeResizable(content: ReactNode) {
+    const { componentHeight, componentWidth } = this.isAutoLayoutMode
+      ? this.getAutoLayoutComponentDimensions()
+      : this.getComponentDimensions();
+    let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+      this.props.type,
+    ).autoDimension;
+    if (isFunction(autoDimensionConfig)) {
+      autoDimensionConfig = autoDimensionConfig(this.props);
+    }
+    const Resizer = this.isAutoLayoutMode
+      ? AutoLayoutResizableComponent
+      : ResizableComponent;
     return (
-      <ResizableComponent {...this.props} paddingOffset={WIDGET_PADDING}>
+      <Resizer
+        {...this.props}
+        {...{ componentHeight, componentWidth }}
+        hasAutoHeight={autoDimensionConfig?.height}
+        hasAutoWidth={autoDimensionConfig?.width}
+        paddingOffset={WIDGET_PADDING}
+      >
         {content}
-      </ResizableComponent>
+      </Resizer>
     );
   }
 
@@ -439,7 +497,9 @@ abstract class BaseWidget<
    * @param showControls
    */
   showWidgetName(content: ReactNode, showControls = false) {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.isAutoLayoutMode
+      ? this.getAutoLayoutComponentDimensions()
+      : this.getComponentDimensions();
 
     return !this.props.disablePropertyPane ? (
       <>
@@ -565,7 +625,18 @@ abstract class BaseWidget<
   }
 
   makeFlex(content: ReactNode) {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } =
+      this.getAutoLayoutComponentDimensions();
+    let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+      this.props.type,
+    ).autoDimension;
+    if (isFunction(autoDimensionConfig)) {
+      autoDimensionConfig = autoDimensionConfig(this.props);
+    }
+    if (this.props.isListItemContainer && autoDimensionConfig) {
+      autoDimensionConfig.height = false;
+    }
+
     return (
       <FlexComponent
         alignment={this.props.alignment}
@@ -576,6 +647,8 @@ abstract class BaseWidget<
           this.props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
         }
         focused={this.props.focused}
+        hasAutoHeight={autoDimensionConfig?.height}
+        hasAutoWidth={autoDimensionConfig?.width}
         isMobile={this.props.isMobile || false}
         isResizeDisabled={this.props.resizeDisabled}
         mainCanvasWidth={this.props.mainCanvasWidth}
@@ -642,57 +715,11 @@ abstract class BaseWidget<
       );
     }
     if (this.props.isFlexChild && !this.props.detachFromLayout) {
-      const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-        this.props.type,
-      ).autoDimension;
-
-      const shouldObserveWidth = isFunction(autoDimensionConfig)
-        ? autoDimensionConfig(this.props).width
-        : autoDimensionConfig?.width;
-      const shouldObserveHeight = isFunction(autoDimensionConfig)
-        ? autoDimensionConfig(this.props).height
-        : autoDimensionConfig?.height;
-
-      if (!shouldObserveHeight && !shouldObserveWidth) return content;
-
-      const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-      const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
-        this.props,
-        this.props.mainCanvasWidth || 0,
-      );
-
-      return (
-        <AutoLayoutDimensionObserver
-          height={componentHeight}
-          isFillWidget={
-            this.props.responsiveBehavior === ResponsiveBehavior.Fill
-          }
-          minHeight={minHeight ?? 0}
-          minWidth={minWidth ?? 0}
-          onDimensionUpdate={this.updateWidgetDimensions}
-          shouldObserveHeight={shouldObserveHeight || false}
-          shouldObserveWidth={shouldObserveWidth || false}
-          type={this.props.type}
-          width={componentWidth}
-        >
-          {content}
-        </AutoLayoutDimensionObserver>
-      );
+      return content;
     }
 
     content = this.addWidgetComponentBoundary(content, this.props);
     return this.addErrorBoundary(content);
-  };
-
-  private updateWidgetDimensions = (width: number, height: number) => {
-    const { updateWidgetDimension } = this.context;
-    if (!updateWidgetDimension) return;
-    updateWidgetDimension(
-      this.props.widgetId,
-      width + 2 * FLEXBOX_PADDING,
-      height + 2 * FLEXBOX_PADDING,
-    );
   };
 
   private getWidgetView(): ReactNode {
@@ -723,7 +750,6 @@ abstract class BaseWidget<
 
         return content;
 
-      // return this.getCanvasView();
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
         if (!this.props.detachFromLayout) {
@@ -734,6 +760,12 @@ abstract class BaseWidget<
       default:
         throw Error("RenderMode not defined");
     }
+  }
+
+  updateOneClickBindingOptionsVisibility(visibility: boolean) {
+    const { updateOneClickBindingOptionsVisibility } = this.context;
+
+    updateOneClickBindingOptionsVisibility?.(visibility);
   }
 
   abstract getPageView(): ReactNode;

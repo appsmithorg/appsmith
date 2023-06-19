@@ -78,4 +78,19 @@ describe("In-app embed settings", () => {
     ValidateSyncWithInviteModal("true");
     ValidateSyncWithInviteModal("false");
   });
+
+  it("5. Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
+    _.agHelper.RefreshPage();
+    _.embedSettings.OpenEmbedSettings();
+    _.embedSettings.ToggleShowNavigationBar("true");
+    cy.get(_.embedSettings.locators._snippet).should(
+      "contain.text",
+      "navbar=true",
+    );
+    _.embedSettings.ToggleShowNavigationBar("false");
+    cy.get(_.embedSettings.locators._snippet).should(
+      "not.contain.text",
+      "navbar=true",
+    );
+  });
 });

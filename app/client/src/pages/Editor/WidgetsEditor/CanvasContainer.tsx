@@ -33,7 +33,7 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -203,11 +203,16 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
         navigationHeight={navigationHeight}
-        style={{
-          height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
-          fontFamily: fontFamily,
-          pointerEvents: isAutoCanvasResizing ? "none" : "auto",
-        }}
+        style={
+          {
+            "--main-canvas-height": shouldHaveTopMargin
+              ? heightWithTopMargin
+              : "100vh",
+            height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
+            fontFamily: fontFamily,
+            pointerEvents: isAutoCanvasResizing ? "none" : "auto",
+          } as React.CSSProperties
+        }
       >
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}

@@ -240,7 +240,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       renderMode === RenderModes.CANVAS &&
       !isPreviewMode;
 
-    widgetProps.maincanvasWidth = mainCanvasWidth;
+    widgetProps.mainCanvasWidth = mainCanvasWidth;
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {

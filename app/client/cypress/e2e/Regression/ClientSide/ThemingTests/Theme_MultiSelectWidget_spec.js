@@ -1,19 +1,22 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  deployMode,
+  appSettings,
+  theme,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 let themeFont;
-let theme = ObjectsRegistry.ThemeSettings,
-  ee = ObjectsRegistry.EntityExplorer,
-  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Theme validation usecase for multi-select widget", function () {
   it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
-    //cy.reload(); // To remove the rename tooltip
-    ee.DragDropWidgetNVerify("multiselectwidgetv2", 300, 80);
-    cy.get(themelocator.canvas).click({ force: true });
-    cy.wait(2000);
-
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.MULTISELECT, 300, 80);
+    agHelper.GetNClick(locators._canvas);
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Border validation
@@ -34,10 +37,6 @@ describe("Theme validation usecase for multi-select widget", function () {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.shadowMouseover("none");
-    cy.shadowMouseover("S");
-    cy.shadowMouseover("M");
-    cy.shadowMouseover("L");
     cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
@@ -91,14 +90,14 @@ describe("Theme validation usecase for multi-select widget", function () {
 
   it.skip("2. Publish the App and validate Font across the app + Bug 15007", function () {
     //Skipping due to mentioned bug
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .first()
       .should("have.css", "font-family", themeFont);
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .last()
       .should("have.css", "font-family", themeFont);
-    cy.goToEditFromPublish();
+    deployMode.NavigateBacktoEditor();
   });
 
   it.skip("3. Validate current theme feature", function () {
@@ -122,7 +121,7 @@ describe("Theme validation usecase for multi-select widget", function () {
       });
 
     //Publish the App and validate change of Theme across the app in publish mode
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
       "background-color",

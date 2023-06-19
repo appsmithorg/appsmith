@@ -16,11 +16,11 @@
       "version":59,
       "minHeight":1292,
       "dynamicTriggerPathList":[
-         
+
       ],
       "parentColumnSpace":1,
       "dynamicBindingPathList":[
-         
+
       ],
       "leftColumn":0,
       "children":[
@@ -40,6 +40,7 @@
             "totalRecordsCount":0,
             "defaultPageSize":0,
             "inlineEditingSaveOption": "ROW_LEVEL",
+            "dynamicPropertyPathList": [{"key": "tableData"}],
             "dynamicBindingPathList":[
                {
                   "key":"primaryColumns.step.computedValue"
@@ -219,10 +220,11 @@
                   "action":""
                }
             ],
-            "columnWidthMap":{
-               "task":245,
-               "step":62,
-               "status":75
+            "bottomRow": 22,
+            "columnWidthMap": {
+              "task": 313,
+              "step": 222,
+              "status": 140
             },
             "columnOrder":[
                "step",
@@ -278,7 +280,6 @@
             "leftColumn":0,
             "rightColumn":64,
             "topRow":2,
-            "bottomRow":24,
             "parentId":"0"
          }
       ]

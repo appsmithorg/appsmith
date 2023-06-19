@@ -793,7 +793,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 .flatMap(applicationJson -> {
                                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                                     return importExportApplicationService
-                                                            .importApplicationInWorkspace(workspaceId, applicationJson, applicationId, defaultBranch);
+                                                            .importApplicationInWorkspaceFromGit(workspaceId, applicationJson, applicationId, defaultBranch);
                                                 });
                                     }
                                 })
@@ -1210,7 +1210,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
-                    return importExportApplicationService.importApplicationInWorkspace(
+                    return importExportApplicationService.importApplicationInWorkspaceFromGit(
                                     savedApplication.getWorkspaceId(),
                                     tuple.getT2(),
                                     savedApplication.getId(),
@@ -1343,7 +1343,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     ApplicationJson applicationJson = tuple.getT1();
                     Application application = tuple.getT2();
                     return importExportApplicationService
-                            .importApplicationInWorkspace(application.getWorkspaceId(), applicationJson, application.getId(), branchName)
+                            .importApplicationInWorkspaceFromGit(application.getWorkspaceId(), applicationJson, application.getId(), branchName)
                             .flatMap(application1 -> addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH.getEventName(),
                                     application1,
@@ -1736,7 +1736,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
-                            .importApplicationInWorkspace(destApplication.getWorkspaceId(), applicationJson, destApplication.getId(), destinationBranch.replaceFirst("origin/", ""))
+                            .importApplicationInWorkspaceFromGit(destApplication.getWorkspaceId(), applicationJson, destApplication.getId(), destinationBranch.replaceFirst("origin/", ""))
                             .flatMap(application1 -> {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
@@ -2042,7 +2042,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                 return importExportApplicationService
-                                        .importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), defaultBranch)
+                                        .importApplicationInWorkspaceFromGit(workspaceId, applicationJson, application.getId(), defaultBranch)
                                         .onErrorResume(throwable ->
                                                 deleteApplicationCreatedFromGitImport(application.getId(), application.getWorkspaceId(), gitApplicationMetadata.getRepoName())
                                                         .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())))
@@ -2211,16 +2211,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
                     Path repoSuffix = Paths.get(branchedApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return gitExecutor.checkoutToBranch(repoSuffix, branchName)
-                            .then(fileUtils.reconstructApplicationJsonFromGitRepo(
-                                    branchedApplication.getWorkspaceId(),
-                                    branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
-                                    branchedApplication.getGitApplicationMetadata().getRepoName(),
-                                    branchName)
-                            )
+                    return gitExecutor.rebaseBranch(repoSuffix, branchName)
+                            .flatMap(rebaseStatus -> {
+                                return fileUtils.reconstructApplicationJsonFromGitRepo(
+                                        branchedApplication.getWorkspaceId(),
+                                        branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                        branchedApplication.getGitApplicationMetadata().getRepoName(),
+                                        branchName);
+                            })
+                            .onErrorResume(throwable -> {
+                                log.error("Git Discard & Rebase failed {}", throwable.getMessage());
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "discard changes", "Please create a new branch and resolve the conflicts on remote repository before proceeding ahead."));
+                            })
                             .flatMap(applicationJson ->
                                     importExportApplicationService
-                                            .importApplicationInWorkspace(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
+                                            .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
                             );
                 })
                 .flatMap(application -> releaseFileLock(defaultApplicationId)
@@ -2453,7 +2458,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Get the latest application with all the changes
                     // Commit and push changes to sync with remote
                     return importExportApplicationService
-                            .importApplicationInWorkspace(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
+                            .importApplicationInWorkspaceFromGit(branchedApplication.getWorkspaceId(), applicationJson, branchedApplication.getId(), branchName)
                             .flatMap(application -> addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_PULL.getEventName(),
                                             application,
@@ -2499,6 +2504,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Map<String, Object> analyticsProps = new HashMap<>();
         if (gitData != null) {
             analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultApplicationId());
+            analyticsProps.put("appId", gitData.getDefaultApplicationId());
             analyticsProps.put(FieldName.BRANCH_NAME, gitData.getBranchName());
             analyticsProps.put("gitHostingProvider", GitUtils.getGitProviderName(gitData.getRemoteUrl()));
         }
@@ -2509,6 +2515,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
         analyticsProps.putAll(Map.of(
                 FieldName.ORGANIZATION_ID, defaultIfNull(application.getWorkspaceId(), ""),
+                "orgId", defaultIfNull(application.getWorkspaceId(), ""),
                 "branchApplicationId", defaultIfNull(application.getId(), ""),
                 "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
                 "isSystemGenerated", defaultIfNull(isSystemGenerated, "")

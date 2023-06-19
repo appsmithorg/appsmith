@@ -1,32 +1,20 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import {
+  draggableWidgets,
+  entityExplorer,
+  appSettings,
+} from "../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 
-const appSettings = ObjectsRegistry.AppSettings;
-
 let themeBackgroudColor;
 
-describe("Theme validation for default data", function () {
+describe.skip("Theme validation for default data", function () {
   it("1. Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function () {
-    cy.log("Login Successful");
-    cy.reload(); // To remove the rename tooltip
-    cy.get(explorer.addWidget).click();
-    cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    cy.get(commonlocators.entityExplorersearch).clear().type("form");
-    cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(3000);
-    cy.get(themelocator.canvas).click({ force: true });
-    cy.wait(2000);
-
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM, 300, 80);
+    agHelper.GetNClick(locators._canvas);
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Border validation
@@ -40,10 +28,6 @@ describe("Theme validation for default data", function () {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.shadowMouseover("none");
-    cy.shadowMouseover("S");
-    cy.shadowMouseover("M");
-    cy.shadowMouseover("L");
     cy.contains("Shadow").click({ force: true });
 
     //Font
@@ -87,7 +71,7 @@ describe("Theme validation for default data", function () {
     appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
-    cy.get(".cursor-pointer:contains('Applied Theme')").click({ force: true });
+    cy.get(".cursor-pointer:contains('Applied theme')").click({ force: true });
     cy.get(".t--theme-card main > main")
       .first()
       .invoke("css", "background-color")

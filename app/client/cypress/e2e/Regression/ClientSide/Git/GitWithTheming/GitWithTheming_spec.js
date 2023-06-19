@@ -10,7 +10,7 @@ describe("Git with Theming:", function () {
   let applicationId = null;
   let applicationName = null;
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -49,7 +49,7 @@ describe("Git with Theming:", function () {
       .first()
       .invoke("text")
       .then((text) => {
-        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
+        cy.get(commonlocators.toastmsg).contains(`Theme ${text} applied`);
       });
     _.appSettings.ClosePane();
     // drag a widget and assert theme is applied
@@ -81,7 +81,7 @@ describe("Git with Theming:", function () {
       .first()
       .invoke("text")
       .then((text) => {
-        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
+        cy.get(commonlocators.toastmsg).contains(`Theme ${text} applied`);
       });
     _.appSettings.ClosePane();
 

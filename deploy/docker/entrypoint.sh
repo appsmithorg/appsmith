@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
+
+stacks_path=/appsmith-stacks
+
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
@@ -21,7 +24,22 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
     || true
 fi
 
-stacks_path=/appsmith-stacks
+if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
+
+  ## Trim APPSMITH_FILESTORE_IP and FILE_SHARE_NAME
+  FILESTORE_IP_ADDRESS="$(echo "$FILESTORE_IP_ADDRESS" | xargs)"
+  FILE_SHARE_NAME="$(echo "$FILE_SHARE_NAME" | xargs)"
+
+  echo "Running appsmith for cloudRun"
+  echo "creating mount point"
+  mkdir -p "$stacks_path"
+  echo "Mounting File Sytem"
+  mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
+  echo "Mounted File Sytem"
+  echo "Setting HOSTNAME for Cloudrun"
+  export HOSTNAME="cloudrun"
+fi
+
 
 function get_maximum_heap() {
     resource=$(ulimit -u)
@@ -273,9 +291,6 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
-  
-  # Copy Supervisor Listiner confs to conf.d
-  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -334,23 +349,22 @@ init_postgres() {
 
     if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
         echo "Found existing Postgres, Skipping initialization"
+        chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
-
-      mkdir -p $POSTGRES_DB_PATH
+      mkdir -p "$POSTGRES_DB_PATH"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres $POSTGRES_DB_PATH
+      chown postgres:postgres "$POSTGRES_DB_PATH"
 
       # Initialize the postgres db file system
-      su -m postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
 
       # Start the postgres server in daemon mode
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
-
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
@@ -383,6 +397,10 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
+  # The default NGINX configuration includes an IPv6 listen directive. But not all
+  # servers support it, and we don't need it. So we remove it here before starting
+  # NGINX. 
+  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default  
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
   local editor_load_page="/opt/appsmith/editor/loading.html" 

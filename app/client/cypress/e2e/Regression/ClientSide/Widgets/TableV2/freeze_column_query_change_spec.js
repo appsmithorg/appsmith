@@ -6,16 +6,16 @@ import {
   TABLE_DATA_DYNAMIC,
   TABLE_DATA_STATIC,
 } from "../../../../../support/Constants";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("1. Check frozen common and/or custom columns retain position on query change", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });
-
     cy.wait(2000);
     cy.openPropertyPane(WIDGET.TABLE);
-    cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_STATIC);
+    _.propPane.EnterJSContext("Table data", TABLE_DATA_STATIC);
   });
 
   it("1.1 Check if common frozen columns retain position", () => {
@@ -24,7 +24,7 @@ describe("1. Check frozen common and/or custom columns retain position on query 
 
     //Change the table data:
     cy.openPropertyPane(WIDGET.TABLE);
-    cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_DYNAMIC);
+    _.propPane.EnterJSContext("Table data", TABLE_DATA_DYNAMIC);
 
     //Check the id column is still frozen to the right:
     cy.wait(500);

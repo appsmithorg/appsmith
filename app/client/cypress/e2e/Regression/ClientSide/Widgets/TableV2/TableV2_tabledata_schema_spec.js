@@ -1,12 +1,11 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 import homePage from "../../../../../locators/HomePage";
-const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.createNew).first().click({ force: true });
     cy.wait("@createNewApplication").should(
       "have.nested.property",
@@ -16,12 +15,8 @@ describe("Table Widget", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 300 });
-    cy.wait(1000);
-    cy.wait("@updateLayout");
-    cy.get(".t--property-control-tabledata").then(($el) => {
-      cy.updateCodeInput($el, jsContext);
-    });
-    cy.PublishtheApp();
+    _.propPane.EnterJSContext("Table data", jsContext);
+    _.deployMode.DeployApp();
     cy.wait(5000);
     cy.getTableV2DataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
@@ -47,7 +42,7 @@ describe("Table Widget", function () {
       expect(value).to.be.equal("joe");
     });
 
-    cy.get(publish.backToEditor).click().wait(1000);
+    _.deployMode.NavigateBacktoEditor();
     cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Widgets");
 

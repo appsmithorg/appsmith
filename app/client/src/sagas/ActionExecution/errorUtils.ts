@@ -8,7 +8,6 @@ import type { Types } from "utils/TypeHelpers";
 import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { toast } from "design-system";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import {
@@ -17,6 +16,8 @@ import {
 } from "../../actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
 import store from "store";
+import showToast from "sagas/ToastSagas";
+import { call } from "redux-saga/effects";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -62,10 +63,10 @@ export class ActionValidationError extends TriggerFailureError {
   }
 }
 
-export const logActionExecutionError = (
+export function* logActionExecutionError(
   errorMessage: string,
   isExecuteJSFunc = true,
-) => {
+) {
   //Commenting as per decision taken for the error hanlding epic to not show the trigger errors in the debugger.
   // if (triggerPropertyName) {
   //   AppsmithConsole.addErrors([
@@ -102,8 +103,9 @@ export const logActionExecutionError = (
     store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }
 
-  isExecuteJSFunc &&
-    toast.show(errorMessage, {
+  if (isExecuteJSFunc)
+    // This is the toast that is rendered when any unhandled error occurs in JS object.
+    yield call(showToast, errorMessage, {
       kind: "error",
       action: {
         text: "debug",
@@ -111,7 +113,7 @@ export const logActionExecutionError = (
         className: "t--toast-debug-button",
       },
     });
-};
+}
 
 /*
  * Thrown when action execution fails for some reason
@@ -137,12 +139,6 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
   constructor() {
     super("User cancelled action execution", true);
     this.name = "UserCancelledActionExecutionError";
-  }
-}
-
-export class UncaughtPromiseError extends Error {
-  constructor(message: string) {
-    super(message);
   }
 }
 

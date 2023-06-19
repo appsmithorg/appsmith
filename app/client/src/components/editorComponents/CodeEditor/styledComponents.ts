@@ -93,7 +93,6 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
-      padding: 0 6px;
       border-radius: var(--ads-v2-border-radius);
       /* ${(props) =>
         props.isFocused &&
@@ -239,7 +238,6 @@ export const EditorWrapper = styled.div<{
       /* some sql fixes */
       .cm-m-sql.cm-keyword {
         font-weight: 400;
-        text-transform: uppercase;
       }
 
       .CodeMirror-activeline-background {

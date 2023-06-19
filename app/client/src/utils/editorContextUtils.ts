@@ -3,7 +3,7 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
-} from "ce/constants/forms";
+} from "@appsmith/constants/forms";
 import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
@@ -88,20 +88,25 @@ export function isDatasourceAuthorizedForQueryCreation(
     datasource &&
     datasource?.datasourceConfiguration?.authentication?.authenticationType;
 
-  /* 
-    TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
-    Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
-  */
-  const isGoogleSheetPlugin =
-    plugin.packageName === PluginPackageName.GOOGLE_SHEETS;
-  if (isGoogleSheetPlugin && authType === AuthType.OAUTH2) {
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
+  if (isGoogleSheetPlugin) {
     const isAuthorized =
+      authType === AuthType.OAUTH2 &&
       datasource?.datasourceConfiguration?.authentication
         ?.authenticationStatus === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
   return true;
+}
+
+/**
+ * Determines whether plugin is google sheet or not
+ * @param pluginPackageName string
+ * @returns boolean
+ */
+export function isGoogleSheetPluginDS(pluginPackageName?: string) {
+  return pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 }
 
 /**

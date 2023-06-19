@@ -298,6 +298,10 @@ export const TableWrapper = styled.div<{
       display: block;
     }
 
+    &.hide-menu {
+      display: none;
+    }
+
     &.hide {
       &:hover {
         .bp3-popover2-target {
@@ -336,6 +340,10 @@ export const TableWrapper = styled.div<{
     height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
     line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
     padding: 0 5px;
+  }
+
+  &.blur {
+    filter: blur(1px);
   }
 `;
 

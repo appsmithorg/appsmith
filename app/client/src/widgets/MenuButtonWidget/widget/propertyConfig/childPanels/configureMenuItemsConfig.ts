@@ -119,6 +119,7 @@ export default {
           helpText:
             "Sets the icon alignment of a menu item. Can also be configured the using {{currentItem}} binding.",
           controlType: "ICON_TABS",
+          defaultValue: "left",
           fullWidth: false,
           options: [
             {

@@ -6,21 +6,21 @@ import { useHover } from "@react-aria/interactions";
 import type { AriaButtonProps as SpectrumAriaBaseButtonProps } from "@react-types/button";
 
 export interface ButtonProps extends SpectrumAriaBaseButtonProps {
+  /** classname to be passed to the button  */
   className?: string;
-  /**
-   * If true, the button will be disabled visually and functionally.
-   * Note: Visually disabled button can be focused.
-   */
-  visuallyDisabled?: boolean;
+  /** Indicates an element is being modified and that assistive technologies MAY want to wait until the modifications are complete before exposing them to the user.*/
+  "aria-busy"?: boolean;
+  /** Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. */
+  "aria-disabled"?: boolean;
+  /** Indicates if the button can be dragged, this is mandatory for editor because of this bug - https://bugzilla.mozilla.org/show_bug.cgi?id=568313 */
+  draggable?: boolean;
 }
 
 export type ButtonRef = React.Ref<HTMLButtonElement>;
 type ButtonRefObject = React.RefObject<HTMLButtonElement>;
 
 export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
-  const { autoFocus, children, className, isDisabled, visuallyDisabled } =
-    props;
-  props = useVisuallyDisabled(props);
+  const { autoFocus, children, className, draggable, isDisabled } = props;
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
   const { buttonProps, isPressed } = useButton(props, ref as ButtonRefObject);
@@ -28,44 +28,17 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
   return (
     <button
       {...mergeProps(buttonProps, hoverProps, focusProps)}
-      aria-disabled={visuallyDisabled ? true : undefined}
+      aria-busy={props["aria-busy"] ? true : undefined}
+      aria-disabled={props["aria-disabled"] ? true : undefined}
       className={className}
       data-active={isPressed ? "" : undefined}
       data-disabled={isDisabled ? "" : undefined}
       data-focused={isFocusVisible ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
-      disabled={visuallyDisabled ? undefined : isDisabled}
+      draggable={draggable ? "true" : undefined}
       ref={ref}
     >
       {children}
     </button>
   );
 });
-
-/**
- * This hook is used to disable all click/press events on a button
- * when the button is visually disabled
- *
- * @param props
- * @returns
- */
-const useVisuallyDisabled = (props: ButtonProps) => {
-  let computedProps = props;
-
-  if (props.visuallyDisabled) {
-    computedProps = {
-      ...props,
-      isDisabled: false,
-      // disabling click/press events
-      onPress: undefined,
-      onPressStart: undefined,
-      onPressEnd: undefined,
-      onPressChange: undefined,
-      onPressUp: undefined,
-      onKeyDown: undefined,
-      onKeyUp: undefined,
-    };
-  }
-
-  return computedProps;
-};

@@ -23,7 +23,7 @@ import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
@@ -31,9 +31,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
+  JS_EXECUTION_FAILURE,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
-  JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
@@ -45,8 +45,11 @@ import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import { toast } from "design-system";
 import type { ActionEntityConfig } from "entities/DataTree/types";
-import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
+import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
+import { logActionExecutionError } from "./ActionExecution/errorUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -318,6 +321,16 @@ export function* evalErrorHandler(
   });
 }
 
+export function* dynamicTriggerErrorHandler(errors: any[]) {
+  if (errors.length > 0) {
+    for (const error of errors) {
+      const errorMessage =
+        error.errorMessage.message.message || error.errorMessage.message;
+      yield call(logActionExecutionError, errorMessage, true);
+    }
+  }
+}
+
 export function* logSuccessfulBindings(
   unEvalTree: UnEvalTree,
   dataTree: DataTree,
@@ -334,6 +347,9 @@ export function* logSuccessfulBindings(
   const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
     ? {}
     : { ...successfulBindingsMap.get() };
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const instanceId: string = yield select(getInstanceId);
 
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
@@ -393,6 +409,8 @@ export function* logSuccessfulBindings(
               entityType,
               propertyPath,
               isUndefined,
+              orgId: workspaceId,
+              instanceId,
             });
           }
         }
