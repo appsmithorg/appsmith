@@ -1,4 +1,7 @@
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { CameraModeTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -20,6 +23,7 @@ export const CONFIG = {
     isMirrored: true,
     version: 1,
     responsiveBehavior: ResponsiveBehavior.Hug,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
