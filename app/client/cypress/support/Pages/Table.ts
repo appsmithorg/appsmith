@@ -576,7 +576,7 @@ export class Table {
   public EditTableCell(
     rowIndex: number,
     colIndex: number,
-    newValue = "",
+    newValue: "" | number | string,
     toSaveNewValue = true,
   ) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
@@ -590,21 +590,29 @@ export class Table {
         " " +
         this._editCellEditorInput,
     );
-    if (newValue) {
-      this.UpdateTableCell(rowIndex, colIndex, newValue);
-    }
-    toSaveNewValue &&
-      this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
+    this.UpdateTableCell(
+      rowIndex,
+      colIndex,
+      newValue.toString(),
+      toSaveNewValue,
+    );
     this.agHelper.Sleep();
   }
 
-  public UpdateTableCell(rowIndex: number, colIndex: number, newValue = "") {
+  public UpdateTableCell(
+    rowIndex: number,
+    colIndex: number,
+    newValue: "" | number | string,
+    toSaveNewValue = false,
+  ) {
     this.agHelper.UpdateInputValue(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
-      newValue,
+      newValue.toString(),
     );
+    toSaveNewValue &&
+      this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
   }
 
   public DeleteColumn(colId: string) {

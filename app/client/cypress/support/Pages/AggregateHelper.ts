@@ -1032,10 +1032,13 @@ export class AggregateHelper extends ReusableHelper {
   public UpdateInputValue(selector: string, value: string) {
     this.GetElement(selector)
       .closest("input")
-      .scrollIntoView()
+      .scrollIntoView({ easing: "linear" })
       .clear()
-      //.type(this.selectAll)
-      .type(value, { delay: 2 });
+      .then(($input: any) => {
+        if (value !== "") {
+          cy.wrap($input).type(value, { delay: 2 });
+        }
+      });
   }
 
   public BlurCodeInput(selector: string) {
