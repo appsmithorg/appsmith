@@ -30,7 +30,7 @@ describe("isHidden test", () => {
           conditionType: "AND",
           conditions: [
             {
-              path: "name",
+              path: "datasourceStorages.unused_env.name",
               value: "Name",
               comparison: "EQUALS",
             },
@@ -38,12 +38,12 @@ describe("isHidden test", () => {
               conditionType: "AND",
               conditions: [
                 {
-                  path: "number",
+                  path: "datasourceStorages.unused_env.number",
                   value: 2,
                   comparison: "EQUALS",
                 },
                 {
-                  path: "email",
+                  path: "datasourceStorages.unused_env.email",
                   value: "temp@temp.com",
                   comparison: "EQUALS",
                 },
@@ -59,7 +59,7 @@ describe("isHidden test", () => {
           },
         },
         hidden: {
-          path: "name",
+          path: "datasourceStorages.unused_env.name",
           value: "Name",
           comparison: "EQUALS",
         },
@@ -71,7 +71,7 @@ describe("isHidden test", () => {
           },
         },
         hidden: {
-          path: "name.config.type",
+          path: "datasourceStorages.unused_env.name.config.type",
           value: "USER_ID",
           comparison: "NOT_EQUALS",
         },
@@ -101,7 +101,7 @@ describe("isHidden test", () => {
           },
         },
         hidden: {
-          path: "name",
+          path: "datasourceStorages.unused_env.name",
           value: "Different Name",
           comparison: "EQUALS",
         },
@@ -113,7 +113,7 @@ describe("isHidden test", () => {
           },
         },
         hidden: {
-          path: "config.type",
+          path: "datasourceStorages.unused_env.config.type",
           value: "EMAIL",
           comparison: "NOT_EQUALS",
         },
@@ -125,7 +125,7 @@ describe("isHidden test", () => {
           },
         },
         hidden: {
-          path: "config.type",
+          path: "datasourceStorages.unused_env.config.type",
           value: ["EMAIL", "BODY"],
           comparison: "IN",
         },
@@ -137,7 +137,7 @@ describe("isHidden test", () => {
           },
         },
         hidden: {
-          path: "config.type",
+          path: "datasourceStorages.unused_env.config.type",
           value: ["EMAIL", "BODY"],
           comparison: "NOT_IN",
         },
@@ -174,7 +174,7 @@ describe("isHidden test", () => {
           conditionType: "AND",
           conditions: [
             {
-              path: "contact.number",
+              path: "datasourceStorages.unused_env.contact.number",
               value: 1234,
               comparison: "NOT_EQUALS",
             },
@@ -185,19 +185,19 @@ describe("isHidden test", () => {
                   conditionType: "AND",
                   conditions: [
                     {
-                      path: "config.name",
+                      path: "datasourceStorages.unused_env.config.name",
                       value: "TEMP",
                       comparison: "EQUALS",
                     },
                     {
-                      path: "config.name",
+                      path: "datasourceStorages.unused_env.config.name",
                       value: "HELLO",
                       comparison: "EQUALS",
                     },
                   ],
                 },
                 {
-                  path: "config.type",
+                  path: "datasourceStorages.unused_env.config.type",
                   value: "EMAIL",
                   comparison: "NOT_EQUALS",
                 },
@@ -341,13 +341,13 @@ describe("caculateIsHidden test", () => {
       },
     };
     const hiddenTruthy: HiddenType = {
-      path: "name",
+      path: "datasourceStorages.unused_env.name",
       comparison: "EQUALS",
       value: "Name",
       flagValue: "TEST_FLAG",
     };
     const hiddenFalsy: HiddenType = {
-      path: "name",
+      path: "datasourceStorages.unused_env.name",
       comparison: "EQUALS",
       value: "Different Name",
       flagValue: "TEST_FLAG",
