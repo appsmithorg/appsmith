@@ -125,6 +125,7 @@
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
+  "filePickerRemoveButton": ".uppy-Dashboard-Item-action--remove",
   "AddMoreFiles": ".uppy-DashboardContent-addMoreCaption",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype input",
