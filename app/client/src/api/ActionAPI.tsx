@@ -71,6 +71,7 @@ export interface ActionApiResponseReq {
   body: Record<string, unknown> | null;
   httpMethod: HttpMethod | "";
   url: string;
+  requestedAt?: number;
 }
 
 export type ActionExecutionResponse = ApiResponse<{

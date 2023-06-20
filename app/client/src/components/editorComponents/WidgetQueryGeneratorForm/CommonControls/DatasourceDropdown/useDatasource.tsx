@@ -35,6 +35,52 @@ import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+
+enum SortingWeights {
+  alphabetical = 1,
+  execution,
+  datatype,
+}
+
+const SORT_INCREAMENT = 1;
+
+function sortQueries(queries: ActionDataState, expectedDatatype: string) {
+  return queries.sort((A, B) => {
+    const score = {
+      A: 0,
+      B: 0,
+    };
+
+    if (A.config.name > B.config.name) {
+      score.A += SORT_INCREAMENT << SortingWeights.alphabetical;
+    } else {
+      score.B += SORT_INCREAMENT << SortingWeights.alphabetical;
+    }
+
+    if (A.data?.request?.requestedAt && B.data?.request?.requestedAt) {
+      if (A.data.request.requestedAt > B.data.request.requestedAt) {
+        score.A += SORT_INCREAMENT << SortingWeights.execution;
+      } else {
+        score.B += SORT_INCREAMENT << SortingWeights.execution;
+      }
+    } else if (A.data?.request?.requestedAt) {
+      score.A += SORT_INCREAMENT << SortingWeights.execution;
+    } else if (B.data?.request?.requestedAt) {
+      score.B += SORT_INCREAMENT << SortingWeights.execution;
+    }
+
+    if (typeof A.data?.body === expectedDatatype) {
+      score.A += SORT_INCREAMENT << SortingWeights.datatype;
+    }
+
+    if (typeof B.data?.body === expectedDatatype) {
+      score.B += SORT_INCREAMENT << SortingWeights.datatype;
+    }
+
+    return score.A < score.B ? -1 : 1;
+  });
+}
 
 function filterOption(option: DropdownOptionType, searchText: string) {
   return (
@@ -293,7 +339,7 @@ export function useDatasource(searchText: string) {
   const queries = useSelector(getActionsForCurrentPage);
 
   const queryOptions = useMemo(() => {
-    return queries.map((query) => ({
+    return sortQueries(queries, "array").map((query) => ({
       id: query.config.id,
       label: query.config.name,
       value: `{{${query.config.name}.data}}`,

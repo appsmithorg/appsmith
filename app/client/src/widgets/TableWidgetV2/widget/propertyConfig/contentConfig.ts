@@ -38,6 +38,7 @@ export default [
           type: ValidationTypes.OBJECT_ARRAY,
           params: {
             default: [],
+            required: true,
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,

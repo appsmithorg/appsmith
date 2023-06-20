@@ -16,10 +16,8 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
    * with default value by platform
    */
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
-    return [
-      /^{{[^.]*\.data}}$/gi, // {{query1.data}}
-      /^{{}}$/, // {{}}
-    ].some((d) => d.test(value));
+    // {{query1.data}}
+    return /^{{[^.]*\.data}}$/gi.test(value);
   }
 
   static shouldValidateValueOnDynamicPropertyOff() {
