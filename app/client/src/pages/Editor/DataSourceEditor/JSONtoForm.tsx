@@ -61,6 +61,18 @@ export class JSONtoForm<
   };
 
   renderMainSection = (section: any, index: number) => {
+    if (
+      !this.props.formData ||
+      !this.props.formData.hasOwnProperty("datasourceStorages") ||
+      !this.props.hasOwnProperty("currentEnvionment") ||
+      !this.props.currentEnvionment ||
+      !this.props.formData.datasourceStorages.hasOwnProperty(
+        this.props.currentEnvionment,
+      )
+    ) {
+      return null;
+    }
+
     // hides features/configs that are hidden behind feature flag
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
