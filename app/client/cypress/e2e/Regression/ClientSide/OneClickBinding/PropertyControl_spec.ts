@@ -122,7 +122,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     oneClickBinding.ChooseAndAssertForm(
       "New from sample Movies",
-      "Movies",
+      "movies",
       "movies",
       "status",
     );
