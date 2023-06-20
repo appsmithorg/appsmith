@@ -420,7 +420,7 @@ export default function OnboardingChecklist() {
     return (
       <>
         <div
-          className="flex justify-between pb-3"
+          className="flex justify-between pb-3 items-center"
           data-testid="checklist-completion-banner"
         >
           <Text
@@ -450,7 +450,7 @@ export default function OnboardingChecklist() {
   return (
     <>
       <div className="flex-1">
-        <div className="flex justify-between pb-3">
+        <div className="flex justify-between pb-3 items-center">
           <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
             {createMessage(ONBOARDING_CHECKLIST_HEADER)}
           </Text>
