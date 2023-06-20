@@ -6,7 +6,7 @@ describe("Ensures evaluated popup is viewable when dynamic bindings are present 
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
     // ordinary strings should not open evaluated value popup
-    _.agHelper.ValidateNetworkStatus("@trigger");
+    _.assertHelper.AssertNetworkStatus("@trigger");
 
     _.dataSources.ValidateNSelectDropdown(
       "Collection",

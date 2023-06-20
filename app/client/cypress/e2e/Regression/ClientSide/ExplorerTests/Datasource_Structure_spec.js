@@ -1,14 +1,14 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let ee = ObjectsRegistry.EntityExplorer;
-let datasourceName;
+import {
+  entityExplorer,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer datasource structure", function () {
+  let datasourceName;
+
   beforeEach(() => {
     //cy.ClearSearch();
     cy.startRoutesForDatasource();
@@ -32,8 +32,11 @@ describe("Entity explorer datasource structure", function () {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.wait(2000); //for the tables to open
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -62,14 +65,15 @@ describe("Entity explorer datasource structure", function () {
     );
 
     cy.deleteQueryUsingContext();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("MyQuery");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "MyQuery",
+    });
     cy.deleteDatasource(datasourceName);
   });
 
   it("2. Refresh datasource structure", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
 
     //cy.GlobalSearchEntity(datasourceName);
     // cy.get(`.t--entity.datasource:contains(${datasourceName})`)
@@ -85,7 +89,7 @@ describe("Entity explorer datasource structure", function () {
     const tableName = Math.random()
       .toString(36)
       .replace(/[^a-z]+/g, "");
-    cy.typeValueNValidate(`CREATE TABLE public.${tableName} ( ID int );`);
+    dataSources.EnterQuery(`CREATE TABLE public.${tableName} ( ID int );`);
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.request.requestParams.Query.value).to.contain(
@@ -101,8 +105,11 @@ describe("Entity explorer datasource structure", function () {
     // cy.xpath(explorer.datsourceEntityPopover)
     //   .last()
     //   .click({ force: true });
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -113,7 +120,7 @@ describe("Entity explorer datasource structure", function () {
     //   .find(explorer.collapse)
     //   .first()
     //   .click();
-    cy.xpath("//div[text()='public." + tableName + "']").should("exist");
+    entityExplorer.AssertEntityPresenceInExplorer(`public.${tableName}`);
 
     // cy.get(explorer.refreshStructure).click({ force: true });
     // TODO (Akash): Check for new table name to be visible in UI as well
@@ -123,14 +130,17 @@ describe("Entity explorer datasource structure", function () {
 
     cy.typeValueNValidate(`DROP TABLE public.${tableName}`);
     cy.runQuery();
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.xpath("//div[text()='public." + tableName + "']").should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer(`public.${tableName}`);
     cy.deleteQueryUsingContext();
     cy.deleteDatasource(datasourceName);
   });

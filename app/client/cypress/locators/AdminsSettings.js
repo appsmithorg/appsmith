@@ -14,7 +14,7 @@ export default {
   saveButton: ".t--admin-settings-save-button",
   resetButton: ".t--admin-settings-reset-button",
   textInput: ".t--admin-settings-text-input input",
-  instanceName: ".t--admin-settings-APPSMITH_INSTANCE_NAME input",
+  instanceName: ".t--admin-settings-instanceName input",
   adminEmails: ".t--admin-settings-APPSMITH_ADMIN_EMAILS input",
   fromAddress: ".t--admin-settings-APPSMITH_MAIL_FROM input",
   restartNotice: ".t--admin-settings-restart-notice",

@@ -8,7 +8,7 @@ describe("Git import empty repository", function () {
   const failureMessage =
     "git import failed. \nDetails: Cannot import app from an empty repo";
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;

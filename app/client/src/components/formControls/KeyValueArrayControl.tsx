@@ -202,7 +202,7 @@ function KeyValueRow(
                   defaultValue: extraData[0]?.initialValue,
                   isKeyFieldValid: isKeyFieldValid,
                   placeholder: props.extraData
-                    ? props.extraData[1]?.placeholderText
+                    ? props.extraData[0]?.placeholderText
                     : `Key ${index + 1}`,
                   isRequired: extraData[0]?.isRequired,
                   name: keyTextFieldName,

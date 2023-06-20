@@ -4,7 +4,6 @@ import { ContentBox } from "pages/Settings/components";
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,
   ADMIN_BRANDING_SETTINGS_TITLE,
-  ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE,
   BUSINESS_TAG,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -22,7 +21,6 @@ const StyledSettingsSubHeader = styled(SettingsSubHeader)`
 const UpgradeBanner = () => {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "BRANDING_UPGRADE_CLICK",
-    intercomMessage: createMessage(ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE),
   });
 
   return (

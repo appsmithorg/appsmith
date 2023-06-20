@@ -1,10 +1,12 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/videoWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Video Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("videoWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Video Widget play functionality validation", function () {
