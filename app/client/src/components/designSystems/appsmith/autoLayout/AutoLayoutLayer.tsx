@@ -33,50 +33,8 @@ import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
 
 export type AutoLayoutLayerProps = FlexLayerLayoutData & {
   index: number;
-  isMobile?: boolean;
   widgetId: string;
 };
-
-// const RowContainer = styled.div<{
-//   isMobile?: boolean;
-// }>`
-//   display: flex;
-//   flex-direction: row;
-//   justify-content: flex-start;
-//   align-items: flex-start;
-//   flex-wrap: wrap;
-//   overflow: visible;
-//   width: 100%;
-//   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
-//   column-gap: ${WIDGET_PADDING}px;
-// `;
-
-// const Alignment = styled.div<{
-//   isMobile?: boolean;
-// }>`
-//   display: flex;
-//   flex-direction: row;
-//   align-items: flex-start;
-//   align-self: stretch;
-//   flex-wrap: ${({ isMobile }) => (isMobile ? "wrap" : "nowrap")};
-//   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
-//   column-gap: ${WIDGET_PADDING}px;
-//   flex-grow: 1;
-//   flex-shrink: 1;
-//   flex-basis: ${({ isMobile }) => (isMobile ? "auto" : "0%")};
-// `;
-
-// const StartAlignment = styled(Alignment)`
-//   justify-content: flex-start;
-// `;
-
-// const EndAlignment = styled(Alignment)`
-//   justify-content: flex-end;
-// `;
-
-// const CenterAlignment = styled(Alignment)`
-//   justify-content: center;
-// `;
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   const ref = useRef<HTMLDivElement>(null);

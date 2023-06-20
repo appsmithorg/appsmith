@@ -1,7 +1,7 @@
 import { debounce, isArray } from "lodash";
 import { useCallback, useEffect, useRef } from "react";
-import type { CSSProperties, ReactNode } from "react";
-import React, { useMemo } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
@@ -21,7 +21,6 @@ export interface FlexBoxProps {
   children?: ReactNode;
   widgetId: string;
   flexLayers: FlexLayer[];
-  isMobile: boolean;
 }
 
 export const FlexBoxContainer = styled.div`
@@ -33,12 +32,17 @@ export const FlexBoxContainer = styled.div`
   width: 100%;
   height: auto;
   overflow: hidden;
+  row-gap: ${MOBILE_ROW_GAP}px;
+  padding: ${FLEXBOX_PADDING}px;
+
+  @media screen and (min-width: 481px) {
+    row-gap: ${ROW_GAP}px;
+  }
 `;
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
 function FlexBoxComponent(props: FlexBoxProps) {
-  const isMobile: boolean = props.isMobile || false;
   const currentWidth = useRef(0);
   const flexCanvasRef = React.useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
@@ -115,7 +119,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
         endChildren={endChildren}
         hasFillWidget={hasFillWidget}
         index={index}
-        isMobile={isMobile}
         key={index}
         startChildren={startChildren}
         widgetId={props.widgetId}
@@ -123,18 +126,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
     );
   }
 
-  const flexBoxStyle: CSSProperties = useMemo(() => {
-    return {
-      padding: `${FLEXBOX_PADDING}px`,
-      rowGap: `${props.isMobile ? MOBILE_ROW_GAP : ROW_GAP}px`,
-    };
-  }, [props.isMobile]);
-
   return (
     <FlexBoxContainer
       className={`flex-container-${props.widgetId}`}
       ref={flexCanvasRef}
-      style={flexBoxStyle}
     >
       {renderChildren()}
     </FlexBoxContainer>

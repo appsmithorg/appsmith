@@ -147,7 +147,6 @@ class CanvasWidget extends ContainerWidget {
     return (
       <FlexBoxComponent
         flexLayers={this.props.flexLayers || []}
-        isMobile={this.props.isMobile || false}
         stretchHeight={stretchFlexBox}
         useAutoLayout={this.props.useAutoLayout || false}
         widgetId={this.props.widgetId}
