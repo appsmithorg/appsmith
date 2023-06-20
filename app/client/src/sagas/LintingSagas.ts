@@ -20,6 +20,7 @@ import type {
 } from "Linting/types";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { shouldLint } from "actions/evaluationActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -55,7 +56,9 @@ function* updateOldJSCollectionLintErrors(
     );
 
     const jsObjectState = get(jsObjectsState, jsObjectName, {});
-    const jsObjectProperties = Object.keys(jsObjectState);
+    const jsObjectProperties = Object.keys(jsObjectState).map(
+      (propertyName) => `${jsObjectName}.${propertyName}`,
+    );
 
     const filteredOldJsObjectBodyLintErrors = oldJsBodyLintErrors.filter(
       (lintError) =>
@@ -72,11 +75,8 @@ function* updateOldJSCollectionLintErrors(
   return updatedJSCollectionLintErrors;
 }
 
-export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
-  const { configTree, forceLinting, unevalTree } = action.payload;
-  // only perform lint operations in edit mode
-  const appMode: APP_MODE = yield select(getAppMode);
-  if (appMode !== APP_MODE.EDIT) return;
+export function* lintTreeSaga(payload: LintTreeSagaRequestData) {
+  const { configTree, forceLinting, unevalTree } = payload;
 
   const lintTreeRequestData: LintTreeRequestPayload = {
     unevalTree,
@@ -104,10 +104,12 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   });
 }
 
-export function* initiateLinting() {
+export function* initiateLinting(
+  action: ReduxAction<unknown>,
+  forceLinting = false,
+) {
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-  if (appMode !== APP_MODE.EDIT) return;
-
+  if (appMode !== APP_MODE.EDIT || !shouldLint(action)) return;
   const {
     configTree,
     unEvalTree: unevalTree,
@@ -115,44 +117,26 @@ export function* initiateLinting() {
     getUnevaluatedDataTree,
   );
 
-  yield put({
-    type: ReduxActionTypes.LINT_TREE,
-    payload: {
-      unevalTree,
-      configTree,
-    },
+  yield call(lintTreeSaga, {
+    unevalTree,
+    configTree,
+    forceLinting,
   });
 }
-export function* handleCustomLibrary() {
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-  if (appMode !== APP_MODE.EDIT) return;
 
-  const {
-    configTree,
-    unEvalTree: unevalTree,
-  }: ReturnType<typeof getUnevaluatedDataTree> = yield select(
-    getUnevaluatedDataTree,
-  );
-
-  yield put({
-    type: ReduxActionTypes.LINT_TREE,
-    payload: {
-      unevalTree,
-      configTree,
-      forceLinting: true,
-    },
-  });
+export function* handleCustomLibrary(action: ReduxAction<unknown>) {
+  yield call(initiateLinting, action, true);
 }
 
 export default function* lintTreeSagaWatcher() {
   yield takeEvery(ReduxActionTypes.UPDATE_LINT_GLOBALS, updateLintGlobals);
-  yield takeEvery(ReduxActionTypes.LINT_TREE, lintTreeSaga);
   yield takeEvery(
-    ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
+    [
+      ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
+      ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
+    ],
     handleCustomLibrary,
   );
-  yield takeEvery(
-    ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,
-    handleCustomLibrary,
-  );
+
+  yield takeEvery(ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT, initiateLinting);
 }

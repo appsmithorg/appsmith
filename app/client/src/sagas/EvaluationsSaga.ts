@@ -536,7 +536,10 @@ function* evaluationChangeListenerSaga(): any {
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions, false, false);
-  yield fork(initiateLinting);
+  yield fork(initiateLinting, {
+    type: initAction.type,
+    payload: null,
+  });
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -549,7 +552,7 @@ function* evaluationChangeListenerSaga(): any {
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
       yield all([
-        call(initiateLinting),
+        call(initiateLinting, action),
         call(
           evaluateTreeSaga,
           postEvalActions,

@@ -30,10 +30,12 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.UPDATE_LAYOUT]: true,
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: true,
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: true,
-  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: true,
+  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT]: true,
   [ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL]: true,
   [ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS]: true,
   [ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS]: true,
+  [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: true,
+  [ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS]: true,
 };
 
 export const LOG_REDUX_ACTIONS = {
