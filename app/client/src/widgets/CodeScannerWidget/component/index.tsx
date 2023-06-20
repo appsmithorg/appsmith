@@ -586,7 +586,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
       iconName={props.iconName}
       onClick={openModal}
       placement={props.placement}
-      shouldFitContent={props.isAutoLayout}
+      shouldFitContent={props.shouldButtonFitContent}
       text={props.label}
     />
   );
@@ -628,7 +628,7 @@ export interface CodeScannerComponentProps extends ComponentProps {
   placement?: ButtonPlacement;
   onCodeDetected: (value: string) => void;
   scannerLayout: ScannerLayout;
-  isAutoLayout: boolean;
+  shouldButtonFitContent: boolean;
 }
 
 export default CodeScannerComponent;

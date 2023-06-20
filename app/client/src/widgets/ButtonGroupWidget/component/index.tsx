@@ -614,7 +614,7 @@ class ButtonGroupComponent extends React.Component<
                       isLabel={!!button.label}
                       key={button.id}
                       minHeight={this.props.minHeight}
-                      minWidth={this.props.minWidth}
+                      minWidth={this.props.buttonMinWidth}
                       ref={this.state.itemRefs[button.id]}
                     >
                       <StyledButtonContent
@@ -660,7 +660,7 @@ class ButtonGroupComponent extends React.Component<
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
                 minHeight={this.props.minHeight}
-                minWidth={this.props.minWidth}
+                minWidth={this.props.buttonMinWidth}
                 onClick={getOnClick(button)}
               >
                 <StyledButtonContent
@@ -736,7 +736,7 @@ export interface ButtonGroupComponentProps {
   width: number;
   minPopoverWidth: number;
   widgetId: string;
-  minWidth?: number;
+  buttonMinWidth?: number;
   minHeight?: number;
 }
 

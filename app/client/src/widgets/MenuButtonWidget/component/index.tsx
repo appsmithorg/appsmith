@@ -294,7 +294,7 @@ export interface PopoverTargetButtonProps {
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
   iconAlign?: Alignment;
-  isAutoLayout: boolean;
+  shouldFitContent: boolean;
   isDisabled?: boolean;
   label?: string;
   placement?: ButtonPlacement;
@@ -309,11 +309,11 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     buttonVariant,
     iconAlign,
     iconName,
-    isAutoLayout,
     isDisabled,
     label,
     placement,
     renderMode,
+    shouldFitContent,
   } = props;
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
@@ -324,7 +324,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       renderMode={renderMode}
-      shouldFitContent={isAutoLayout}
+      shouldFitContent={shouldFitContent}
     >
       <BaseButton
         alignText={getAlignText(isRightAlign, iconName)}
@@ -403,11 +403,11 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           buttonVariant={menuVariant}
           iconAlign={iconAlign}
           iconName={iconName}
-          isAutoLayout={shouldFitContent}
           isDisabled={isDisabled}
           label={label}
           placement={placement}
           renderMode={renderMode}
+          shouldFitContent={shouldFitContent}
         />
       </Popover2>
     </>

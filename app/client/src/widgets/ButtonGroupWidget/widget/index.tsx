@@ -586,12 +586,12 @@ class ButtonGroupWidget extends BaseWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonClickHandler={this.handleClick}
+        buttonMinWidth={this.isAutoLayoutMode ? 120 : undefined}
         buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
         minHeight={this.isAutoLayoutMode ? this.props.minHeight : undefined}
         minPopoverWidth={minPopoverWidth}
-        minWidth={this.isAutoLayoutMode ? 120 : undefined}
         orientation={this.props.orientation}
         renderMode={this.props.renderMode}
         widgetId={this.props.widgetId}
