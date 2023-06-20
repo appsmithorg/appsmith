@@ -317,7 +317,9 @@ jobs:
         env:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
-          if [[ ${{ inputs.pr }} -ne 0 ]]; then
+          if [[ ${{ github.event_name }} == 'schedule' ]]; then
+            echo "COMMIT_INFO_MESSAGE=Scheduled run for Airgap" >> $GITHUB_ENV
+          elif [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
             echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV

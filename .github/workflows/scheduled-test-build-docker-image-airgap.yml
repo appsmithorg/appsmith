@@ -1,9 +1,9 @@
 name: Scheduled Test Build Docker Image Airgap
 
 on:
-  # This workflow will run everyday at 07:00 AM IST (01:30 AM UTC)
+  # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC)
   schedule:
-    - cron: '30 9 * * *'
+    - cron: '30 12 * * *'
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
@@ -86,7 +86,7 @@ jobs:
           SLACK_CHANNEL: stabilizing-cypress
           SLACK_COLOR: '#FF0000' 
           SLACK_ICON_EMOJI: ':bell:'
-          SLACK_MESSAGE: 'There are build failures.'
+          SLACK_MESSAGE: 'There are build failures. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>'
           SLACK_TITLE: Scheduled airgap run
           SLACK_USERNAME: Github Scheduler
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
@@ -98,7 +98,7 @@ jobs:
           SLACK_CHANNEL: stabilizing-cypress
           SLACK_COLOR: '#00FF00' 
           SLACK_ICON_EMOJI: ':bell:'
-          SLACK_MESSAGE: 'All Cypress tests passed :tada:.'
+          SLACK_MESSAGE: 'All Cypress tests passed :tada:. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>'
           SLACK_TITLE: Scheduled airgap run
           SLACK_USERNAME: Github Scheduler
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
@@ -249,7 +249,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push airgap release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        if: success() && github.ref != 'refs/heads/master' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         uses: depot/build-push-action@v1
         with:
           context: .
