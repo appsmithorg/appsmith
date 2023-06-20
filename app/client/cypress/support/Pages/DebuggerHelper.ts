@@ -162,7 +162,7 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.locators._clearLogs);
   }
 
-  Assert_Consecutive_Console_Log_Count(count: number) {
+  AssertConsecutiveConsoleLogCount(count: number) {
     count > 0
       ? this.agHelper.GetNAssertContains(
           this.locators._logMessageOccurence,

@@ -23,6 +23,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.RebaseCommand;
+import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
@@ -556,16 +558,6 @@ public class GitExecutorImpl implements GitExecutor {
         .subscribeOn(scheduler);
     }
 
-    private int getModifiedQueryCount(Set<String> jsObjectsModified, int modifiedCount, String filePath) {
-        String queryName = filePath.substring(filePath.lastIndexOf("/") + 1);
-        String pageName = filePath.split("/")[1];
-        if (!jsObjectsModified.contains(pageName + queryName)) {
-            jsObjectsModified.add(pageName + queryName);
-            modifiedCount++;
-        }
-        return modifiedCount;
-    }
-
     @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
@@ -725,7 +717,7 @@ public class GitExecutorImpl implements GitExecutor {
                 config.save();
                 return git.getRepository().getBranch();
             }
-        })
+        }).timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -787,6 +779,30 @@ public class GitExecutorImpl implements GitExecutor {
                         log.error("Error while resetting the commit, {}", e.getMessage());
                     }
                     return Mono.just(false);
-                });
+                })
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
+    }
+
+    public Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName) {
+        return this.checkoutToBranch(repoSuffix, branchName)
+                .flatMap(isCheckedOut -> {
+                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+                        RebaseResult result = git.rebase().setUpstream("origin/" + branchName).call();
+                        if (result.getStatus().isSuccessful()) {
+                            return Mono.just(true);
+                        } else {
+                            log.error("Error while rebasing the branch, {}, {}", result.getStatus().name(), result.getConflicts());
+                            git.rebase().setUpstream("origin/" + branchName).setOperation(RebaseCommand.Operation.ABORT).call();
+                            return Mono.error(new Exception("Error while rebasing the branch, " + result.getStatus().name()));
+
+                        }
+                    } catch (GitAPIException | IOException e) {
+                        log.error("Error while rebasing the branch, {}", e.getMessage());
+                        return Mono.error(e);
+                    }
+                })
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
     }
 }
