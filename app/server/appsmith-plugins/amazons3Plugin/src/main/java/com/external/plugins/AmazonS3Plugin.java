@@ -71,7 +71,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.LinkedHashMap;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -96,6 +95,7 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.exceptions.S3ErrorMessages.DS_NULL_CONNECTION_ERROR_MSG;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
@@ -459,7 +459,7 @@ public class AmazonS3Plugin extends BasePlugin {
                          * - If connection object is null, then assume stale connection.
                          */
                         if (connection == null) {
-                            return Mono.error(new StaleConnectionException());
+                            return Mono.error(new StaleConnectionException(DS_NULL_CONNECTION_ERROR_MSG));
                         }
 
                         if (actionConfiguration == null) {
@@ -787,7 +787,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         return Mono.just(actionResult);
                     })
-                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException())
+                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException(error.getMessage()))
                     .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -986,8 +986,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     S3ErrorMessages.LIST_OF_BUCKET_FETCHING_ERROR_MSG,
                                     e.getMessage()
                             );
-                        } catch (IllegalStateException s) {
-                            throw new StaleConnectionException();
+                        } catch (IllegalStateException e) {
+                            throw new StaleConnectionException(e.getMessage());
                         }
 
                         return new DatasourceStructure(tableList);

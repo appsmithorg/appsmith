@@ -116,6 +116,7 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.SUCCESS;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.exceptions.MongoPluginErrorMessages.MONGO_CLIENT_NULL_ERROR_MSG;
 import static com.external.plugins.utils.DatasourceUtils.KEY_PASSWORD;
 import static com.external.plugins.utils.DatasourceUtils.KEY_URI_DEFAULT_DBNAME;
 import static com.external.plugins.utils.DatasourceUtils.KEY_USERNAME;
@@ -134,7 +135,6 @@ import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
-import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -310,7 +310,7 @@ public class MongoPlugin extends BasePlugin {
 
             if (mongoClient == null) {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
-                throw new StaleConnectionException();
+                throw new StaleConnectionException(MONGO_CLIENT_NULL_ERROR_MSG);
             }
             Mono<Document> mongoOutputMono;
             ActionExecutionResult result = new ActionExecutionResult();
@@ -354,13 +354,13 @@ public class MongoPlugin extends BasePlugin {
                      */
                     .onErrorMap(
                             IllegalStateException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
                     .onErrorMap(
                             MongoSocketWriteException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     .flatMap(mongoOutput -> {
                         try {
@@ -917,13 +917,13 @@ public class MongoPlugin extends BasePlugin {
                      */
                     .onErrorMap(
                             IllegalStateException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
                     .onErrorMap(
                             MongoSocketWriteException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     .onErrorMap(
                             MongoCommandException.class,

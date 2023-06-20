@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import static com.external.plugins.utils.MssqlDatasourceUtils.getConnectionFromConnectionPool;
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 
 public class MssqlTestDBContainerManager {
@@ -56,7 +56,7 @@ public class MssqlTestDBContainerManager {
     }
 
     static void runSQLQueryOnMssqlTestDB(String sqlQuery, HikariDataSource sharedConnectionPool) throws SQLException {
-        java.sql.Connection connectionFromPool = getConnectionFromConnectionPool(sharedConnectionPool);
+        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool, "MsSQL");
         Statement statement = connectionFromPool.createStatement();
         statement.execute(sqlQuery);
         closeConnectionPostExecution(null, statement, null, connectionFromPool);

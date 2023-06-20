@@ -13,7 +13,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
-import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.SqlUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -22,7 +21,6 @@ import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -41,6 +39,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 import static com.external.utils.ValidationUtils.validateWarehouseDatabaseSchema;
 
@@ -83,12 +82,12 @@ public class SnowflakePlugin extends BasePlugin {
                         Connection connectionFromPool;
 
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection);
+                            connectionFromPool = getConnectionFromHikariConnectionPool(connection, "Snowflake");
                         } catch (SQLException | StaleConnectionException e) {
                             if (e instanceof StaleConnectionException) {
                                 throw e;
                             } else {
-                                throw new StaleConnectionException();
+                                throw new StaleConnectionException(e.getMessage());
                             }
                         }
 
@@ -275,7 +274,7 @@ public class SnowflakePlugin extends BasePlugin {
 
                         Connection connectionFromPool;
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connectionPool);
+                            connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool, "Snowflake");
                             return Mono.just(validateWarehouseDatabaseSchema(connectionFromPool));
                         } catch (SQLException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
@@ -313,7 +312,7 @@ public class SnowflakePlugin extends BasePlugin {
 
                         Connection connectionFromPool;
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection);
+                            connectionFromPool = getConnectionFromHikariConnectionPool(connection, "Snowflake");
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
@@ -390,23 +389,6 @@ public class SnowflakePlugin extends BasePlugin {
                         return structure;
                     })
                     .subscribeOn(scheduler);
-        }
-
-        /**
-         * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
-         * In case a connection is not available in the pool, SQL Exception is thrown
-         *
-         * @param connectionPool
-         * @return SQL Connection
-         */
-        private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
-
-            if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-                log.debug("Encountered stale connection pool in Snowflake plugin. Reporting back.");
-                throw new StaleConnectionException();
-            }
-
-            return connectionPool.getConnection();
         }
     }
 }

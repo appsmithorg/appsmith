@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.OraclePlugin.OraclePluginExecutor.scheduler;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -155,13 +156,14 @@ public class OracleDatasourceUtils {
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool = getConnectionFromConnectionPool(connectionPool);
+                        connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool, "Oracle");
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue
                         // initializing the connection pool which can also be translated in our world to
                         // StaleConnectionException and should then trigger the destruction and recreation of the pool.
-                        return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        return Mono.error(e instanceof StaleConnectionException ? e :
+                                new StaleConnectionException(e.getMessage()));
                     }
 
                     logHikariCPStatus("Before getting Oracle DB schema", connectionPool);
@@ -437,21 +439,6 @@ public class OracleDatasourceUtils {
         }
 
         return datasource;
-    }
-
-    /**
-     * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
-     * In case a connection is not available in the pool, SQL Exception is thrown
-     */
-    public static java.sql.Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
-
-        if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            System.out.println(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in Oracle plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        return connectionPool.getConnection();
     }
 
     public static void logHikariCPStatus(String logPrefix, HikariDataSource connectionPool) {

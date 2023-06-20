@@ -2,7 +2,6 @@ package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.exceptions.RedshiftErrorMessages;
@@ -12,8 +11,6 @@ import com.zaxxer.hikari.pool.HikariPool;
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,16 +90,5 @@ public class RedshiftDatasourceUtils {
         }
 
         return datasource;
-    }
-
-    public static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
-
-        if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            System.out.println(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in Redshift plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        return connectionPool.getConnection();
     }
 }

@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
 
 public class OracleTestDBContainerManager {
@@ -49,7 +49,7 @@ public class OracleTestDBContainerManager {
     }
 
     static void runSQLQueryOnOracleTestDB(String sqlQuery, HikariDataSource sharedConnectionPool) throws SQLException {
-        java.sql.Connection connectionFromPool = getConnectionFromConnectionPool(sharedConnectionPool);
+        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool, "Oracle");
         Statement statement = connectionFromPool.createStatement();
         statement.execute(sqlQuery);
         closeConnectionPostExecution(null, statement, null, connectionFromPool);

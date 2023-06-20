@@ -1,6 +1,8 @@
 package com.external.plugins.exceptions;
 
-public class MssqlErrorMessages {
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+
+public class MssqlErrorMessages extends AppsmithPluginCommonErrorMessages {
 
     private MssqlErrorMessages() {
         //Prevents instantiation

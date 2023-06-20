@@ -77,6 +77,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
@@ -281,7 +282,7 @@ public class PostgresPlugin extends BasePlugin {
                 Connection connectionFromPool;
 
                 try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, "Postgres");
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari
@@ -290,7 +291,7 @@ public class PostgresPlugin extends BasePlugin {
                     // the connection pool which can also be translated in our world to
                     // StaleConnectionException
                     // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException(e.getMessage()));
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -631,7 +632,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 Connection connectionFromPool;
                 try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, "Postgres");
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari
@@ -640,7 +641,8 @@ public class PostgresPlugin extends BasePlugin {
                     // the connection pool which can also be translated in our world to
                     // StaleConnectionException
                     // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                    return Mono.error(e instanceof StaleConnectionException ? e :
+                            new StaleConnectionException(e.getMessage()));
                 }
 
                 HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
@@ -1100,31 +1102,5 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         return datasource;
-    }
-
-    /**
-     * First checks if the connection pool is still valid. If yes, we fetch a
-     * connection from the pool and return
-     * In case a connection is not available in the pool, SQL Exception is thrown
-     *
-     * @param connectionPool
-     * @return SQL Connection
-     */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
-            DatasourceConfiguration datasourceConfiguration) throws SQLException {
-
-        if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            log.debug("Encountered stale connection pool in Postgres plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        Connection connection = connectionPool.getConnection();
-
-        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-        if (configurationConnection == null) {
-            return connection;
-        }
-
-        return connection;
     }
 }

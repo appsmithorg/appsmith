@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.MssqlPlugin.MssqlPluginExecutor.scheduler;
 
@@ -94,13 +95,14 @@ public class MssqlDatasourceUtils {
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool = getConnectionFromConnectionPool(connection);
+                        connectionFromPool = getConnectionFromHikariConnectionPool(connection, "MsSQL");
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue
                         // initializing the connection pool which can also be translated in our world to
                         // StaleConnectionException and should then trigger the destruction and recreation of the pool.
-                        return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        return Mono.error(e instanceof StaleConnectionException ? e :
+                                new StaleConnectionException(e.getMessage()));
                     }
 
                     logHikariCPStatus("Before getting Mssql DB schema", connection);
@@ -137,21 +139,9 @@ public class MssqlDatasourceUtils {
      * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
      * In case a connection is not available in the pool, SQL Exception is thrown
      *
-     * @param hikariDSConnectionPool
+     * @param connectionPool
      * @return SQL Connection
      */
-    public static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool) throws SQLException {
-
-        if (hikariDSConnectionPool == null || hikariDSConnectionPool.isClosed() || !hikariDSConnectionPool.isRunning()) {
-            log.debug("Encountered stale connection pool in SQL Server plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        Connection sqlDataSourceConnection = hikariDSConnectionPool.getConnection();
-
-        return sqlDataSourceConnection;
-    }
-
     public static void logHikariCPStatus(String logPrefix, HikariDataSource connectionPool) {
         HikariPoolMXBean poolProxy = connectionPool.getHikariPoolMXBean();
         int idleConnections = poolProxy.getIdleConnections();

@@ -48,9 +48,9 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
-import static com.external.utils.RedshiftDatasourceUtils.getConnectionFromConnectionPool;
 
 @Slf4j
 public class RedshiftPlugin extends BasePlugin {
@@ -212,7 +212,7 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromConnectionPool(connectionPool);
+                            connection = getConnectionFromHikariConnectionPool(connectionPool, "Redshift");
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 
@@ -230,13 +230,13 @@ public class RedshiftPlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(new StaleConnectionException());
+                            return Mono.error(new StaleConnectionException(e.getMessage()));
                         }
 
 
                         /**
-                         * Keeping this print statement post call to getConnectionFromConnectionPool because it checks for
-                         * stale connection pool.
+                         * Keeping this print statement post call to getConnectionFromHikariConnectionPool because it
+                         * checks for stale connection pool.
                          */
                         printConnectionPoolStatus(connectionPool, false);
 
@@ -569,7 +569,7 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromSupplier(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromConnectionPool(connectionPool);
+                            connection = getConnectionFromHikariConnectionPool(connectionPool, "Redshift");
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 
@@ -587,7 +587,7 @@ public class RedshiftPlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(new StaleConnectionException());
+                            return Mono.error(new StaleConnectionException(e.getMessage()));
                         }
 
                         /**

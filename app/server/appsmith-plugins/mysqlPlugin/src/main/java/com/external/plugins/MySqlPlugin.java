@@ -581,56 +581,54 @@ public class MySqlPlugin extends BasePlugin {
 
             return Mono.usingWhen(
                     connectionPool.create(),
-                    connection -> {
-                        return Mono.from(connection.validate(ValidationDepth.REMOTE))
-                                .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
-                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
-                                .flatMapMany(isValid -> {
-                                    if (isValid) {
-                                        return connection.createStatement(COLUMNS_QUERY).execute();
-                                    } else {
-                                        return Flux.error(new StaleConnectionException()); // TBD
-                                    }
-                                })
-                                .flatMap(result -> {
-                                    return result.map((row, meta) -> {
-                                        getTableInfo(row, meta, tablesByName);
+                    connection -> Mono.from(connection.validate(ValidationDepth.REMOTE))
+                            .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                            .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
+                            .flatMapMany(isValid -> {
+                                if (isValid) {
+                                    return connection.createStatement(COLUMNS_QUERY).execute();
+                                } else {
+                                    return Flux.error(new StaleConnectionException(CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG));
+                                }
+                            })
+                            .flatMap(result -> {
+                                return result.map((row, meta) -> {
+                                    getTableInfo(row, meta, tablesByName);
 
-                                        return result;
-                                    });
-                                })
-                                .collectList()
-                                .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
-                                .flatMap(result -> {
-                                    return result.map((row, meta) -> {
-                                        getKeyInfo(row, meta, tablesByName, keyRegistry);
-
-                                        return result;
-                                    });
-                                })
-                                .collectList()
-                                .map(list -> {
-                                    /* Get templates for each table and put those in. */
-                                    getTemplates(tablesByName);
-                                    structure.setTables(new ArrayList<>(tablesByName.values()));
-                                    for (DatasourceStructure.Table table : structure.getTables()) {
-                                        table.getKeys().sort(Comparator.naturalOrder());
-                                    }
-
-                                    return structure;
-                                })
-                                .onErrorMap(e -> {
-                                    if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
-                                        return new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                                MySQLErrorMessages.GET_STRUCTURE_ERROR_MSG,
-                                                e.getMessage()
-                                        );
-                                    }
-
-                                    return e;
+                                    return result;
                                 });
-                    },
+                            })
+                            .collectList()
+                            .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
+                            .flatMap(result -> {
+                                return result.map((row, meta) -> {
+                                    getKeyInfo(row, meta, tablesByName, keyRegistry);
+
+                                    return result;
+                                });
+                            })
+                            .collectList()
+                            .map(list -> {
+                                /* Get templates for each table and put those in. */
+                                getTemplates(tablesByName);
+                                structure.setTables(new ArrayList<>(tablesByName.values()));
+                                for (DatasourceStructure.Table table : structure.getTables()) {
+                                    table.getKeys().sort(Comparator.naturalOrder());
+                                }
+
+                                return structure;
+                            })
+                            .onErrorMap(e -> {
+                                if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                                    return new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                            MySQLErrorMessages.GET_STRUCTURE_ERROR_MSG,
+                                            e.getMessage()
+                                    );
+                                }
+
+                                return e;
+                            }),
                     Connection::close
                     )
                     .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))

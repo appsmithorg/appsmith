@@ -6,11 +6,12 @@ public class SnowflakeErrorMessages {
     }
     public static final String MISSING_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
-    public static final String DRIVER_NOT_FOUND_ERROR_MSG = "Snowflake driver not found. Please reach out to Appsmith support to resolve this issue.";
-
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your query failed to execute. Please check more information in the error details.";
 
-    public static final String CONNECTION_CREATION_FAILED_ERROR_MSG = "Error occurred while connecting to Snowflake endpoint: %s";
+    public static final String CONNECTION_INVALID_ERROR_MSG = "Connection object is invalid.";
+    public static final String CONNECTION_POOL_NULL_ERROR_MSG = "Connection pool is null.";
+    public static final String CONNECTION_POOL_CLOSED_ERROR_MSG = "Connection pool is closed.";
+    public static final String CONNECTION_POOL_NOT_RUNNING_ERROR_MSG = "Connection pool is not running.";
 
     public static final String UNABLE_TO_CREATE_CONNECTION_ERROR_MSG = "Unable to create connection to Snowflake URL";
 

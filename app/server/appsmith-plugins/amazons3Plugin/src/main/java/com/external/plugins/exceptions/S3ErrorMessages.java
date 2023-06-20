@@ -100,5 +100,7 @@ public class S3ErrorMessages {
             " URL' field in the datasource creation form ? You need to fill it with " +
             "the endpoint URL of your S3 instance.";
 
+    public static final String DS_NULL_CONNECTION_ERROR_MSG = "S3 connection object is null.";
+
 
 }

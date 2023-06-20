@@ -1,6 +1,8 @@
 package com.external.plugins.exceptions;
 
-public class OracleErrorMessages {
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+
+public class OracleErrorMessages extends AppsmithPluginCommonErrorMessages {
     private OracleErrorMessages() {
         //Prevents instantiation
     }

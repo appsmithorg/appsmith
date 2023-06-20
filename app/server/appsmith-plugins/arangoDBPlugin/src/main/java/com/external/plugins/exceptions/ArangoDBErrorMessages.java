@@ -20,6 +20,7 @@ public class ArangoDBErrorMessages {
     public static final String GET_STRUCTURE_ERROR_MSG = "Appsmith server has failed to fetch list of collections from database. Please check " +
             "if the database credentials are valid and/or you have the required permissions.";
 
+    public static final String CONNECTION_INVALID_ERROR_MSG = "Connection object is invalid.";
 
     /*
      ************************************************************************************************************************************************

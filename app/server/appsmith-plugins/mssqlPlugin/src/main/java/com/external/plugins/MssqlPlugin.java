@@ -66,10 +66,13 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
-import static com.external.plugins.utils.MssqlDatasourceUtils.getConnectionFromConnectionPool;
+import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
+import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_INVALID_ERROR_MSG;
+import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.external.plugins.utils.MssqlDatasourceUtils.logHikariCPStatus;
 import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 import static java.lang.Boolean.FALSE;
@@ -190,19 +193,34 @@ public class MssqlPlugin extends BasePlugin {
                         final List<String> columnsList = new ArrayList<>();
 
                         try {
-                            sqlConnectionFromPool = getConnectionFromConnectionPool(hikariDSConnection);
+                            sqlConnectionFromPool = getConnectionFromHikariConnectionPool(hikariDSConnection, "MsSQL");
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                            return Mono.error(e instanceof StaleConnectionException ? e :
+                                    new StaleConnectionException(e.getMessage()));
                         }
 
                         try {
                             if (sqlConnectionFromPool == null || sqlConnectionFromPool.isClosed() || !sqlConnectionFromPool.isValid(VALIDITY_CHECK_TIMEOUT)) {
                                 log.info("Encountered stale connection in MsSQL plugin. Reporting back.");
-                                return Mono.error(new StaleConnectionException());
+
+                                if (sqlConnectionFromPool == null) {
+                                    return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
+                                }
+                                else if (sqlConnectionFromPool.isClosed()) {
+                                    return Mono.error(new StaleConnectionException(CONNECTION_CLOSED_ERROR_MSG));
+                                }
+                                else {
+                                    /**
+                                     * Not adding explicit `!sqlConnectionFromPool.isValid(VALIDITY_CHECK_TIMEOUT)`
+                                     * check here because this check may take few seconds to complete hence adding
+                                     * extra time delay.
+                                     */
+                                    return Mono.error(new StaleConnectionException(CONNECTION_INVALID_ERROR_MSG));
+                                }
                             }
                         } catch (SQLException error) {
                             // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
