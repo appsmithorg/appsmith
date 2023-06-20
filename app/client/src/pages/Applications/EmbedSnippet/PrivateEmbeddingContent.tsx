@@ -8,7 +8,11 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import {
+  RAMP_NAME,
+  RampFeature,
+  RampSection,
+} from "utils/ProductRamps/RampsControlList";
 import { useSelector } from "react-redux";
 import { getRampLink, showProductRamps } from "selectors/rampSelectors";
 
@@ -39,8 +43,8 @@ export default PrivateEmbeddingContent;
 
 export function PrivateEmbedRampModal() {
   const rampLinkSelector = getRampLink({
-    section: "share_modal",
-    feature: "private_embeds",
+    section: RampSection.ShareModal,
+    feature: RampFeature.PrivateEmbeds,
   });
   const rampLink = useSelector(rampLinkSelector);
   const showRampSelector = showProductRamps(RAMP_NAME.PRIVATE_EMBED);
@@ -79,8 +83,8 @@ export function PrivateEmbedRampModal() {
 }
 export function PrivateEmbedRampSidebar() {
   const rampLinkSelector = getRampLink({
-    section: "app_settings",
-    feature: "private_embeds",
+    section: RampSection.AppSettings,
+    feature: RampFeature.PrivateEmbeds,
   });
   const rampLink = useSelector(rampLinkSelector);
   const showRampSelector = showProductRamps(RAMP_NAME.PRIVATE_EMBED);

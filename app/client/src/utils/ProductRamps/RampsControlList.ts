@@ -13,6 +13,17 @@ export const RAMP_FOR_ROLES = {
   APP_VIEWER: "App Viewer",
 };
 
+export enum RampSection {
+  WorkspaceShare = "workspace_share",
+  AppShare = "app_share",
+  ShareModal = "share_modal",
+  AppSettings = "app_settings",
+}
+
+export enum RampFeature {
+  PrivateEmbeds = "private_embeds",
+}
+
 export const INVITE_USER_TO_APP: SupportedRampsType = {
   CLOUD_HOSTED: {
     [RAMP_FOR_ROLES.SUPER_USER]: true,
