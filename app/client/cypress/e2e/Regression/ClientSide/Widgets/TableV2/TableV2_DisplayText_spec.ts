@@ -3,6 +3,7 @@ import {
   entityExplorer,
   propPane,
   agHelper,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const data = [
@@ -21,7 +22,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
     propPane.EnterJSContext("Table data", JSON.stringify(data));
-    agHelper.AssertNetworkStatus("@updateLayout");
+    assertHelper.AssertNetworkStatus("@updateLayout");
   });
 
   beforeEach(() => {
@@ -32,7 +33,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
     propPane.TogglePropertyState("Client side search", "On");
     agHelper.Sleep(1000);
     table.ChangeColumnType("name", "URL", "v2");
-    const colSettings = table._columnSettingsV2("name");
+    const colSettings = table._columnSettingsV2("name", "Edit");
     agHelper.GetNClick(colSettings);
     propPane.UpdatePropertyFieldValue(
       "Display text",
@@ -47,7 +48,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
   });
 
   it("2. should filter column using display text when filters are applied", () => {
-    const colSettings = table._columnSettingsV2("name");
+    const colSettings = table._columnSettingsV2("name", "Edit");
     agHelper.GetNClick(colSettings);
     let columnType;
     propPane.GetSelectedItemText("columntype").then((text) => {
@@ -71,7 +72,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
   });
 
   it("3. should sort column using display text", () => {
-    const colSettings = table._columnSettingsV2("name");
+    const colSettings = table._columnSettingsV2("name", "Edit");
     agHelper.GetNClick(colSettings);
     let columnType;
     propPane.GetSelectedItemText("columntype").then((text) => {
