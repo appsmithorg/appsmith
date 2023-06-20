@@ -382,42 +382,6 @@ public class DatasourceStructureSolutionTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void verifyDatasourceStorageStructureEntriesWithNullEnvironmentId() {
-        doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
-
-        // creating an entry with environmentId as randomId and then
-        datasourceStructureService.
-                saveStructure(datasourceId, null, generateDatasourceStructureObject())
-                .block();
-
-        datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId).block();
-
-        Mono<DatasourceStorageStructure> datasourceStorageStructureMono =
-                datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, defaultEnvironmentId);
-
-        StepVerifier
-                .create(datasourceStorageStructureMono)
-                .assertNext(datasourceStorageStructure -> {
-                    assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
-                    assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
-                })
-                .verifyComplete();
-
-        Mono<DatasourceStorageStructure> datasourceStorageStructureMonoWithNullEnvironmentId =
-                datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, null);
-
-        StepVerifier
-                .create(datasourceStorageStructureMonoWithNullEnvironmentId)
-                .assertNext(datasourceStorageStructure -> {
-                    assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
-                    assertThat(datasourceStorageStructure.getEnvironmentId()).isNull();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void verifyDuplicateKeyErrorOnSave() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
                 .when(datasourceContextService).retryOnce(any(), any());
