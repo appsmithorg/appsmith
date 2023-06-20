@@ -56,7 +56,7 @@ function FormControl(props: FormControlProps) {
 
   const viewType = getViewType(formValues, props.config.configProperty);
   let formValueForEvaluatingHiddenObj = formValues;
-  if (formValues.hasOwnProperty("datasourceStorages")) {
+  if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
     formValueForEvaluatingHiddenObj = (formValues as Datasource)
       .datasourceStorages[getCurrentEnvironment()];
   }
@@ -71,7 +71,7 @@ function FormControl(props: FormControlProps) {
   );
   const dsId =
     ((formValues as Action)?.datasource as any)?.id ||
-    (formValues as Datasource).id;
+    (formValues as Datasource)?.id;
   const datasourceTableName: string = useSelector((state: AppState) =>
     getDatasourceFirstTableName(state, dsId),
   );
