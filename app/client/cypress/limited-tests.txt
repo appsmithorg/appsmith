@@ -1,1 +1,1 @@
-cypress/e2e/**/**/*
+cypress/e2e/Sanity/Datasources/MsSQL_Basic_Spec.ts
