@@ -22,6 +22,8 @@ import history from "utils/history";
 import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
 import { getAction } from "selectors/entitiesSelector";
 import { get } from "lodash";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import type { Datasource } from "entities/Datasource";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -30,8 +32,8 @@ export interface FormControlProps {
 }
 
 function FormControl(props: FormControlProps) {
-  const formValues: Partial<Action> = useSelector((state: AppState) =>
-    getFormValues(props.formName)(state),
+  const formValues: Partial<Action | Datasource> = useSelector(
+    (state: AppState) => getFormValues(props.formName)(state),
   );
   const actionValues = useSelector((state: AppState) =>
     getAction(state, formValues?.id || ""),
@@ -43,7 +45,12 @@ function FormControl(props: FormControlProps) {
   const [convertFormToRaw, setConvertFormToRaw] = useState(false);
 
   const viewType = getViewType(formValues, props.config.configProperty);
-  const hidden = isHidden(formValues, props.config.hidden);
+  let formValueForEvaluatingHiddenObj = formValues;
+  if (formValues.hasOwnProperty("datasourceStorages")) {
+    formValueForEvaluatingHiddenObj = (formValues as Datasource)
+      .datasourceStorages[getCurrentEnvironment()];
+  }
+  const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
       getConfigErrors(state, {
@@ -61,7 +68,9 @@ function FormControl(props: FormControlProps) {
   );
 
   const showTemplate =
-    isNewQuery && formValues?.datasource?.pluginId && isQueryBodyField;
+    isNewQuery &&
+    (formValues as Action)?.datasource?.pluginId &&
+    isQueryBodyField;
 
   const updateQueryParams = () => {
     const params = getQueryParams();
@@ -155,7 +164,7 @@ function FormControl(props: FormControlProps) {
                     props?.config?.configProperty,
                   )
                 }
-                pluginId={formValues?.datasource?.pluginId || ""}
+                pluginId={(formValues as Action)?.datasource?.pluginId || ""}
               />
             ) : viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
