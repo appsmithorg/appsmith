@@ -1,10 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class SaaSErrorMessages {
-    private SaaSErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class SaaSErrorMessages extends AppsmithPluginCommonErrorMessages {
     public static final String MISSING_DATASOURCE_TEMPLATE_NAME_ERROR_MSG = "Missing template name for datasource";
 
     public static final String MISSING_ACTION_TEMPLATE_NAME_ERROR_MSG = "Missing template name for action";

@@ -1,10 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class DynamoErrorMessages {
-    private DynamoErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class DynamoErrorMessages extends AppsmithPluginCommonErrorMessages {
     public static final String MISSING_ACTION_NAME_ERROR_MSG = "Missing action name (like `ListTables`, `GetItem` etc.).";
 
     public static final String UNKNOWN_ACTION_NAME_ERROR_MSG = "Unknown action: `%s`. Note that action names are case-sensitive.";

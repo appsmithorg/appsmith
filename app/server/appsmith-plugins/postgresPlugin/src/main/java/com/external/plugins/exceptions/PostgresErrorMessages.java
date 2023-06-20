@@ -1,9 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class PostgresErrorMessages {
-    private PostgresErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class PostgresErrorMessages extends AppsmithPluginCommonErrorMessages {
     public static final String MISSING_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your PostgreSQL query failed to execute.";

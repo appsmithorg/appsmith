@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
@@ -359,7 +360,7 @@ public class RedshiftPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RedshiftErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
             }
 
             return Mono

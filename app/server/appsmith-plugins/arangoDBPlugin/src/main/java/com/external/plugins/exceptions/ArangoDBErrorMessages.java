@@ -1,9 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class ArangoDBErrorMessages {
-    private ArangoDBErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class ArangoDBErrorMessages extends AppsmithPluginCommonErrorMessages {
     public static final String MISSING_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your query failed to execute. Please check more information in the error details.";
@@ -19,8 +21,6 @@ public class ArangoDBErrorMessages {
 
     public static final String GET_STRUCTURE_ERROR_MSG = "Appsmith server has failed to fetch list of collections from database. Please check " +
             "if the database credentials are valid and/or you have the required permissions.";
-
-    public static final String CONNECTION_INVALID_ERROR_MSG = "Connection object is invalid.";
 
     /*
      ************************************************************************************************************************************************

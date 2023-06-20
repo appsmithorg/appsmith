@@ -74,6 +74,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -95,7 +96,6 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.exceptions.S3ErrorMessages.DS_NULL_CONNECTION_ERROR_MSG;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
@@ -459,7 +459,7 @@ public class AmazonS3Plugin extends BasePlugin {
                          * - If connection object is null, then assume stale connection.
                          */
                         if (connection == null) {
-                            return Mono.error(new StaleConnectionException(DS_NULL_CONNECTION_ERROR_MSG));
+                            return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
                         }
 
                         if (actionConfiguration == null) {

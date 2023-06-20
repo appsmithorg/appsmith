@@ -1,9 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class S3ErrorMessages {
-    private S3ErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class S3ErrorMessages extends AppsmithPluginCommonErrorMessages {
     public static final String FILE_CONTENT_FETCHING_ERROR_MSG = "Appsmith server has encountered an unexpected error when fetching file " +
             "content from AWS S3 server. Please reach out to Appsmith customer support to resolve this.";
 
@@ -99,8 +101,4 @@ public class S3ErrorMessages {
     public static final String DS_MANDATORY_PARAMETER_ENDPOINT_URL_MISSING_ERROR_MSG = "Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint" +
             " URL' field in the datasource creation form ? You need to fill it with " +
             "the endpoint URL of your S3 instance.";
-
-    public static final String DS_NULL_CONNECTION_ERROR_MSG = "S3 connection object is null.";
-
-
 }

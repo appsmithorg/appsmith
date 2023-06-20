@@ -1,10 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class RedshiftErrorMessages {
-    private RedshiftErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class RedshiftErrorMessages extends AppsmithPluginCommonErrorMessages {
     public static final String QUERY_PARAMETER_MISSING_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String NULL_RESULTSET_ERROR_MSG = "Redshift driver failed to fetch result: resultSet is null.";
@@ -17,8 +18,6 @@ public class RedshiftErrorMessages {
 
     public static final String GET_STRUCTURE_ERROR_MSG = "Appsmith server has failed to fetch the structure of the database. "
             + "Please check if the database credentials are valid and/or you have the required permissions.";
-
-    public static final String JDBC_DRIVER_LOADING_ERROR_MSG = "Error loading Redshift JDBC Driver class.";
 
     public static final String CONNECTION_POOL_CREATION_FAILED_ERROR_MSG = "Exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid. Please check your datasource configuration.";
 }

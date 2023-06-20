@@ -30,8 +30,34 @@ public class MySqlDatasourceUtils {
 
     public static int MAX_CONNECTION_POOL_SIZE = 5;
 
-    //private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10); // TODO: fix it
+    /**
+     * 1 sec is the recommended value as shown in the example here:
+     * https://mariadb.com/docs/xpand/connect/programming-languages/java-r2dbc/native/connection-pools/
+     *
+     * Current understanding is that the issue mentioned in #17324 is because of at least one of the connections
+     * malfunctioning and causing the reactor thread pool / scheduler to get stuck and not schedule new tasks.
+     * Setting max idle time value to 1 sec could also be seen as a precaution move to make sure that we don't land
+     * into a situation where an idle thread can malfunction.
+     */
     private static final Duration MAX_IDLE_TIME = Duration.ofSeconds(1);
+
+    /**
+     * Current understanding is that the issue mentioned in #17324 is because of at least one of the connections
+     * malfunctioning and causing the reactor thread pool / scheduler to get stuck and not schedule new tasks.
+     * Setting max lifetime value to 5 min is a precaution move to make sure that we don't land into a situation
+     * where an older connection can malfunction.
+     * To understand what this config means please check here: https://github.com/r2dbc/r2dbc-pool
+     */
+    private static final Duration MAX_LIFE_TIME = Duration.ofMinutes(5);
+
+    /**
+     * Current understanding is that the issue mentioned in #17324 is because of at least one of the connections
+     * malfunctioning and causing the reactor thread pool / scheduler to get stuck and not schedule new tasks.
+     * Setting eviction time value to 5 min is a precaution move to make sure that we don't land into a situation
+     * where an older connection can malfunction.
+     * To understand what this config means please check here: https://github.com/r2dbc/r2dbc-pool
+     */
+    public static final Duration BACKGROUND_EVICTION_TIME = Duration.ofMinutes(5);
 
     public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -187,8 +213,8 @@ public class MySqlDatasourceUtils {
         ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
                 .maxIdleTime(MAX_IDLE_TIME)
                 .maxSize(MAX_CONNECTION_POOL_SIZE)
-                .backgroundEvictionInterval(Duration.ofMinutes(5))
-                .maxLifeTime(Duration.ofMinutes(5))
+                .backgroundEvictionInterval(BACKGROUND_EVICTION_TIME)
+                .maxLifeTime(MAX_LIFE_TIME)
                 .build();
 
         return new ConnectionPool(configuration);
