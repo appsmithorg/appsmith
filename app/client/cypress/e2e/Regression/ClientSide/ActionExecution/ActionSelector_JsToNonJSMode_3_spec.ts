@@ -2,12 +2,16 @@ import {
   agHelper,
   locators,
   entityExplorer,
-  jsEditor,
   propPane,
-  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("JS to non-JS mode in Action Selector", () => {
+  before(() => {
+    cy.fixture("promisesBtnDsl").then((val: any) => {
+      agHelper.AddDsl(val, locators._spanButton("Submit"));
+    });
+  });
+
   it("1. should show fields appropriately for setinterval", () => {
     entityExplorer.SelectEntityByName("Page1", "Pages");
     entityExplorer.SelectEntityByName("Button1", "Widgets");

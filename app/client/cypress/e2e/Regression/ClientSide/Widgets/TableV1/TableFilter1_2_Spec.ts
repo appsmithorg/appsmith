@@ -8,6 +8,15 @@ describe("Verify various Table_Filter combinations", function () {
   });
 
   it("1. Verify Table Filter for 'empty'", function () {
+    _.entityExplorer.SelectEntityByName("Table1");
+    _.propPane.UpdatePropertyFieldValue(
+      "Table data",
+      JSON.stringify(this.dataSet.TableInput),
+    );
+    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    _.agHelper.PressEscape();
+    _.deployMode.DeployApp();
+
     _.table.OpenNFilterTable("email", "empty");
     _.table.WaitForTableEmpty();
     _.table.RemoveFilterNVerify("2381224");

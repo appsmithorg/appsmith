@@ -1,14 +1,18 @@
 import {
   agHelper,
-  locators,
   entityExplorer,
-  jsEditor,
+  locators,
   propPane,
-  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("JS to non-JS mode in Action Selector", () => {
-  it(". shows fields for navigate to from js to non-js mode", () => {
+  before(() => {
+    cy.fixture("promisesBtnDsl").then((val: any) => {
+      agHelper.AddDsl(val, locators._spanButton("Submit"));
+    });
+  });
+
+  it("1. shows fields for navigate to from js to non-js mode", () => {
     entityExplorer.SelectEntityByName("Page1", "Pages");
     entityExplorer.SelectEntityByName("Button1", "Widgets");
 

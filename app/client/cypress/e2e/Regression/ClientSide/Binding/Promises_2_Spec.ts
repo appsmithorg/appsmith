@@ -57,7 +57,6 @@ describe("Validate basic Promises", () => {
   });
 
   it("3. Verify Promises.any via direct JSObjects", () => {
-    deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });

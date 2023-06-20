@@ -2,6 +2,18 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Verify various Table_Filter combinations", function () {
   it("1. Verify Full table data - download csv and download Excel", function () {
+    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
+    _.table.AddSampleTableData();
+    _.propPane.UpdatePropertyFieldValue(
+      "Table data",
+      JSON.stringify(this.dataSet.TableInput),
+    );
+    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    _.agHelper.PressEscape();
+    _.table.ChangeColumnType("id", "Plain text", "v2");
+    _.table.ChangeColumnType("orderAmount", "Plain text", "v2");
+    _.deployMode.DeployApp();
+
     _.table.DownloadFromTable("Download as CSV");
     //This plugin works only from cypress ^9.2
     //cy.verifyDownload("Table1.csv")

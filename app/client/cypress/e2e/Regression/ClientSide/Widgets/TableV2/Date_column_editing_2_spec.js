@@ -128,6 +128,7 @@ describe("Table widget date column inline editing functionality", () => {
 
   it("4. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
     cy.openPropertyPane("tablewidgetv2");
+    cy.get(commonlocators.editPropBackButton).click();
     cy.get(".t--property-control-tabledata").then(($el) => {
       cy.updateCodeInput(
         $el,

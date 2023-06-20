@@ -2,6 +2,18 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Verify various Table_Filter combinations", function () {
   it("1. Verify Table Filter for 'empty'", function () {
+    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
+    _.table.AddSampleTableData();
+    _.propPane.UpdatePropertyFieldValue(
+      "Table data",
+      JSON.stringify(this.dataSet.TableInput),
+    );
+    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    cy.get("body").type("{esc}");
+    _.table.ChangeColumnType("id", "Plain text", "v2");
+    _.table.ChangeColumnType("orderAmount", "Plain text", "v2");
+
+    _.deployMode.DeployApp();
     _.table.OpenNFilterTable("email", "empty");
     _.table.WaitForTableEmpty("v2");
     _.table.RemoveFilterNVerify("2381224", true, true, 0, "v2");

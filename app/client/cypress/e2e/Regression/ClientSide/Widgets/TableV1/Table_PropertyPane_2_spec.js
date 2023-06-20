@@ -58,7 +58,7 @@ describe("Table Widget property pane feature validation", function () {
     _.deployMode.NavigateBacktoEditor();
   });
 
-  it("7. Test to validate text format", function () {
+  it("4. Test to validate text format", function () {
     // Validate Bold text
     cy.get(widgetsPage.bold).click({ force: true });
     cy.wait(2000);
@@ -69,7 +69,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTabledataValidateCSS("0", "0", "font-style", "italic");
   });
 
-  it("12. Verify default search text", function () {
+  it("5. Verify default search text", function () {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     cy.backFromPropertyPanel();
@@ -82,7 +82,7 @@ describe("Table Widget property pane feature validation", function () {
     _.deployMode.NavigateBacktoEditor();
   });
 
-  it("13. Verify default selected row", function () {
+  it("6. Verify default selected row", function () {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     cy.backFromPropertyPanel();
@@ -101,7 +101,7 @@ describe("Table Widget property pane feature validation", function () {
     _.deployMode.NavigateBacktoEditor();
   });
 
-  it("14. Verify table column type button with button variant", function () {
+  it("7. Verify table column type button with button variant", function () {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Add new column in the table with name "CustomColumn"
@@ -179,9 +179,5 @@ describe("Table Widget property pane feature validation", function () {
       );
     });
     cy.closePropertyPane();
-  });
-  afterEach(() => {
-    // put your clean up code if any
-    cy.goToEditFromPublish();
   });
 });
