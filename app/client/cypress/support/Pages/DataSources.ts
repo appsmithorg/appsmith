@@ -488,10 +488,13 @@ export class DataSources {
     cy.get(this._password).type(this.hp.mysql_password);
   }
 
-  public FillMsSqlDSForm() {
+  public FillMsSqlDSForm(databasename?: string) {
     this.agHelper.UpdateInputValue(this._host, this.hp.mssql_host);
     this.agHelper.UpdateInputValue(this._port, this.hp.mssql_port.toString());
     this.agHelper.ClearTextField(this._databaseName);
+    if (databasename) {
+      this.agHelper.UpdateInputValue(this._databaseName, databasename);
+    }
     // this.agHelper.UpdateInputValue(
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
@@ -950,6 +953,7 @@ export class DataSources {
       | "Oracle",
     navigateToCreateNewDs = true,
     testNSave = true,
+    databaseName?: string,
   ) {
     let guid: any;
     let dataSourceName = "";
@@ -967,7 +971,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
         else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
-          this.FillMsSqlDSForm();
+          this.FillMsSqlDSForm(databaseName);
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
         else if (DataSourceKVP[dsType] == "ArangoDB") this.FillArangoDSForm();
         else if (DataSourceKVP[dsType] == "Firestore")

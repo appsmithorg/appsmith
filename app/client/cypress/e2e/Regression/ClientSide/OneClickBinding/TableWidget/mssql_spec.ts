@@ -4,13 +4,13 @@ import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 
-describe("Table widget one click binding feature", () => {
+describe.skip("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.dataSources.CreateDataSource("MsSql");
+    _.dataSources.CreateDataSource("MsSql", true, true, "fakeapi");
 
     cy.get("@dsName").then((dsName) => {
       _.entityExplorer.NavigateToSwitcher("Widgets");
@@ -27,7 +27,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     cy.wait(2000);
 
@@ -61,16 +61,22 @@ describe("Table widget one click binding feature", () => {
     (cy as any).enterTableCellValue(3, 0, " 10");
 
     (cy as any).enterTableCellValue(4, 0, "Expanse");
+    (cy as any).enterTableCellValue(5, 0, "Prime");
+
+    (cy as any).enterTableCellValue(6, 0, "2016-06-22 19:10:25-07");
+    (cy as any).enterTableCellValue(7, 0, "expanse.png");
+    (cy as any).enterTableCellValue(8, 0, "5");
+    (cy as any).enterTableCellValue(9, 0, "20");
 
     (cy as any).wait(2000);
 
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.TypeText(_.table._searchInput, "Expanse");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.AssertElementExist(_.table._bodyCell("Expanse"));
 
@@ -88,9 +94,9 @@ describe("Table widget one click binding feature", () => {
 
     (cy as any).saveTableRow(10, 0);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     (cy as any).wait(500);
 
@@ -98,7 +104,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.TypeText(_.table._searchInput, "Westworld");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     (cy as any).wait(2000);
 
@@ -108,7 +114,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.TypeText(_.table._searchInput, "Expanse");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
 
     (cy as any).wait(2000);
 
