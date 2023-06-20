@@ -1,13 +1,11 @@
-const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
-const formControls = require("../../../locators/FormControl.json");
 import {
   agHelper,
+  assertHelper,
   deployMode,
   homePage,
   gitSync,
   dataSources,
-  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 let repoName;
