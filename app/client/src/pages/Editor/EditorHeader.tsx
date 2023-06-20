@@ -257,24 +257,31 @@ export function EditorHeader(props: EditorHeaderProps) {
 
       const appName = currentApplication ? currentApplication.name : "";
       const pageCount = currentApplication?.pages?.length;
-      const navigationSettings = {};
+      const navigationSettingsWithPrefix: Record<
+        string,
+        NavigationSetting[keyof NavigationSetting]
+      > = {};
 
       if (currentApplication?.applicationDetail?.navigationSetting) {
-        Object.keys(currentApplication.applicationDetail.navigationSetting).map(
-          (key) => {
-            const value =
+        const settingKeys = Object.keys(
+          currentApplication.applicationDetail.navigationSetting,
+        ) as Array<keyof NavigationSetting>;
+
+        settingKeys.map((key: keyof NavigationSetting) => {
+          if (currentApplication?.applicationDetail?.navigationSetting?.[key]) {
+            const value: NavigationSetting[keyof NavigationSetting] =
               currentApplication.applicationDetail.navigationSetting[key];
 
-            navigationSettings[`navigationSettings_${key}`] = value;
-          },
-        );
+            navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
+          }
+        });
       }
 
       AnalyticsUtil.logEvent("PUBLISH_APP", {
         appId: applicationId,
         appName,
         pageCount,
-        ...navigationSettings,
+        ...navigationSettingsWithPrefix,
       });
     }
   };
