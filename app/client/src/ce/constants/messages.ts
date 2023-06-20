@@ -1020,7 +1020,7 @@ export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
 export const SIGNPOSTING_TOOLTIP = {
   DEFAULT: {
     content: () =>
-      "Finish these 5 steps in learn the basics in-order to build an app & deploy it. This would take 5 mins of your time.",
+      "Finish these 5 steps to learn the basics in-order to build an app & deploy it. This would take 5 mins of your time.",
   },
   CONNECT_A_DATASOURCE: {
     content: () => "Let's add a datasource",

@@ -150,6 +150,7 @@ const ListItem = styled.div<{ disabled: boolean; completed: boolean }>`
 `;
 
 const Sibling = styled.div<{ disabled: boolean }>`
+  border-radius: var(--ads-v2-border-radius);
   &:hover {
     background-color: ${(props) =>
       !props.disabled ? "var(--ads-v2-color-bg-subtle)" : "transparent"};
