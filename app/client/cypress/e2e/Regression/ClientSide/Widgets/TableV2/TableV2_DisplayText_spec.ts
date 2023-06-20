@@ -20,10 +20,8 @@ const data = [
 describe("Table V2 sort & filter using display text functionality", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
-    table.AddSampleTableData();
-    propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
-    cy.wait("@updateLayout");
+    propPane.EnterJSContext("Table data", JSON.stringify(data));
+    agHelper.AssertNetworkStatus("@updateLayout");
   });
 
   beforeEach(() => {
@@ -31,7 +29,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
   });
 
   it("1. should search against display text when on client search", () => {
-    propPane.TogglePropertyState("clientsidesearch", "On");
+    propPane.TogglePropertyState("Client side search", "On");
     agHelper.Sleep(1000);
     table.ChangeColumnType("name", "URL", "v2");
     const colSettings = table._columnSettingsV2("name");
@@ -88,7 +86,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
       "Display text",
       "{{['X','Y','Z'][currentIndex]}}",
     );
-    table.sortColumn("name", "ascending");
+    table.SortColumn("name", "ascending");
     table.ReadTableRowColumnData(0, 0, "v2").then((data) => {
       expect(data).to.eq("X");
     });

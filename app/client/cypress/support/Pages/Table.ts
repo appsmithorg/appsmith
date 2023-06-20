@@ -129,6 +129,9 @@ export class Table {
   _newRow = ".new-row";
   _connectDataHeader = ".t--cypress-table-overlay-header";
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
+  _tableColumnHeaderMenuTrigger = (columnName: string) =>
+    `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
+  _columnHeaderMenu = ".bp3-menu";
 
   public WaitUntilTableLoad(
     rowIndex = 0,
@@ -603,12 +606,16 @@ export class Table {
     this.ChangeColumnType("action", "Button", "v2");
   }
 
-  public sortColumn(columnName: string, direction: string) {
-    const selector = `${this._columnHeaderDiv(
-      columnName,
-    )} .header-menu .bp3-popover2-target`;
-    this.agHelper.GetNClick(selector, 0, true);
-    this.agHelper.GetNClickByContains(".bp3-menu", `Sort column ${direction}`);
+  public SortColumn(columnName: string, direction: string) {
+    this.agHelper.GetNClick(
+      this._tableColumnHeaderMenuTrigger(columnName),
+      0,
+      true,
+    );
+    this.agHelper.GetNClickByContains(
+      this._columnHeaderMenu,
+      `Sort column ${direction}`,
+    );
     this.agHelper.Sleep(500);
   }
 }

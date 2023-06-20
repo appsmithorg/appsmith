@@ -99,12 +99,12 @@ export class PropertyPane {
     "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span";
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
-  private _propPaneSelectedItem = (option: string) =>
-    `.t--property-control-${option} span.rc-select-selection-item span`;
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+  private _propPaneSelectedItem = (option: string) =>
+    `.t--property-control-${option} span.rc-select-selection-item span`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
