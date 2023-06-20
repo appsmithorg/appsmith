@@ -1,20 +1,19 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const locator = ObjectsRegistry.CommonLocators;
-import { agHelper, locators } from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  assertHelper,
+  locators,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "filepickerwidgetv2";
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value`;
-const ObjectsRegistry =
-  require("../../../../../support/Objects/Registry").ObjectsRegistry;
-let propPane = ObjectsRegistry.PropertyPane;
-let table = ObjectsRegistry.Table;
 
 describe("File picker widget v2", () => {
   before(() => {
     cy.fixture("filePickerTableDSL").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -27,9 +26,13 @@ describe("File picker widget v2", () => {
       commonlocators.filePickerDataFormat,
       "Array of Objects (CSV, XLS(X), JSON, TSV)",
     );
-    cy.get(commonlocators.filePickerDataFormat)
-      .last()
-      .should("have.text", "Array of Objects (CSV, XLS(X), JSON, TSV)");
+
+    agHelper.AssertText(
+      commonlocators.filePickerDataFormat,
+      "text",
+      "Array of Objects (CSV, XLS(X), JSON, TSV)",
+    );
+
     cy.get(
       `.t--property-control-dataformat ${commonlocators.helperText}`,
     ).should("exist");
@@ -37,7 +40,7 @@ describe("File picker widget v2", () => {
       `.t--property-control-dataformat ${commonlocators.helperText}`,
     ).contains(ARRAY_CSV_HELPER_TEXT);
 
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     cy.get(commonlocators.filePickerInput)
       .first()
@@ -46,7 +49,7 @@ describe("File picker widget v2", () => {
       });
 
     // wait for file to get uploaded
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     // The table takes a bit of time to load the values in the cells
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -64,7 +67,8 @@ describe("File picker widget v2", () => {
         "tablewidgetv2",
       )} .tbody .td[data-rowindex=${1}][data-colindex=${3}] input`,
     ).should("not.be.checked");
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
     // Test for XLSX file
     cy.get(commonlocators.filePickerInput)
@@ -72,7 +76,7 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/TestSpreadsheet.xlsx", { force: true });
 
     // wait for file to get uploaded
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     // The table takes a bit of time to load the values in the cells
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -83,7 +87,7 @@ describe("File picker widget v2", () => {
     cy.readTableV2dataPublish("0", "1").then((tabData) => {
       expect(tabData).contains("Column A");
     });
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
     // Test for XLS file
     cy.get(commonlocators.filePickerInput)
@@ -96,7 +100,7 @@ describe("File picker widget v2", () => {
     cy.readTableV2dataPublish("0", "1").then((tabData) => {
       expect(tabData).contains("Dulce");
     });
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
     // Test for JSON File
     cy.get(commonlocators.filePickerInput)
@@ -104,7 +108,7 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/largeJSONData.json", { force: true });
 
     // wait for file to get uploaded
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     // The table takes a bit of time to load the values in the cells
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -112,7 +116,7 @@ describe("File picker widget v2", () => {
     cy.readTableV2dataPublish("0", "2").then((tabData) => {
       expect(tabData).to.contain("sunt aut facere");
     });
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
     // Test for TSV File
     cy.get(commonlocators.filePickerInput)
@@ -120,7 +124,7 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/Sample.tsv", { force: true });
 
     // wait for file to get uploaded
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     // The table takes a bit of time to load the values in the cells
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -128,7 +132,7 @@ describe("File picker widget v2", () => {
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("CONST");
     });
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
     // Drag and drop a text widget for binding file data
     cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
@@ -141,38 +145,38 @@ describe("File picker widget v2", () => {
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(locators._widgetInDeployed("textwidget")).should(
-      "contain",
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
       "data:application/json;base64",
     );
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
     // Test for Text file
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Text");
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(locators._widgetInDeployed("textwidget")).should(
-      "contain",
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
       "baseUrl",
     );
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     // The text widget takes a bit of time to load the values
     cy.wait(2000);
 
-    cy.get(locators._widgetInDeployed("textwidget")).should("have.text", "");
+    agHelper.AssertText(locators._widgetInDeployed("textwidget"), "text", "");
 
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Binary");
     cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testdata.json", { force: true });
-    cy.get(locators._widgetInDeployed("textwidget")).should(
-      "contain",
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
       "baseUrl",
     );
-    cy.get(commonlocators.filePickerRemoveButton).click({ force: true });
+    agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
   });
 });
