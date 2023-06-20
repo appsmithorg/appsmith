@@ -8,6 +8,6 @@ describe("Name uniqueness test", function () {
     cy.CreationOfUniqueAPIcheck("download");
     //3. Validate dedicated worker scope object property(Blob)apiname check
     cy.CreationOfUniqueAPIcheck("Blob");
-    expect(2 + 2).to.equal(5);
+    //expect(2 + 2).to.equal(5);
   });
 });
