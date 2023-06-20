@@ -329,7 +329,6 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
-          CYPRESS_NO_COMMAND_LOG: 1
         with:
           browser: ${{ env.BROWSER_PATH }}
           headless: true
@@ -392,7 +391,6 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
-          CYPRESS_NO_COMMAND_LOG: 1
         with:
           browser: ${{ env.BROWSER_PATH }}
           headless: true
