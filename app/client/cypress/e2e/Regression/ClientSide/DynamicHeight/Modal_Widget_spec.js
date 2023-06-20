@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/DynamicHeightModalDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   entityExplorer,

@@ -1,13 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tableNewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDslWithPagination").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   // To be done:
@@ -18,13 +18,14 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onRowSelected", "Row is selected");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
     // Verify Row is selected by showing the message
     cy.get(commonlocators.toastmsg).contains("Row is selected");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. Check On Page Change Action", function () {
@@ -32,13 +33,14 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onPageChange", "Page Changed");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     cy.wait(2000);
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
     // Verify the page is changed
     cy.get(commonlocators.toastmsg).contains("Page Changed");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Verify On Search Text Change Action", function () {
@@ -46,13 +48,14 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidget");
     // Show Message on Search text change Action
     cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
     // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Check open section and column data in property pane", function () {
@@ -268,10 +271,11 @@ describe("Table Widget property pane feature validation", function () {
     cy.backFromPropertyPanel();
     // Chage deat search text value to "data"
     cy.testJsontext("defaultsearchtext", "data");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("13. Verify default selected row", function () {
@@ -282,14 +286,15 @@ describe("Table Widget property pane feature validation", function () {
     // Change default selected row value to 1
     cy.get(widgetsPage.defaultSelectedRowField).type("1");
     cy.wait(2000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Verify the default selected row
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
       "rgb(227, 223, 251)",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   // it("14. Verify table column type button with button variant", function() {
@@ -371,13 +376,8 @@ describe("Table Widget property pane feature validation", function () {
   //   cy.openPropertyPane("tablewidget");
   //   // Delete the Table widget
   //   cy.deleteWidget(widgetsPage.tableWidget);
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   //   // Verify the Table widget is deleted
   //   cy.get(widgetsPage.tableWidget).should("not.exist");
   // });
-
-  afterEach(() => {
-    // put your clean up code if any
-    cy.goToEditFromPublish();
-  });
 });

@@ -1,9 +1,11 @@
-const dsl = require("../../../../fixtures/modalOnTableFilterPaneDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 const widgets = require("../../../../locators/Widgets.json");
 
 describe("Modal Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("modalOnTableFilterPaneDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Close the opened filter pane of the table", () => {

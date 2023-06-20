@@ -1,6 +1,5 @@
-/// <reference types="Cypress" />
-const dsl = require("../../../../fixtures/previewMode.json");
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
+import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 
 const BASE_URL = Cypress.config().baseUrl;
 
@@ -14,13 +13,15 @@ Cypress.Commands.add("getSharedUrl", () => {
 
 describe("Preview mode functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.PublishtheApp();
+    cy.fixture("previewMode").then((val) => {
+      agHelper.AddDsl(val);
+    });
+    deployMode.DeployApp();
     cy.url().then((url) => cy.setSharedUrl(url));
   });
 
   beforeEach(() => {
-    cy.getSharedUrl().then((url) => cy.visit(url));
+    cy.getSharedUrl().then((url) => cy.visit(url, { timeout: 60000 }));
   });
 
   it("1. on click of apps on header, it should take to application home page", function () {

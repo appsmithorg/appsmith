@@ -1,12 +1,14 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../.././../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
 
 describe("Table Widget Filtered Table data in autocomplete", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableAndTextDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Table Widget Functionality To Filter and search data", function () {

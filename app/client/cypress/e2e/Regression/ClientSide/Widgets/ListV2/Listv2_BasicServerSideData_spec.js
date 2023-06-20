@@ -1,5 +1,4 @@
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
-const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -9,14 +8,15 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("List widget v2 - Basic server side data tests", () => {
   before(() => {
+    cy.fixture("Listv2/listWithServerSideData").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     // Open Datasource editor
     if (!Cypress.env("AIRGAPPED")) {
-      cy.addDsl(dslWithServerSide);
       cy.wait(2000);
       // Create sample(mock) user database.
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenu);
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
@@ -25,14 +25,12 @@ describe("List widget v2 - Basic server side data tests", () => {
       });
       _.entityExplorer.SelectEntityByName("Page1");
     } else {
-      cy.addDsl(dslWithServerSide);
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($dsName) => {
         _.dataSources.NavigateToActiveTab();
         cy.wait(1000);
         _.dataSources.CreateQueryFromActiveTab($dsName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
@@ -358,19 +356,9 @@ describe("List widget v2 - Basic server side data tests", () => {
       });
 
       //.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({
-        force: true,
-      });
 
-      // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users LIMIT 20;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
+      _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");
+
       cy.WaitAutoSave();
 
       cy.runQuery();
@@ -412,19 +400,8 @@ describe("List widget v2 - Basic server side data tests", () => {
       });
 
       //.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({
-        force: true,
-      });
+      _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");
 
-      // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users LIMIT 20;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
       cy.WaitAutoSave();
 
       cy.runQuery();

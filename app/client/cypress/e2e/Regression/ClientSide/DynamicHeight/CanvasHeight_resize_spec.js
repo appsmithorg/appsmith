@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/dynamicHeightCanvasResizeDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   entityExplorer,

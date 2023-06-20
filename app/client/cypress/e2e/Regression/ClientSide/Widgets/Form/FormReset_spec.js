@@ -1,9 +1,11 @@
-const dsl = require("../../../../../fixtures/formResetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import widgets from "../../../../../locators/Widgets.json";
 
 describe("Form reset functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formResetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Resets the form", () => {
