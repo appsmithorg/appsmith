@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
 import {
   getViewType,
@@ -19,9 +19,19 @@ import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import history from "utils/history";
-import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getDatasourceFirstTableName,
+  getPluginNameFromId,
+  getPluginTemplates,
+} from "selectors/entitiesSelector";
 import { get } from "lodash";
+import {
+  DB_QUERY_DEFAULT_TABLE_NAME,
+  DB_QUERY_DEFAULT_TEMPLATE_TYPE,
+} from "constants/Datasource";
+import TemplateMenu from "./QueryEditor/TemplateMenu";
+import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import type { Datasource } from "entities/Datasource";
 
@@ -58,6 +68,19 @@ function FormControl(props: FormControlProps) {
         formName: props.formName,
       }),
     shallowEqual,
+  );
+  const datasourceTableName: string = useSelector((state: AppState) =>
+    getDatasourceFirstTableName(state, (formValues?.datasource as any)?.id),
+  );
+  const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
+    getPluginTemplates(state),
+  );
+  const pluginTemplate = !!formValues?.datasource?.pluginId
+    ? pluginTemplates[formValues?.datasource?.pluginId]
+    : undefined;
+  const pluginId: string = formValues?.pluginId || "";
+  const pluginName: string = useSelector((state: AppState) =>
+    getPluginNameFromId(state, pluginId),
   );
 
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
@@ -112,16 +135,28 @@ function FormControl(props: FormControlProps) {
     }
   }
 
-  const createTemplate = (
-    template: string,
-    formName: string,
-    configProperty: string,
-  ) => {
-    updateQueryParams();
-    dispatch(
-      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
-    );
-  };
+  useEffect(() => {
+    if (
+      showTemplate &&
+      !convertFormToRaw &&
+      SQL_DATASOURCES.includes(pluginName)
+    ) {
+      const defaultTemplate = !!pluginTemplate
+        ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
+        : "";
+      const smartTemplate = defaultTemplate
+        .replace(DB_QUERY_DEFAULT_TABLE_NAME, datasourceTableName)
+        .split("--")[0];
+      dispatch(
+        change(
+          props?.formName || QUERY_EDITOR_FORM_NAME,
+          props.config.configProperty,
+          !!datasourceTableName ? smartTemplate : defaultTemplate,
+        ),
+      );
+      updateQueryParams();
+    }
+  }, [showTemplate]);
 
   const FormControlRenderMethod = (config = props.config) => {
     return FormControlFactory.createControl(
@@ -139,6 +174,17 @@ function FormControl(props: FormControlProps) {
     viewTypes.push(...props.config.alternateViewTypes);
   }
 
+  const createTemplate = (
+    template: string,
+    formName: string,
+    configProperty: string,
+  ) => {
+    updateQueryParams();
+    dispatch(
+      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
+    );
+  };
+
   return useMemo(
     () =>
       !hidden ? (
@@ -155,7 +201,9 @@ function FormControl(props: FormControlProps) {
             className={`t--form-control-${props.config.controlType}`}
             data-replay-id={btoa(props.config.configProperty)}
           >
-            {showTemplate && !convertFormToRaw ? (
+            {showTemplate &&
+            !convertFormToRaw &&
+            !SQL_DATASOURCES.includes(pluginName) ? (
               <TemplateMenu
                 createTemplate={(templateString: string) =>
                   createTemplate(

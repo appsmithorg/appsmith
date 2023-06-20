@@ -795,7 +795,6 @@ export class DataSources {
     );
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query);
     }
   }
@@ -999,7 +998,6 @@ export class DataSources {
     this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query, sleep);
     }
     if (queryName) this.agHelper.RenameWithInPane(queryName);

@@ -18,7 +18,8 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onRowSelected", "Row is selected");
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
@@ -32,7 +33,8 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onPageChange", "Page Changed");
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     cy.wait(2000);
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
@@ -46,7 +48,8 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidget");
     // Show Message on Search text change Action
     cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
@@ -268,7 +271,8 @@ describe("Table Widget property pane feature validation", function () {
     cy.backFromPropertyPanel();
     // Chage deat search text value to "data"
     cy.testJsontext("defaultsearchtext", "data");
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     _.deployMode.NavigateBacktoEditor();
@@ -282,7 +286,8 @@ describe("Table Widget property pane feature validation", function () {
     // Change default selected row value to 1
     cy.get(widgetsPage.defaultSelectedRowField).type("1");
     cy.wait(2000);
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
+    _.table.WaitUntilTableLoad(0, 0, "v1");
     // Verify the default selected row
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
