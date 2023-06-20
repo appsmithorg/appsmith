@@ -148,7 +148,6 @@ const PopoverStyles = createGlobalStyle<{
 `;
 
 interface ButtonStyleProps {
-  isAutoLayout: boolean;
   isHorizontal: boolean;
   borderRadius?: string;
   buttonVariant?: ButtonVariant; // solid | outline | ghost
@@ -156,6 +155,8 @@ interface ButtonStyleProps {
   iconAlign?: string;
   placement?: ButtonPlacement;
   isLabel: boolean;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 /*
@@ -184,12 +185,10 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   align-items: center;
   padding: 0px 10px;
 
-  ${({ isAutoLayout }) =>
-    isAutoLayout &&
-    `
-      min-height: 32px;
-      min-width: 120px;
-    `};
+  ${({ minHeight, minWidth }) => `
+    ${minWidth ? `min-width: ${minWidth}px;` : ""}
+    ${minHeight ? `min-height: ${minHeight}px;` : ""}
+  `};
 
   &:hover,
   &:active,
@@ -611,10 +610,11 @@ class ButtonGroupComponent extends React.Component<
                       buttonVariant={buttonVariant}
                       disabled={isButtonDisabled}
                       iconAlign={button.iconAlign}
-                      isAutoLayout={this.props.isAutoLayout}
                       isHorizontal={isHorizontal}
                       isLabel={!!button.label}
                       key={button.id}
+                      minHeight={this.props.minHeight}
+                      minWidth={this.props.minWidth}
                       ref={this.state.itemRefs[button.id]}
                     >
                       <StyledButtonContent
@@ -657,9 +657,10 @@ class ButtonGroupComponent extends React.Component<
                 buttonVariant={buttonVariant}
                 disabled={isButtonDisabled}
                 iconAlign={button.iconAlign}
-                isAutoLayout={this.props.isAutoLayout}
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
+                minHeight={this.props.minHeight}
+                minWidth={this.props.minWidth}
                 onClick={getOnClick(button)}
               >
                 <StyledButtonContent
@@ -729,13 +730,14 @@ export interface ButtonGroupComponentProps {
     callback: () => void,
   ) => void;
   groupButtons: Record<string, GroupButtonProps>;
-  isAutoLayout: boolean;
   isDisabled: boolean;
   orientation: string;
   renderMode: RenderMode;
   width: number;
   minPopoverWidth: number;
   widgetId: string;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 export interface ButtonGroupComponentState {
