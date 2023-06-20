@@ -1,1 +1,1 @@
-cypress/e2e/**/**/*
+cypress/e2e/Regression/Apps/CommunityIssues_Spec.ts
