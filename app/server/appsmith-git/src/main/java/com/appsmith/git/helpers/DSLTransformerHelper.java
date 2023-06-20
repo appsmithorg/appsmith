@@ -32,69 +32,72 @@ public class DSLTransformerHelper {
 
     public static Map<String, JSONObject> flatten(JSONObject jsonObject) {
         Map<String, JSONObject> flattenedMap = new HashMap<>();
-        flattenHelper(jsonObject, flattenedMap, "");
+        flattenObject(jsonObject, "", flattenedMap);
         return flattenedMap;
     }
 
-    private static void flattenHelper(JSONObject jsonObject, Map<String, JSONObject> flattenedMap, String prefix) {
-        try {
-            String widgetName = jsonObject.getString("widgetName");
-            String widgetType = jsonObject.getString("type");
-            boolean isCanvasWidget = "CANVAS_WIDGET".equals(widgetType);
+    private static void flattenObject(JSONObject jsonObject, String prefix, Map<String, JSONObject> flattenedMap) {
+        String widgetName = jsonObject.optString("widgetName");
+        if (widgetName.isEmpty()) {
+            return;
+        }
 
-            if (!isCanvasWidget) {
-                flattenedMap.put(prefix + widgetName, removeChildren(jsonObject));
-            } 
+        JSONArray children = jsonObject.optJSONArray("children");
+        if (children != null) {
+            // Check if the children object has type=CANVAS_WIDGET
+            String type = jsonObject.optString("type");
+            boolean isCanvasWidget = "CANVAS_WIDGET".equals(type);
 
-            if (jsonObject.has("children")) {
-                JSONArray children = jsonObject.getJSONArray("children");
-                for (int i = 0; i < children.length(); i++) {
-                    JSONObject child = children.getJSONObject(i);
-                    flattenHelper(child, flattenedMap, isCanvasWidget ? prefix : prefix + widgetName + ".");
-                }
+            if (isCanvasWidget) {
+                // Add the current object at the same level as the parent
+                jsonObject.remove("children");
+                flattenedMap.put(prefix + widgetName, jsonObject);
+            } else {
+                // Remove the children property if present
+                jsonObject.remove("children");
+                flattenedMap.put(prefix + widgetName, jsonObject);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+            for (int i = 0; i < children.length(); i++) {
+                JSONObject childObject = children.getJSONObject(i);
+                String childPrefix = prefix + widgetName + ".";
+                flattenObject(childObject, childPrefix, flattenedMap);
+            }
+        } else {
+            flattenedMap.put(prefix + widgetName, jsonObject);
         }
     }
 
-    private static JSONObject removeChildren(JSONObject jsonObject) {
-        JSONObject updatedObject = new JSONObject(jsonObject.toString());
-        updatedObject.remove("children");
-        return updatedObject;
-    }
+    /*
+    HashMap 1 - widgetId and WidgetName mapping
+    HashMap 2 - parentId and WidgetName mapping
+    HashMap 3 - widgetData and WidgetName mapping
 
-    public static JSONObject constructNested(Map<String, JSONObject> flattenedMap) {
-        return constructNestedHelper(flattenedMap, "", null);
-    }
+    Start with MainContainer.JSON always
+    1. Get all the Widgets whose parent id is MainContainer
+    2. Call the same function recursively for all the children
+    2. Append the widget to the respective parent children array
+     */
+    private static JSONObject constructNested(Map<String, JSONObject> flattenedMap) {
+        JSONObject root = new JSONObject();
+        for (Map.Entry<String, JSONObject> entry : flattenedMap.entrySet()) {
+            String key = entry.getKey();
+            JSONObject value = entry.getValue();
+            String[] path = key.split("\\.");
 
-    private static JSONObject constructNestedHelper(Map<String, JSONObject> flattenedMap, String prefix, JSONObject parent) {
-        JSONObject nestedObject = new JSONObject();
-        try {
-            nestedObject.put("widgetName", prefix);
-
-            if (parent != null) {
-                JSONArray childrenArray = new JSONArray();
-                childrenArray.put(nestedObject);
-                parent.put("children", childrenArray);
-            }
-
-            for (Map.Entry<String, JSONObject> entry : flattenedMap.entrySet()) {
-                String key = entry.getKey();
-                if (key.startsWith(prefix)) {
-                    String childKey = key.substring(prefix.length());
-                    if (childKey.contains(".")) {
-                        String[] nestedKeys = childKey.split("\\.", 2);
-                        constructNestedHelper(flattenedMap, prefix + nestedKeys[0] + ".", nestedObject);
-                    } else {
-                        nestedObject.put(childKey, entry.getValue());
-                    }
+            // Traverse the path to find the parent object
+            JSONObject parent = root;
+            for (int i = 0; i < path.length - 1; i++) {
+                String pathSegment = path[i];
+                if (!parent.has(pathSegment)) {
+                    parent.put(pathSegment, new JSONObject());
                 }
+                parent = parent.getJSONObject(pathSegment);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
-        return nestedObject;
+            // Add the current object to its parent
+            parent.put(path[path.length - 1], value);
+        }
+        return root;
     }
 }

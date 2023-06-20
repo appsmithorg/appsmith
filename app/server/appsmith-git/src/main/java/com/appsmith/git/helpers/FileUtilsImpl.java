@@ -249,9 +249,11 @@ public class FileUtilsImpl implements FileInterface {
                             result.forEach((key, jsonObject) -> {
                                 // get path with splitting the name via key
                                 String widgetName = key.substring(key.lastIndexOf("." ) + 1 );
-                                String childPath = key.replace(".", "/").replace("MainContainer", "");
+                                String childPath = key.replace("MainContainer", "").replace(".", "/");
+                                // Replace the canvas Widget as a child and add it to the same level as parent
+                                childPath = childPath.replaceAll("(Canvas)[0-9]*.", "");
                                 Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
-
+                                validWidgets.add(widgetName);
                                 saveWidgets(
                                         jsonObject,
                                         widgetName,
@@ -259,7 +261,7 @@ public class FileUtilsImpl implements FileInterface {
                                 );
                             });
                             // Remove deleted widgets from the file system
-                            //scanAndDeleteFileForDeletedResources(widgetsFlattened.keySet(), pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                            scanAndDeleteFileForDeletedResources(validWidgets, pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
                         }
                         validPages.add(pageName);
                     }
