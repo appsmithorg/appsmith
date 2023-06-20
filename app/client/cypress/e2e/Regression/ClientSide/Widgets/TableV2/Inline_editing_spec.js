@@ -772,7 +772,7 @@ describe("Table widget inline editing functionality", () => {
     entityExplorer.NavigateToSwitcher("Explorer");
     entityExplorer.SelectEntityByName("Table1");
     table.EnableEditableOfColumn("step");
-    agHelper.GetNClick(table._updateMode("Multi"));
+    agHelper.GetNClick(table._updateMode("Multi"), 0, false, 1000);
 
     // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.
     table.EditTableCell(0, 0, "#12");
