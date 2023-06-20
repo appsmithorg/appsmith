@@ -1,21 +1,28 @@
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  assertHelper,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 
 describe("Table widget one click binding feature", () => {
-  it("should check that queries are created and bound to table widget properly", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
+  it("1.should check that queries are created and bound to table widget properly", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
 
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.dataSources.CreateDataSource("MsSql", true, true, "fakeapi");
+    dataSources.CreateDataSource("MsSql", true, true, "fakeapi");
 
     cy.get("@dsName").then((dsName) => {
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      entityExplorer.NavigateToSwitcher("Widgets");
 
-      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+      entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
@@ -25,11 +32,11 @@ describe("Table widget one click binding feature", () => {
       );
     });
 
-    _.agHelper.GetNClick(oneClickBindingLocator.connectData);
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.assertHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    cy.wait(2000);
+    agHelper.Sleep(2000);
 
     [
       "episode_id",
@@ -43,81 +50,81 @@ describe("Table widget one click binding feature", () => {
       "rating",
       "votes",
     ].forEach((column) => {
-      _.agHelper.AssertElementExist(_.table._headerCell(column));
+      agHelper.AssertElementExist(table._headerCell(column));
     });
 
-    // _.agHelper.AssertElementExist(_.table._showPageItemsCount);
+    // agHelper.AssertElementExist(table._showPageItemsCount);
 
-    (cy as any).makeColumnEditable("episode_id");
+    table.EnableEditableOfColumn("episode_id", "v2");
 
-    _.agHelper.GetNClick(_.table._addNewRow, 0, true);
+    agHelper.GetNClick(table._addNewRow, 0, true);
 
-    (cy as any).enterTableCellValue(0, 0, "S01E01");
+    table.EditTableCell(0, 0, "S01E01", false);
 
-    (cy as any).enterTableCellValue(1, 0, "1");
+    table.UpdateTableCell(1, 0, "1");
 
-    (cy as any).enterTableCellValue(2, 0, " 1");
+    table.UpdateTableCell(2, 0, " 1");
 
-    (cy as any).enterTableCellValue(3, 0, " 10");
+    table.UpdateTableCell(3, 0, " 10");
 
-    (cy as any).enterTableCellValue(4, 0, "Expanse");
-    (cy as any).enterTableCellValue(5, 0, "Prime");
+    table.UpdateTableCell(4, 0, "Expanse");
+    table.UpdateTableCell(5, 0, "Prime");
 
-    (cy as any).enterTableCellValue(6, 0, "2016-06-22 19:10:25-07");
-    (cy as any).enterTableCellValue(7, 0, "expanse.png");
-    (cy as any).enterTableCellValue(8, 0, "5");
-    (cy as any).enterTableCellValue(9, 0, "20");
+    table.UpdateTableCell(6, 0, "2016-06-22 19:10:25-07");
+    table.UpdateTableCell(7, 0, "expanse.png");
+    table.UpdateTableCell(8, 0, "5");
+    table.UpdateTableCell(9, 0, "20");
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
+    agHelper.GetNClick(table._saveNewRow, 0, true);
 
-    _.assertHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.TypeText(_.table._searchInput, "Expanse");
+    agHelper.TypeText(table._searchInput, "Expanse");
 
-    _.assertHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.AssertElementExist(_.table._bodyCell("Expanse"));
+    agHelper.AssertElementExist(table._bodyCell("Expanse"));
 
-    (cy as any).wait(1000);
+    agHelper.Sleep(1000);
 
-    (cy as any).editTableCell(1, 0);
+    // (cy as any).editTableCell(1, 0);
 
-    (cy as any).wait(500);
+    agHelper.Sleep(500);
 
-    (cy as any).enterTableCellValue(1, 0, "Westworld{enter}");
+    table.UpdateTableCell(1, 0, "Westworld");
 
-    (cy as any).wait(1000);
+    agHelper.Sleep(1000);
 
     (cy as any).AssertTableRowSavable(10, 0);
 
     (cy as any).saveTableRow(10, 0);
 
-    _.assertHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.assertHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(500);
+    agHelper.Sleep(500);
 
-    _.agHelper.ClearTextField(_.table._searchInput);
+    agHelper.ClearTextField(table._searchInput);
 
-    _.agHelper.TypeText(_.table._searchInput, "Westworld");
+    agHelper.TypeText(table._searchInput, "Westworld");
 
-    _.assertHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementExist(_.table._bodyCell("Westworld"));
+    agHelper.AssertElementExist(table._bodyCell("Westworld"));
 
-    _.agHelper.ClearTextField(_.table._searchInput);
+    agHelper.ClearTextField(table._searchInput);
 
-    _.agHelper.TypeText(_.table._searchInput, "Expanse");
+    agHelper.TypeText(table._searchInput, "Expanse");
 
-    _.assertHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementAbsence(_.table._bodyCell("Expanse"));
+    agHelper.AssertElementAbsence(table._bodyCell("Expanse"));
   });
 });

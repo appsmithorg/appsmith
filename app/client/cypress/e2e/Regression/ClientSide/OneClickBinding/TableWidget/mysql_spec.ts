@@ -1,21 +1,28 @@
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  assertHelper,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 
 describe("Table widget one click binding feature", () => {
-  it("should check that queries are created and bound to table widget properly", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
+  it("1.should check that queries are created and bound to table widget properly", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
 
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.dataSources.CreateDataSource("MySql");
+    dataSources.CreateDataSource("MySql");
 
     cy.get("@dsName").then((dsName) => {
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      entityExplorer.NavigateToSwitcher("Widgets");
 
-      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+      entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
@@ -25,84 +32,81 @@ describe("Table widget one click binding feature", () => {
       );
     });
 
-    _.agHelper.GetNClick(oneClickBindingLocator.connectData);
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    cy.wait(2000);
+    agHelper.Sleep(2000);
 
     ["Country", "File_Name", "Flag"].forEach((column) => {
-      _.agHelper.AssertElementExist(_.table._headerCell(column));
+      agHelper.AssertElementExist(table._headerCell(column));
     });
 
-    // _.agHelper.AssertElementExist(_.table._showPageItemsCount);
+    // agHelper.AssertElementExist(table._showPageItemsCount);
+    table.EnableEditableOfColumn("Country", "v2");
 
-    (cy as any).makeColumnEditable("Country");
+    agHelper.GetNClick(table._addNewRow, 0, true);
 
-    _.agHelper.GetNClick(_.table._addNewRow, 0, true);
+    table.EditTableCell(0, 0, "Aaland Islands", false);
 
-    (cy as any).enterTableCellValue(0, 0, "Aaland Islands");
+    table.UpdateTableCell(1, 0, "Flag_Of_Macau.png");
 
-    (cy as any).enterTableCellValue(1, 0, "Flag_Of_Macau.png");
-
-    (cy as any).enterTableCellValue(
+    table.UpdateTableCell(
       2,
       0,
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Flag_of_Macau.svg/255px-Flag_of_Macau.svg",
     );
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
+    agHelper.GetNClick(table._saveNewRow, 0, true);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.TypeText(_.table._searchInput, "Flag_Of_Macau.png");
+    agHelper.TypeText(table._searchInput, "Flag_Of_Macau.png");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.AssertElementExist(_.table._bodyCell("Flag_Of_Macau.png"));
+    agHelper.AssertElementExist(table._bodyCell("Flag_Of_Macau.png"));
 
-    (cy as any).wait(1000);
+    agHelper.Sleep(1000);
 
-    (cy as any).editTableCell(1, 0);
+    // (cy as any).editTableCell(1, 0);
 
-    (cy as any).wait(500);
+    agHelper.Sleep(500);
 
-    (cy as any).enterTableCellValue(1, 0, "Update_Flag_of_Macau.png{enter}");
+    table.EditTableCell(1, 0, "Update_Flag_of_Macau.png");
 
-    (cy as any).wait(1000);
+    agHelper.Sleep(1000);
 
     (cy as any).AssertTableRowSavable(3, 0);
 
     (cy as any).saveTableRow(3, 0);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(500);
+    agHelper.Sleep(500);
 
-    _.agHelper.ClearTextField(_.table._searchInput);
+    agHelper.ClearTextField(table._searchInput);
 
-    _.agHelper.TypeText(_.table._searchInput, "Update_Flag_of_Macau.png");
+    agHelper.TypeText(table._searchInput, "Update_Flag_of_Macau.png");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementExist(
-      _.table._bodyCell("Update_Flag_of_Macau.png"),
-    );
+    agHelper.AssertElementExist(table._bodyCell("Update_Flag_of_Macau.png"));
 
-    _.agHelper.ClearTextField(_.table._searchInput);
+    agHelper.ClearTextField(table._searchInput);
 
-    _.agHelper.TypeText(_.table._searchInput, "Flag_Of_Macau.png");
+    agHelper.TypeText(table._searchInput, "Flag_Of_Macau.png");
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementAbsence(_.table._bodyCell("Flag_Of_Macau.png"));
+    agHelper.AssertElementAbsence(table._bodyCell("Flag_Of_Macau.png"));
   });
 });
