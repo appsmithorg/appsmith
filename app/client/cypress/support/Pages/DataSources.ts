@@ -561,7 +561,7 @@ export class DataSources {
     //     "ServiceAccCreds.private_key  is " +
     //       JSON.stringify(ServiceAccCreds.private_key),
     //   );
-    this.agHelper.UpdateFieldLongInput(
+    this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
       JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
     );
@@ -738,9 +738,12 @@ export class DataSources {
     this.AssertDSActive(datasourceName)
       .scrollIntoView()
       .should("be.visible")
-      .closest(this._datasourceCard)
-      .within(() => {
-        this.agHelper.GetNClick(btnLocator, 0, true);
+      .then(($element) => {
+        cy.wrap($element)
+          .closest(this._datasourceCard)
+          .within(() => {
+            this.agHelper.GetNClick(btnLocator, 0, true);
+          });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
     createQuery &&

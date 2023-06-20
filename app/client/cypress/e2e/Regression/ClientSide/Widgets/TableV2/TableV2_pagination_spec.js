@@ -34,7 +34,7 @@ describe("Table Widget property pane feature validation", function () {
 
     _.table.SearchTable("Michael Lawson");
     cy.get(commonlocators.bodyTextStyle).should("have.text", "false false");
-    _.table.resetSearch();
+    _.table.ResetSearch();
 
     // Pagination properties should get reset when user filters for any criteria.
     cy.get(".t--table-widget-next-page").click();
