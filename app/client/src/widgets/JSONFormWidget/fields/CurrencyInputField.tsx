@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import _ from "lodash";
+import _ from "workers/common/JSLibrary/lodash-wrapper";
 import moment from "moment";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 
