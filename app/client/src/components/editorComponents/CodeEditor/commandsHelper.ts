@@ -135,8 +135,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
               }
               CodeMirror.off(hints, "pick", handlePick);
             }
-            CodeMirror.on(hints, "pick", handleSelection);
-            CodeMirror.on(hints, "select", handlePick);
+            CodeMirror.on(hints, "pick", handlePick);
+            CodeMirror.on(hints, "select", handleSelection);
             return hints;
           },
           extraKeys: {
