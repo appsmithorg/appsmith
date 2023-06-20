@@ -8,6 +8,7 @@ import {
   take,
   takeEvery,
   takeLatest,
+  takeLeading,
 } from "redux-saga/effects";
 import type {
   ApplicationPayload,
@@ -207,7 +208,7 @@ function* eagerPageInitSaga() {
 
 export default function* watchInitSagas() {
   yield all([
-    takeLatest(
+    takeLeading(
       [
         ReduxActionTypes.INITIALIZE_EDITOR,
         ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
