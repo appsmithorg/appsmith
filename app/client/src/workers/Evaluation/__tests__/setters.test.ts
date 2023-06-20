@@ -75,7 +75,9 @@ describe("Setter class test", () => {
       "Table1",
     );
 
-    Object.assign(self, evalContext);
+    const globalContext = self as any;
+
+    Object.assign(globalContext, evalContext);
 
     expect(Object.keys(methodMap)).toEqual([
       "setVisibility",
@@ -83,8 +85,12 @@ describe("Setter class test", () => {
       "setData",
     ]);
 
-    self.Table1.setData([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    globalContext.Table1.setData([{ a: 1 }, { a: 2 }, { a: 3 }]);
 
-    expect(self.Table1.tableData).toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    expect(globalContext.Table1.tableData).toEqual([
+      { a: 1 },
+      { a: 2 },
+      { a: 3 },
+    ]);
   });
 });

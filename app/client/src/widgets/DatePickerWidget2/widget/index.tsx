@@ -11,7 +11,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
@@ -55,6 +55,29 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       selectedDate: "string",
       formattedDate: "string",
       isDisabled: "bool",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultDate",
+          type: "string",
+        },
+      },
     };
   }
 
