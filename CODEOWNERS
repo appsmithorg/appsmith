@@ -28,3 +28,9 @@ app/client/src/components/propertyControls/* @appsmithorg/app-viewers
 app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192 @berzerkeer
 app/client/src/WidgetQueryGenerators/* @sbalaji1192 @berzerkeer
 app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @sbalaji1192 @berzerkeer
+app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
+app/client/src/pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/* @dhruvikn
+app/client/src/ce/pages/AppViewer/NavigationLogo.tsx @dhruvikn
+app/client/src/ce/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
+app/client/src/ee/pages/AppViewer/NavigationLogo.tsx @dhruvikn
+app/client/src/ee/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
