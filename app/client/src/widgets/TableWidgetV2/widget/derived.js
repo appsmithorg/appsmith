@@ -179,7 +179,9 @@ export default {
     };
     const compactMode = props.compactMode || "DEFAULT";
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
+      props.positioning === "vertical"
+        ? props.height
+        : (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
     const tableSizes = TABLE_SIZES[compactMode];
 
     let pageSize =
