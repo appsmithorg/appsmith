@@ -133,7 +133,7 @@ export default function* lintTreeSagaWatcher() {
   yield takeEvery(
     [
       ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
-      ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
+      ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,
     ],
     handleCustomLibrary,
   );

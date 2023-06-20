@@ -36,6 +36,7 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS]: true,
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: true,
   [ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS]: true,
+  [ReduxActionTypes.BUFFERED_ACTION]: true,
 };
 
 export const LOG_REDUX_ACTIONS = {
