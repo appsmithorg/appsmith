@@ -196,7 +196,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Value isn't required in Row Index 2
     table.EditTableCell(2, 4, "", false);
     cy.get(".bp3-popover-content").should("not.exist");
-    table.UpdateTableCell(2, 4, "1");
+    table.UpdateTableCell(2, 4, "11");
     cy.get(".bp3-popover-content").should("not.exist");
     table.UpdateTableCell(2, 4, "", true);
     cy.get(".bp3-popover-content").should("not.exist");
@@ -214,7 +214,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     table.UpdateTableCell(1, 4, "");
     cy.get(".bp3-popover-content").contains("This field is required");
 
-    table.UpdateTableCell(1, 4, "", true);
+    table.UpdateTableCell(1, 4, "1", true);
     cy.get(".bp3-popover-content").should("not.exist");
 
     cy.wait(1500);

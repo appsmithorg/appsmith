@@ -46,7 +46,7 @@ describe("RichTextEditor Widget Functionality", function () {
 
   it("1. Check if the binding is getting removed from the text and the RTE widget", function () {
     cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(".t--property-control-text", `{{RichtextEditor1.text}}`);
+    cy.updateCodeInput(".t--property-control-text", `{{RichTextEditor1.text}}`);
     // Change defaultText of the RTE
     cy.openPropertyPane("richtexteditorwidget");
     cy.testJsontext("defaultvalue", "Test Content");

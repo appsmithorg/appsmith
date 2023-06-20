@@ -87,12 +87,12 @@ describe("Verify various Table_Filter combinations", function () {
     });
 
     filterOnlyCondition("does not contain", "49");
-    filterOnlyCondition("starts with", "");
+    filterOnlyCondition("starts with", "1");
 
     // Ends with - Open Bug 13334
-    filterOnlyCondition("ends with", "");
+    filterOnlyCondition("ends with", "1");
 
-    filterOnlyCondition("is exactly", "");
+    filterOnlyCondition("is exactly", "1");
     filterOnlyCondition("empty", "0");
     filterOnlyCondition("not empty", "50");
     filterOnlyCondition("starts with", "3", "ge");
@@ -110,7 +110,7 @@ describe("Verify various Table_Filter combinations", function () {
       .then(($count) => expect($count).contain("2"));
 
     _.table.OpenFilter();
-    _.table.RemoveFilterNVerify("", true, false, 0, "v2");
+    _.table.RemoveFilterNVerify("1", true, false, 0, "v2");
   });
 
   it("5. Verify all filters for same FullName (two word column) + Bug 13334", () => {
@@ -122,11 +122,11 @@ describe("Verify various Table_Filter combinations", function () {
 
     filterOnlyCondition("does not contain", "49");
     filterOnlyCondition("starts with", "0");
-    filterOnlyCondition("ends with", "");
+    filterOnlyCondition("ends with", "1");
     filterOnlyCondition("is exactly", "0");
     filterOnlyCondition("empty", "0");
     filterOnlyCondition("not empty", "50");
-    filterOnlyCondition("contains", "", "wolf");
+    filterOnlyCondition("contains", "1", "wolf");
     _.table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
       expect($cellData).to.eq("Teresa");
     });
@@ -147,7 +147,7 @@ describe("Verify various Table_Filter combinations", function () {
       .then(($count) => expect($count).contain("3"));
 
     _.table.OpenFilter();
-    _.table.RemoveFilterNVerify("", true, false, 0, "v2");
+    _.table.RemoveFilterNVerify("1", true, false, 0, "v2");
   });
 
   it("6. Verify Table Filter for correct value in filter value input after removing second filter - Bug 12638", function () {

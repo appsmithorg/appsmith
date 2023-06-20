@@ -59,6 +59,8 @@ describe("Table Widget property pane feature validation", function () {
   });
 
   it("4. Test to validate text format", function () {
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("id");
     // Validate Bold text
     cy.get(widgetsPage.bold).click({ force: true });
     cy.wait(2000);

@@ -211,7 +211,7 @@ describe("Table Widget property pane feature validation", function () {
   });
 
   it("7. Table-Delete Verification", function () {
-     // Open property pane
+    // Open property pane
     cy.openPropertyPane("tablewidget");
     // Delete the Table widget
     cy.deleteWidget(widgetsPage.tableWidget);
