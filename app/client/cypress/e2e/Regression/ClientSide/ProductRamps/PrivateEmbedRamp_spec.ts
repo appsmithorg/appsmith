@@ -66,6 +66,7 @@ describe("Private embed in-app ramp", () => {
         Cypress.env("TESTUSERNAME1"),
         "Developer",
       );
+      _.inviteModal.CloseModal();
       _.homePage.Signout(false);
       _.homePage.LogintoApp(
         Cypress.env("TESTUSERNAME1"),
