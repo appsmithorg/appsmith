@@ -428,7 +428,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "Row with id {{currentRow.id}} is not valid",
     );
 
-    table.EditTableCell(1, 4, 5);
+    table.EditTableCell(1, 4, 5, false);
     cy.get(".bp3-popover-content").contains("Row with id 7 is not valid");
 
     propPane.UpdatePropertyFieldValue("Min", "");
