@@ -241,10 +241,9 @@ jobs:
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             ${{ env.docker_container_name }}
 
-      - name: Setup MSSQL & Arango docker & ElasticSearch containers
+      - name: Setup Arango docker & ElasticSearch containers
         working-directory: app/client/cypress
         run: |
-          docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
           docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
         # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
@@ -252,6 +251,7 @@ jobs:
         # sudo ufw allow 1433/tcp
         # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
         # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
+        # docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
 
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v3
@@ -380,7 +380,7 @@ jobs:
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -427,7 +427,6 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
@@ -443,7 +442,7 @@ jobs:
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -490,7 +489,6 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
