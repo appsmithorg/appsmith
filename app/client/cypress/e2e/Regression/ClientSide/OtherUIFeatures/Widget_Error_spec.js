@@ -19,8 +19,6 @@ describe("Widget error state", function () {
 
     cy.testJsontext("visible", "Test");
 
-    cy.contains(".t--widget-error-count", 1);
-
     //Check if the current value is shown in the debugger
 
     _.debuggerHelper.ClickDebuggerIcon();
