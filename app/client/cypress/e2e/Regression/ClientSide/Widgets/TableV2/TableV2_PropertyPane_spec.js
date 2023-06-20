@@ -4,6 +4,8 @@ import {
   propPane,
   agHelper,
   deployMode,
+  draggableWidgets,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -68,7 +70,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onRowSelected", "Row is selected");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
@@ -82,7 +85,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
     cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
@@ -99,7 +103,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     });
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onPageChange", "Page Changed");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     cy.wait(2000);
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
@@ -335,7 +340,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Chage deat search text value to "data"
     cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "data");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitForTableEmpty("v2");
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     deployMode.NavigateBacktoEditor();
