@@ -386,6 +386,5 @@ describe("AForce - Community Issues page validations", function () {
     // table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
     //   expect(cellData).not.to.be.equal("Adding Title Suggestion via script-updating title");
     // });
-    expect(2 + 2).to.equal(5);
   });
 });

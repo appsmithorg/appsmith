@@ -1,1 +1,1 @@
-cypress/e2e/Regression/Apps/CommunityIssues_Spec.ts
+cypress/e2e/Regression/ServerSide/ApiTests/API_Unique_name_spec.js
