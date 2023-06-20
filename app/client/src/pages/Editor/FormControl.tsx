@@ -69,16 +69,18 @@ function FormControl(props: FormControlProps) {
       }),
     shallowEqual,
   );
+  const dsId =
+    ((formValues as Action)?.datasource as any)?.id ||
+    (formValues as Datasource).id;
   const datasourceTableName: string = useSelector((state: AppState) =>
-    getDatasourceFirstTableName(state, (formValues?.datasource as any)?.id),
+    getDatasourceFirstTableName(state, dsId),
   );
   const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
     getPluginTemplates(state),
   );
-  const pluginTemplate = !!formValues?.datasource?.pluginId
-    ? pluginTemplates[formValues?.datasource?.pluginId]
-    : undefined;
+
   const pluginId: string = formValues?.pluginId || "";
+  const pluginTemplate = !!pluginId ? pluginTemplates[pluginId] : undefined;
   const pluginName: string = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
   );
