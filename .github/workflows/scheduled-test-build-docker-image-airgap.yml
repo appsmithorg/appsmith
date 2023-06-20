@@ -3,7 +3,7 @@ name: Scheduled Test Build Docker Image Airgap
 on:
   # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC)
   schedule:
-    - cron: '30 12 * * *'
+    - cron: '30 00 * * *'
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
