@@ -339,7 +339,6 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
@@ -418,7 +417,6 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
