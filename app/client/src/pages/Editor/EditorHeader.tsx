@@ -91,6 +91,7 @@ import { useHref } from "./utils";
 import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import type { NavigationSetting } from "constants/AppConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -255,9 +256,25 @@ export function EditorHeader(props: EditorHeaderProps) {
       publishApplication(applicationId);
 
       const appName = currentApplication ? currentApplication.name : "";
+      const pageCount = currentApplication?.pages?.length;
+      const navigationSettings = {};
+
+      if (currentApplication?.applicationDetail?.navigationSetting) {
+        Object.keys(currentApplication.applicationDetail.navigationSetting).map(
+          (key) => {
+            const value =
+              currentApplication.applicationDetail.navigationSetting[key];
+
+            navigationSettings[`navigationSettings_${key}`] = value;
+          },
+        );
+      }
+
       AnalyticsUtil.logEvent("PUBLISH_APP", {
         appId: applicationId,
         appName,
+        pageCount,
+        ...navigationSettings,
       });
     }
   };
