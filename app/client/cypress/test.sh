@@ -27,10 +27,10 @@ if [ "$target" == "ci" ]; then
     # On the CI server run the tests in parallel
     # This requires the projectId and the record_key to be configured in your environment variables. By default this is defined on the CI server
     echo "Got the Build ID: $BUILD_ID"
-    yarn CYPRESS_NO_COMMAND_LOG=1 cypress run --headless \
+    yarn cypress run --headless \
     --record --key "$CYPRESS_RECORD_KEY" --ci-build-id $BUILD_ID \
     --parallel --group "Electrons on Gitlab CI" \
     --spec "cypress/integration/Regression_TestSuite/**/*.js"
 else
-    yarn CYPRESS_NO_COMMAND_LOG=1 cypress run --headless --browser chromium --spec "cypress/integration/Regression_TestSuite/**/*.js"
+    yarn cypress run --headless --browser chromium --spec "cypress/integration/Regression_TestSuite/**/*.js"
 fi
