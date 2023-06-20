@@ -401,6 +401,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     table.EditTableCell(1, 4, -1, false);
     cy.get(".bp3-popover-content").contains("Invalid input");
     table.UpdateTableCell(1, 4, 0);
+    cy.get(".bp3-popover-content").contains("Invalid input");
+    table.UpdateTableCell(1, 4, 3);
     cy.get(".bp3-popover-content").should("not.exist");
 
     // Check if currentRow works

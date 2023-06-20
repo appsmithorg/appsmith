@@ -1036,7 +1036,7 @@ export class AggregateHelper extends ReusableHelper {
       .clear()
       .then(($input: any) => {
         if (value !== "") {
-          cy.wrap($input).type(value, { delay: 2 });
+          cy.wrap($input).type(value, { delay: 3 });
         }
       });
   }
