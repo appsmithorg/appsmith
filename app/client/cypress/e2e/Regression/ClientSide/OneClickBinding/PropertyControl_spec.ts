@@ -177,8 +177,10 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
+    const upfrontContentCount = 4;
+
     cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
-      expect($ele.length).equals(2);
+      expect($ele.length).equals(upfrontContentCount);
     });
 
     agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
@@ -186,11 +188,11 @@ describe("excludeForAirgap", "One click binding control", () => {
     agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
 
     cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
-      expect($ele.length).greaterThan(2);
+      expect($ele.length).greaterThan(upfrontContentCount);
     });
 
     cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).equals(2);
+      expect($ele.length).equals(upfrontContentCount);
     });
 
     agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
@@ -198,13 +200,13 @@ describe("excludeForAirgap", "One click binding control", () => {
     agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
 
     cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).greaterThan(2);
+      expect($ele.length).greaterThan(upfrontContentCount);
     });
   });
 
   it("should test the search input function", () => {
     cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
-      expect($ele.length).greaterThan(2);
+      expect($ele.length).greaterThan(upfrontContentCount);
     });
 
     agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api1");
@@ -232,7 +234,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     //
 
     cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).greaterThan(2);
+      expect($ele.length).greaterThan(upfrontContentCount);
     });
 
     agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "myinvalidds");

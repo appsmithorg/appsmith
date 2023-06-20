@@ -63,7 +63,7 @@ const StyledLoadMore = styled(DropdownOption)`
   color: var(--ads-color-black-500);
 `;
 
-const DEFAULT_ITEM_COUNTS_TO_SHOW = 2;
+const DEFAULT_ITEM_COUNTS_TO_SHOW = 4;
 
 function DatasourceDropdown() {
   const [searchText, setSearchText] = useState("");
@@ -121,6 +121,7 @@ function DatasourceDropdown() {
             }}
           >
             <StyledInput
+              autoFocus
               data-testId="t--one-click-binding-datasource--search"
               onChange={onChange}
               size="md"
