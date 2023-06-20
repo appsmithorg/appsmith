@@ -35,6 +35,7 @@ export type AutoLayoutProps = {
   componentHeight: number;
   componentWidth: number;
   direction: LayoutDirection;
+  childIndex?: number;
   focused?: boolean;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
@@ -103,7 +104,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     return () => {
       widgetPositionsObserver.unObserveWidget(getAutoWidgetId(props.widgetId));
     };
-  }, []);
+  }, [props.childIndex, props.alignment]);
 
   const isResizing = useSelector(getIsResizing);
   const isSelected = useSelector(isWidgetSelected(props.widgetId));

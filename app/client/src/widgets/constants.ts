@@ -115,6 +115,7 @@ interface LayoutProps {
   useAutoLayout?: boolean;
   direction?: LayoutDirection;
   isFlexChild?: boolean;
+  childIndex?: number;
   responsiveBehavior?: ResponsiveBehavior;
 }
 

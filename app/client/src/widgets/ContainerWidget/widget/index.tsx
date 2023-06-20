@@ -178,7 +178,10 @@ export class ContainerWidget extends BaseWidget<
     return snapGrid;
   };
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(
+    childWidgetData: WidgetProps,
+    index: number,
+  ): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
@@ -192,6 +195,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
+    childWidget.childIndex = index;
     // Pass layout controls to children
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;

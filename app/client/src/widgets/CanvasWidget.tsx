@@ -73,7 +73,10 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
+  renderChildWidget(
+    childWidgetData: CanvasWidgetStructure,
+    index: number,
+  ): React.ReactNode {
     if (!childWidgetData) return null;
 
     const childWidget = { ...childWidgetData };
@@ -87,6 +90,7 @@ class CanvasWidget extends ContainerWidget {
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.isFlexChild = this.props.useAutoLayout;
+    childWidget.childIndex = index;
     childWidget.direction = this.getDirection();
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);

@@ -640,6 +640,7 @@ abstract class BaseWidget<
     return (
       <FlexComponent
         alignment={this.props.alignment}
+        childIndex={this.props.childIndex}
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         direction={this.props.direction || LayoutDirection.Horizontal}
@@ -874,6 +875,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
   isFlexChild?: boolean;
+  childIndex?: number;
   direction?: LayoutDirection;
   responsiveBehavior?: ResponsiveBehavior;
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
