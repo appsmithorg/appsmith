@@ -224,10 +224,7 @@ describe("Create Permission flow ", function () {
       cy.get(".rc-select-item-option-content")
         .last()
         .contains("Create new datasource");
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("select * from users limit 10");
+      dataSources.EnterQuery("select * from users limit 10");
       agHelper.AssertAutoSave();
       dataSources.RunQuery({
         toValidateResponse: false,
