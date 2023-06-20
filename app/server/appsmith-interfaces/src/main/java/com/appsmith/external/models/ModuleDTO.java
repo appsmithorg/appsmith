@@ -6,12 +6,10 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -23,7 +21,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ActionDTO implements Identifiable {
+public class ModuleDTO implements Identifiable {
 
     @Transient
     @JsonView(Views.Public.class)
@@ -31,11 +29,11 @@ public class ActionDTO implements Identifiable {
 
     @Transient
     @JsonView(Views.Public.class)
-    String applicationId;
+    private String publicActionId;
 
     @Transient
     @JsonView(Views.Public.class)
-    String moduleId;
+    String packageId;
 
     @Transient
     @JsonView(Views.Public.class)
@@ -67,9 +65,6 @@ public class ActionDTO implements Identifiable {
 
     @JsonView(Views.Public.class)
     String pageId;
-
-    @JsonView(Views.Public.class)
-    String collectionId;
 
     @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;

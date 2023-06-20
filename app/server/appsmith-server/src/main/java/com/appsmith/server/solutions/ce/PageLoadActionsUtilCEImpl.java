@@ -177,6 +177,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     Map<String, ActionDTO> actionNameToActionMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
+                    for(DefaultEdge e : graph.edgeSet()){
+                        System.out.println(graph.getEdgeSource(e) + " --> " + graph.getEdgeTarget(e));
+                    }
+
                     return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNameToActionMap, explicitUserSetOnLoadActions);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
@@ -390,6 +394,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * <p>
      * !!! WARNING !!! : This function updates actionsUsedInDSL set which is used to store all the directly referenced
      * actions in the DSL.
+     * This function returns the dependency edges between <widget, actions> widget <---- action
      *
      * @param edges
      * @param actionsUsedInDSL
@@ -623,7 +628,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         while (bfsIterator.hasNext()) {
 
             String vertex = bfsIterator.next();
+
+
             int level = bfsIterator.getDepth(vertex);
+            System.out.println(String.format("%s : Level %s", vertex, level));
             if (onPageLoadActions.size() <= level) {
                 onPageLoadActions.add(new HashSet<>());
             }

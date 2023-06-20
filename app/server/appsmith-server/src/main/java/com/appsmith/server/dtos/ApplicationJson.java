@@ -8,6 +8,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -110,4 +111,6 @@ public class ApplicationJson {
     @Deprecated
     @JsonView(Views.Public.class)
     Map<String, Set<String>> unpublishedLayoutmongoEscapedWidgets;
+
+    List<Module> modules;
 }

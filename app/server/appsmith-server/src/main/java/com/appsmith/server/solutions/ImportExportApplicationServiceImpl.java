@@ -1,11 +1,6 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.*;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -56,13 +51,14 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               Gson gson,
                                               TransactionalOperator transactionalOperator,
                                               DatasourceStorageService datasourceStorageService,
-                                              PermissionGroupRepository permissionGroupRepository) {
+                                              PermissionGroupRepository permissionGroupRepository,
+                                              ModuleRepository moduleRepository) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, actionCollectionRepository, actionCollectionService, themeService,
                 analyticsService, customJSLibService, datasourcePermission, workspacePermission, applicationPermission,
                 pagePermission, actionPermission, gson, transactionalOperator, datasourceStorageService,
-                permissionGroupRepository);
+                permissionGroupRepository, moduleRepository);
     }
 }

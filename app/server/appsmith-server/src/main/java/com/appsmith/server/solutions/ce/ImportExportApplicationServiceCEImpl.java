@@ -28,6 +28,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -47,12 +48,7 @@ import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.*;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -142,6 +138,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final TransactionalOperator transactionalOperator;
     private final DatasourceStorageService datasourceStorageService;
     private final PermissionGroupRepository permissionGroupRepository;
+    private final ModuleRepository moduleRepository;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -409,6 +406,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
                                 return actionCollection;
                             })
+                            .log()
                             .collectList()
                             .flatMapMany(actionCollections -> {
                                 // This object won't have the list of actions but we don't care about that today
@@ -483,6 +481,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
                                 return newAction;
                             })
+                            .log()
                             .collectList()
                             .map(actionList -> {
                                 Set<String> updatedActionSet = new HashSet<>();
@@ -532,8 +531,25 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 application.exportApplicationPages(pageIdToNameMap);
                                 // Disable exporting the application with datasource config once imported in destination instance
                                 application.setExportWithConfiguration(null);
-                                return applicationJson;
-                            });
+
+                                return moduleRepository.findAllById(List.of("1", "2", "3"));
+                            })
+                            .flatMapMany(module -> {
+                                return module;
+                            }).map(module -> {
+                                return module;
+                            })
+                            .collectList();
+                })
+                .map(modules -> {
+                    System.out.println("Size of modules: "+ modules.size());
+                    if (modules.size() == 0) {
+                        applicationJson.setModules(null);
+                    } else {
+                        applicationJson.setModules(modules);
+                    }
+
+                    return applicationJson;
                 })
                 .then(allCustomJSLibListMono)
                 .map(allCustomLibList -> {
@@ -555,7 +571,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return applicationJson;
                 })
                 .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
-                .thenReturn(applicationJson);
+                .thenReturn(applicationJson).log();
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {

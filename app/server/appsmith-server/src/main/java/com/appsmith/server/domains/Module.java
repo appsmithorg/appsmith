@@ -17,18 +17,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @NoArgsConstructor
 @Document
-public class NewAction extends BranchAwareDomain {
+public class Module extends BranchAwareDomain {
 
     // Fields in action that are not allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
-    String applicationId;
-
-    @JsonView(Views.Public.class)
-    String moduleId;
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
+    String packageId;
 
     @JsonView(Views.Public.class)
     String workspaceId;
@@ -43,34 +36,11 @@ public class NewAction extends BranchAwareDomain {
     String templateId; //If action is created via a template, store the id here.
 
     @JsonView(Views.Public.class)
-    String providerId; //If action is created via a template, store the template's provider id here.
-
-    @JsonView(Views.Public.class)
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
-    ActionDTO unpublishedAction;
+    String publicActionId;
 
-    @JsonView(Views.Public.class)
-    ActionDTO publishedAction;
 
-    @Override
-    public void sanitiseToExportDBObject() {
-        this.setTemplateId(null);
-        this.setApplicationId(null);
-        this.setOrganizationId(null);
-        this.setWorkspaceId(null);
-        this.setProviderId(null);
-        this.setDocumentation(null);
-        ActionDTO unpublishedAction = this.getUnpublishedAction();
-        if (unpublishedAction != null) {
-            unpublishedAction.sanitiseToExportDBObject();
-        }
-        ActionDTO publishedAction = this.getPublishedAction();
-        if (publishedAction != null) {
-            publishedAction.sanitiseToExportDBObject();
-        }
-        super.sanitiseToExportDBObject();
-    }
 }

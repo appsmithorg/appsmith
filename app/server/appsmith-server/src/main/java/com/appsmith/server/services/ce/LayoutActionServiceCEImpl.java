@@ -624,6 +624,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
 
         Set<String> widgetNames = new HashSet<>();
+        /*
+          widgetDynamicBindingsMap
+            Text1.borderRadius -> appsmith.theme.borderRadius.appBorderRadius
+            Text1.fontFamily -> appsmith.theme.fontFamily.appFont
+            Text1.text -> "Subrata" [original: Username: {{"Subrata"}}]
+            Text1.truncateButtonColor -> appsmith.theme.colors.primaryColor
+         */
         Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
