@@ -1,10 +1,6 @@
 package com.appsmith.external.exceptions.pluginExceptions;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class AppsmithPluginCommonErrorMessages {
+public abstract class BasePluginErrorMessages {
     public static final String CONNECTION_INVALID_ERROR_MSG = "Connection object is invalid.";
     public static final String CONNECTION_NULL_ERROR_MSG = "Connection object is null.";
     public static final String CONNECTION_CLOSED_ERROR_MSG = "Connection object is closed.";

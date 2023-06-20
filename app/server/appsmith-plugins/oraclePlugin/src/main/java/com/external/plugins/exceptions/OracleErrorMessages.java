@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class OracleErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class OracleErrorMessages extends BasePluginErrorMessages {
     public static final String MISSING_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your Oracle query failed to execute.";

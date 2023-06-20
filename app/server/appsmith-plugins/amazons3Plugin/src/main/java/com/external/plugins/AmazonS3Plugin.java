@@ -74,7 +74,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.CONNECTION_NULL_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;

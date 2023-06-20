@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class S3ErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class S3ErrorMessages extends BasePluginErrorMessages {
     public static final String FILE_CONTENT_FETCHING_ERROR_MSG = "Appsmith server has encountered an unexpected error when fetching file " +
             "content from AWS S3 server. Please reach out to Appsmith customer support to resolve this.";
 

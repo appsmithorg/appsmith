@@ -1,11 +1,11 @@
 package com.external.constants;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class ErrorMessages extends AppsmithPluginCommonErrorMessages  {
+public class ErrorMessages extends BasePluginErrorMessages {
 
     public static final String EMPTY_ROW_OBJECT_MESSAGE = "Row object(s) cannot be empty.";
 

@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.PluginConstants.PluginName.ORACLE_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.OraclePlugin.OraclePluginExecutor.scheduler;
@@ -156,7 +157,7 @@ public class OracleDatasourceUtils {
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool, "Oracle");
+                        connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool, ORACLE_PLUGIN_NAME);
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue

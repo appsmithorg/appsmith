@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class RedisErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class RedisErrorMessages extends BasePluginErrorMessages {
     public static final String BODY_IS_NULL_OR_EMPTY_ERROR_MSG = "Body is null or empty [%s]";
 
     public static final String QUERY_PARSING_FAILED_ERROR_MSG = "Appsmith server has failed to parse your Redis query. Are you sure it's" +

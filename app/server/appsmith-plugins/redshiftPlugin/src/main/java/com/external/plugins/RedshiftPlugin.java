@@ -47,7 +47,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG;
+import static com.appsmith.external.constants.PluginConstants.PluginName.REDSHIFT_PLUGIN_NAME;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
@@ -213,7 +214,7 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromHikariConnectionPool(connectionPool, "Redshift");
+                            connection = getConnectionFromHikariConnectionPool(connectionPool, REDSHIFT_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 
@@ -570,7 +571,7 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromSupplier(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromHikariConnectionPool(connectionPool, "Redshift");
+                            connection = getConnectionFromHikariConnectionPool(connectionPool, REDSHIFT_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 

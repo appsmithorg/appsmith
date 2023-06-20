@@ -66,6 +66,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
@@ -193,7 +194,8 @@ public class MssqlPlugin extends BasePlugin {
                         final List<String> columnsList = new ArrayList<>();
 
                         try {
-                            sqlConnectionFromPool = getConnectionFromHikariConnectionPool(hikariDSConnection, "MsSQL");
+                            sqlConnectionFromPool = getConnectionFromHikariConnectionPool(hikariDSConnection,
+                                    MSSQL_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing

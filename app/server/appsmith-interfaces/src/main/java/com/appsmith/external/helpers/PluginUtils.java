@@ -45,10 +45,10 @@ import static com.appsmith.external.constants.CommonFieldName.CHILDREN;
 import static com.appsmith.external.constants.CommonFieldName.CONDITION;
 import static com.appsmith.external.constants.CommonFieldName.KEY;
 import static com.appsmith.external.constants.CommonFieldName.VALUE;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.CONNECTION_POOL_CLOSED_ERROR_MSG;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.CONNECTION_POOL_NULL_ERROR_MSG;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages.UNKNOWN_CONNECTION_ERROR;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_CLOSED_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NULL_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR;
 
 @Slf4j
 public class PluginUtils {

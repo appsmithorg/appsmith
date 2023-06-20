@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class RedshiftErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class RedshiftErrorMessages extends BasePluginErrorMessages {
     public static final String QUERY_PARAMETER_MISSING_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String NULL_RESULTSET_ERROR_MSG = "Redshift driver failed to fetch result: resultSet is null.";

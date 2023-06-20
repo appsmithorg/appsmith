@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class GraphQLErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class GraphQLErrorMessages extends BasePluginErrorMessages {
     public static final String URI_SYNTAX_WRONG_ERROR_MSG = "URI is invalid. Please rectify the URI and try again.";
     public static final String INVALID_CONTENT_TYPE_ERROR_MSG = "Invalid value for Content-Type.";
     public static final String NO_HTTP_METHOD_ERROR_MSG = "HTTPMethod must be set.";

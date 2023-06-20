@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class ElasticSearchErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class ElasticSearchErrorMessages extends BasePluginErrorMessages {
     public static final String ARRAY_TO_ND_JSON_ARRAY_CONVERSION_ERROR_MSG = "Error occurred while converting array to ND-JSON";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Error occurred while executing Elasticsearch query.";

@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class ArangoDBErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class ArangoDBErrorMessages extends BasePluginErrorMessages {
     public static final String MISSING_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your query failed to execute. Please check more information in the error details.";

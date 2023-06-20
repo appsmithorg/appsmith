@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.MssqlPlugin.MssqlPluginExecutor.scheduler;
@@ -95,7 +96,7 @@ public class MssqlDatasourceUtils {
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool = getConnectionFromHikariConnectionPool(connection, "MsSQL");
+                        connectionFromPool = getConnectionFromHikariConnectionPool(connection, MSSQL_PLUGIN_NAME);
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue

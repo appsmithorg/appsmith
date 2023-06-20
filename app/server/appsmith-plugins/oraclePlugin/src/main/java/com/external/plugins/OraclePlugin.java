@@ -58,6 +58,7 @@ import java.util.stream.IntStream;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.CommonFieldName.BODY;
 import static com.appsmith.external.constants.CommonFieldName.PREPARED_STATEMENT;
+import static com.appsmith.external.constants.PluginConstants.PluginName.ORACLE_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
@@ -197,7 +198,8 @@ public class OraclePlugin extends BasePlugin {
                         Connection connectionFromPool;
 
                         try {   
-                            connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool, "Oracle");
+                            connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool,
+                                    ORACLE_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing

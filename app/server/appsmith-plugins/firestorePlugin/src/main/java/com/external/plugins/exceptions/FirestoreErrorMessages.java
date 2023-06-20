@@ -1,11 +1,11 @@
 package com.external.plugins.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginCommonErrorMessages;
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
-public class FirestoreErrorMessages extends AppsmithPluginCommonErrorMessages {
+public class FirestoreErrorMessages extends BasePluginErrorMessages {
     public static final String MANDATORY_PARAM_COMMAND_MISSING_ERROR_MSG = "Mandatory parameter 'Command' is missing. Did you forget to select one of the commands" +
             " from the Command dropdown ?";
 

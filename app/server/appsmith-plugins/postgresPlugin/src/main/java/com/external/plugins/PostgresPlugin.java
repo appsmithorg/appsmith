@@ -76,6 +76,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.PluginConstants.PluginName.POSTGRES_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
@@ -282,7 +283,7 @@ public class PostgresPlugin extends BasePlugin {
                 Connection connectionFromPool;
 
                 try {
-                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, "Postgres");
+                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, POSTGRES_PLUGIN_NAME);
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari
@@ -632,7 +633,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 Connection connectionFromPool;
                 try {
-                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, "Postgres");
+                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, POSTGRES_PLUGIN_NAME);
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari
