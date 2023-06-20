@@ -1,12 +1,14 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import {
+  assertHelper,
+  agHelper,
+  dataSources,
+  locators,
+  table,
+  appSettings,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources,
-  locator = ObjectsRegistry.CommonLocators,
-  table = ObjectsRegistry.Table,
-  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Bug 9334: The Select widget value is sent as null when user switches between the pages", function () {
   before("Change Theme & Create Postgress DS", () => {
@@ -19,56 +21,56 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
 
   it("1. Create dummy pages for navigating", () => {
     //CRUD page 2
-    ee.AddNewPage();
-    ee.AddNewPage("Generate page with data");
+    entityExplorer.AddNewPage();
+    entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "astronauts");
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad();
 
     //CRUD page 3
-    ee.AddNewPage();
-    ee.AddNewPage("Generate page with data");
+    entityExplorer.AddNewPage();
+    entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "country");
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad();
   });
   it("2. Navigate & Assert toast", () => {
     //Navigating between CRUD (Page3) & EmptyPage (Page2):
-    ee.SelectEntityByName("Page1");
+    entityExplorer.SelectEntityByName("Page1");
     agHelper.Sleep(2000);
-    ee.SelectEntityByName("Page2");
+    entityExplorer.SelectEntityByName("Page2");
     agHelper.AssertElementAbsence(
-      locator._specificToast('The action "SelectQuery" has failed.'),
+      locators._specificToast('The action "SelectQuery" has failed.'),
     );
 
     //Navigating between CRUD (Page3) & CRUD (Page4):
-    ee.SelectEntityByName("Page3");
+    entityExplorer.SelectEntityByName("Page3");
     agHelper.Sleep(2000);
-    ee.SelectEntityByName("Page2");
+    entityExplorer.SelectEntityByName("Page2");
     agHelper.AssertElementAbsence(
-      locator._specificToast('The action "SelectQuery" has failed.'),
+      locators._specificToast('The action "SelectQuery" has failed.'),
     );
   });
 });

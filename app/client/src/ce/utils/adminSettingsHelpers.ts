@@ -1,3 +1,4 @@
+import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import type { User } from "constants/userConstants";
 
@@ -41,4 +42,10 @@ export const getLoginUrl = (method: string): string => {
   const urls: Record<string, string> = {};
 
   return urls[method];
+};
+
+export const isTenantConfig = (name: string): boolean => {
+  const fields: string[] = tenantConfigConnection;
+
+  return fields.includes(name);
 };

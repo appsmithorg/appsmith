@@ -377,6 +377,9 @@ abstract class BaseWidget<
   };
 
   getComponentDimensions = () => {
+    if (this.isAutoLayoutMode) {
+      return this.getAutoLayoutComponentDimensions();
+    }
     return this.calculateWidgetBounds(
       this.props.rightColumn,
       this.props.leftColumn,
@@ -630,10 +633,14 @@ abstract class BaseWidget<
     if (isFunction(autoDimensionConfig)) {
       autoDimensionConfig = autoDimensionConfig(this.props);
     }
+    if (this.props.isListItemContainer && autoDimensionConfig) {
+      autoDimensionConfig.height = false;
+    }
 
     return (
       <FlexComponent
         alignment={this.props.alignment}
+        childIndex={this.props.childIndex}
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         direction={this.props.direction || LayoutDirection.Horizontal}
@@ -756,6 +763,12 @@ abstract class BaseWidget<
     }
   }
 
+  updateOneClickBindingOptionsVisibility(visibility: boolean) {
+    const { updateOneClickBindingOptionsVisibility } = this.context;
+
+    updateOneClickBindingOptionsVisibility?.(visibility);
+  }
+
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {
@@ -862,6 +875,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
   isFlexChild?: boolean;
+  childIndex?: number;
   direction?: LayoutDirection;
   responsiveBehavior?: ResponsiveBehavior;
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.

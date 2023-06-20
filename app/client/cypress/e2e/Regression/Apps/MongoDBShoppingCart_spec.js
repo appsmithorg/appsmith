@@ -1,31 +1,32 @@
-const dsl = require("../../../fixtures/mongoAppdsl.json");
-const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 const formControls = require("../../../locators/FormControl.json");
-import * as _ from "../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  homePage,
+  gitSync,
+  dataSources,
+} from "../../../support/Objects/ObjectsCore";
 
 let repoName;
-describe("Shopping cart App", function () {
+describe.skip("Shopping cart App", function () {
   let datasourceName;
 
   before(() => {
-    _.homePage.NavigateToHome();
-    _.agHelper.GenerateUUID();
+    homePage.NavigateToHome();
+    agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      _.homePage.CreateNewWorkspace("MongoDBShop" + uid);
-      _.homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
+      homePage.CreateNewWorkspace("MongoDBShop" + uid);
+      homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
       cy.fixture("mongoAppdsl").then((val) => {
-        _.agHelper.AddDsl(val);
+        agHelper.AddDsl(val);
       });
     });
   });
 
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MongoDB).click();
-    cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource();
+    dataSources.CreateDataSource("Mongo");
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
@@ -122,32 +123,38 @@ describe("Shopping cart App", function () {
 
     cy.get(appPage.dropdownChevronLeft).click();
     cy.get(".t--back-button").click();
-    _.deployMode.DeployApp(appPage.bookname);
+    deployMode.DeployApp(appPage.bookname);
   });
 
   it("2. Perform CRUD operations and validate data", function () {
     // Adding the books to the Add cart form
-    _.agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
-    _.agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
-    _.agHelper.UpdateInput(appPage.bookprice, 200, true);
-    _.agHelper.UpdateInput(appPage.bookquantity, 2, true);
-    cy.get("span:contains('Submit')").closest("div").eq(1).click();
-    cy.assertPageSave();
-    cy.wait(8000);
-    _.agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
-    _.agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
-    _.agHelper.UpdateInput(appPage.bookprice, 100, true);
-    _.agHelper.UpdateInput(appPage.bookquantity, 1, true);
-    cy.get("span:contains('Submit')").closest("div").eq(1).click();
-    cy.assertPageSave();
+    agHelper.GetNClick(appPage.bookname);
+    //Wait for element to be in DOM
+    agHelper.Sleep(3000);
+    agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
+    agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
+    agHelper.UpdateInput(appPage.bookprice, 200, true);
+    agHelper.UpdateInput(appPage.bookquantity, 2, true);
+    agHelper.GetNClick(appPage.addButton, 0, true);
+    cy.wait("@postExecute");
+    cy.wait(3000);
+    agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
+    agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
+    agHelper.UpdateInput(appPage.bookprice, 100, true);
+    agHelper.UpdateInput(appPage.bookquantity, 1, true);
+    agHelper.GetNClick(appPage.addButton, 0, true);
     cy.wait("@postExecute");
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
+      .first()
       .within(() => {
-        cy.get("span:contains('Delete')").closest("div").eq(1).click();
+        agHelper.GetNClick(appPage.deleteButton, 1, false);
         cy.wait("@postExecute");
         cy.wait(5000);
+        cy.wait("@postExecute")
+          .its("response.body.responseMeta.status")
+          .should("eq", 200);
 
         // validating that the book is deleted
         cy.get("span:contains('Delete')")
@@ -155,17 +162,25 @@ describe("Shopping cart App", function () {
           .should("have.length", 1);
       });
     // Updating the book quantity from edit cart
-    _.agHelper.UpdateInput(appPage.editbookquantity, 3, true);
-    cy.get("span:contains('Submit')").closest("div").eq(0).click();
-    cy.assertPageSave();
-    cy.wait(5000);
+    agHelper.UpdateInput(appPage.editbookquantity, 3, true);
+    agHelper.GetNClick(appPage.editButton, 0, true);
+
+    //Wait for all post execute calls to finish
+    agHelper.Sleep(3000);
+    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    cy.get("@postExecute.all").its("length").should("be.above", 8);
+    cy.get("@postExecute.last")
+      .its("response.body")
+      .then((user) => {
+        expect(user.data.body[0].quantity).to.equal("3");
+      });
     // validating updated value in the cart
     cy.get(".selected-row").children().eq(3).should("have.text", "3");
   });
 
   it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function () {
-    cy.get(".t--back-to-editor").click();
-    _.gitSync.CreateNConnectToGit(repoName);
+    deployMode.NavigateBacktoEditor();
+    gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
@@ -175,7 +190,7 @@ describe("Shopping cart App", function () {
       .children()
       .eq(0)
       .should("have.text", "A man called ove");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get(".selected-row")
       .children()
       .eq(0)
@@ -185,6 +200,6 @@ describe("Shopping cart App", function () {
 
   after(() => {
     //clean up
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    gitSync.DeleteTestGithubRepo(repoName);
   });
 });

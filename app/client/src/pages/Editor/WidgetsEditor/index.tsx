@@ -6,6 +6,7 @@ import Debugger from "components/editorComponents/Debugger";
 import {
   getCurrentPageId,
   getCurrentPageName,
+  getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import NavigationPreview from "./NavigationPreview";
@@ -34,7 +35,6 @@ import Guide from "../GuidedTour/Guide";
 import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
@@ -59,10 +59,10 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
-  const isMultiPane = useSelector(isMultiPaneActive);
   const isPreviewMode = useSelector(previewModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -237,9 +237,16 @@ function WidgetsEditor() {
               </div>
               <Debugger />
             </div>
-
-            {!isMultiPane && <PropertyPaneContainer />}
+            <PropertyPaneContainer />
           </div>
+          {isAutoLayout && (
+            <canvas
+              height={20}
+              id="widget-drag-image"
+              style={{ position: "absolute" }}
+              width={100}
+            />
+          )}
         </>
       )}
     </EditorContextProvider>

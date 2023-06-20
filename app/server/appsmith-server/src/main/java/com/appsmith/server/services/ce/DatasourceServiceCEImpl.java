@@ -542,8 +542,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .findByDatasource(datasource)
                         .flatMap(datasourceStorageService::populateHintMessages)
                         .map(DatasourceStorageDTO::new)
-                        .collectMap(datasourceStorageDTO -> datasourceStorageDTO.getEnvironmentId(),
-                                datasourceStorageDTO -> datasourceStorageDTO)
+                        .collectMap(DatasourceStorageDTO::getEnvironmentId)
                         .flatMap(datasourceStorages -> {
                             datasource.setDatasourceStorages(datasourceStorages);
                             return Mono.just(datasource);
@@ -680,6 +679,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO1.getDatasourceConfiguration());
                     datasourceDTO.setInvalids(datasourceStorageDTO1.getInvalids());
                     datasourceDTO.setMessages(datasourceStorageDTO1.getMessages());
+                    datasourceDTO.setIsConfigured(datasourceStorageDTO1.getIsConfigured());
                     return datasourceDTO;
                 })
                 .thenReturn(datasourceDTO);
@@ -730,7 +730,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 });
     }
 
-    // TODO: Remove the following snippet after client side API changes
     @Override
     public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId) {
         return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);

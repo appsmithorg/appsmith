@@ -1,5 +1,8 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 
 import { dataSetForWorld, MapTypes } from "./constants";
 import IconSVG from "./icon.svg";
@@ -39,6 +42,7 @@ export const CONFIG = {
       },
     ],
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

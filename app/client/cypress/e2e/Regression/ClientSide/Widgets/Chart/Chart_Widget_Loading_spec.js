@@ -1,10 +1,13 @@
-const dsl = require("../../../../../fixtures/ChartLoadingDsl.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
+let dsname;
 describe("Chart Widget Skeleton Loading Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("ChartLoadingDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it(
@@ -30,40 +33,13 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       //Step1
       cy.wait(2000);
-      cy.NavigateToDatasourceEditor();
-
-      //Step2
-      cy.get(datasource.mockUserDatabase).click();
-
-      //Step3 & 4
-      cy.get(`${datasource.datasourceCard}`)
-        .filter(":contains('Users')")
-        .last()
-        .within(() => {
-          cy.get(`${datasource.createQuery}`).click({ force: true });
-        });
-
-      //Step5.1: Click the editing field
-      cy.get(".t--action-name-edit-field").click({ force: true });
-
-      //Step5.2: Click the editing field
-      cy.get(queryLocators.queryNameField).type("Query1");
-
-      // switching off Use Prepared Statement toggle
-      cy.get(queryLocators.switch).last().click({ force: true });
-
-      //Step 6.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({ force: true });
+      _.dataSources.CreateMockDB("Users").then((dbName) => {
+        _.dataSources.CreateQueryFromActiveTab(dbName, false);
+        _.dataSources.ToggleUsePreparedStatement(false);
+      });
 
       // Step6.2: writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
+      _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
       cy.WaitAutoSave();
 
       //Step7:
@@ -124,11 +100,7 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
     "1. Test case while reloading and on submission - airgap",
     function () {
       cy.wait(2000);
-      cy.NavigateToDatasourceEditor();
-
-      cy.get(datasource.PostgreSQL).click();
-      cy.fillPostgresDatasourceForm();
-      cy.testSaveDatasource();
+      _.dataSources.CreateDataSource("Postgres");
       cy.get("@saveDatasource").then((httpResponse) => {
         dsname = httpResponse.response.body.data.name;
       });
@@ -141,16 +113,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       cy.get(queryLocators.switch).last().click({ force: true });
 
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({ force: true });
+      _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
 
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
       cy.WaitAutoSave();
 
       cy.runQuery();

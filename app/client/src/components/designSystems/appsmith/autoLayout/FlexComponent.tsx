@@ -1,16 +1,15 @@
 import type { CSSProperties, ReactNode } from "react";
 import React, { useCallback, useMemo, useEffect, useRef } from "react";
 import styled from "styled-components";
-
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { RenderMode, WidgetType } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
-// import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { getIsResizing } from "selectors/widgetSelectors";
+import { getIsResizing, isWidgetSelected } from "selectors/widgetSelectors";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -26,9 +25,9 @@ import {
   getWidgetMinMaxDimensionsInPixel,
 } from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
-// import { RESIZE_BORDER_BUFFER } from "resizable/common";
 import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
 import { getAutoWidgetId } from "utils/WidgetPositionsObserver/utils";
+import { getAutoLayoutCanvasMetaWidth } from "selectors/autoLayoutSelectors";
 
 export type AutoLayoutProps = {
   alignment: FlexVerticalAlignment;
@@ -36,6 +35,7 @@ export type AutoLayoutProps = {
   componentHeight: number;
   componentWidth: number;
   direction: LayoutDirection;
+  childIndex?: number;
   focused?: boolean;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
@@ -70,6 +70,7 @@ const FlexWidget = styled.div`
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+
   const {
     maxHeight,
     maxWidth,
@@ -103,15 +104,24 @@ export function FlexComponent(props: AutoLayoutProps) {
     return () => {
       widgetPositionsObserver.unObserveWidget(getAutoWidgetId(props.widgetId));
     };
-  }, []);
+  }, [props.childIndex, props.alignment]);
 
+  const isResizing = useSelector(getIsResizing);
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  const isCurrentWidgetResizing = isResizing && isSelected;
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
     isDropTarget,
     props.widgetId,
     props.focused,
-    props.selected,
+    isSelected,
   );
+
+  useEffect(() => {
+    if (ref.current?.style) {
+      ref.current.style.zIndex = zIndex.toString();
+    }
+  }, [zIndex]);
 
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
@@ -144,41 +154,19 @@ export function FlexComponent(props: AutoLayoutProps) {
     ],
   );
   const isPreviewMode = useSelector(previewModeSelector);
-
-  const isResizing = useSelector(getIsResizing);
-  const isCurrentWidgetResizing = isResizing && props.selected;
-  // const widgetDimensionsViewCss = {
-  //   width: props.componentWidth - WIDGET_PADDING * 2,
-  //   height: props.componentHeight - WIDGET_PADDING * 2,
-  //   margin: WIDGET_PADDING + "px",
-  //   transform: `translate3d(${
-  //     props.alignment === "end" ? "-" : ""
-  //   }${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
-  // };
-  // const widgetDimensionsEditCss = {
-  //   width:
-  //     isResizing && !props.isResizeDisabled
-  //       ? "auto"
-  //       : `${
-  //           props.componentWidth - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-  //         }px`,
-  //   height:
-  //     isResizing && !props.isResizeDisabled
-  //       ? "auto"
-  //       : `${
-  //           props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-  //         }px`,
-  //   margin: WIDGET_PADDING / 2 + "px",
-  // };
-
   /**
    * TODO (Preet): Temporarily hard coding fill widget min-width to 100% for mobile viewport.
    * Move this logic to widget config.
    */
+  const parentWidth = useSelector((state) =>
+    getAutoLayoutCanvasMetaWidth(
+      state,
+      props.parentId || MAIN_CONTAINER_WIDGET_ID,
+    ),
+  );
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
       display: "flex",
-      zIndex,
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
@@ -205,6 +193,7 @@ export function FlexComponent(props: AutoLayoutProps) {
             props.hasAutoWidth,
             props.responsiveBehavior,
             props.componentWidth,
+            parentWidth,
           ),
     };
   }, [
@@ -217,6 +206,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     isResizing,
     isPreviewMode,
     onHoverZIndex,
+    parentWidth,
   ]);
 
   return (

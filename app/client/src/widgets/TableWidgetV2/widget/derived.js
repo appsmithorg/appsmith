@@ -179,7 +179,9 @@ export default {
     };
     const compactMode = props.compactMode || "DEFAULT";
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
+      props.positioning === "vertical"
+        ? props.height
+        : (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
     const tableSizes = TABLE_SIZES[compactMode];
 
     let pageSize =
@@ -821,6 +823,7 @@ export default {
     const columns = props.primaryColumns
       ? Object.values(props.primaryColumns)
       : [];
+
     return columns
       .sort((a, b) => a.index - b.index)
       .map((column) => ({

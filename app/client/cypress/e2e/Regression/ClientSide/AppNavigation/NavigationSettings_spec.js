@@ -1,9 +1,11 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const deployMode = ObjectsRegistry.DeployMode;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const entityExplorer = ObjectsRegistry.EntityExplorer;
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  deployMode,
+  appSettings,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
@@ -23,7 +25,7 @@ describe("Test app's navigation settings", function () {
     cy.get(appNavigationLocators.navigationSettings.showNavbar).click({
       force: true,
     });
-    cy.PublishtheApp();
+    deployMode.DeployApp(locators._emptyPageTxt);
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.go("back");
@@ -43,6 +45,7 @@ describe("Test app's navigation settings", function () {
     ).click({
       force: true,
     });
+    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
     deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");

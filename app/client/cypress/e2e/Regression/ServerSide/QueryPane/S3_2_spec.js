@@ -36,7 +36,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(datasource.AmazonS3).click({ force: true }).wait(1000);
 
     cy.generateUUID().then((uid) => {
-      datasourceName = `Amazon S3 CRUD ds ${uid}`;
+      datasourceName = `S3 CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
     });
@@ -182,9 +182,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
     ).to.exist; //verify Delete File dialog appears
     cy.clickButton("Confirm").wait(3000); //wait for Delete operation to be successfull, //Verifies 8684
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-    });
+    cy.wait("@postExecute")
+      .then(({ response }) => {
+        expect(response.body.data.isExecutionSuccess).to.eq(true);
+      })
+      .wait(2000); //wait a bit more for CI
     cy.get(`.t--widget-textwidget span:contains(${fixturePath})`).should(
       "not.exist",
     );
@@ -233,6 +235,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("4. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
+    _.table.AddSampleTableData();
     cy.NavigateToActiveDSQueryPane(datasourceName);
     _.agHelper.GetObjectName().then(($queryName) => {
       _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");

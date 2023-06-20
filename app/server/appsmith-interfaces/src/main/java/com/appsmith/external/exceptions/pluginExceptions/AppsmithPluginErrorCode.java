@@ -19,7 +19,8 @@ public enum AppsmithPluginErrorCode {
     PLUGIN_AUTHENTICATION_ERROR("PE-ATH-5000", "Datasource authentication error"),
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN("PE-UQI-5000", "Where condition could not be parsed"),
     GENERIC_STALE_CONNECTION("PE-STC-5000", "Secondary stale connection error"),
-    PLUGIN_EXECUTE_ARGUMENT_ERROR("PE-ARG-5000", "Wrong arguments provided")
+    PLUGIN_EXECUTE_ARGUMENT_ERROR("PE-ARG-5000", "Wrong arguments provided"),
+    PLUGIN_VALIDATE_DATASOURCE_ERROR("PE-DSE-5005", "Failed to validate datasource")
     ;
 
 

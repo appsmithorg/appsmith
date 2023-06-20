@@ -1,7 +1,9 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+
 export class EmbedSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private appSettings = ObjectsRegistry.AppSettings;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   public locators = {
     _getDimensionInput: (prefix: string) => `.t--${prefix}-dimension input`,
@@ -43,7 +45,7 @@ export class EmbedSettings {
     input.invoke("attr", "checked").then((value) => {
       if (value !== check) {
         this.agHelper.GetNClick(this.locators._showNavigationBar);
-        this.agHelper.ValidateNetworkStatus("@updateApplication");
+        this.assertHelper.AssertNetworkStatus("@updateApplication");
       }
     });
   }
@@ -58,7 +60,7 @@ export class EmbedSettings {
           this.agHelper.GetNClick(this.locators._confirmForking);
         }
 
-        this.agHelper.ValidateNetworkStatus("@updateApplication");
+        this.assertHelper.AssertNetworkStatus("@updateApplication");
       }
     });
   }

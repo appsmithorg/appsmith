@@ -16,6 +16,7 @@ const StyledDiv = styled.div<{ $isMainCanvas: boolean }>`
   z-index: 1;
   min-height: ${(props) =>
     props.$isMainCanvas ? "var(--main-canvas-height)" : undefined};
+  height: 100%;
 `;
 
 export function AutoLayoutDropTarget(props: AutoLayoutDropTargetProps) {

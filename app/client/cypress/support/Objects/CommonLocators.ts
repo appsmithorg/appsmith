@@ -4,9 +4,8 @@ export class CommonLocators {
   _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
-  _spinner = ".ads-v2-spinner";
   _animationSpnner = ".bp3-spinner-animation";
-  _runBtnSpinner = ".ads-v2-spinner";
+  _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
@@ -37,6 +36,8 @@ export class CommonLocators {
   _widgetInputSelector = (widgetType: string) =>
     this._widgetInDeployed(widgetType) + " input";
   _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span";
+  _textWidgetStyleInDeployed =
+    this._widgetInDeployed("textwidget") + " .bp3-ui-text";
   _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input";
   _textAreainputWidgetv1InDeployed =
     this._widgetInDeployed("inputwidget") + " textarea";
@@ -71,6 +72,7 @@ export class CommonLocators {
   _errorTab = "[data-testid=t--tab-ERROR]";
   _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
+  _closeModal = "button:contains('Close')";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
@@ -134,6 +136,7 @@ export class CommonLocators {
   _evaluatedValuePopDragHandler = ".drag-handle-block";
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
+  _evalPopup = ".evaluated-value-popup";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -194,7 +197,6 @@ export class CommonLocators {
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
   _exitPreviewMode = "[data-testid='preview-mode']";
-
   _ds_imageSelector = ".ads-dialog-trigger";
   _ds_imageSelector_label = ".ads-dialog-trigger .label";
   _ds_uppy_fileInput = ".uppy-Dashboard-input";
@@ -213,5 +215,12 @@ export class CommonLocators {
     `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
+  _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
+  _errorToolTip = ".bp3-popover-content";
+  _selectedWidget = "div[data-testid='t--selected']";
+  _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
+  _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
+  _sqlKeyword = ".cm-m-sql.cm-keyword";
+  _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
 }

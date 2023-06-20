@@ -38,8 +38,15 @@ import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import { getAutoLayoutCanvasMetaWidth } from "selectors/autoLayoutSelectors";
 import type { StyledComponent } from "styled-components";
+import {
+  getWidgetCssWidth,
+  getWidgetMinMaxDimensionsInPixel,
+} from "utils/autoLayout/flexWidgetUtils";
+import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
+import type { AlignWidgetTypes } from "widgets/constants";
 
 export type AutoLayoutResizableProps = {
+  mainCanvasWidth: number;
   hasAutoHeight: boolean;
   hasAutoWidth: boolean;
   allowResize: boolean;
@@ -81,7 +88,7 @@ export type AutoLayoutResizableProps = {
   showResizeBoundary: boolean;
 };
 export function ReflowResizable(props: AutoLayoutResizableProps) {
-  // Auto Layouts resizable is dependent on the app state of the widget so on delete it crashes the app
+  // auto-layouts resizable is dependent on the app state of the widget so on delete it crashes the app
   // so adding this check to render auto layout resize only when the widget does have an app state.
   const widget = useSelector((state: AppState) =>
     getWidget(state, props.widgetId),
@@ -137,12 +144,20 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
     reflectPosition: true,
   });
   const allWidgets = useSelector(getWidgets);
+  const { minWidth }: { [key in keyof MinMaxSize]: number | undefined } =
+    getWidgetMinMaxDimensionsInPixel(
+      { type: props.zWidgetType },
+      props.mainCanvasWidth || 1,
+    );
+
   const parentWidth = useSelector((state) =>
     getAutoLayoutCanvasMetaWidth(
       state,
       props.parentId || MAIN_CONTAINER_WIDGET_ID,
     ),
   );
+  const minWidthPercentage = ((minWidth || 0) * 100) / parentWidth;
+
   const dimensionMap = useSelector(getDimensionMap);
   const {
     bottomRow: bottomRowMap,
@@ -150,7 +165,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
     rightColumn: rightColumnMap,
     topRow: topRowMap,
   } = dimensionMap;
-  const { computedAlignment, layer } = useMemo(() => {
+  const { computedAlignment, layer, layerWidthInPixels } = useMemo(() => {
     const { widgetId } = props;
     const widget = allWidgets[widgetId];
     const layer = (() => {
@@ -167,9 +182,41 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       const leftColumn = widget[leftColumnMap];
       return leftColumn > centerColumn ? "end" : "start";
     })();
-    return { computedAlignment, layer };
+    const layerWidthInPixels = layer.children.reduce(
+      (
+        width: number,
+        eachWidget: {
+          id: string;
+          align: AlignWidgetTypes;
+        },
+      ) => {
+        const widget = allWidgets[eachWidget.id];
+        if (widget) {
+          const widgetWidth =
+            (props.isMobile
+              ? widget.mobileWidth || widget.width
+              : widget.width) || 0;
+          let widgetWithInPixels = widgetWidth * 0.01 * parentWidth;
+          const {
+            minWidth,
+          }: { [key in keyof MinMaxSize]: number | undefined } =
+            getWidgetMinMaxDimensionsInPixel(
+              { type: widget.type },
+              props.mainCanvasWidth || 1,
+            );
+          if (widgetWithInPixels < (minWidth || 0)) {
+            widgetWithInPixels = minWidth || 0;
+          }
+          width += widgetWithInPixels;
+        }
+        return width;
+      },
+      0,
+    );
+    return { computedAlignment, layer, layerWidthInPixels };
   }, [props, allWidgets, leftColumnMap]);
   const widget = allWidgets[props.widgetId];
+  const widgetWidthInPixels = props.componentWidth * 0.01 * parentWidth;
   const fillWidgetsFilter = (each: any) => {
     const currentWidget = allWidgets[each.id];
     return (
@@ -200,27 +247,55 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         // ToDo(Ashok): need to add limits
         const canVerticalMove = true,
           canHorizontalMove = true;
-
-        //if it should not resize horizontally, we keep keep the previous horizontal dimensions
-        if (!canHorizontalMove || !(canResizeHorizontally || hasFillChild)) {
+        const hasReachedMaxWidthLimit = !(
+          layerWidthInPixels < parentWidth &&
+          layerWidthInPixels + rect.width <= parentWidth
+        );
+        const isIncreasingWidth = newRect.width > 0;
+        const setMaxLimitAsWidth =
+          !props.isMobile && hasReachedMaxWidthLimit && isIncreasingWidth;
+        minWidthPercentage;
+        const hasReachedMimWidthLimit =
+          widgetWidthInPixels + rect.width <= (minWidth || 0);
+        const setMinLimitAsWidth =
+          !isIncreasingWidth && hasReachedMimWidthLimit;
+        const minWidthDiff = Math.max(widgetWidthInPixels - (minWidth || 0), 0);
+        if (setMaxLimitAsWidth) {
+          const maxWidthDiff = parentWidth - layerWidthInPixels;
           newRect = {
             ...newRect,
-            width: prevState.width,
-            x: prevState.x,
-            X: prevState.X,
+            width: maxWidthDiff,
+            x: maxWidthDiff,
+            X: maxWidthDiff,
           };
-        }
-
-        //if it should not resize vertically, we keep keep the previous vertical dimensions
-        if (!canVerticalMove || !canResizeVertically) {
+        } else if (setMinLimitAsWidth) {
           newRect = {
             ...newRect,
-            height: prevState.height,
-            y: prevState.y,
-            Y: prevState.Y,
+            width: -minWidthDiff,
+            x: -minWidthDiff,
+            X: -minWidthDiff,
           };
-        }
+        } else {
+          //if it should not resize horizontally, we keep keep the previous horizontal dimensions
+          if (!canHorizontalMove || !(canResizeHorizontally || hasFillChild)) {
+            newRect = {
+              ...newRect,
+              width: prevState.width,
+              x: prevState.x,
+              X: prevState.X,
+            };
+          }
 
+          //if it should not resize vertically, we keep keep the previous vertical dimensions
+          if (!canVerticalMove || !canResizeVertically) {
+            newRect = {
+              ...newRect,
+              height: prevState.height,
+              y: prevState.y,
+              Y: prevState.Y,
+            };
+          }
+        }
         return newRect;
       });
     }
@@ -445,8 +520,13 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
   const onResizeStop = () => {
     togglePointerEvents(true);
     const widthChange = (newDimensions.width * 100) / parentWidth;
+    const newlyComputedWidth = Math.min(
+      Math.max(props.componentWidth + widthChange, minWidthPercentage),
+      100,
+    );
+    //ToDo: Ashok need to add check to update widgets only when needed
     props.onStop({
-      width: Math.min(props.componentWidth + widthChange, 100),
+      width: newlyComputedWidth,
       height: newDimensions.height,
     });
     setResizing(false);
@@ -517,7 +597,12 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       props.showResizeBoundary ? "show-boundary" : ""
     } ${pointerEvents ? "" : "pointer-event-none"}`;
   }, [props.className, pointerEvents, props.showResizeBoundary]);
-
+  const computedParentWidth = getWidgetCssWidth(
+    props.hasAutoWidth,
+    props.responsiveBehavior,
+    props.componentWidth,
+    parentWidth,
+  );
   return (
     <ResizeWrapper
       className={wrapperClassName}
@@ -529,7 +614,8 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           width:
             props.hasAutoWidth || !isResizing
               ? "100%"
-              : isResizing && `calc(100% + ${newDimensions.width}px)`,
+              : isResizing &&
+                `calc(${computedParentWidth} + ${newDimensions.width}px)`,
           height:
             props.hasAutoHeight || !isResizing
               ? "100%"

@@ -1,10 +1,13 @@
+import { useSelector } from "react-redux";
 import { useCallback, useEffect, useRef } from "react";
 
 import { handleTab } from "./handleTab";
 import { CANVAS_WIDGET } from "./tabbable";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 function useWidgetFocus(): (instance: HTMLElement | null) => void {
   const ref = useRef<HTMLElement | null>();
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   // This is a callback that will be called when the ref is set
   const setRef = useCallback((node: HTMLElement | null) => {
@@ -18,6 +21,7 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
   }, []);
 
   useEffect(() => {
+    if (isAutoLayout) return;
     if (!ref.current) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {

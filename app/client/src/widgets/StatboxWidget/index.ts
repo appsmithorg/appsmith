@@ -2,6 +2,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
   FlexLayerAlignment,
+  FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
@@ -29,6 +30,7 @@ export const CONFIG = {
   name: "Stats Box",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["statbox"],
   isCanvas: true,
   canvasHeightOffset: (props: WidgetProps): number => {
     const offset =
@@ -53,6 +55,7 @@ export const CONFIG = {
     children: [],
     positioning: Positioning.Fixed,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Stretch,
     blueprint: {
       view: [
         {

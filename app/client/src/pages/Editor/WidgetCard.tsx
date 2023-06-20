@@ -1,3 +1,4 @@
+import type { DragEvent } from "react";
 import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
@@ -6,6 +7,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
+import { useSelector } from "react-redux";
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import { useDragImageGenerator } from "./useDragImageGenerator";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -71,15 +75,34 @@ export const IconLabel = styled.h5`
 
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const { deselectAll } = useWidgetSelection();
+  const { getWidgetDragImage, resetCanvas } = useDragImageGenerator();
 
-  const onDragStart = (e: any) => {
-    e.preventDefault();
+  const onDragStart = (e: DragEvent) => {
     e.stopPropagation();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
       widgetName: props.details.displayName,
     });
+    if (isAutoLayout) {
+      e.dataTransfer.setData(
+        "text/plain",
+        JSON.stringify({
+          ...props.details,
+          widgetId: generateReactKey(),
+        }),
+      );
+
+      const canvas = getWidgetDragImage(props.details.displayName);
+      e.dataTransfer.setDragImage(canvas, 0, 0);
+
+      setTimeout(() => {
+        resetCanvas();
+      }, 100);
+    } else {
+      e.preventDefault();
+    }
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,

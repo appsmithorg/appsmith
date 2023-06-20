@@ -8,6 +8,7 @@ import {
   getOAuthAccessToken,
   createDatasourceFromForm,
   toggleSaveActionFlag,
+  updateDatasourceAuthState,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -63,6 +64,7 @@ export type DatasourceFormButtonTypes = Record<string, string[]>;
 export enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
+  ACCESS_DENIED = "access_denied",
 }
 
 export enum DatasourceButtonTypeEnum {
@@ -164,9 +166,6 @@ function DatasourceAuth({
 
   const pageId = (pageIdQuery || pageIdProp) as string;
 
-  const dsName = datasource?.name;
-  const orgId = datasource?.workspaceId;
-
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
       // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
@@ -184,27 +183,33 @@ function DatasourceAuth({
           !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const oauthReason = status;
-        AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-          dsName,
-          oauthReason,
-          orgId,
-          pluginName,
-        });
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
           toast.show(display_message || message, { kind: "error" });
+          AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+            applicationId: applicationId,
+            datasourceId: datasourceId,
+            pageId: pageId,
+            oAuthPassOrFailVerdict: status,
+            workspaceId: datasource?.workspaceId,
+            datasourceName: datasource?.name,
+            pluginName: pluginName,
+          });
+
+          if (status === AuthorizationStatus.ACCESS_DENIED) {
+            dispatch(
+              updateDatasourceAuthState(
+                datasource,
+                AuthenticationStatus.FAILURE_ACCESS_DENIED,
+              ),
+            );
+          }
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
-        AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
-          applicationId,
-          datasourceId,
-          pageId,
-        });
       }
     }
   }, [authType]);
@@ -284,10 +289,10 @@ function DatasourceAuth({
       );
     }
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
-      dsName,
-      orgId,
-      pluginName,
-      scopeValue,
+      dsName: datasource?.name,
+      orgId: datasource?.workspaceId,
+      pluginName: pluginName,
+      scopeValue: scopeValue,
     });
   };
 

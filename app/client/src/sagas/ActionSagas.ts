@@ -9,6 +9,7 @@ import {
 import {
   all,
   call,
+  fork,
   put,
   race,
   select,
@@ -16,7 +17,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
@@ -44,22 +45,31 @@ import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
+import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
+  ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
+import { isGraphqlPlugin } from "entities/Action";
 import {
   isAPIAction,
   PluginPackageName,
   PluginType,
   SlashCommand,
 } from "entities/Action";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
+  getActions,
   getCurrentPageNameByActionId,
+  getDatasource,
+  getDatasourceStructureById,
   getDatasources,
   getEditorConfig,
   getPageNameByPageId,
@@ -125,6 +135,84 @@ import {
   API_EDITOR_FORM_NAME,
   QUERY_EDITOR_FORM_NAME,
 } from "@appsmith/constants/forms";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+
+export function* createDefaultActionPayload(
+  pageId: string,
+  datasourceId: string,
+  from?: EventLocation,
+) {
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const actions: ActionDataState = yield select(getActions);
+
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+  const pluginType: PluginType = plugin?.type;
+  const isGraphql: boolean = isGraphqlPlugin(plugin);
+
+  // If the datasource is Graphql then get Graphql default config else Api config
+  const DEFAULT_CONFIG = isGraphql
+    ? DEFAULT_GRAPHQL_ACTION_CONFIG
+    : DEFAULT_API_ACTION_CONFIG;
+
+  const DEFAULT_HEADERS = isGraphql
+    ? DEFAULT_GRAPHQL_ACTION_CONFIG.headers
+    : DEFAULT_API_ACTION_CONFIG.headers;
+
+  /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
+  const defaultApiActionConfig: ApiActionConfig = {
+    ...DEFAULT_CONFIG,
+    headers: DEFAULT_HEADERS,
+  };
+
+  const newActionName =
+    pluginType === PluginType.DB
+      ? createNewQueryName(actions, pageId || "")
+      : createNewApiName(actions, pageId || "");
+
+  return {
+    name: newActionName,
+    pageId,
+    pluginId: datasource?.pluginId,
+    datasource: {
+      id: datasourceId,
+    },
+    eventData: {
+      actionType: pluginType === PluginType.DB ? "Query" : "API",
+      from: from,
+      dataSource: datasource.name,
+      datasourceId: datasourceId,
+      pluginName: plugin?.name,
+      isMock: !!datasource?.isMock,
+    },
+    actionConfiguration:
+      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
+  };
+}
+
+export function* getPulginActionDefaultValues(pluginId: string) {
+  if (!pluginId) {
+    return;
+  }
+  const editorConfig: any[] = yield select(getEditorConfig, pluginId);
+
+  const settingConfig: any[] = yield select(getSettingConfig, pluginId);
+
+  let initialValues: Record<string, unknown> = yield call(
+    getConfigInitialValues,
+    editorConfig,
+  );
+  if (settingConfig) {
+    const settingInitialValues: Record<string, unknown> = yield call(
+      getConfigInitialValues,
+      settingConfig,
+    );
+    initialValues = merge(initialValues, settingInitialValues);
+  }
+  return initialValues;
+}
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -134,27 +222,10 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      const editorConfig: any[] = yield select(
-        getEditorConfig,
+      const initialValues: object = yield call(
+        getPulginActionDefaultValues,
         actionPayload.payload.pluginId,
       );
-
-      const settingConfig: any[] = yield select(
-        getSettingConfig,
-        actionPayload.payload.pluginId,
-      );
-
-      let initialValues: Record<string, unknown> = yield call(
-        getConfigInitialValues,
-        editorConfig,
-      );
-      if (settingConfig) {
-        const settingInitialValues: Record<string, unknown> = yield call(
-          getConfigInitialValues,
-          settingConfig,
-        );
-        initialValues = merge(initialValues, settingInitialValues);
-      }
       payload = merge(initialValues, actionPayload.payload);
     }
 
@@ -188,12 +259,28 @@ export function* createActionSaga(
       const newAction = response.data;
       // @ts-expect-error: type mismatch ActionCreateUpdateResponse vs Action
       yield put(createActionSuccess(newAction));
+
+      // we fork to prevent the call from blocking
+      yield fork(fetchActionDatasourceStructure, newAction);
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACTION_ERROR,
       payload: actionPayload.payload,
     });
+  }
+}
+
+function* fetchActionDatasourceStructure(action: ActionCreateUpdateResponse) {
+  if (action.datasource?.id) {
+    const doesDatasourceStructureAlreadyExist: DatasourceStructure =
+      yield select(getDatasourceStructureById, action.datasource.id);
+    if (doesDatasourceStructureAlreadyExist) {
+      return;
+    }
+    yield put(fetchDatasourceStructure(action.datasource.id, true));
+  } else {
+    return;
   }
 }
 
@@ -564,14 +651,12 @@ function* copyActionSaga(
 
     // checking if there is existing datasource to be added to the action payload
     const existingDatasource = datasources.find(
-      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       (d: Datasource) => d.id === response.data.datasource.id,
     );
 
     let payload = response.data;
 
     if (existingDatasource) {
-      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       payload = { ...payload, datasource: existingDatasource };
     }
 

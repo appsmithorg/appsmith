@@ -17,6 +17,7 @@ import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
+  FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
@@ -62,6 +63,7 @@ export const CONFIG = {
     //positioning: Positioning.Fixed,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     dynamicBindingPathList: [
       {
         key: "currentItemsView",

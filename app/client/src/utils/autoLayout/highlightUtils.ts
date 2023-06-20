@@ -356,6 +356,11 @@ export function generateHighlightsForAlignment(data: {
   for (const child of arr) {
     if (!widgetPositions[child.widgetId]) continue;
     const { height, left, top } = widgetPositions[child.widgetId];
+
+    const highlightHeight = isMobile ? height : maxHeight;
+
+    //temp fix for bottom aligned widgets
+    const highlightTop = top + height - highlightHeight - canvasPositions.top;
     res.push({
       isNewLayer: false,
       index: count + childCount,
@@ -363,9 +368,9 @@ export function generateHighlightsForAlignment(data: {
       rowIndex: count,
       alignment,
       posX: left - canvasPositions.left - DEFAULT_HIGHLIGHT_SIZE,
-      posY: top - canvasPositions.top,
+      posY: highlightTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
-      height: isMobile ? height : maxHeight,
+      height: highlightHeight,
       isVertical: true,
       canvasId,
       dropZone: {},
@@ -378,6 +383,11 @@ export function generateHighlightsForAlignment(data: {
       arr && arr.length ? arr[arr.length - 1] : null;
     const { height, left, top, width } =
       widgetPositions[lastChild?.widgetId || ""] || {};
+
+    const highlightHeight = isMobile && lastChild !== null ? height : maxHeight;
+
+    //temp fix for bottom aligned widgets
+    const highlightTop = top + height - highlightHeight - canvasPositions.top;
     res.push({
       isNewLayer: false,
       index: count + childCount,
@@ -391,7 +401,10 @@ export function generateHighlightsForAlignment(data: {
         canvasWidth,
         startPosition,
       ),
-      posY: lastChild === null ? offsetTop : top - canvasPositions.top,
+      posY:
+        lastChild === null
+          ? offsetTop + height - highlightHeight
+          : highlightTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile && lastChild !== null ? height : maxHeight,
       isVertical: true,

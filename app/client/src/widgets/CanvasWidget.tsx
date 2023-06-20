@@ -24,6 +24,7 @@ import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -31,6 +32,10 @@ class CanvasWidget extends ContainerWidget {
   }
   static getWidgetType() {
     return "CANVAS_WIDGET";
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {};
   }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
@@ -68,7 +73,10 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
+  renderChildWidget(
+    childWidgetData: CanvasWidgetStructure,
+    index: number,
+  ): React.ReactNode {
     if (!childWidgetData) return null;
 
     const childWidget = { ...childWidgetData };
@@ -82,6 +90,7 @@ class CanvasWidget extends ContainerWidget {
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.isFlexChild = this.props.useAutoLayout;
+    childWidget.childIndex = index;
     childWidget.direction = this.getDirection();
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
@@ -257,6 +266,7 @@ export const CONFIG = {
     default: CanvasWidget.getDefaultPropertiesMap(),
     meta: CanvasWidget.getMetaPropertiesMap(),
     config: CanvasWidget.getPropertyPaneConfig(),
+    autocompleteDefinitions: CanvasWidget.getAutocompleteDefinitions(),
   },
 };
 

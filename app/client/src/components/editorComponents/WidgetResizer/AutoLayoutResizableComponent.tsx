@@ -262,6 +262,7 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       isFlexChild={props.isFlexChild}
       isHovered={isHovered}
       isMobile={props.isMobile || false}
+      mainCanvasWidth={props.mainCanvasWidth || 1}
       maxHeightInPx={maxHeightInPx}
       onStart={handleResizeStart}
       onStop={updateSize}
