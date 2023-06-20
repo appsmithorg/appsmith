@@ -587,10 +587,10 @@ function* getOAuthAccessTokenSaga(
       response.data.datasource?.pluginId,
     );
     if (validateResponse(response)) {
-      // Update the datasource object
+      // Update the datasource storage object only since the token call only returns the storage object
       yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
-        payload: response.data.datasource,
+        type: ReduxActionTypes.UPDATE_DATASOURCE_STORAGE_SUCCESS,
+        payload: response.data.datasource, // This is the datasourceStorage object
       });
 
       if (!!response.data.token) {
