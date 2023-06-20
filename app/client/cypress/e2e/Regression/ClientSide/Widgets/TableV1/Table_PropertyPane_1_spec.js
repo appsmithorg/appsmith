@@ -211,14 +211,12 @@ describe("Table Widget property pane feature validation", function () {
   });
 
   it("7. Table-Delete Verification", function () {
+     // Open property pane
     cy.openPropertyPane("tablewidget");
-    cy.backFromPropertyPanel();
-    // Chage deat search text value to "data"
-    cy.testJsontext("defaultsearchtext", "data");
-    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
-    _.table.WaitUntilTableLoad(0, 0, "v1");
-    // Verify the deaullt search text
-    cy.get(widgetsPage.searchField).should("have.value", "data");
-    _.deployMode.NavigateBacktoEditor();
+    // Delete the Table widget
+    cy.deleteWidget(widgetsPage.tableWidget);
+    _.deployMode.DeployApp();
+    // Verify the Table widget is deleted
+    cy.get(widgetsPage.tableWidget).should("not.exist");
   });
 });
