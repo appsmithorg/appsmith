@@ -461,13 +461,13 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        isAutoLayout={this.isAutoLayoutMode}
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
+        shouldFitContent={this.isAutoLayoutMode}
         text={this.props.text}
         tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}

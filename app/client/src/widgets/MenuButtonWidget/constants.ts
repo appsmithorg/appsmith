@@ -59,7 +59,7 @@ export interface MenuButtonWidgetProps extends WidgetProps {
 export interface MenuButtonComponentProps {
   label?: string;
   isDisabled?: boolean;
-  isAutoLayout: boolean;
+  shouldFitContent: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;

@@ -323,8 +323,8 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
-      isAutoLayout={isAutoLayout}
       renderMode={renderMode}
+      shouldFitContent={isAutoLayout}
     >
       <BaseButton
         alignText={getAlignText(isRightAlign, iconName)}
@@ -351,7 +351,6 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     getVisibleItems,
     iconAlign,
     iconName,
-    isAutoLayout,
     isCompact,
     isDisabled,
     label,
@@ -363,6 +362,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     onItemClicked,
     placement,
     renderMode,
+    shouldFitContent,
     sourceData,
     widgetId,
     width,
@@ -403,7 +403,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           buttonVariant={menuVariant}
           iconAlign={iconAlign}
           iconName={iconName}
-          isAutoLayout={isAutoLayout}
+          isAutoLayout={shouldFitContent}
           isDisabled={isDisabled}
           label={label}
           placement={placement}

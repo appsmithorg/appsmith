@@ -584,9 +584,9 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
       disabled={props.isDisabled}
       iconAlign={props.iconAlign}
       iconName={props.iconName}
-      isAutoLayout={props.isAutoLayout}
       onClick={openModal}
       placement={props.placement}
+      shouldFitContent={props.isAutoLayout}
       text={props.label}
     />
   );

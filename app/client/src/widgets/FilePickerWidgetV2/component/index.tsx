@@ -26,9 +26,9 @@ function FilePickerComponent(props: FilePickerComponentProps) {
       boxShadow={props.boxShadow}
       buttonColor={props.buttonColor}
       disabled={props.isDisabled}
-      isAutoLayout={props.isAutoLayout}
       loading={props.isLoading}
       onClick={openModal}
+      shouldFitContent={props.shouldFitContent}
       text={computedLabel}
     />
   );
@@ -41,7 +41,7 @@ export interface FilePickerComponentProps extends ComponentProps {
   buttonColor: string;
   borderRadius: string;
   boxShadow?: string;
-  isAutoLayout: boolean;
+  shouldFitContent: boolean;
 }
 
 FilePickerComponent.defaultProps = {

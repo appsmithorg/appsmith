@@ -33,7 +33,7 @@ export type ButtonContainerProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   disabled?: boolean;
-  isAutoLayout: boolean;
+  shouldFitContent?: boolean;
   loading?: boolean;
   style?: React.CSSProperties;
 };
@@ -47,8 +47,8 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
     height: 100%;
   }
 
-  ${({ isAutoLayout }) =>
-    isAutoLayout &&
+  ${({ shouldFitContent }) =>
+    shouldFitContent &&
     css`
       .bp3-button.bp3-fill {
         display: flex;
@@ -80,7 +80,6 @@ type DragContainerProps = ButtonContainerProps & {
   onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode?: RenderMode;
   showInAllModes?: boolean;
-  isAutoLayout: boolean;
 };
 
 export function DragContainer(props: DragContainerProps) {
@@ -93,9 +92,9 @@ export function DragContainer(props: DragContainerProps) {
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
-        isAutoLayout={props.isAutoLayout}
         loading={props.loading}
         onClick={hasOnClick ? props.onClick : undefined}
+        shouldFitContent={props.shouldFitContent}
         style={props.style}
       >
         {props.children}
