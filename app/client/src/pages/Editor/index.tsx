@@ -15,7 +15,6 @@ import {
 } from "selectors/editorSelectors";
 import type { InitializeEditorPayload } from "actions/initActions";
 import { initEditor, resetEditorRequest } from "actions/initActions";
-import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
@@ -65,17 +64,7 @@ type EditorProps = {
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
-  public state = {
-    registered: false,
-  };
-
-  componentDidMount() {
-    editorInitializer().then(() => {
-      this.setState({ registered: true });
-    });
-  }
-
-  shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+  shouldComponentUpdate(nextProps: Props) {
     const isBranchUpdated = getIsBranchUpdated(
       this.props.location,
       nextProps.location,
@@ -92,8 +81,7 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
-      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour ||
-      nextState.registered !== this.state.registered
+      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour
     );
   }
 
@@ -142,11 +130,7 @@ class Editor extends Component<Props> {
   }
 
   public render() {
-    if (
-      !this.props.isEditorInitialized ||
-      !this.state.registered ||
-      this.props.loadingGuidedTour
-    ) {
+    if (!this.props.isEditorInitialized || this.props.loadingGuidedTour) {
       return (
         <CenteredWrapper
           style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}

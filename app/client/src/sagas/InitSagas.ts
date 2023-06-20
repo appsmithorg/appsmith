@@ -53,7 +53,6 @@ import {
   matchBuilderPath,
   matchViewerPath,
 } from "../constants/routes";
-import { editorInitializer } from "../utils/editor/EditorUtils";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -172,7 +171,6 @@ function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
 }
 
 function* eagerPageInitSaga() {
-  yield call(editorInitializer);
   const url = window.location.pathname;
   const search = window.location.search;
   if (isEditorPath(url)) {
