@@ -320,6 +320,9 @@ export type EventName =
   | "GOOGLE_SHEET_FILE_PICKER_CANCEL"
   | "GOOGLE_SHEET_FILE_PICKER_PICKED"
   | "TELEMETRY_DISABLED"
+  | "DISPLAY_TELEMETRY_CALLOUT"
+  | "VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT"
+  | "LEARN_MORE_TELEMETRY_CALLOUT"
   | AI_EVENTS
   | ONE_CLICK_BINDING_EVENT_NAMES;
 
@@ -393,6 +396,7 @@ class AnalyticsUtil {
   static cachedUserId: string;
   static user?: User = undefined;
   static blockTrackEvent: boolean | undefined;
+  static instanceId?: string = "";
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -486,6 +490,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
+    const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
@@ -513,6 +518,7 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
+    finalEventData = { ...finalEventData, instanceId };
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
@@ -581,6 +587,10 @@ class AnalyticsUtil {
     }
 
     AnalyticsUtil.blockTrackEvent = false;
+  }
+
+  static initInstanceId(instanceId: string) {
+    AnalyticsUtil.instanceId = instanceId;
   }
 
   static getAnonymousId() {

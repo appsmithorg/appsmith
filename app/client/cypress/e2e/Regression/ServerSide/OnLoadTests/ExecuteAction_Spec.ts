@@ -1,9 +1,9 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators,
-  homePage = ObjectsRegistry.HomePage,
-  deployMode = ObjectsRegistry.DeployMode;
+import {
+  agHelper,
+  deployMode,
+  homePage,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Execute Action Functionality", function () {
   before(() => {
@@ -11,11 +11,11 @@ describe("Execute Action Functionality", function () {
   });
 
   it("1. Checks whether execute action is getting called on page load only once", function () {
-    agHelper.AssertElementVisible(locator._widgetInCanvas("textwidget"));
+    agHelper.AssertElementVisible(locators._widgetInCanvas("textwidget"));
     deployMode.DeployApp();
 
     agHelper.GetNAssertContains(
-      locator._widgetInDeployed("textwidget"),
+      locators._widgetInDeployed("textwidget"),
       "User count :5",
     );
 
@@ -32,10 +32,10 @@ describe("Execute Action Functionality", function () {
       .should("have.length", 2); //Count from Initial Import + Deployed Mode - Page 1 execute call - hence count 2
     agHelper.Sleep(500);
 
-    agHelper.GetNClickByContains(locator._deployedPage, "Page2");
+    agHelper.GetNClickByContains(locators._deployedPage, "Page2");
 
     agHelper.GetNAssertContains(
-      locator._widgetInDeployed("textwidget"),
+      locators._widgetInDeployed("textwidget"),
       "User count :10",
     );
 
@@ -50,10 +50,10 @@ describe("Execute Action Functionality", function () {
       })
       .should("have.length", 1); // Since Page 2 is switched - previous count is washed out, and this is only call
 
-    agHelper.GetNClickByContains(locator._deployedPage, "Page1");
+    agHelper.GetNClickByContains(locators._deployedPage, "Page1");
 
     agHelper.GetNAssertContains(
-      locator._widgetInDeployed("textwidget"),
+      locators._widgetInDeployed("textwidget"),
       "User count :5",
     );
 

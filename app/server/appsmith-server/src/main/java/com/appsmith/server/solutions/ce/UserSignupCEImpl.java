@@ -53,7 +53,6 @@ import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKE
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
@@ -275,8 +274,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                     Mono<EnvChangesResponseDTO> applyEnvManagerChangesMono = envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                    APPSMITH_INSTANCE_NAME.name(),
-                                    commonConfig.getInstanceName(),
                                     APPSMITH_ADMIN_EMAILS.name(),
                                     user.getEmail()
                             ))
@@ -296,9 +293,14 @@ public class UserSignupCEImpl implements UserSignupCE {
                      */
                     Mono<User> sendCreateSuperUserEvent = sendCreateSuperUserEventOnSeparateThreadMono(user);
 
-                    Mono<Boolean> installationSetupAnalyticsMono = sendInstallationSetupAnalyticsOnSeparateThreadMono(userFromRequest, user, userData);
+                    // In the past, we have seen "Installation Setup Complete" not getting triggered if subscribed within
+                    // secondary functions, hence subscribing this in a separate thread to avoid getting cancelled because
+                    // of any other secondary function mono throwing an exception
+                    sendInstallationSetupAnalytics(userFromRequest, user, userData)
+                            .subscribeOn(commonConfig.scheduler())
+                            .subscribe();
 
-                    Mono<Long> allSecondaryFunctions = Mono.when(userDataMono, installationSetupAnalyticsMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
+                    Mono<Long> allSecondaryFunctions = Mono.when(userDataMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {
@@ -360,16 +362,16 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
-    private Mono<Boolean> sendInstallationSetupAnalyticsOnSeparateThreadMono(UserSignupRequestDTO userFromRequest,
-                                                                             User user,
-                                                                             UserData userData) {
+    private Mono<Void> sendInstallationSetupAnalytics(UserSignupRequestDTO userFromRequest,
+                                                      User user,
+                                                      UserData userData) {
 
         Mono<String> getInstanceIdMono = configService.getInstanceId()
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken to get instance ID: {} ms", pair.getT1());
                     return pair.getT2();
-                });;
+                });
 
         Mono<String> getExternalAddressMono = NetworkUtils.getExternalAddress().defaultIfEmpty("unknown")
                 .elapsed()
@@ -378,7 +380,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return pair.getT2();
                 });
 
-        Mono.zip(getInstanceIdMono, getExternalAddressMono)
+        return Mono.zip(getInstanceIdMono, getExternalAddressMono)
                 .flatMap(tuple -> {
                     final String instanceId = tuple.getT1();
                     final String ip = tuple.getT2();
@@ -425,9 +427,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     log.debug("UserSignupCEImpl::Time taken to send installation setup analytics event: {} ms", pair.getT1());
                     return pair.getT2();
                 })
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
-        return Mono.just(Boolean.TRUE);
+                .then();
     }
 
     private Mono<User> sendCreateSuperUserEventOnSeparateThreadMono(User user) {

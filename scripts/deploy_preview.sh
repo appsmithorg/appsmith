@@ -35,7 +35,7 @@ export DBNAME=ce"$PULL_REQUEST_NUMBER"
 export DOMAINNAME=ce-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm.appsmith.com"
-export HELMCHART_VERSION="2.0.0"
+export HELMCHART_VERSION="2.0.2"
 
 aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
 
@@ -69,7 +69,7 @@ helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set ingress.className="nginx" --set applicationConfig.APPSMITH_CLOUD_SERVICES_BASE_URL="https://release-cs.appsmith.com" \
-  --set image.pullPolicy="Always" --set autoupdate.enabled="true" --set persistence.size=4Gi \
+  --set image.pullPolicy="Always" --set autoupdate.enabled="true" --set persistence.size=2Gi \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \

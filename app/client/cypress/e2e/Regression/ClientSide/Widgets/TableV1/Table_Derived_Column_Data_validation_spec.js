@@ -1,17 +1,18 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableTextPaginationDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableTextPaginationDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Create an API and Execute the API and bind with Table", function () {
     // Create and execute an API and bind with table
     _.apiPage.CreateAndFillApi(
-      this.data.paginationUrl + this.data.paginationParam,
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
     cy.RunAPI();
     //Test: Validate Table with API data and then add a column
@@ -69,7 +70,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     _.entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();
     // Change the table data
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInputUpdate));
     cy.wait("@updateLayout");
     // verify columns are visible or not in the propert pane
     cy.tableColumnDataValidation("id");

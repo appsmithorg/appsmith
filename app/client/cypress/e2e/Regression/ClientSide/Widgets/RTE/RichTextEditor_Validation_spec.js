@@ -1,10 +1,12 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/formdsl1.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("RichTextEditor Widget Validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formdsl1").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
@@ -25,9 +27,5 @@ describe("RichTextEditor Widget Validation", function () {
     );
 
     cy.closePropertyPane();
-  });
-
-  afterEach(() => {
-    cy.goToEditFromPublish();
   });
 });

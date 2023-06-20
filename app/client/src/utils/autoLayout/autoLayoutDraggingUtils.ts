@@ -130,7 +130,7 @@ export function updateRelationships(
 }
 
 /**
- * If widgets are dropped into a new vertical position in an auto layout canvas,
+ * If widgets are dropped into a new vertical position in an auto-layout canvas,
  * then add a new FlexLayer to contain the new widgets.
  * Use the layerIndex to add the new layer at the right position.
  * @param newLayer | FlexLayer

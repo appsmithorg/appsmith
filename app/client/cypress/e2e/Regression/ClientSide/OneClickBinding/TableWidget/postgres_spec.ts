@@ -1,102 +1,116 @@
-import { WIDGET } from "../../../../../locators/WidgetLocators";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "../spec_utility";
-import locators from "../../../../../locators/OneClickBindingLocator";
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
+import { OneClickBinding } from "../spec_utility";
+import {
+  agHelper,
+  entityExplorer,
+  dataSources,
+  table,
+  draggableWidgets,
+  assertHelper,
+} from "../../../../../support/Objects/ObjectsCore";
 
-describe.skip("Table widget one click binding feature", () => {
+const oneClickBinding = new OneClickBinding();
+
+describe("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      entityExplorer.NavigateToSwitcher("Widgets");
 
-      (cy as any).openPropertyPane(WIDGET.TABLE);
+      entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-      ChooseAndAssertForm(`New from ${dsName}`, dsName, "public.users", "name");
+      oneClickBinding.ChooseAndAssertForm(
+        `New from ${dsName}`,
+        dsName,
+        "public.users",
+        "name",
+      );
     });
 
-    _.agHelper.GetNClick(locators.connectData);
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    cy.wait("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    cy.wait(2000);
+    agHelper.Sleep(2000);
 
     ["id", "gender", "dob", "name", "email", "phoneNo"].forEach((column) => {
-      _.agHelper.AssertElementExist(_.table._headerCell(column));
+      agHelper.AssertElementExist(table._headerCell(column));
     });
 
-    _.agHelper.AssertElementExist(_.table._showPageItemsCount);
+    agHelper.AssertElementExist(table._showPageItemsCount);
+    table.EnableEditableOfColumn("id", "v2");
 
-    (cy as any).makeColumnEditable("id");
+    agHelper.GetNClick(table._addNewRow, 0, true);
 
-    _.agHelper.GetNClick(_.table._addNewRow, 0, true);
+    //const randomNumber = Cypress._.random(10, 100, false);
+    //cy.log("randomeNumber: " + randomNumber);
 
-    (cy as any).enterTableCellValue(0, 0, "3");
+    // table.EditTableCell(0, 0, randomNumber.toString(), false);//Bug 24623 - since 2 digit id is not typed properly
+    table.EditTableCell(0, 0, 2, false);
+    table.UpdateTableCell(0, 1, "cypress@appsmith");
+    table.UpdateTableCell(0, 2, " 2016-06-22 19:10:25-07");
+    table.UpdateTableCell(0, 3, " 2016-06-22 19:10:25-07");
+    agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
 
-    (cy as any).enterTableCellValue(1, 0, "cypress@appsmith");
+    agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
 
-    (cy as any).enterTableCellValue(2, 0, " 2016-06-22 19:10:25-07");
+    agHelper.Sleep(2000);
 
-    (cy as any).enterTableCellValue(3, 0, " 2016-06-22 19:10:25-07");
+    agHelper.GetNClick(table._saveNewRow, 0, true);
 
-    _.agHelper.GetNClick(`[data-testid="datepicker-container"] input`, 0, true);
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.GetNClick(".DayPicker-Day", 0, true);
+    agHelper.TypeText(table._searchInput, "cypress@appsmith");
 
-    (cy as any).wait(2000);
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
+    agHelper.AssertElementExist(table._bodyCell("cypress@appsmith"));
 
-    cy.wait("@postExecute");
+    agHelper.Sleep();
 
-    _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
+    //(cy as any).editTableCell(1, 0);
 
-    cy.wait("@postExecute");
+    agHelper.Sleep(500);
 
-    _.agHelper.AssertElementExist(_.table._bodyCell("cypress@appsmith"));
+    table.EditTableCell(0, 1, "automation@appsmith");
 
-    (cy as any).wait(1000);
+    //(cy as any).enterTableCellValue(1, 0, "automation@appsmith{enter}");
 
-    (cy as any).editTableCell(1, 0);
-
-    (cy as any).wait(500);
-
-    (cy as any).enterTableCellValue(1, 0, "automation@appsmith{enter}");
-
-    (cy as any).wait(1000);
+    agHelper.Sleep();
 
     (cy as any).AssertTableRowSavable(12, 0);
 
     (cy as any).saveTableRow(12, 0);
 
-    cy.wait("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    cy.wait("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(500);
+    agHelper.Sleep(500);
 
-    _.agHelper.ClearTextField(_.table._searchInput);
+    agHelper.ClearTextField(table._searchInput);
 
-    _.agHelper.TypeText(_.table._searchInput, "automation@appsmith");
+    agHelper.TypeText(table._searchInput, "automation@appsmith");
 
-    cy.wait("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementExist(_.table._bodyCell("automation@appsmith"));
+    agHelper.AssertElementExist(table._bodyCell("automation@appsmith"));
 
-    _.agHelper.ClearTextField(_.table._searchInput);
+    agHelper.ClearTextField(table._searchInput);
 
-    _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
+    agHelper.TypeText(table._searchInput, "cypress@appsmith");
 
-    cy.wait("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    (cy as any).wait(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementAbsence(_.table._bodyCell("cypress@appsmith"));
+    agHelper.AssertElementAbsence(table._bodyCell("cypress@appsmith"));
   });
 });

@@ -92,7 +92,7 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
     if (message.messageId !== listenerId) return;
     ExecutionMetaData.setExecutionMetaData(metaData);
     const { body } = message;
-    if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
+    if (!dataTreeEvaluator) throw new Error("No data tree evaluator found");
     ExecutionMetaData.setExecutionMetaData(metaData);
     self["$isDataField"] = false;
     if (body.data) {
