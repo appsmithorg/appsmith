@@ -1,4 +1,8 @@
-import * as _ from "../../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
@@ -7,10 +11,10 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 describe(" File Picker Widget", function () {
   before(() => {
     cy.fixture("Listv2/simpleLargeListv2").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
-  it("a. should test allowed values", function () {
+  it("1. should test allowed values", function () {
     cy.dragAndDropToWidget("filepickerwidgetv2", "listwidgetv2", {
       x: 150,
       y: 50,
@@ -48,7 +52,8 @@ describe(" File Picker Widget", function () {
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
     ).should("not.exist");
   });
-  it("b. Select Widgets isValid and onFilesSelected", function () {
+
+  it("2. Select Widgets isValid and onFilesSelected", function () {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 550,
@@ -122,9 +127,8 @@ describe(" File Picker Widget", function () {
     cy.get(".t--widget-textwidget").should("contain", "true_true_testFile.mov");
   });
 
-  it("c. File Widget Max No of Files", function () {
-    cy.openPropertyPane("filepickerwidgetv2");
-
+  it("3. File Widget Max No of Files", function () {
+    entityExplorer.SelectEntityByName("FilePicker1", "Container1");
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(commonlocators.AddMoreFiles).should("not.exist");
     cy.get(".uppy-Dashboard-close").click({ force: true });
