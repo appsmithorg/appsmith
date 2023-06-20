@@ -46,25 +46,30 @@ export type AutoLayoutProps = {
   widgetType: WidgetType;
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile: boolean;
   renderMode: RenderMode;
   mainCanvasWidth?: number;
   hasAutoHeight?: boolean;
   hasAutoWidth?: boolean;
 };
 
-const FlexWidget = styled.div`
+const FlexWidget = styled.div<{ minWidth?: number }>`
   position: relative;
 
   &.fill-widget {
     flex-grow: 9999;
     flex-shrink: 1;
     flex-basis: 0%;
+
+    min-width: calc(100% - 8px);
+    @media screen and (min-width: 481px) {
+      min-width: ${({ minWidth }) => (minWidth ? `${minWidth}px` : undefined)};
+    }
   }
 
   &.hug-widget {
     flex-grow: 0;
     flex-shrink: 0;
+    min-width: ${({ minWidth }) => (minWidth ? `${minWidth}px` : undefined)};
   }
 `;
 
@@ -171,12 +176,6 @@ export function FlexComponent(props: AutoLayoutProps) {
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
       },
-      minWidth:
-        props.responsiveBehavior === ResponsiveBehavior.Fill && props.isMobile
-          ? "calc(100% - 8px)"
-          : minWidth
-          ? `${minWidth}px`
-          : undefined,
       maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
@@ -197,7 +196,6 @@ export function FlexComponent(props: AutoLayoutProps) {
           ),
     };
   }, [
-    props.isMobile,
     props.componentWidth,
     props.componentHeight,
     props.flexVerticalAlignment,
@@ -215,6 +213,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       data-testid="test-widget"
       data-widgetname-cy={props.widgetName}
       id={getAutoWidgetId(props.widgetId)}
+      minWidth={minWidth}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       ref={ref}

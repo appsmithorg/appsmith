@@ -650,7 +650,6 @@ abstract class BaseWidget<
         focused={this.props.focused}
         hasAutoHeight={autoDimensionConfig?.height}
         hasAutoWidth={autoDimensionConfig?.width}
-        isMobile={this.props.isMobile || false}
         isResizeDisabled={this.props.resizeDisabled}
         mainCanvasWidth={this.props.mainCanvasWidth}
         parentColumnSpace={this.props.parentColumnSpace}

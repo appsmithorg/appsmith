@@ -178,10 +178,7 @@ export class ContainerWidget extends BaseWidget<
     return snapGrid;
   };
 
-  renderChildWidget(
-    childWidgetData: WidgetProps,
-    index: number,
-  ): React.ReactNode {
+  renderChildWidget(childWidgetData: WidgetProps, index = 0): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
