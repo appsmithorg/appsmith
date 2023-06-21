@@ -7,13 +7,8 @@ import type { EditorProps } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
-import get from "lodash/get";
-import merge from "lodash/merge";
-import type {
-  EmbeddedRestDatasource,
-  Datasource,
-  DatasourceStorage,
-} from "entities/Datasource";
+import { get, merge } from "lodash";
+import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
 import { DEFAULT_DATASOURCE } from "entities/Datasource";
 import type CodeMirror from "codemirror";
 import type {
@@ -69,7 +64,7 @@ import { isString } from "lodash";
 
 type ReduxStateProps = {
   workspaceId: string;
-  datasource: DatasourceStorage | EmbeddedRestDatasource;
+  datasource: EmbeddedRestDatasource;
   datasourceList: Datasource[];
   datasourceObject?: Datasource;
   applicationId?: string;
@@ -80,9 +75,7 @@ type ReduxStateProps = {
 };
 
 type ReduxDispatchProps = {
-  updateDatasource: (
-    datasource: DatasourceStorage | EmbeddedRestDatasource,
-  ) => void;
+  updateDatasource: (datasource: EmbeddedRestDatasource) => void;
 };
 
 type Props = EditorProps &
@@ -252,7 +245,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     value: string,
   ): { datasourceUrl: string; path: string } => {
     const { datasource } = this.props;
-    const currentEnvironment = getCurrentEnvironment();
 
     if (value === "") {
       return {
@@ -261,11 +253,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
-      const datasourceUrl = get(
-        datasource,
-        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.url`,
-        "",
-      );
+      // We are not using datasourceStorages here since EmbeddedDatasources will not have environments
+      const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -397,9 +386,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                   hints,
                   "pick",
                   (selected: { text: string; data: Datasource }) => {
-                    this.props.updateDatasource(
-                      selected.data.datasourceStorages[currentEnvironment],
-                    );
+                    this.props.updateDatasource({
+                      ...selected.data.datasourceStorages[currentEnvironment],
+                      invalids: selected.data.invalids || [],
+                      messages: selected.data.messages || [],
+                      pluginId: selected.data.pluginId,
+                      name: selected.data.name,
+                      workspaceId: selected.data.workspaceId,
+                    });
                   },
                 );
                 return hints;
