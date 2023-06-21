@@ -174,41 +174,53 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
-      expect($ele.length).equals(upfrontContentCount);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+      .then(($ele) => {
+        expect($ele.length).equals(upfrontContentCount);
+      });
 
     agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
 
     agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
 
-    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
-      expect($ele.length).greaterThan(upfrontContentCount);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+      .then(($ele) => {
+        expect($ele.length).greaterThan(upfrontContentCount);
+      });
 
-    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).equals(upfrontContentCount);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceSelector())
+      .then(($ele) => {
+        expect($ele.length).equals(upfrontContentCount);
+      });
 
     agHelper.AssertElementExist(oneClickBindingLocator.loadMore);
 
     agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
 
-    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).greaterThan(upfrontContentCount);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceSelector())
+      .then(($ele) => {
+        expect($ele.length).greaterThan(upfrontContentCount);
+      });
   });
 
   it("3. should test the search input function", () => {
-    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
-      expect($ele.length).greaterThan(upfrontContentCount);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+      .then(($ele) => {
+        expect($ele.length).greaterThan(upfrontContentCount);
+      });
 
     agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "Api1");
 
-    cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
-      expect($ele.length).equals(1);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+      .then(($ele) => {
+        expect($ele.length).equals(1);
+      });
 
     agHelper.AssertElementExist(
       oneClickBindingLocator.datasourceQueryBindHeaderSelector,
@@ -226,15 +238,19 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.ClearTextField(oneClickBindingLocator.datasourceSearch);
 
-    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).greaterThan(upfrontContentCount);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceSelector())
+      .then(($ele) => {
+        expect($ele.length).greaterThan(upfrontContentCount);
+      });
 
     agHelper.TypeText(oneClickBindingLocator.datasourceSearch, "myinvalidds");
 
-    cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
-      expect($ele.length).equals(1);
-    });
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceSelector())
+      .then(($ele) => {
+        expect($ele.length).equals(1);
+      });
 
     agHelper.AssertElementExist(
       oneClickBindingLocator.datasourceGenerateAQuerySelector,
