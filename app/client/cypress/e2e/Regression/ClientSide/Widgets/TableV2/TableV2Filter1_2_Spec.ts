@@ -49,7 +49,7 @@ describe("Verify various Table_Filter combinations", function () {
     //Change condition - 2nd time
     _.agHelper.GetNClick(_.table._filterConditionDropdown);
     cy.get(_.table._dropdownText).contains("contains").click();
-    _.agHelper.GetNClick(_.table._filterInputValue, 0).type("9.").wait(500);
+    _.agHelper.GetNClick(_.table._filterInputValue, 0).type("19").wait(500);
     _.agHelper.ClickButton("APPLY");
     _.table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
       expect($cellData).to.eq("Tobias Funke");
