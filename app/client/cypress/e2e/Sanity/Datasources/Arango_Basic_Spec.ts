@@ -16,7 +16,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
       // The Arango container should be running at this point
       cy.log("Run id of started container is:" + result.stdout);
       cy.log("Error from Arango container start action:" + result.stderr);
-      agHelper.Sleep(12000); //allow some time for container to settle start
+      agHelper.Sleep(15000); //allow some time for container to settle start
     });
 
     dataSources.CreateDataSource("Arango");

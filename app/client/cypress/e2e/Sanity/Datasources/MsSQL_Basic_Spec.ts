@@ -17,7 +17,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       // The MSSQL container should be running at this point
       cy.log("Run id of started container is:" + result.stdout);
       cy.log("Error from MsSQL container start action:" + result.stderr);
-      agHelper.Sleep(12000); //allow some time for container to settle start
+      agHelper.Sleep(15000); //allow some time for container to settle start
     });
 
     dataSources.CreateDataSource("MsSql");
