@@ -254,6 +254,7 @@ export class HomePage {
 
   //Maps to AppSetupForRename in command.js
   public RenameApplication(appName: string) {
+    this.onboarding.closeIntroModal();
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
         cy.get(this._applicationName).click();
