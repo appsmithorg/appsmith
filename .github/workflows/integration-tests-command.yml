@@ -33,6 +33,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
         ref: refs/pull/${{ github.event.client_payload.pull_request.number }}/merge
     - uses: dorny/paths-filter@v2
       id: filter
