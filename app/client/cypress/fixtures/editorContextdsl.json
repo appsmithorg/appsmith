@@ -26,10 +26,7 @@
         "isCanvas": false,
         "displayName": "Camera",
         "iconSVG": "/static/media/icon.79c0d6de26a15bf464f2485130faa461.svg",
-        "searchTags": [
-          "photo",
-          "video recorder"
-        ],
+        "searchTags": ["photo", "video recorder"],
         "topRow": 89.0,
         "bottomRow": 122.0,
         "onImageSave": "{{navigateTo(Camera1.imageBlobURL, {},'NEW_WINDOW')}}",
@@ -69,10 +66,7 @@
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "displayName": "Button",
         "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-        "searchTags": [
-          "click",
-          "submit"
-        ],
+        "searchTags": ["click", "submit"],
         "topRow": 15.0,
         "bottomRow": 19.0,
         "parentRowSpace": 10.0,
@@ -113,11 +107,7 @@
         "isCanvas": true,
         "displayName": "Modal",
         "iconSVG": "/static/media/icon.4975978e9a961fb0bfb4e38de7ecc7c5.svg",
-        "searchTags": [
-          "dialog",
-          "popup",
-          "notification"
-        ],
+        "searchTags": ["dialog", "popup", "notification"],
         "topRow": 31.0,
         "bottomRow": 55.0,
         "parentRowSpace": 10.0,
@@ -161,12 +151,9 @@
                 "widgetName": "IconButton1",
                 "onClick": "{{closeModal('Modal1')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 0.0,
                 "bottomRow": 4.0,
                 "type": "ICON_BUTTON_WIDGET",
@@ -200,11 +187,7 @@
                 "widgetName": "Text1",
                 "displayName": "Text",
                 "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
-                "searchTags": [
-                  "typography",
-                  "paragraph",
-                  "label"
-                ],
+                "searchTags": ["typography", "paragraph", "label"],
                 "topRow": 1.0,
                 "bottomRow": 5.0,
                 "type": "TEXT_WIDGET",
@@ -250,10 +233,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 18.0,
                 "bottomRow": 22.0,
                 "type": "BUTTON_WIDGET",
@@ -294,10 +274,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 18.0,
                 "bottomRow": 22.0,
                 "type": "BUTTON_WIDGET",
@@ -483,9 +460,7 @@
           }
         },
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "defaultSelectedRowIndices": [
-          0.0
-        ],
+        "defaultSelectedRowIndices": [0.0],
         "widgetName": "Table1",
         "defaultPageSize": 0.0,
         "columnOrder": [
@@ -494,7 +469,7 @@
           "status",
           "action"
         ],
-        "dynamicPropertyPathList": [],
+        "dynamicPropertyPathList": [{"key": "tableData"}],
         "displayName": "Table",
         "bottomRow": 155.0,
         "columnWidthMap": {
@@ -727,10 +702,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 21.0,
                 "bottomRow": 25.0,
                 "parentRowSpace": 10.0,

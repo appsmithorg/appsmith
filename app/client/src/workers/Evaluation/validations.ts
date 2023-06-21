@@ -12,7 +12,6 @@ import _, {
   isString,
   toString,
   uniq,
-  __,
 } from "lodash";
 
 import moment from "moment";
@@ -1125,7 +1124,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
     const base64ImageRegex = /^data:image\/.*;base64/;
     const imageUrlRegex =
-      /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+      /(http(s?)?:\/\/(localhost|([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*))/;
     if (
       value === undefined ||
       value === null ||

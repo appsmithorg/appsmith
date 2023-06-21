@@ -33,9 +33,6 @@ public class CommonConfig {
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
     public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
-    @Value("${appsmith.instance.name:}")
-    private String instanceName;
-
     @Setter(AccessLevel.NONE)
     private boolean isSignupDisabled = false;
 
@@ -129,7 +126,7 @@ public class CommonConfig {
         // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
-    
+
     public String getRtsBaseUrl() {
         return "http://127.0.0.1:" + rtsPort;
     }

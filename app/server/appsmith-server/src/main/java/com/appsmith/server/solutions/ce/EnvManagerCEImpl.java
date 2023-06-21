@@ -75,7 +75,6 @@ import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_HOST;
@@ -391,10 +390,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     // Try and update any at runtime, that can be.
                     final Map<String, String> changesCopy = new HashMap<>(changes);
 
-                    if (changesCopy.containsKey(APPSMITH_INSTANCE_NAME.name())) {
-                        commonConfig.setInstanceName(changesCopy.remove(APPSMITH_INSTANCE_NAME.name()));
-                    }
-
                     if (changesCopy.containsKey(APPSMITH_SIGNUP_DISABLED.name())) {
                         commonConfig.setSignupDisabled(changesCopy.remove(APPSMITH_SIGNUP_DISABLED.name()));
                     }
@@ -629,11 +624,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     // set the default values to response
                     Map<String, String> envKeyValueMap = parseToMap(originalContent);
 
-                    if (!envKeyValueMap.containsKey(APPSMITH_INSTANCE_NAME.name())) {
-                        // no APPSMITH_INSTANCE_NAME set in env file, set the default value
-                        envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
-                    }
-
                     return Mono.justOrEmpty(envKeyValueMap);
                 });
     }
@@ -698,7 +688,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     Properties props = mailSender.getJavaMailProperties();
                     props.put("mail.transport.protocol", "smtp");
-                    props.put("mail.smtp.starttls.enable", "true");
+
+                    props.put("mail.smtp.starttls.enable", requestDTO.getStarttlsEnabled().toString());
+
                     props.put("mail.smtp.timeout", 7000); // 7 seconds
 
                     if (StringUtils.hasLength(requestDTO.getUsername())) {

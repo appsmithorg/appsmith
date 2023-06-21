@@ -22,11 +22,12 @@ export class JSEditor {
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
   public propPane = ObjectsRegistry.PropertyPane;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   //#region Element locators
   _runButton = "button.run-js-action";
-  _settingsTab = ".tab-title:contains('Settings')";
-  _codeTab = ".tab-title:contains('Code')";
+  _settingsTab = "//span[text()='Settings']/parent::button";
+  _codeTab = "//span[text()='Code']/parent::button";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
@@ -34,34 +35,34 @@ export class JSEditor {
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
-    }) span.checkbox`;
+    }) input`;
   private _onPageLoadRadioButtonStatus = (
     functionName: string,
     onLoad: boolean,
   ) =>
-    `.${functionName}-on-page-load-setting label:contains(${
+    `//div[contains(@class, '${functionName}-on-page-load-setting')]//label[text()='${
       onLoad ? "Yes" : "No"
-    })>input`;
+    }']/parent::div`;
   private _confirmBeforeExecuteRadioButton = (
     functionName: string,
     shouldConfirm: boolean,
   ) =>
     `.${functionName}-confirm-before-execute label:contains(${
       shouldConfirm ? "Yes" : "No"
-    }) span.checkbox`;
+    }) input`;
   private _confirmBeforeExecuteRadioButtonStatus = (
     functionName: string,
     shouldConfirm: boolean,
   ) =>
-    `.${functionName}-confirm-before-execute label:contains(${
+    `//div[contains(@class, '${functionName}-confirm-before-execute')]//label[text()='${
       shouldConfirm ? "Yes" : "No"
-    })>input`;
+    }']/parent::div`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
   private _newJSobj = "span:contains('New JS Object')";
   private _bindingsClose = ".t--entity-property-close";
-  private _propertyList = ".t--entity-property";
+  public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
     "//div[@class='function-name'][text()='" +
     funName +
@@ -71,22 +72,21 @@ export class JSEditor {
     settingTxt +
     "']/parent::div/following-sibling::input[@type='checkbox']";
   _dialog = (dialogHeader: string) =>
-    "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" +
-    dialogHeader +
-    "')]";
+    "//div[@role='dialog']//h3[contains(text(), '" + dialogHeader + "')]";
   private _closeSettings = "span[icon='small-cross']";
   _dialogBody = (jsFuncName: string) =>
-    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
   _dialogInDeployView =
-    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
-  _funcDropdown = ".t--formActionButtons div[role='listbox']";
-  _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
+  _funcDropdown = ".t--formActionButtons .function-select-dropdown";
+  _funcDropdownValue = `${this._funcDropdown} p`;
+  _funcDropdownOptions = ".rc-virtual-list .rc-select-item-option p";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
@@ -97,7 +97,11 @@ export class JSEditor {
     `${
       selector ? `${selector} ` : ""
     }.CodeMirror-line:nth-child(${lineNumber})`;
-  _logsTab = "[data-cy=t--tab-LOGS_TAB]";
+  _logsTab = "[data-testid=t--tab-LOGS_TAB]";
+  _confirmationModalBtns = (text: string) =>
+    "//div[@data-testid='t--query-run-confirmation-modal']//span[text()='" +
+    text +
+    "']";
   //#endregion
 
   //#region constants
@@ -105,6 +109,7 @@ export class JSEditor {
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+  //#endregion
 
   // Pastes or types content into field
   private HandleJsContentFilling(toPaste: boolean, JSCode: string, el: any) {
@@ -119,25 +124,24 @@ export class JSEditor {
       });
     }
   }
-  //#endregion
 
   //#region Page functions
   public NavigateToNewJSEditor() {
+    this.agHelper.ClickOutside(); //to enable click of below!
+
     cy.get(this.locator._createNew).last().click({ force: true });
-    cy.get(this._newJSobj).click({ force: true });
+    cy.get(this._newJSobj).eq(0).click({ force: true });
 
+    //Checking JS object was created successfully
+    this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
-    cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-
-    cy.wait(1000);
-
+    //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
+    this.agHelper.PressEnter(); //for name to settle
+    this.agHelper.Sleep();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
-    //Checking JS object was created successfully
-    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
 
     this.agHelper.Sleep();
   }
@@ -177,7 +181,7 @@ export class JSEditor {
 
     this.agHelper.AssertAutoSave();
     if (prettify) {
-      this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+      this.agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
       this.agHelper.AssertAutoSave();
     }
 
@@ -208,38 +212,26 @@ export class JSEditor {
         this.agHelper.Paste(el, newContent);
       });
     this.agHelper.Sleep(2000); //Settling time for edited js code
-    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+    toPrettify &&
+      this.agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
+  }
+
+  public ClearJSObj() {
+    cy.get(this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type(this.selectAllJSObjectContentShortcut, { force: true })
+      .type("{backspace}", { force: true });
+    this.agHelper.Sleep(2000); //Settling time for edited js code
+    this.agHelper.AssertAutoSave();
   }
 
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
-  }
-
-  public DisableJSContext(endp: string) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
-  }
-
-  public EnableJSContext(endp: string) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (!classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
   }
 
   public RenameJSObjFromPane(renameVal: string) {
@@ -253,7 +245,10 @@ export class JSEditor {
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
-    this.ee.ActionContextMenuByEntityName("RenamedJSObject", "Edit Name");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: entityName,
+      action: "Edit name",
+    });
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
@@ -268,7 +263,10 @@ export class JSEditor {
   }
 
   public ValidateDefaultJSObjProperties(jsObjName: string) {
-    this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: jsObjName,
+      action: "Show bindings",
+    });
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
@@ -312,13 +310,13 @@ export class JSEditor {
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
 
     this.agHelper.GetNClick(this._settingsTab);
-    this.agHelper.AssertExistingToggleState(
+    this.agHelper.AssertExistingCheckedState(
       this._onPageLoadRadioButtonStatus(funName, onLoad),
-      "checked",
+      onLoad.toString(),
     );
-    this.agHelper.AssertExistingToggleState(
+    this.agHelper.AssertExistingCheckedState(
       this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling),
-      "checked",
+      bfrCalling.toString(),
     );
   }
 
@@ -352,7 +350,29 @@ export class JSEditor {
 
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
-    this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
+    this.agHelper.GetNClickByContains(this._funcDropdownOptions, funName);
+  }
+
+  public AssertSelectedFunction(funName: string) {
+    cy.get(this._funcDropdownValue).contains(funName).should("exist");
+  }
+
+  public ConfirmationClick(type: "Yes" | "No") {
+    //this.agHelper.GetNClick(this._confirmationModalBtns(type), 0, true);
+    this.agHelper
+      .GetElement(this._confirmationModalBtns(type))
+      .eq(0)
+      .scrollIntoView()
+      .then(($element: any) => {
+        cy.get($element).trigger("click", {
+          force: true,
+        });
+      });
+
+    if (type == "Yes")
+      this.agHelper.AssertElementAbsence(
+        this.locator._specificToast("canceled"),
+      ); //Asserting NO is not clicked
   }
 
   //#endregion

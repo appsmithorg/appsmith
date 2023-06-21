@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -24,8 +24,8 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import jakarta.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -228,7 +228,9 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping("/snapshot/{id}/restore")
-    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id,
+                                                          @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                          @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService.restoreSnapshot(id, branchName)
@@ -240,11 +242,10 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
                                                                              @PathVariable String workspaceId,
-                                                                             @RequestParam(name=FieldName.APPLICATION_ID, required = false) String applicationId,
-                                                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                                             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, file, applicationId, branchName))
+                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
@@ -283,8 +284,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @GetMapping("/import/{workspaceId}/datasources")
-    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
-        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, workspaceId)
+    public Mono<ResponseDTO<List<DatasourceDTO>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
+        return importExportApplicationService.findDatasourceDTOByApplicationId(defaultApplicationId, workspaceId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -301,7 +302,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{defaultApplicationId}/logo")
     public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String defaultApplicationId,
-                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName){
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
                 .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }

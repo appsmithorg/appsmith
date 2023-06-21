@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Redirect, useLocation } from "react-router-dom";
+import { Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
 import type { InjectedFormProps, DecoratedFormProps } from "redux-form";
 import { reduxForm, formValueSelector, isDirty } from "redux-form";
@@ -26,17 +26,14 @@ import {
   createMessage,
   LOGIN_PAGE_SUBTITLE,
 } from "@appsmith/constants/messages";
-import { Button, FormGroup, FormMessage, Size } from "design-system-old";
+import { FormGroup } from "design-system-old";
+import { Button, Link, Callout } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { LoginFormValues } from "pages/UserAuth/helpers";
 
-import {
-  SpacedSubmitForm,
-  FormActions,
-  ForgotPasswordLink,
-} from "pages/UserAuth/StyledComponents";
+import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import PerformanceTracker, {
@@ -49,6 +46,8 @@ import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
 } from "@appsmith/selectors/tenantSelectors";
+import Helmet from "react-helmet";
+import { useHtmlPageTitle } from "@appsmith/utils";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
@@ -89,6 +88,7 @@ export function Login(props: LoginFormProps) {
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
   const queryParams = new URLSearchParams(location.search);
+  const htmlPageTitle = useHtmlPageTitle();
   const invalidCredsForgotPasswordLinkText = createMessage(
     LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   );
@@ -117,10 +117,12 @@ export function Login(props: LoginFormProps) {
   }
 
   const footerSection = isFormLoginEnabled && (
-    <div className="px-2 py-4 text-base text-center border-b">
+    <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
       {createMessage(NEW_TO_APPSMITH)}
       <Link
-        className="t--sign-up  ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)] t--signup-link"
+        className="t--sign-up t--signup-link pl-[var(--ads-v2\-spaces-3)]"
+        kind="primary"
+        target="_self"
         to={signupURL}
       >
         {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
@@ -134,31 +136,28 @@ export function Login(props: LoginFormProps) {
       subtitle={createMessage(LOGIN_PAGE_SUBTITLE)}
       title={createMessage(LOGIN_PAGE_TITLE)}
     >
+      <Helmet>
+        <title>{htmlPageTitle}</title>
+      </Helmet>
+
       {showError && (
-        <FormMessage
-          actions={
+        <Callout
+          kind="error"
+          links={
             !!errorMessage
-              ? []
+              ? undefined
               : [
                   {
-                    linkElement: (
-                      <Link to={FORGOT_PASSWORD_URL}>
-                        {invalidCredsForgotPasswordLinkText}
-                      </Link>
-                    ),
-                    text: invalidCredsForgotPasswordLinkText,
-                    intent: "success",
+                    children: invalidCredsForgotPasswordLinkText,
+                    to: FORGOT_PASSWORD_URL,
                   },
                 ]
           }
-          intent="danger"
-          linkAs={Link}
-          message={
-            !!errorMessage && errorMessage !== "true"
-              ? errorMessage
-              : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)
-          }
-        />
+        >
+          {!!errorMessage && errorMessage !== "true"
+            ? errorMessage
+            : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)}
+        </Callout>
       )}
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNIN"} />
@@ -192,8 +191,8 @@ export function Login(props: LoginFormProps) {
 
             <FormActions>
               <Button
-                disabled={!isFormValid}
-                fill
+                isDisabled={!isFormValid}
+                kind="primary"
                 onClick={() => {
                   PerformanceTracker.startTracking(
                     PerformanceTransactionName.LOGIN_CLICK,
@@ -202,18 +201,20 @@ export function Login(props: LoginFormProps) {
                     loginMethod: "EMAIL",
                   });
                 }}
-                size={Size.large}
-                tag="button"
-                text={createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
+                size="md"
                 type="submit"
-              />
+              >
+                {createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
+              </Button>
             </FormActions>
           </SpacedSubmitForm>
-          <ForgotPasswordLink>
-            <Link to={forgotPasswordURL}>
-              {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
-            </Link>
-          </ForgotPasswordLink>
+          <Link
+            className="justify-center"
+            target="_self"
+            to={forgotPasswordURL}
+          >
+            {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
+          </Link>
         </>
       )}
     </Container>

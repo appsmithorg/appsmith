@@ -15,25 +15,25 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[1]).toEqual(
       expect.objectContaining({
-        title: "New Blank API",
+        title: "New blank API",
       }),
     );
 
     expect(fileOptions[2]).toEqual(
       expect.objectContaining({
-        title: "New Blank GraphQL API",
+        title: "New blank GraphQL API",
       }),
     );
 
     expect(fileOptions[3]).toEqual(
       expect.objectContaining({
-        title: "New cURL Import",
+        title: "New cURL import",
       }),
     );
 
     expect(fileOptions[4]).toEqual(
       expect.objectContaining({
-        title: "New Datasource",
+        title: "New datasource",
       }),
     );
   });
@@ -98,7 +98,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[1]).toEqual(
       expect.objectContaining({
-        title: "CREATE A QUERY",
+        title: "Create a query",
         kind: SEARCH_ITEM_TYPES.sectionTitle,
       }),
     );
@@ -160,7 +160,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[1]).toEqual(
       expect.objectContaining({
-        title: "CREATE A QUERY",
+        title: "Create a query",
         kind: SEARCH_ITEM_TYPES.sectionTitle,
       }),
     );
@@ -255,7 +255,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New Datasource",
+        title: "New datasource",
       }),
     );
   });

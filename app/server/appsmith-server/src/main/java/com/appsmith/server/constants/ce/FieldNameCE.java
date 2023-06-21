@@ -156,7 +156,7 @@ public class FieldNameCE {
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
-    public static final String ENVIRONMENT_NAME = "environmentName";
+    public static final String ENVIRONMENT_ID = "environmentId";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
     public static final String IS_FORCE_REMOVE = "forceRemove";
@@ -171,4 +171,9 @@ public class FieldNameCE {
     public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unassigned_users";
     public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
     public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
+
+    public static final String ENVIRONMENT = "environment";
+    public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
+
+    public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
 }

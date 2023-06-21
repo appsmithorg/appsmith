@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
 
 import type { AppTheme } from "entities/AppTheming";
-import { ButtonGroup, TooltipComponent } from "design-system-old";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
+import { SegmentedControl, Tooltip } from "design-system";
 
 interface ThemeBorderRadiusControlProps {
   options: {
@@ -21,13 +21,13 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
    * changes the border in theme
    */
   const onChangeBorder = useCallback(
-    (optionKey: string) => {
+    (value: string) => {
       updateTheme({
         ...theme,
         properties: {
           ...theme.properties,
           borderRadius: {
-            [sectionName]: options[optionKey],
+            [sectionName]: options[value],
           },
         },
       });
@@ -36,30 +36,30 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
   );
 
   const selectedOptionKey = selectedOption
-    ? [invertedBorderRadiusOptions[selectedOption]]
-    : [];
+    ? invertedBorderRadiusOptions[selectedOption]
+    : "";
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
-    icon: (
-      <TooltipComponent
-        content={optionKey}
-        key={optionKey}
-        openOnTargetFocus={false}
-      >
+    label: (
+      <Tooltip content={optionKey} key={optionKey}>
         <div
-          className="w-5 h-5 border-t-2 border-l-2 border-gray-500 t--theme-appBorderRadius"
-          style={{ borderTopLeftRadius: options[optionKey] }}
+          className="w-5 h-5 t--theme-appBorderRadius border-t-2 border-l-2"
+          style={{
+            borderTopLeftRadius: options[optionKey],
+            borderColor: "var(--ads-v2-color-fg)",
+          }}
         />
-      </TooltipComponent>
+      </Tooltip>
     ),
     value: optionKey,
   }));
 
   return (
-    <ButtonGroup
+    <SegmentedControl
+      isFullWidth={false}
+      onChange={onChangeBorder}
       options={buttonGroupOptions}
-      selectButton={onChangeBorder}
-      values={selectedOptionKey}
+      value={selectedOptionKey}
     />
   );
 }

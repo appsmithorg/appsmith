@@ -8,18 +8,20 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host address",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$",
-              "isRequired": true
+              "isRequired": true,
+              "placeholderText": "myapp.abcde.oracle.net"
             },
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "placeholderText": "6003"
             }
           ]
         },
@@ -64,7 +66,7 @@
       "sectionName": "SSL",
       "children": [
         {
-          "label": "SSL Mode",
+          "label": "SSL mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "initialValue": "NO_VERIFY",

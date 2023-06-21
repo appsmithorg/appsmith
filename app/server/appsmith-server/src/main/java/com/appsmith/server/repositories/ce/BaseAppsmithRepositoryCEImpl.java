@@ -5,7 +5,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -35,8 +34,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -79,34 +76,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         this.mongoConverter = mongoConverter;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
-    }
-
-    public Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
-
-        Query query = new Query(where(fieldName(QUser.user.email)).is(username));
-
-        return mongoOperations.findOne(query, User.class)
-                .flatMap(user -> getAllPermissionGroupsForUser(user))
-                .map(userPermissionGroupIds -> {
-                    Optional<Policy> interestingPolicyOptional = policies.stream()
-                            .filter(policy -> policy.getPermission().equals(permission))
-                            .findFirst();
-                    if (!interestingPolicyOptional.isPresent()) {
-                        return FALSE;
-                    }
-
-                    Policy interestingPolicy = interestingPolicyOptional.get();
-                    Set<String> permissionGroupsIds = interestingPolicy.getPermissionGroups();
-                    if (permissionGroupsIds == null || permissionGroupsIds.isEmpty()) {
-                        return FALSE;
-                    }
-
-                    return userPermissionGroupIds.stream()
-                            .filter(userPermissionGroupId -> permissionGroupsIds.contains(userPermissionGroupId))
-                            .findFirst()
-                            .map(permissionGroup -> TRUE)
-                            .orElse(FALSE);
-                });
     }
 
     public static final String fieldName(Path<?> path) {
@@ -592,7 +561,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                             .one();
                 });
     }
-
 
 
     public static Query getQuery(List<Criteria> criteria) {

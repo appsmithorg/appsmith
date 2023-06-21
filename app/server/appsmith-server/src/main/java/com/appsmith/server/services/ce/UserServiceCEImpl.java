@@ -433,7 +433,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Create user management permission group
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(savedUser.getUsername() + " User Management");
+        userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(
                 Set.of(
@@ -625,9 +625,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     /**
      * Method to update user without ACL permission. This will be used internally to update the user
-     * @param id        UserId which needs to be updated
-     * @param update    User object
-     * @return          Updated user
+     *
+     * @param id     UserId which needs to be updated
+     * @param update User object
+     * @return Updated user
      */
     @Override
     public Mono<User> updateWithoutPermission(String id, User update) {
@@ -693,7 +694,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
-    private boolean validateName(String name){
+    private boolean validateName(String name) {
         /*
             Regex allows for Accented characters and alphanumeric with some special characters dot (.), apostrophe ('),
             hyphen (-) and spaces
@@ -712,7 +713,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             final User updates = new User();
             String inputName = allUpdates.getName();
             boolean isValidName = validateName(inputName);
-            if (!isValidName){
+            if (!isValidName) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
             }
             updates.setName(inputName);
@@ -815,7 +816,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setEmptyInstance(isUsersEmpty);
                     profile.setAnonymous(userFromDb.isAnonymous());
                     profile.setEnabled(userFromDb.isEnabled());
-                    profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());

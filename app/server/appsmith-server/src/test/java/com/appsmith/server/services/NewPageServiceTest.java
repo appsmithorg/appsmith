@@ -5,11 +5,13 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,9 @@ public class NewPageServiceTest {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    ApplicationSnapshotRepository applicationSnapshotRepository;
 
     @Test
     @WithUserDetails("api_user")
@@ -203,7 +208,7 @@ public class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void findApplicationPage_CheckPageIcon_IsValid(){
+    public void findApplicationPage_CheckPageIcon_IsValid() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + randomId);
@@ -221,7 +226,7 @@ public class NewPageServiceTest {
                     return applicationPageService.createPage(pageDTO);
                 })
                 .flatMap(pageDTO ->
-                                applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false)
+                        applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false)
                 );
 
         StepVerifier.create(applicationPageDTOMono).assertNext(applicationPageDTO -> {
@@ -230,6 +235,31 @@ public class NewPageServiceTest {
                     assertThat(applicationPageDTO.getIcon()).isEqualTo("flight");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void findApplicationPagesByApplicationIdViewMode_WhenSnapshotExists_SnapshotTimeReturned() {
+        String randomId = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application application = new Application();
+                    application.setName("app_" + randomId);
+                    return applicationPageService.createApplication(application, createdWorkspace.getId());
+                })
+                .flatMap(application -> {
+                    ApplicationSnapshot snapshot = new ApplicationSnapshot();
+                    snapshot.setApplicationId(application.getId());
+                    snapshot.setChunkOrder(1);
+                    return applicationSnapshotRepository.save(snapshot).thenReturn(application);
+                })
+                .flatMap(application -> newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), false, false));
+
+        StepVerifier.create(applicationPagesDTOMono).assertNext(applicationPagesDTO -> {
+            assertThat(applicationPagesDTO.getLatestSnapshotTime()).isNotNull();
+        }).verifyComplete();
     }
 
 }

@@ -15,6 +15,25 @@
       transition: all ease-in 0.3s;
     }
   </style>
+  <script>
+    // '' (empty strings), 'false' are falsy
+    // could return either boolean or string based on value
+    const parseConfig = (config) => {
+      if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
+        return "";
+
+      const result = config.trim();
+      if (result.toLowerCase() === "false" || result === "") {
+        return false;
+      } else if (result.toLowerCase() === "true") {
+        return true;
+      }
+
+      return result;
+    };
+    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+    const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+  </script>
   <%=
     (function () {
       // This code emits additional `link rel="preload"` tags for edit.html and view.html.
@@ -49,23 +68,6 @@
     })()
   %>
   <script>
-    // '' (empty strings), 'false' are falsy
-    // could return either boolean or string based on value
-    const parseConfig = (config) => {
-      if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
-        return "";
-
-      const result = config.trim();
-      if (result.toLowerCase() === "false" || result === "") {
-        return false;
-      } else if (result.toLowerCase() === "true") {
-        return true;
-      }
-
-      return result;
-    }
-    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-    const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
     if (CLOUD_HOSTING && ZIPY_KEY) {
       const script = document.createElement('script');
       script.crossOrigin = "anonymous";
@@ -77,7 +79,6 @@
       const head = document.getElementsByTagName('head')[0];
       head && head.appendChild(script);
     }
-
     // This function is triggered on load of google apis javascript library
     // Even though the script is loaded asynchronously, in case of firefox run on windows
     // The gapi script is getting loaded even before the last script of index.html
@@ -103,6 +104,7 @@
   -->
   <div id="header-root"></div>
   <div id="root"></div>
+  <div id="date-picker-control" style="position: relative; z-index: 1000;"></div>
   <script type="text/javascript">
     // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
     const getIsLocalStorageSupported = () => {

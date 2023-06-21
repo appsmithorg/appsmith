@@ -2,27 +2,42 @@ import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
 //const GITEA_API_BASE = "http://35.154.225.218";
 
-import datasourceFormData from "../../fixtures/datasources.json";
-
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
+  private hostPort = ObjectsRegistry.DefaultHostPort;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _connectGitBottomBar = ".t--connect-git-bottom-bar";
-  private _gitSyncModal = ".git-sync-modal";
-  private _closeGitSyncModal = ".t--close-git-sync-modal";
-  private _gitRepoInput = ".t--git-repo-input";
-  private _useDefaultConfig =
-    "//span[text()='Use default configuration']/parent::div";
-  private _gitConfigNameInput = ".t--git-config-name-input";
-  private _gitConfigEmailInput = ".t--git-config-email-input";
-  _branchButton = "[data-testid=t--branch-button-container]";
-  private _branchSearchInput = ".t--branch-search-input";
-  private _bottomBarCommit = ".t--bottom-bar-commit span[name='plus']";
-  _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']";
+  private _gitSyncModal = "[data-testid=t--git-sync-modal]";
+  private _closeGitSyncModal =
+    "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
+  //private _closeGitSyncModal = ".ads-v2-modal__content-header-close-button";
+  private _gitRepoInput =
+    "//label[text()='Remote URL']/following-sibling::div//input";
+  private _useDefaultConfig = "//label[text()='Use default configuration']";
+  private _gitConfigNameInput =
+    "//label[text()='Author name']/following-sibling::div//input";
+  private _gitConfigEmailInput =
+    "//label[text()='Author email']/following-sibling::div//input";
+  _branchButton = ".t--branch-button";
+  private _branchSearchInput = ".t--branch-search-input input";
+  private _bottomBarCommit = ".t--bottom-bar-commit button";
+  _bottomBarPull = ".t--bottom-bar-pull button";
   private _branchName = (branch: string) =>
-    "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
+    "//button[contains(@class, 't--branch-button')]//*[text()='" +
+    branch +
+    "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
+  private _branchListItem = "[data-testid=t--branch-list-item]";
+  private _bottomBarMergeButton = ".t--bottom-bar-merge";
+  private _mergeBranchDropdownDestination =
+    ".t--merge-branch-dropdown-destination";
+  private _dropdownmenu = ".rc-select-item-option-content";
+  private _openRepoButton = "[data-testid=t--git-repo-button]";
+  private _commitButton = ".t--commit-button";
+  private _commitCommentInput = ".t--commit-comment-input textarea";
+  private _discardChanges = ".t--discard-button";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -35,7 +50,7 @@ export class GitSync {
   }
 
   CreateNConnectToGit(
-    repoName = "Test",
+    repoName = "Repo",
     assertConnect = true,
     privateFlag = false,
   ) {
@@ -55,7 +70,7 @@ export class GitSync {
   public CreateTestGiteaRepo(repo: string, privateFlag = false) {
     cy.request({
       method: "POST",
-      url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/org/Cypress/repos`,
+      url: `${this.hostPort.GITEA_API_BASE_TED}:${this.hostPort.GITEA_API_PORT_TED}/api/v1/org/Cypress/repos`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
@@ -80,7 +95,7 @@ export class GitSync {
     );
     this.agHelper.TypeText(
       this._gitRepoInput,
-      `${datasourceFormData["GITEA_API_URL_TED"]}/${repo}.git`,
+      `${this.hostPort.GITEA_API_URL_TED}/${repo}.git`,
       //`git@github.com:${owner}/${repo}.git`,
     );
 
@@ -92,7 +107,7 @@ export class GitSync {
       // fetch the generated key and post to the github repo
       cy.request({
         method: "POST",
-        url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}/keys`,
+        url: `${this.hostPort.GITEA_API_BASE_TED}:${this.hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
         headers: {
           Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
@@ -110,9 +125,9 @@ export class GitSync {
         //`{selectall}${testUsername}`,
       );
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-      this.agHelper.ClickButton("CONNECT");
+      this.agHelper.ClickButton("Connect");
       if (assertConnect) {
-        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
@@ -122,14 +137,14 @@ export class GitSync {
   DeleteTestGithubRepo(repo: any) {
     cy.request({
       method: "DELETE",
-      url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}`,
+      url: `${this.hostPort.GITEA_API_BASE_TED}:${this.hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
     });
   }
 
-  CreateGitBranch(branch = "Test", toUseNewGuid = false) {
+  CreateGitBranch(branch = "br", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
@@ -142,11 +157,89 @@ export class GitSync {
         0,
         true,
       );
-      this.agHelper.AssertElementExist(this.locator._runBtnSpinner);
-      this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.AssertElementExist(this.locator._btnSpinner);
+      this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
       this.agHelper.AssertElementVisible(this._branchName(branch + uid));
+      this.assertHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");
     });
+  }
+
+  SwitchGitBranch(branch: string, expectError?: false) {
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    this.agHelper.GetNClick(this._branchButton);
+    this.agHelper.TypeText(
+      this._branchSearchInput,
+      `{selectall}` + `${branch}`,
+      0,
+      true,
+    );
+    cy.wait(1000);
+    //cy.get(gitSyncLocators.branchListItem).contains(branch).click();
+    this.agHelper.GetNClickByContains(this._branchListItem, branch);
+    if (!expectError) {
+      // increasing timeout to reduce flakyness
+      cy.get(this.locator._btnSpinner, { timeout: 45000 }).should("exist");
+      cy.get(this.locator._btnSpinner, { timeout: 45000 }).should("not.exist");
+    }
+
+    this.agHelper.Sleep(2000);
+  }
+
+  CheckMergeConflicts(destinationBranch: string) {
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    this.agHelper.GetNClick(this._bottomBarMergeButton);
+    cy.wait(2000);
+    this.agHelper.GetNClick(this._mergeBranchDropdownDestination);
+    // cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
+    this.agHelper.GetNClickByContains(this._dropdownmenu, destinationBranch);
+
+    this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
+  }
+
+  OpenRepositoryAndVerify() {
+    this.agHelper.GetNClick(this._openRepoButton);
+  }
+
+  CommitAndPush(assertFailure?: true) {
+    this.agHelper.GetNClick(this.locator._publishButton);
+    this.agHelper.AssertElementExist(this._bottomBarPull);
+    //cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    this.agHelper.TypeText(this._commitCommentInput, "Initial commit", 0, true);
+    this.agHelper.GetNClick(this._commitButton);
+    if (!assertFailure) {
+      // check for commit success
+      //adding timeout since commit is taking longer sometimes
+      cy.wait("@commit", { timeout: 35000 }).should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.wait(3000);
+    } else {
+      cy.wait("@commit", { timeout: 35000 }).then((interception: any) => {
+        const status = interception.response.body.responseMeta.status;
+        expect(status).to.be.gte(400);
+      });
+    }
+
+    this.CloseGitSyncModal();
+  }
+
+  public DiscardChanges() {
+    this.agHelper.GetNClick(this._bottomBarCommit);
+    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    this.agHelper.AssertElementVisible(this._discardChanges);
+    this.agHelper.ClickButton("Discard & pull");
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
+    );
+    this.agHelper.ClickButton("Are you sure?", 0, false);
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
+    );
+    this.agHelper.AssertContains("Discarded changes successfully");
+    this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
   }
 
   //#region Unused methods
@@ -172,7 +265,7 @@ export class GitSync {
       // fetch the generated key and post to the github repo
       cy.request({
         method: "POST",
-        url: `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addgitssh`,
+        url: `http://${this.hostPort.GITEA_API_BASE_TED}:${this.hostPort.GITEA_API_PORT_TED}/v1/gitserver/addgitssh`,
         //body: formdata,
         body: {
           sshkey: generatedKey,
@@ -199,7 +292,7 @@ export class GitSync {
         // cy.intercept("POST", "/api/v1/git/connect/app/*", {
         //   fixture: "/Bugs/GitConnectResponse.json",
         // });
-        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
       }
       this.CloseGitSyncModal();
     });
@@ -233,7 +326,7 @@ export class GitSync {
     cy.request({
       method: "GET",
       url:
-        `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addrepo?reponame=` +
+        `http://${this.hostPort.GITEA_API_BASE_TED}:${this.hostPort.GITEA_API_PORT_TED}/v1/gitserver/addrepo?reponame=` +
         repo,
     }).then((response) => {
       remoteUrl = JSON.stringify(response.body).replace(/['"]+/g, "");
