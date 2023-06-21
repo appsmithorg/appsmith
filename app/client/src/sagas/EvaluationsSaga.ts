@@ -535,6 +535,12 @@ function* preEvalLintingProcessor(
     appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
 
   const requiresEval = shouldTriggerEvaluation(action);
+  log.debug({
+    action,
+    triggeredLinting: requiresLinting,
+    triggeredEvaluation: requiresEval,
+  });
+
   if (!requiresEval && !requiresLinting) return;
 
   // Generate all the data needed for both eval and linting
