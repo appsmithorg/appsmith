@@ -11,23 +11,15 @@ const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   before("Create a new Arango DS", () => {
-    // let ArangoDB =
-    //   "mkdir -p `$PWD`/arangodb/bin/bash;
-    //      docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -v  ~/arango/bin/bash:/arango/bin/bash -d arangodb";
-    // cy.request({
-    //   method: "GET",
-    //   url: tedUrl,
-    //   qs: {
-    //     cmd: ArangoDB,
-    //   },
-    // }).then((res) => {
-    //   cy.log("ContainerID", res.body.stdout);
-    //   cy.log(res.body.stderr);
-    //   expect(res.status).equal(200);
-    // });
-
-    // //Wait for the container to be up
-    // agHelper.Sleep(10000);
+    cy.exec(
+      "docker run --name arangodb1 -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb",
+    ).then((result) => {
+      // Handle the command execution result
+      // The Arango container should be running at this point
+      cy.log("Run id of started container is:" + result.stdout);
+      cy.log("Error from Arango container start action:" + result.stderr);
+      agHelper.Sleep(10000); //allow some time for container to start
+    });
 
     dataSources.CreateDataSource("Arango");
     cy.get("@dsName").then(($dsName) => {
@@ -355,6 +347,20 @@ describe("Validate Arango & CURL Import Datasources", () => {
       agHelper.AssertElementVisible(dataSources._noSchemaAvailable(dsName));
       //Deleting datasource finally
       dataSources.DeleteDatasouceFromWinthinDS(dsName);
+    });
+
+    // Stop the container
+    cy.exec("docker stop arangodb1").then((stopResult) => {
+      // Handle the command execution result
+      cy.log("Output from stopping container:" + stopResult.stdout);
+      cy.log("Error from stopping container:" + stopResult.stderr);
+
+      // Delete the container
+      cy.exec("docker rm arangodb1").then((deleteResult) => {
+        // Handle the command execution result
+        cy.log("Output from deleting container:" + deleteResult.stdout);
+        cy.log("Error from deleting container:" + deleteResult.stderr);
+      });
     });
   });
 });
