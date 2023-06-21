@@ -224,11 +224,7 @@ describe("Create Permission flow ", function () {
       cy.get(".rc-select-item-option-content")
         .last()
         .contains("Create new datasource");
-      cy.get(queryLocators.templateMenu).click();
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("select * from users limit 10");
+      dataSources.EnterQuery("select * from users limit 10");
       agHelper.AssertAutoSave();
       dataSources.RunQuery({
         toValidateResponse: false,
@@ -330,7 +326,6 @@ describe("Create Permission flow ", function () {
     // create new query
     cy.get("[data-testid='t--file-operation']").eq(1).click({ force: true });
     cy.get(queryLocators.queryNameField).type("get_columns");
-    cy.get(queryLocators.templateMenu).click();
     cy.WaitAutoSave();
     cy.LogOut();
   });

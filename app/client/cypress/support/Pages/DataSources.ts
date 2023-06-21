@@ -558,7 +558,7 @@ export class DataSources {
     //     "ServiceAccCreds.private_key  is " +
     //       JSON.stringify(ServiceAccCreds.private_key),
     //   );
-    this.agHelper.UpdateFieldLongInput(
+    this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
       JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
     );
@@ -735,9 +735,12 @@ export class DataSources {
     this.AssertDSActive(datasourceName)
       .scrollIntoView()
       .should("be.visible")
-      .closest(this._datasourceCard)
-      .within(() => {
-        this.agHelper.GetNClick(btnLocator, 0, true);
+      .then(($element) => {
+        cy.wrap($element)
+          .closest(this._datasourceCard)
+          .within(() => {
+            this.agHelper.GetNClick(btnLocator, 0, true);
+          });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
     createQuery &&
@@ -793,7 +796,6 @@ export class DataSources {
     );
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query);
     }
   }
@@ -997,7 +999,6 @@ export class DataSources {
     this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query, sleep);
     }
     if (queryName) this.agHelper.RenameWithInPane(queryName);
