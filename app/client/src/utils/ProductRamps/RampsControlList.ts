@@ -26,7 +26,7 @@ export enum RampFeature {
 
 export const INVITE_USER_TO_APP: SupportedRampsType = {
   CLOUD_HOSTED: {
-    [RAMP_FOR_ROLES.SUPER_USER]: true,
+    [RAMP_FOR_ROLES.SUPER_USER]: false,
     [RAMP_FOR_ROLES.ADMIN]: true,
     [RAMP_FOR_ROLES.DEVELOPER]: true,
     [RAMP_FOR_ROLES.APP_VIEWER]: true,
@@ -41,7 +41,7 @@ export const INVITE_USER_TO_APP: SupportedRampsType = {
 
 export const CUSTOM_ROLES: SupportedRampsType = {
   CLOUD_HOSTED: {
-    [RAMP_FOR_ROLES.SUPER_USER]: true,
+    [RAMP_FOR_ROLES.SUPER_USER]: false,
     [RAMP_FOR_ROLES.ADMIN]: true,
     [RAMP_FOR_ROLES.DEVELOPER]: true,
     [RAMP_FOR_ROLES.APP_VIEWER]: false,
@@ -55,7 +55,7 @@ export const CUSTOM_ROLES: SupportedRampsType = {
 };
 export const PRIVATE_EMBED: SupportedRampsType = {
   CLOUD_HOSTED: {
-    [RAMP_FOR_ROLES.SUPER_USER]: true,
+    [RAMP_FOR_ROLES.SUPER_USER]: false,
     [RAMP_FOR_ROLES.ADMIN]: true,
     [RAMP_FOR_ROLES.DEVELOPER]: true,
     [RAMP_FOR_ROLES.APP_VIEWER]: false,
