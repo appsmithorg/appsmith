@@ -27,6 +27,7 @@ jobs:
       with:
         fetch-depth: 0
         ref: refs/pull/${{ 24718 }}/merge
+        token: ${{ secrets.PAT_GITHUB }}
     - uses: dorny/paths-filter@v2
       id: filter
       with:
