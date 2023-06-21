@@ -14,6 +14,26 @@ on:
       - "!app/client/cypress/manual_TestSuite/**"
 
 jobs:
+  changeset:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: refs/pull/${{ github.event.client_payload.pull_request.number }}/merge
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        # base: refs/pull/${{ github.event.client_payload.pull_request.number }}/merge
+        filters: |
+          backend:
+            - 'app/server/**'
 
   server-build:
     name: server-build
