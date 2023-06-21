@@ -30,7 +30,7 @@ jobs:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        # base: refs/pull/${{ github.event.client_payload.pull_request.number }}/merge
+        base: refs/pull/${{ 24718 }}/merge
         filters: |
           backend:
             - 'app/server/**'
