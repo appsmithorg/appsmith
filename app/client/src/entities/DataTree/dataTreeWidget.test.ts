@@ -538,6 +538,12 @@ describe("generateDataTreeWidget", () => {
         setSelectedRowIndex: {
           path: "defaultSelectedRowIndex",
           type: "number",
+          conditionFn: "({entity}) => { return !entity.multiRowSelection }",
+        },
+        setSelectedRowIndices: {
+          path: "defaultSelectedRowIndices",
+          type: "array",
+          conditionFn: "({entity}) => { return entity.multiRowSelection }",
         },
         setData: {
           path: "tableData",
@@ -574,6 +580,12 @@ describe("generateDataTreeWidget", () => {
         setSelectedRowIndex: {
           path: "Table1.defaultSelectedRowIndex",
           type: "number",
+          conditionFn: "({entity}) => { return !entity.multiRowSelection }",
+        },
+        setSelectedRowIndices: {
+          path: "Table1.defaultSelectedRowIndices",
+          type: "array",
+          conditionFn: "({entity}) => { return entity.multiRowSelection }",
         },
         setData: {
           path: "Table1.tableData",
