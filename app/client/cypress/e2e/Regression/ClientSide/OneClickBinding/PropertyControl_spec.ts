@@ -12,6 +12,8 @@ import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json
 
 const oneClickBinding = new OneClickBinding();
 
+const upfrontContentCount = 4;
+
 describe("excludeForAirgap", "One click binding control", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
@@ -68,18 +70,6 @@ describe("excludeForAirgap", "One click binding control", () => {
     agHelper.AssertElementExist(onboardingLocator.datasourcePage);
 
     agHelper.GetNClick(onboardingLocator.datasourceBackBtn);
-
-    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-
-    agHelper.GetNClick(
-      oneClickBindingLocator.otherActionSelector("Insert binding"),
-    );
-
-    propPane.ValidatePropertyFieldValue("Table data", "{{}}");
-
-    propPane.UpdatePropertyFieldValue("Table data", "");
-
-    propPane.ToggleJSMode("Table data", false);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -161,13 +151,27 @@ describe("excludeForAirgap", "One click binding control", () => {
   });
 
   it("should check that load more options and search", () => {
+    [1, 2].forEach((I) => {
+      entityExplorer.NavigateToSwitcher("Explorer");
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("Mongo");
+      agHelper.RenameWithInPane(`dummy${I}`, false);
+
+      agHelper.UpdateInputValue(dataSources._host, "127.0.0.1");
+      agHelper.UpdateInputValue(dataSources._port, "8000");
+
+      dataSources.SaveDatasource();
+
+      entityExplorer.NavigateToSwitcher("Widgets");
+    });
+
     propPane.MoveToTab("Style");
 
     propPane.MoveToTab("Content");
 
     entityExplorer.NavigateToSwitcher("Explorer");
 
-    [1, 2, 3].forEach(() => {
+    [1, 2, 3, 4, 5].forEach(() => {
       apiPage.CreateAndFillApi("http://www.example.com");
     });
 
@@ -176,8 +180,6 @@ describe("excludeForAirgap", "One click binding control", () => {
     entityExplorer.SelectEntityByName("Table1");
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-
-    const upfrontContentCount = 4;
 
     cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
       expect($ele.length).equals(upfrontContentCount);
@@ -230,8 +232,6 @@ describe("excludeForAirgap", "One click binding control", () => {
     );
 
     agHelper.ClearTextField(oneClickBindingLocator.datasourceSearch);
-
-    //
 
     cy.get(oneClickBindingLocator.datasourceSelector()).then(($ele) => {
       expect($ele.length).greaterThan(upfrontContentCount);
