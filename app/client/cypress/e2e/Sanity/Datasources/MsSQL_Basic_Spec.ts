@@ -16,7 +16,17 @@ let dsName: any, query: string;
 const oneClickBinding = new OneClickBinding();
 
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
-  before("Create a new MySQL DS & adding data into it", () => {
+  before("Create MsSql container & adding data into it", () => {
+    cy.exec(
+      'docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge',
+    ).then((result) => {
+      // Handle the command execution result
+      // The MSSQL container should be running at this point
+      cy.log("Run id of started container is:" + result.stdout);
+      cy.log("Error from MsSQL container start action:" + result.stderr);
+      agHelper.Sleep(10000); //allow some time for container to start
+    });
+
     dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
