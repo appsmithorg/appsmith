@@ -162,15 +162,6 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput
-          combo="mod + l"
-          global
-          label="Search documentation"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
-          }
-        />
-        <Hotkey
-          allowInInput
           combo="mod + k"
           global
           label="Show omnibar"
