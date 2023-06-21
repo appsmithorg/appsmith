@@ -12,7 +12,6 @@ import type { LintError } from "utils/DynamicBindingUtils";
 import { get, set, uniq } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
-import { LintingService } from "Linting/LintingService";
 import type {
   LintTreeRequestPayload,
   LintTreeResponse,
@@ -20,10 +19,11 @@ import type {
 } from "Linting/types";
 import type { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { LintUtils } from "Linting/LintUtils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-export const lintWorker = new LintingService({ useWorker: true });
+export const lintUtils = new LintUtils({ useWorker: true });
 
 function* updateLintGlobals(
   action: ReduxAction<{ add?: boolean; libs: TJSLibrary[] }>,
@@ -31,7 +31,7 @@ function* updateLintGlobals(
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
   if (!isEditorMode) return;
-  yield call(lintWorker.updateJSLibraryGlobals, action.payload);
+  yield call(lintUtils.updateJSLibraryGlobals, action.payload);
 }
 
 function* updateOldJSCollectionLintErrors(
@@ -85,7 +85,7 @@ export function* lintTreeSaga(payload: LintTreeSagaRequestData) {
   };
 
   const { errors, jsPropertiesState, lintedJSPaths }: LintTreeResponse =
-    yield call(lintWorker.lintTree, lintTreeRequestData);
+    yield call(lintUtils.lintTree, lintTreeRequestData);
 
   const updatedOldJSCollectionLintErrors: LintErrorsStore =
     yield updateOldJSCollectionLintErrors(

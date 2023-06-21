@@ -21,7 +21,7 @@ import { jsActionsInDataField } from "Linting/utils/jsActionsInDataFields";
 import { sortDifferencesByType } from "Linting/utils/sortDifferencesByType";
 import { getAllPathsFromNode } from "Linting/utils/entityPath";
 import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
-import { getLintErrorsFromTree } from "Linting/utils/lintTree";
+import { getLintErrorsFromTree } from "Linting/lintTree";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import { clearParsedJSCache, parsedJSCache } from "Linting/utils/parseJSEntity";
 
@@ -35,7 +35,7 @@ function initializeLinting() {
   }
 }
 
-export function lintTreeV2({
+export function lintTree({
   cloudHosting,
   configTree,
   forceLinting = false,

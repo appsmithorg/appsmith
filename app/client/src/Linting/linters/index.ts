@@ -13,7 +13,7 @@ export interface ILinter {
   shutdown(): void;
 }
 
-export class Linter implements ILinter {
+export class BaseLinter implements ILinter {
   lintTree(args: LintTreeRequestPayload) {
     return handlerMap[LINT_ACTIONS.LINT_TREE](args);
   }
