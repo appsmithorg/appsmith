@@ -19,7 +19,7 @@ public class DSLTransformerHelper {
 
     public static Map<String, JSONObject> flatten(JSONObject jsonObject) {
         Map<String, JSONObject> flattenedMap = new HashMap<>();
-        flattenObject(jsonObject, "", flattenedMap);
+        flattenObject(jsonObject, CommonConstants.EMPTY_STRING, flattenedMap);
         return new TreeMap<>(flattenedMap);
     }
 
@@ -37,7 +37,7 @@ public class DSLTransformerHelper {
 
             for (int i = 0; i < children.length(); i++) {
                 JSONObject childObject = children.getJSONObject(i);
-                String childPrefix = prefix + widgetName + ".";
+                String childPrefix = prefix + widgetName + CommonConstants.DELIMITER_POINT;
                 flattenObject(childObject, childPrefix, flattenedMap);
             }
         } else {
