@@ -26,7 +26,7 @@ function ClientError() {
           }}
           size="md"
         >
-          Contact us on discord
+          Contact us on discord 123
         </Button>
       }
       description={createMessage(PAGE_CLIENT_ERROR_DESCRIPTION)}
