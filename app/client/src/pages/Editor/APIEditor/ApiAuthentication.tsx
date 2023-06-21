@@ -143,6 +143,13 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
           getCurrentEnvironment()
         ],
       );
+
+      // update the id in object to datasourceId, this is because the value in id post merge is the id of the datasource storage
+      // and not of the datasource.
+      datasourceMerged.id =
+        datasourceFromDataSourceList.datasourceStorages[
+          getCurrentEnvironment()
+        ].datasourceId;
     }
   }
 
