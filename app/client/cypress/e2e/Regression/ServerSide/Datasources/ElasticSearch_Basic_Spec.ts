@@ -6,20 +6,12 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate Elasticsearch DS", () => {
-  let dsName: any, books: any;
+  let dsName: any,
+    books: any,
+    containerName = "elasticsearch1";
 
   before("Create a new ElasticSearch DS", () => {
-    cy.exec(
-      'docker run --name elasticsearch1 -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2',
-    ).then((result) => {
-      // The Elastic container should be running at this point
-      cy.log("Run id of started container is:" + result.stdout);
-      cy.log(
-        "Error from ElasticSearch container start action:" + result.stderr,
-      );
-      agHelper.Sleep(30000); //allow some time for container to settle start for CI
-    });
-
+    dataSources.StartContainerNVerify("Elasticsearch", containerName);
     dataSources.CreateDataSource("Elasticsearch");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -213,6 +205,6 @@ describe("Validate Elasticsearch DS", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    dataSources.StopNDeleteContainer("elasticsearch1");
+    dataSources.StopNDeleteContainer(containerName);
   });
 });

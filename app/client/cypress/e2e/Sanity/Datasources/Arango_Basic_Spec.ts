@@ -5,20 +5,12 @@ import {
   dataSources,
 } from "../../../support/Objects/ObjectsCore";
 
-let dsName: any,
-  collectionName = "countries_places_to_visit";
-
 describe("Validate Arango & CURL Import Datasources", () => {
+  let dsName: any,
+    collectionName = "countries_places_to_visit",
+    containerName = "arangodb";
   before("Create a new Arango DS", () => {
-    cy.exec(
-      "docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb",
-    ).then((result) => {
-      // The Arango container should be running at this point
-      cy.log("Run id of started container is:" + result.stdout);
-      cy.log("Error from Arango container start action:" + result.stderr);
-      agHelper.Sleep(15000); //allow some time for container to settle start
-    });
-
+    dataSources.StartContainerNVerify("Arango", containerName, 20000);
     dataSources.CreateDataSource("Arango");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -347,6 +339,6 @@ describe("Validate Arango & CURL Import Datasources", () => {
       dataSources.DeleteDatasouceFromWinthinDS(dsName);
     });
 
-    dataSources.StopNDeleteContainer("arangodb");
+    dataSources.StopNDeleteContainer(containerName);
   });
 });

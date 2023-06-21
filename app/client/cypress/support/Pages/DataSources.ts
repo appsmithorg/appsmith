@@ -37,6 +37,14 @@ export class DataSources {
   private hp = ObjectsRegistry.DefaultHostPort;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
+  public ContainerKVP = (containerName: string) => {
+    return {
+      MsSql: this.hp.mssql_docker(containerName),
+      Arango: this.hp.arango_docker(containerName),
+      Elasticsearch: this.hp.elastic_docker(containerName),
+    };
+  }; //Container KeyValuePair
+
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
@@ -1357,16 +1365,62 @@ export class DataSources {
     });
   }
 
-  public StopNDeleteContainer(conatinerName: string) {
+  public StopNDeleteContainer(containerName: string) {
     // Stop the container
-    cy.exec(`docker stop ${conatinerName}`).then((stopResult) => {
+    cy.exec(`docker stop ${containerName}`).then((stopResult) => {
       cy.log("Output from stopping container:" + stopResult.stdout);
       cy.log("Error from stopping container:" + stopResult.stderr);
 
       // Delete the container
-      cy.exec(`docker rm ${conatinerName}`).then((deleteResult) => {
+      cy.exec(`docker rm ${containerName}`).then((deleteResult) => {
         cy.log("Output from deleting container:" + deleteResult.stdout);
         cy.log("Error from deleting container:" + deleteResult.stderr);
+      });
+    });
+  }
+
+  public IsContainerReady(containerName: string) {
+    return cy
+      .exec(`docker inspect -f '{{.State.Status}}' ${containerName}`)
+      .then((result) => {
+        const containerStatus = result.stdout.trim();
+        return containerStatus === "running";
+      });
+  }
+
+  public StartContainerNVerify(
+    containerType: "MsSql" | "Arango" | "Elasticsearch",
+    containerName: string,
+    timeout = 30000,
+  ) {
+    let containerCommand = "";
+    switch (containerType) {
+      case "MsSql":
+        containerCommand = this.ContainerKVP(containerName).MsSql;
+        break;
+      case "Arango":
+        containerCommand = this.ContainerKVP(containerName).Arango;
+        break;
+      case "Elasticsearch":
+        containerCommand = this.ContainerKVP(containerName).Elasticsearch;
+        break;
+      default:
+        break;
+    }
+    cy.exec(containerCommand).then((result) => {
+      // Wait for the container to be ready
+      cy.waitUntil(() => this.IsContainerReady(containerName), {
+        interval: 5000,
+        timeout: 60000,
+      }).then((isReady) => {
+        if (isReady) {
+          cy.log("Run id of started container is:" + result.stdout);
+          this.agHelper.Sleep(timeout); //allow some time for container to settle start for CI
+        } else
+          cy.log(
+            `Error from ${containerName} container start action:` +
+              result.stderr,
+          ); // Container did not start properly within the timeout
       });
     });
   }

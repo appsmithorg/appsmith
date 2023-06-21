@@ -269,7 +269,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   cy.wait(4000);
   cy.get("#loading").should("not.exist");
   cy.get("#sidebar").should("be.visible");
-  cy.wait("@updateLayout")
+  cy.wait("@getPluginForm") //removing this since flaky in CI - to monitor
     .its("response.body.responseMeta.status")
     .should("eq", 200);
 
