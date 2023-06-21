@@ -221,6 +221,8 @@ export class DataSources {
     "[data-testid='t--where-clause-delete-[" + index + "]']";
 
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
+  private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
+  private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -437,6 +439,8 @@ export class DataSources {
     cy.get(this._password).type(
       password == "" ? this.hp.postgres_username : password,
     );
+    this.ExpandSectionByName("SSL (optional)");
+    this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
   public FillOracleDSForm(
@@ -830,12 +834,23 @@ export class DataSources {
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
-    cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
-    cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dsName),
+    );
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dbName),
+    );
+
+    //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
+    this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
+    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
-    cy.get(this._saveDs).click();
+    this.agHelper.GetNClick(this._saveDs);
+    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   RunQuery({
