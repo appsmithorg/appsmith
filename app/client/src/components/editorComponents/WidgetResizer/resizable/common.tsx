@@ -105,6 +105,7 @@ export function ResizableHandle(props: ResizableHandleProps) {
       first,
       last,
       dragging,
+      event,
       memo,
       movement: [mx, my],
     } = state;
@@ -121,6 +122,8 @@ export function ResizableHandle(props: ResizableHandleProps) {
     const snapped = getSnappedValues(mx, deltaY, props.snapGrid);
     if (first) {
       props.onStart();
+      // to stop executing other drags
+      event && event.preventDefault();
       return { scrollTop: currentScrollTop, snapped };
     }
     const { snapped: snappedMemo } = memo;
