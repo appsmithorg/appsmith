@@ -1391,7 +1391,7 @@ export class DataSources {
   public StartContainerNVerify(
     containerType: "MsSql" | "Arango" | "Elasticsearch",
     containerName: string,
-    timeout = 30000,
+    timeout = 60000,
   ) {
     let containerCommand = "";
     switch (containerType) {
