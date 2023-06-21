@@ -21,12 +21,12 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved(
-        "Create database fakeapi13;",
+        "Create database fakeapi;",
         "MsSQL_queries",
       );
       dataSources.RunQuery();
 
-      query = "USE fakeapi13;";
+      query = "USE fakeapi;";
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
 
