@@ -21,12 +21,12 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved(
-        "Create database fakeapi12;",
+        "Create database fakeapi13;",
         "MsSQL_queries",
       );
       dataSources.RunQuery();
 
-      query = "USE fakeapi12;";
+      query = "USE fakeapi13;";
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
 
@@ -193,7 +193,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     agHelper.Sleep(2000);
 
-    agHelper.GetNClick(table._saveNewRow, 0, true);
+    agHelper.GetNClick(table._saveNewRow, 0, true, 2000);
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
