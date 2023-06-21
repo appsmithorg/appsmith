@@ -1,4 +1,3 @@
-import type { TEntity, TEntityParser } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import EntityFactory from "Linting/lib/entity";
 import type {
@@ -8,51 +7,31 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { mapValues, pick, uniq } from "lodash";
-import { parseJSEntity } from "./parseJSEntity";
-import { diff } from "deep-diff";
 import { getEntityType } from "utils/DynamicBindingUtils";
 import type { JSActionEntity } from "entities/DataTree/types";
-import type { TParsedJSProperty } from "@shared/ast";
+import { defaultEntityParser, jsLintEntityParser } from "./entityParser";
+import { defaultDiffGenerator, jsLintDiffGenerator } from "./diffGenerator";
 
-function defaultLintEntityParser(entity: TEntity) {
-  return entity.getRawEntity();
-}
-function getEntityParser(entity: UnEvalTreeEntity): TEntityParser {
+function getLintEntityParser(entity: UnEvalTreeEntity) {
   switch (getEntityType(entity)) {
     case ENTITY_TYPE.JSACTION: {
-      return parseJSEntity;
+      return jsLintEntityParser;
     }
     default: {
-      return defaultLintEntityParser;
+      return defaultEntityParser;
     }
   }
 }
 
-function diffGenerator(oldEntity?: TEntity, newEntity?: TEntity) {
-  return diff(generateDiffObj(oldEntity), generateDiffObj(newEntity));
-}
-
-function generateDiffObj(entity?: TEntity) {
-  if (!entity) {
-    return {};
-  }
-  if (isJSEntity(entity)) {
-    const entityForDiff: Record<string, string> = {};
-    for (const [propertyName, propertyValue] of Object.entries(
-      entity.getRawEntity(),
-    )) {
-      const parser = entity.entityParser as typeof parseJSEntity;
-      const { parsedEntityConfig } = parser(entity);
-      if (!parsedEntityConfig) continue;
-      entityForDiff[propertyName] = getHashedConfigString(
-        propertyValue,
-        parsedEntityConfig[propertyName],
-      );
+function getLintDiffGenerator(entity: UnEvalTreeEntity) {
+  switch (getEntityType(entity)) {
+    case ENTITY_TYPE.JSACTION: {
+      return jsLintDiffGenerator;
     }
-    return { [entity.getName()]: entityForDiff };
+    default: {
+      return defaultDiffGenerator;
+    }
   }
-
-  return { [entity.getName()]: entity.getRawEntity() };
 }
 
 export function createEntityTree(
@@ -66,8 +45,8 @@ export function createEntityTree(
     tree[entityName] = EntityFactory.getEntity(
       unevalEntity,
       configTreeEntity,
-      getEntityParser(unevalEntity),
-      diffGenerator,
+      getLintEntityParser(unevalEntity),
+      getLintDiffGenerator(unevalEntity),
     );
   }
   return tree;
@@ -82,8 +61,8 @@ export function getUnevalEntityTree(entityTree: TEntityTree) {
 export function updateTreeWithParsedJS(entityTree: TEntityTree) {
   for (const entity of Object.values(entityTree)) {
     if (!isJSEntity(entity)) continue;
-    const jsParser = entity.entityParser as typeof parseJSEntity;
-    const { parsedEntity } = jsParser(entity);
+    const jsParser = entity.entityParser as typeof jsLintEntityParser;
+    const { parsedEntity } = jsParser.parse(entity);
     if (!parsedEntity) continue;
     entity.entity = pick(entity.entity, [
       "body",
@@ -123,16 +102,6 @@ export function getEntityTreeDifferences(
   }
 
   return differences;
-}
-
-function getHashedConfigString(
-  propertyValue: string,
-  config: TParsedJSProperty,
-) {
-  if (!config || !config.position || !config.value) return propertyValue;
-  const { endColumn, endLine, startColumn, startLine } = config.position;
-
-  return config.value + `${startColumn}${endColumn}${startLine}${endLine}`;
 }
 
 export type TEntityTree = ReturnType<typeof createEntityTree>;

@@ -1,8 +1,7 @@
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
-import type { TEntity } from "Linting/lib/entity";
-import { isJSEntity } from "Linting/lib/entity";
+import type { JSEntity } from "Linting/lib/entity";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 import { uniq } from "lodash";
 import type { JSVarProperty } from "@shared/ast";
@@ -27,8 +26,7 @@ export function clearParsedJSCache() {
   parsedJSCache = {};
 }
 
-export function parseJSEntity(entity: TEntity) {
-  if (!isJSEntity(entity)) return {};
+export function parseJSEntity(entity: JSEntity) {
   const jsEntityBody = entity.getRawEntity().body;
   const jsEntityName = entity.getName();
   const cachedParsedJSEntity = parsedJSCache[jsEntityName];

@@ -18,13 +18,8 @@ import type {
   DataTreeEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { Diff } from "deep-diff";
-
-export type TEntityParser = (entity: TEntity) => unknown;
-export type TDiffGenerator = (
-  entity1?: TEntity,
-  entity2?: TEntity,
-) => Diff<unknown>[] | undefined;
+import type { TDiffGenerator } from "Linting/utils/diffGenerator";
+import type { TEntityParser } from "Linting/utils/entityParser";
 
 enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -43,7 +38,7 @@ export type IEntity<
   getType(): ENTITY_TYPE;
   getRawEntity(): T;
   getConfig(): K;
-  computeDifference(entity?: TEntity): ReturnType<TDiffGenerator>;
+  computeDifference(entity?: TEntity): ReturnType<TDiffGenerator["generate"]>;
 };
 
 export default class EntityFactory {
@@ -121,7 +116,7 @@ export class ActionEntity
     return this.config;
   }
   computeDifference(oldEntity?: TEntity) {
-    return this.diffGenerator(oldEntity, this);
+    return this.diffGenerator.generate(oldEntity, this);
   }
 }
 
@@ -159,7 +154,7 @@ export class WidgetEntity
     return this.config;
   }
   computeDifference(oldEntity?: TEntity) {
-    return this.diffGenerator(oldEntity, this);
+    return this.diffGenerator.generate(oldEntity, this);
   }
 }
 
@@ -201,14 +196,14 @@ export class JSEntity
     return body === this.getRawEntity().body;
   }
   computeDifference(oldEntity?: TEntity) {
-    return this.diffGenerator(oldEntity, this);
+    return this.diffGenerator.generate(oldEntity, this);
   }
 }
 
 export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
   private entity: TPageListEntity;
   private config: undefined;
-  entityParser: TEntityParser = this.getRawEntity;
+  entityParser: TEntityParser;
   diffGenerator: TDiffGenerator;
   constructor(
     entity: TPageListEntity,
@@ -237,14 +232,14 @@ export class PagelistEntity implements IEntity<TPageListEntity, undefined> {
     return "pageList";
   }
   computeDifference(oldEntity?: TEntity) {
-    return this.diffGenerator(oldEntity, this);
+    return this.diffGenerator.generate(oldEntity, this);
   }
 }
 
 export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
   private entity: TAppsmithEntity;
   private config: undefined;
-  entityParser: TEntityParser = this.getRawEntity;
+  entityParser: TEntityParser;
   diffGenerator: TDiffGenerator;
   constructor(
     entity: TAppsmithEntity,
@@ -273,7 +268,7 @@ export class AppsmithEntity implements IEntity<TAppsmithEntity, undefined> {
     return "appsmith";
   }
   computeDifference(oldEntity?: TEntity) {
-    return this.diffGenerator(oldEntity, this);
+    return this.diffGenerator.generate(oldEntity, this);
   }
 }
 
