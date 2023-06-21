@@ -299,6 +299,9 @@ export interface PopoverTargetButtonProps {
   label?: string;
   placement?: ButtonPlacement;
   renderMode?: RenderMode;
+  maxWidth?: number;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -311,6 +314,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     iconName,
     isDisabled,
     label,
+    maxWidth,
+    minHeight,
+    minWidth,
     placement,
     renderMode,
     shouldFitContent,
@@ -323,6 +329,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
+      maxWidth={maxWidth}
+      minHeight={minHeight}
+      minWidth={minWidth}
       renderMode={renderMode}
       shouldFitContent={shouldFitContent}
     >
@@ -354,11 +363,14 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     isCompact,
     isDisabled,
     label,
+    maxWidth,
     menuColor,
     menuDropDownWidth,
     menuItems,
     menuItemsSource,
     menuVariant,
+    minHeight,
+    minWidth,
     onItemClicked,
     placement,
     renderMode,
@@ -405,6 +417,9 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           iconName={iconName}
           isDisabled={isDisabled}
           label={label}
+          maxWidth={maxWidth}
+          minHeight={minHeight}
+          minWidth={minWidth}
           placement={placement}
           renderMode={renderMode}
           shouldFitContent={shouldFitContent}

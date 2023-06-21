@@ -13,6 +13,7 @@ import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -122,7 +123,22 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       <MenuButtonComponent
         {...this.props}
         getVisibleItems={this.getVisibleItems}
+        maxWidth={
+          this.props.maxWidth
+            ? this.props.maxWidth - WIDGET_PADDING * 2
+            : undefined
+        }
         menuDropDownWidth={menuDropDownWidth}
+        minHeight={
+          this.props.minHeight
+            ? this.props.minHeight - WIDGET_PADDING * 2
+            : undefined
+        }
+        minWidth={
+          this.props.minWidth
+            ? this.props.minWidth - WIDGET_PADDING * 2
+            : undefined
+        }
         onItemClicked={this.menuItemClickHandler}
         renderMode={this.props.renderMode}
         shouldFitContent={this.isAutoLayoutMode}
