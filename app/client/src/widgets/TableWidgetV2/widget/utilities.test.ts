@@ -86,7 +86,7 @@ describe("getOriginalRowIndex", () => {
       selectedRowIndex,
       "step",
     );
-    const expected = -1;
+    const expected = 1;
     expect(result).toStrictEqual(expected);
   });
 

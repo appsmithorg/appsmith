@@ -49,9 +49,13 @@ export const getOriginalRowIndex = (
   tableData: TableData,
   selectedRowIndex: number | undefined,
   primaryColumnId: string,
-) => {
+): number => {
   let primaryKey = "";
-  let index = selectedRowIndex ?? -1;
+  let index = -1;
+
+  if (prevTableData && prevTableData.length == 0) {
+    return selectedRowIndex ?? index;
+  }
 
   if (
     !_.isNil(selectedRowIndex) &&
