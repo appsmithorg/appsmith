@@ -23,7 +23,7 @@ import { LintUtils } from "Linting/LintUtils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-export const lintUtils = new LintUtils({ useWorker: true });
+export const lintWorker = new LintUtils({ useWorker: true });
 
 function* updateLintGlobals(
   action: ReduxAction<{ add?: boolean; libs: TJSLibrary[] }>,
@@ -31,7 +31,7 @@ function* updateLintGlobals(
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
   if (!isEditorMode) return;
-  yield call(lintUtils.updateJSLibraryGlobals, action.payload);
+  yield call(lintWorker.updateJSLibraryGlobals, action.payload);
 }
 
 function* updateOldJSCollectionLintErrors(
@@ -85,7 +85,7 @@ export function* lintTreeSaga(payload: LintTreeSagaRequestData) {
   };
 
   const { errors, jsPropertiesState, lintedJSPaths }: LintTreeResponse =
-    yield call(lintUtils.lintTree, lintTreeRequestData);
+    yield call(lintWorker.lintTree, lintTreeRequestData);
 
   const updatedOldJSCollectionLintErrors: LintErrorsStore =
     yield updateOldJSCollectionLintErrors(
