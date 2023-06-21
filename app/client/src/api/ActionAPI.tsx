@@ -184,10 +184,8 @@ class ActionAPI extends API {
     let action = Object.assign({}, apiConfig);
     // While this line is not required, name can not be changed from this endpoint
     delete action.name;
-    action = omit(action, [
-      "datasource.datasourceStorages",
-      "datasource.datasourceConfiguration",
-    ]);
+    // Removing datasource storages from the action object since embedded datasources don't have storages
+    action = omit(action, ["datasource.datasourceStorages"]);
     return API.put(`${ActionAPI.url}/${action.id}`, action, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });
