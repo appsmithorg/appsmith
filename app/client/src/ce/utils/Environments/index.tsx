@@ -19,10 +19,10 @@ export const isEnvironmentConfigured = (
 ) => {
   !environment && (environment = getCurrentEnvironment());
   const isConfigured =
-    datasource &&
-    datasource.datasourceStorages &&
+    !!datasource &&
+    !!datasource.datasourceStorages &&
     datasource.datasourceStorages[environment]?.isConfigured;
-  return isConfigured ? isConfigured : false;
+  return !!isConfigured ? isConfigured : false;
 };
 
 // function to check if the datasource is valid for the current environment
