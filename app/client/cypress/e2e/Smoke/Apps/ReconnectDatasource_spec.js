@@ -50,12 +50,12 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             );
             cy.get(datasource.sslSettingsSection).should("be.visible");
             cy.get(
-              "[data-testid='datasourceStorages.unused_env.datasourceConfiguration.connection.mode']",
+              "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.connection.mode']",
             ).should("contain", "Read / Write");
             cy.get(datasource.sslSettingsSection).click({ force: true });
             // should expand ssl pan
             cy.get(
-              "[data-testid='datasourceStorages.unused_env.datasourceConfiguration.connection.ssl.authType']",
+              "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.connection.ssl.authType']",
             ).should("contain", "Default");
 
             cy.ReconnectDatasource("Untitled Datasource");
