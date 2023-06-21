@@ -30,7 +30,7 @@ jobs:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        ref: ${{ '11a18d1d0895cae4a1b553ae2631db1d3dec80db' }}
+        base: ${{ '11a18d1d0895cae4a1b553ae2631db1d3dec80db' }}
         filters: |
           backend:
             - 'app/server/**'
