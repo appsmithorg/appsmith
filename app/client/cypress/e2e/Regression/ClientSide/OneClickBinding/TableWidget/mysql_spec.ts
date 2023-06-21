@@ -49,11 +49,11 @@ describe("Table widget one click binding feature", () => {
 
     table.EditTableCell(0, 0, "Aaland Islands", false);
 
-    table.UpdateTableCell(1, 0, "Flag_Of_Macau.png");
+    table.UpdateTableCell(0, 1, "Flag_Of_Macau.png");
 
     table.UpdateTableCell(
-      2,
       0,
+      2,
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Flag_of_Macau.svg/255px-Flag_of_Macau.svg",
     );
 
@@ -75,7 +75,7 @@ describe("Table widget one click binding feature", () => {
 
     agHelper.Sleep(500);
 
-    table.EditTableCell(1, 0, "Update_Flag_of_Macau.png");
+    table.EditTableCell(0, 1, "Update_Flag_of_Macau.png");
 
     agHelper.Sleep(1000);
 

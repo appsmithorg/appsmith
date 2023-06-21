@@ -1,13 +1,19 @@
 import {
   agHelper,
-  entityExplorer,
+  assertHelper,
   propPane,
   dataSources,
   entityItems,
+  draggableWidgets,
+  entityExplorer,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
+import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
+import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
 
 let dsName: any, query: string;
+const oneClickBinding = new OneClickBinding();
 
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
   before("Create a new MySQL DS & adding data into it", () => {
@@ -15,12 +21,12 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved(
-        "Create database fakeapi;",
+        "Create database fakeapi12;",
         "MsSQL_queries",
       );
       dataSources.RunQuery();
 
-      query = "USE fakeapi;";
+      query = "USE fakeapi12;";
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
 
@@ -122,6 +128,120 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
+  });
+
+  it("1.should check that queries are created and bound to table widget properly", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
+
+    entityExplorer.NavigateToSwitcher("Explorer");
+
+    entityExplorer.NavigateToSwitcher("Widgets");
+
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+
+    oneClickBinding.ChooseAndAssertForm(
+      `New from ${dsName}`,
+      dsName,
+      "Simpsons",
+      "title",
+    );
+
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+
+    [
+      "episode_id",
+      "season",
+      "episode",
+      "number_in_series",
+      "title",
+      "summary",
+      "air_date",
+      "episode_image",
+      "rating",
+      "votes",
+    ].forEach((column) => {
+      agHelper.AssertElementExist(table._headerCell(column));
+    });
+
+    // agHelper.AssertElementExist(table._showPageItemsCount);
+
+    table.EnableEditableOfColumn("episode_id", "v2");
+
+    agHelper.GetNClick(table._addNewRow, 0, true);
+
+    table.EditTableCell(0, 0, "S01E01", false);
+
+    table.UpdateTableCell(0, 1, "1");
+
+    table.UpdateTableCell(0, 2, " 1");
+
+    table.UpdateTableCell(0, 3, " 10");
+
+    table.UpdateTableCell(0, 4, "Expanse");
+    table.UpdateTableCell(0, 5, "Prime");
+
+    table.UpdateTableCell(0, 6, "2016-06-22 19:10:25-07");
+    agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
+    agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
+    table.UpdateTableCell(0, 7, "expanse.png");
+    table.UpdateTableCell(0, 8, "5");
+    table.UpdateTableCell(0, 9, "20");
+
+    agHelper.Sleep(2000);
+
+    agHelper.GetNClick(table._saveNewRow, 0, true);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.TypeText(table._searchInput, "Expanse");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.AssertElementExist(table._bodyCell("Expanse"));
+
+    agHelper.Sleep(1000);
+
+    // (cy as any).editTableCell(1, 0);
+
+    agHelper.Sleep(500);
+
+    table.EditTableCell(0, 4, "Westworld");
+
+    agHelper.Sleep(1000);
+
+    (cy as any).AssertTableRowSavable(10, 0);
+
+    (cy as any).saveTableRow(10, 0);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(500);
+
+    agHelper.ClearTextField(table._searchInput);
+
+    agHelper.TypeText(table._searchInput, "Westworld");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+
+    agHelper.AssertElementExist(table._bodyCell("Westworld"));
+
+    agHelper.ClearTextField(table._searchInput);
+
+    agHelper.TypeText(table._searchInput, "Expanse");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+
+    agHelper.AssertElementAbsence(table._bodyCell("Expanse"));
   });
 
   after("Verify Deletion of the datasource", () => {

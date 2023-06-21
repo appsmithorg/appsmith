@@ -1033,7 +1033,7 @@ export class AggregateHelper extends ReusableHelper {
     this.GetElement(selector)
       .closest("input")
       .scrollIntoView({ easing: "linear" })
-      .clear()
+      .clear({ force: true })
       .then(($input: any) => {
         if (value !== "") {
           cy.wrap($input).type(value, { delay: 3 });
