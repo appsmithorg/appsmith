@@ -163,6 +163,7 @@ public enum AppsmithError {
     GIT_FILE_IN_USE(500, AppsmithErrorCode.GIT_FILE_IN_USE.getCode(), "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.", AppsmithErrorAction.DEFAULT, "Git repo is locked", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     CSRF_TOKEN_INVALID(403, AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(), "CSRF token missing/invalid. Please try again.", AppsmithErrorAction.DEFAULT, "CSRF token missing/invalid", ErrorType.BAD_REQUEST, null),
     UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION(400, AppsmithErrorCode.UNSUPPORTED_IMPORT_OPERATION.getCode(), "Import application via file is not supported for git connected application. Please use Git Pull to update and sync your application.", AppsmithErrorAction.DEFAULT, "Unsupported operation", ErrorType.BAD_REQUEST, null),
+    INVALID_PROPERTIES_CONFIGURATION(500, AppsmithErrorCode.INTERNAL_SERVER_ERROR.getCode(), "Property configuration is wrong or malformed.", AppsmithErrorAction.DEFAULT, "Invalid application property configuration", ErrorType.INTERNAL_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

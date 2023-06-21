@@ -15,10 +15,12 @@ import org.springframework.data.annotation.Immutable;
 @ToString
 @Immutable
 public class ProductAlertResponseDTO {
-    String messageid;
+    String messageId;
     String title;
-    String learnmorelink;
-    Boolean candismiss;
-    Integer remindlaterdays;
-    List<String> featureFlagEnumList;
+    String learnMoreLink;
+    Boolean canDismiss;
+    Integer remindLaterDays;
+    ProductAlertMessageApplicabilityContext context;
+    String applicabilityExpression;
+    Integer precedenceIndex;
 }

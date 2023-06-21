@@ -1,22 +1,24 @@
+dollar: $
+hash: #
 productalertmessages: [\
   {\
-    "messageid": "1",\
-    "learnmorelink": "learnmorelink1",\
-    "candismiss": true,\
-    "remindlaterdays": 5,\
-    "featureFlagEnumList": [\
-       "featureFlag1",\
-       "featureFlag2"\
-    ]\
+    "messageId": "1",\
+    "title": "alert1",\
+    "learnMoreLink": "learnmorelink1",\
+    "canDismiss": true,\
+    "remindLaterDays": 5,\
+    "context": "COMMON_CONFIG",\
+    "applicabilityExpression": "!isCloudHosting",\
+    "precedenceIndex": 1\
   }, \
   {\
-      "messageid": "2",\
-      "learnmorelink": "learnmorelink2",\
-      "candismiss": true,\
-      "remindlaterdays": 5,\
-      "featureFlagEnumList": [\
-          "featureFlag3",\
-          "featureFlag4"\
-      ]\
+      "messageId": "2",\
+      "title": "alert2",\
+      "learnMoreLink": "learnmorelink2",\
+      "canDismiss": true,\
+      "remindLaterDays": 5,\
+      "context": "STATIC",\
+      "applicabilityExpression": "true",\
+      "precedenceIndex": 1\
   }\
 ]
