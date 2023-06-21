@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type {
   Datasource,
+  DatasourceStorage,
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
@@ -297,6 +298,43 @@ const datasourceReducer = createReducer(initialState, {
       recentDatasources: [
         action.payload.id,
         ...state.recentDatasources.filter((ds) => ds !== action.payload.id),
+      ],
+    };
+  },
+  [ReduxActionTypes.UPDATE_DATASOURCE_STORAGE_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<DatasourceStorage>,
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.datasourceId)
+          return {
+            ...datasource,
+            datasourceStorages: {
+              [`${action.payload.environmentId}`]: action.payload,
+            },
+          };
+
+        return datasource;
+      }),
+      unconfiguredList: state.unconfiguredList.map((datasource) => {
+        if (datasource.id === action.payload.datasourceId)
+          return {
+            ...datasource,
+            datasourceStorages: {
+              [`${action.payload.environmentId}`]: action.payload,
+            },
+          };
+
+        return datasource;
+      }),
+      recentDatasources: [
+        action.payload.datasourceId,
+        ...state.recentDatasources.filter(
+          (ds) => ds !== action.payload.datasourceId,
+        ),
       ],
     };
   },

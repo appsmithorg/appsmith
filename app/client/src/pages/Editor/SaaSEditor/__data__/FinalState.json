@@ -112,14 +112,14 @@
             "children": [
               {
                 "label": "Use mongo connection string URI key",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[0].key",
+                "configProperty": "datasourceConfiguration.properties[0].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "Use mongo connection string URI",
                 "hidden": true
               },
               {
                 "label": "Use mongo connection string URI",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                "configProperty": "datasourceConfiguration.properties[0].value",
                 "controlType": "DROP_DOWN",
                 "initialValue": "No",
                 "options": [
@@ -135,7 +135,7 @@
               },
               {
                 "label": "Connection string URI key",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].key",
+                "configProperty": "datasourceConfiguration.properties[1].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "Connection string URI",
                 "hidden": true
@@ -143,17 +143,17 @@
               {
                 "label": "Connection string URI",
                 "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+                "configProperty": "datasourceConfiguration.properties[1].value",
                 "controlType": "INPUT_TEXT",
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                  "path": "datasourceConfiguration.properties[0].value",
                   "comparison": "NOT_EQUALS",
                   "value": "Yes"
                 }
               },
               {
                 "label": "Connection mode",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.mode",
+                "configProperty": "datasourceConfiguration.connection.mode",
                 "controlType": "SEGMENTED_CONTROL",
                 "initialValue": "READ_WRITE",
                 "options": [
@@ -167,14 +167,14 @@
                   }
                 ],
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                  "path": "datasourceConfiguration.properties[0].value",
                   "comparison": "EQUALS",
                   "value": "Yes"
                 }
               },
               {
                 "label": "Connection type",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.type",
+                "configProperty": "datasourceConfiguration.connection.type",
                 "initialValue": "DIRECT",
                 "controlType": "DROP_DOWN",
                 "options": [
@@ -188,7 +188,7 @@
                   }
                 ],
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                  "path": "datasourceConfiguration.properties[0].value",
                   "comparison": "EQUALS",
                   "value": "Yes"
                 }
@@ -197,24 +197,24 @@
                 "children": [
                   {
                     "label": "Host address",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
+                    "configProperty": "datasourceConfiguration.endpoints[*].host",
                     "controlType": "KEYVALUE_ARRAY",
                     "validationMessage": "Please enter a valid host",
                     "validationRegex": "^((?![/:]).)*$",
                     "placeholderText": "myapp.abcde.mongodb.net",
                     "hidden": {
-                      "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                      "path": "datasourceConfiguration.properties[0].value",
                       "comparison": "EQUALS",
                       "value": "Yes"
                     }
                   },
                   {
                     "label": "Port",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
+                    "configProperty": "datasourceConfiguration.endpoints[*].port",
                     "dataType": "NUMBER",
                     "controlType": "KEYVALUE_ARRAY",
                     "hidden": {
-                      "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                      "path": "datasourceConfiguration.properties[0].value",
                       "comparison": "EQUALS",
                       "value": "Yes"
                     }
@@ -224,10 +224,10 @@
               {
                 "label": "Default database name",
                 "placeholderText": "(optional)",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.defaultDatabaseName",
+                "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
                 "controlType": "INPUT_TEXT",
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                  "path": "datasourceConfiguration.properties[0].value",
                   "comparison": "EQUALS",
                   "value": "Yes"
                 }
@@ -237,21 +237,21 @@
           {
             "sectionName": "Authentication",
             "hidden": {
-              "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+              "path": "datasourceConfiguration.properties[0].value",
               "comparison": "EQUALS",
               "value": "Yes"
             },
             "children": [
               {
                 "label": "Database name",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
+                "configProperty": "datasourceConfiguration.authentication.databaseName",
                 "controlType": "INPUT_TEXT",
                 "placeholderText": "Database name",
                 "initialValue": "admin"
               },
               {
                 "label": "Authentication type",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.authType",
+                "configProperty": "datasourceConfiguration.authentication.authType",
                 "controlType": "DROP_DOWN",
                 "initialValue": "SCRAM_SHA_1",
                 "options": [
@@ -273,13 +273,13 @@
                 "children": [
                   {
                     "label": "Username",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+                    "configProperty": "datasourceConfiguration.authentication.username",
                     "controlType": "INPUT_TEXT",
                     "placeholderText": "Username"
                   },
                   {
                     "label": "Password",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+                    "configProperty": "datasourceConfiguration.authentication.password",
                     "dataType": "PASSWORD",
                     "controlType": "INPUT_TEXT",
                     "placeholderText": "Password",
@@ -292,14 +292,14 @@
           {
             "sectionName": "SSL (optional)",
             "hidden": {
-              "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+              "path": "datasourceConfiguration.properties[0].value",
               "comparison": "EQUALS",
               "value": "Yes"
             },
             "children": [
               {
                 "label": "SSL mode",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.authType",
+                "configProperty": "datasourceConfiguration.connection.ssl.authType",
                 "controlType": "DROP_DOWN",
                 "initialValue": "DEFAULT",
                 "options": [
@@ -327,7 +327,7 @@
             "children": [
               {
                 "label": "Connection mode",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.mode",
+                "configProperty": "datasourceConfiguration.connection.mode",
                 "controlType": "SEGMENTED_CONTROL",
                 "isRequired": true,
                 "initialValue": "READ_WRITE",
@@ -346,14 +346,14 @@
                 "children": [
                   {
                     "label": "Host address",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
+                    "configProperty": "datasourceConfiguration.endpoints[*].host",
                     "controlType": "KEYVALUE_ARRAY",
                     "validationMessage": "Please enter a valid host",
                     "validationRegex": "^((?![/:]).)*$"
                   },
                   {
                     "label": "Port",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
+                    "configProperty": "datasourceConfiguration.endpoints[*].port",
                     "dataType": "NUMBER",
                     "controlType": "KEYVALUE_ARRAY"
                   }
@@ -361,7 +361,7 @@
               },
               {
                 "label": "Database name",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
+                "configProperty": "datasourceConfiguration.authentication.databaseName",
                 "controlType": "INPUT_TEXT",
                 "placeholderText": "Database name",
                 "initialValue": "admin"
@@ -376,13 +376,13 @@
                 "children": [
                   {
                     "label": "Username",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+                    "configProperty": "datasourceConfiguration.authentication.username",
                     "controlType": "INPUT_TEXT",
                     "placeholderText": "Username"
                   },
                   {
                     "label": "Password",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+                    "configProperty": "datasourceConfiguration.authentication.password",
                     "dataType": "PASSWORD",
                     "controlType": "INPUT_TEXT",
                     "placeholderText": "Password",
@@ -398,7 +398,7 @@
             "children": [
               {
                 "label": "SSL mode",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.authType",
+                "configProperty": "datasourceConfiguration.connection.ssl.authType",
                 "controlType": "DROP_DOWN",
                 "initialValue": "DEFAULT",
                 "options": [
@@ -433,26 +433,26 @@
             "children": [
               {
                 "label": "URL",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.url",
+                "configProperty": "datasourceConfiguration.url",
                 "controlType": "INPUT_TEXT",
                 "isRequired": true,
                 "placeholderText": "https://example.com"
               },
               {
                 "label": "Headers",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.headers",
+                "configProperty": "datasourceConfiguration.headers",
                 "controlType": "KEYVALUE_ARRAY"
               },
               {
                 "label": "Send authentication information key (do not edit)",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[0].key",
+                "configProperty": "datasourceConfiguration.properties[0].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "isSendSessionEnabled"
               },
               {
                 "label": "Send Appsmith signature header (X-APPSMITH-SIGNATURE)",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                "configProperty": "datasourceConfiguration.properties[0].value",
                 "controlType": "DROP_DOWN",
                 "isRequired": true,
                 "initialValue": "N",
@@ -469,24 +469,24 @@
               },
               {
                 "label": "Session details signature key key (do not edit)",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].key",
+                "configProperty": "datasourceConfiguration.properties[1].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "sessionSignatureKey"
               },
               {
                 "label": "Session details signature key",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+                "configProperty": "datasourceConfiguration.properties[1].value",
                 "controlType": "INPUT_TEXT",
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+                  "path": "datasourceConfiguration.properties[0].value",
                   "comparison": "EQUALS",
                   "value": "N"
                 }
               },
               {
                 "label": "Authentication type",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                "configProperty": "datasourceConfiguration.authentication.authenticationType",
                 "controlType": "DROP_DOWN",
                 "options": [
                   {
@@ -513,75 +513,75 @@
               },
               {
                 "label": "Grant type",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.grantType",
+                "configProperty": "datasourceConfiguration.authentication.grantType",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": true
               },
               {
                 "label": "Access token URL",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.accessTokenUrl",
+                "configProperty": "datasourceConfiguration.authentication.accessTokenUrl",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 }
               },
               {
                 "label": "Client id",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.clientId",
+                "configProperty": "datasourceConfiguration.authentication.clientId",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 }
               },
               {
                 "label": "Client secret",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.clientSecret",
+                "configProperty": "datasourceConfiguration.authentication.clientSecret",
                 "dataType": "PASSWORD",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 }
               },
               {
                 "label": "Scope(s)",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.scopeString",
+                "configProperty": "datasourceConfiguration.authentication.scopeString",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 }
               },
               {
                 "label": "Header prefix",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.headerPrefix",
+                "configProperty": "datasourceConfiguration.authentication.headerPrefix",
                 "controlType": "INPUT_TEXT",
                 "placeholderText": "Bearer (default)",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 }
               },
               {
                 "label": "Add token to",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.isTokenHeader",
+                "configProperty": "datasourceConfiguration.authentication.isTokenHeader",
                 "controlType": "DROP_DOWN",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 },
@@ -598,22 +598,22 @@
               },
               {
                 "label": "Audience(s)",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.audience",
+                "configProperty": "datasourceConfiguration.authentication.audience",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 }
               },
               {
                 "label": "Resource(s)",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.resource",
+                "configProperty": "datasourceConfiguration.authentication.resource",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                  "path": "datasourceConfiguration.authentication.authenticationType",
                   "comparison": "NOT_EQUALS",
                   "value": "oAuth2"
                 }
@@ -628,21 +628,21 @@
             "children": [
               {
                 "label": "Database URL",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.url",
+                "configProperty": "datasourceConfiguration.url",
                 "controlType": "INPUT_TEXT",
                 "isRequired": true,
                 "placeholderText": "https://your-project-id.firebaseio.com"
               },
               {
                 "label": "Project id",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+                "configProperty": "datasourceConfiguration.authentication.username",
                 "controlType": "INPUT_TEXT",
                 "isRequired": true,
                 "initialValue": ""
               },
               {
                 "label": "Service account credentials",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+                "configProperty": "datasourceConfiguration.authentication.password",
                 "controlType": "INPUT_TEXT",
                 "dataType": "PASSWORD",
                 "isRequired": true,
@@ -657,7 +657,7 @@
             "children": [
               {
                 "label": "Authentication type",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+                "configProperty": "datasourceConfiguration.authentication.authenticationType",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": true,
@@ -665,7 +665,7 @@
               },
               {
                 "label": "Grant type",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.grantType",
+                "configProperty": "datasourceConfiguration.authentication.grantType",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": true,
@@ -673,7 +673,7 @@
               },
               {
                 "label": "Scope",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.scopeString",
+                "configProperty": "datasourceConfiguration.authentication.scopeString",
                 "controlType": "DROP_DOWN",
                 "isRequired": true,
                 "options": [
@@ -698,14 +698,14 @@
             "children": [
               {
                 "label": "S3 service provider key",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].key",
+                "configProperty": "datasourceConfiguration.properties[1].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "s3Provider",
                 "hidden": true
               },
               {
                 "label": "S3 service provider",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+                "configProperty": "datasourceConfiguration.properties[1].value",
                 "controlType": "DROP_DOWN",
                 "isRequired": true,
                 "initialValue": "amazon-s3",
@@ -738,13 +738,13 @@
               },
               {
                 "label": "Access key",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+                "configProperty": "datasourceConfiguration.authentication.username",
                 "controlType": "INPUT_TEXT",
                 "initialValue": ""
               },
               {
                 "label": "Secret key",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+                "configProperty": "datasourceConfiguration.authentication.password",
                 "controlType": "INPUT_TEXT",
                 "dataType": "PASSWORD",
                 "initialValue": "",
@@ -752,31 +752,31 @@
               },
               {
                 "label": "Endpoint URL",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[0].host",
+                "configProperty": "datasourceConfiguration.endpoints[0].host",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "",
                 "placeholderText": "user-storage.de-fra1.upcloudobjects.com",
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+                  "path": "datasourceConfiguration.properties[1].value",
                   "comparison": "EQUALS",
                   "value": "amazon-s3"
                 }
               },
               {
                 "label": "Custom endpoint URL key",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[2].key",
+                "configProperty": "datasourceConfiguration.properties[2].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "customRegion",
                 "hidden": true
               },
               {
                 "label": "Region",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[2].value",
+                "configProperty": "datasourceConfiguration.properties[2].value",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "",
                 "placeholderText": "de-fra1",
                 "hidden": {
-                  "path": "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+                  "path": "datasourceConfiguration.properties[1].value",
                   "comparison": "NOT_EQUALS",
                   "value": "other"
                 }
@@ -793,14 +793,14 @@
                 "children": [
                   {
                     "label": "Host address",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
+                    "configProperty": "datasourceConfiguration.endpoints[*].host",
                     "controlType": "KEYVALUE_ARRAY",
                     "validationMessage": "Please enter a valid host",
                     "validationRegex": "^((?![/:]).)*$"
                   },
                   {
                     "label": "Port",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
+                    "configProperty": "datasourceConfiguration.endpoints[*].port",
                     "dataType": "NUMBER",
                     "controlType": "KEYVALUE_ARRAY"
                   }
@@ -808,7 +808,7 @@
               },
               {
                 "label": "Database number",
-                "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
+                "configProperty": "datasourceConfiguration.authentication.databaseName",
                 "controlType": "INPUT_TEXT",
                 "dataType": "NUMBER",
                 "placeholderText": "0"
@@ -823,13 +823,13 @@
                 "children": [
                   {
                     "label": "Username",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+                    "configProperty": "datasourceConfiguration.authentication.username",
                     "controlType": "INPUT_TEXT",
                     "placeholderText": "Username"
                   },
                   {
                     "label": "Password",
-                    "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+                    "configProperty": "datasourceConfiguration.authentication.password",
                     "dataType": "PASSWORD",
                     "controlType": "INPUT_TEXT",
                     "placeholderText": "Password",

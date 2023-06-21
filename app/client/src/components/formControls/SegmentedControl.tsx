@@ -62,7 +62,7 @@ function renderSegementedControl(
   let selectedValue: string;
   //Update selected value
   if (isNil(props.input?.value)) {
-    selectedValue = props.initialValue ? (props.initialValue as string) : "";
+    selectedValue = props?.initialValue ? (props.initialValue as string) : "";
   } else {
     selectedValue = props.input?.value;
   }

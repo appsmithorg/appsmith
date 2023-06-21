@@ -237,12 +237,13 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
     const pageId: string = yield select(getCurrentPageId);
-    const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
-      name,
-      workspaceId,
-      pluginId,
-      packageName,
-    );
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.addMockDbToDatasources(
+        name,
+        workspaceId,
+        pluginId,
+        packageName,
+      );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -255,8 +256,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
-      // @ts-expect-error: response is of type unknown
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
+      // fetch datasource structure for the created mock datasource.
+      yield put(fetchDatasourceStructure(response.data.id, true));
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
 
@@ -267,7 +269,6 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           generateTemplateFormURL({
             pageId,
             params: {
-              // @ts-expect-error: response.data is of type unknown
               datasourceId: response.data.id,
             },
           }),
@@ -412,7 +413,11 @@ function* updateDatasourceSaga(
       datasourcePayload?.id,
     );
     // when clicking save button, it should be changed as configured
-    set(datasourcePayload, "datasourceStorages.active_env.isConfigured", true);
+    set(
+      datasourcePayload,
+      `datasourceStorages.${currentEnvironment}.isConfigured`,
+      true,
+    );
 
     // When importing app with google sheets with specific sheets scope
     // We do not want to set isConfigured to true immediately on save
@@ -424,18 +429,17 @@ function* updateDatasourceSaga(
       );
       const scopeString: string = value ? value : "";
       if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
-        datasourcePayload.datasourceStorages.active_env.isConfigured = false;
+        datasourcePayload.datasourceStorages[currentEnvironment].isConfigured =
+          false;
       }
     }
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasourceStorage(
-        datasourcePayload.datasourceStorages.active_env,
+        datasourcePayload.datasourceStorages[currentEnvironment],
       );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      response.data.datasourceStorages.active_env =
-        response.data.datasourceStorages.unused_env;
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       const formName: string = getFormName(plugin);
       const state: AppState = yield select();
@@ -583,10 +587,10 @@ function* getOAuthAccessTokenSaga(
       response.data.datasource?.pluginId,
     );
     if (validateResponse(response)) {
-      // Update the datasource object
+      // Update the datasource storage object only since the token call only returns the storage object
       yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
-        payload: response.data.datasource,
+        type: ReduxActionTypes.UPDATE_DATASOURCE_STORAGE_SUCCESS,
+        payload: response.data.datasource, // This is the datasourceStorage object
       });
 
       if (!!response.data.token) {
@@ -676,6 +680,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     yield select(getDatasource, actionPayload.payload.id),
     `Datasource not found for id - ${actionPayload.payload.id}`,
   );
+  const currentEnvironment = getCurrentEnvironment();
   const payload = {
     ...actionPayload.payload,
     id: actionPayload.payload.id as any,
@@ -691,7 +696,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   try {
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.testDatasource(
-        payload.datasourceStorages.active_env,
+        payload.datasourceStorages[currentEnvironment],
         plugin.id,
         workspaceId,
       );
@@ -819,7 +824,7 @@ function* createTempDatasourceFromFormSaga(
     pluginId: actionPayload.payload.pluginId,
     new: false,
     datasourceStorages: {
-      active_env: {
+      unused_env: {
         datasourceId: "",
         environmentId: "unused_env",
         datasourceConfiguration: {
@@ -828,9 +833,9 @@ function* createTempDatasourceFromFormSaga(
       },
     },
   };
-
-  const payload = merge(
-    merge(initialPayload, actionPayload.payload),
+  const payload = merge(initialPayload, actionPayload.payload);
+  payload.datasourceStorages.unused_env = merge(
+    payload.datasourceStorages.unused_env,
     initialValues,
   );
 
@@ -863,20 +868,21 @@ function* createDatasourceFromFormSaga(
       getPluginForm,
       actionPayload.payload.pluginId,
     );
+    const currentEnvironment = getCurrentEnvironment();
 
     const initialValues: unknown = yield call(
       getConfigInitialValues,
       formConfig,
     );
+    actionPayload.payload.datasourceStorages[currentEnvironment] = merge(
+      initialValues,
+      actionPayload.payload.datasourceStorages[currentEnvironment],
+    );
 
-    const payload = omit(merge(initialValues, actionPayload.payload), [
-      "id",
-      "new",
-      "type",
-    ]);
+    const payload = omit(actionPayload.payload, ["id", "new", "type"]);
 
     if (payload.datasourceStorages)
-      payload.datasourceStorages.active_env.isConfigured = true;
+      payload.datasourceStorages[currentEnvironment].isConfigured = true;
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.createDatasource({
@@ -902,8 +908,6 @@ function* createDatasourceFromFormSaga(
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
       });
-      response.data.datasourceStorages.active_env =
-        response.data.datasourceStorages.unused_env;
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
         payload: response.data,
@@ -1055,6 +1059,7 @@ function* storeAsDatasourceSaga() {
   let datasource = get(values, "datasource");
   datasource = omit(datasource, ["name"]);
   const originalHeaders = get(values, "actionConfiguration.headers", []);
+  const currentEnvironment = getCurrentEnvironment();
   const [datasourceHeaders, actionHeaders] = partition(
     originalHeaders,
     ({ key, value }: { key: string; value: string }) => {
@@ -1082,12 +1087,12 @@ function* storeAsDatasourceSaga() {
   let createdDatasource = createDatasourceSuccessAction.payload;
   set(
     createdDatasource,
-    "datasourceStorages.active_env.datasourceConfiguration.headers",
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.headers`,
     filteredDatasourceHeaders,
   );
   set(
     createdDatasource,
-    "datasourceStorages.active_env.datasourceConfiguration.url",
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.url`,
     datasource.datasourceConfiguration.url,
   );
   createdDatasource = omit(createdDatasource, ["datasourceConfiguration"]);
@@ -1453,6 +1458,7 @@ function* filePickerActionCallbackSaga(
     const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);
+    const currentEnvironment = getCurrentEnvironment();
 
     // update authentication status based on whether files were picked or not
     const authStatus =
@@ -1463,7 +1469,7 @@ function* filePickerActionCallbackSaga(
     // Once files are selected in case of import, set this flag
     set(
       datasource,
-      "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationStatus",
+      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
       true,
     );
 
@@ -1487,7 +1493,7 @@ function* filePickerActionCallbackSaga(
     // using the second index specifically for file ids.
     set(
       datasource,
-      "datasourceStorages.active_env.datasourceConfiguration.properties[1]",
+      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties[1]`,
       {
         key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
         value: fileIds,
@@ -1724,14 +1730,15 @@ function* updateDatasourceAuthStateSaga(
 ) {
   try {
     const { authStatus, datasource } = actionPayload.payload;
+    const currentEnvironment = getCurrentEnvironment();
     set(
       datasource,
-      "datasourceConfiguration.authentication.authenticationStatus",
+      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
       authStatus,
     );
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasourceStorage(
-        datasource.datasourceStorages.active_env,
+        datasource.datasourceStorages[currentEnvironment],
       );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

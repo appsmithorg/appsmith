@@ -34,7 +34,7 @@ function DatasourceDropdown() {
   }, [isSourceOpen]);
 
   return (
-    <SelectWrapper className="space-y-2">
+    <SelectWrapper>
       <Select
         className="t--one-click-binding-datasource-selector"
         dropdownClassName="one-click-binding-datasource-dropdown"

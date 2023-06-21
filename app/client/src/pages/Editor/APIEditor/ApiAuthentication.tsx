@@ -20,6 +20,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -81,7 +82,7 @@ function ApiAuthentication(props: Props): JSX.Element {
   const { datasource } = props;
   const authType: string = get(
     datasource,
-    "datasourceConfiguration.authentication.authenticationType",
+    `datasourceStorages.${getCurrentEnvironment()}.datasourceConfiguration.authentication.authenticationType`,
     "",
   );
 

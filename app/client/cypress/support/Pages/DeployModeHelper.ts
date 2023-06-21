@@ -3,6 +3,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   _jsonFieldName = (fieldName: string) => `//p[text()='${fieldName}']`;
   _jsonFormFieldByName = (fieldName: string, input = true) =>
@@ -28,24 +29,20 @@ export class DeployMode {
   public DeployApp(
     eleToCheckInDeployPage: string = this.locator._backToEditor,
     toCheckFailureToast = true,
+    toValidateSavedState = true,
     addDebugFlag = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
-    this.agHelper.Sleep(2000); //wait for elements settle!
-    this.agHelper.AssertAutoSave();
+    this.agHelper.Sleep(3000); //wait for elements settle!
+    toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
-        const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
-        window.location.href = `${updatedUrl}${
-          addDebugFlag
-            ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
-            : ""
-        }`;
-      });
-    });
-    cy.get(this.locator._publishButton).click();
+    this.assertHelper.AssertDocumentReady();
+    this.StubbingDeployPage(addDebugFlag);
+    this.agHelper.ClickButton("Deploy");
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
+    cy.get("@windowDeployStub").should("be.calledOnce");
+    this.assertHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!
@@ -66,17 +63,40 @@ export class DeployMode {
   // Stubbing window.open to open in the same tab
   public StubbingWindow() {
     cy.window().then((window: any) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = url;
-        window.location.target = "_self";
-      });
+      cy.stub(window, "open")
+        .as("windowStub")
+        .callsFake((url) => {
+          window.location.href = url;
+          window.location.target = "_self";
+        });
+    });
+  }
+
+  public StubbingDeployPage(addDebugFlag = true) {
+    cy.window({ timeout: 30000 }).then((window) => {
+      cy.stub(window, "open")
+        .as("windowDeployStub")
+        .callsFake((url) => {
+          const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+          window.location.href = `${updatedUrl}${
+            addDebugFlag
+              ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+              : ""
+          }`;
+        });
     });
   }
 
   public NavigateBacktoEditor() {
-    cy.get(this.locator._backToEditor).click({ force: true });
+    this.assertHelper.AssertDocumentReady();
+    this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast("There was an unexpcted error"),
+    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
+    this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
   }
 

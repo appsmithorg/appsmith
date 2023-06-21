@@ -1,6 +1,7 @@
 import homePage from "../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 const datasource = require("../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("Reconnect Datasource Modal validation while importing application", function () {
   let workspaceId;
@@ -8,7 +9,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
   let newWorkspaceName;
   let appName;
   it("1. Import application from json with one postgres and success modal", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     // import application
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
@@ -16,7 +17,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
         newWorkspaceName = createWorkspaceInterception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
         cy.get(homePage.workspaceImportAppOption).click({ force: true });
         cy.get(homePage.workspaceImportAppModal).should("be.visible");
         cy.xpath(homePage.uploadLogo)
@@ -49,12 +50,12 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             );
             cy.get(datasource.sslSettingsSection).should("be.visible");
             cy.get(
-              "[data-testid='datasourceStorages.active_env.datasourceConfiguration.connection.mode']",
+              "[data-testid='datasourceStorages.unused_env.datasourceConfiguration.connection.mode']",
             ).should("contain", "Read / Write");
             cy.get(datasource.sslSettingsSection).click({ force: true });
             // should expand ssl pan
             cy.get(
-              "[data-testid='datasourceStorages.active_env.datasourceConfiguration.connection.ssl.authType']",
+              "[data-testid='datasourceStorages.unused_env.datasourceConfiguration.connection.ssl.authType']",
             ).should("contain", "Default");
 
             cy.ReconnectDatasource("Untitled Datasource");
@@ -74,6 +75,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
               "Application imported successfully",
             );
           }
+          cy.wait("@getWorkspace");
           // check datasource configured success modal
           cy.get(".t--import-app-success-modal").should("be.visible");
           cy.get(".t--import-app-success-modal").should(
@@ -82,6 +84,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           );
           cy.get(".t--import-success-modal-got-it").click({ force: true });
           cy.get(".t--import-app-success-modal").should("not.exist");
+          cy.wait("@getWorkspace");
 
           const uuid = () => Cypress._.random(0, 1e4);
           const name = uuid();

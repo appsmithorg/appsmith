@@ -5,31 +5,31 @@
       "children": [
         {
           "label": "URL",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.url",
+          "configProperty": "datasourceConfiguration.url",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "placeholderText": "https://example.com"
         },
         {
           "label": "Headers",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.headers",
+          "configProperty": "datasourceConfiguration.headers",
           "controlType": "KEYVALUE_ARRAY"
         },
         {
           "label": "Query Params",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.queryParameters",
+          "configProperty": "datasourceConfiguration.queryParameters",
           "controlType": "KEYVALUE_ARRAY"
         },
         {
           "label": "Send authentication Information key (do not edit)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[0].key",
+          "configProperty": "datasourceConfiguration.properties[0].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "isSendSessionEnabled"
         },
         {
           "label": "Send Appsmith signature header (X-APPSMITH-SIGNATURE)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+          "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "N",
@@ -46,24 +46,24 @@
         },
         {
           "label": "Session details signature key key (do not edit)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].key",
+          "configProperty": "datasourceConfiguration.properties[1].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "sessionSignatureKey"
         },
         {
           "label": "Session details signature key",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+          "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+            "path": "datasourceConfiguration.properties[0].value",
             "comparison": "EQUALS",
             "value": "N"
           }
         },
         {
           "label": "Authentication type",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "DROP_DOWN",
           "options": [
             {
@@ -90,75 +90,75 @@
         },
         {
           "label": "Grant type",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.grantType",
+          "configProperty": "datasourceConfiguration.authentication.grantType",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": true
         },
         {
           "label": "Access token URL",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.accessTokenUrl",
+          "configProperty": "datasourceConfiguration.authentication.accessTokenUrl",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
         },
         {
           "label": "Client Id",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.clientId",
+          "configProperty": "datasourceConfiguration.authentication.clientId",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
         },
         {
           "label": "Client secret",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.clientSecret",
+          "configProperty": "datasourceConfiguration.authentication.clientSecret",
           "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
         },
         {
           "label": "Scope(s)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.scopeString",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
         },
         {
           "label": "Header prefix",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.headerPrefix",
+          "configProperty": "datasourceConfiguration.authentication.headerPrefix",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Bearer (default)",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
         },
         {
           "label": "Add token to",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.isTokenHeader",
+          "configProperty": "datasourceConfiguration.authentication.isTokenHeader",
           "controlType": "DROP_DOWN",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           },
@@ -175,29 +175,29 @@
         },
         {
           "label": "Audience(s)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.audience",
+          "configProperty": "datasourceConfiguration.authentication.audience",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
         },
         {
           "label": "Resource(s)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.resource",
+          "configProperty": "datasourceConfiguration.authentication.resource",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+            "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",
             "value": "oAuth2"
           }
         },
         {
           "label": "Send scope with refresh token",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.sendScopeWithRefreshToken",
+          "configProperty": "datasourceConfiguration.authentication.sendScopeWithRefreshToken",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": false,
@@ -214,7 +214,7 @@
         },
         {
           "label": "Send client credentials with (on refresh token)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.refreshTokenClientCredentialsLocation",
+          "configProperty": "datasourceConfiguration.authentication.refreshTokenClientCredentialsLocation",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "BODY",

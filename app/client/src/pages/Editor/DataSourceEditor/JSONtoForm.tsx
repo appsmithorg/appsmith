@@ -39,6 +39,7 @@ export interface JSONtoFormProps {
   datasourceId: string;
   featureFlags?: FeatureFlags;
   setupConfig: (config: ControlProps) => void;
+  currentEnvionment: string;
 }
 
 export class JSONtoForm<
@@ -60,12 +61,24 @@ export class JSONtoForm<
   };
 
   renderMainSection = (section: any, index: number) => {
+    if (
+      !this.props.formData ||
+      !this.props.formData.hasOwnProperty("datasourceStorages") ||
+      !this.props.hasOwnProperty("currentEnvionment") ||
+      !this.props.currentEnvionment ||
+      !this.props.formData.datasourceStorages.hasOwnProperty(
+        this.props.currentEnvionment,
+      )
+    ) {
+      return null;
+    }
+
     // hides features/configs that are hidden behind feature flag
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
     if (
       isHidden(
-        this.props.formData,
+        this.props.formData.datasourceStorages[this.props.currentEnvionment],
         section.hidden,
         this.props?.featureFlags,
         false, // viewMode is false here.
@@ -90,13 +103,18 @@ export class JSONtoForm<
     multipleConfig?: ControlProps[],
   ) => {
     multipleConfig = multipleConfig || [];
-
+    const customConfig = {
+      ...config,
+      configProperty:
+        `datasourceStorages.${this.props.currentEnvionment}.` +
+        config.configProperty,
+    };
     try {
-      this.props.setupConfig(config);
+      this.props.setupConfig(customConfig);
       return (
-        <div key={config.configProperty} style={{ marginTop: "16px" }}>
+        <div key={customConfig.configProperty} style={{ marginTop: "16px" }}>
           <FormControl
-            config={config}
+            config={customConfig}
             formName={this.props.formName}
             multipleConfig={multipleConfig}
           />
@@ -128,7 +146,9 @@ export class JSONtoForm<
           // when feature flag is removed
           if (
             isHidden(
-              this.props.formData,
+              this.props.formData.datasourceStorages[
+                this.props.currentEnvionment
+              ],
               propertyControlOrSection.hidden,
               this.props?.featureFlags,
               false,

@@ -7,13 +7,8 @@ import type { EditorProps } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
-import get from "lodash/get";
-import merge from "lodash/merge";
-import type {
-  EmbeddedRestDatasource,
-  Datasource,
-  DatasourceStorage,
-} from "entities/Datasource";
+import { get, merge } from "lodash";
+import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
 import { DEFAULT_DATASOURCE } from "entities/Datasource";
 import type CodeMirror from "codemirror";
 import type {
@@ -65,10 +60,11 @@ import {
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { isString } from "lodash";
 
 type ReduxStateProps = {
   workspaceId: string;
-  datasource: DatasourceStorage | EmbeddedRestDatasource;
+  datasource: EmbeddedRestDatasource;
   datasourceList: Datasource[];
   datasourceObject?: Datasource;
   applicationId?: string;
@@ -79,9 +75,7 @@ type ReduxStateProps = {
 };
 
 type ReduxDispatchProps = {
-  updateDatasource: (
-    datasource: DatasourceStorage | EmbeddedRestDatasource,
-  ) => void;
+  updateDatasource: (datasource: EmbeddedRestDatasource) => void;
 };
 
 type Props = EditorProps &
@@ -191,6 +185,7 @@ const StyledTooltip = styled.span<{ width?: number }>`
 
 //Avoiding styled components since ReactDOM.render cannot directly work with it
 function CustomHint(props: { datasource: Datasource }) {
+  const currentEnvironment = getCurrentEnvironment();
   return (
     <div style={hintContainerStyles}>
       <div style={mainContainerStyles}>
@@ -202,7 +197,7 @@ function CustomHint(props: { datasource: Datasource }) {
       <span style={datasourceInfoStyles}>
         {get(
           props.datasource,
-          "datasourceStorages.active_env.datasourceConfiguration.url",
+          `datasourceStorages.${currentEnvironment}.datasourceConfiguration.url`,
         )}
       </span>
     </div>
@@ -258,11 +253,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
-      const datasourceUrl = get(
-        datasource,
-        "datasourceStorages.active_env.datasourceConfiguration.url",
-        "",
-      );
+      // We are not using datasourceStorages here since EmbeddedDatasources will not have environments
+      const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -394,9 +386,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                   hints,
                   "pick",
                   (selected: { text: string; data: Datasource }) => {
-                    this.props.updateDatasource(
-                      selected.data.datasourceStorages[currentEnvironment],
-                    );
+                    this.props.updateDatasource({
+                      ...selected.data.datasourceStorages[currentEnvironment],
+                      invalids: selected.data.invalids || [],
+                      messages: selected.data.messages || [],
+                      pluginId: selected.data.pluginId,
+                      name: selected.data.name,
+                      workspaceId: selected.data.workspaceId,
+                    });
                   },
                 );
                 return hints;
@@ -420,9 +417,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
       let evaluatedPath = "path" in entity.config ? entity.config.path : "";
 
-      if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
-        evaluatedPath = extractApiUrlPath(evaluatedPath);
+      if (evaluatedPath) {
+        if (isString(evaluatedPath) && evaluatedPath.indexOf("?") > -1) {
+          evaluatedPath = extractApiUrlPath(evaluatedPath);
+        } else {
+          evaluatedPath = JSON.stringify(evaluatedPath);
+        }
       }
+
       const evaluatedQueryParameters = entity?.config?.queryParameters
         ?.filter((p: KeyValuePair) => !!p?.key)
         .map(

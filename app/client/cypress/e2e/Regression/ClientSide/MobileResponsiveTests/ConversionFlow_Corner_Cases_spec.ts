@@ -24,7 +24,9 @@ describe("Handle Cases while conversion", () => {
 
     cy.wait(1000);
 
-    entityExplorer.ActionContextMenuByEntityName("Page2");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page2",
+    });
   });
 
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
@@ -78,7 +80,6 @@ describe("Handle Cases while conversion", () => {
         "exist",
         widgetLocators.toastAction,
       );
-
       autoLayout.ConvertToAutoLayoutAndVerify();
     },
   );

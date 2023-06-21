@@ -76,7 +76,11 @@ class PropertyControlRegistry {
               return <ControlWithAnalytics {...controlProps} />;
             },
           },
-          Control.canDisplayValueInUI,
+          {
+            canDisplayValueInUI: Control.canDisplayValueInUI,
+            shouldValidateValueOnDynamicPropertyOff:
+              Control.shouldValidateValueOnDynamicPropertyOff,
+          },
           Control.getInputComputedValue,
         );
       },

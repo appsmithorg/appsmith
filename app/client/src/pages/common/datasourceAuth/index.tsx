@@ -35,6 +35,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 interface Props {
   datasource: Datasource;
@@ -144,10 +145,12 @@ function DatasourceAuth({
   showFilterComponent,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
+  const currentEnvionment = getCurrentEnvironment();
   const authType =
     formData && "authType" in formData
       ? formData?.authType
-      : formData?.datasourceStorages?.active_env?.datasourceConfiguration
+      : formData?.datasourceStorages &&
+        formData?.datasourceStorages[currentEnvionment]?.datasourceConfiguration
           ?.authentication?.authenticationType;
 
   const { id: datasourceId } = datasource;
@@ -225,7 +228,8 @@ function DatasourceAuth({
     }
   }, [triggerSave]);
   const isAuthorized =
-    datasource?.datasourceStorages?.active_env?.datasourceConfiguration
+    datasource?.datasourceStorages &&
+    datasource?.datasourceStorages[currentEnvionment]?.datasourceConfiguration
       ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
@@ -297,7 +301,6 @@ function DatasourceAuth({
   };
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
-
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.TEST]: (

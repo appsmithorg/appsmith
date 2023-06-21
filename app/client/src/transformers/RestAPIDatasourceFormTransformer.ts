@@ -1,4 +1,7 @@
-import { isEnvironmentValid } from "@appsmith/utils/Environments";
+import {
+  getCurrentEnvironment,
+  isEnvironmentValid,
+} from "@appsmith/utils/Environments";
 import type { Property } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import type {
@@ -18,14 +21,15 @@ import { get, set } from "lodash";
 export const datasourceToFormValues = (
   datasource: Datasource,
 ): ApiDatasourceForm => {
+  const currentEnvironment = getCurrentEnvironment();
   const authType = get(
     datasource,
-    "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
     AuthType.NONE,
   ) as AuthType;
   const connection = get(
     datasource,
-    "datasourceStorages.active_env.datasourceConfiguration.connection",
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.connection`,
     {
       ssl: {
         authType: SSLType.DEFAULT,
@@ -36,28 +40,29 @@ export const datasourceToFormValues = (
   const isSendSessionEnabled =
     get(
       datasource,
-      "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
+      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties[0].value`,
       "N",
     ) === "Y";
   const sessionSignatureKey = isSendSessionEnabled
     ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       get(
         datasource,
-        "datasourceStorages.active_env.datasourceConfiguration.properties[1].value",
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties[1].value`,
       )!
     : "";
   return {
     datasourceId: datasource.id,
     workspaceId: datasource.workspaceId,
     pluginId: datasource.pluginId,
-    isValid: isEnvironmentValid(datasource, "active_env"),
-    url: datasource.datasourceStorages.active_env?.datasourceConfiguration?.url,
+    isValid: isEnvironmentValid(datasource, currentEnvironment),
+    url: datasource.datasourceStorages[currentEnvironment]
+      ?.datasourceConfiguration?.url,
     headers: cleanupProperties(
-      datasource.datasourceStorages.active_env?.datasourceConfiguration
+      datasource.datasourceStorages[currentEnvironment]?.datasourceConfiguration
         ?.headers,
     ),
     queryParameters: cleanupProperties(
-      datasource.datasourceStorages.active_env?.datasourceConfiguration
+      datasource.datasourceStorages[currentEnvironment]?.datasourceConfiguration
         ?.queryParameters,
     ),
     isSendSessionEnabled: isSendSessionEnabled,
@@ -72,6 +77,7 @@ export const formValuesToDatasource = (
   datasource: Datasource,
   form: ApiDatasourceForm,
 ): Datasource => {
+  const currentEnvironment = getCurrentEnvironment();
   const authentication = formToDatasourceAuthentication(
     form.authType,
     form.authentication,
@@ -92,7 +98,7 @@ export const formValuesToDatasource = (
   };
   set(
     datasource,
-    "datasourceStorages.active_env.datasourceConfiguration",
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration`,
     conf,
   );
   return datasource;
@@ -183,18 +189,20 @@ const datasourceToFormAuthentication = (
   authType: AuthType,
   datasource: Datasource,
 ): Authentication | undefined => {
+  const currentEnvironment = getCurrentEnvironment();
   if (
     !datasource ||
-    !datasource.datasourceStorages.active_env?.datasourceConfiguration ||
-    !datasource.datasourceStorages.active_env?.datasourceConfiguration
+    !datasource.datasourceStorages[currentEnvironment]
+      ?.datasourceConfiguration ||
+    !datasource.datasourceStorages[currentEnvironment]?.datasourceConfiguration
       .authentication
   ) {
     return;
   }
 
   const authentication =
-    datasource.datasourceStorages.active_env?.datasourceConfiguration
-      .authentication;
+    datasource.datasourceStorages[currentEnvironment].datasourceConfiguration
+      .authentication || {};
   if (
     isClientCredentials(authType, authentication) ||
     isAuthorizationCode(authType, authentication)

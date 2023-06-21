@@ -560,6 +560,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Datasource datasource = zippedData.getT2();
                     final NewAction newAction1 = zippedActions.getT2();
 
+                    // This is being done in order to avoid any usage of datasource storages in client side.
+                    // the ideas is that datasourceStorages shouldn't be used for action's datasource configuration.
+                    final ActionDTO  savedActionDTO = zippedActions.getT1();
+                    if (savedActionDTO.getDatasource() != null) {
+                        savedActionDTO.getDatasource().setDatasourceStorages(null);
+                    }
+
                     final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
 
                     final Map<String, Object> eventData = Map.of(
@@ -570,7 +577,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return analyticsService
                             .sendUpdateEvent(newAction1, data)
-                            .thenReturn(zippedActions.getT1());
+                            .thenReturn(savedActionDTO);
 
                 });
     }

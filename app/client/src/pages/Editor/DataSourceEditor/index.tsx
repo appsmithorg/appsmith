@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { get, isEqual, memoize, set } from "lodash";
+import { get, isEqual, memoize } from "lodash";
 import {
   getPluginImages,
   getDatasource,
@@ -80,6 +80,7 @@ import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransf
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
+import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -192,7 +193,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       requiredFields: {},
       configDetails: {},
       filterParams: {
-        id: "",
+        id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
         showFilterPane: false,
@@ -516,6 +517,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditorForm
           applicationId={this.props.applicationId}
+          currentEnvionment={this.state.filterParams.id}
           datasourceId={datasourceId}
           formConfig={formConfig}
           formData={formData}
@@ -613,23 +615,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       );
       return null;
     }
-
-    const defaultDataStorage = get(datasource, "datasourceStorages.unused_env");
-    const activeDataStorage = get(datasource, "datasourceStorages.active_env");
-    //When using saved datasource we should update active env to unused env
-    //This is because client uses active_env for editing datasource.
-    if (
-      defaultDataStorage &&
-      ((!isNewDatasource &&
-        this.props.pluginDatasourceForm ===
-          DatasourceComponentTypes.AutoForm) ||
-        !activeDataStorage)
-    )
-      set(
-        datasource as Datasource,
-        "datasourceStorages.active_env",
-        defaultDataStorage,
-      );
 
     return (
       <Form
