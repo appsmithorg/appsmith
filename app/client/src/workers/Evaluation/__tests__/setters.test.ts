@@ -58,7 +58,7 @@ jest.mock("../evalTreeWithChanges", () => ({
 
 describe("Setter class test", () => {
   it("Setters init method ", () => {
-    setters.init(configTree);
+    setters.init(configTree, evalTree);
 
     expect(setters.getMap()).toEqual({
       Table1: {
@@ -73,6 +73,7 @@ describe("Setter class test", () => {
     const methodMap = setters.getEntitySettersFromConfig(
       tableWidgetDataTree.configEntity,
       "Table1",
+      evalTree["Table1"],
     );
 
     const globalContext = self as any;

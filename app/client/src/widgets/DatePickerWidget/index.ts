@@ -29,7 +29,6 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
-    setterConfig: Widget.getSetterConfig(),
   },
 };
 

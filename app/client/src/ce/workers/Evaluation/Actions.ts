@@ -76,6 +76,7 @@ export const addDataTreeToContext = (args: {
     const entityMethodMap = setters.getEntitySettersFromConfig(
       entityConfig,
       entityName,
+      entity,
     );
 
     if (isEmpty(entityMethodMap)) continue;
@@ -129,6 +130,7 @@ export const getAllAsyncFunctions = (
     const entityMethodMap = setters.getEntitySettersFromConfig(
       entityConfig,
       entityName,
+      entity,
     );
 
     if (isEmpty(entityMethodMap)) continue;

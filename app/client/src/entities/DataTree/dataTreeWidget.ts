@@ -69,10 +69,17 @@ export function getSetterConfig(
     if (setterConfig.__setters) {
       modifiedSetterConfig.__setters = {};
       for (const setterMethodName of Object.keys(setterConfig.__setters)) {
+        const staticConfigSetter = setterConfig.__setters[setterMethodName];
+
         modifiedSetterConfig.__setters[setterMethodName] = {
-          path: `${widget.widgetName}.${setterConfig.__setters[setterMethodName].path}`,
-          type: setterConfig.__setters[setterMethodName].type,
+          path: `${widget.widgetName}.${staticConfigSetter.path}`,
+          type: staticConfigSetter.type,
         };
+
+        if (staticConfigSetter.conditionFn) {
+          modifiedSetterConfig.__setters[setterMethodName].conditionFn =
+            staticConfigSetter.conditionFn;
+        }
       }
     }
 
