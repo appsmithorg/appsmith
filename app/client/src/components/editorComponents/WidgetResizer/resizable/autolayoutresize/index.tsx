@@ -182,6 +182,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       const leftColumn = widget[leftColumnMap];
       return leftColumn > centerColumn ? "end" : "start";
     })();
+    const GapBetweenWidgets = 4;
     const layerWidthInPixels = layer.children.reduce(
       (
         width: number,
@@ -211,7 +212,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         }
         return width;
       },
-      0,
+      (layer.children.length - 1) * GapBetweenWidgets,
     );
     return { computedAlignment, layer, layerWidthInPixels };
   }, [props, allWidgets, leftColumnMap]);
