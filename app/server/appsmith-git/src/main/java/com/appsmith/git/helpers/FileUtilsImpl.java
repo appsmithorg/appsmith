@@ -95,6 +95,8 @@ public class FileUtilsImpl implements FileInterface {
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
+    private static final String CANVAS_WIDGET = "(Canvas)[0-9]*.";
+
     /**
      Application will be stored in the following structure:
 
@@ -244,22 +246,24 @@ public class FileUtilsImpl implements FileInterface {
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
+                            // Save page metadata
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
                             Map<String, JSONObject> result =  DSLTransformerHelper.flatten(new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
                             result.forEach((key, jsonObject) -> {
                                 // get path with splitting the name via key
-                                String widgetName = key.substring(key.lastIndexOf("." ) + 1 );
-                                String childPath = key.replace("MainContainer", "").replace(".", "/");
+                                String widgetName = key.substring(key.lastIndexOf(CommonConstants.DELIMITER_POINT ) + 1 );
+                                String childPath = key.replace(CommonConstants.MAIN_CONTAINER, CommonConstants.EMPTY_STRING)
+                                        .replace(CommonConstants.DELIMITER_POINT, CommonConstants.DELIMITER_PATH);
                                 // Replace the canvas Widget as a child and add it to the same level as parent
-                                childPath = childPath.replaceAll("(Canvas)[0-9]*.", "");
+                                childPath = childPath.replaceAll(CANVAS_WIDGET, CommonConstants.EMPTY_STRING);
                                 if (!DSLTransformerHelper.hasChildren(jsonObject)) {
                                     // Save the widget as a directory or Save the widget as a file
-                                    childPath = childPath.replace(widgetName, "");
+                                    childPath = childPath.replace(widgetName, CommonConstants.EMPTY_STRING);
                                 }
                                 validWidgets.add(widgetName);
                                 Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
                                 // Canvas Widget data is already saved in the immediate parent, so no need to save it again
-                                if (!widgetName.matches("(Canvas)[0-9]*.")) {
+                                if (!widgetName.matches(CANVAS_WIDGET)) {
                                     saveWidgets(
                                             jsonObject,
                                             widgetName,
@@ -698,7 +702,7 @@ public class FileUtilsImpl implements FileInterface {
      * @return content of the file in the path
      */
     private String readFileAsString(Path filePath) {
-        String data = "";
+        String data = CommonConstants.EMPTY_STRING;
         try {
             data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
         } catch (IOException e) {
@@ -720,7 +724,7 @@ public class FileUtilsImpl implements FileInterface {
             for (File dirFile : Objects.requireNonNull(directory.listFiles())) {
                 String resourceName = dirFile.getName();
                 Path resourcePath = directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.JS_EXTENSION);
-                String body = "";
+                String body = CommonConstants.EMPTY_STRING;
                 if (resourcePath.toFile().exists()) {
                     body = readFileAsString(resourcePath);
                 }
@@ -745,7 +749,7 @@ public class FileUtilsImpl implements FileInterface {
         if (directory.isDirectory()) {
             for (File dirFile : Objects.requireNonNull(directory.listFiles())) {
                 String resourceName = dirFile.getName();
-                String body = "";
+                String body = CommonConstants.EMPTY_STRING;
                 Path queryPath = directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.TEXT_FILE_EXTENSION);
                 if (queryPath.toFile().exists()) {
                     body = readFileAsString(queryPath);
@@ -798,13 +802,13 @@ public class FileUtilsImpl implements FileInterface {
         switch (fileFormatVersion) {
             case 1 :
                 // Extract actions
-                applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson, ""));
+                applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
                 // Extract actionCollections
-                applicationGitReference.setActionCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson, ""));
+                applicationGitReference.setActionCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
                 // Extract pages
-                applicationGitReference.setPages(readFiles(pageDirectory, gson, ""));
+                applicationGitReference.setPages(readFiles(pageDirectory, gson, CommonConstants.EMPTY_STRING));
                 // Extract datasources
-                applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));
+                applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
                 break;
 
             case 2:
@@ -822,7 +826,7 @@ public class FileUtilsImpl implements FileInterface {
         applicationGitReference.setMetadata(metadata);
 
         Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
-        Map<String, Object> jsLibrariesMap = readFiles(jsLibDirectory, gson, "");
+        Map<String, Object> jsLibrariesMap = readFiles(jsLibDirectory, gson, CommonConstants.EMPTY_STRING);
         applicationGitReference.setJsLibraries(jsLibrariesMap);
 
         return applicationGitReference;
@@ -855,7 +859,7 @@ public class FileUtilsImpl implements FileInterface {
         applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
         applicationGitReference.setPages(pageMap);
         // Extract datasources
-        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));
+        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
     }
 
     @Deprecated
@@ -892,7 +896,7 @@ public class FileUtilsImpl implements FileInterface {
         applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
         applicationGitReference.setPages(pageMap);
         // Extract datasources
-        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));
+        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
     }
 
     private Integer getFileFormatVersion(Object metadata) {

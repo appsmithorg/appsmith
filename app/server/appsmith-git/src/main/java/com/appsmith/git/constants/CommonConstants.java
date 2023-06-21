@@ -4,7 +4,9 @@ public class CommonConstants {
     // This field will be useful when we migrate fields within JSON files (currently this will be useful for Git feature)
     public static Integer fileFormatVersion = 5;
     public static String FILE_FORMAT_VERSION = "fileFormatVersion";
+
     public static final String CANVAS = "canvas";
+
     public static final String APPLICATION = "application";
     public static final String THEME = "theme";
     public static final String METADATA = "metadata";
@@ -12,4 +14,15 @@ public class CommonConstants {
     public static final String JS_EXTENSION = ".js";
     public static final String TEXT_FILE_EXTENSION = ".txt";
     public static final String WIDGETS = "widgets";
+    public static final String WIDGET_NAME = "widgetName";
+    public static final String WIDGET_ID = "widgetId";
+    public static final String PARENT_ID = "parentId";
+    public static final String WIDGET_TYPE = "type";
+    public static final String CHILDREN = "children";
+
+    public static final String CANVAS_WIDGET = "CANVAS_WIDGET";
+    public static final String MAIN_CONTAINER = "MainContainer";
+    public static final String DELIMITER_POINT = ".";
+    public static final String DELIMITER_PATH = "/";
+    public static final String EMPTY_STRING = "";
 }

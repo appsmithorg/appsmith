@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.git.constants.CommonConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -16,16 +17,6 @@ import java.util.TreeMap;
 @Slf4j
 public class DSLTransformerHelper {
 
-    private static final String WIDGET_NAME = "widgetName";
-
-    private static final String WIDGET_ID = "widgetId";
-
-    private static final String PARENT_ID = "parentId";
-
-    private static final String WIDGET_TYPE = "type";
-
-    private static final String CHILDREN = "children";
-
     public static Map<String, JSONObject> flatten(JSONObject jsonObject) {
         Map<String, JSONObject> flattenedMap = new HashMap<>();
         flattenObject(jsonObject, "", flattenedMap);
@@ -33,12 +24,12 @@ public class DSLTransformerHelper {
     }
 
     private static void flattenObject(JSONObject jsonObject, String prefix, Map<String, JSONObject> flattenedMap) {
-        String widgetName = jsonObject.optString("widgetName");
+        String widgetName = jsonObject.optString(CommonConstants.WIDGET_NAME);
         if (widgetName.isEmpty()) {
             return;
         }
 
-        JSONArray children = jsonObject.optJSONArray("children");
+        JSONArray children = jsonObject.optJSONArray(CommonConstants.CHILDREN);
         if (children != null) {
             // Check if the children object has type=CANVAS_WIDGET
             jsonObject = removeChildrenIfNotCanvasWidget(jsonObject);
@@ -55,26 +46,26 @@ public class DSLTransformerHelper {
     }
 
     private static JSONObject removeChildrenIfNotCanvasWidget(JSONObject jsonObject) {
-        JSONArray children = jsonObject.optJSONArray("children");
+        JSONArray children = jsonObject.optJSONArray(CommonConstants.CHILDREN);
         if (children.length() == 1) {
             JSONObject child = children.getJSONObject(0);
-            if (!"CANVAS_WIDGET".equals(child.optString("type"))) {
-                jsonObject.remove("children");
+            if (!CommonConstants.CANVAS_WIDGET.equals(child.optString(CommonConstants.WIDGET_TYPE))) {
+                jsonObject.remove(CommonConstants.CHILDREN);
             } else {
                 JSONObject childCopy = new JSONObject(child.toString());
-                childCopy.remove("children");
+                childCopy.remove(CommonConstants.CHILDREN);
                 JSONArray jsonArray = new JSONArray();
                 jsonArray.put(childCopy);
-                jsonObject.put("children", jsonArray);
+                jsonObject.put(CommonConstants.CHILDREN, jsonArray);
             }
         } else {
-            jsonObject.remove("children");
+            jsonObject.remove(CommonConstants.CHILDREN);
         }
         return jsonObject;
     }
 
     public static boolean hasChildren(JSONObject jsonObject) {
-        JSONArray children = jsonObject.optJSONArray("children");
+        JSONArray children = jsonObject.optJSONArray(CommonConstants.CHILDREN);
         return children != null && children.length() > 0;
     }
 
