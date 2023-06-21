@@ -80,7 +80,7 @@ describe("In-app embed settings", () => {
     ValidateSyncWithInviteModal("false");
   });
 
-  it("5. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=false] Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
+  it("5. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=false] Changing the show navigation bar setting in the App settings pane should update the embed URL with embed parameter", () => {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
     }).as("featureFlags");
@@ -101,7 +101,7 @@ describe("In-app embed settings", () => {
     );
   });
 
-  it("6. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=true] Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
+  it("6. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=true] Changing the show navigation bar setting in the App settings pane should update the embed URL with navbar parameter", () => {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlagsComplement.json",
     }).as("featureFlags");
