@@ -1,3 +1,4 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import emptyDSL from "../../../../fixtures/emptyDSL.json";
 
 // Hi, developer!
@@ -31,8 +32,8 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
     cy.addDsl(emptyDSL);
   });
 
-  it("1. In edit mode", function () {
-    testLinkRelPreloads("edit-mode");
+  it("1. In edit & View mode", function () {
+    testLinkRelPreloads();
   });
 
   // Note: this must be a separate test from the previous one,
@@ -40,9 +41,9 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
   it("2. In view mode", function () {
     cy.reload();
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
-    testLinkRelPreloads("view-mode");
+    testLinkRelPreloads();
   });
 });
 

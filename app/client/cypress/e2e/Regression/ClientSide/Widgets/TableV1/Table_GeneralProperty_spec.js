@@ -2,13 +2,14 @@
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Test to validate table pagination is disabled", function () {
@@ -168,9 +169,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(widgetsPage.rowHeight).last().click({ force: true });
     cy.get(".t--dropdown-option").contains("Short").click({ force: true });
     cy.wait(2000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.readTabledataValidateCSS("0", "1", "height", "19px", true);
-    cy.get(publish.backToEditor).click();
-    cy.wait(2000);
   });
 });

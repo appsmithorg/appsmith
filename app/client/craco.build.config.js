@@ -5,7 +5,6 @@ const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
-const IconChunkNamingPlugin = require("./webpack/IconChunkNamingPlugin");
 const path = require("path");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
@@ -29,9 +28,10 @@ plugins.push(
       // Don’t cache LICENSE.txt files emitted by CRA
       // when a chunk includes some license comments
       /LICENSE\.txt/,
-      // Don’t cache icons as there are hundreds of them, and caching them all
-      // one by one keeps the network busy for a long time (which is bad for battery life)
-      /\/icon.*\.(js|png|svg)$/,
+      // Don’t cache static icons as there are hundreds of them, and caching them all
+      // one by one (as the service worker does it) keeps the network busy for a long time
+      // and delays the service worker installation
+      /\/*\.svg$/,
     ],
     // Don’t cache-bust JS and CSS chunks
     dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
@@ -81,11 +81,6 @@ plugins.push(
     // if not set - nothing will happen and error will be returned to the chunk loader.
     lastResortScript: "window.location.href='/404.html';",
   }),
-);
-
-plugins.push(
-  // Give icon chunks names like `icon.dfd465bd.chunk.js` instead of `35140.dfd465bd.chunk.js`
-  new IconChunkNamingPlugin(),
 );
 
 module.exports = merge(common, {
