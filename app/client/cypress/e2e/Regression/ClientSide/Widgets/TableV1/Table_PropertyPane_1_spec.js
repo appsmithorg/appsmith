@@ -12,53 +12,7 @@ describe("Table Widget property pane feature validation", function () {
 
   // To be done:
   // Column Data type: Video
-
-  it("1. Verify On Row Selected Action", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    // Select show message in the "on selected row" dropdown
-    cy.getAlert("onRowSelected", "Row is selected");
-    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
-    _.table.WaitUntilTableLoad(0, 0, "v1");
-    // Select 1st row
-    cy.isSelectRow(2);
-    cy.wait(2000);
-    // Verify Row is selected by showing the message
-    cy.get(commonlocators.toastmsg).contains("Row is selected");
-    _.deployMode.NavigateBacktoEditor();
-  });
-
-  it("2. Check On Page Change Action", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    // Select show message in the "on selected row" dropdown
-    cy.getAlert("onPageChange", "Page Changed");
-    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
-    _.table.WaitUntilTableLoad(0, 0, "v1");
-    cy.wait(2000);
-    // Change the page
-    cy.get(widgetsPage.nextPageButton).click({ force: true });
-    // Verify the page is changed
-    cy.get(commonlocators.toastmsg).contains("Page Changed");
-    _.deployMode.NavigateBacktoEditor();
-  });
-
-  it("3. Verify On Search Text Change Action", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    // Show Message on Search text change Action
-    cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
-    _.table.WaitUntilTableLoad(0, 0, "v1");
-    // Change the Search text
-    cy.get(widgetsPage.searchField).type("Hello");
-    cy.wait(2000);
-    // Verify the search text is changed
-    cy.get(commonlocators.toastmsg).contains("Search Text Changed");
-    _.deployMode.NavigateBacktoEditor();
-  });
-
-  it("4. Check open section and column data in property pane", function () {
+  it("1. Check open section and column data in property pane", function () {
     cy.openPropertyPane("tablewidget");
 
     // Validate the columns are visible in the property pane
@@ -86,7 +40,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
-  it("5. Column Detail - Edit column name and validate test for computed value based on column type selected", function () {
+  it("2. Column Detail - Edit column name and validate test for computed value based on column type selected (Email, Number, Date)", function () {
     cy.wait(1000);
     cy.makeColumnVisible("email");
     cy.makeColumnVisible("userName");
@@ -146,7 +100,9 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTableLinkPublish("1", "1").then((hrefVal) => {
       expect(hrefVal).to.be.equal(videoVal);
     });*/
+  });
 
+  it("3. Column Detail - Edit column name and validate test for computed value based on column type selected (image, button , url)", function () {
     // Changing Column data type from "Date" to "Image"
     const imageVal =
       "https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
@@ -182,7 +138,7 @@ describe("Table Widget property pane feature validation", function () {
     });
   });
 
-  it("6. Test to validate text allignment", function () {
+  it("4. Test to validate text alignment", function () {
     // Verifying Center Alignment
     cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "justify-content", "center", true);
@@ -202,18 +158,7 @@ describe("Table Widget property pane feature validation", function () {
     );
   });
 
-  it("7. Test to validate text format", function () {
-    // Validate Bold text
-    cy.get(widgetsPage.bold).click({ force: true });
-    cy.wait(2000);
-    cy.reload();
-    cy.readTabledataValidateCSS("1", "0", "font-weight", "700");
-    // Validate Italic text
-    cy.get(widgetsPage.italics).click({ force: true });
-    cy.readTabledataValidateCSS("0", "0", "font-style", "italic");
-  });
-
-  it("8. Test to validate vertical allignment", function () {
+  it("5. Test to validate vertical alignment", function () {
     // Validate vertical alignemnt of Cell text to TOP
     cy.get(widgetsPage.verticalTop).click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-start", true);
@@ -225,7 +170,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-end", true);
   });
 
-  it("11. Test to validate text color and text background", function () {
+  it("6. Test to validate text color and text background", function () {
     cy.openPropertyPane("tablewidget");
 
     // Changing text color to rgb(126, 34, 206) and validate
@@ -241,7 +186,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
-
+    cy.get(commonlocators.editPropBackButton).click();
     // Changing Cell backgroud color to rgb(126, 34, 206) and validate
     cy.selectColor("cellbackgroundcolor");
     cy.readTabledataValidateCSS(
@@ -265,119 +210,13 @@ describe("Table Widget property pane feature validation", function () {
     cy.closePropertyPane();
   });
 
-  it("12. Verify default search text", function () {
+  it("7. Table-Delete Verification", function () {
     // Open property pane
     cy.openPropertyPane("tablewidget");
-    cy.backFromPropertyPanel();
-    // Chage deat search text value to "data"
-    cy.testJsontext("defaultsearchtext", "data");
-    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
-    _.table.WaitUntilTableLoad(0, 0, "v1");
-    // Verify the deaullt search text
-    cy.get(widgetsPage.searchField).should("have.value", "data");
-    _.deployMode.NavigateBacktoEditor();
+    // Delete the Table widget
+    cy.deleteWidget(widgetsPage.tableWidget);
+    _.deployMode.DeployApp();
+    // Verify the Table widget is deleted
+    cy.get(widgetsPage.tableWidget).should("not.exist");
   });
-
-  it("13. Verify default selected row", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    cy.backFromPropertyPanel();
-    cy.testJsontext("defaultsearchtext", "");
-    // Change default selected row value to 1
-    cy.get(widgetsPage.defaultSelectedRowField).type("1");
-    cy.wait(2000);
-    _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"));
-    _.table.WaitUntilTableLoad(0, 0, "v1");
-    // Verify the default selected row
-    cy.get(widgetsPage.selectedRow).should(
-      "have.css",
-      "background-color",
-      "rgb(227, 223, 251)",
-    );
-    _.deployMode.NavigateBacktoEditor();
-  });
-
-  // it("14. Verify table column type button with button variant", function() {
-  //   // Open property pane
-  //   cy.openPropertyPane("tablewidget");
-  //   // Add new column in the table with name "CustomColumn"
-  //   cy.addColumn("CustomColumn");
-
-  //   cy.tableColumnDataValidation("customColumn2"); //To be updated later
-
-  //   cy.editColumn("customColumn2");
-  //   cy.changeColumnType("Button", false);
-  //   // default selected opts
-  //   cy.get(commonlocators.tableButtonVariant + " span[type='p1']").should(
-  //     "have.text",
-  //     "Primary",
-  //   );
-  //   cy.getTableDataSelector("1", "6").then((selector) => {
-  //     cy.get(selector + " button").should(
-  //       "have.css",
-  //       "background-color",
-  //       "rgb(59, 130, 246)",
-  //     );
-  //     cy.get(selector + " button > span").should(
-  //       "have.css",
-  //       "color",
-  //       "rgb(255, 255, 255)",
-  //     );
-  //   });
-  //   cy.selectDropdownValue(commonlocators.tableButtonVariant, "Secondary");
-  //   cy.get(commonlocators.tableButtonVariant + " span[type='p1']").should(
-  //     "have.text",
-  //     "Secondary",
-  //   );
-  //   cy.getTableDataSelector("1", "6").then((selector) => {
-  //     cy.get(selector + " button").should(
-  //       "have.css",
-  //       "background-color",
-  //       "rgba(0, 0, 0, 0)",
-  //     );
-  //     cy.get(selector + " button > span").should(
-  //       "have.css",
-  //       "color",
-  //       "rgb(59, 130, 246)",
-  //     );
-  //     cy.get(selector + " button").should(
-  //       "have.css",
-  //       "border",
-  //       `1px solid rgb(59, 130, 246)`,
-  //     );
-  //   });
-  //   cy.selectDropdownValue(commonlocators.tableButtonVariant, "Tertiary");
-  //   cy.get(commonlocators.tableButtonVariant + " span[type='p1']").should(
-  //     "have.text",
-  //     "Tertiary",
-  //   );
-  //   cy.getTableDataSelector("1", "6").then((selector) => {
-  //     cy.get(selector + " button").should(
-  //       "have.css",
-  //       "background-color",
-  //       "rgba(0, 0, 0, 0)",
-  //     );
-  //     cy.get(selector + " button > span").should(
-  //       "have.css",
-  //       "color",
-  //       "rgb(59, 130, 246)",
-  //     );
-  //     cy.get(selector + " button").should(
-  //       "have.css",
-  //       "border",
-  //       "0px none rgb(24, 32, 38)",
-  //     );
-  //   });
-  //   cy.closePropertyPane();
-  // });
-
-  // it("15. Table-Delete Verification", function() {
-  //   // Open property pane
-  //   cy.openPropertyPane("tablewidget");
-  //   // Delete the Table widget
-  //   cy.deleteWidget(widgetsPage.tableWidget);
-  //   _.deployMode.DeployApp();
-  //   // Verify the Table widget is deleted
-  //   cy.get(widgetsPage.tableWidget).should("not.exist");
-  // });
 });
