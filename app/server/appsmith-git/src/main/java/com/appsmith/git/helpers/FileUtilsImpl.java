@@ -252,16 +252,23 @@ public class FileUtilsImpl implements FileInterface {
                                 String childPath = key.replace("MainContainer", "").replace(".", "/");
                                 // Replace the canvas Widget as a child and add it to the same level as parent
                                 childPath = childPath.replaceAll("(Canvas)[0-9]*.", "");
-                                Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
+                                if (!DSLTransformerHelper.hasChildren(jsonObject)) {
+                                    // Save the widget as a directory or Save the widget as a file
+                                    childPath = childPath.replace(widgetName, "");
+                                }
                                 validWidgets.add(widgetName);
-                                saveWidgets(
-                                        jsonObject,
-                                        widgetName,
-                                        path
-                                );
+                                Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
+                                // Canvas Widget data is already saved in the immediate parent, so no need to save it again
+                                if (!widgetName.matches("(Canvas)[0-9]*.")) {
+                                    saveWidgets(
+                                            jsonObject,
+                                            widgetName,
+                                            path
+                                    );
+                                }
                             });
                             // Remove deleted widgets from the file system
-                            scanAndDeleteFileForDeletedResources(validWidgets, pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                            //scanAndDeleteFileForDeletedResources(validWidgets, pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
                         }
                         validPages.add(pageName);
                     }

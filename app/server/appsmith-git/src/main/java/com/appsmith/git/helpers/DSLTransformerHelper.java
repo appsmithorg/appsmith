@@ -3,16 +3,12 @@ package com.appsmith.git.helpers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 
 @Component
@@ -33,7 +29,7 @@ public class DSLTransformerHelper {
     public static Map<String, JSONObject> flatten(JSONObject jsonObject) {
         Map<String, JSONObject> flattenedMap = new HashMap<>();
         flattenObject(jsonObject, "", flattenedMap);
-        return flattenedMap;
+        return new TreeMap<>(flattenedMap);
     }
 
     private static void flattenObject(JSONObject jsonObject, String prefix, Map<String, JSONObject> flattenedMap) {
@@ -45,18 +41,8 @@ public class DSLTransformerHelper {
         JSONArray children = jsonObject.optJSONArray("children");
         if (children != null) {
             // Check if the children object has type=CANVAS_WIDGET
-            String type = jsonObject.optString("type");
-            boolean isCanvasWidget = "CANVAS_WIDGET".equals(type);
-
-            if (isCanvasWidget) {
-                // Add the current object at the same level as the parent
-                jsonObject.remove("children");
-                flattenedMap.put(prefix + widgetName, jsonObject);
-            } else {
-                // Remove the children property if present
-                jsonObject.remove("children");
-                flattenedMap.put(prefix + widgetName, jsonObject);
-            }
+            jsonObject = removeChildrenIfNotCanvasWidget(jsonObject);
+            flattenedMap.put(prefix + widgetName, jsonObject);
 
             for (int i = 0; i < children.length(); i++) {
                 JSONObject childObject = children.getJSONObject(i);
@@ -68,6 +54,30 @@ public class DSLTransformerHelper {
         }
     }
 
+    private static JSONObject removeChildrenIfNotCanvasWidget(JSONObject jsonObject) {
+        JSONArray children = jsonObject.optJSONArray("children");
+        if (children.length() == 1) {
+            JSONObject child = children.getJSONObject(0);
+            if (!"CANVAS_WIDGET".equals(child.optString("type"))) {
+                jsonObject.remove("children");
+            } else {
+                JSONObject childCopy = new JSONObject(child.toString());
+                childCopy.remove("children");
+                JSONArray jsonArray = new JSONArray();
+                jsonArray.put(childCopy);
+                jsonObject.put("children", jsonArray);
+            }
+        } else {
+            jsonObject.remove("children");
+        }
+        return jsonObject;
+    }
+
+    public static boolean hasChildren(JSONObject jsonObject) {
+        JSONArray children = jsonObject.optJSONArray("children");
+        return children != null && children.length() > 0;
+    }
+
     /*
     HashMap 1 - widgetId and WidgetName mapping
     HashMap 2 - parentId and WidgetName mapping
@@ -76,7 +86,7 @@ public class DSLTransformerHelper {
     Start with MainContainer.JSON always
     1. Get all the Widgets whose parent id is MainContainer
     2. Call the same function recursively for all the children
-    2. Append the widget to the respective parent children array
+    3. Append the widget to the respective parent children array
      */
     private static JSONObject constructNested(Map<String, JSONObject> flattenedMap) {
         JSONObject root = new JSONObject();
