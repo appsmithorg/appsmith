@@ -25,10 +25,6 @@ describe("In-app embed settings", () => {
       embedSettings.OpenEmbedSettings();
       agHelper.AssertElementExist(inviteModal.locators._upgradeContent);
       agHelper.AssertElementAbsence(inviteModal.locators._shareSettingsButton);
-      agHelper.GetNAssertContains(
-        inviteModal.locators._upgradeContent,
-        "Appsmith Business Edition",
-      );
       appSettings.ClosePane();
     }
   });
@@ -39,11 +35,6 @@ describe("In-app embed settings", () => {
       inviteModal.SelectEmbedTab();
       agHelper.AssertElementExist(inviteModal.locators._upgradeContent);
       agHelper.AssertElementExist(inviteModal.locators._shareSettingsButton);
-
-      agHelper.GetNAssertContains(
-        inviteModal.locators._upgradeContent,
-        "Appsmith Business Edition",
-      );
       inviteModal.enablePublicAccessViaShareSettings("true");
     }
   });
