@@ -104,8 +104,7 @@ const TABLE_DATA_2 = `[
 describe("Table widget v2: tableData change test", function () {
   it("1. should test that the number of columns needs to be same when table data changes in depoyed app", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
-    propPane.ToggleJsMode("Table data");
-    propPane.UpdatePropertyFieldValue(
+    propPane.EnterJSContext(
       "Table data",
       `{{appsmith.store.test === '0' ? ${TABLE_DATA_1} : ${TABLE_DATA_2}}}`,
     );
