@@ -13,11 +13,10 @@ describe("Validate Arango & CURL Import Datasources", () => {
     cy.exec(
       "docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb",
     ).then((result) => {
-      // Handle the command execution result
       // The Arango container should be running at this point
       cy.log("Run id of started container is:" + result.stdout);
       cy.log("Error from Arango container start action:" + result.stderr);
-      agHelper.Sleep(10000); //allow some time for container to start
+      agHelper.Sleep(12000); //allow some time for container to settle start
     });
 
     dataSources.CreateDataSource("Arango");
@@ -348,16 +347,6 @@ describe("Validate Arango & CURL Import Datasources", () => {
       dataSources.DeleteDatasouceFromWinthinDS(dsName);
     });
 
-    // Stop the container
-    cy.exec("docker stop arangodb").then((stopResult) => {
-      cy.log("Output from stopping container:" + stopResult.stdout);
-      cy.log("Error from stopping container:" + stopResult.stderr);
-
-      // Delete the container
-      cy.exec("docker rm arangodb").then((deleteResult) => {
-        cy.log("Output from deleting container:" + deleteResult.stdout);
-        cy.log("Error from deleting container:" + deleteResult.stderr);
-      });
-    });
+    dataSources.StopNDeleteContainer("arangodb");
   });
 });

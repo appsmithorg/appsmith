@@ -571,7 +571,6 @@ export class DataSources {
 
   public FillElasticSearchDSForm() {
     this.agHelper.UpdateInputValue(this._host, this.hp.elastic_host);
-
     this.agHelper.UpdateInputValue(this._port, this.hp.elastic_port.toString());
     this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.elastic_username);
@@ -1355,6 +1354,20 @@ export class DataSources {
       propFieldName: "",
       directInput: false,
       inputFieldName: fieldLabel,
+    });
+  }
+
+  public StopNDeleteContainer(conatinerName: string) {
+    // Stop the container
+    cy.exec(`docker stop ${conatinerName}`).then((stopResult) => {
+      cy.log("Output from stopping container:" + stopResult.stdout);
+      cy.log("Error from stopping container:" + stopResult.stderr);
+
+      // Delete the container
+      cy.exec(`docker rm ${conatinerName}`).then((deleteResult) => {
+        cy.log("Output from deleting container:" + deleteResult.stdout);
+        cy.log("Error from deleting container:" + deleteResult.stderr);
+      });
     });
   }
 }
