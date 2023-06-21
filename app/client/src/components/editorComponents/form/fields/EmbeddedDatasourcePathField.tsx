@@ -388,6 +388,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                   (selected: { text: string; data: Datasource }) => {
                     this.props.updateDatasource({
                       ...selected.data.datasourceStorages[currentEnvironment],
+                      id: selected.data.id,
                       invalids: selected.data.invalids || [],
                       messages: selected.data.messages || [],
                       pluginId: selected.data.pluginId,

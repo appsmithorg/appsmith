@@ -98,6 +98,7 @@ export const isEmbeddedRestDatasource = (
 };
 
 export interface EmbeddedRestDatasource extends BaseDatasource {
+  id?: string;
   datasourceConfiguration: { url: string };
   invalids: Array<string>;
   messages: Array<string>;

@@ -1,5 +1,5 @@
 import React from "react";
-import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
+import type { EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
@@ -22,7 +22,7 @@ import {
 import { Icon, Text } from "design-system";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 interface ReduxStateProps {
-  datasource: EmbeddedRestDatasource | Datasource;
+  datasource: EmbeddedRestDatasource;
 }
 
 const AuthContainer = styled.div`
@@ -82,7 +82,7 @@ function ApiAuthentication(props: Props): JSX.Element {
   const { datasource } = props;
   const authType: string = get(
     datasource,
-    `datasourceStorages.${getCurrentEnvironment()}.datasourceConfiguration.authentication.authenticationType`,
+    "datasourceConfiguration.authentication.authenticationType",
     "",
   );
 
@@ -129,7 +129,7 @@ function ApiAuthentication(props: Props): JSX.Element {
 const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
-  let datasourceMerged = datasourceFromAction;
+  let datasourceMerged: EmbeddedRestDatasource = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
@@ -138,8 +138,14 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
       datasourceMerged = merge(
         {},
         datasourceFromAction,
-        datasourceFromDataSourceList,
+        // datasourceFromDataSourceList,
+        datasourceFromDataSourceList.datasourceStorages[
+          getCurrentEnvironment()
+        ],
       );
+      console.log("ayush1", datasourceMerged);
+      console.log("ayush2", datasourceFromAction);
+      console.log("ayush3", datasourceFromDataSourceList);
     }
   }
 
