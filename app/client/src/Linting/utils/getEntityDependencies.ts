@@ -16,8 +16,8 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import { mergeMaps } from "./mergeMaps";
 import { flatten, get, has, isString, toPath, union, uniq } from "lodash";
-import { isDynamicLeaf } from "./entityPath";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
+import { PathUtils } from "./pathUtils";
 
 export function getEntityDependencies(
   entity: TEntity,
@@ -235,7 +235,7 @@ export function extractReferencesFromPath(
   fullPropertyPath: string,
   tree: Record<string, unknown>,
 ) {
-  if (!isDynamicLeaf(entity, fullPropertyPath)) return [];
+  if (!PathUtils.isDynamicLeaf(entity, fullPropertyPath)) return [];
   const entityPropertyPath = getPropertyPath(fullPropertyPath);
   const rawEntity = entity.getRawEntity();
   const propertyPathContent = get(rawEntity, entityPropertyPath);

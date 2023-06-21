@@ -1,7 +1,10 @@
 import type { TEntity } from "Linting/lib/entity";
 import { isDynamicEntity, isWidgetEntity } from "Linting/lib/entity";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { union } from "lodash";
+import {
+  convertPathToString,
+  getEntityNameAndPropertyPath,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { toPath, union } from "lodash";
 
 export class PathUtils {
   static getReactivePaths(entity: TEntity) {
@@ -58,5 +61,20 @@ export class PathUtils {
   static getDataPaths(entity: TEntity) {
     if (!isWidgetEntity(entity)) return [];
     return PathUtils.getBindingPaths(entity);
+  }
+  static isDynamicLeaf(entity: TEntity, fullPropertyPath: string) {
+    const [entityName, ...propPathEls] = toPath(fullPropertyPath);
+    // Framework feature: Top level items are never leaves
+    if (entityName === fullPropertyPath) return false;
+
+    const entityConfig = entity.getConfig();
+
+    if (!isDynamicEntity(entity) || !entityConfig) return false;
+    const relativePropertyPath = convertPathToString(propPathEls);
+    return (
+      relativePropertyPath in entityConfig.reactivePaths ||
+      (isWidgetEntity(entity) &&
+        relativePropertyPath in entity.getConfig().triggerPaths)
+    );
   }
 }

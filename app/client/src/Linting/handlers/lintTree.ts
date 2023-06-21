@@ -23,7 +23,6 @@ import { getAllPathsFromNode } from "Linting/utils/entityPath";
 import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
 import { getLintErrorsFromTree } from "Linting/utils/lintTree";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
-import { isDynamicLeaf } from "Linting/utils/entityPath";
 import { clearParsedJSCache, parsedJSCache } from "Linting/utils/parseJSEntity";
 
 export let cachedEntityTree: TEntityTree = {};
@@ -179,7 +178,7 @@ function lintUpdatedTree(
         pathString,
         unevalEntityTree,
       );
-      if (isDynamicLeaf(entity, path)) {
+      if (PathUtils.isDynamicLeaf(entity, path)) {
         lintingDependencyMap.addDependency(path, references);
         pathsToLint.push(path);
       }

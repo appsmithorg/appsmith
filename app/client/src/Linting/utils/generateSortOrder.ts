@@ -1,6 +1,6 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { TEntityTree } from "./entityTree";
-import { isDynamicLeaf } from "./entityPath";
+import { PathUtils } from "./pathUtils";
 
 export function getDynamicNodes(nodes: string[], entityTree: TEntityTree) {
   const dynamicNodes = new Set<string>();
@@ -8,7 +8,7 @@ export function getDynamicNodes(nodes: string[], entityTree: TEntityTree) {
     const { entityName } = getEntityNameAndPropertyPath(node);
     const entity = entityTree[entityName];
     if (!entity) continue;
-    if (isDynamicLeaf(entity, node)) {
+    if (PathUtils.isDynamicLeaf(entity, node)) {
       dynamicNodes.add(node);
     }
   }
