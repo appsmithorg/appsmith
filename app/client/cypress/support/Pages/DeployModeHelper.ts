@@ -34,9 +34,6 @@ export class DeployMode {
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
-    // Ensure the app editor is fully loaded
-    cy.get("#sidebar").should("be.visible");
-
     // Wait before publish
     this.agHelper.Sleep(3000); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();

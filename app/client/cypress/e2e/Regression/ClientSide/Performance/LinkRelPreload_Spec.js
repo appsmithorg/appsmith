@@ -41,6 +41,9 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
   it("2. In view mode", function () {
     cy.reload();
 
+    // Ensure the app editor is fully loaded
+    cy.get("#sidebar").should("be.visible");
+
     _.deployMode.DeployApp();
 
     testLinkRelPreloads("view-mode");
