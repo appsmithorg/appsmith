@@ -9,7 +9,11 @@ import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { getIsResizing, isWidgetSelected } from "selectors/widgetSelectors";
+import {
+  getIsResizing,
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -54,18 +58,15 @@ export type AutoLayoutProps = {
 
 const FlexWidget = styled.div<{ minWidth?: number }>`
   position: relative;
-
   &.fill-widget {
     flex-grow: 9999;
     flex-shrink: 1;
     flex-basis: 0%;
-
     min-width: calc(100% - 8px);
     @media screen and (min-width: 481px) {
       min-width: ${({ minWidth }) => (minWidth ? `${minWidth}px` : undefined)};
     }
   }
-
   &.hug-widget {
     flex-grow: 0;
     flex-shrink: 0;
@@ -114,11 +115,12 @@ export function FlexComponent(props: AutoLayoutProps) {
   const isResizing = useSelector(getIsResizing);
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   const isCurrentWidgetResizing = isResizing && isSelected;
+  const isFocused = useSelector(isCurrentWidgetFocused);
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
     isDropTarget,
     props.widgetId,
-    props.focused,
+    isFocused,
     isSelected,
   );
 
