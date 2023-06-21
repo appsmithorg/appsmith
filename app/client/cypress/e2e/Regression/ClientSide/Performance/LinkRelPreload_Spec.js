@@ -33,7 +33,7 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
   });
 
   it("1. In edit & View mode", function () {
-    testLinkRelPreloads();
+    testLinkRelPreloads("edit-mode");
   });
 
   // Note: this must be a separate test from the previous one,
@@ -43,7 +43,7 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
 
     _.deployMode.DeployApp();
 
-    testLinkRelPreloads();
+    testLinkRelPreloads("view-mode");
   });
 });
 
@@ -92,7 +92,15 @@ function testLinkRelPreloads(viewOrEditMode) {
     // If this line fails, then we failed to intercept any JS requests for some reason
     expect(jsRequests).to.not.be.empty;
 
-    const links = window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode] || [];
+    if (!window.__APPSMITH_CHUNKS_TO_PRELOAD) {
+      throw new Error("window.__APPSMITH_CHUNKS_TO_PRELOAD is not defined");
+    }
+    if (!window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode]) {
+      throw new Error(
+        `window.__APPSMITH_CHUNKS_TO_PRELOAD['${viewOrEditMode}'] is not defined`,
+      );
+    }
+    const links = window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode];
 
     const uniqueRequests = [
       ...new Set(jsRequests.map((request) => new URL(request).pathname)),
@@ -112,7 +120,7 @@ function testLinkRelPreloads(viewOrEditMode) {
       .sort()
       .join(", ")}`;
 
-    // Comparing strings instead of deep-qualling arrays because this is the only way
+    // Comparing strings instead of deep-equalling arrays because this is the only way
     // to see which chunks are actually missing: https://github.com/cypress-io/cypress/issues/4084
     cy.wrap(requestsString).should("equal", linksString);
   });
