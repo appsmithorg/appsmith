@@ -1,0 +1,22 @@
+productalertmessages: [\
+  {\
+    "messageid": "1",\
+    "learnmorelink": "learnmorelink1",\
+    "candismiss": true,\
+    "remindlaterdays": 5,\
+    "featureFlagEnumList": [\
+       "featureFlag1",\
+       "featureFlag2"\
+    ]\
+  }, \
+  {\
+      "messageid": "2",\
+      "learnmorelink": "learnmorelink2",\
+      "candismiss": true,\
+      "remindlaterdays": 5,\
+      "featureFlagEnumList": [\
+          "featureFlag3",\
+          "featureFlag4"\
+      ]\
+  }\
+]

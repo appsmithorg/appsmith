@@ -37,6 +37,8 @@ public class UrlCE {
     final public static String TENANT_URL = BASE_URL + VERSION + "/tenants";
     final public static String CUSTOM_JS_LIB_URL = BASE_URL + VERSION + "/libraries";
 
+    final public static String PRODUCT_ALERT = BASE_URL + VERSION + "/product-alert";
+
     // Sub-paths
     final public static String MOCKS = "/mocks";
     final public static String RELEASE_ITEMS = "/releaseItems";
