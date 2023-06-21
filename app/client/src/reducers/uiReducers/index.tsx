@@ -49,6 +49,7 @@ import autoHeightUIReducer from "./autoHeightReducer";
 import analyticsReducer from "./analyticsReducer";
 import layoutConversionReducer from "./layoutConversionReducer";
 import oneClickBindingReducer from "./oneClickBindingReducer";
+import pageCanvasVersionReducer from "./pageCanvasVersionReducer";
 
 const uiReducer = combineReducers({
   analytics: analyticsReducer,
@@ -101,6 +102,7 @@ const uiReducer = combineReducers({
   layoutConversion: layoutConversionReducer,
   actionSelector: actionSelectorReducer,
   oneClickBinding: oneClickBindingReducer,
+  pageCanvasVersion: pageCanvasVersionReducer,
 });
 
 export default uiReducer;

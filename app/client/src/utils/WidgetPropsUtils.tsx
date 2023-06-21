@@ -38,14 +38,18 @@ export const extractCurrentDSL = (
   mainCanvasWidth?: number,
 ): { dsl: DSLWidget; layoutId: string | undefined } => {
   const newPage = !fetchPageResponse;
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
+  const currentDSL: Record<string, any> = fetchPageResponse?.data.layouts[0]
+    .dsl || {
     ...defaultDSL,
   };
+  console.log({ oldv: currentDSL?.version });
 
   const transformedDSL = transformDSL(
     currentDSL as ContainerWidgetProps<WidgetProps>,
     newPage,
   );
+
+  console.log({ newv: transformedDSL.version });
 
   if (!isAutoLayout || checkIsDSLAutoLayout(transformedDSL)) {
     return {

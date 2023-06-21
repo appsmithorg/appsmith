@@ -1131,11 +1131,14 @@ export function* fetchPageDSLSaga(pageId: string) {
         isAutoLayout,
         mainCanvasProps?.width,
       );
+      const oldVersion = fetchPageResponse.data?.layouts?.[0]?.dsl?.version;
+      const newVersion = dsl?.version;
       return {
         pageId,
         dsl,
         layoutId,
         userPermissions: fetchPageResponse.data?.userPermissions,
+        versions: { oldVersion, newVersion },
       };
     }
   } catch (error) {
@@ -1159,11 +1162,17 @@ export function* populatePageDSLsSaga() {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
-    const pageDSLs: unknown = yield all(
+    const pageDSLs: any[] = yield all(
       pageIds.map((pageId: string) => {
         return call(fetchPageDSLSaga, pageId);
       }),
     );
+
+    yield put({
+      type: ReduxActionTypes.SET_PAGE_CANVAS_VERSIONS,
+      payload: pageDSLs.map((p) => ({ pageId: p.pageId, ...p.versions })),
+    });
+
     yield put({
       type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
       payload: pageDSLs,
