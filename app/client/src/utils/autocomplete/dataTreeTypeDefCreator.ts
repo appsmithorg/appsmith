@@ -23,6 +23,7 @@ export type ExtraDef = Record<string, Def | string>;
 import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
 import WidgetFactory from "utils/WidgetFactory";
+import { shouldAddSetter } from "workers/Evaluation/evaluate";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -250,14 +251,4 @@ export function addSettersToDefinitions(
       }
     });
   }
-}
-
-export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
-  const conditionFnString = setter.conditionFn;
-
-  if (!conditionFnString) return true;
-
-  const conditionFn = eval(conditionFnString);
-
-  return conditionFn({ entity });
 }

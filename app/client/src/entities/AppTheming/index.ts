@@ -81,7 +81,7 @@ export type SetterConfig = {
     [key: string]: {
       path: string;
       type: string;
-      conditionFn?: string;
+      isValid?: string;
     };
   };
 };

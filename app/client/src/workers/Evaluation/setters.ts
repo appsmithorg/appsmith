@@ -17,7 +17,7 @@ import type {
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
-import { shouldAddSetter } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { shouldAddSetter } from "./evaluate";
 
 class Setters {
   /** stores the setter accessor as key and true as value
