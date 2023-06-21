@@ -1,4 +1,4 @@
-package com.appsmith.server.dtos;
+sample change package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
