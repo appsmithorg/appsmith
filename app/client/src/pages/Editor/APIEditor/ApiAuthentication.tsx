@@ -143,9 +143,6 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
           getCurrentEnvironment()
         ],
       );
-      console.log("ayush1", datasourceMerged);
-      console.log("ayush2", datasourceFromAction);
-      console.log("ayush3", datasourceFromDataSourceList);
     }
   }
 
