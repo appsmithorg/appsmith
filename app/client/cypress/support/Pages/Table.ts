@@ -151,6 +151,9 @@ export class Table {
   _updateMode = (mode: "Single" | "Multi") =>
     "//span[text()='" + mode + " Row']/ancestor::div";
   _hideMenu = ".hide-menu";
+  _tableColumnHeaderMenuTrigger = (columnName: string) =>
+    `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
+  _columnHeaderMenu = ".bp3-menu";
 
   public WaitUntilTableLoad(
     rowIndex = 0,
@@ -667,5 +670,18 @@ export class Table {
   public AddSampleTableData() {
     this.propPane.EnterJSContext("Table data", JSON.stringify(sampleTableData));
     this.ChangeColumnType("action", "Button", "v2");
+  }
+
+  public SortColumn(columnName: string, direction: string) {
+    this.agHelper.GetNClick(
+      this._tableColumnHeaderMenuTrigger(columnName),
+      0,
+      true,
+    );
+    this.agHelper.GetNClickByContains(
+      this._columnHeaderMenu,
+      `Sort column ${direction}`,
+    );
+    this.agHelper.Sleep(500);
   }
 }
