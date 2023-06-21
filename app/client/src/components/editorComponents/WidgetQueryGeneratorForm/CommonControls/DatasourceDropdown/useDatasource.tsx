@@ -39,7 +39,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 function filterOption(option: DropdownOptionType, searchText: string) {
   return (
     option.label &&
-    option.label.toLowerCase().indexOf(searchText.toLowerCase()) > -1
+    option.label.toLowerCase().includes(searchText.toLowerCase())
   );
 }
 

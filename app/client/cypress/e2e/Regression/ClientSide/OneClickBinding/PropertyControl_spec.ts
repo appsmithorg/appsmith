@@ -6,7 +6,7 @@ import {
   propPane,
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
-import { OneClickBinding } from "./spec_utility";
+import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
 
@@ -19,7 +19,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
   });
 
-  it("1.Should check the datasource selector and the form", () => {
+  it("1. Should check the datasource selector and the form", () => {
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
     agHelper.AssertElementAbsence(
       oneClickBindingLocator.datasourceQueryBindHeaderSelector,
@@ -131,14 +131,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-    cy.get("body").then(($ele) => {
-      if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
-        const length = $ele.find(oneClickBindingLocator.loadMore).length;
-        new Array(length).fill(" ").forEach((d, i) => {
-          agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
-        });
-      }
-    });
+    expandLoadMoreOptions();
 
     agHelper.GetNClick(
       oneClickBindingLocator.datasourceSelector("myinvalidds"),
@@ -150,7 +143,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     );
   });
 
-  it("should check that load more options and search", () => {
+  it("2. should check that load more options and search", () => {
     [1, 2].forEach((I) => {
       entityExplorer.NavigateToSwitcher("Explorer");
       dataSources.NavigateToDSCreateNew();
@@ -206,7 +199,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     });
   });
 
-  it("should test the search input function", () => {
+  it("3. should test the search input function", () => {
     cy.get(oneClickBindingLocator.datasourceQuerySelector()).then(($ele) => {
       expect($ele.length).greaterThan(upfrontContentCount);
     });

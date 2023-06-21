@@ -1,6 +1,5 @@
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
-import { __asyncGenerator } from "tslib";
 
 export class OneClickBinding {
   public ChooseAndAssertForm(
@@ -11,14 +10,7 @@ export class OneClickBinding {
   ) {
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-    cy.get("body").then(($ele) => {
-      if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
-        const length = $ele.find(oneClickBindingLocator.loadMore).length;
-        new Array(length).fill(" ").forEach((d, i) => {
-          agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
-        });
-      }
-    });
+    expandLoadMoreOptions();
 
     agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
 
@@ -65,4 +57,15 @@ export class OneClickBinding {
       false,
     );
   }
+}
+
+export function expandLoadMoreOptions() {
+  cy.get("body").then(($ele) => {
+    if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
+      const length = $ele.find(oneClickBindingLocator.loadMore).length;
+      new Array(length).fill(" ").forEach((d, i) => {
+        agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
+      });
+    }
+  });
 }

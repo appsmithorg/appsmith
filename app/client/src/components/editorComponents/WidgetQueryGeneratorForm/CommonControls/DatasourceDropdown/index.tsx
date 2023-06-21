@@ -12,10 +12,13 @@ import {
   MenuSeparator,
   SearchInput,
 } from "design-system";
-import { DropdownOption } from "./DropdownOption";
+import { DropdownOption, LoadMoreOptions } from "./DropdownOption";
 import styled from "styled-components";
 import type { DropdownOptionType } from "../../types";
-import { DATASOURCE_DROPDOWN_SECTIONS } from "../../constants";
+import {
+  DATASOURCE_DROPDOWN_SECTIONS,
+  DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW,
+} from "../../constants";
 
 const StyledButton = styled.div<{ isDisabled: boolean; isValid: boolean }>`
   width: 100%;
@@ -59,11 +62,10 @@ const StyledMenuGroupName = styled(MenuGroupName)`
   margin-bottom: 5px;
 `;
 
-const StyledLoadMore = styled(DropdownOption)`
-  color: var(--ads-color-black-500);
+const StyledMenuContent = styled(MenuContent)`
+  width: 350px;
+  max-width: 350px;
 `;
-
-const DEFAULT_ITEM_COUNTS_TO_SHOW = 4;
 
 function DatasourceDropdown() {
   const [searchText, setSearchText] = useState("");
@@ -112,7 +114,7 @@ function DatasourceDropdown() {
             </div>
           </StyledButton>
         </MenuTrigger>
-        <MenuContent align="end" style={{ width: "350px", maxWidth: "350px" }}>
+        <StyledMenuContent align="end">
           <div
             onKeyDown={(e) => {
               // This is to prevent the Menu component to take focus away from the input
@@ -142,7 +144,7 @@ function DatasourceDropdown() {
                 0,
                 showMoreQueries
                   ? queryOptions.length
-                  : DEFAULT_ITEM_COUNTS_TO_SHOW,
+                  : DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW,
               )
               .map((option) => {
                 return (
@@ -163,28 +165,14 @@ function DatasourceDropdown() {
                 );
               })}
 
-            {queryOptions.length > DEFAULT_ITEM_COUNTS_TO_SHOW &&
-              !showMoreQueries && (
-                <MenuItem>
-                  <div
-                    data-testId="t--one-click-binding-datasource--load-more"
-                    onMouseDown={(e) => {
-                      e?.stopPropagation();
-                    }}
-                    onMouseUp={(e) => {
-                      e?.stopPropagation();
-                      setShowMoreQueries(true);
-                    }}
-                  >
-                    <StyledLoadMore
-                      label={`Load ${
-                        queryOptions.length - DEFAULT_ITEM_COUNTS_TO_SHOW
-                      } more`}
-                      leftIcon={<Icon name="context-menu" size="md" />}
-                    />
-                  </div>
-                </MenuItem>
-              )}
+            {!showMoreQueries && (
+              <LoadMoreOptions
+                count={queryOptions.length}
+                onLoadMore={() => {
+                  setShowMoreQueries(true);
+                }}
+              />
+            )}
 
             {!!queryOptions.length &&
               (!!datasourceOptions.length || !!otherOptions.length) && (
@@ -204,7 +192,7 @@ function DatasourceDropdown() {
                 0,
                 showMoreDataSources
                   ? datasourceOptions.length
-                  : DEFAULT_ITEM_COUNTS_TO_SHOW,
+                  : DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW,
               )
               .map((option) => {
                 return (
@@ -231,28 +219,14 @@ function DatasourceDropdown() {
                 );
               })}
 
-            {datasourceOptions.length > DEFAULT_ITEM_COUNTS_TO_SHOW &&
-              !showMoreDataSources && (
-                <MenuItem>
-                  <div
-                    data-testId="t--one-click-binding-datasource--load-more"
-                    onMouseDown={(e) => {
-                      e?.stopPropagation();
-                    }}
-                    onMouseUp={(e) => {
-                      e?.stopPropagation();
-                      setShowMoreDataSources(true);
-                    }}
-                  >
-                    <StyledLoadMore
-                      label={`Load ${
-                        datasourceOptions.length - DEFAULT_ITEM_COUNTS_TO_SHOW
-                      } more`}
-                      leftIcon={<Icon name="context-menu" size="md" />}
-                    />
-                  </div>
-                </MenuItem>
-              )}
+            {!showMoreDataSources && (
+              <LoadMoreOptions
+                count={datasourceOptions.length}
+                onLoadMore={() => {
+                  setShowMoreDataSources(true);
+                }}
+              />
+            )}
 
             {!!datasourceOptions.length && !!otherOptions.length && (
               <StyledMenuSeparator />
@@ -282,7 +256,7 @@ function DatasourceDropdown() {
               );
             })}
           </div>
-        </MenuContent>
+        </StyledMenuContent>
       </Menu>
       <ErrorMessage>{error}</ErrorMessage>
     </SelectWrapper>

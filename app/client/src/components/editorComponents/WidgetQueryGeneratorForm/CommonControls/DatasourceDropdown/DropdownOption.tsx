@@ -1,5 +1,7 @@
+import { Icon, MenuItem } from "design-system";
 import React from "react";
 import styled from "styled-components";
+import { DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW } from "../../constants";
 
 const Container = styled.div`
   display: flex;
@@ -43,4 +45,41 @@ export function DropdownOption(props: Props) {
       {rightIcon && <IconContainer>{rightIcon}</IconContainer>}
     </Container>
   );
+}
+
+const StyledLoadMore = styled(DropdownOption)`
+  color: var(--ads-color-black-500);
+`;
+
+type LoadmoreProps = {
+  count: number;
+  onLoadMore: () => void;
+};
+
+export function LoadMoreOptions(props: LoadmoreProps) {
+  if (props.count > DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW) {
+    return (
+      <MenuItem>
+        <div
+          data-testId="t--one-click-binding-datasource--load-more"
+          onMouseDown={(e) => {
+            e?.stopPropagation();
+          }}
+          onMouseUp={(e) => {
+            e?.stopPropagation();
+            props.onLoadMore();
+          }}
+        >
+          <StyledLoadMore
+            label={`Load ${
+              props.count - DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW
+            } more`}
+            leftIcon={<Icon name="context-menu" size="md" />}
+          />
+        </div>
+      </MenuItem>
+    );
+  } else {
+    return null;
+  }
 }
