@@ -115,7 +115,7 @@ export function FlexComponent(props: AutoLayoutProps) {
   const isResizing = useSelector(getIsResizing);
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   const isCurrentWidgetResizing = isResizing && isSelected;
-  const isFocused = useSelector(isCurrentWidgetFocused);
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
     isDropTarget,
