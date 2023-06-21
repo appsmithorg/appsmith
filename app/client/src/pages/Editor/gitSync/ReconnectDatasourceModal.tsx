@@ -65,6 +65,11 @@ import {
 } from "design-system";
 import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
 import { keyBy } from "lodash";
+import type { Plugin } from "api/PluginApi";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 
 const Section = styled.div`
   display: flex;
@@ -295,9 +300,20 @@ function ReconnectDatasourceModal() {
   const dsName = queryDS?.name;
   const orgId = queryDS?.workspaceId;
   let pluginName = "";
+  let plugin: Plugin | undefined = undefined;
   if (!!queryDS?.pluginId) {
-    pluginName = plugins[queryDS.pluginId]?.name;
+    plugin = plugins[queryDS?.pluginId];
+    pluginName = plugin?.name;
   }
+
+  const checkIfDatasourceIsConfigured = (ds: Datasource | null) => {
+    if (!ds) return false;
+    return isGoogleSheetPluginDS(plugin?.packageName)
+      ? isDatasourceAuthorizedForQueryCreation(ds, plugin as Plugin)
+      : ds.datasourceStorages
+      ? isEnvironmentConfigured(ds)
+      : false;
+  };
 
   // when redirecting from oauth, processing the status
   if (isImport) {
@@ -429,7 +445,7 @@ function ReconnectDatasourceModal() {
       id: ds.id,
       name: ds.name,
       pluginName: plugins[ds.id]?.name,
-      isConfigured: isEnvironmentConfigured(ds),
+      isConfigured: checkIfDatasourceIsConfigured(ds),
     });
   }, []);
 
@@ -475,8 +491,8 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (isModalOpen && !isTesting) {
       const id = selectedDatasourceId;
-      const pending = datasources.filter((ds: Datasource) =>
-        ds.datasourceStorages ? !isEnvironmentConfigured(ds) : true,
+      const pending = datasources.filter(
+        (ds: Datasource) => !checkIfDatasourceIsConfigured(ds),
       );
       if (pending.length > 0) {
         if (id) {
@@ -527,7 +543,7 @@ function ReconnectDatasourceModal() {
   });
 
   const shouldShowDBForm =
-    isConfigFetched && !isLoading && !isEnvironmentConfigured(datasource);
+    isConfigFetched && !isLoading && !checkIfDatasourceIsConfigured(datasource);
 
   return (
     <Modal open={isModalOpen}>
@@ -564,7 +580,7 @@ function ReconnectDatasourceModal() {
                     pageId={pageId}
                   />
                 )}
-                {isEnvironmentConfigured(datasource) && SuccessMessages()}
+                {checkIfDatasourceIsConfigured(datasource) && SuccessMessages()}
               </DBFormWrapper>
 
               <SkipToAppWrapper>
