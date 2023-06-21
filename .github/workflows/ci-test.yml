@@ -67,7 +67,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -85,7 +85,7 @@ jobs:
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
-          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+          echo "::set-output name=run_result::$run_result_env"
 
       - name: Dump steps context
         env:
@@ -103,6 +103,7 @@ jobs:
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
+        id: failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         working-directory: app/client
         run: |
@@ -469,20 +470,23 @@ jobs:
         if: failure()
         working-directory: "."
         run: |
-          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+          mkdir -p  ~/dockerlogs
+          docker logs appsmith 2>&1 > ~/dockerlogs/dockerlogs-${{ matrix.job }}.txt
 
       # Upload docker logs
       - name: Upload failed test list artifact
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: dockerlogs-${{ matrix.job }}
-          path: ~/dockerlogs.txt
+          name: dockerlogs
+          path: ~/dockerlogs
 
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::failedtest"
+          echo "failedtest" > ~/run_result
 
       # Create a directory ~/failed_spec_ci and add a dummy file
       # This will ensure upload and download steps are successful
@@ -490,7 +494,6 @@ jobs:
         if: always()
         run: |
           mkdir -p  ~/failed_spec_ci
-          echo  "empty" >> ~/failed_spec_ci/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
       - name: In case of test failures copy them to a file
@@ -536,13 +539,6 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
-
       - name: Restore the previous bundle
         uses: actions/cache@v3
         with:
@@ -551,12 +547,6 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-
-      # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v3
-        with:
-          name: cypress-snapshots-visualRegression
-          path: app/client/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
@@ -568,4 +558,6 @@ jobs:
 
       # Set status = success
       - name: Save the status of the run
-        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::success"
+          echo "success" > ~/run_result
