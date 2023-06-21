@@ -1,5 +1,4 @@
 import homePageLocators from "../../../../../locators/HomePage";
-import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
@@ -10,6 +9,7 @@ const omnibar = require("../../../../../locators/Omnibar.json");
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 
 import {
+  adminSettings,
   agHelper,
   dataSources,
   entityExplorer,
@@ -92,9 +92,8 @@ describe("Create Permission flow ", function () {
             "response.body.responseMeta.status",
             200,
           );
-
           cy.ClickGotIt();
-          agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+          adminSettings.NavigateToAdminSettings();
           cy.CreatePermissionWorkspaceLevel(
             PermissionWorkspaceLevel,
             workspaceName,
@@ -270,9 +269,8 @@ describe("Create Permission flow ", function () {
       // should check reconnect modal opening
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
-        // should reconnect button
-        cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
+        dataSources.ReconnectDataSource("mockdata", "PostgreSQL");
+        homePage.AssertNCloseImport();
         cy.wait(2000);
       } else {
         cy.get(homePageLocators.toastMessage).should(
