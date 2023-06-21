@@ -64,7 +64,7 @@ export function Navigation() {
   useEffect(() => {
     if (showNavBar && currentApplicationDetails) {
       AnalyticsUtil.logEvent("APP_VIEWED_WITH_NAVBAR", {
-        appUrl: currentApplicationDetails?.id,
+        id: currentApplicationDetails.id,
       });
     }
   }, [showNavBar, currentApplicationDetails]);
