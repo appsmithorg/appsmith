@@ -17,7 +17,7 @@ describe("Validate Elasticsearch DS", () => {
       cy.log(
         "Error from ElasticSearch container start action:" + result.stderr,
       );
-      agHelper.Sleep(23000); //allow some time for container to settle start
+      agHelper.Sleep(30000); //allow some time for container to settle start for CI
     });
 
     dataSources.CreateDataSource("Elasticsearch");
