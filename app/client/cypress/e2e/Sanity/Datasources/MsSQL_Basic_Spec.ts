@@ -7,19 +7,13 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 
-let dsName: any, query: string;
-
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
+  let dsName: any,
+    query: string,
+    containerName = "mssqldb";
+
   before("Create MsSql container & adding data into it", () => {
-    cy.exec(
-      'docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge',
-    ).then((result) => {
-      // Handle the command execution result
-      // The MSSQL container should be running at this point
-      cy.log("Run id of started container is:" + result.stdout);
-      cy.log("Error from MsSQL container start action:" + result.stderr);
-      agHelper.Sleep(10000); //allow some time for container to start
-    });
+    dataSources.StartContainerNVerify("MsSql", containerName, 20000);
 
     dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
@@ -141,6 +135,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
+    dataSources.StopNDeleteContainer(containerName);
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
