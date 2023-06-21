@@ -479,23 +479,16 @@ function ReconnectDatasourceModal() {
         ds.datasourceStorages ? !isEnvironmentConfigured(ds) : true,
       );
       if (pending.length > 0) {
-        let next: Datasource | undefined = undefined;
         if (id) {
-          const index = datasources.findIndex((ds: Datasource) => ds.id === id);
-          if (
-            index > -1 && datasources[index].datasourceStorages
-              ? !isEnvironmentConfigured(datasource)
-              : true
-          ) {
+          // checking if the current datasource is still pending
+          const index = pending.findIndex((ds: Datasource) => ds.id === id);
+          if (index > -1) {
+            // don't do anything if the current datasource is still pending
             return;
           }
-          next = datasources
-            .slice(index + 1)
-            .find((ds: Datasource) =>
-              ds.datasourceStorages ? !isEnvironmentConfigured(ds) : true,
-            );
         }
-        next = next || pending[0];
+        // goto next pending datasource
+        const next: Datasource = pending[0];
         if (next && next.id) {
           setSelectedDatasourceId(next.id);
           setDatasource(next);
