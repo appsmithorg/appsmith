@@ -75,7 +75,7 @@ function testLinkRelPreloads(viewOrEditMode) {
     ) {
       return;
     }
-    jsRequests.push(req.url);
+    jsRequests.push(new URL(req.url).pathname);
   }).as("jsRequests");
 
   // Make all web workers empty. This prevents web workers from loading additional chunks,
@@ -100,23 +100,34 @@ function testLinkRelPreloads(viewOrEditMode) {
         `window.__APPSMITH_CHUNKS_TO_PRELOAD['${viewOrEditMode}'] is not defined`,
       );
     }
-    const links = window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode];
+    const links = window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode].map(
+      (link) => (window.CDN_URL ?? "/") + link,
+    );
 
-    const uniqueRequests = [
-      ...new Set(jsRequests.map((request) => new URL(request).pathname)),
-    ];
-    const requestsString = `[${uniqueRequests.length} items] ${uniqueRequests
-      .sort()
-      .join(", ")}`;
-
-    const uniqueLinks = [
-      ...new Set(
-        links
-          .map((link) => (window.CDN_URL ?? "/") + link)
-          .filter((link) => !link.endsWith(".css")),
+    const requestsToCompare = unique(
+      jsRequests.filter(
+        (link) =>
+          // Exclude link bundle requests. We don’t really care about being precise
+          //  with their preloading, as icons aren’t critical for the first paint
+          !link.includes("-icons."),
       ),
-    ];
-    const linksString = `[${uniqueLinks.length} items] ${uniqueLinks
+    );
+    const linksToCompare = unique(
+      links.filter(
+        (link) =>
+          // Exclude link bundle preloads. We don’t really care about being precise
+          //  with their preloading, as icons aren’t critical for the first paint
+          !link.includes("-icons.") &&
+          // Exclude css preloads. We’re only intercepting JS requests so can only
+          // compare them
+          !link.endsWith(".css"),
+      ),
+    );
+
+    const requestsString = `[${
+      requestsToCompare.length
+    } items] ${requestsToCompare.sort().join(", ")}`;
+    const linksString = `[${linksToCompare.length} items] ${linksToCompare
       .sort()
       .join(", ")}`;
 
@@ -124,4 +135,9 @@ function testLinkRelPreloads(viewOrEditMode) {
     // to see which chunks are actually missing: https://github.com/cypress-io/cypress/issues/4084
     cy.wrap(requestsString).should("equal", linksString);
   });
+}
+
+/** Removes all duplicated items from the array */
+function unique(arr) {
+  return Array.from(new Set(arr));
 }
