@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
+        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -93,12 +93,12 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
-            
+
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
-        working-directory : app/client
+        working-directory: app/client
         run: |
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           while IFS= read -r line
@@ -153,17 +153,17 @@ jobs:
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 
-      - name: Setup MSSQL & Arango docker & ElasticSearch containers
-        working-directory : app/client/cypress
-        run : |
-          docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
+      - name: Setup Arango docker & ElasticSearch containers
+        working-directory: app/client/cypress
+        run: |
           docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
           docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-       # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
-       # docker restart mssqldb
-       # sudo ufw allow 1433/tcp
-       # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
-       # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
+        # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
+        # docker restart mssqldb
+        # sudo ufw allow 1433/tcp
+        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
+        # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
+        # docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -186,7 +186,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory : app/client
+        working-directory: app/client
         run: |
           yarn install --immutable
 
@@ -248,9 +248,51 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
+      # - name: Set Pull Request Title
+      #   env:
+      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+      #   run: |
+      #     echo "${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{print $1}'
+
+      - name: Save Git values
+        # pass env variables from this step to other steps
+        # using GitHub Actions environment file
+        # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
+        run: |
+          PR_NUMBER=${{ inputs.pr }}
+          echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=OkToTest run on PR# ${{ inputs.pr }} >> $GITHUB_ENV
+          echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
+          echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
+          echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
+          echo COMMIT_INFO_TIMESTAMP=$(git show -s --pretty=%ct) >> $GITHUB_ENV
+          echo COMMIT_INFO_REMOTE=$(git config --get remote.origin.url) >> $GITHUB_ENV
+          # delete the .git folder afterwords to use the environment values
+          rm -rf .git
+
+      - name: Show Git values
+        run: |
+          echo Branch $COMMIT_INFO_BRANCH
+          echo Message $COMMIT_INFO_MESSAGE
+          echo Email $COMMIT_INFO_EMAIL
+          echo Author $COMMIT_INFO_AUTHOR
+          echo SHA $COMMIT_INFO_SHA
+          echo Timestamp $COMMIT_INFO_TIMESTAMP
+          echo Remote $COMMIT_INFO_REMOTE
+
+      - name: Set Commit Message
+        env:
+          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+        run: |
+          if [[ ${{ inputs.pr }} -ne 0 ]]; then
+            echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+          else
+            echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+          fi
+
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -293,26 +335,43 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
           config-file: cypress_ci.config.ts
-          group: "Electrons on Github Action Fat Container"
+          group: "Chrome-Fat Container tests"
           spec: "cypress/e2e/**/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
+      # - name: Retrieve Retry Attempt Count
+      #   run: |
+      #     retry_count=$((GITHUB_RUN_NUMBER - 1))
+      #     echo "Retry attempt count: $retry_count" >> $GITHUB_OUTPUT
+
+      # - name: Save Git values for Retry
+      #   run: |
+      #     PR_NUMBER=${{ inputs.pr }}
+      #     echo COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} of OkToTest on PR# ${{ inputs.pr }} >> $GITHUB_ENV
+
+      # - name: Set Re-try Commit Message
+      #   run: |
+      #     if [[ ${{ inputs.pr }} -ne 0 ]]; then
+      #       echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+      #     else
+      #       echo "COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} of Merge on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
+      #     fi
+
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -355,15 +414,14 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
           config-file: cypress_ci.config.ts
-          group: "Electrons on Github Action Fat Container"
+          group: "Chrome-Fat Container tests"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"

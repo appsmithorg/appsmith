@@ -2,15 +2,11 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer Drag and Drop widgets testcases", function () {
   it("1. Drag and drop form widget and validate", function () {
-    cy.log("Login Successful");
-    cy.reload(); // To remove the rename tooltip
     cy.get(explorer.addWidget).click({ force: true });
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch).clear().type("form");
@@ -42,8 +38,8 @@ describe("Entity explorer Drag and Drop widgets testcases", function () {
       .scrollTo("bottom", { ensureScrollable: false })
       .should("be.visible");
     _.entityExplorer.NavigateToSwitcher("Explorer");
-    cy.PublishtheApp();
-    cy.get(publish.backToEditor).first().click();
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);

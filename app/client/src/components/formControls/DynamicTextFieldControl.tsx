@@ -29,12 +29,6 @@ const Wrapper = styled.div`
     font-size: 14px;
     min-height: calc(100vh / 4);
   }
-
-  && {
-    .CodeMirror-lines {
-      padding: 10px;
-    }
-  }
 `;
 
 interface DynamicTextControlState {

@@ -279,6 +279,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { editorConfigs, settingConfigs } = plugins;
 
   const action = getAction(state, actionId) as QueryAction | SaaSAction;
+  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
+    | QueryAction
+    | SaaSAction;
   let pluginId;
   if (action) {
     pluginId = action.pluginId;
@@ -319,10 +322,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
-  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
-    | QueryAction
-    | SaaSAction;
-
   return {
     actionId,
     pluginId,
@@ -344,7 +343,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     uiComponent,
     applicationId: getCurrentApplicationId(state),
     actionObjectDiff,
-    datasourceId: action.datasource?.id,
+    datasourceId: action?.datasource?.id,
   };
 };
 

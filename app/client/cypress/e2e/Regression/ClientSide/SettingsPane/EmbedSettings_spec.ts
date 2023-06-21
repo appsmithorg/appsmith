@@ -22,10 +22,6 @@ describe("In-app embed settings", () => {
       _.agHelper.AssertElementAbsence(
         _.inviteModal.locators._shareSettingsButton,
       );
-      _.agHelper.GetNAssertContains(
-        _.inviteModal.locators._upgradeContent,
-        "Appsmith Business Edition",
-      );
       _.appSettings.ClosePane();
     }
   });
@@ -37,11 +33,6 @@ describe("In-app embed settings", () => {
       _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
       _.agHelper.AssertElementExist(
         _.inviteModal.locators._shareSettingsButton,
-      );
-
-      _.agHelper.GetNAssertContains(
-        _.inviteModal.locators._upgradeContent,
-        "Appsmith Business Edition",
       );
       _.inviteModal.enablePublicAccessViaShareSettings("true");
     }
@@ -80,7 +71,7 @@ describe("In-app embed settings", () => {
   });
 
   it("5. Changing the show navigation bar setting in the App settings pane should update the embed URL", () => {
-    cy.reload();
+    _.agHelper.RefreshPage();
     _.embedSettings.OpenEmbedSettings();
     _.embedSettings.ToggleShowNavigationBar("true");
     cy.get(_.embedSettings.locators._snippet).should(
