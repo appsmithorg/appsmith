@@ -2,7 +2,7 @@ import type { IconName } from "@blueprintjs/icons";
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+import { WIDGET_PADDING, type WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -235,18 +235,33 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={
-          (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace
+          this.isAutoLayoutMode
+            ? 32
+            : (this.props.bottomRow - this.props.topRow) *
+              this.props.parentRowSpace
         }
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
+        minHeight={
+          this.props.minHeight
+            ? this.props.minHeight - WIDGET_PADDING * 2
+            : undefined
+        }
+        minWidth={
+          this.props.minWidth
+            ? this.props.minWidth - WIDGET_PADDING * 2
+            : undefined
+        }
         onClick={this.handleClick}
         renderMode={this.props.renderMode}
         tooltip={tooltip}
         widgetId={widgetId}
         width={
-          (this.props.rightColumn - this.props.leftColumn) *
-          this.props.parentColumnSpace
+          this.isAutoLayoutMode
+            ? 32
+            : (this.props.rightColumn - this.props.leftColumn) *
+              this.props.parentColumnSpace
         }
       />
     );

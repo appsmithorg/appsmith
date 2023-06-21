@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React from "react";
 
-import type { TextSize } from "constants/WidgetConstants";
+import { WIDGET_PADDING, type TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
 
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -393,6 +393,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
+          minHeight={
+            this.props.minHeight
+              ? this.props.minHeight - WIDGET_PADDING * 2
+              : undefined
+          }
           overflow={this.props.overflow}
           rightColumn={this.props.rightColumn}
           text={this.props.text}

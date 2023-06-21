@@ -1,4 +1,4 @@
-import type { WidgetType } from "constants/WidgetConstants";
+import { WIDGET_PADDING, type WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -336,6 +336,11 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
+          minHeight={
+            this.props.minHeight
+              ? this.props.minHeight - WIDGET_PADDING * 2
+              : undefined
+          }
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isReadOnly}
           rightColumn={this.props.rightColumn}

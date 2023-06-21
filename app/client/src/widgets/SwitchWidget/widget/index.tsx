@@ -1,4 +1,4 @@
-import type { WidgetType } from "constants/WidgetConstants";
+import { WIDGET_PADDING, type WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -265,6 +265,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         alignWidget={this.props.alignWidget}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
+        isLabelInline={this.isAutoLayoutMode}
         isLoading={this.props.isLoading}
         isSwitchedOn={!!this.props.isSwitchedOn}
         key={this.props.widgetId}
@@ -273,6 +274,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        minHeight={
+          this.props.minHeight
+            ? this.props.minHeight - WIDGET_PADDING * 2
+            : undefined
+        }
         onChange={this.onChange}
         widgetId={this.props.widgetId}
       />

@@ -4,7 +4,11 @@ import {
   LabelPosition,
 } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import {
+  WIDGET_PADDING,
+  type TextSize,
+  type WidgetType,
+} from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
@@ -556,6 +560,11 @@ class CheckboxGroupWidget extends BaseWidget<
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
+        minWidth={
+          this.props.minWidth
+            ? this.props.minWidth - WIDGET_PADDING * 2
+            : undefined
+        }
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}
         optionAlignment={this.props.optionAlignment}
