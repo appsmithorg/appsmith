@@ -14,11 +14,10 @@ describe("Table widget v2", function () {
     propPane.UpdatePropertyFieldValue("Table data", TABLE_DATA_STATIC);
     propPane.TogglePropertyState("Column sorting", "Off");
     propPane.TogglePropertyState("Allow column freeze", "Off");
-
-    agHelper.GetElement(".hide-menu").should("exist");
+    agHelper.AssertElementExist(".hide-menu");
 
     deployMode.DeployApp();
 
-    agHelper.GetElement(".hide-menu").should("exist");
+    agHelper.AssertElementExist(".hide-menu");
   });
 });
