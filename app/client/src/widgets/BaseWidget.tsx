@@ -363,8 +363,7 @@ abstract class BaseWidget<
         GridDefaults.DEFAULT_GRID_COLUMNS
       : widthFromGridProps;
     const mobileHeightFromGridProps = mobileHeightValuesExist
-      ? (mobileRightColumn - mobileLeftColumn) *
-        GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ? (mobileBottomRow - mobileTopRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
       : heightFromGridProps;
     return {
       componentWidth: this.props.isMobile
