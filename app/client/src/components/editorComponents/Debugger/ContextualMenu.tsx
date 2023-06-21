@@ -5,11 +5,7 @@ import { useDispatch } from "react-redux";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  setGlobalSearchQuery,
-  setGlobalSearchCategory,
-} from "actions/globalSearchActions";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,
@@ -128,19 +124,13 @@ const searchAction: Record<
   [CONTEXT_MENU_ACTIONS.DOCS]: {
     icon: "book-line",
     text: createMessage(DEBUGGER_OPEN_DOCUMENTATION),
-    onSelect: (error: Message, dispatch: Dispatch) => {
+    onSelect: () => {
       AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
         menuItem: CONTEXT_MENU_ACTIONS.DOCS,
       });
-      // Search through the omnibar
-      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-        source: "DEBUGGER",
-        searchTerm: error.message,
-        errorType: error.type,
-      });
-      dispatch(setGlobalSearchQuery(error.message.message || ""));
-      dispatch(
-        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
+      window.open(
+        "https://docs.appsmith.com/help-and-support/troubleshooting-guide",
+        "_blank",
       );
     },
   },
