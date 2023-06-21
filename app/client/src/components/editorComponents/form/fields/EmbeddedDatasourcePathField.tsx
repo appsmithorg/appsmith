@@ -399,8 +399,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       let evaluatedPath = "path" in entity.config ? entity.config.path : "";
 
       if (evaluatedPath) {
-        if (isString(evaluatedPath) && evaluatedPath.indexOf("?") > -1) {
-          evaluatedPath = extractApiUrlPath(evaluatedPath);
+        if (isString(evaluatedPath)) {
+          if (evaluatedPath.indexOf("?") > -1) {
+            evaluatedPath = extractApiUrlPath(evaluatedPath);
+          }
         } else {
           evaluatedPath = JSON.stringify(evaluatedPath);
         }
