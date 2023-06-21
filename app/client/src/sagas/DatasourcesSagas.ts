@@ -149,6 +149,7 @@ import {
   getFormName,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
+import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -817,6 +818,8 @@ function* createTempDatasourceFromFormSaga(
     datasourceType = plugin?.type;
   }
 
+  const defaultEnvId = getDefaultEnvId();
+
   const initialPayload = {
     id: TEMP_DATASOURCE_ID,
     name: DATASOURCE_NAME_DEFAULT_PREFIX + sequence,
@@ -824,9 +827,9 @@ function* createTempDatasourceFromFormSaga(
     pluginId: actionPayload.payload.pluginId,
     new: false,
     datasourceStorages: {
-      unused_env: {
+      [defaultEnvId]: {
         datasourceId: "",
-        environmentId: "unused_env",
+        environmentId: defaultEnvId,
         datasourceConfiguration: {
           properties: [],
         },
@@ -834,8 +837,8 @@ function* createTempDatasourceFromFormSaga(
     },
   };
   const payload = merge(initialPayload, actionPayload.payload);
-  payload.datasourceStorages.unused_env = merge(
-    payload.datasourceStorages.unused_env,
+  payload.datasourceStorages[defaultEnvId] = merge(
+    payload.datasourceStorages[defaultEnvId],
     initialValues,
   );
 
