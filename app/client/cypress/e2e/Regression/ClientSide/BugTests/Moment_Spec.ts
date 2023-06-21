@@ -28,7 +28,6 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
   it("1. Creating query & JSObject", () => {
     query = `SELECT id, name, date_of_birth, date_of_death, nationality FROM public."astronauts" LIMIT 20;`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("getAstronauts");
     jsEditor.CreateJSObject(

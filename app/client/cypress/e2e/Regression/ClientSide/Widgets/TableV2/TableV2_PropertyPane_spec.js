@@ -4,6 +4,8 @@ import {
   propPane,
   agHelper,
   deployMode,
+  draggableWidgets,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -22,10 +24,8 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("1. Verify default array data", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
-    // Open Widget side bar
-    cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
-    cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
     // close Widget side bar
     entityExplorer.NavigateToSwitcher("Explorer");
     cy.wait(2000);
@@ -38,9 +38,8 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("2. Verify empty columnName in data", () => {
-    cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
-    cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
     table.AddSampleTableData();
     // close Widget side bar
     entityExplorer.NavigateToSwitcher("Explorer");
@@ -68,7 +67,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onRowSelected", "Row is selected");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
@@ -82,7 +82,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
     cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
@@ -99,7 +100,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     });
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onPageChange", "Page Changed");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     cy.wait(2000);
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
@@ -335,7 +337,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Chage deat search text value to "data"
     cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "data");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitForTableEmpty("v2");
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     deployMode.NavigateBacktoEditor();
@@ -394,15 +397,17 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".t--evaluatedPopup-error").should("not.exist");
 
     // Update cell with row : 1, column : orderAmount
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, -1);
 
+    table.EditTableCell(1, 4, -1, false);
     cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 1, 0);
+    table.UpdateTableCell(1, 4, 0);
+    cy.get(".bp3-popover-content").contains("Invalid input");
+    table.UpdateTableCell(1, 4, 3);
     cy.get(".bp3-popover-content").should("not.exist");
 
     // Check if currentRow works
-    cy.editColumn("orderAmount");
+    propPane.NavigateBackToPropertyPane();
+    table.EditColumn("orderAmount");
     propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
     propPane.UpdatePropertyFieldValue(
       "Error message",
@@ -411,14 +416,13 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".t--evaluatedPopup-error").should("not.exist");
 
     // Update cell with row : 0, column : orderAmount. The min is set to 7 (i.e value of cell in id column)
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, 8);
+    table.EditTableCell(1, 4, 8, false);
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.enterTableCellValue(4, 1, 6);
+    table.UpdateTableCell(1, 4, 6);
     cy.get(".bp3-popover-content").contains("Row at index 1 is not valid");
 
-    cy.enterTableCellValue(4, 1, 8);
+    table.UpdateTableCell(1, 4, 8);
     cy.get(".bp3-popover-content").should("not.exist");
 
     propPane.UpdatePropertyFieldValue(
@@ -426,8 +430,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "Row with id {{currentRow.id}} is not valid",
     );
 
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, 5);
+    table.EditTableCell(1, 4, 5, false);
     cy.get(".bp3-popover-content").contains("Row with id 7 is not valid");
 
     propPane.UpdatePropertyFieldValue("Min", "");
@@ -438,31 +441,26 @@ describe("Table Widget V2 property pane feature validation", function () {
     propPane.UpdatePropertyFieldValue("Regex", "{{currentIndex}}2");
 
     cy.get(".t--evaluatedPopup-error").should("not.exist");
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, 3);
+    table.EditTableCell(1, 4, 3, false);
+
     cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 1, "12");
+    table.UpdateTableCell(1, 4, 12);
     cy.get(".bp3-popover-content").should("not.exist");
 
     // Check for currentRow property on Regex field
     propPane.UpdatePropertyFieldValue("Regex", "{{currentRow.id}}");
-    cy.editTableCell(4, 1);
-
-    cy.enterTableCellValue(4, 1, 7);
+    table.EditTableCell(1, 4, 7, false);
     cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 1, 8);
+    table.UpdateTableCell(1, 4, 8);
     cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 1, 7);
+    table.UpdateTableCell(1, 4, 7);
     cy.get(".bp3-popover-content").should("not.exist");
     propPane.UpdatePropertyFieldValue("Regex", "");
 
-    cy.get(".t--property-control-required").find(".t--js-toggle").click();
-    propPane.UpdatePropertyFieldValue("Required", "{{currentIndex == 1}}");
-
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, "");
+    propPane.EnterJSContext("Required", "{{currentIndex == 1}}");
+    table.EditTableCell(1, 4, "", false);
     cy.get(".bp3-popover-content").contains("This field is required");
-    cy.enterTableCellValue(4, 1, "1{enter}");
+    table.UpdateTableCell(1, 4, 1, true);
     cy.get(".bp3-popover-content").should("not.exist");
 
     cy.wait(1500);
@@ -470,12 +468,11 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.wait(1500);
 
     // Value isn't required in Row Index 2
-    cy.editTableCell(4, 2);
-    cy.enterTableCellValue(4, 2, "");
+    table.EditTableCell(2, 4, "", false);
     cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 2, "11");
+    table.UpdateTableCell(2, 4, "11");
     cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 2, "{enter}");
+    table.UpdateTableCell(2, 4, "", true);
     cy.get(".bp3-popover-content").should("not.exist");
 
     cy.wait(1500);
@@ -484,15 +481,14 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Check for Required property using currentRow, row with index 1 has id 7
     propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 7}}");
 
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, "");
+    table.EditTableCell(1, 4, "", false);
     cy.get(".bp3-popover-content").contains("This field is required");
-    cy.enterTableCellValue(4, 1, 1);
+    table.UpdateTableCell(1, 4, 1);
     cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 1, "");
+    table.UpdateTableCell(1, 4, "");
     cy.get(".bp3-popover-content").contains("This field is required");
 
-    cy.enterTableCellValue(4, 1, "1{enter}");
+    table.UpdateTableCell(1, 4, "1", true);
     cy.get(".bp3-popover-content").should("not.exist");
 
     cy.wait(1500);
@@ -500,13 +496,11 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.wait(1500);
 
     // Value isn't required in Row Index 2
-    cy.editTableCell(4, 2);
-    cy.enterTableCellValue(4, 2, "");
+    table.EditTableCell(2, 4, "", false);
     cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 2, 10);
+    table.UpdateTableCell(2, 4, 10);
     cy.get(".bp3-popover-content").should("not.exist");
-
-    cy.enterTableCellValue(4, 2, "{enter}");
+    table.UpdateTableCell(2, 4, "", true);
     cy.get(".bp3-popover-content").should("not.exist");
 
     cy.wait(1500);
