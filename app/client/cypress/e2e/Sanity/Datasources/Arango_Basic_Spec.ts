@@ -7,12 +7,11 @@ import {
 
 let dsName: any,
   collectionName = "countries_places_to_visit";
-const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   before("Create a new Arango DS", () => {
     cy.exec(
-      "docker run --name arangodb1 -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb",
+      "docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb",
     ).then((result) => {
       // Handle the command execution result
       // The Arango container should be running at this point
@@ -350,14 +349,12 @@ describe("Validate Arango & CURL Import Datasources", () => {
     });
 
     // Stop the container
-    cy.exec("docker stop arangodb1").then((stopResult) => {
-      // Handle the command execution result
+    cy.exec("docker stop arangodb").then((stopResult) => {
       cy.log("Output from stopping container:" + stopResult.stdout);
       cy.log("Error from stopping container:" + stopResult.stderr);
 
       // Delete the container
-      cy.exec("docker rm arangodb1").then((deleteResult) => {
-        // Handle the command execution result
+      cy.exec("docker rm arangodb").then((deleteResult) => {
         cy.log("Output from deleting container:" + deleteResult.stdout);
         cy.log("Error from deleting container:" + deleteResult.stderr);
       });
