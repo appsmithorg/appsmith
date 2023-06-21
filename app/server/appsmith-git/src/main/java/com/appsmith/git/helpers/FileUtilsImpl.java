@@ -848,7 +848,7 @@ public class FileUtilsImpl implements FileInterface {
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(page.getName(), readPageDSL(page.toPath(), gson, page.getName(), pageDsl));
                 // Get the nested DSL from the RTS
-                pageDsl.put(page.getName(), getDenormalizedDSL(pageDsl.get(page.getName())));
+                pageDsl.put(page.getName(), CommonConstants.EMPTY_STRING);
                 actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
                 actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
             }
@@ -911,45 +911,5 @@ public class FileUtilsImpl implements FileInterface {
 
     private boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
-    }
-
-    private final String RTS_BASE_URL = "http://localhost:8091";
-
-    private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
-            .maxConnections(100)
-            .maxIdleTime(Duration.ofSeconds(30))
-            .maxLifeTime(Duration.ofSeconds(40))
-            .pendingAcquireTimeout(Duration.ofSeconds(10))
-            .pendingAcquireMaxCount(-1)
-            .build());
-
-    public Map getNormalizedDSL(String dsl) {
-
-        return webClient.post()
-                .uri(RTS_BASE_URL+ "/rts-api/v1/dsl/git/normalize")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(dsl))
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(map -> {
-                    return (Map)map.get("data");
-                })
-                .block();
-
-    }
-
-    public String getDenormalizedDSL(String dsl) {
-            return webClient.post()
-                    .uri(RTS_BASE_URL+ "/rts-api/v1/dsl/git/denormalize")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .body(BodyInserters.fromValue(dsl))
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .map(jsonString -> {
-                        return new JSONObject(jsonString).get("data").toString();
-                    })
-                    .block();
     }
 }
