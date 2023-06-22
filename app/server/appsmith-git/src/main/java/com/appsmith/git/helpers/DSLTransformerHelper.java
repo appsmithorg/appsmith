@@ -7,7 +7,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -69,36 +71,94 @@ public class DSLTransformerHelper {
         return children != null && children.length() > 0;
     }
 
-    /*
-    HashMap 1 - widgetId and WidgetName mapping
-    HashMap 2 - parentId and WidgetName mapping
-    HashMap 3 - widgetData and WidgetName mapping
+    public static Map<String, List<String>> calculateParentDirectories(List<String> paths) {
+        Map<String, List<String>> parentDirectories = new HashMap<>();
 
-    Start with MainContainer.JSON always
-    1. Get all the Widgets whose parent id is MainContainer
-    2. Call the same function recursively for all the children
-    3. Append the widget to the respective parent children array
-     */
-    private static JSONObject constructNested(Map<String, JSONObject> flattenedMap) {
-        JSONObject root = new JSONObject();
-        for (Map.Entry<String, JSONObject> entry : flattenedMap.entrySet()) {
-            String key = entry.getKey();
-            JSONObject value = entry.getValue();
-            String[] path = key.split("\\.");
+        for (String path : paths) {
+            String[] directories = path.split("/");
+            int lastDirectoryIndex = directories.length - 1;
 
-            // Traverse the path to find the parent object
-            JSONObject parent = root;
-            for (int i = 0; i < path.length - 1; i++) {
-                String pathSegment = path[i];
-                if (!parent.has(pathSegment)) {
-                    parent.put(pathSegment, new JSONObject());
+            if (lastDirectoryIndex > 0 && directories[lastDirectoryIndex].equals(directories[lastDirectoryIndex - 1])) {
+                if (lastDirectoryIndex - 2 >= 0) {
+                    String parentDirectory = directories[lastDirectoryIndex - 2];
+                    List<String> pathsList = parentDirectories.getOrDefault(parentDirectory, new ArrayList<>());
+                    pathsList.add(path);
+                    parentDirectories.put(parentDirectory, pathsList);
                 }
-                parent = parent.getJSONObject(pathSegment);
+            } else {
+                String parentDirectory = directories[lastDirectoryIndex - 1];
+                List<String> pathsList = parentDirectories.getOrDefault(parentDirectory, new ArrayList<>());
+                pathsList.add(path);
+                parentDirectories.put(parentDirectory, pathsList);
             }
-
-            // Add the current object to its parent
-            parent.put(path[path.length - 1], value);
         }
-        return root;
+
+        return parentDirectories;
+    }
+
+    /*
+     * /Form1/Button1.json,
+     * /List1/List1.json,
+     * /List1/Container1/Text2.json,
+     * /List1/Container1/Image1.json,
+     * /Form1/Button2.json,
+     * /List1/Container1/Text1.json,
+     * /Form1/Text3.json,
+     * /Form1/Form1.json,
+     * /List1/Container1/Container1.json,
+     * /MainContainer.json
+     * HashMap 1 - ParentName and keyName mapping
+     * Loop through the map and create a nested JSON
+     */
+    public static JSONObject constructNestedJSON(Map<String, JSONObject> jsonMap) {
+        // Create the root object
+        JSONObject rootObject = new JSONObject();
+
+        // Get the parent object from the map using the special key "MainContainer"
+        JSONObject parentObject = jsonMap.get("/MainContainer.json");
+
+        // Construct the nested JSON recursively
+        constructNestedJSONHelper(parentObject, jsonMap, rootObject);
+
+        return rootObject;
+    }
+
+    private static void constructNestedJSONHelper(JSONObject parentObject, Map<String, JSONObject> jsonMap, JSONObject rootObject) {
+        String parentWidgetName = parentObject.optString("widgetName");
+
+        // Create the children array for the parent object
+        JSONArray childrenArray = new JSONArray();
+
+        // Find the child objects that have a parent matching the current widget name
+        for (Map.Entry<String, JSONObject> entry : jsonMap.entrySet()) {
+            String filePath = entry.getKey();
+            JSONObject childObject = entry.getValue();
+
+            String relativePath = filePath.substring(0, filePath.lastIndexOf("/"));
+            String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+
+            if (relativePath.equals(parentWidgetName)) {
+                // Add the child object to the children array
+                JSONObject modifiedChildObject = new JSONObject(childObject.toString());
+                modifiedChildObject.remove("widgetName");
+                childrenArray.put(modifiedChildObject);
+
+                // Recursively construct the nested JSON for the child object
+                constructNestedJSONHelper(childObject, jsonMap, modifiedChildObject);
+            } else if (relativePath.equals(parentWidgetName + "/" + fileName)) {
+                // Add the child object to the root object as a direct child
+                JSONObject modifiedChildObject = new JSONObject(childObject.toString());
+                modifiedChildObject.remove("widgetName");
+                rootObject.put(fileName, modifiedChildObject);
+
+                // Recursively construct the nested JSON for the child object
+                constructNestedJSONHelper(childObject, jsonMap, modifiedChildObject);
+            }
+        }
+
+        // Add the children array to the parent object
+        if (childrenArray.length() > 0) {
+            parentObject.put("children", childrenArray);
+        }
     }
 }
