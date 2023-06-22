@@ -154,6 +154,7 @@ export function EntityProperties() {
       break;
     case ENTITY_TYPE.ACTION:
       config = (entityDefinitions.ACTION as any)(entity as any);
+
       if (config) {
         entityProperties = Object.keys(config)
           .filter((k) => k.indexOf("!") === -1)
@@ -200,9 +201,11 @@ export function EntityProperties() {
       }
 
       if (isFunction(config)) config = config(entity);
+      const settersConfig = WidgetFactory.getWidgetSetterConfig(type).__setters;
 
       entityProperties = Object.keys(config)
         .filter((k) => k.indexOf("!") === -1)
+        .filter((k) => !settersConfig[k])
         .map((widgetProperty) => {
           return {
             propertyName: widgetProperty,
