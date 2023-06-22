@@ -9,6 +9,7 @@ import {
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
+  getIsMobileBreakPoint,
   getMetaWidgets,
   getWidgetsForEval,
   getWidgetsMeta,
@@ -35,6 +36,7 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
+  getIsMobileBreakPoint,
   (
     actions,
     jsActions,
@@ -46,6 +48,7 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
+    isMobile,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -59,6 +62,7 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
+      isMobile,
     });
   },
 );
