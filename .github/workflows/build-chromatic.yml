@@ -26,16 +26,14 @@ jobs:
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
         run: yarn install --immutable
-      
+        
       - name: Publish to Chromatic
         id: chromatic-publish
-        working-directory: ./app/client/packages/storybook
         uses: chromaui/action@v1
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
 
       - name: Comment Storybook URL on PR 
-        working-directory: ./app/client/packages/storybook 
         uses: peter-evans/create-or-update-comment@v2
         with: 
            body: |
