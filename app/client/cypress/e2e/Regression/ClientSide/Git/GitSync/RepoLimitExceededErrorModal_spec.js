@@ -13,7 +13,8 @@ describe("Repo Limit Exceeded Error Modal", function () {
     repoName2 = uuid.v4().split("-")[0];
     repoName3 = uuid.v4().split("-")[0];
     repoName4 = uuid.v4().split("-")[0];
-    _.agHelper.ClickButton("Build on my own");
+    _.agHelper.AssertElementVisible(_.locators._sidebar);
+    _.onboarding.closeIntroModal();
   });
 
   it("1. Modal should be opened with proper components", function () {

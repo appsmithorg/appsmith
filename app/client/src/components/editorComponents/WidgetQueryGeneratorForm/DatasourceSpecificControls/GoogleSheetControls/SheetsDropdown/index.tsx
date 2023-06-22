@@ -26,7 +26,7 @@ export default memo(function SheetsDropdown() {
           <Label>{label}</Label>
         </Tooltip>
         <Select
-          data-testid="t--sheetName-dropdown"
+          data-testId="t--sheetName-dropdown"
           dropdownStyle={{
             minWidth: "350px",
             maxHeight: "300px",
