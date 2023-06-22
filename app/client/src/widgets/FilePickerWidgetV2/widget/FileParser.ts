@@ -1,6 +1,4 @@
-import Papa from "papaparse";
 import FileDataTypes from "../constants";
-import log from "loglevel";
 import * as XLSX from "xlsx";
 
 interface ExcelSheetData {
@@ -149,30 +147,30 @@ function parseCSVBlob(
 
 function parseCSVString(data: string, dynamicTyping = false): CSVRowData[] {
   const result: CSVRowData[] = [];
-  const errors: Papa.ParseError[] = [];
+  const workbook = XLSX.read(data, {
+    type: "binary",
+    cellDates: true,
+    dateNF: "yyyy/mm/dd",
+    raw: dynamicTyping ? false : true,
+  });
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  const jsonData: XLSX.CellObject[] = XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+  });
+  const headerRow: any[] = jsonData[0] as any;
+  const dataRows: any[][] = jsonData.slice(1) as any;
 
-  function chunk(results: Papa.ParseStepResult<any>) {
-    if (results?.errors?.length) {
-      errors.push(...results.errors);
+  dataRows.forEach((row: string[]) => {
+    const rowData: CSVRowData = {};
+    for (let i = 0; i < row.length; i++) {
+      const columnName = headerRow[i];
+      const cellValue = row[i];
+      rowData[columnName] = cellValue;
     }
-    result.push(...results.data);
-  }
+    result.push(rowData);
+  });
 
-  const config = {
-    header: true,
-    dynamicTyping: dynamicTyping,
-    chunk,
-  };
-
-  const startParsing = performance.now();
-  Papa.parse(data, config);
-
-  const endParsing = performance.now();
-
-  log.debug(
-    `### FILE_PICKER_WIDGET_V2 - CSV PARSING  `,
-    `${endParsing - startParsing} ms`,
-  );
   return result;
 }
 
