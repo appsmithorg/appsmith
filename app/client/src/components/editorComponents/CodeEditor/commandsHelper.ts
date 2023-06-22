@@ -133,6 +133,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                 log.debug(e, "Error logging slash command");
               }
               CodeMirror.off(hints, "pick", handlePick);
+              CodeMirror.off(hints, "select", handleSelection);
             }
             CodeMirror.on(hints, "pick", handlePick);
             CodeMirror.on(hints, "select", handleSelection);
