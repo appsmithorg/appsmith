@@ -1,6 +1,5 @@
-import { Colors } from "constants/Colors";
 import { Button } from "design-system";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 
 export const Wrapper = styled.div``;
@@ -15,6 +14,8 @@ export const SelectWrapper = styled.div`
 export const Label = styled.p`
   flex: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Bold = styled.span`
@@ -27,10 +28,6 @@ export const Row = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-`;
-
-export const TooltipWrapper = styled.div`
-  margin-top: 2px;
 `;
 
 export const RowHeading = styled.p`
@@ -61,40 +58,13 @@ export const DatasourceImage = styled.img`
   width: auto;
 `;
 
-export const GlobalStyles = createGlobalStyle`
-  .one-click-binding-datasource-dropdown {
-    height: 300px;
-
-    .rc-select-item-option-disabled {
-      opacity: 1 !important;
-    }
-
-    .rc-virtual-list-holder {
-      max-height: 290px !important;
-    }
-
-    .has-seperator {
-      border-top: 1px solid ${Colors.GREY_4};
-      border-radius: 0;
-      margin-top: 10px;
-      padding-top: 15px;
-    }
-  }
-`;
-
-export const Binding = styled.div`
-  display: flex;
-  font-size: 12px;
-  font-weight: 700;
-  position: relative;
-  left: 1px;
-  top: -1px;
-  color: var(--ads-v2-color-fg);
-`;
-
 export const ErrorMessage = styled.div`
   font-weight: 400;
   font-size: 12px;
   line-height: 14px;
   color: var(--ads-v2-color-fg-error);
+`;
+
+export const Placeholder = styled.div`
+  color: var(--ads-v2-color-fg-subtle);
 `;

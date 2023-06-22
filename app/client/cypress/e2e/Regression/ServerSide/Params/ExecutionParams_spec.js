@@ -1,12 +1,18 @@
-const dsl = require("../../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+import {
+  agHelper,
+  deployMode,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel Test Functionality", function () {
   let datasourceName;
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("executionParamsDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   beforeEach(() => {
     cy.startRoutesForDatasource();
@@ -23,17 +29,12 @@ describe("API Panel Test Functionality", function () {
 
   it("2. Create and runs query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch).last().click({ force: true });
     cy.xpath(queryLocators.query).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from {{ this.params.tableName || 'users' }} limit 10", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    dataSources.EnterQuery(
+      "select * from {{ this.params.tableName || 'users' }} limit 10",
+    );
     cy.WaitAutoSave();
     cy.runQuery();
   });
@@ -75,7 +76,7 @@ describe("API Panel Test Functionality", function () {
     );
 
     // Publish the app
-    cy.PublishtheApp();
+    deployMode.DeployApp();
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {

@@ -1,13 +1,11 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  apiPage = ObjectsRegistry.ApiPage,
-  dataSources = ObjectsRegistry.DataSources;
-
-const url = "https://www.google.com";
+import {
+  agHelper,
+  apiPage,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Block Action Execution when no field is present", () => {
+  const url = "https://www.google.com";
   it("1. Ensure API Run button is disabled when no url is present", () => {
     apiPage.CreateApi("FirstAPI", "GET");
     apiPage.AssertRunButtonDisability(true);
@@ -15,15 +13,29 @@ describe("Block Action Execution when no field is present", () => {
     apiPage.AssertRunButtonDisability(false);
   });
 
-  it("1. Ensure Run button is disabled when no SQL body field is present", () => {
+  it("2. Ensure Run button is disabled when no SQL body field is present", () => {
     let name: any;
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       name = $dsName;
 
       agHelper.Sleep(1000);
-      dataSources.NavigateFromActiveDS(name, true);
-      agHelper.GetNClick(dataSources._templateMenu);
+      dataSources.CreateQueryAfterDSSaved();
+      dataSources.EnterQuery("SELECT * from users");
+      dataSources.AssertRunButtonDisability(false);
+      dataSources.EnterQuery("");
+      dataSources.AssertRunButtonDisability(true);
+    });
+  });
+
+  it("3. Ensure Run button is disabled for Post UQI Datasources e.g. Oracle when no body data is present", () => {
+    let name: any;
+    dataSources.CreateDataSource("Oracle", true, false);
+    cy.get("@dsName").then(($dsName) => {
+      name = $dsName;
+
+      agHelper.Sleep(1000);
+      dataSources.CreateQueryAfterDSSaved();
       dataSources.EnterQuery("SELECT * from users");
       dataSources.AssertRunButtonDisability(false);
       dataSources.EnterQuery("");

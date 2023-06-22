@@ -1,4 +1,4 @@
-const dsl = require("../../../../../fixtures/radioGroup_int_value_dsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
 function checkSelectedRadioValue(selector, value) {
@@ -12,7 +12,9 @@ function checkSelectedRadioValue(selector, value) {
 
 describe("RadioGroup widget testing", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("radioGroup_int_value_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Radio widget check selection with value property as integer", function () {

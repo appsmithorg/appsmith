@@ -1,3 +1,4 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import emptyDSL from "../../../../fixtures/emptyDSL.json";
 
 // Hi, developer!
@@ -32,15 +33,24 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
   });
 
   it("1. In edit & View mode", function () {
-    testLinkRelPreloads();
-    //In view mode", function () {
-    cy.PublishtheApp();
+    testLinkRelPreloads("edit-mode");
+  });
 
-    testLinkRelPreloads();
+  // Note: this must be a separate test from the previous one,
+  // as we’re relying on Cypress resetting intercepts between tests.
+  it("2. In view mode", function () {
+    cy.reload();
+
+    // Ensure the app editor is fully loaded
+    cy.get("#sidebar").should("be.visible");
+
+    _.deployMode.DeployApp();
+
+    testLinkRelPreloads("view-mode");
   });
 });
 
-function testLinkRelPreloads() {
+function testLinkRelPreloads(viewOrEditMode) {
   // Disable network caching in Chromium, per https://docs.cypress.io/api/commands/intercept#cyintercept-and-request-caching
   // and https://github.com/cypress-io/cypress/issues/14459#issuecomment-768616195
   Cypress.automation("remote:debugger:protocol", {
@@ -68,7 +78,7 @@ function testLinkRelPreloads() {
     ) {
       return;
     }
-    jsRequests.push(req.url);
+    jsRequests.push(new URL(req.url).pathname);
   }).as("jsRequests");
 
   // Make all web workers empty. This prevents web workers from loading additional chunks,
@@ -81,26 +91,56 @@ function testLinkRelPreloads() {
 
   cy.waitForNetworkIdle("/static/js/*.js", 5000, { timeout: 60 * 1000 });
 
-  cy.document().then((document) => {
+  cy.window().then((window) => {
     // If this line fails, then we failed to intercept any JS requests for some reason
     expect(jsRequests).to.not.be.empty;
 
-    const links = [
-      ...document.querySelectorAll("link[rel=preload][as=script]"),
-    ].map((link) => link.href);
+    if (!window.__APPSMITH_CHUNKS_TO_PRELOAD) {
+      throw new Error("window.__APPSMITH_CHUNKS_TO_PRELOAD is not defined");
+    }
+    if (!window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode]) {
+      throw new Error(
+        `window.__APPSMITH_CHUNKS_TO_PRELOAD['${viewOrEditMode}'] is not defined`,
+      );
+    }
+    const links = window.__APPSMITH_CHUNKS_TO_PRELOAD[viewOrEditMode].map(
+      (link) => (window.CDN_URL ?? "/") + link,
+    );
 
-    const uniqueRequests = [...new Set(jsRequests)];
-    const requestsString = `[${uniqueRequests.length} items] ${uniqueRequests
+    const requestsToCompare = unique(
+      jsRequests.filter(
+        (link) =>
+          // Exclude link bundle requests. We don’t really care about being precise
+          //  with their preloading, as icons aren’t critical for the first paint
+          !link.includes("-icons."),
+      ),
+    );
+    const linksToCompare = unique(
+      links.filter(
+        (link) =>
+          // Exclude link bundle preloads. We don’t really care about being precise
+          //  with their preloading, as icons aren’t critical for the first paint
+          !link.includes("-icons.") &&
+          // Exclude css preloads. We’re only intercepting JS requests so can only
+          // compare them
+          !link.endsWith(".css"),
+      ),
+    );
+
+    const requestsString = `[${
+      requestsToCompare.length
+    } items] ${requestsToCompare.sort().join(", ")}`;
+    const linksString = `[${linksToCompare.length} items] ${linksToCompare
       .sort()
       .join(", ")}`;
 
-    const uniqueLinks = [...new Set(links)];
-    const linksString = `[${uniqueLinks.length} items] ${uniqueLinks
-      .sort()
-      .join(", ")}`;
-
-    // Comparing strings instead of deep-qualling arrays because this is the only way
+    // Comparing strings instead of deep-equalling arrays because this is the only way
     // to see which chunks are actually missing: https://github.com/cypress-io/cypress/issues/4084
     cy.wrap(requestsString).should("equal", linksString);
   });
+}
+
+/** Removes all duplicated items from the array */
+function unique(arr) {
+  return Array.from(new Set(arr));
 }

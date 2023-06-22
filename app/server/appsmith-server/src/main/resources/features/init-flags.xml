@@ -26,10 +26,10 @@
                 <param name="emailDomains" value="appsmith.com,moolya.com"/>
             </flipstrategy>
         </feature>
-        <feature uid="ONE_CLICK_BINDING" enable="true"
-                 description="Show property controls to generate queries for table widget with just clicks">
+        <feature uid="APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY" enable="true"
+                 description="In Share and embed settings, give option of `navbar` feature(ultimately controls the share button in app(embed) view)">
             <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
-                <param name="emails" value="balaji@appsmith.com,vamsi@appsmith.com"/>
+                <param name="emailDomains" value="appsmith.com,moolya.com"/>
             </flipstrategy>
         </feature>
     </features>

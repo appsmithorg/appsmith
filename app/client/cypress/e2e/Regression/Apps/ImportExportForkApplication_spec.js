@@ -4,6 +4,7 @@ import {
   homePage,
   agHelper,
   dataSources,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Import, Export and Fork application and validate data binding", function () {
@@ -118,7 +119,11 @@ describe("Import, Export and Fork application and validate data binding", functi
             "cypress/fixtures/exportedApp.json",
             { force: true },
           );
-          agHelper.ValidateNetworkStatus("@getReleaseItems");
+          if (!Cypress.env("AIRGAPPED")) {
+            assertHelper.AssertNetworkStatus("@getReleaseItems");
+          } else {
+            agHelper.Sleep(2000);
+          }
 
           // import exported application in new workspace
           // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });
