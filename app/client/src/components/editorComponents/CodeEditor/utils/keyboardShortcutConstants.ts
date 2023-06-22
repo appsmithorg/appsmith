@@ -7,6 +7,7 @@ export const KEYBOARD_SHORTCUTS_BY_PLATFORM = {
     autoIndentShortcut: "Shift-Cmd-P",
     autoIndentShortcutText: "Shift + Cmd + P",
     codeComment: "Cmd-/",
+    deleteLine: "Cmd-D",
   },
   [PLATFORM_OS.IOS]: {
     saveAndAutoIndent: "Cmd-S",
@@ -14,6 +15,7 @@ export const KEYBOARD_SHORTCUTS_BY_PLATFORM = {
     autoIndentShortcut: "Shift-Cmd-P",
     autoIndentShortcutText: "Shift + Cmd + P",
     codeComment: "Cmd-/",
+    deleteLine: "Cmd-D",
   },
   [PLATFORM_OS.WINDOWS]: {
     saveAndAutoIndent: "Ctrl-S",
@@ -21,6 +23,7 @@ export const KEYBOARD_SHORTCUTS_BY_PLATFORM = {
     autoIndentShortcut: "Shift-Alt-F",
     autoIndentShortcutText: "Shift + Alt + F",
     codeComment: "Ctrl-/",
+    deleteLine: "Ctrl-D",
   },
   [PLATFORM_OS.ANDROID]: {
     saveAndAutoIndent: "Ctrl-S",
@@ -28,6 +31,7 @@ export const KEYBOARD_SHORTCUTS_BY_PLATFORM = {
     autoIndentShortcut: "Shift-Alt-F",
     autoIndentShortcutText: "Shift + Alt + F",
     codeComment: "Ctrl-/",
+    deleteLine: "Ctrl-D",
   },
   [PLATFORM_OS.LINUX]: {
     saveAndAutoIndent: "Ctrl-S",
@@ -35,6 +39,7 @@ export const KEYBOARD_SHORTCUTS_BY_PLATFORM = {
     autoIndentShortcut: "Shift-Ctrl-I",
     autoIndentShortcutText: "Shift + Ctrl + I",
     codeComment: "Ctrl-/",
+    deleteLine: "Ctrl-D",
   },
   default: {
     saveAndAutoIndent: "Ctrl-S",
@@ -42,5 +47,6 @@ export const KEYBOARD_SHORTCUTS_BY_PLATFORM = {
     autoIndentShortcut: "Shift-Alt-F",
     autoIndentShortcutText: "Shift + Alt + F",
     codeComment: "Ctrl-/",
+    deleteLine: "Ctrl-D",
   },
 };
