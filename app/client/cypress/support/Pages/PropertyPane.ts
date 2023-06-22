@@ -1,3 +1,4 @@
+import { assertHelper } from "../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 type filedTypeValues =
@@ -21,6 +22,7 @@ export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
@@ -99,11 +101,12 @@ export class PropertyPane {
     "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span";
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
-
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+  private _propPaneSelectedItem = (option: string) =>
+    `.t--property-control-${option} span.rc-select-selection-item span`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -121,7 +124,7 @@ export class PropertyPane {
     this.OpenJsonFormFieldSettings(fieldName);
     this.agHelper.SelectDropdownList("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
-    this.agHelper.AssertNetworkStatus("@updateLayout");
+    this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
   public NavigateBackToPropertyPane() {
@@ -429,12 +432,9 @@ export class PropertyPane {
   }
 
   public Search(query: string) {
-    cy.get(this._propertyPaneSearchInput)
-      .first()
-      .then((el: any) => {
-        cy.get(el).clear();
-        if (query) cy.get(el).type(query, { force: true });
-      });
+    this.agHelper.ClearTextField(this._propertyPaneSearchInput);
+    this.agHelper.TypeText(this._propertyPaneSearchInput, query);
+    this.agHelper.Sleep();
   }
 
   public ToggleSection(section: string) {
@@ -477,10 +477,10 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
   }
 
-  public AssertJSToggleDisabled(property: string) {
-    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
-      "be.disabled",
-    );
+  public AssertJSToggleState(property: string, state: "enabled" | "disabled") {
+    cy.get(
+      this.locator._jsToggle(property.toLowerCase().replaceAll(" ", "")),
+    ).should(`be.${state}`);
   }
 
   public AssertSelectValue(value: string) {
@@ -496,7 +496,7 @@ export class PropertyPane {
       .should("have.value", newName)
       .blur();
     this.agHelper.PressEnter();
-    this.agHelper.AssertNetworkStatus("@updateWidgetName");
+    this.assertHelper.AssertNetworkStatus("@updateWidgetName");
     this.agHelper.Sleep();
   }
 
@@ -512,5 +512,9 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
     this.agHelper.GetNClick(this._pageName(pageName));
     this.agHelper.AssertAutoSave();
+  }
+
+  public GetSelectedItemText(property: string) {
+    return this.agHelper.GetText(this._propPaneSelectedItem(property));
   }
 }

@@ -13,7 +13,7 @@ describe("SQL Autocompletion", () => {
       dsName = $dsName;
       //Shows autocompletion hints in SQL", () => {
       dataSources.NavigateFromActiveDS(dsName, true);
-      agHelper.GetNClick(dataSources._templateMenu);
+      dataSources.EnterQuery("");
       agHelper.TypeText(locators._codeMirrorTextArea, "select");
       // Hints should exist
       agHelper.AssertElementExist(locators._hints);
