@@ -320,6 +320,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.Sleep(3000); //wait for table navigation to take effect!
     table.WaitUntilTableLoad(0, 0, "v2");
 
+    table.SelectTableRow(0, 0, true, "v2");
     dataSources.AssertJSONFormHeader(0, 0, "store_id", "2105");
     agHelper.ClickButton("Delete", 0);
     agHelper.AssertElementVisible(locator._modal);
