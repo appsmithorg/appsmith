@@ -299,20 +299,16 @@ function ReconnectDatasourceModal() {
   const queryDS = datasources.find((ds) => ds.id === queryDatasourceId);
   const dsName = queryDS?.name;
   const orgId = queryDS?.workspaceId;
-  let pluginName = "";
-  let plugin: Plugin | undefined = undefined;
-  if (!!queryDS?.pluginId) {
-    plugin = plugins[queryDS?.pluginId];
-    pluginName = plugin?.name;
-  }
 
   const checkIfDatasourceIsConfigured = (ds: Datasource | null) => {
     if (!ds) return false;
-    return isGoogleSheetPluginDS(plugin?.packageName)
+    const plugin = plugins[ds.pluginId];
+    const output = isGoogleSheetPluginDS(plugin?.packageName)
       ? isDatasourceAuthorizedForQueryCreation(ds, plugin as Plugin)
       : ds.datasourceStorages
       ? isEnvironmentConfigured(ds)
       : false;
+    return output;
   };
 
   // when redirecting from oauth, processing the status
@@ -333,7 +329,7 @@ function ReconnectDatasourceModal() {
         oAuthPassOrFailVerdict: status,
         workspaceId: orgId,
         datasourceName: dsName,
-        pluginName: pluginName,
+        pluginName: plugins[datasource?.pluginId || ""]?.name,
       });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
