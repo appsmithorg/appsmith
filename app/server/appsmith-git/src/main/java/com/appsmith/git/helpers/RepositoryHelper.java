@@ -30,5 +30,5 @@ public class RepositoryHelper {
         config.setString("branch", branchName, "remote", "origin");
         config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
         config.save();
-    }
+    } 
 }
