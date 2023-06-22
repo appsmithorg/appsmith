@@ -32,13 +32,18 @@ export const bindingHint: HintHelper = (editor) => {
       entityInformation,
       additionalData,
     ): boolean => {
+      const token = editor.getTokenAt(editor.getCursor());
       if (additionalData && additionalData.blockCompletions) {
         CodemirrorTernService.setEntityInformation({
           ...entityInformation,
           blockCompletions: additionalData.blockCompletions,
+          token,
         });
       } else {
-        CodemirrorTernService.setEntityInformation(entityInformation);
+        CodemirrorTernService.setEntityInformation({
+          ...entityInformation,
+          token,
+        });
       }
 
       const entityType = entityInformation?.entityType;

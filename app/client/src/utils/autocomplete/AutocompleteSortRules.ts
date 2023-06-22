@@ -8,7 +8,10 @@ import { createCompletionHeader } from "./CodemirrorTernService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
 
 interface AutocompleteRule {
-  computeScore(completion: Completion): number;
+  computeScore(
+    completion: Completion,
+    entityInfo?: FieldEntityInformation,
+  ): number;
 }
 
 /**
@@ -22,6 +25,23 @@ enum RuleWeight {
   TypeMatch,
   PriorityMatch,
   ScopeMatch,
+}
+
+export class NestedPropertyInsideLiteralRule implements AutocompleteRule {
+  computeScore(
+    completion: Completion,
+    entityInfo: FieldEntityInformation,
+  ): number {
+    const { token } = entityInfo;
+    const score = 0;
+    if (!token) return score;
+    const lexical = token.state.lexical;
+    if (!lexical) return score;
+    if (lexical.type === "]" && completion.text.split(".").length > 1) {
+      return -Infinity;
+    }
+    return score;
+  }
 }
 
 export class AndRule implements AutocompleteRule {
@@ -97,7 +117,7 @@ class NoDeepNestedSuggestionsRule implements AutocompleteRule {
   static threshold = -Infinity;
   computeScore(completion: Completion): number {
     let score = 0;
-    if (completion.text.split(".").length > 3)
+    if (completion.text.split(".").length > 2)
       score = NoDeepNestedSuggestionsRule.threshold;
     return score;
   }
@@ -259,7 +279,7 @@ export class AutocompleteSorter {
       .sort((compA, compB) => {
         return compA.text.toLowerCase().localeCompare(compB.text.toLowerCase());
       })
-      .map((completion) => new ScoredCompletion(completion))
+      .map((completion) => new ScoredCompletion(completion, currentFieldInfo))
       .filter((scoredCompletion) => scoredCompletion.score >= 0)
       .sort(
         (scoredCompletionA, scoredCompletionB) =>
@@ -302,18 +322,22 @@ export class ScoredCompletion {
     new GlobalJSRule(),
     new BlockSuggestionsRule(),
     new HideInternalDefsRule(),
+    new NestedPropertyInsideLiteralRule(),
   ];
   completion: Completion;
 
-  constructor(completion: Completion) {
+  constructor(
+    completion: Completion,
+    currentFieldInfo: FieldEntityInformation,
+  ) {
     this.completion = completion;
-    this.score = this.computeScore();
+    this.score = this.computeScore(currentFieldInfo);
   }
 
-  private computeScore() {
+  private computeScore(currentFieldInfo: FieldEntityInformation) {
     let score = 0;
     for (const rule of ScoredCompletion.rules) {
-      score += rule.computeScore(this.completion);
+      score += rule.computeScore(this.completion, currentFieldInfo);
       if (score === -Infinity) break;
     }
     return score;

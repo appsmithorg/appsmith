@@ -81,6 +81,8 @@ export const dataTreeTypeDefCreator = (
           extraDefsToDefine,
         );
         jsPropertiesDef[funcName] = funcTypeDef;
+        // To also show funcName.data in autocompletion hint, we explictly add it here
+        jsPropertiesDef[`${funcName}.data`] = funcTypeDef.data;
       }
 
       for (let i = 0; i < entityConfig?.variables?.length; i++) {
@@ -90,7 +92,6 @@ export const dataTreeTypeDefCreator = (
       }
 
       def[entityName] = jsPropertiesDef;
-      flattenDef(def, entityName);
       entityMap.set(entityName, {
         type: ENTITY_TYPE.JSACTION,
         subType: "JSACTION",
@@ -180,7 +181,7 @@ export const flattenDef = (def: Def, entityName: string): Def => {
 
 const VALID_VARIABLE_NAME_REGEX = /^([a-zA-Z_$][a-zA-Z\d_$]*)$/;
 
-const isValidVariableName = (variableName: string) =>
+export const isValidVariableName = (variableName: string) =>
   VALID_VARIABLE_NAME_REGEX.test(variableName);
 
 export const getFunctionsArgsType = (args: Variable[]): string => {

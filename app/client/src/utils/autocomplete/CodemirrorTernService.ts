@@ -20,6 +20,7 @@ import {
 } from "../getCodeMirrorNamespace";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { findIndex } from "lodash";
+import { isValidVariableName } from "./dataTreeTypeDefCreator";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -371,7 +372,7 @@ class CodeMirrorTernService {
           caseInsensitive: true,
           guess: false,
           inLiteral: true,
-          depth: 2,
+          depth: 3,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -910,7 +911,7 @@ function dotToBracketNotationAtToken(token: CodeMirror.Token) {
       // Cases like JSObject1["myV|"]
       cm.replaceRange(completion, hints.from, hints.to);
       return;
-    } else if (token.type === null && token.string === "[") {
+    } else if (token.type === null && token.state?.lexical?.type === "]") {
       // Cases like JSObject1[|]
       cm.replaceRange(`"${completion}"`, hints.from, hints.to);
       return;
@@ -919,7 +920,8 @@ function dotToBracketNotationAtToken(token: CodeMirror.Token) {
     if (splitByDotOperator.length === 1) {
       const splitByBracketOperator = completion.split("[");
       if (splitByBracketOperator.length === 1) {
-        if (completion.includes(" ")) {
+        const isValidName = isValidVariableName(completion);
+        if (!isValidName) {
           completion = `["${completion}"]`;
           hints.from.ch -= 1;
         }
