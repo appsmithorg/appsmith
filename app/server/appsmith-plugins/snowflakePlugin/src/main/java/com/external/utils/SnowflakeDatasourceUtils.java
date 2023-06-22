@@ -10,7 +10,7 @@ import java.text.MessageFormat;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_CLOSED_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NULL_ERROR_MSG;
-import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR_MSG;
 
 public class SnowflakeDatasourceUtils {
     /**
@@ -42,7 +42,7 @@ public class SnowflakeDatasourceUtils {
                  * those cases wherein a developer updates the parent if condition but does not update the nested
                  * if else conditions.
                  */
-                throw new StaleConnectionException(UNKNOWN_CONNECTION_ERROR);
+                throw new StaleConnectionException(UNKNOWN_CONNECTION_ERROR_MSG);
             }
         }
     }

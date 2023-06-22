@@ -2,12 +2,12 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.Condition;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -16,13 +16,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_CLOSED_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NULL_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.checkHikariCPConnectionPoolValidity;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 public class PluginUtilsTest {
@@ -215,5 +222,43 @@ public class PluginUtilsTest {
     @Test
     public void verifyUniquenessOfCommonPluginErrorCode() {
         assert (Arrays.stream(AppsmithPluginError.values()).map(AppsmithPluginError::getAppErrorCode).distinct().count() == AppsmithPluginError.values().length);
+    }
+
+    @Test
+    public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsNull() {
+        Exception exception = assertThrows(StaleConnectionException.class,() -> checkHikariCPConnectionPoolValidity(null
+                , "pluginName"));
+        String expectedErrorMessage = CONNECTION_POOL_NULL_ERROR_MSG;
+        assertEquals(expectedErrorMessage, exception.getMessage());
+    }
+
+    @Test
+    public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsClosed() {
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isClosed()).thenReturn(true).thenReturn(true);
+        Exception exception = assertThrows(StaleConnectionException.class,
+                () -> checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
+        String expectedErrorMessage = CONNECTION_POOL_CLOSED_ERROR_MSG;
+        assertEquals(expectedErrorMessage, exception.getMessage());
+    }
+
+    @Test
+    public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsRunning() {
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isRunning()).thenReturn(false).thenReturn(false);
+        Exception exception = assertThrows(StaleConnectionException.class,
+                () -> checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
+        String expectedErrorMessage = CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
+        assertEquals(expectedErrorMessage, exception.getMessage());
+    }
+
+    @Test
+    public void testStaleConnectionErrorHasDefaultUpstreamError() {
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isRunning()).thenReturn(false).thenReturn(true);
+        Exception exception = assertThrows(StaleConnectionException.class,
+                () -> checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
+        String expectedErrorMessage = UNKNOWN_CONNECTION_ERROR_MSG;
+        assertEquals(expectedErrorMessage, exception.getMessage());
     }
 }
