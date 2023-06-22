@@ -8,8 +8,7 @@ on:
 jobs:
   chromatic-deployment:
     runs-on: ubuntu-latest
-    if: |
-      github.event.issue.pull_request
+   
     steps:
       - name: Checkout PR
         uses: actions/checkout@v3
