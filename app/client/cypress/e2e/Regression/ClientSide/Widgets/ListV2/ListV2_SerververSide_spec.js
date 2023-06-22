@@ -1,4 +1,9 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  jsEditor,
+} from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -7,12 +12,12 @@ const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 describe("List widget V2 Serverside Pagination", () => {
   before(() => {
     cy.fixture("Listv2/Listv2JSObjects").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Next button disabled when there's no data", () => {
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `
         const pageNo = List1.pageNo;
         const pageSize = List1.pageSize;
@@ -29,43 +34,31 @@ describe("List widget V2 Serverside Pagination", () => {
       },
     );
 
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    entityExplorer.SelectEntityByName("List1", "Widgets");
 
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "1");
-    cy.get(commonlocators.listPaginateNextButton).click({
-      force: true,
-    });
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
-    cy.get(commonlocators.listPaginateNextButton).click({
-      force: true,
-    });
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "3");
-    cy.get(commonlocators.listPaginateNextButtonDisabled).should("exist");
-    cy.get(commonlocators.listPaginatePrevButton).click({
-      force: true,
-    });
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "1");
+    agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
+    agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "3");
+    agHelper.AssertElementExist(commonlocators.listPaginateNextButtonDisabled);
+    agHelper.GetNClick(commonlocators.listPaginatePrevButton, 0, true);
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
+
+    deployMode.DeployApp();
   });
 
   it("2. Next button disabled but visible in view mode when there's no data", () => {
-    _.deployMode.DeployApp();
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "1");
+    agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
+    agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "3");
+    agHelper.AssertElementExist(commonlocators.listPaginateNextButtonDisabled);
+    agHelper.GetNClick(commonlocators.listPaginatePrevButton, 0, true);
+    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
 
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "1");
-    cy.get(commonlocators.listPaginateNextButton).click({
-      force: true,
-    });
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
-    cy.get(commonlocators.listPaginateNextButton).click({
-      force: true,
-    });
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "3");
-    cy.get(commonlocators.listPaginateNextButtonDisabled).should("exist");
-    cy.get(commonlocators.listPaginatePrevButton).click({
-      force: true,
-    });
-    cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
-
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. SelectedItemView and TriggeredItemView", () => {
