@@ -417,9 +417,12 @@ public class GitFileUtils {
         pages.forEach(page -> {
             JSONParser jsonParser = new JSONParser();
             try {
-                page.getUnpublishedPage().getLayouts().get(0).setDsl(  (JSONObject) jsonParser.parse(pageDsl.get(page.getUnpublishedPage().getName())) );
+                if (pageDsl != null && pageDsl.get(page.getUnpublishedPage().getName()) != null) {
+                    page.getUnpublishedPage().getLayouts().get(0).setDsl(  (JSONObject) jsonParser.parse(pageDsl.get(page.getUnpublishedPage().getName())) );
+                }
             } catch (ParseException e) {
-                throw new RuntimeException(e);
+                log.error("Error parsing the page dsl for page: {}", page.getUnpublishedPage().getName(), e);
+                throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, page.getUnpublishedPage().getName());
             }
         });
         pages.forEach(newPage -> {
