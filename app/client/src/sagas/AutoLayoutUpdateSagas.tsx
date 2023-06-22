@@ -63,7 +63,7 @@ import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
-import { nestDSL, unnestDSL } from "@shared/dsl";
+import { nestDSL, flattenDSL } from "@shared/dsl";
 
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
@@ -165,8 +165,8 @@ export function* updateLayoutPositioningSaga(
       const autoDSL = convertDSLtoAuto(nestedDSL);
       log.debug("autoDSL", autoDSL);
 
-      const unnestedDSL = unnestDSL(autoDSL);
-      yield put(updateAndSaveLayout(unnestedDSL));
+      const flattenedDSL = flattenDSL(autoDSL);
+      yield put(updateAndSaveLayout(flattenedDSL));
 
       yield call(recalculateAutoLayoutColumnsAndSave);
     }

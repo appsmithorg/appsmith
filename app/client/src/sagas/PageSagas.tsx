@@ -145,7 +145,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { nestDSL, unnestDSL } from "@shared/dsl";
+import { nestDSL, flattenDSL } from "@shared/dsl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -262,14 +262,14 @@ export const getCanvasWidgetsPayload = (
     isAutoLayout,
     mainCanvasWidth,
   ).dsl;
-  const unnestedDSL = unnestDSL(extractedDSL);
+  const flattenedDSL = flattenDSL(extractedDSL);
   const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
   return {
     pageWidgetId,
     currentPageName: pageResponse.data.name,
     currentPageId: pageResponse.data.id,
     dsl: extractedDSL,
-    widgets: unnestedDSL,
+    widgets: flattenedDSL,
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
     pageActions: pageResponse.data.layouts[0].layoutOnLoadActions || [],
@@ -606,7 +606,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         const correctedWidgets =
           migrateIncorrectDynamicBindingPathLists(nestedDSL);
         // Flatten the widgets because the save page needs it in the flat structure
-        const normalizedWidgets = unnestDSL(correctedWidgets);
+        const normalizedWidgets = flattenDSL(correctedWidgets);
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
           correctWidget: JSON.stringify(normalizedWidgets),
@@ -1077,7 +1077,7 @@ export function* updateCanvasWithDSL(
   pageId: string,
   layoutId: string,
 ) {
-  const unnestedDSL = unnestDSL(data.dsl);
+  const flattenedDSL = flattenDSL(data.dsl);
   const currentPageName: string = yield select(getCurrentPageName);
 
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -1090,7 +1090,7 @@ export function* updateCanvasWithDSL(
     currentApplicationId: applicationId,
     dsl: data.dsl,
     pageActions: data.layoutOnLoadActions,
-    widgets: unnestedDSL,
+    widgets: flattenedDSL,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
   yield put(fetchActionsForPage(pageId));

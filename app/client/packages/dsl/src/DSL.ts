@@ -5,10 +5,10 @@ import { schema, normalize, denormalize } from "normalizr";
 export type NestedDSLWidget<W> = W & { children?: NestedDSLWidget<W>[] };
 export type NestedDSL<W> = NestedDSLWidget<W>;
 
-export type UnnestedDSLWidget<W> = W & { children?: string[] };
-export type UnnestedDSL<W> = { [widgetId: string]: UnnestedDSLWidget<W> };
+export type FlattenedDSLWidget<W> = W & { children?: string[] };
+export type FlattenedDSL<W> = { [widgetId: string]: FlattenedDSLWidget<W> };
 
-export type UnnestedDSLEntities<W> = { canvasWidgets: UnnestedDSL<W> };
+export type FlattenedDSLEntities<W> = { canvasWidgets: FlattenedDSL<W> };
 
 // Schema by widgetId
 const SCHEMA_BY_ID = new schema.Entity(
@@ -19,10 +19,10 @@ const SCHEMA_BY_ID = new schema.Entity(
 SCHEMA_BY_ID.define({ children: [SCHEMA_BY_ID] });
 
 // Normalising using widgetId
-export function unnestDSL<W>(nestedDSL: NestedDSL<W>): UnnestedDSL<W> {
+export function flattenDSL<W>(nestedDSL: NestedDSL<W>): FlattenedDSL<W> {
   const {
     entities,
-  }: NormalizedSchema<UnnestedDSLEntities<W>, string> = normalize(
+  }: NormalizedSchema<FlattenedDSLEntities<W>, string> = normalize(
     nestedDSL,
     SCHEMA_BY_ID,
   );
@@ -31,9 +31,9 @@ export function unnestDSL<W>(nestedDSL: NestedDSL<W>): UnnestedDSL<W> {
 
 // Denormalising using widgetId
 export function nestDSL<W>(
-  unnestedDSL: UnnestedDSL<W>,
+  flattenedDSL: FlattenedDSL<W>,
   widgetId: string = ROOT_CONTAINER_WIDGET_ID,
 ): NestedDSL<W> {
-  const entities = { canvasWidgets: unnestedDSL };
+  const entities = { canvasWidgets: flattenedDSL };
   return denormalize(widgetId, SCHEMA_BY_ID, entities);
 }

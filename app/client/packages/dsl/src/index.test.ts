@@ -1,4 +1,4 @@
-import { nestDSL, unnestDSL } from "./DSL";
+import { nestDSL, flattenDSL } from "./DSL";
 import { ROOT_CONTAINER_WIDGET_ID } from "./constants";
 
 describe("Test #1 - Check export types & constant values", () => {
@@ -6,8 +6,8 @@ describe("Test #1 - Check export types & constant values", () => {
     expect(typeof nestDSL).toBe("function");
   });
 
-  it("unnestDSL is a function", () => {
-    expect(typeof unnestDSL).toBe("function");
+  it("flattenDSL is a function", () => {
+    expect(typeof flattenDSL).toBe("function");
   });
 
   it("ROOT_CONTAINER_WIDGET_ID is a string", () => {
@@ -84,8 +84,8 @@ describe("Test #2 - normalize operations on SIMPLE DSL structures", () => {
     },
   };
 
-  it("Test `unnestDSL` for simple_dsl", () => {
-    const flatDSL = unnestDSL<Record<string, any>>(simple_dsl);
+  it("Test `flattenDSL` for simple_dsl", () => {
+    const flatDSL = flattenDSL<Record<string, any>>(simple_dsl);
     expect(flatDSL).toStrictEqual(simple_flat_dsl);
   });
 

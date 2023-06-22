@@ -1,4 +1,4 @@
-import { nestDSL, unnestDSL } from "@shared/dsl";
+import { nestDSL, flattenDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -40,7 +40,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
 
   if (!autoDSL || !autoDSL.children) return autoDSL;
 
-  const normalizedAutoDSL = unnestDSL(autoDSL);
+  const normalizedAutoDSL = flattenDSL(autoDSL);
 
   const alteredNormalizedAutoDSL = alterLayoutForDesktop(
     normalizedAutoDSL,

@@ -1,10 +1,10 @@
-export { nestDSL, unnestDSL } from "./DSL";
+export { nestDSL, flattenDSL } from "./DSL";
 export { ROOT_CONTAINER_WIDGET_ID } from "./constants";
 
 export type {
   NestedDSLWidget,
   NestedDSL,
-  UnnestedDSLWidget,
-  UnnestedDSL,
-  UnnestedDSLEntities,
+  FlattenedDSLWidget,
+  FlattenedDSL,
+  FlattenedDSLEntities,
 } from "./DSL";

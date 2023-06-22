@@ -1,4 +1,4 @@
-import { nestDSL, unnestDSL } from "@shared/dsl";
+import { nestDSL, flattenDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -41,7 +41,7 @@ export default function convertDSLtoFixed(
   dsl: DSLWidget,
   destinationLayout: SupportedLayouts,
 ) {
-  const allWidgets = unnestDSL(dsl);
+  const allWidgets = flattenDSL(dsl);
 
   const convertedWidgets = convertNormalizedDSLToFixed(
     allWidgets,
