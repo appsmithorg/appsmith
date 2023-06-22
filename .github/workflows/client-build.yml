@@ -90,7 +90,8 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            <b>Below files are written in js expected ts. Please fix and rerun the workflow.</b>
+            <b>Below files are written in js 🔴 </b>
+            <b>Expected format ts. Please fix and retrigger ok-to-test.</b>
             <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
       - if: steps.check_files.outputs.non_ts_files_count != 0
         run: exit 1
