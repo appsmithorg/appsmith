@@ -296,7 +296,7 @@ class CodeMirrorTernService {
 
     completions = AutocompleteSorter.sort(
       completions,
-      this.fieldEntityInformation,
+      { ...this.fieldEntityInformation, token },
       this.defEntityInformation.get(
         this.fieldEntityInformation.entityName || "",
       ),
