@@ -18,6 +18,7 @@ export class Onboarding {
       .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
+    this._aggregateHelper.AssertElementAbsence(OnboardingLocator.introModal);
     if (Cypress.env("AIRGAPPED")) {
       this._datasources.CreateDataSource("Mongo");
       cy.get("@dsName").then(($dsName) => {
