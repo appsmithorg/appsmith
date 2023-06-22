@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
@@ -23,6 +24,7 @@ import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
@@ -64,6 +66,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final WorkspacePermission workspacePermission;
     private final ConfigService configService;
     private final FeatureFlagService featureFlagService;
+    private final CommonConfig commonConfig;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -203,8 +206,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
+    private String getUserIdentifier(User user){
+        String userIdentifier = user.getUsername();
+        if (!commonConfig.isCloudHosting()) {
+            userIdentifier = hash(user.getUsername());
+        }
+        return userIdentifier;
+    }
+
+    private String hash(String value) {
+        return value == null ? "" : DigestUtils.sha256Hex(value);
+    }
+
     private Mono<Void> addDefaultUserTraits(User user){
-        String identifier = user.getEmail();
+        String identifier = getUserIdentifier(user);
         List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
         return configService.getInstanceId()
                 .flatMap(instanceId -> {
