@@ -12,5 +12,5 @@ import java.util.Set;
 public class FeatureFlagIdentities {
     String instanceId;
     String tenantId;
-    Set<String> userEmails;
+    Set<String> userIdentifiers;
 }

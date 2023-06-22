@@ -221,9 +221,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private Mono<Void> addDefaultUserTraits(User user){
         String identifier = getUserIdentifier(user);
         List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
+        String emailTrait;
+        if (!commonConfig.isCloudHosting()) {
+            emailTrait = hash(user.getEmail());
+        } else {
+            emailTrait = user.getEmail();
+        }
         return configService.getInstanceId()
                 .flatMap(instanceId -> {
-                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", user.getEmail()));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", emailTrait));
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
                     return featureFlagService.remoteSetUserTraits(featureFlagTraits);

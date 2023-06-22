@@ -1,6 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -31,9 +32,11 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         ApplicationPageService applicationPageService,
                                         WorkspacePermission workspacePermission,
                                         ConfigService configService,
-                                        FeatureFlagService featureFlagService) {
+                                        FeatureFlagService featureFlagService,
+                                        CommonConfig commonConfig) {
 
         super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
-                userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission, configService, featureFlagService);
+                userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission,
+                configService, featureFlagService, commonConfig);
     }
 }
