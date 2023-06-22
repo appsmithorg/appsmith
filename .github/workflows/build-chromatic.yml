@@ -46,4 +46,4 @@ jobs:
           name: Test XYZ
           conclusion: ${{ job.status }}
           output: |
-            {"summary":${{ steps.chromatic-publish.outputs.buildUrl }}}
+            {"summary": "${{ steps.chromatic-publish.outputs.buildUrl }}" }
