@@ -58,6 +58,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      check-test-files: "true"
 
   rts-build:
     name: rts-build
