@@ -101,9 +101,14 @@ export class LightModeTheme implements ColorModeTheme {
   /*
    * Background colors
    */
+
+  // Main application background color.
+  // Applies to canvas. In light mode it is extremely light (and therefore desatured) tint of user-set seed color.
+  // This ensures harmonious combination with main accents and neutrals.
   private get bg() {
     const color = this.seedColor.clone();
 
+    // For very light seeds we set bg darker than usually, so that accent surfaces are clearly visible against it.
     if (this.seedIsVeryLight) {
       color.oklch.l = 0.9;
     }
@@ -112,6 +117,7 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.l = 0.985;
     }
 
+    // Cold colors can have a bit more chroma while staying perceptually neutral
     if (this.seedIsCold) {
       color.oklch.c = 0.009;
     }
@@ -120,6 +126,7 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.c = 0.007;
     }
 
+    // If initial seed had non-substantial amount of chroma, make sure bg is achromatic.
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
     }
@@ -127,9 +134,11 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Main accent color. Largely is the same as user-set seed color.
   private get bgAccent() {
     const color = this.seedColor.clone();
 
+    // If seed is very light, we're make bg darker than usual (see above). We also make sure then, that the accent is bright enough.
     if (this.seedIsVeryLight) {
       color.oklch.l = 0.975;
     }
@@ -137,9 +146,11 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Hover state of bgAccent. Slightly lighter than the resting state to produce the effect of moving closer to the viewer / inspection.
   private get bgAccentHover() {
     const color = this.bgAccent.clone();
 
+    // “Slightly lighter” is very dependent on the initial amount of lightness as well as how light (or dark) the surroundings are.
     if (this.seedLightness < 0.06) {
       color.oklch.l = this.bgAccent.oklch.l + 0.28;
     }
@@ -150,12 +161,13 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (
       this.seedLightness >= 0.14 &&
-      this.seedLightness < 0.25 &&
+      this.seedLightness < 0.21 &&
       this.seedIsCold
     ) {
       color.oklch.l = this.bgAccent.oklch.l + 0.1;
     }
 
+    // Warm colors require a little bit more lightness in this range than colds to be sufficiently perceptually lighter.
     if (
       this.seedLightness >= 0.14 &&
       this.seedLightness < 0.21 &&
@@ -176,6 +188,8 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.l = this.bgAccent.oklch.l + 0.03;
     }
 
+    // For very light seeds it becomes impossible to produce hover state that is sufficiently perceptibly lighter, therefore we're switching to having hovers darker.
+    // Yellow has largest amount of chroma available at the top (by lightness) of OKLCh space, so we're comepnsating by slightly decreasing chroma and decreasing lightness more than we do for other colors.
     if (this.seedIsVeryLight && this.seedIsYellow) {
       color.oklch.l = 0.945;
       color.oklch.c = this.seedChroma * 0.93;
@@ -191,9 +205,11 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Active state of bgAccent. Slightly darker than the resting state to produce the effect of moving further from the viewer / being pushed down.
   private get bgAccentActive() {
     const color = this.bgAccent.clone();
 
+    // “Slightly darker” is very dependent on the initial amount of lightness as well as how light (or dark) the surroundings are.
     if (this.seedLightness < 0.4) {
       color.oklch.l = this.bgAccent.oklch.l - 0.04;
     }
@@ -206,6 +222,7 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.l = this.bgAccent.oklch.l - 0.01;
     }
 
+    // For very light seeds we complement the effect with increased chroma.
     if (this.seedIsVeryLight) {
       color.oklch.l = 0.935;
       color.oklch.c = this.seedChroma * 1.15;
@@ -215,14 +232,16 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  // used only for generating child colors, not used as a token
+  // Subtle variant of bgAccent. Lighter and less saturated.
   private get bgAccentSubtle() {
     const color = this.seedColor.clone();
 
+    // If lightness is lower than minimal for subtle, set it to minimum
     if (this.seedLightness < 0.94) {
       color.oklch.l = 0.94;
     }
 
+    // Colder seeds require a bit more chroma to not seem completely washed out
     if (this.seedChroma > 0.09 && this.seedIsCold) {
       color.oklch.c = 0.09;
     }
@@ -254,13 +273,16 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Positive background, green.
   private get bgPositive() {
     const color = this.bgAccent.clone();
 
+    // Set reference positive
     color.oklch.l = 0.62;
     color.oklch.c = 0.19;
     color.oklch.h = 145;
 
+    // If the seed color is also green, adjust positive by hue to make it distinct from accent.
     if (this.seedIsGreen && this.seedColor.oklch.c > 0.11) {
       if (this.seedColor.oklch.h < 145) {
         color.oklch.h = 155;
@@ -317,13 +339,16 @@ export class LightModeTheme implements ColorModeTheme {
     return "#fff1d1";
   }
 
+  // Negative background, red.
   private get bgNegative() {
     const color = this.seedColor.clone();
 
+    // Set reference
     color.oklch.l = 0.55;
     color.oklch.c = 0.22;
     color.oklch.h = 27;
 
+    // If seed is red adjust negative by hue to make it distinct
     if (this.seedIsRed && this.seedColor.oklch.c > 0.12) {
       if (this.seedColor.oklch.h < 27) {
         color.oklch.h = 34;
@@ -387,9 +412,13 @@ export class LightModeTheme implements ColorModeTheme {
   /*
    * Foreground colors
    */
+  // Main application foreground color.
+  // Applies to static text and similar. In light mode it is extremely dark (and therefore desatured) shade of user-set seed color.
+  // This ensures harmonious combination with main accents and neutrals.
   private get fg() {
     const color = this.seedColor.clone();
 
+    // If seed color didn't have substantial amount of chroma make sure fg is achromatic.
     if (this.seedIsAchromatic) {
       color.oklch.l = 0.12;
       color.oklch.c = 0;
@@ -401,9 +430,11 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Accent foreground/content color.
   private get fgAccent() {
     const color = this.seedColor.clone();
 
+    // For dark content on light background APCA contrast is positive. 60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” If we fail to reach this contrast level we most likely have too high lightness, so we set fgAccent lightness and chroma to ones that reach the threshold universally irregardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 60) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.45;
@@ -423,6 +454,7 @@ export class LightModeTheme implements ColorModeTheme {
     return this.bdNeutral.clone();
   }
 
+  // Positive foreground is produced from the initially adjusted background color (see above). We apply some additional tweaks to make sure it's distinct from fgAccent when seed is green.
   private get fgPositive() {
     const color = this.bgPositive.clone();
 
@@ -443,6 +475,7 @@ export class LightModeTheme implements ColorModeTheme {
     return "#facc15";
   }
 
+  // Negative foreground is produced from the initially adjusted background color (see above). We apply some additional tweaks to make sure it's distinct from fgAccent when seed is red.
   private get fgNegative() {
     const color = this.bgNegative.clone();
 
@@ -463,6 +496,7 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Foreground for content on top of bgAccent
   private get fgOnAccent() {
     const tint = this.seedColor.clone();
     const shade = this.seedColor.clone();
@@ -472,9 +506,11 @@ export class LightModeTheme implements ColorModeTheme {
       shade.oklch.c = 0;
     }
 
+    // We produce both light and dark variants of the seed
     tint.oklch.l = 0.96;
     shade.oklch.l = 0.23;
 
+    // We check which of them has better contrast with bgAccent
     if (
       -this.bgAccent.contrastAPCA(tint) >= this.bgAccent.contrastAPCA(shade)
     ) {
@@ -507,9 +543,11 @@ export class LightModeTheme implements ColorModeTheme {
   /*
    * Border colors
    */
+  // Accent border color
   private get bdAccent() {
     const color = this.seedColor.clone();
 
+    // For dark content on light background APCA contrast is positive. 15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. 25 is used as the required minimum instead. If we fail to reach this contrast level we most likely have too high lightness, so we set fgAccent lightness and chroma to ones that reach the threshold universally irregardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 25) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.3;
@@ -525,11 +563,13 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Keyboard focus outline. Opposite complimentary hue to the seed.
   private get bdFocus() {
     const color = this.seedColor.clone();
 
     color.oklch.h = this.seedHue - 180;
 
+    // Set maximum lightness
     if (this.seedLightness > 0.7) {
       color.oklch.l = 0.7;
     }
@@ -537,6 +577,7 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Negative (red) border. Produced out of bgNegative. Additional compensations are applied if seed is within red range.
   private get bdNegative() {
     const color = this.bgNegative.clone();
 
@@ -585,6 +626,7 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Neutral (gray) border. Desatured version of the seed for harmonious combination with backgrounds and accents.
   private get bdNeutral() {
     const color = this.bdAccent.clone();
 
@@ -623,6 +665,7 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Positive (green) border. Additional compensations are applied if seed is withing green range.
   private get bdPositive() {
     const color = this.bgPositive.clone();
 
