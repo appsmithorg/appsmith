@@ -12,7 +12,7 @@ import {
 } from "components/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WIDGET_PADDING, type WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import React from "react";
@@ -464,21 +464,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
-        maxWidth={
-          this.props.maxWidth
-            ? this.props.maxWidth - WIDGET_PADDING * 2
-            : undefined
-        }
-        minHeight={
-          this.props.minHeight
-            ? this.props.minHeight - WIDGET_PADDING * 2
-            : undefined
-        }
-        minWidth={
-          this.props.minWidth
-            ? this.props.minWidth - WIDGET_PADDING * 2
-            : undefined
-        }
+        maxWidth={this.props.maxWidth}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}

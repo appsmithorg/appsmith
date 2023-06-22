@@ -10,10 +10,7 @@ import UpIcon from "assets/icons/ads/up-arrow.svg";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import type { WidgetType } from "constants/WidgetConstants";
-import {
-  FILE_SIZE_LIMIT_FOR_BLOBS,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -837,21 +834,9 @@ class FilePickerWidget extends BaseWidget<
           isLoading={this.props.isLoading || this.state.isLoading}
           key={this.props.widgetId}
           label={this.props.label}
-          maxWidth={
-            this.props.maxWidth
-              ? this.props.maxWidth - WIDGET_PADDING * 2
-              : undefined
-          }
-          minHeight={
-            this.props.minHeight
-              ? this.props.minHeight - WIDGET_PADDING * 2
-              : undefined
-          }
-          minWidth={
-            this.props.minWidth
-              ? this.props.minWidth - WIDGET_PADDING * 2
-              : undefined
-          }
+          maxWidth={this.props.maxWidth}
+          minHeight={this.props.minHeight}
+          minWidth={this.props.minWidth}
           shouldFitContent={this.isAutoLayoutMode}
           uppy={this.state.uppy}
           widgetId={this.props.widgetId}

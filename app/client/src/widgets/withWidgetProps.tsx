@@ -8,6 +8,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
@@ -299,7 +300,21 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps,
         mainCanvasWidth,
       );
-      widgetProps = { ...widgetProps, ...minMaxDimensions };
+      widgetProps = {
+        ...widgetProps,
+        minWidth: minMaxDimensions.minWidth
+          ? minMaxDimensions.minWidth - 2 * WIDGET_PADDING
+          : undefined,
+        minHeight: minMaxDimensions.minHeight
+          ? minMaxDimensions.minHeight - 2 * WIDGET_PADDING
+          : undefined,
+        maxWidth: minMaxDimensions.maxWidth
+          ? minMaxDimensions.maxWidth - 2 * WIDGET_PADDING
+          : undefined,
+        maxHeight: minMaxDimensions.maxHeight
+          ? minMaxDimensions.maxHeight - 2 * WIDGET_PADDING
+          : undefined,
+      };
     }
 
     return <WrappedWidget {...widgetProps} />;

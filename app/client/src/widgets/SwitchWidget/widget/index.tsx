@@ -1,4 +1,4 @@
-import { WIDGET_PADDING, type WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -274,11 +274,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        minHeight={
-          this.props.minHeight
-            ? this.props.minHeight - WIDGET_PADDING * 2
-            : undefined
-        }
+        minHeight={this.props.minHeight}
         onChange={this.onChange}
         widgetId={this.props.widgetId}
       />

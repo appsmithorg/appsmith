@@ -159,7 +159,7 @@ export const CONFIG = {
           }
           return {
             minWidth: `${minWidth}px`,
-            minHeight: "32px",
+            minHeight: "40px",
           };
         },
       },

@@ -2,7 +2,7 @@ import type { IconName } from "@blueprintjs/icons";
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WIDGET_PADDING, type WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -243,16 +243,8 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
-        minHeight={
-          this.props.minHeight
-            ? this.props.minHeight - WIDGET_PADDING * 2
-            : undefined
-        }
-        minWidth={
-          this.props.minWidth
-            ? this.props.minWidth - WIDGET_PADDING * 2
-            : undefined
-        }
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.handleClick}
         renderMode={this.props.renderMode}
         tooltip={tooltip}

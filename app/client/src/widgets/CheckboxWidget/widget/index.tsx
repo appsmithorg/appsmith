@@ -1,6 +1,6 @@
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WIDGET_PADDING, type WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import React from "react";
@@ -332,11 +332,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        minHeight={
-          this.props.minHeight
-            ? this.props.minHeight - WIDGET_PADDING * 2
-            : undefined
-        }
+        minHeight={this.props.minHeight}
         onCheckChange={this.onCheckChange}
         widgetId={this.props.widgetId}
       />
