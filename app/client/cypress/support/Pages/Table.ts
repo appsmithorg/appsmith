@@ -608,12 +608,14 @@ export class Table {
     colIndex: number,
     newValue: "" | number | string,
     toSaveNewValue = false,
+    force = false,
   ) {
     this.agHelper.UpdateInputValue(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
       newValue.toString(),
+      force,
     );
     toSaveNewValue &&
       this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
