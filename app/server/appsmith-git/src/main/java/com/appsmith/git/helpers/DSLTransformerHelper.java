@@ -134,14 +134,13 @@ public class DSLTransformerHelper {
         List<String>  children =  pathMapping.get(getWidgetName(pathToWidget));
         JSONObject parentObject = jsonMap.get(pathToWidget + CommonConstants.JSON_EXTENSION);
         if (children != null) {
-            JSONArray childArray = parentObject.optJSONArray("children");
-            if (childArray == null) {
-                childArray = new JSONArray();
-            }
+            JSONArray childArray = new JSONArray();
             for (String childWidget : children) {
                 childArray.put(getChildren(childWidget, jsonMap, pathMapping));
             }
-            parentObject.put("children", childArray);
+            // Check if the parent object has type=CANVAS_WIDGET as children
+            // If yes, then add the children array to the CANVAS_WIDGET's children
+            appendChildren(parentObject, childArray);
         }
 
         return parentObject;
@@ -150,5 +149,23 @@ public class DSLTransformerHelper {
     public static String getWidgetName(String path) {
         String[] directories = path.split("/");
         return directories[directories.length - 1];
+    }
+
+    public static JSONObject appendChildren(JSONObject parent, JSONArray childWidgets) {
+        JSONArray children = parent.optJSONArray(CommonConstants.CHILDREN);
+        if (children == null) {
+            parent.put(CommonConstants.CHILDREN, childWidgets);
+        } else {
+            // Is the children CANVAS_WIDGET
+            if (children.length() == 1) {
+                JSONObject childObject = children.getJSONObject(0);
+                if (CommonConstants.CANVAS_WIDGET.equals(childObject.optString(CommonConstants.WIDGET_TYPE))) {
+                    childObject.put(CommonConstants.CHILDREN, childWidgets);
+                }
+            } else {
+                parent.put(CommonConstants.CHILDREN, childWidgets);
+            }
+        }
+        return parent;
     }
 }
