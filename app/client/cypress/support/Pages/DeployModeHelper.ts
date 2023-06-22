@@ -33,6 +33,7 @@ export class DeployMode {
     addDebugFlag = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
+
     // Wait before publish
     this.agHelper.Sleep(3000); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();

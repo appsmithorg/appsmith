@@ -513,6 +513,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
     this.agHelper.ClickButton("Fork");
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   public DeleteApplication(appliName: string) {
