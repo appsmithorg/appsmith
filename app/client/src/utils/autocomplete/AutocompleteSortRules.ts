@@ -35,7 +35,7 @@ export class NestedPropertyInsideLiteralRule implements AutocompleteRule {
     const { token } = entityInfo;
     const score = 0;
     if (!token) return score;
-    const lexical = token.state.lexical;
+    const lexical = token?.state?.lexical;
     if (!lexical) return score;
     if (lexical.type === "]" && completion.text.split(".").length > 1) {
       return -Infinity;
