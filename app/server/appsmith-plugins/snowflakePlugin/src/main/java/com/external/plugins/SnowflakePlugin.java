@@ -40,8 +40,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import static com.appsmith.external.constants.PluginConstants.PluginName.SNOWFLAKE_PLUGIN_NAME;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
+import static com.external.utils.SnowflakeDatasourceUtils.getConnectionFromHikariConnectionPool;
 import static com.external.utils.ValidationUtils.validateWarehouseDatabaseSchema;
 
 @Slf4j
@@ -83,6 +83,11 @@ public class SnowflakePlugin extends BasePlugin {
                         Connection connectionFromPool;
 
                         try {
+                            /**
+                             * The getConnectionFromHikariConnectionPool method used here is the duplicate of
+                             * method defined in PluginUtils.java and not the same one. Please check the comment on
+                             * the method definition to understand more.
+                             */
                             connectionFromPool = getConnectionFromHikariConnectionPool(connection,
                                     SNOWFLAKE_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
@@ -276,6 +281,11 @@ public class SnowflakePlugin extends BasePlugin {
 
                         Connection connectionFromPool;
                         try {
+                            /**
+                             * The getConnectionFromHikariConnectionPool method used here is the duplicate of
+                             * method defined in PluginUtils.java and not the same one. Please check the comment on
+                             * the method definition to understand more.
+                             */
                             connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool,
                                     SNOWFLAKE_PLUGIN_NAME);
                             return Mono.just(validateWarehouseDatabaseSchema(connectionFromPool));
@@ -315,6 +325,11 @@ public class SnowflakePlugin extends BasePlugin {
 
                         Connection connectionFromPool;
                         try {
+                            /**
+                             * The getConnectionFromHikariConnectionPool method used here is the duplicate of
+                             * method defined in PluginUtils.java and not the same one. Please check the comment on
+                             * the method definition to understand more.
+                             */
                             connectionFromPool = getConnectionFromHikariConnectionPool(connection, SNOWFLAKE_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari

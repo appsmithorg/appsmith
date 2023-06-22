@@ -27,6 +27,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
+            <scope>provided</scope>
             <version>5.0.1</version>
             <exclusions>
                 <exclusion>
@@ -39,6 +40,7 @@
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>21.9.0.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test Dependencies -->

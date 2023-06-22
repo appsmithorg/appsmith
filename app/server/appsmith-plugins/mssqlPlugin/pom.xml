@@ -21,13 +21,15 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>11.2.1.jre17</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
+            <scope>provided</scope>
             <version>5.0.1</version>
-            <scope>compile</scope>
+<!--            <scope>compile</scope>-->
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
