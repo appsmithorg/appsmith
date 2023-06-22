@@ -29,12 +29,6 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
     steps:
-    - name: View github event
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: |
-        echo "Issue body Github context"
-        #echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
@@ -50,10 +44,12 @@ jobs:
 
   server-build:
     name: server-build
+    needs: [changeset]
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      skip-tests: ${{ needs.changeset.outputs.backend == 'false' }}
 
   client-build:
     name: client-build
