@@ -26,6 +26,9 @@ import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -156,6 +159,7 @@ public class GitFileUtils {
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
         Map<String, String> resourceMapBody = new HashMap<>();
+        Map<String, String> dslBody = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
@@ -168,12 +172,17 @@ public class GitFileUtils {
                             ? newPage.getUnpublishedPage().getName()
                             : newPage.getPublishedPage().getName();
                     removeUnwantedFieldsFromPage(newPage);
+                    JSONObject dsl = newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
+                    newPage.getUnpublishedPage().getLayouts().get(0).setDsl(null);
                     // pageName will be used for naming the json file
+                    dslBody.put(pageName, dsl.toString());
                     resourceMap.put(pageName, newPage);
                 });
 
         applicationReference.setPages(new HashMap<>(resourceMap));
+        applicationReference.setPageDsl(new HashMap<>(dslBody));
         resourceMap.clear();
+        resourceMapBody.clear();
 
         // Insert active actions and also assign the keys which later will be used for saving the resource in actual filepath
         // For actions, we are referring to validNames to maintain unique file names as just name
@@ -403,6 +412,19 @@ public class GitFileUtils {
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
         // Remove null values
         org.apache.commons.collections.CollectionUtils.filter(pages, PredicateUtils.notNullPredicate());
+        // Set the DSL to page object before saving
+        Map<String, String> pageDsl = applicationReference.getPageDsl();
+        pages.forEach(page -> {
+            JSONParser jsonParser = new JSONParser();
+            try {
+                if (pageDsl != null && pageDsl.get(page.getUnpublishedPage().getName()) != null) {
+                    page.getUnpublishedPage().getLayouts().get(0).setDsl(  (JSONObject) jsonParser.parse(pageDsl.get(page.getUnpublishedPage().getName())) );
+                }
+            } catch (ParseException e) {
+                log.error("Error parsing the page dsl for page: {}", page.getUnpublishedPage().getName(), e);
+                throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, page.getUnpublishedPage().getName());
+            }
+        });
         pages.forEach(newPage -> {
             // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO
             // will be same, so we create a deep copy for the published version for page from the unpublishedPageDTO
@@ -426,7 +448,7 @@ public class GitFileUtils {
                     // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need to be
                     // deserialized separately unlike the body which is stored as string in the db.
                     if (newAction.getPluginType().toString().equals("REMOTE")) {
-                        Map<String, Object> formData = new Gson().fromJson(actionBody.get(keyName), Map.class);
+                        Map<String, Object> formData = gson.fromJson(actionBody.get(keyName), Map.class);
                         newAction.getUnpublishedAction().getActionConfiguration().setFormData(formData);
                     } else {
                         newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
