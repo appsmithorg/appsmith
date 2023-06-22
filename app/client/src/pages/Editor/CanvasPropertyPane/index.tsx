@@ -13,6 +13,7 @@ import {
   isAutoLayoutEnabled,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -24,6 +25,7 @@ export function CanvasPropertyPane() {
   const dispatch = useDispatch();
 
   const openAppSettingsPane = () => {
+    AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
     dispatch(openAppSettingsPaneAction());
   };
   const isAutoLayoutFeatureEnabled = useSelector(isAutoLayoutEnabled);

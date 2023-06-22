@@ -42,6 +42,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.ExecutionTimeLogging;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -142,6 +143,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final ActionPermission actionPermission;
     private final WorkspaceService workspaceService;
     private final RedisUtils redisUtils;
+    private final ExecutionTimeLogging executionTimeLogging;
 
     private final static Duration RETRY_DELAY = Duration.ofSeconds(1);
     private final static Integer MAX_RETRIES = 20;
@@ -386,11 +388,11 @@ public class GitServiceCEImpl implements GitServiceCE {
             isSystemGeneratedTemp = true;
         }
 
-        Mono<UserData> currentUserMono = userDataService.getForCurrentUser()
+        Mono<UserData> currentUserMono = executionTimeLogging.measureTask("getForCurrentUser", userDataService.getForCurrentUser())
                 .flatMap(userData -> {
                     if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles()) || userData.getGitProfileByKey(DEFAULT) == null) {
-                        return sessionUserService
-                                .getCurrentUser()
+                        return executionTimeLogging.measureTask("getCurrentUser", sessionUserService
+                                .getCurrentUser())
                                 .flatMap(user -> {
                                     GitProfile gitProfile = new GitProfile();
                                     gitProfile.setAuthorName(StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername().split("@")[0] : user.getName());
@@ -403,18 +405,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     }
 
                                     userData.setGitProfiles(updateProfiles);
-                                    return userDataService.updateForCurrentUser(userData);
+                                    return executionTimeLogging.measureTask("updateForCurrentUser", userDataService.updateForCurrentUser(userData));
                                 });
                     }
                     return Mono.just(userData);
                 });
 
         boolean isSystemGenerated = isSystemGeneratedTemp;
-        Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
+        Mono<String> commitMono = executionTimeLogging.measureTask("getApplicationById", this.getApplicationById(defaultApplicationId))
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if (Boolean.TRUE.equals(isFileLock)) {
-                        return addFileLock(gitData.getDefaultApplicationId())
+                    if(Boolean.TRUE.equals(isFileLock)) {
+                        return executionTimeLogging.measureTask("addFileLock", addFileLock(gitData.getDefaultApplicationId()))
                                 .then(Mono.just(application));
                     }
                     return Mono.just(application);
@@ -433,9 +435,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate()) || isPrivate.equals(Boolean.TRUE)) {
                                     defaultGitMetadata.setIsRepoPrivate(isPrivate);
                                     defaultApplication.setGitApplicationMetadata(defaultGitMetadata);
-                                    return applicationService.save(defaultApplication)
+                                    return executionTimeLogging.measureTask("applicationService.save", applicationService.save(defaultApplication))
                                             // Check if the private repo count is less than the allowed repo count
-                                            .flatMap(application -> isRepoLimitReached(workspaceId, false))
+                                            .flatMap(application -> executionTimeLogging.measureTask("isRepoLimitReached", isRepoLimitReached(workspaceId, false)))
                                             .flatMap(isRepoLimitReached -> {
                                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                                     return Mono.just(defaultApplication);
@@ -447,8 +449,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
                             });
                 })
-                .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission()))
-                .flatMap(branchedApplication -> {
+                .then(executionTimeLogging.measureTask("findByBranchNameAndDefaultApplicationId", applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())))
+                .flatMap((branchedApplication) -> {
                     GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
                     if (gitApplicationMetadata == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
@@ -466,8 +468,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity));
                     }
                     return Mono.zip(
-                            importExportApplicationService
-                                    .exportApplicationById(branchedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
+                            executionTimeLogging.measureTask("exportApplicationById", importExportApplicationService
+                                    .exportApplicationById(branchedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)),
                             Mono.just(branchedApplication)
                     );
                 })
@@ -480,12 +482,12 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     Mono<Path> repoPathMono;
                     try {
-                        repoPathMono = fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName());
+                        repoPathMono = executionTimeLogging.measureTask("saveApplicationToLocalRepo", fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName()));
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(e);
                     }
                     gitData.setLastCommittedAt(Instant.now());
-                    Mono<Application> branchedApplicationMono = updateGitMetadata(childApplication.getId(), gitData);
+                    Mono<Application> branchedApplicationMono = executionTimeLogging.measureTask("updateGitMetadata", updateGitMetadata(childApplication.getId(), gitData));
                     return Mono.zip(
                             repoPathMono,
                             currentUserMono,
@@ -533,8 +535,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, errorMessage)));
                     }
                     result.append("Commit Result : ");
-                    Mono<String> gitCommitMono = gitExecutor
-                            .commitApplication(baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail(), false, doAmend)
+                    Mono<String> gitCommitMono = executionTimeLogging.measureTask("commitApplication", gitExecutor
+                            .commitApplication(baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail(), false, doAmend))
                             .onErrorResume(error -> {
                                 if (error instanceof EmptyCommitException) {
                                     return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
@@ -559,7 +561,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
                         // Push flow
                         result.append(".\nPush Result : ");
-                        return pushApplication(childApplication.getId(), false)
+                        return executionTimeLogging.measureTask("pushApplication", pushApplication(childApplication.getId(), false))
                                 .map(pushResult -> result.append(pushResult).toString())
                                 .zipWith(Mono.just(childApplication));
                     }
@@ -568,7 +570,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     Application childApplication = tuple.getT2();
                     String status = tuple.getT1();
-                    return Mono.zip(Mono.just(status), publishAndOrGetApplication(childApplication.getId(), commitDTO.getDoPush()));
+                    return Mono.zip(Mono.just(status), executionTimeLogging.measureTask("publishAndOrGetApplication", publishAndOrGetApplication(childApplication.getId(), commitDTO.getDoPush())));
                 })
                 // Add BE analytics
                 .flatMap(tuple -> {
@@ -581,11 +583,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                     update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
                     update.setIsManualUpdate(false);
 
-                    return applicationService.update(childApplication.getId(), update)
+                    return executionTimeLogging.measureTask("applicationService.update", applicationService.update(childApplication.getId(), update))
                             // Release the file lock on git repo
                             .flatMap(application -> {
-                                if (Boolean.TRUE.equals(isFileLock)) {
-                                    return releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId());
+                                if(Boolean.TRUE.equals(isFileLock)) {
+                                    return executionTimeLogging.measureTask("releaseFileLock", releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId()));
                                 }
                                 return Mono.just(application);
                             })
@@ -601,7 +603,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
 
         return Mono.create(sink -> {
-            commitMono.subscribe(sink::success, sink::error, null, sink.currentContext());
+            commitMono.map(t -> {
+                log.debug("Time take, {}\n", executionTimeLogging.print());
+                return t;
+            }).subscribe(sink::success, sink::error, null, sink.currentContext());
         });
     }
 

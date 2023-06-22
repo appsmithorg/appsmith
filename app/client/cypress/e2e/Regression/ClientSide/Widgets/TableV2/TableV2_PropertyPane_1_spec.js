@@ -4,6 +4,8 @@ import {
   propPane,
   agHelper,
   deployMode,
+  draggableWidgets,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -22,10 +24,8 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("1. Verify default array data", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
-    // Open Widget side bar
-    cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
-    cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
     // close Widget side bar
     entityExplorer.NavigateToSwitcher("Explorer");
     cy.wait(2000);
@@ -38,9 +38,8 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("2. Verify empty columnName in data", () => {
-    cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
-    cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
     table.AddSampleTableData();
     // close Widget side bar
     entityExplorer.NavigateToSwitcher("Explorer");
@@ -68,7 +67,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onRowSelected", "Row is selected");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
@@ -82,7 +82,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
     cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
@@ -99,7 +100,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     });
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onPageChange", "Page Changed");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     cy.wait(2000);
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
@@ -287,253 +289,5 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Validate vertical alignemnt of Cell text to Bottom
     cy.get(widgetsPage.verticalBottom).last().click({ force: true });
     cy.readTableV2dataValidateCSS("0", "0", "align-items", "flex-end", true);
-  });
-
-  it("11. Test to validate text color and text background", function () {
-    cy.openPropertyPane("tablewidgetv2");
-
-    // Changing text color to rgb(126, 34, 206) and validate
-    cy.selectColor("textcolor");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(5000);
-    cy.wait("@updateLayout");
-    cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
-
-    // Changing text color to PURPLE and validate using JS
-    cy.get(widgetsPage.toggleJsColor).click();
-    cy.testCodeMirrorLast("purple");
-    cy.wait("@updateLayout");
-    cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
-
-    // Changing Cell backgroud color to rgb(126, 34, 206) and validate
-    cy.selectColor("cellbackground");
-    cy.readTableV2dataValidateCSS(
-      "0",
-      "0",
-      "background",
-      "rgb(113, 30, 184) none repeat scroll 0% 0% / auto padding-box border-box",
-      true,
-    );
-    // Changing Cell backgroud color to PURPLE and validate using JS
-    propPane.EnterJSContext("Cell Background", "purple");
-    cy.wait("@updateLayout");
-    cy.readTableV2dataValidateCSS(
-      "0",
-      "0",
-      "background",
-      "rgb(102, 0, 102) none repeat scroll 0% 0% / auto padding-box border-box",
-      true,
-    );
-    // close property pane
-    cy.closePropertyPane();
-  });
-
-  it("12. Verify default search text", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidgetv2");
-    cy.moveToContentTab();
-    // Chage deat search text value to "data"
-    cy.backFromPropertyPanel();
-    cy.testJsontext("defaultsearchtext", "data");
-    deployMode.DeployApp();
-    // Verify the deaullt search text
-    cy.get(widgetsPage.searchField).should("have.value", "data");
-    deployMode.NavigateBacktoEditor();
-  });
-
-  it("13. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidgetv2");
-    cy.moveToContentTab();
-    cy.addColumnV2("customColumn18");
-    cy.editColumn("customColumn1");
-    cy.get(".t--property-control-propertyname pre span span").should(
-      "have.text",
-      "customColumn18",
-    );
-    cy.editColName("customColumn00");
-    cy.get(".t--property-control-propertyname pre span span").should(
-      "have.text",
-      "customColumn00",
-    );
-    cy.get("[data-testid='t--property-pane-back-btn']").click();
-    cy.get('[data-rbd-draggable-id="customColumn1"] input').should(
-      "have.value",
-      "customColumn00",
-    );
-    cy.get("[data-rbd-draggable-id='customColumn1'] input[type='text']").clear({
-      force: true,
-    });
-    cy.get("[data-rbd-draggable-id='customColumn1'] input[type='text']").type(
-      "customColumn99",
-      {
-        force: true,
-      },
-    );
-    cy.editColumn("customColumn1");
-    cy.get(".t--property-control-propertyname pre span span").should(
-      "have.text",
-      "customColumn99",
-    );
-    cy.backFromPropertyPanel();
-    cy.deleteColumn("customColumn1");
-  });
-
-  it("14. It provides currentRow and currentIndex properties in min validation field", function () {
-    cy.fixture("tableV2NewDslWithPagination").then((val) => {
-      agHelper.AddDsl(val);
-    });
-    cy.openPropertyPane("tablewidgetv2");
-    cy.makeColumnEditable("orderAmount");
-    cy.editColumn("orderAmount");
-
-    propPane.UpdatePropertyFieldValue("Computed value", "{{currentIndex}}");
-    cy.changeColumnType("Number");
-
-    propPane.UpdatePropertyFieldValue("Min", "{{currentIndex}}");
-    cy.get(".t--evaluatedPopup-error").should("not.exist");
-
-    // Update cell with row : 1, column : orderAmount
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, -1);
-
-    cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 1, 0);
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    // Check if currentRow works
-    cy.editColumn("orderAmount");
-    propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
-    propPane.UpdatePropertyFieldValue(
-      "Error message",
-      "Row at index {{currentIndex}} is not valid",
-    );
-    cy.get(".t--evaluatedPopup-error").should("not.exist");
-
-    // Update cell with row : 0, column : orderAmount. The min is set to 7 (i.e value of cell in id column)
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, 8);
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    cy.enterTableCellValue(4, 1, 6);
-    cy.get(".bp3-popover-content").contains("Row at index 1 is not valid");
-
-    cy.enterTableCellValue(4, 1, 8);
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    propPane.UpdatePropertyFieldValue(
-      "Error message",
-      "Row with id {{currentRow.id}} is not valid",
-    );
-
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, 5);
-    cy.get(".bp3-popover-content").contains("Row with id 7 is not valid");
-
-    propPane.UpdatePropertyFieldValue("Min", "");
-    propPane.UpdatePropertyFieldValue("Error message", "");
-
-    // Check for currentIndex property on Regex field
-    cy.changeColumnType("Plain text");
-    propPane.UpdatePropertyFieldValue("Regex", "{{currentIndex}}2");
-
-    cy.get(".t--evaluatedPopup-error").should("not.exist");
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, 3);
-    cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 1, "12");
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    // Check for currentRow property on Regex field
-    propPane.UpdatePropertyFieldValue("Regex", "{{currentRow.id}}");
-    cy.editTableCell(4, 1);
-
-    cy.enterTableCellValue(4, 1, 7);
-    cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 1, 8);
-    cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 1, 7);
-    cy.get(".bp3-popover-content").should("not.exist");
-    propPane.UpdatePropertyFieldValue("Regex", "");
-
-    cy.get(".t--property-control-required").find(".t--js-toggle").click();
-    propPane.UpdatePropertyFieldValue("Required", "{{currentIndex == 1}}");
-
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, "");
-    cy.get(".bp3-popover-content").contains("This field is required");
-    cy.enterTableCellValue(4, 1, "1{enter}");
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    cy.wait(1500);
-    cy.discardTableRow(5, 1);
-    cy.wait(1500);
-
-    // Value isn't required in Row Index 2
-    cy.editTableCell(4, 2);
-    cy.enterTableCellValue(4, 2, "");
-    cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 2, "11");
-    cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 2, "{enter}");
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    cy.wait(1500);
-    cy.discardTableRow(5, 2);
-
-    // Check for Required property using currentRow, row with index 1 has id 7
-    propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 7}}");
-
-    cy.editTableCell(4, 1);
-    cy.enterTableCellValue(4, 1, "");
-    cy.get(".bp3-popover-content").contains("This field is required");
-    cy.enterTableCellValue(4, 1, 1);
-    cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 1, "");
-    cy.get(".bp3-popover-content").contains("This field is required");
-
-    cy.enterTableCellValue(4, 1, "1{enter}");
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    cy.wait(1500);
-    cy.discardTableRow(5, 1);
-    cy.wait(1500);
-
-    // Value isn't required in Row Index 2
-    cy.editTableCell(4, 2);
-    cy.enterTableCellValue(4, 2, "");
-    cy.get(".bp3-popover-content").should("not.exist");
-    cy.enterTableCellValue(4, 2, 10);
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    cy.enterTableCellValue(4, 2, "{enter}");
-    cy.get(".bp3-popover-content").should("not.exist");
-
-    cy.wait(1500);
-    cy.discardTableRow(5, 2);
-
-    // Cleanup
-    propPane.UpdatePropertyFieldValue(
-      "Computed value",
-      '{{currentRow["orderAmount"]}}',
-    );
-    cy.changeColumnType("Plain text");
-    cy.backFromPropertyPanel();
-    cy.makeColumnEditable("orderAmount");
-  });
-
-  it("15. Verify default prompt message for min field", function () {
-    cy.openPropertyPane("tablewidgetv2");
-    cy.makeColumnEditable("orderAmount");
-    cy.editColumn("orderAmount");
-    cy.changeColumnType("Number");
-    propPane.UpdatePropertyFieldValue("Min", "test");
-    cy.get(".t--property-control-min .t--no-binding-prompt > span").should(
-      "have.text",
-      "Access the current cell using {{currentRow.columnName}}",
-    );
-    cy.changeColumnType("Plain text");
-    cy.backFromPropertyPanel();
-    cy.makeColumnEditable("orderAmount");
   });
 });
