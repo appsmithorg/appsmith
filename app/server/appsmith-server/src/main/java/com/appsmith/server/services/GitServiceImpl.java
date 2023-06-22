@@ -8,6 +8,7 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.ExecutionTimeLogging;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
@@ -47,13 +48,14 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           PagePermission pagePermission,
                           ActionPermission actionPermission,
                           WorkspaceService workspaceService,
-                          RedisUtils redisUtils) {
+                          RedisUtils redisUtils,
+                          ExecutionTimeLogging executionTimeLogging) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
                 datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
-                actionPermission, workspaceService, redisUtils);
+                actionPermission, workspaceService, redisUtils, executionTimeLogging);
     }
 
 }

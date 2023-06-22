@@ -37,6 +37,14 @@ export class DataSources {
   private hp = ObjectsRegistry.DefaultHostPort;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
+  public ContainerKVP = (containerName: string) => {
+    return {
+      MsSql: this.hp.mssql_docker(containerName),
+      Arango: this.hp.arango_docker(containerName),
+      Elasticsearch: this.hp.elastic_docker(containerName),
+    };
+  }; //Container KeyValuePair
+
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
@@ -221,6 +229,8 @@ export class DataSources {
     "[data-testid='t--where-clause-delete-[" + index + "]']";
 
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
+  private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
+  private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -437,6 +447,8 @@ export class DataSources {
     cy.get(this._password).type(
       password == "" ? this.hp.postgres_username : password,
     );
+    this.ExpandSectionByName("SSL (optional)");
+    this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
   public FillOracleDSForm(
@@ -567,7 +579,6 @@ export class DataSources {
 
   public FillElasticSearchDSForm() {
     this.agHelper.UpdateInputValue(this._host, this.hp.elastic_host);
-
     this.agHelper.UpdateInputValue(this._port, this.hp.elastic_port.toString());
     this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.elastic_username);
@@ -830,12 +841,23 @@ export class DataSources {
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
-    cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
-    cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dsName),
+    );
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dbName),
+    );
+
+    //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
+    this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
+    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
-    cy.get(this._saveDs).click();
+    this.agHelper.GetNClick(this._saveDs);
+    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   RunQuery({
@@ -1340,6 +1362,66 @@ export class DataSources {
       propFieldName: "",
       directInput: false,
       inputFieldName: fieldLabel,
+    });
+  }
+
+  public StopNDeleteContainer(containerName: string) {
+    // Stop the container
+    cy.exec(`docker stop ${containerName}`).then((stopResult) => {
+      cy.log("Output from stopping container:" + stopResult.stdout);
+      cy.log("Error from stopping container:" + stopResult.stderr);
+
+      // Delete the container
+      cy.exec(`docker rm ${containerName}`).then((deleteResult) => {
+        cy.log("Output from deleting container:" + deleteResult.stdout);
+        cy.log("Error from deleting container:" + deleteResult.stderr);
+      });
+    });
+  }
+
+  public IsContainerReady(containerName: string) {
+    return cy
+      .exec(`docker inspect -f '{{.State.Status}}' ${containerName}`)
+      .then((result) => {
+        const containerStatus = result.stdout.trim();
+        return containerStatus === "running";
+      });
+  }
+
+  public StartContainerNVerify(
+    containerType: "MsSql" | "Arango" | "Elasticsearch",
+    containerName: string,
+    sleepTime = 30000,
+  ) {
+    let containerCommand = "";
+    switch (containerType) {
+      case "MsSql":
+        containerCommand = this.ContainerKVP(containerName).MsSql;
+        break;
+      case "Arango":
+        containerCommand = this.ContainerKVP(containerName).Arango;
+        break;
+      case "Elasticsearch":
+        containerCommand = this.ContainerKVP(containerName).Elasticsearch;
+        break;
+      default:
+        break;
+    }
+    cy.exec(containerCommand).then((result) => {
+      // Wait for the container to be ready
+      cy.waitUntil(() => this.IsContainerReady(containerName), {
+        interval: 5000,
+        timeout: 60000,
+      }).then((isReady) => {
+        if (isReady) {
+          cy.log("Run id of started container is:" + result.stdout);
+          this.agHelper.Sleep(sleepTime); //allow some time for container to settle start for CI
+        } else
+          cy.log(
+            `Error from ${containerName} container start action:` +
+              result.stderr,
+          ); // Container did not start properly within the timeout
+      });
     });
   }
 }
