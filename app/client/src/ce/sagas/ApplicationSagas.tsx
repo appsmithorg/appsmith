@@ -851,6 +851,8 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
+  // Added isEmpty instead of ! condition as ! does not account for
+  // datasourceConfiguration being empty
   if (isEmpty(datasource.datasourceConfiguration)) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
