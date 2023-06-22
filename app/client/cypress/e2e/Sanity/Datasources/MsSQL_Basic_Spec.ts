@@ -13,7 +13,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     containerName = "mssqldb";
 
   before("Create MsSql container & adding data into it", () => {
-    dataSources.StartContainerNVerify("MsSql", containerName, 20000);
+    dataSources.StartContainerNVerify("MsSql", containerName);
 
     dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
