@@ -20,7 +20,6 @@ import {
 } from "../getCodeMirrorNamespace";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { findIndex } from "lodash";
-import { isValidVariableName } from "./dataTreeTypeDefCreator";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -920,8 +919,7 @@ function dotToBracketNotationAtToken(token: CodeMirror.Token) {
     if (splitByDotOperator.length === 1) {
       const splitByBracketOperator = completion.split("[");
       if (splitByBracketOperator.length === 1) {
-        const isValidName = isValidVariableName(completion);
-        if (!isValidName) {
+        if (completion.includes(" ")) {
           completion = `["${completion}"]`;
           hints.from.ch -= 1;
         }
