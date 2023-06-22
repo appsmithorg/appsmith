@@ -313,6 +313,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
     table.WaitUntilTableLoad(0, 0, "v2"); //page 2 //newly inserted record would have pushed the existing record to next page!
+    table.SelectTableRow(0, 0, true, "v2");
     agHelper.AssertElementVisible(locator._jsonFormWidget); //JSON form should be present
 
     table.NavigateToPreviousPage(true, "v2");
@@ -331,7 +332,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Delete to reflect!
-    table.AssertSelectedRow(0); //Control going back to 1st row in table
+    table.SelectTableRow(0, 0, true, "v2"); //Control going back to 1st row in table
     table.ReadTableRowColumnData(0, 0, "v2", 200).then(($cellData) => {
       expect($cellData).not.eq("2105"); //Deleted record Store_ID
     });
