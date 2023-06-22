@@ -1127,6 +1127,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/tenants", (req) => {
     req.headers["origin"] = "Cypress";
   }).as("postTenant");
+  cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
