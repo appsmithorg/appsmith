@@ -27,6 +27,7 @@ jobs:
       id: filter
       with:
         base: ${{ '11a18d1d0895cae4a1b553ae2631db1d3dec80db' }}
+        ref: refs/pull/${{ 24718 }}/merge
         filters: |
           backend:
             - 'app/server/**'
