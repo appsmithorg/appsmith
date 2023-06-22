@@ -146,7 +146,6 @@ import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, unnestDSL } from "@shared/dsl";
-// import type { DSLWidget } from "widgets/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
