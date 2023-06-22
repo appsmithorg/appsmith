@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: "false"
+      check-test-files:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
 
   pull_request:
     branches: [release, master]
@@ -63,6 +68,7 @@ jobs:
 
       # get all the files changes in the cypress/e2e folder    
       - name: Get changed files in the cypress/e2e folder
+        if: inputs.check-test-files == 'true'
         id: files
         uses: tj-actions/changed-files@v36
         with:
@@ -71,6 +77,7 @@ jobs:
           
       # Check all the newly added files are in ts  
       - name: Check the newly added files are written in ts
+        if: inputs.check-test-files == 'true'
         id: check_files
         run: |
           files=(${{steps.files.outputs.added_files}})
@@ -85,7 +92,7 @@ jobs:
           
       # Comment in PR if test files are not written in ts and fail the workflow    
       - name: Comment in PR if test files are not written in ts
-        if: steps.check_files.outputs.non_ts_files_count != 0
+        if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true'
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
@@ -93,7 +100,7 @@ jobs:
             <b>Below new test files are written in js 🔴 </b>
             <b>Expected format ts. Please fix and retrigger ok-to-test:</b>
             <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
-      - if: steps.check_files.outputs.non_ts_files_count != 0
+      - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true'
         run: exit 1
 
       # Create a run record exactly at the time of merge to release to
