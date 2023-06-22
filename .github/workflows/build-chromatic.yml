@@ -43,7 +43,6 @@ jobs:
         if: always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: Test XYZ
+          name: Storybook Deplpy Preview
           conclusion: ${{ job.status }}
-          output: |
-            {"summary": "${{ steps.chromatic-publish.outputs.buildUrl }}" }
+          details_url: ${{ steps.chromatic-publish.outputs.buildUrl }}
