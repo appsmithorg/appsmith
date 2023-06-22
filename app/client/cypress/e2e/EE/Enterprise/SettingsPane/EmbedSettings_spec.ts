@@ -1,6 +1,12 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("In-app embed settings", () => {
+  beforeEach(() => {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlagsComplement.json",
+    }).as("featureFlags");
+  });
+
   function ValidateSnippetUrl(
     locator: string,
     selectedMethod: string,
