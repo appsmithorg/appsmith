@@ -26,7 +26,7 @@ jobs:
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 123
 
   rts-build:
     name: rts-build
