@@ -1,9 +1,11 @@
 package com.appsmith.server.configurations;
 
 
+import com.appsmith.server.authentication.converters.ApiKeyAuthenticationConverter;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
+import com.appsmith.server.authentication.managers.ApiKeyAuthenticationManager;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
@@ -11,21 +13,28 @@ import com.appsmith.server.filters.AirgapUnsupportedPathFilter;
 import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
+import org.springframework.security.authentication.ObservationReactiveAuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.authentication.ReactiveOidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -33,6 +42,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
@@ -43,10 +53,11 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
@@ -66,6 +77,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @EnableReactiveMethodSecurity
 @Configuration
 public class SecurityConfig {
+
+    private ReactiveAuthenticationManager reactiveAuthenticationManager;
 
     @Autowired
     private UserService userService;
@@ -103,6 +116,15 @@ public class SecurityConfig {
     @Value("${appsmith.oidc.jwt-signing-algo}")
     private String oidcJwtSigningAlgorithm;
 
+    @Autowired
+    private ReactiveUserDetailsService reactiveUserDetailsService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObservationRegistry observationRegistry;
+
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
@@ -128,14 +150,23 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ApiKeyAuthenticationManager apiKeyAuthenticationManager) {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
+                                                         ApiKeyAuthorisationManager apiKeyAuthorisationManager,
+                                                         ApiKeyAuthenticationConverter apiKeyAuthenticationConverter) {
         ServerAuthenticationEntryPointFailureHandler failureHandler = new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
+        ApiKeyAuthenticationManager apiKeyAuthenticationManager = new ApiKeyAuthenticationManager();
+        AuthenticationWebFilter apiKeyAuthenticationWebFilter = new AuthenticationWebFilter(apiKeyAuthenticationManager);
+        apiKeyAuthenticationWebFilter.setServerAuthenticationConverter(apiKeyAuthenticationConverter);
 
         return http
                 // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
                 .csrf().disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
                 .addFilterAfter(new AirgapUnsupportedPathFilter(airgapInstanceConfig), SecurityWebFiltersOrder.CSRF)
+                // Add a filter at the authentication step, which will convert the x-appsmith-key value to a valid principal
+                // which can be used for authorisation.
+                .addFilterAt(apiKeyAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .authenticationManager(authenticationManager())
                 .anonymous().principal(createAnonymousUser())
                 .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
@@ -147,7 +178,7 @@ public class SecurityConfig {
                 .authorizeExchange()
                 // Allow cloud-services to install a remote plugin
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, PLUGIN_URL + "/remote/install"))
-                .access(apiKeyAuthenticationManager)
+                .access(apiKeyAuthorisationManager)
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
@@ -191,12 +222,46 @@ public class SecurityConfig {
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler)
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
-
                 .logout()
                 .logoutUrl(Url.LOGOUT_URL)
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
+    }
+
+    /**
+     * This code has been partially duplicated from {@link org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfiguration}'s
+     * {@code authenticationManager()} method. This was done because creating a bean for {@link ApiKeyAuthenticationManager} was overriding the authentication manager
+     * being used by the {@link ServerHttpSecurity} bean. This lead to a break in the current authentication which are currently implemented.
+     *
+     * <ol>
+     *     Reactive Authentication Managers created:
+     *     <li>
+     *         An instance of {@link UserDetailsRepositoryReactiveAuthenticationManager} using beans for {@link ReactiveUserDetailsService},
+     *         {@link PasswordEncoder} and {@link ObservationRegistry}.
+     *     </li>
+     *     <li>
+     *         An instance of {@link ApiKeyAuthenticationManager}.
+     *     </li>
+     * </ol>
+     *
+     * @return Delegated list of Authentication Managers used for authentication and authorisation.
+     */
+    private ReactiveAuthenticationManager authenticationManager() {
+        List<ReactiveAuthenticationManager> reactiveAuthenticationManagers = new ArrayList<>();
+        if (this.reactiveUserDetailsService != null) {
+            UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
+            if (this.passwordEncoder != null) {
+                manager.setPasswordEncoder(this.passwordEncoder);
+            }
+            if (!this.observationRegistry.isNoop()) {
+                reactiveAuthenticationManagers.add(new ObservationReactiveAuthenticationManager(this.observationRegistry, manager));
+            } else {
+                reactiveAuthenticationManagers.add(manager);
+            }
+        }
+        reactiveAuthenticationManagers.add(new ApiKeyAuthenticationManager());
+        return new DelegatingReactiveAuthenticationManager(reactiveAuthenticationManagers);
     }
 
     /**

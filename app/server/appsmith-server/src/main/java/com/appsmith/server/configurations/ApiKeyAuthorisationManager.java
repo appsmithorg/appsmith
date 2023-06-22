@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Component
-public class ApiKeyAuthenticationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
+public class ApiKeyAuthorisationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
     private static final AuthorizationDecision UNAUTHORIZED = new AuthorizationDecision(false);
 
     @Value("${appsmith.remote.apikey}")
