@@ -81,6 +81,7 @@ export type SetterConfig = {
     [key: string]: {
       path: string;
       type: string;
+      disabled?: string;
     };
   };
 };

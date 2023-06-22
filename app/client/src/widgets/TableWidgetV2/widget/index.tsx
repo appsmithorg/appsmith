@@ -394,6 +394,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         setSelectedRowIndex: {
           path: "defaultSelectedRowIndex",
           type: "number",
+          disabled: "return options.entity.multiRowSelection",
+        },
+        setSelectedRowIndices: {
+          path: "defaultSelectedRowIndices",
+          type: "array",
+          disabled: "return !options.entity.multiRowSelection",
         },
         setData: {
           path: "tableData",

@@ -12,9 +12,12 @@ import { get, set } from "lodash";
 import { validate } from "./validations";
 import type {
   ConfigTree,
+  DataTree,
+  DataTreeEntity,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
+import { shouldAddSetter } from "./evaluate";
 
 class Setters {
   /** stores the setter accessor as key and true as value
@@ -143,6 +146,7 @@ class Setters {
   getEntitySettersFromConfig(
     entityConfig: DataTreeEntityConfig,
     entityName: string,
+    entity: DataTreeEntity,
   ) {
     const setterMethodMap: Record<string, any> = {};
     if (!entityConfig) return setterMethodMap;
@@ -150,6 +154,9 @@ class Setters {
     if (entityConfig.__setters) {
       for (const setterMethodName of Object.keys(entityConfig.__setters)) {
         const path = entityConfig.__setters[setterMethodName].path;
+
+        if (!shouldAddSetter(entityConfig.__setters[setterMethodName], entity))
+          continue;
 
         setterMethodMap[setterMethodName] = this.factory(
           path,
@@ -162,10 +169,12 @@ class Setters {
     return setterMethodMap;
   }
 
-  init(configTree: ConfigTree) {
+  init(configTree: ConfigTree, dataTree: DataTree) {
     const configTreeEntries = Object.entries(configTree);
     for (const [entityName, entityConfig] of configTreeEntries) {
-      this.getEntitySettersFromConfig(entityConfig, entityName);
+      const entity = dataTree[entityName];
+
+      this.getEntitySettersFromConfig(entityConfig, entityName, entity);
     }
   }
 }

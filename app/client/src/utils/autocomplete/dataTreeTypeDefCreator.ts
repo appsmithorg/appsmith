@@ -1,6 +1,7 @@
 import type {
   ConfigTree,
   DataTree,
+  DataTreeEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -22,6 +23,7 @@ export type ExtraDef = Record<string, Def | string>;
 import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
 import WidgetFactory from "utils/WidgetFactory";
+import { shouldAddSetter } from "workers/Evaluation/evaluate";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -61,7 +63,7 @@ export const dataTreeTypeDefCreator = (
           def[entityName] = autocompleteDefinitions;
         }
 
-        addSettersToDefinitions(def[entityName] as Def, entityConfig);
+        addSettersToDefinitions(def[entityName] as Def, entity, entityConfig);
 
         flattenDef(def, entityName);
 
@@ -232,17 +234,21 @@ export function generateJSFunctionTypeDef(
 
 export function addSettersToDefinitions(
   definitions: Def,
+  entity: DataTreeEntity,
   entityConfig?: WidgetEntityConfig,
 ) {
   if (entityConfig && entityConfig.__setters) {
     const setters = Object.keys(entityConfig.__setters);
 
     setters.forEach((setterName: string) => {
+      const setter = entityConfig.__setters?.[setterName];
       const setterType = entityConfig.__setters?.[setterName].type;
 
-      definitions[
-        setterName
-      ] = `fn(value:${setterType}) -> +Promise[:t=[!0.<i>.:t]]`;
+      if (shouldAddSetter(setter, entity)) {
+        definitions[
+          setterName
+        ] = `fn(value:${setterType}) -> +Promise[:t=[!0.<i>.:t]]`;
+      }
     });
   }
 }

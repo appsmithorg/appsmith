@@ -13,6 +13,7 @@ import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export type EvalResult = {
   result: any;
@@ -372,4 +373,14 @@ export function convertAllDataTypesToString(e: any) {
       Sentry.captureException(error);
     }
   }
+}
+
+export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
+  const isDisabledExpression = setter.disabled;
+
+  if (!isDisabledExpression) return true;
+
+  const isDisabledFn = new Function("options", isDisabledExpression);
+
+  return !isDisabledFn({ entity });
 }
