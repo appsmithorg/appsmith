@@ -587,7 +587,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    table.AssertSelectedRow(0); //Control going back to 1st row in table
+    table.SelectTableRow(0, 0, true, "v2"); //Control going back to 1st row in table
 
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).not.eq("159180"); //Deleted record Store_ID
