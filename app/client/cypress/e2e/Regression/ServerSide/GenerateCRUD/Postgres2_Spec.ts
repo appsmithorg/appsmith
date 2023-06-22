@@ -50,7 +50,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
    `;
 
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
+
     agHelper.RenameWithInPane("CreateVessels");
     dataSources.EnterQuery(tableCreateQuery);
     agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -619,7 +619,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("17. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     const deleteTblQuery = "DROP TABLE Vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
     agHelper.FocusElement(locators._codeMirrorTextArea);

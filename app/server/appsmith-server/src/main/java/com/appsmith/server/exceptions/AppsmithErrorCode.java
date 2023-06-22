@@ -35,6 +35,8 @@ public enum AppsmithErrorCode {
     NO_RESOURCE_FOUND("AE-APP-4027", "No resource found"),
     VALIDATION_FAILURE("AE-APP-4028", "Validation failure"),
     WORKSPACE_ID_NOT_GIVEN("AE-APP-4031", "Workspace id not given"),
+    INVALID_API_KEY("AE-APP-4032", "Invalid Api Key"),
+    API_KEY_ALREADY_EXISTS("AE-APP-4033", "Can't create a new API key. There already exists an API Key"),
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR("AE-APP-4038", "Remove last workspace admin error"),
     UNKNOWN_PLUGIN_REFERENCE("AE-APP-4052", "Unknown plugin reference"),
     INVALID_LICENSE_KEY_ENTERED("AE-APP-4053", "Invalid license key"),

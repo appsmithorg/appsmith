@@ -106,14 +106,6 @@ server {
     access_log  off;
   }
 
-  location ~ ^/app/[^/]+/[^/]+/edit\b {
-    try_files /edit.html /index.html =404;
-  }
-
-  location /app/ {
-    try_files /view.html /index.html =404;
-  }
-
   # If the path has an extension at the end, then respond with 404 status if the file not found.
   location ~ ^/(?!supervisor/|auth/).*\.[a-z]+$ {
     try_files \$uri =404;

@@ -184,6 +184,8 @@ public enum AppsmithError {
     UNKNOWN_SERVER_VARIABLE_TYPE(500, AppsmithErrorCode.UNKNOWN_SERVER_VARIABLE_TYPE.getCode(), "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, "Unexpected server variable type", ErrorType.INTERNAL_ERROR, null),
     MIGRATION_FAILED(500, AppsmithErrorCode.MIGRATION_FAILED.getCode(), "Migration {0} failed. Reason: {1}. Note: {2}", AppsmithErrorAction.DEFAULT, "Migration failed", ErrorType.INTERNAL_ERROR, null),
     APPSMITH_AI_ERROR(500, AppsmithErrorCode.APPSMITH_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Appsmith AI error", ErrorType.EE_FEATURE_ERROR, null),
+    INVALID_API_KEY(403, AppsmithErrorCode.INVALID_API_KEY.getCode(), "Invalid Api Key", AppsmithErrorAction.DEFAULT, "Invalid Api Key", ErrorType.AUTHENTICATION_ERROR, null),
+    API_KEY_ALREADY_EXISTS(403, AppsmithErrorCode.API_KEY_ALREADY_EXISTS.getCode(), "Can't create a new API key. There already exists an API Key", AppsmithErrorAction.DEFAULT, "Api Key already exists", ErrorType.AUTHENTICATION_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

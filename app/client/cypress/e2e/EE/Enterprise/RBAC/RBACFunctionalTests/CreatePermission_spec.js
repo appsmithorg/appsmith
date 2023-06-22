@@ -1,5 +1,4 @@
 import homePageLocators from "../../../../../locators/HomePage";
-import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
@@ -10,6 +9,7 @@ const omnibar = require("../../../../../locators/Omnibar.json");
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 
 import {
+  adminSettings,
   agHelper,
   dataSources,
   entityExplorer,
@@ -92,9 +92,8 @@ describe("Create Permission flow ", function () {
             "response.body.responseMeta.status",
             200,
           );
-
           cy.ClickGotIt();
-          agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+          adminSettings.NavigateToAdminSettings();
           cy.CreatePermissionWorkspaceLevel(
             PermissionWorkspaceLevel,
             workspaceName,
@@ -224,11 +223,7 @@ describe("Create Permission flow ", function () {
       cy.get(".rc-select-item-option-content")
         .last()
         .contains("Create new datasource");
-      cy.get(queryLocators.templateMenu).click();
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("select * from users limit 10");
+      dataSources.EnterQuery("select * from users limit 10");
       agHelper.AssertAutoSave();
       dataSources.RunQuery({
         toValidateResponse: false,
@@ -274,9 +269,8 @@ describe("Create Permission flow ", function () {
       // should check reconnect modal opening
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
-        // should reconnect button
-        cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
+        dataSources.ReconnectDataSource("mockdata", "PostgreSQL");
+        homePage.AssertNCloseImport();
         cy.wait(2000);
       } else {
         cy.get(homePageLocators.toastMessage).should(
@@ -330,7 +324,6 @@ describe("Create Permission flow ", function () {
     // create new query
     cy.get("[data-testid='t--file-operation']").eq(1).click({ force: true });
     cy.get(queryLocators.queryNameField).type("get_columns");
-    cy.get(queryLocators.templateMenu).click();
     cy.WaitAutoSave();
     cy.LogOut();
   });
