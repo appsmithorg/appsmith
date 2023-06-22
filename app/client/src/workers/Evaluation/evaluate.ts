@@ -376,11 +376,11 @@ export function convertAllDataTypesToString(e: any) {
 }
 
 export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
-  const isValidExpressionString = setter.isValid;
+  const isDisabledExpression = setter.disabled;
 
-  if (!isValidExpressionString) return true;
+  if (!isDisabledExpression) return true;
 
-  const isValidFn = new Function("options", isValidExpressionString);
+  const isDisabledFn = new Function("options", isDisabledExpression);
 
-  return isValidFn({ entity });
+  return !isDisabledFn({ entity });
 }

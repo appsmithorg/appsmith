@@ -76,9 +76,9 @@ export function getSetterConfig(
           type: staticConfigSetter.type,
         };
 
-        if (staticConfigSetter.isValid) {
-          modifiedSetterConfig.__setters[setterMethodName].isValid =
-            staticConfigSetter.isValid;
+        if (staticConfigSetter.disabled) {
+          modifiedSetterConfig.__setters[setterMethodName].disabled =
+            staticConfigSetter.disabled;
         }
       }
     }
