@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_PLUGIN_EXECUTION;
+import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 import static org.springframework.util.CollectionUtils.isEmpty;
 

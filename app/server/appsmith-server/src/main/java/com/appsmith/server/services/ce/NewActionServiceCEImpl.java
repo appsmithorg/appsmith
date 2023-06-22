@@ -80,9 +80,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ActionSpans.GET_ACTION_REPOSITORY_CALL;
-import static com.appsmith.external.constants.spans.ActionSpans.GET_UNPUBLISHED_ACTION;
-import static com.appsmith.external.constants.spans.ActionSpans.GET_VIEW_MODE_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
+import static com.appsmith.external.constants.spans.ActionSpan.GET_UNPUBLISHED_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpan.GET_VIEW_MODE_ACTION;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;

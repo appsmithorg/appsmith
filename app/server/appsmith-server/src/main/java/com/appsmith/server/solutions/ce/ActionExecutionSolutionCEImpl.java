@@ -80,11 +80,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_DATASOURCE;
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_DATASOURCE_CONTEXT;
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_EDITOR_CONFIG;
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_REQUEST_PARSING;
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_SERVER_EXECUTION;
+import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_CACHED_DATASOURCE;
+import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_DATASOURCE_CONTEXT;
+import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_EDITOR_CONFIG;
+import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
+import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
