@@ -10,6 +10,8 @@ export class OneClickBinding {
   ) {
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
+    expandLoadMoreOptions();
+
     agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
@@ -20,11 +22,11 @@ export class OneClickBinding {
       200,
     );
 
-    agHelper.Sleep(500);
     agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
     agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
     agHelper.Sleep(3000); //for tables to populate for CI runs
+
     agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
     agHelper.GetNClick(
@@ -55,4 +57,15 @@ export class OneClickBinding {
       false,
     );
   }
+}
+
+export function expandLoadMoreOptions() {
+  cy.get("body").then(($ele) => {
+    if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
+      const length = $ele.find(oneClickBindingLocator.loadMore).length;
+      new Array(length).fill(" ").forEach((d, i) => {
+        agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
+      });
+    }
+  });
 }
