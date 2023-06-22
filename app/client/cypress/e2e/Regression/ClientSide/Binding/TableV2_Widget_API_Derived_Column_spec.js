@@ -20,7 +20,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-    cy.RunAPI();
+    apiPage.RunAPI();
     entityExplorer.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
