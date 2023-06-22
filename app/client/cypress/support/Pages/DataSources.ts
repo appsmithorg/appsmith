@@ -35,6 +35,15 @@ export class DataSources {
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
   private hp = ObjectsRegistry.DefaultHostPort;
+  private assertHelper = ObjectsRegistry.AssertHelper;
+
+  public ContainerKVP = (containerName: string) => {
+    return {
+      MsSql: this.hp.mssql_docker(containerName),
+      Arango: this.hp.arango_docker(containerName),
+      Elasticsearch: this.hp.elastic_docker(containerName),
+    };
+  }; //Container KeyValuePair
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
@@ -220,6 +229,8 @@ export class DataSources {
     "[data-testid='t--where-clause-delete-[" + index + "]']";
 
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
+  private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
+  private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -238,7 +249,7 @@ export class DataSources {
       `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -251,11 +262,11 @@ export class DataSources {
     );
     this.agHelper.GetNClick(this._mockDB("Users"));
     this.agHelper.Sleep(500);
-    this.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -397,10 +408,6 @@ export class DataSources {
       this.agHelper.Sleep();
     });
     this.agHelper.RemoveTooltip("Add a new datasource");
-
-    // cy.get(this._dsCreateNewTab)
-    //   .should("be.visible")
-    //   .click({ force: true });
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -410,9 +417,10 @@ export class DataSources {
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._mockDB(dbName));
+    this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
-      .wait("@getMockDb")
-      .then(($createdMock) => $createdMock.response?.body.data.name);
+      .get("@getMockDb")
+      .then(($createdMock: any) => $createdMock.response?.body.data.name);
   }
 
   public FillPostgresDSForm(
@@ -439,6 +447,8 @@ export class DataSources {
     cy.get(this._password).type(
       password == "" ? this.hp.postgres_username : password,
     );
+    this.ExpandSectionByName("SSL (optional)");
+    this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
   public FillOracleDSForm(
@@ -560,7 +570,7 @@ export class DataSources {
     //     "ServiceAccCreds.private_key  is " +
     //       JSON.stringify(ServiceAccCreds.private_key),
     //   );
-    this.agHelper.UpdateFieldLongInput(
+    this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
       JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
     );
@@ -569,7 +579,6 @@ export class DataSources {
 
   public FillElasticSearchDSForm() {
     this.agHelper.UpdateInputValue(this._host, this.hp.elastic_host);
-
     this.agHelper.UpdateInputValue(this._port, this.hp.elastic_port.toString());
     this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.elastic_username);
@@ -579,7 +588,7 @@ export class DataSources {
   public FillUnAuthenticatedGraphQLDSForm() {
     this.agHelper.GetNClick(this._createBlankGraphQL);
     this.apiPage.EnterURL(this.hp.GraphqlApiUrl_TED);
-    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -624,7 +633,7 @@ export class DataSources {
 
   public SaveDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
     this.agHelper.AssertContains("datasource created");
 
     // cy.wait("@saveDatasource")
@@ -635,12 +644,12 @@ export class DataSources {
 
   public AuthAPISaveAndAuthorize() {
     cy.get(this._saveAndAuthorizeDS).click();
-    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public UpdateDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    // this.agHelper.AssertNetworkStatus("@updateDatasource", 200);
+    // this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     this.agHelper.AssertContains("datasource updated");
   }
 
@@ -708,7 +717,7 @@ export class DataSources {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
-      this.agHelper.AssertNetworkStatus(
+      this.assertHelper.AssertNetworkStatus(
         "@deleteDatasource",
         expectedRes as number,
       );
@@ -737,9 +746,12 @@ export class DataSources {
     this.AssertDSActive(datasourceName)
       .scrollIntoView()
       .should("be.visible")
-      .closest(this._datasourceCard)
-      .within(() => {
-        this.agHelper.GetNClick(btnLocator, 0, true);
+      .then(($element) => {
+        cy.wrap($element)
+          .closest(this._datasourceCard)
+          .within(() => {
+            this.agHelper.GetNClick(btnLocator, 0, true);
+          });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
     createQuery &&
@@ -749,7 +761,7 @@ export class DataSources {
         20000,
       );
     !createQuery &&
-      this.agHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
+      this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
   public AssertDSActive(dsName: string) {
@@ -777,7 +789,7 @@ export class DataSources {
         this.agHelper.GetNClick(this._createQuery, 0, true);
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
-    //this.agHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
     this.agHelper.AssertElementVisible(
       this.locator._spanButton("Run"),
       0,
@@ -787,7 +799,7 @@ export class DataSources {
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
-    //this.agHelper.AssertNetworkStatus("@createNewApi", 201);
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
     this.agHelper.AssertElementVisible(
       this.locator._spanButton("Run"),
       0,
@@ -795,7 +807,6 @@ export class DataSources {
     );
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query);
     }
   }
@@ -830,12 +841,23 @@ export class DataSources {
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
-    cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
-    cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dsName),
+    );
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dbName),
+    );
+
+    //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
+    this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
+    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
-    cy.get(this._saveDs).click();
+    this.agHelper.GetNClick(this._saveDs);
+    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   RunQuery({
@@ -999,7 +1021,6 @@ export class DataSources {
     this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query, sleep);
     }
     if (queryName) this.agHelper.RenameWithInPane(queryName);
@@ -1116,7 +1137,7 @@ export class DataSources {
         true,
         0,
       );
-      this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+      this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       this.agHelper.AssertContains("datasource created");
     } else
       this.agHelper.GetNClick(
@@ -1240,7 +1261,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._consentSubmit);
 
     //Validate save
-    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public FillAPIOAuthForm(
@@ -1341,6 +1362,66 @@ export class DataSources {
       propFieldName: "",
       directInput: false,
       inputFieldName: fieldLabel,
+    });
+  }
+
+  public StopNDeleteContainer(containerName: string) {
+    // Stop the container
+    cy.exec(`docker stop ${containerName}`).then((stopResult) => {
+      cy.log("Output from stopping container:" + stopResult.stdout);
+      cy.log("Error from stopping container:" + stopResult.stderr);
+
+      // Delete the container
+      cy.exec(`docker rm ${containerName}`).then((deleteResult) => {
+        cy.log("Output from deleting container:" + deleteResult.stdout);
+        cy.log("Error from deleting container:" + deleteResult.stderr);
+      });
+    });
+  }
+
+  public IsContainerReady(containerName: string) {
+    return cy
+      .exec(`docker inspect -f '{{.State.Status}}' ${containerName}`)
+      .then((result) => {
+        const containerStatus = result.stdout.trim();
+        return containerStatus === "running";
+      });
+  }
+
+  public StartContainerNVerify(
+    containerType: "MsSql" | "Arango" | "Elasticsearch",
+    containerName: string,
+    timeout = 40000,
+  ) {
+    let containerCommand = "";
+    switch (containerType) {
+      case "MsSql":
+        containerCommand = this.ContainerKVP(containerName).MsSql;
+        break;
+      case "Arango":
+        containerCommand = this.ContainerKVP(containerName).Arango;
+        break;
+      case "Elasticsearch":
+        containerCommand = this.ContainerKVP(containerName).Elasticsearch;
+        break;
+      default:
+        break;
+    }
+    cy.exec(containerCommand).then((result) => {
+      // Wait for the container to be ready
+      cy.waitUntil(() => this.IsContainerReady(containerName), {
+        interval: 5000,
+        timeout: 60000,
+      }).then((isReady) => {
+        if (isReady) {
+          cy.log("Run id of started container is:" + result.stdout);
+          this.agHelper.Sleep(timeout); //allow some time for container to settle start for CI
+        } else
+          cy.log(
+            `Error from ${containerName} container start action:` +
+              result.stderr,
+          ); // Container did not start properly within the timeout
+      });
     });
   }
 }

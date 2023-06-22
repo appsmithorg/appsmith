@@ -53,7 +53,6 @@ import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKE
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
@@ -276,8 +275,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                     Mono<EnvChangesResponseDTO> applyEnvManagerChangesMono = envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                    APPSMITH_INSTANCE_NAME.name(),
-                                    commonConfig.getInstanceName(),
                                     APPSMITH_ADMIN_EMAILS.name(),
                                     user.getEmail()
                             ))

@@ -1,22 +1,29 @@
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  dataSources,
+  table,
+  draggableWidgets,
+  assertHelper,
+} from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 
-describe.skip("one click binding mongodb datasource", function () {
+describe("one click binding mongodb datasource", function () {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
   });
 
   it("1. test connect datasource", () => {
     //#region bind to mongoDB datasource
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.dataSources.CreateDataSource("Mongo");
+    dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
-      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+      entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
@@ -26,20 +33,20 @@ describe.skip("one click binding mongodb datasource", function () {
       );
     });
 
-    _.agHelper.GetNClick(oneClickBindingLocator.connectData);
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.Sleep(2000);
+    agHelper.Sleep(2000);
     //#endregion
 
     //#region validate search through table is working
     const rowWithAValidText = "Mike Flanagan";
     //enter a search text
-    _.agHelper.TypeText(_.table._searchInput, rowWithAValidText);
-    _.agHelper.Sleep();
+    agHelper.TypeText(table._searchInput, rowWithAValidText);
+    agHelper.Sleep();
     // check if the table rows are present for the given search entry
-    _.agHelper.GetNAssertContains(
+    agHelper.GetNAssertContains(
       oneClickBindingLocator.validTableRowData,
       rowWithAValidText,
     );
@@ -47,19 +54,16 @@ describe.skip("one click binding mongodb datasource", function () {
 
     //#region table update operation is working
     const someColumnIndex = 1;
-    (cy as any).editTableCell(someColumnIndex, 0);
-    //update the first value of the row
     const someUUID = Cypress._.random(0, 1e6);
     const enteredSomeValue = "123" + someUUID;
 
-    (cy as any).enterTableCellValue(someColumnIndex, 0, enteredSomeValue);
-    _.agHelper.Sleep();
-
-    (cy as any).saveTableCellValue(someColumnIndex, 0);
+    //update the first value of the row
+    table.EditTableCell(0, someColumnIndex, enteredSomeValue);
+    agHelper.Sleep();
     //commit that update
     (cy as any).saveTableRow(12, 0);
 
-    _.agHelper.Sleep();
+    agHelper.Sleep();
 
     // check if the updated value is present
     (cy as any).readTableV2data(0, someColumnIndex).then((cellData: any) => {
@@ -69,30 +73,28 @@ describe.skip("one click binding mongodb datasource", function () {
 
     //#region check if the table insert operation works
     //clear input
-    _.table.resetSearch();
-    // cy.get(".t--widget-tablewidgetv2 .t--search-input input").clear();
+    table.ResetSearch();
 
     //lets create a new row and check to see the insert operation is working
-    _.agHelper.GetNClick(_.table._addNewRow);
-    _.agHelper.AssertElementExist(_.table._newRow);
+    agHelper.GetNClick(table._addNewRow);
+    agHelper.AssertElementExist(table._newRow);
 
     const someText = "new row " + Cypress._.random(0, 1e6);
     const searchColumnIndex = 3;
-    (cy as any).enterTableCellValue(searchColumnIndex, 0, someText);
-
+    table.EditTableCell(0, searchColumnIndex, someText);
     (cy as any).saveTableCellValue(searchColumnIndex, 0);
     // save a row with some random text
-    _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
+    agHelper.GetNClick(table._saveNewRow, 0, true);
 
-    _.agHelper.Sleep(5000);
+    agHelper.Sleep(2000);
 
     //search the table for a row having the text used to create a new row
-    _.agHelper.ClearTextField(_.table._searchInput);
-    _.agHelper.TypeText(_.table._searchInput, someText);
-    _.agHelper.Sleep();
+    agHelper.ClearTextField(table._searchInput);
+    agHelper.TypeText(table._searchInput, someText);
+    agHelper.Sleep();
 
     //check if that row is present
-    _.agHelper.GetNAssertContains(
+    agHelper.GetNAssertContains(
       oneClickBindingLocator.validTableRowData,
       someText,
     );

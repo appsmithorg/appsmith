@@ -7,6 +7,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
+import * as Sentry from "@sentry/react";
 import {
   clearActionResponse,
   executePluginActionError,
@@ -966,11 +967,31 @@ function* runActionSaga(
 
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
   const collectionId = pageAction.collectionId;
+  const pageId: string | undefined = yield select(getCurrentPageId);
+
   if (collectionId) {
     const collection: JSCollection = yield select(
       getJSCollection,
       collectionId,
     );
+
+    if (!collection) {
+      Sentry.captureException(
+        new Error(
+          "Collection present in layoutOnLoadActions but no collection exists ",
+        ),
+        {
+          extra: {
+            collectionId,
+            actionId: pageAction.id,
+            pageId,
+          },
+        },
+      );
+
+      return;
+    }
+
     const jsAction = collection.actions.find(
       (action) => action.id === pageAction.id,
     );

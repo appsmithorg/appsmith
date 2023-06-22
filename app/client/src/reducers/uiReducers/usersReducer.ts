@@ -9,7 +9,7 @@ import {
 import type { User } from "constants/userConstants";
 import { DefaultCurrentUserDetails } from "constants/userConstants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { DefaultFeatureFlagValue } from "@appsmith/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -22,7 +22,7 @@ const initialState: UsersReduxState = {
   current: undefined,
   currentUser: undefined,
   featureFlag: {
-    data: DefaultFeatureFlagValue,
+    data: DEFAULT_FEATURE_FLAG_VALUE,
     isFetched: false,
   },
 };

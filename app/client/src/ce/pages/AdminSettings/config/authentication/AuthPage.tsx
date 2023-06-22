@@ -9,7 +9,6 @@ import {
   createMessage,
   EDIT,
   UPGRADE,
-  UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
   BUSINESS_TAG,
 } from "@appsmith/constants/messages";
@@ -115,7 +114,6 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
     logEventData: { method: method.label },
-    intercomMessage: createMessage(UPGRADE_TO_EE, method.label),
   });
 
   const onClickHandler = (method: AuthMethodType) => {

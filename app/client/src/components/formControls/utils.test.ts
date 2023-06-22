@@ -15,7 +15,7 @@ import {
 import type { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
@@ -290,13 +290,13 @@ describe("caculateIsHidden test", () => {
       path: "name",
       comparison: "EQUALS",
       value: "Name",
-      flagValue: FeatureFlag.TEST_FLAG,
+      flagValue: FEATURE_FLAG.TEST_FLAG,
     };
     const hiddenFalsy: HiddenType = {
       path: "name",
       comparison: "EQUALS",
       value: "Different Name",
-      flagValue: FeatureFlag.TEST_FLAG,
+      flagValue: FEATURE_FLAG.TEST_FLAG,
     };
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();

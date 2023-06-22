@@ -874,8 +874,8 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 export const DISCARD_CHANGES_WARNING = () =>
-  "Discarding these changes will pull previous changes from Git.";
-export const DISCARD_CHANGES = () => "Discard changes";
+  "This action will replace your local changes with the latest remote version.";
+export const DISCARD_CHANGES = () => "Discard & pull";
 
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
@@ -891,6 +891,8 @@ export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
 export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
+export const DISCARD_MESSAGE = () =>
+  `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
 // GIT DEPLOY end
 
 // GIT CHANGE LIST begin
@@ -1610,14 +1612,23 @@ export const IN_APP_EMBED_SETTING = {
   forkLabelTooltip: () =>
     "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
-    "Please contact your workspace admin to make the app public before embedding",
-  upgradeHeadingForInviteModal: () =>
-    "Make your app public in share settings to embed",
+    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
+  upgradeHeadingForInviteModal: () => "Public apps",
+  upgradeSubheadingForInviteModal: () =>
+    "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
+  privateAppsText: () => "Private apps",
+  rampSubtextModal: () =>
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+  rampSubtextSidebar: () =>
+    "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
+  rampLinktext: () => "Try Business",
+  rampLinktextvariant2: () => "Business Edition",
   upgradeContent: () => "Private embedding is now available in",
   appsmithBusinessEdition: () => "Appsmith Business Edition.",
-  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeadingForAppSettings: () =>
+    "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
-    "Please contact your workspace admin to make the app public before embedding",
+    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
 };
 
 export const APP_NAVIGATION_SETTING = {
