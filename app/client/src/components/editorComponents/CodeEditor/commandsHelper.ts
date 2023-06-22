@@ -103,7 +103,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             };
             function handleSelection(selected: CommandsCompletion) {
               currentSelection = selected;
-              CodeMirror.off(hints, "pick", handleSelection);
             }
             function handlePick(selected: CommandsCompletion) {
               update(value.slice(0, slashIndex) + selected.text);
