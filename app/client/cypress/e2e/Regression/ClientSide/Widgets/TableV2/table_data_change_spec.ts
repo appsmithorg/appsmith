@@ -102,6 +102,10 @@ const TABLE_DATA_2 = `[
     }]`;
 
 describe("Table widget v2: tableData change test", function () {
+  before(() => {
+    agHelper.ClearLocalStorageCache();
+  });
+
   it("1. should test that the number of columns needs to be same when table data changes in depoyed app", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
     propPane.EnterJSContext(
@@ -144,11 +148,9 @@ describe("Table widget v2: tableData change test", function () {
       expect(tableLocalColumnOrder.columnOrder.join("")).equal(
         "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
       );
-  });
 
-  it("2. should test that change in table data maintains the frozen column on refresh of the page", function () {
     /**
-     * Flow:
+     * Flow: Check the above flow for frozen columns
      * 1. Freeze columns with table data 1.
      * 2. Refresh the page.
      * 3. Check if the frozen columns are same.
@@ -158,9 +160,7 @@ describe("Table widget v2: tableData change test", function () {
     agHelper.ClickButton("Set table data 1");
 
     table.AssertTableHeaderOrder("statussteptaskaction");
-    let tableLocalColumnOrder = readTableLocalColumnOrder(
-      "tableWidgetColumnOrder",
-    );
+    tableLocalColumnOrder = readTableLocalColumnOrder("tableWidgetColumnOrder");
     if (tableLocalColumnOrder)
       expect(tableLocalColumnOrder.columnOrder.join("")).equal(
         "statussteptaskaction",
