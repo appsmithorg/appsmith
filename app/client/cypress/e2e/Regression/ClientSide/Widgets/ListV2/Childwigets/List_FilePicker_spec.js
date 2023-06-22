@@ -1,11 +1,11 @@
 import {
   agHelper,
   entityExplorer,
+  propPane,
 } from "../../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
-const { propPane } = require("../../../support/Objects/ObjectsCore");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
