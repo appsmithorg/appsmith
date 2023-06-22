@@ -1220,7 +1220,10 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
     timeout = 20000,
   ) {
-    return this.GetElement(selector, timeout).eq(index).should("be.visible");
+    return this.GetElement(selector, timeout)
+      .eq(index)
+      .scrollIntoView()
+      .should("be.visible");
   }
 
   public CheckForErrorToast(error: string) {
