@@ -23,11 +23,6 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        ref: refs/pull/${{ 24718 }}/merge
-        token: ${{ secrets.PAT_GITHUB }}
     - uses: dorny/paths-filter@v2
       id: filter
       with:
