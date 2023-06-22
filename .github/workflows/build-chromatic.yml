@@ -34,5 +34,6 @@ jobs:
       - name: Comment Storybook URL on PR 
         uses: peter-evans/create-or-update-comment@v2
         with: 
-           body: |
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
              Storybook-Preview-URL: ${{ steps.chromatic-publish.outputs.buildUrl }}
