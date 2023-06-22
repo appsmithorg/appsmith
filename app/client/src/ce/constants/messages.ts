@@ -874,8 +874,8 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 export const DISCARD_CHANGES_WARNING = () =>
-  "Discarding these changes will pull previous changes from Git.";
-export const DISCARD_CHANGES = () => "Discard changes";
+  "This action will replace your local changes with the latest remote version.";
+export const DISCARD_CHANGES = () => "Discard & pull";
 
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
@@ -891,6 +891,8 @@ export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
 export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
   `Current page (${page}) is in the discard list.`;
+export const DISCARD_MESSAGE = () =>
+  `Some changes may reappear after discarding them, these changes support new features in Appsmith. You can safely commit them to your repository.`;
 // GIT DEPLOY end
 
 // GIT CHANGE LIST begin
@@ -980,29 +982,67 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
+export const SIGNPOSTING_POPUP_SUBTITLE = () =>
+  "These are all the things you need to do to build your first application.";
+export const SIGNPOSTING_SUCCESS_POPUP = {
+  title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
+  subtitle: () =>
+    "You can carry on building the app from here on. If you are still not sure, checkout our documentation or try guided tour.",
+};
+
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
   bold: () => "Connect your datasource",
-  normal: () => "to start building an application.",
+  normal: () => "to start building your app",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
-  bold: () => "Create a query",
-  normal: () => "of your datasource.",
+  bold: () => "Write a query",
+  normalPrefix: () => "to import your",
+  normal: () => "data into appsmith",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
-  bold: () => "Start visualising your application",
-  normal: () => "using widgets.",
+  bold: () => "Drag & drop a widget,",
+  normal: () => "so you can build a beautiful UI",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
   bold: () => "Connect your data to the widgets",
-  normal: () => "using JavaScript.",
+  normal: () => "using JavaScript bindings",
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
   bold: () => "Deploy your application,",
   normal: () => "and see your creation live.",
+};
+
+export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
+export const SIGNPOSTING_TOOLTIP = {
+  DEFAULT: {
+    content: () =>
+      "Finish these 5 steps to learn the basics in-order to build an app & deploy it. This would take 5 mins of your time.",
+  },
+  CONNECT_A_DATASOURCE: {
+    content: () => "Let's add a datasource",
+  },
+  CREATE_QUERY: {
+    content: () =>
+      "You successfully connected a datasource. Now try to create a query.",
+  },
+  ADD_WIDGET: {
+    content: () =>
+      "You successfully created a query. Now its time to drag & drop a widget to bind data.",
+  },
+  CONNECT_DATA_TO_WIDGET: {
+    content: () =>
+      "You have a widget on the canvas now, its time to bind the data with it.",
+  },
+  DEPLOY_APPLICATION: {
+    content: () => "Deploy you application to see what you’ve built.",
+  },
+  DOCUMENTATION: {
+    content: () => "Open documentation",
+  },
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
@@ -1031,6 +1071,9 @@ export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
+export const SIGNPOSTING_INFO_MENU = {
+  documentation: () => "Open documentation",
+};
 
 //Statusbar
 export const ONBOARDING_STATUS_STEPS_FIRST = () => "First, add a datasource";
@@ -1610,14 +1653,23 @@ export const IN_APP_EMBED_SETTING = {
   forkLabelTooltip: () =>
     "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
-    "Please contact your workspace admin to make the app public before embedding",
-  upgradeHeadingForInviteModal: () =>
-    "Make your app public in share settings to embed",
+    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
+  upgradeHeadingForInviteModal: () => "Public apps",
+  upgradeSubheadingForInviteModal: () =>
+    "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
+  privateAppsText: () => "Private apps",
+  rampSubtextModal: () =>
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+  rampSubtextSidebar: () =>
+    "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
+  rampLinktext: () => "Try Business",
+  rampLinktextvariant2: () => "Business Edition",
   upgradeContent: () => "Private embedding is now available in",
   appsmithBusinessEdition: () => "Appsmith Business Edition.",
-  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeadingForAppSettings: () =>
+    "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
-    "Please contact your workspace admin to make the app public before embedding",
+    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
 };
 
 export const APP_NAVIGATION_SETTING = {

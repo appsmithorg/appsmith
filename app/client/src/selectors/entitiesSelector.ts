@@ -51,6 +51,13 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
+// Returns non temp datasources
+export const getSavedDatasources = (state: AppState): Datasource[] => {
+  return state.entities.datasources.list.filter(
+    (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
+  );
+};
+
 export const getRecentDatasourceIds = (state: AppState): string[] => {
   return state.entities.datasources.recentDatasources;
 };
@@ -92,6 +99,23 @@ export const getDatasourceTablePrimaryColumn =
       }
     }
   };
+
+export const getDatasourceFirstTableName = (
+  state: AppState,
+  datasourceId: string,
+) => {
+  if (!datasourceId) {
+    return "";
+  }
+  const structure = getDatasourceStructureById(state, datasourceId);
+
+  if (structure) {
+    if (!!structure.tables && structure.tables.length > 0) {
+      return structure.tables[0].name;
+    }
+  }
+  return "";
+};
 
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;

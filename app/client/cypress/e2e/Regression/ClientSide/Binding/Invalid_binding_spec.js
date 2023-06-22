@@ -1,10 +1,14 @@
-const dsl = require("../../../../fixtures/Invalid_binding_dsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Invalid_binding_dsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Dropdown widget test with invalid binding value", function () {

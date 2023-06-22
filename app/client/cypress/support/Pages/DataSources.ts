@@ -1,6 +1,6 @@
-import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
+import { EntityItems } from "./AssertHelper";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -34,6 +34,16 @@ export class DataSources {
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
+  private hp = ObjectsRegistry.DefaultHostPort;
+  private assertHelper = ObjectsRegistry.AssertHelper;
+
+  public ContainerKVP = (containerName: string) => {
+    return {
+      MsSql: this.hp.mssql_docker(containerName),
+      Arango: this.hp.arango_docker(containerName),
+      Elasticsearch: this.hp.elastic_docker(containerName),
+    };
+  }; //Container KeyValuePair
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
@@ -42,8 +52,8 @@ export class DataSources {
   private _collapseContainer = ".t--collapse-section-container";
   private _collapseSettings =
     "[data-testid='t--dropdown-connection.ssl.authType']";
-  private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
-  private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
+  public _host = "input[name='datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =
@@ -219,6 +229,8 @@ export class DataSources {
     "[data-testid='t--where-clause-delete-[" + index + "]']";
 
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
+  private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
+  private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -237,22 +249,24 @@ export class DataSources {
       `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
   public GeneratePageWithMockDB() {
     this.ee.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
-    this.agHelper.GetNClick(this.locator._dropdownText, 0);
-    this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      "Connect new datasource",
+    );
+    this.agHelper.GetNClick(this._mockDB("Users"));
+    this.agHelper.Sleep(500);
+    this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
-    cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("public.users")`,
-    ).click();
+    this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -393,10 +407,7 @@ export class DataSources {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
     });
-
-    // cy.get(this._dsCreateNewTab)
-    //   .should("be.visible")
-    //   .click({ force: true });
+    this.agHelper.RemoveTooltip("Add a new datasource");
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -406,9 +417,10 @@ export class DataSources {
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._mockDB(dbName));
+    this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
-      .wait("@getMockDb")
-      .then(($createdMock) => $createdMock.response?.body.data.name);
+      .get("@getMockDb")
+      .then(($createdMock: any) => $createdMock.response?.body.data.name);
   }
 
   public FillPostgresDSForm(
@@ -417,24 +429,26 @@ export class DataSources {
     password = "",
   ) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["postgres-host"] + "  "
-      : datasourceFormData["postgres-host"];
+      ? this.hp.postgres_host + "  "
+      : this.hp.postgres_host;
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["postgres-databaseName"] + "  "
-      : datasourceFormData["postgres-databaseName"];
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+      ? this.hp.postgres_databaseName + "  "
+      : this.hp.postgres_databaseName;
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["postgres-port"].toString(),
+      this.hp.postgres_port.toString(),
     );
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
-      username == "" ? datasourceFormData["postgres-username"] : username,
+      username == "" ? this.hp.postgres_username : username,
     );
     cy.get(this._password).type(
-      password == "" ? datasourceFormData["postgres-password"] : password,
+      password == "" ? this.hp.postgres_username : password,
     );
+    this.ExpandSectionByName("SSL (optional)");
+    this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
   public FillOracleDSForm(
@@ -443,90 +457,67 @@ export class DataSources {
     password = "",
   ) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["oracle-host"] + "  "
-      : datasourceFormData["oracle-host"];
+      ? this.hp.oracle_host + "  "
+      : this.hp.oracle_host;
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["oracle-name"] + "  "
-      : datasourceFormData["oracle-name"];
+      ? this.hp.oracle_name + "  "
+      : this.hp.oracle_name;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["oracle-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._port, this.hp.oracle_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
-      username == "" ? datasourceFormData["oracle-username"] : username,
+      username == "" ? this.hp.oracle_username : username,
     );
     cy.get(this._password).type(
-      password == "" ? datasourceFormData["oracle-password"] : password,
+      password == "" ? this.hp.oracle_password : password,
     );
   }
 
   public FillMongoDSForm(shouldAddTrailingSpaces = false) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["mongo-host"] + "  "
-      : datasourceFormData["mongo-host"];
+      ? this.hp.mongo_host + "  "
+      : this.hp.mongo_host;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["mongo-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._port, this.hp.mongo_port.toString());
     this.ExpandSectionByName("Authentication");
-    cy.get(this._databaseName)
-      .clear()
-      .type(datasourceFormData["mongo-databaseName"]);
+    cy.get(this._databaseName).clear().type(this.hp.mongo_databaseName);
   }
 
   public FillMySqlDSForm(shouldAddTrailingSpaces = false) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["mysql-host"] + "  "
-      : datasourceFormData["mysql-host"];
+      ? this.hp.mysql_host + "  "
+      : this.hp.mysql_host;
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["mysql-databaseName"] + "  "
-      : datasourceFormData["mysql-databaseName"];
+      ? this.hp.mysql_databaseName + "  "
+      : this.hp.mysql_databaseName;
 
     this.agHelper.UpdateInputValue(this._host, hostAddress);
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["mysql-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._port, this.hp.mysql_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
-    cy.get(this._username).type(datasourceFormData["mysql-username"]);
-    cy.get(this._password).type(datasourceFormData["mysql-password"]);
+    cy.get(this._username).type(this.hp.mysql_username);
+    cy.get(this._password).type(this.hp.mysql_password);
   }
 
   public FillMsSqlDSForm() {
-    this.agHelper.UpdateInputValue(
-      this._host,
-      datasourceFormData["mssql-host"],
-    );
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["mssql-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._host, this.hp.mssql_host);
+    this.agHelper.UpdateInputValue(this._port, this.hp.mssql_port.toString());
     this.agHelper.ClearTextField(this._databaseName);
     // this.agHelper.UpdateInputValue(
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
     // ); //Commenting until MsSQL is init loaded into container
     this.ExpandSectionByName("Authentication");
-    this.agHelper.UpdateInputValue(
-      this._username,
-      datasourceFormData["mssql-username"],
-    );
-    this.agHelper.UpdateInputValue(
-      this._password,
-      datasourceFormData["mssql-password"],
-    );
+    this.agHelper.UpdateInputValue(this._username, this.hp.mssql_username);
+    this.agHelper.UpdateInputValue(this._password, this.hp.mssql_password);
   }
 
   public FillAirtableDSForm() {
     this.ValidateNSelectDropdown(
       "Authentication type",
       "Please select an option",
-      "Bearer token",
+      "Personal access token",
     );
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Bearer token"),
@@ -536,27 +527,15 @@ export class DataSources {
   }
 
   public FillArangoDSForm() {
-    this.agHelper.UpdateInputValue(
-      this._host,
-      datasourceFormData["arango-host"],
-    );
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["arango-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._host, this.hp.arango_host);
+    this.agHelper.UpdateInputValue(this._port, this.hp.arango_port.toString());
     //Validating db name is _system, currently unable to create DB via curl in Arango
     this.agHelper
       .GetText(this._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
     this.ExpandSectionByName("Authentication");
-    this.agHelper.UpdateInputValue(
-      this._username,
-      datasourceFormData["arango-username"],
-    );
-    this.agHelper.UpdateInputValue(
-      this._password,
-      datasourceFormData["arango-password"],
-    );
+    this.agHelper.UpdateInputValue(this._username, this.hp.arango_username);
+    this.agHelper.UpdateInputValue(this._password, this.hp.arango_password);
   }
 
   public FillCurlNImport(value: string) {
@@ -575,11 +554,11 @@ export class DataSources {
   public FillFirestoreDSForm() {
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Database URL"),
-      datasourceFormData["firestore-database-url"],
+      this.hp.firestore_database_url,
     );
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Project Id"),
-      datasourceFormData["firestore-projectID"],
+      this.hp.firestore_projectID,
     );
     // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
     //   let ServiceAccCreds = JSON.parse(
@@ -591,7 +570,7 @@ export class DataSources {
     //     "ServiceAccCreds.private_key  is " +
     //       JSON.stringify(ServiceAccCreds.private_key),
     //   );
-    this.agHelper.UpdateFieldLongInput(
+    this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
       JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
     );
@@ -599,30 +578,17 @@ export class DataSources {
   }
 
   public FillElasticSearchDSForm() {
-    this.agHelper.UpdateInputValue(
-      this._host,
-      datasourceFormData["elastic-host"],
-    );
-
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["elastic-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._host, this.hp.elastic_host);
+    this.agHelper.UpdateInputValue(this._port, this.hp.elastic_port.toString());
     this.ExpandSectionByName("Authentication");
-    this.agHelper.UpdateInputValue(
-      this._username,
-      datasourceFormData["elastic-username"],
-    );
-    this.agHelper.UpdateInputValue(
-      this._password,
-      datasourceFormData["elastic-password"],
-    );
+    this.agHelper.UpdateInputValue(this._username, this.hp.elastic_username);
+    this.agHelper.UpdateInputValue(this._password, this.hp.elastic_password);
   }
 
   public FillUnAuthenticatedGraphQLDSForm() {
     this.agHelper.GetNClick(this._createBlankGraphQL);
-    this.apiPage.EnterURL(datasourceFormData.GraphqlApiUrl_TED);
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    this.apiPage.EnterURL(this.hp.GraphqlApiUrl_TED);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -634,7 +600,7 @@ export class DataSources {
     this.CreatePlugIn("Authenticated GraphQL API");
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),
-      datasourceFormData.GraphqlApiUrl_TED,
+      this.hp.GraphqlApiUrl_TED,
     );
 
     this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
@@ -648,14 +614,8 @@ export class DataSources {
   }
 
   public FillRedisDSForm() {
-    this.agHelper.UpdateInputValue(
-      this._host,
-      datasourceFormData["redis-host"],
-    );
-    this.agHelper.UpdateInputValue(
-      this._port,
-      datasourceFormData["redis-port"].toString(),
-    );
+    this.agHelper.UpdateInputValue(this._host, this.hp.redis_host);
+    this.agHelper.UpdateInputValue(this._port, this.hp.redis_port.toString());
   }
 
   public TestSaveDatasource(expectedRes = true) {
@@ -665,7 +625,7 @@ export class DataSources {
 
   public TestDatasource(expectedRes = true) {
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
-    this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
+    this.agHelper.AssertNetworkDataSuccess("@testDatasource", expectedRes);
     if (expectedRes) {
       this.agHelper.AssertContains("datasource is valid");
     }
@@ -673,7 +633,7 @@ export class DataSources {
 
   public SaveDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
     this.agHelper.AssertContains("datasource created");
 
     // cy.wait("@saveDatasource")
@@ -684,12 +644,12 @@ export class DataSources {
 
   public AuthAPISaveAndAuthorize() {
     cy.get(this._saveAndAuthorizeDS).click();
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public UpdateDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    // this.agHelper.ValidateNetworkStatus("@updateDatasource", 200);
+    // this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     this.agHelper.AssertContains("datasource updated");
   }
 
@@ -737,20 +697,34 @@ export class DataSources {
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
   }
+
+  public DeleteDSFromEntityExplorer(
+    dsName: string,
+    expectedRes: number | number[] = 200,
+  ) {
+    this.ee.SelectEntityByName(dsName, "Datasources");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: EntityItems.Datasource,
+    });
+    this.ValidateDSDeletion(expectedRes);
+  }
+
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
     let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
     if (toValidateRes) {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
-      this.agHelper.ValidateNetworkStatus(
+      this.assertHelper.AssertNetworkStatus(
         "@deleteDatasource",
         expectedRes as number,
       );
     } else {
-      cy.wait("@deleteDatasource").should((response: any) => {
-        expect(response.status).to.be.oneOf([200, 409]);
-      });
+      cy.wait("@deleteDatasource")
+        .its("response.body.responseMeta.status")
+        .should("be.oneOf", [200, 409]);
     }
   }
 
@@ -769,20 +743,34 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
+    this.AssertDSActive(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .then(($element) => {
+        cy.wrap($element)
+          .closest(this._datasourceCard)
+          .within(() => {
+            this.agHelper.GetNClick(btnLocator, 0, true);
+          });
+      });
+    this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
+    createQuery &&
+      this.agHelper.AssertElementVisible(
+        this.locator._spanButton("Run"),
+        0,
+        20000,
+      );
+    !createQuery &&
+      this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
+  }
+
+  public AssertDSActive(dsName: string) {
     this.ee.NavigateToSwitcher("Explorer", 0, true);
     this.ee.ExpandCollapseEntity("Datasources", false);
     //this.ee.SelectEntityByName(datasourceName, "Datasources");
     //this.ee.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToActiveTab();
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(this._datasourceCard)
-      .within(() => {
-        cy.get(btnLocator).click({ force: true });
-      });
-    this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
+    return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
   public CreateQueryFromActiveTab(
@@ -798,23 +786,38 @@ export class DataSources {
       .closest(this._datasourceCard)
       .scrollIntoView()
       .within(() => {
-        cy.get(this._createQuery).click({ force: true });
+        this.agHelper.GetNClick(this._createQuery, 0, true);
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
+    this.agHelper.AssertElementVisible(
+      this.locator._spanButton("Run"),
+      0,
+      20000,
+    );
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+    this.agHelper.AssertElementVisible(
+      this.locator._spanButton("Run"),
+      0,
+      20000,
+    );
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query);
     }
   }
 
   DeleteQuery(queryName: string) {
     this.ee.ExpandCollapseEntity("Queries/JS");
-    this.ee.ActionContextMenuByEntityName(queryName, "Delete", "Are you sure?");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: queryName,
+      action: "Delete",
+      entityType: EntityItems.Query,
+    });
   }
 
   public ValidateNSelectDropdown(
@@ -838,12 +841,23 @@ export class DataSources {
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
-    cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
-    cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dsName),
+    );
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dbName),
+    );
+
+    //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
+    this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
+    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
-    cy.get(this._saveDs).click();
+    this.agHelper.GetNClick(this._saveDs);
+    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   RunQuery({
@@ -852,13 +866,13 @@ export class DataSources {
     waitTimeInterval = 500,
   }: Partial<RunQueryParams> = {}) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
+    this.agHelper.AssertElementAbsence(
+      this.locator._cancelActionExecution,
+      10000,
+    ); //For the run to give response
     if (toValidateResponse) {
-      this.agHelper.AssertElementAbsence(
-        this.locator._cancelActionExecution,
-        10000,
-      ); //For the run to give response
       this.agHelper.Sleep();
-      this.agHelper.ValidateNetworkExecutionSuccess(
+      this.agHelper.AssertNetworkExecutionSuccess(
         "@postExecute",
         expectedStatus,
       );
@@ -1004,10 +1018,9 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    this.agHelper.ClickOutside(); //to close the evaluated pop-up
+    this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query, sleep);
     }
     if (queryName) this.agHelper.RenameWithInPane(queryName);
@@ -1104,7 +1117,10 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.ee.ActionContextMenuByEntityName(dataSourceName, "Refresh");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dataSourceName,
+      action: "Refresh",
+    });
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
@@ -1121,7 +1137,7 @@ export class DataSources {
         true,
         0,
       );
-      this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+      this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       this.agHelper.AssertContains("datasource created");
     } else
       this.agHelper.GetNClick(
@@ -1139,7 +1155,7 @@ export class DataSources {
   public FillAuthAPIUrl() {
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),
-      datasourceFormData.authenticatedApiUrl,
+      this.hp.authenticatedApiUrl,
     );
   }
 
@@ -1193,32 +1209,28 @@ export class DataSources {
 
     // Login to TED OAuth
     let formData = new FormData();
-    formData.append("username", datasourceFormData["OAuth_Username"]);
-    cy.request("POST", datasourceFormData["OAuth_Host"], formData).then(
-      (response) => {
-        expect(response.status).to.equal(200);
-      },
-    );
+    formData.append("username", this.hp.OAuth_Username);
+    cy.request("POST", this.hp.OAuth_Host, formData).then((response) => {
+      expect(response.status).to.equal(200);
+    });
 
     // Create client
     let clientData = new FormData();
     clientData.append("client_name", "appsmith_cs_post");
     clientData.append("client_uri", "http://localhost/");
     clientData.append("scope", "profile");
-    clientData.append("redirect_uri", datasourceFormData["OAuth_RedirectUrl"]);
+    clientData.append("redirect_uri", this.hp.OAuth_RedirectUrl);
     clientData.append("grant_type", grantType);
     clientData.append("response_type", "code");
     clientData.append("token_endpoint_auth_method", "client_secret_post");
-    cy.request(
-      "POST",
-      datasourceFormData["OAuth_Host"] + "/create_client",
-      clientData,
-    ).then((response) => {
-      expect(response.status).to.equal(200);
-    });
+    cy.request("POST", this.hp.OAuth_Host + "/create_client", clientData).then(
+      (response) => {
+        expect(response.status).to.equal(200);
+      },
+    );
 
     // Get Client Credentials
-    cy.request("GET", datasourceFormData["OAuth_Host"]).then((response) => {
+    cy.request("GET", this.hp.OAuth_Host).then((response) => {
       clientId = response.body.split("client_id: </strong>");
       clientId = clientId[1].split("<strong>client_secret: </strong>");
       clientSecret = clientId[1].split("<strong>");
@@ -1249,7 +1261,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._consentSubmit);
 
     //Validate save
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public FillAPIOAuthForm(
@@ -1262,7 +1274,7 @@ export class DataSources {
     // Fill Auth Form
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),
-      datasourceFormData["OAuth_ApiUrl"],
+      this.hp.OAuth_ApiUrl,
     );
     this.agHelper.GetNClick(this._authType);
     this.agHelper.GetNClick(this._oauth2);
@@ -1274,7 +1286,7 @@ export class DataSources {
 
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Access token URL"),
-      datasourceFormData["OAUth_AccessTokenUrl"],
+      this.hp.OAUth_AccessTokenUrl,
     );
 
     this.agHelper.UpdateInput(
@@ -1291,7 +1303,7 @@ export class DataSources {
     );
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Authorization URL"),
-      datasourceFormData["OAuth_AuthUrl"],
+      this.hp.OAuth_AuthUrl,
     );
   }
 
@@ -1333,11 +1345,83 @@ export class DataSources {
     fieldValue: string;
     fieldLabel: string;
   }) {
-    this.agHelper.GetNClick(this._getJSONswitchLocator(fieldProperty));
+    this.agHelper.Sleep();
+    this.agHelper
+      .GetElement(this._getJSONswitchLocator(fieldProperty))
+      .invoke("attr", "data-selected")
+      .then(($state: any) => {
+        if (!$state.includes("true"))
+          this.agHelper.GetNClick(
+            this._getJSONswitchLocator(fieldProperty),
+            0,
+            true,
+          );
+        else this.agHelper.Sleep(200);
+      });
     this.agHelper.EnterValue(fieldValue, {
       propFieldName: "",
       directInput: false,
       inputFieldName: fieldLabel,
+    });
+  }
+
+  public StopNDeleteContainer(containerName: string) {
+    // Stop the container
+    cy.exec(`docker stop ${containerName}`).then((stopResult) => {
+      cy.log("Output from stopping container:" + stopResult.stdout);
+      cy.log("Error from stopping container:" + stopResult.stderr);
+
+      // Delete the container
+      cy.exec(`docker rm ${containerName}`).then((deleteResult) => {
+        cy.log("Output from deleting container:" + deleteResult.stdout);
+        cy.log("Error from deleting container:" + deleteResult.stderr);
+      });
+    });
+  }
+
+  public IsContainerReady(containerName: string) {
+    return cy
+      .exec(`docker inspect -f '{{.State.Status}}' ${containerName}`)
+      .then((result) => {
+        const containerStatus = result.stdout.trim();
+        return containerStatus === "running";
+      });
+  }
+
+  public StartContainerNVerify(
+    containerType: "MsSql" | "Arango" | "Elasticsearch",
+    containerName: string,
+    sleepTime = 30000,
+  ) {
+    let containerCommand = "";
+    switch (containerType) {
+      case "MsSql":
+        containerCommand = this.ContainerKVP(containerName).MsSql;
+        break;
+      case "Arango":
+        containerCommand = this.ContainerKVP(containerName).Arango;
+        break;
+      case "Elasticsearch":
+        containerCommand = this.ContainerKVP(containerName).Elasticsearch;
+        break;
+      default:
+        break;
+    }
+    cy.exec(containerCommand).then((result) => {
+      // Wait for the container to be ready
+      cy.waitUntil(() => this.IsContainerReady(containerName), {
+        interval: 5000,
+        timeout: 60000,
+      }).then((isReady) => {
+        if (isReady) {
+          cy.log("Run id of started container is:" + result.stdout);
+          this.agHelper.Sleep(sleepTime); //allow some time for container to settle start for CI
+        } else
+          cy.log(
+            `Error from ${containerName} container start action:` +
+              result.stderr,
+          ); // Container did not start properly within the timeout
+      });
     });
   }
 }

@@ -1,18 +1,22 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  deployMode,
+  dataSources,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Navigate To feature", () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
-    _.entityExplorer.AddNewPage(); // page 2
-    _.entityExplorer.SelectEntityByName("Page1");
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 300, 300);
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
-    _.dataSources.ValidateNSelectDropdown(
-      "Choose page",
-      "Select page",
-      "Page2",
-    );
-    _.propPane.UpdatePropertyFieldValue(
+    entityExplorer.AddNewPage(); // page 2
+    entityExplorer.SelectEntityByName("Page1");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
+    dataSources.ValidateNSelectDropdown("Choose page", "Select page", "Page2");
+    propPane.UpdatePropertyFieldValue(
       "Query params",
       `{{
       {
@@ -20,15 +24,15 @@ describe("Navigate To feature", () => {
       }
       }}`,
     );
-    _.agHelper.AssertAutoSave();
-    _.agHelper.PopupClose("onClick");
-    _.agHelper.ClickButton("Submit");
+    agHelper.AssertAutoSave();
+    agHelper.PopupClose("onClick");
+    agHelper.ClickButton("Submit");
     cy.url().should("include", "a=b").and("include", "test=123");
-    _.entityExplorer.SelectEntityByName("Page1");
-    _.deployMode.DeployApp();
-    _.agHelper.ClickButton("Submit");
-    _.agHelper.GetNAssertContains(
-      _.locators._emptyPageTxt,
+    entityExplorer.SelectEntityByName("Page1");
+    deployMode.DeployApp();
+    agHelper.ClickButton("Submit");
+    agHelper.GetNAssertContains(
+      locators._emptyPageTxt,
       "This page seems to be blank",
     );
     cy.url().then(($url) => {
@@ -36,6 +40,5 @@ describe("Navigate To feature", () => {
       expect($url).to.contain("test=123");
     });
     //cy.location().its('href').should('include', 'test=123')//both are same
-    _.deployMode.NavigateBacktoEditor();
   });
 });

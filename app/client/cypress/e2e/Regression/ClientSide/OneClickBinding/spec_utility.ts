@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
 export class OneClickBinding {
@@ -8,11 +8,13 @@ export class OneClickBinding {
     table?: string,
     column?: string,
   ) {
-    _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-    _.agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
+    expandLoadMoreOptions();
 
-    _.agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
+    agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
+
+    agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
 
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -20,43 +22,50 @@ export class OneClickBinding {
       200,
     );
 
-    _.agHelper.Sleep(500);
-    _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);
+    agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
+    agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
+    agHelper.Sleep(3000); //for tables to populate for CI runs
 
-    _.agHelper.AssertElementExist(
-      oneClickBindingLocator.tableOrSpreadsheetDropdown,
-    );
+    agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
-    _.agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
-
-    _.agHelper.GetNClick(
+    agHelper.GetNClick(
       oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),
     );
 
-    _.agHelper.AssertElementExist(
+    agHelper.AssertElementExist(
       oneClickBindingLocator.tableOrSpreadsheetSelectedOption(table),
     );
 
-    _.agHelper.AssertElementExist(oneClickBindingLocator.searchableColumn);
+    agHelper.AssertElementExist(oneClickBindingLocator.searchableColumn);
 
-    _.agHelper.GetNClick(oneClickBindingLocator.searchableColumn);
+    agHelper.GetNClick(oneClickBindingLocator.searchableColumn);
 
-    _.agHelper.GetNClick(
+    agHelper.GetNClick(
       oneClickBindingLocator.searchableColumnDropdownOption(column),
     );
 
-    _.agHelper.AssertElementExist(
+    agHelper.AssertElementExist(
       oneClickBindingLocator.searchableColumnSelectedOption(column),
     );
 
-    _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);
+    agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertElementEnabledDisabled(
+    agHelper.AssertElementEnabledDisabled(
       oneClickBindingLocator.connectData,
       0,
       false,
     );
   }
+}
+
+export function expandLoadMoreOptions() {
+  cy.get("body").then(($ele) => {
+    if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
+      const length = $ele.find(oneClickBindingLocator.loadMore).length;
+      new Array(length).fill(" ").forEach((d, i) => {
+        agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
+      });
+    }
+  });
 }

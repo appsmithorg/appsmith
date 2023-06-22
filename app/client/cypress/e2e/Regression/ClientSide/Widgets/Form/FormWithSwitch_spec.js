@@ -1,11 +1,12 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/formSwitchDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formSwitchDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("Switch Widget Functionality check with success message", function () {
     //Open switch widget
@@ -17,7 +18,7 @@ describe("Switch Widget within Form widget Functionality", function () {
       widgetsPage.widgetNameSpan,
     );
     // Change the widget label name
-    cy.testCodeMirror(this.data.switchInputName);
+    cy.testCodeMirror(this.dataSet.switchInputName);
     // Verify widget label name is verified
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
     // Check the toggler button
