@@ -819,10 +819,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public GetElementLength(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.its("length");
+    return this.GetElement(selector).its("length");
   }
 
   public Sleep(timeout = 1000) {
