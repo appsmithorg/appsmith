@@ -34,10 +34,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           workingDir: ./app/client/packages/storybook
-
-      - name: Comment Storybook URL on PR 
-        uses: peter-evans/create-or-update-comment@v2
-        with: 
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-             Storybook-Preview-URL: ${{ steps.chromatic-publish.outputs.buildUrl }}
