@@ -43,7 +43,7 @@ describe(
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
         dataSources.CreateQueryFromActiveTab(mockDBName, false);
-        agHelper.GetNClick(dataSources._templateMenuOption("Select"));
+        dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         dataSources.RunQueryNVerifyResponseViews(10);
         dataSources.NavigateToActiveTab();
         agHelper
@@ -53,7 +53,7 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        agHelper.GetNClick(dataSources._templateMenuOption("Select"));
+        dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         dataSources.RunQueryNVerifyResponseViews(10, false);
         dataSources.NavigateToActiveTab();
         agHelper

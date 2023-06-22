@@ -1,17 +1,24 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import homePage from "../../../../../locators/HomePage";
+import homePageLocators from "../../../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
 const jsObject = "JSObject1";
 let newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName, newWorkspaceName;
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  gitSync,
+  homePage,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import flow ", function () {
   before(() => {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
@@ -19,12 +26,12 @@ describe("Git import flow ", function () {
     });
   });
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
-    _.homePage.NavigateToHome();
-    cy.get(homePage.optionsIcon).first().click();
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(homePage.workspaceImportAppModal).should("be.visible");
+    homePage.NavigateToHome();
+    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
+    cy.get(homePageLocators.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
-    cy.xpath(homePage.uploadLogo).selectFile(
+    cy.xpath(homePageLocators.uploadLogo).selectFile(
       "cypress/fixtures/gitImport.json",
       { force: true },
     );
@@ -36,23 +43,23 @@ describe("Git import flow ", function () {
       cy.get(reconnectDatasourceModal.Modal).should("be.visible");
       cy.ReconnectDatasource("TEDPostgres");
       cy.wait(1000);
-      _.dataSources.FillPostgresDSForm();
+      dataSources.FillPostgresDSForm();
       cy.testDatasource(true);
-      cy.get(".t--save-datasource").click({ force: true });
+      agHelper.GetNClick(dataSources._saveDs);
       cy.wait(1000);
       cy.ReconnectDatasource("TEDMySQL");
       cy.wait(500);
-      _.dataSources.FillMySqlDSForm();
+      dataSources.FillMySqlDSForm();
       cy.testDatasource(true);
-      cy.get(".t--save-datasource").click({ force: true });
+      agHelper.GetNClick(dataSources._saveDs);
       cy.wait(1000);
       cy.ReconnectDatasource("TEDMongo");
       cy.wait(1000);
-      _.dataSources.FillMongoDSForm();
+      dataSources.FillMongoDSForm();
       cy.testDatasource(true);
-      cy.get(".t--save-datasource").click({ force: true });
+      agHelper.GetNClick(dataSources._saveDs);
       cy.wait(2000);
-      /*cy.get(homePage.toastMessage).should(
+      /*cy.get(homePageLocators.toastMessage).should(
         "contain",
         "Application imported successfully",
       ); */
@@ -63,26 +70,26 @@ describe("Git import flow ", function () {
       });
       cy.wait(1000);
 
-      _.gitSync.CreateNConnectToGit();
+      gitSync.CreateNConnectToGit();
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
-        _.gitSync.CreateGitBranch(repoName);
+        gitSync.CreateGitBranch(repoName);
       });
 
-      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+      agHelper.AssertElementExist(gitSync._bottomBarPull);
     });
   });
 
   it("2. Import the previous app connected to Git and reconnect Postgres, MySQL and Mongo db ", () => {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
-    cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon).first().click();
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePageLocators.homeIcon).click();
+    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
     cy.get(".t--import-json-card").next().click();
     cy.importAppFromGit(repoName);
     cy.wait(5000);
@@ -92,27 +99,27 @@ describe("Git import flow ", function () {
     cy.fillPostgresDatasourceForm();
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testDatasource(true);
-    cy.get(".t--save-datasource").click({ force: true });
+    agHelper.GetNClick(dataSources._saveDs);
     cy.wait(500);
     cy.ReconnectDatasource("TEDMySQL");
     cy.wait(500);
     cy.fillMySQLDatasourceForm();
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testDatasource(true);
-    cy.get(".t--save-datasource").click({ force: true });
+    agHelper.GetNClick(dataSources._saveDs);
     cy.wait(500);
     cy.ReconnectDatasource("TEDMongo");
     cy.wait(500);
     cy.fillMongoDatasourceForm();
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testDatasource(true);
-    cy.get(".t--save-datasource").click({ force: true });
+    agHelper.GetNClick(dataSources._saveDs);
     cy.wait(2000);
     cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    /* cy.get(homePage.toastMessage).should(
+    /* cy.get(homePageLocators.toastMessage).should(
       "contain",
      "Application imported successfully",
    ); */
@@ -120,7 +127,7 @@ describe("Git import flow ", function () {
       cy.log(interception.response.body.data);
       cy.wait(1000);
     });
-    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    agHelper.AssertElementExist(gitSync._bottomBarPull);
 
     cy.wait(3000); //for uncommited changes to appear if any!
     cy.get("body").then(($body) => {
@@ -142,7 +149,7 @@ describe("Git import flow ", function () {
   });
   it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     //cy.createGitBranch(newBranch);
-    _.gitSync.CreateGitBranch(newBranch, true);
+    gitSync.CreateGitBranch(newBranch, true);
 
     cy.get("@gitbranchName").then((branName) => {
       newBranch = branName;
@@ -156,43 +163,43 @@ describe("Git import flow ", function () {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
 
-    _.entityExplorer.ClonePage();
+    entityExplorer.ClonePage();
 
     // verify jsObject is not duplicated
-    _.agHelper.Sleep(2000); //for cloning of table data to finish
-    _.entityExplorer.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
-    _.entityExplorer.SelectEntityByName("Page1 Copy");
+    agHelper.Sleep(2000); //for cloning of table data to finish
+    entityExplorer.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
+    entityExplorer.SelectEntityByName("Page1 Copy");
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
 
     // deploy the app and validate data binding
     cy.wait(2000);
-    cy.get(homePage.publishButton).click();
-    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    cy.get(homePageLocators.publishButton).click();
+    agHelper.AssertElementExist(gitSync._bottomBarPull);
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
-    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    agHelper.AssertElementExist(gitSync._bottomBarPull);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
-    _.table.AssertTableLoaded();
+    table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
     cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
-    _.table.AssertTableLoaded();
+    table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("5. Switch to master and verify data in edit and view mode", () => {
@@ -201,21 +208,19 @@ describe("Git import flow ", function () {
     // validate data binding in edit and deploy mode
     cy.latestDeployPreview();
     cy.get(".tbody").should("have.length", 2);
-    _.table.AssertTableLoaded(0, 1, "v1");
+    table.AssertTableLoaded(0, 1, "v1");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
     cy.get(".t--page-switch-tab").contains("Page1 Copy").click({ force: true });
-    _.table.AssertTableLoaded(0, 1, "v1");
+    table.AssertTableLoaded(0, 1, "v1");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    deployMode.NavigateBacktoEditor();
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    //_.canvasHelper.OpenWidgetPane();
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    entityExplorer.NavigateToSwitcher("Widgets");
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);
@@ -230,6 +235,6 @@ describe("Git import flow ", function () {
   });
 
   after(() => {
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    gitSync.DeleteTestGithubRepo(repoName);
   });
 });

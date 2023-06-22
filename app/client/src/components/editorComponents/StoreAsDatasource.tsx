@@ -54,7 +54,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
       kind="secondary"
       onClick={saveOrEditDatasource}
       size="md"
-      startIcon={props.shouldSave ? "cloud" : "edit-2-line"}
+      startIcon={props.shouldSave ? "cloud" : "pencil-line"}
     >
       {props.shouldSave
         ? createMessage(SAVE_DATASOURCE)

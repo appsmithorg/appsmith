@@ -54,7 +54,7 @@ describe("API Bugs", function () {
     cy.get(".t--close-editor").click({ force: true });
     cy.get(dataSources._datasourceModalSave).click();
     // ensures app does not crash and datasource is saved.
-    cy.contains("Edit Datasource to access authentication settings").should(
+    cy.contains("Edit datasource to access authentication settings").should(
       "exist",
     );
   });

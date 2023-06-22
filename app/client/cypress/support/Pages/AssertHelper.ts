@@ -2,14 +2,17 @@ import "cypress-wait-until";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { ReusableHelper } from "../Objects/ReusableHelper";
 
-export enum EntityItems {
-  Page,
-  Query,
-  Api,
-  JSObject,
-  Widget,
-  Datasource,
-}
+export const EntityItems = {
+  Page: 0,
+  Query: 1,
+  Api: 2,
+  JSObject: 3,
+  Widget: 4,
+  Datasource: 5,
+} as const;
+
+export type EntityItemsType = (typeof EntityItems)[keyof typeof EntityItems];
+
 export class AssertHelper extends ReusableHelper {
   private locator = ObjectsRegistry.CommonLocators;
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -30,7 +33,7 @@ export class AssertHelper extends ReusableHelper {
     cy.window().should("have.property", "onload");
   }
 
-  public AssertDelete(entityType: EntityItems) {
+  public AssertDelete(entityType: EntityItemsType) {
     let networkCall = "";
     switch (entityType) {
       case EntityItems.Api:

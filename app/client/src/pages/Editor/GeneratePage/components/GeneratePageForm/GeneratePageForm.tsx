@@ -54,16 +54,10 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
-import {
-  getFirstTimeUserOnboardingComplete,
-  getIsFirstTimeUserOnboardingEnabled,
-} from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
-import { removeFirstTimeUserOnboardingApplicationId } from "actions/onboardingActions";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPluginImages } from "selectors/entitiesSelector";
@@ -292,13 +286,6 @@ function GeneratePageForm() {
 
   const { bucketList, failedFetchingBucketList, isFetchingBucketList } =
     useS3BucketList();
-
-  const isFirstTimeUserOnboardingEnabled = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  const isFirstTimeUserOnboardingComplete = useSelector(
-    getFirstTimeUserOnboardingComplete,
-  );
 
   const onSelectDataSource = useCallback(
     (
@@ -568,15 +555,6 @@ function GeneratePageForm() {
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
-    if (isFirstTimeUserOnboardingEnabled) {
-      dispatch(removeFirstTimeUserOnboardingApplicationId(applicationId));
-    }
-    if (isFirstTimeUserOnboardingComplete) {
-      dispatch({
-        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
-        payload: false,
-      });
-    }
   };
 
   const handleFormSubmit = () => {
