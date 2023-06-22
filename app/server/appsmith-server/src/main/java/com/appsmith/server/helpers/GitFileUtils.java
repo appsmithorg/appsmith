@@ -26,10 +26,12 @@ import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
@@ -157,7 +159,7 @@ public class GitFileUtils {
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
         Map<String, String> resourceMapBody = new HashMap<>();
-        Map<String, JSONObject> dslBody = new HashMap<>();
+        Map<String, String> dslBody = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
@@ -173,7 +175,7 @@ public class GitFileUtils {
                     JSONObject dsl = newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
                     newPage.getUnpublishedPage().getLayouts().get(0).setDsl(null);
                     // pageName will be used for naming the json file
-                    dslBody.put(pageName, dsl);
+                    dslBody.put(pageName, dsl.toString());
                     resourceMap.put(pageName, newPage);
                 });
 
@@ -411,9 +413,14 @@ public class GitFileUtils {
         // Remove null values
         org.apache.commons.collections.CollectionUtils.filter(pages, PredicateUtils.notNullPredicate());
         // Set the DSL to page object before saving
-        Map<String, JSONObject> pageDsl = applicationReference.getPageDsl();
+        Map<String, String> pageDsl = applicationReference.getPageDsl();
         pages.forEach(page -> {
-            page.getUnpublishedPage().getLayouts().get(0).setDsl(pageDsl.get(page.getUnpublishedPage().getName()));
+            JSONParser jsonParser = new JSONParser();
+            try {
+                page.getUnpublishedPage().getLayouts().get(0).setDsl(  (JSONObject) jsonParser.parse(pageDsl.get(page.getUnpublishedPage().getName())) );
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
         });
         pages.forEach(newPage -> {
             // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO

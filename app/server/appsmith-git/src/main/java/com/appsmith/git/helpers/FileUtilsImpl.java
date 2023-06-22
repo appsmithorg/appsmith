@@ -248,7 +248,7 @@ public class FileUtilsImpl implements FileInterface {
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             // Save page metadata
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
-                            Map<String, JSONObject> result =  DSLTransformerHelper.flatten(applicationGitReference.getPageDsl().get(pageName));
+                            Map<String, JSONObject> result =  DSLTransformerHelper.flatten(new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
                             result.forEach((key, jsonObject) -> {
                                 // get path with splitting the name via key
                                 String widgetName = key.substring(key.lastIndexOf(CommonConstants.DELIMITER_POINT ) + 1 );
@@ -868,7 +868,7 @@ public class FileUtilsImpl implements FileInterface {
         // Extract pages and nested actions and actionCollections
         File directory = pageDirectory.toFile();
         Map<String, Object> pageMap = new HashMap<>();
-        Map<String, JSONObject> pageDsl = new HashMap<>();
+        Map<String, String> pageDsl = new HashMap<>();
         Map<String, Object> actionMap = new HashMap<>();
         Map<String, String> actionBodyMap = new HashMap<>();
         Map<String, Object> actionCollectionMap = new HashMap<>();
@@ -884,7 +884,7 @@ public class FileUtilsImpl implements FileInterface {
                 // Construct the nested DSL from the widgets data
                 Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(widgetsData.keySet().stream().toList());
                 JSONObject nestedDSL = DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories);
-                pageDsl.put(page.getName(), nestedDSL);
+                pageDsl.put(page.getName(), nestedDSL.toString());
                 actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
                 actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
             }
