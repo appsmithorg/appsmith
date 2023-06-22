@@ -75,9 +75,9 @@ public class DSLTransformerHelper {
     public static Map<String, List<String>> calculateParentDirectories(List<String> paths) {
         Map<String, List<String>> parentDirectories = new HashMap<>();
 
-        paths = paths.stream().map(currentPath -> currentPath.replace(".json", "")).collect(Collectors.toList());
+        paths = paths.stream().map(currentPath -> currentPath.replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING)).collect(Collectors.toList());
         for (String path : paths) {
-            String[] directories = path.split("/");
+            String[] directories = path.split(CommonConstants.DELIMITER_PATH);
             int lastDirectoryIndex = directories.length - 1;
 
             if (lastDirectoryIndex > 0 && directories[lastDirectoryIndex].equals(directories[lastDirectoryIndex - 1])) {
@@ -109,19 +109,17 @@ public class DSLTransformerHelper {
      * /Form1/Form1.json,
      * /List1/Container1/Container1.json,
      * /MainContainer.json
-     * HashMap 1 - ParentName and keyName mapping
-     * Loop through the map and create a nested JSON
      */
     public static JSONObject getNestedDSL(Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {
         // start from the root
-        JSONObject dsl = jsonMap.get("/MainContainer.json");
-        for (String path : pathMapping.get("MainContainer")) {
+        JSONObject dsl = jsonMap.get(CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER + CommonConstants.JSON_EXTENSION);
+        for (String path : pathMapping.get(CommonConstants.MAIN_CONTAINER)) {
             JSONObject child = getChildren(path, jsonMap, pathMapping);
-            JSONArray children = dsl.optJSONArray("children");
+            JSONArray children = dsl.optJSONArray(CommonConstants.CHILDREN);
             if (children == null) {
                 children = new JSONArray();
                 children.put(child);
-                dsl.put("children", children);
+                dsl.put(CommonConstants.CHILDREN, children);
             } else {
                 children.put(child);
             }
@@ -147,7 +145,7 @@ public class DSLTransformerHelper {
     }
 
     public static String getWidgetName(String path) {
-        String[] directories = path.split("/");
+        String[] directories = path.split(CommonConstants.DELIMITER_PATH);
         return directories[directories.length - 1];
     }
 
