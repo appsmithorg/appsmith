@@ -21,6 +21,11 @@ jest.mock("../JSVariableUpdates.ts", () => ({
   },
 }));
 
+jest.mock("../../../../utils/MessageUtil.ts", () => ({
+  ...jest.requireActual("../../../../utils/MessageUtil.ts"),
+  sendMessage: jest.fn(),
+}));
+
 jest.mock("../../handlers/evalTree", () => {
   const evalTree = {
     JSObject1: {

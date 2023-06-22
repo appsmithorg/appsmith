@@ -13,6 +13,11 @@ jest.mock("../JSVariableUpdates.ts", () => ({
   },
 }));
 
+jest.mock("../../../../utils/MessageUtil.ts", () => ({
+  ...jest.requireActual("../../../../utils/MessageUtil.ts"),
+  sendMessage: jest.fn(),
+}));
+
 TriggerEmitter.on(
   "process_js_variable_updates",
   jsVariableUpdatesHandlerWrapper,
