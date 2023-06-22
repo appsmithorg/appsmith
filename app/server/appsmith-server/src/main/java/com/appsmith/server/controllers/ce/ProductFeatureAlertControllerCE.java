@@ -4,7 +4,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.ce.ProductAlertResponseDTO;
-import com.appsmith.server.services.ce.ProductAlertServiceCE;
+import com.appsmith.server.services.ProductAlertService;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +14,11 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(Url.PRODUCT_ALERT)
-public class ProductFeatureAlertController {
+public class ProductFeatureAlertControllerCE {
 
-    private final ProductAlertServiceCE productAlertService;
+    private final ProductAlertService productAlertService;
 
-    public ProductFeatureAlertController(ProductAlertServiceCE productAlertService) {
+    public ProductFeatureAlertControllerCE(ProductAlertService productAlertService) {
         this.productAlertService = productAlertService;
     }
 
