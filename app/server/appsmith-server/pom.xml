@@ -237,6 +237,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.72</version>
+        </dependency>
         <!-- Only required to run junit5 test from IDE -->
         <dependency>
             <groupId>org.junit.platform</groupId>
