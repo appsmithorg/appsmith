@@ -47,10 +47,6 @@ export function DropdownOption(props: Props) {
   );
 }
 
-const StyledLoadMore = styled(DropdownOption)`
-  color: var(--ads-color-black-500);
-`;
-
 type LoadmoreProps = {
   count: number;
   onLoadMore: () => void;
@@ -70,7 +66,7 @@ export function LoadMoreOptions(props: LoadmoreProps) {
             props.onLoadMore();
           }}
         >
-          <StyledLoadMore
+          <DropdownOption
             label={`Load ${
               props.count - DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW
             } more`}

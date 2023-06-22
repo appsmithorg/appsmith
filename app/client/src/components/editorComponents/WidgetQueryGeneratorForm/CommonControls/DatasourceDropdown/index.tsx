@@ -20,7 +20,10 @@ import {
   DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW,
 } from "../../constants";
 
-const StyledButton = styled.div<{ isDisabled: boolean; isValid: boolean }>`
+const StyledDropdownTrigger = styled.div<{
+  isDisabled: boolean;
+  isValid: boolean;
+}>`
   width: 100%;
   border: 1px solid
     var(
@@ -54,7 +57,7 @@ const StyledMenuSeparator = styled(MenuSeparator)`
   margin: 10px 0px;
 `;
 
-const StyledInput = styled(SearchInput)`
+const StyledInputContainer = styled.div`
   padding: 10px 8px;
 `;
 
@@ -103,7 +106,7 @@ function DatasourceDropdown() {
         open={open}
       >
         <MenuTrigger>
-          <StyledButton
+          <StyledDropdownTrigger
             data-testId="t--one-click-binding-datasource-trigger"
             isDisabled={disabled}
             isValid={!error}
@@ -112,7 +115,7 @@ function DatasourceDropdown() {
             <div>
               <Icon name="arrow-down-s-line" size="md" />
             </div>
-          </StyledButton>
+          </StyledDropdownTrigger>
         </MenuTrigger>
         <StyledMenuContent align="end">
           <div
@@ -122,14 +125,16 @@ function DatasourceDropdown() {
               e.stopPropagation();
             }}
           >
-            <StyledInput
-              autoFocus
-              data-testId="t--one-click-binding-datasource--search"
-              onChange={onChange}
-              size="md"
-              type="text"
-              value={searchText}
-            />
+            <StyledInputContainer>
+              <SearchInput
+                autoFocus
+                data-testId="t--one-click-binding-datasource--search"
+                onChange={onChange}
+                size="md"
+                type="text"
+                value={searchText}
+              />
+            </StyledInputContainer>
 
             {!!queryOptions.length && (
               <StyledMenuGroupName data-testId="t--one-click-binding-datasource-selector--bind-to-query">

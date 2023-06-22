@@ -66,5 +66,5 @@ export const ErrorMessage = styled.div`
 `;
 
 export const Placeholder = styled.div`
-  color: var(--ads-color-black-500);
+  color: var(--ads-v2-color-fg-subtle);
 `;
