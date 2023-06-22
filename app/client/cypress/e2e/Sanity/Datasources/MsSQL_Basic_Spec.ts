@@ -181,7 +181,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     table.UpdateTableCell(0, 4, "Expanse");
     table.UpdateTableCell(0, 5, "Prime");
 
-    table.UpdateTableCell(0, 6, "2016-06-22 19:10:25-07", true);
+    table.UpdateTableCell(0, 6, "2016-06-22 19:10:25-07", false, true);
     agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
     agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
     table.UpdateTableCell(0, 7, "expanse.png");
