@@ -38,3 +38,12 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
              Storybook-Preview-URL: ${{ steps.chromatic-publish.outputs.buildUrl }}
+
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Test XYZ
+          conclusion: ${{ job.status }}
+          output: |
+            {"summary":${{ steps.test.outputs.summary }}}
