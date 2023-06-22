@@ -29,6 +29,7 @@ jobs:
         uses: chromaui/action@v1
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: ./app/client/packages/storybook
 
       - name: Comment Storybook URL on PR 
         uses: peter-evans/create-or-update-comment@v2
