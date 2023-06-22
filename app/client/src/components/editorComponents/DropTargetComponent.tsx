@@ -310,7 +310,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const height = `${rowRef.current * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
 
   const dropTargetStyles = {
-    height: props.isListWidgetCanvas ? "auto" : height,
+    height: props.isListWidgetCanvas ? (isDragging ? "100%" : "auto") : height,
   };
 
   const shouldOnboard =
