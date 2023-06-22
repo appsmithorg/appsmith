@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -74,8 +75,9 @@ public class DSLTransformerHelper {
     public static Map<String, List<String>> calculateParentDirectories(List<String> paths) {
         Map<String, List<String>> parentDirectories = new HashMap<>();
 
+        paths = paths.stream().map(currentPath -> currentPath.replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING)).collect(Collectors.toList());
         for (String path : paths) {
-            String[] directories = path.split("/");
+            String[] directories = path.split(CommonConstants.DELIMITER_PATH);
             int lastDirectoryIndex = directories.length - 1;
 
             if (lastDirectoryIndex > 0 && directories[lastDirectoryIndex].equals(directories[lastDirectoryIndex - 1])) {
@@ -107,58 +109,61 @@ public class DSLTransformerHelper {
      * /Form1/Form1.json,
      * /List1/Container1/Container1.json,
      * /MainContainer.json
-     * HashMap 1 - ParentName and keyName mapping
-     * Loop through the map and create a nested JSON
      */
-    public static JSONObject constructNestedJSON(Map<String, JSONObject> jsonMap) {
-        // Create the root object
-        JSONObject rootObject = new JSONObject();
-
-        // Get the parent object from the map using the special key "MainContainer"
-        JSONObject parentObject = jsonMap.get("/MainContainer.json");
-
-        // Construct the nested JSON recursively
-        constructNestedJSONHelper(parentObject, jsonMap, rootObject);
-
-        return rootObject;
-    }
-
-    private static void constructNestedJSONHelper(JSONObject parentObject, Map<String, JSONObject> jsonMap, JSONObject rootObject) {
-        String parentWidgetName = parentObject.optString("widgetName");
-
-        // Create the children array for the parent object
-        JSONArray childrenArray = new JSONArray();
-
-        // Find the child objects that have a parent matching the current widget name
-        for (Map.Entry<String, JSONObject> entry : jsonMap.entrySet()) {
-            String filePath = entry.getKey();
-            JSONObject childObject = entry.getValue();
-
-            String relativePath = filePath.substring(0, filePath.lastIndexOf("/"));
-            String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-
-            if (relativePath.equals(parentWidgetName)) {
-                // Add the child object to the children array
-                JSONObject modifiedChildObject = new JSONObject(childObject.toString());
-                modifiedChildObject.remove("widgetName");
-                childrenArray.put(modifiedChildObject);
-
-                // Recursively construct the nested JSON for the child object
-                constructNestedJSONHelper(childObject, jsonMap, modifiedChildObject);
-            } else if (relativePath.equals(parentWidgetName + "/" + fileName)) {
-                // Add the child object to the root object as a direct child
-                JSONObject modifiedChildObject = new JSONObject(childObject.toString());
-                modifiedChildObject.remove("widgetName");
-                rootObject.put(fileName, modifiedChildObject);
-
-                // Recursively construct the nested JSON for the child object
-                constructNestedJSONHelper(childObject, jsonMap, modifiedChildObject);
+    public static JSONObject getNestedDSL(Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {
+        // start from the root
+        JSONObject dsl = jsonMap.get(CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER + CommonConstants.JSON_EXTENSION);
+        for (String path : pathMapping.get(CommonConstants.MAIN_CONTAINER)) {
+            JSONObject child = getChildren(path, jsonMap, pathMapping);
+            JSONArray children = dsl.optJSONArray(CommonConstants.CHILDREN);
+            if (children == null) {
+                children = new JSONArray();
+                children.put(child);
+                dsl.put(CommonConstants.CHILDREN, children);
+            } else {
+                children.put(child);
             }
         }
+        return dsl;
+    }
 
-        // Add the children array to the parent object
-        if (childrenArray.length() > 0) {
-            parentObject.put("children", childrenArray);
+    public static JSONObject getChildren(String pathToWidget, Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {
+        // Recursively get the children
+        List<String>  children =  pathMapping.get(getWidgetName(pathToWidget));
+        JSONObject parentObject = jsonMap.get(pathToWidget + CommonConstants.JSON_EXTENSION);
+        if (children != null) {
+            JSONArray childArray = new JSONArray();
+            for (String childWidget : children) {
+                childArray.put(getChildren(childWidget, jsonMap, pathMapping));
+            }
+            // Check if the parent object has type=CANVAS_WIDGET as children
+            // If yes, then add the children array to the CANVAS_WIDGET's children
+            appendChildren(parentObject, childArray);
         }
+
+        return parentObject;
+    }
+
+    public static String getWidgetName(String path) {
+        String[] directories = path.split(CommonConstants.DELIMITER_PATH);
+        return directories[directories.length - 1];
+    }
+
+    public static JSONObject appendChildren(JSONObject parent, JSONArray childWidgets) {
+        JSONArray children = parent.optJSONArray(CommonConstants.CHILDREN);
+        if (children == null) {
+            parent.put(CommonConstants.CHILDREN, childWidgets);
+        } else {
+            // Is the children CANVAS_WIDGET
+            if (children.length() == 1) {
+                JSONObject childObject = children.getJSONObject(0);
+                if (CommonConstants.CANVAS_WIDGET.equals(childObject.optString(CommonConstants.WIDGET_TYPE))) {
+                    childObject.put(CommonConstants.CHILDREN, childWidgets);
+                }
+            } else {
+                parent.put(CommonConstants.CHILDREN, childWidgets);
+            }
+        }
+        return parent;
     }
 }

@@ -813,41 +813,6 @@ public class FileUtilsImpl implements FileInterface {
         return applicationGitReference;
     }
 
-    private void updateGitApplicationReferenceV2(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
-        // Extract pages and nested actions and actionCollections
-        File directory = pageDirectory.toFile();
-        Map<String, Object> pageMap = new HashMap<>();
-        Map<String, String> pageDsl = new HashMap<>();
-        Map<String, Object> actionMap = new HashMap<>();
-        Map<String, String> actionBodyMap = new HashMap<>();
-        Map<String, Object> actionCollectionMap = new HashMap<>();
-        Map<String, String> actionCollectionBodyMap = new HashMap<>();
-        if (directory.isDirectory()) {
-            // Loop through all the directories and nested directories inside the pages directory to extract
-            // pages, actions and actionCollections from the JSON files
-            for (File page : Objects.requireNonNull(directory.listFiles())) {
-                pageMap.put(page.getName(), readPageMetadata(page.toPath(), gson));
-
-                // Read widgets data recursively from the widgets directory
-                Map<String, JSONObject> widgetsData = readWidgetsData(page.toPath().resolve(CommonConstants.WIDGETS).toString());
-                // Construct the nested DSL from the widgets data
-                Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(widgetsData.keySet().stream().toList());
-                JSONObject nestedDSL = DSLTransformerHelper.constructNestedJSON(widgetsData);
-
-                actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
-                actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "This feature is not supported yet");
-            }
-        }
-        applicationGitReference.setActions(actionMap);
-        applicationGitReference.setActionBody(actionBodyMap);
-        applicationGitReference.setActionCollections(actionCollectionMap);
-        applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
-        applicationGitReference.setPages(pageMap);
-        // Extract datasources
-        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
-    }
-
     @Deprecated
     private void   updateGitApplicationReference(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
         // Extract pages and nested actions and actionCollections
@@ -899,20 +864,54 @@ public class FileUtilsImpl implements FileInterface {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
     }
 
+    private void updateGitApplicationReferenceV2(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
+        // Extract pages and nested actions and actionCollections
+        File directory = pageDirectory.toFile();
+        Map<String, Object> pageMap = new HashMap<>();
+        Map<String, String> pageDsl = new HashMap<>();
+        Map<String, Object> actionMap = new HashMap<>();
+        Map<String, String> actionBodyMap = new HashMap<>();
+        Map<String, Object> actionCollectionMap = new HashMap<>();
+        Map<String, String> actionCollectionBodyMap = new HashMap<>();
+        if (directory.isDirectory()) {
+            // Loop through all the directories and nested directories inside the pages directory to extract
+            // pages, actions and actionCollections from the JSON files
+            for (File page : Objects.requireNonNull(directory.listFiles())) {
+                pageMap.put(page.getName(), readPageMetadata(page.toPath(), gson));
+
+                // Read widgets data recursively from the widgets directory
+                Map<String, JSONObject> widgetsData = readWidgetsData(page.toPath().resolve(CommonConstants.WIDGETS).toString());
+                // Construct the nested DSL from the widgets data
+                Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(widgetsData.keySet().stream().toList());
+                JSONObject nestedDSL = DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories);
+                pageDsl.put(page.getName(), nestedDSL.toString());
+                actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
+                actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
+            }
+        }
+        applicationGitReference.setActions(actionMap);
+        applicationGitReference.setActionBody(actionBodyMap);
+        applicationGitReference.setActionCollections(actionCollectionMap);
+        applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
+        applicationGitReference.setPages(pageMap);
+        applicationGitReference.setPageDsl(pageDsl);
+        // Extract datasources
+        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
+    }
+
     private Map<String, JSONObject> readWidgetsData(String directoryPath) {
         Map<String, JSONObject> jsonMap = new HashMap<>();
         File directory = new File(directoryPath);
 
         if (!directory.isDirectory()) {
-            System.err.println("Invalid directory path: " + directoryPath);
+            log.error("Error reading directory: {}", directoryPath);
             return jsonMap;
         }
 
         try {
             readFilesRecursively(directory, jsonMap, directoryPath);
-        } catch (IOException e) {
-            System.err.println("Error reading directory: " + directoryPath);
-            e.printStackTrace();
+        } catch (IOException exception) {
+            log.error("Error reading directory: {}, error message {}", directoryPath, exception.getMessage());
         }
 
         return jsonMap;
@@ -927,18 +926,17 @@ public class FileUtilsImpl implements FileInterface {
         for (File file : files) {
             if (file.isFile()) {
                 String filePath = file.getAbsolutePath();
-                String relativePath = filePath.replace(rootPath, "");
+                String relativePath = filePath.replace(rootPath, CommonConstants.EMPTY_STRING);
                 relativePath = relativePath.substring(relativePath.indexOf("//") + 1);
-                if (!relativePath.startsWith("/MainContainer")) {
-                    relativePath = "/MainContainer" + relativePath;
+                if (!relativePath.startsWith(CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER)) {
+                    relativePath = CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER + relativePath;
                 }
                 try {
                     String fileContent = new String(Files.readAllBytes(file.toPath()));
                     JSONObject jsonObject = new JSONObject(fileContent);
                     jsonMap.put(relativePath, jsonObject);
-                } catch (IOException e) {
-                    System.err.println("Error reading file: " + filePath);
-                    e.printStackTrace();
+                } catch (IOException exception) {
+                    log.error("Error reading file: {}, error message {}", filePath, exception.getMessage());
                 }
             } else if (file.isDirectory()) {
                 readFilesRecursively(file, jsonMap, rootPath);
