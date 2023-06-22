@@ -832,7 +832,7 @@ public class FileUtilsImpl implements FileInterface {
                 Map<String, JSONObject> widgetsData = readWidgetsData(page.toPath().resolve(CommonConstants.WIDGETS).toString());
                 // Construct the nested DSL from the widgets data
                 Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(widgetsData.keySet().stream().toList());
-                JSONObject nestedDSL = DSLTransformerHelper.constructNestedJSON(widgetsData);
+                JSONObject nestedDSL = DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories);
 
                 actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
                 actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
