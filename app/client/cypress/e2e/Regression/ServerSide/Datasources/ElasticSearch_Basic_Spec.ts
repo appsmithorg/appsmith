@@ -1,13 +1,17 @@
 import {
   agHelper,
-  entityExplorer,
   dataSources,
   entityItems,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-let dsName: any, books: any;
 describe("Validate Elasticsearch DS", () => {
+  let dsName: any,
+    books: any,
+    containerName = "elasticsearch1";
+
   before("Create a new ElasticSearch DS", () => {
+    dataSources.StartContainerNVerify("Elasticsearch", containerName);
     dataSources.CreateDataSource("Elasticsearch");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -201,5 +205,6 @@ describe("Validate Elasticsearch DS", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
+    dataSources.StopNDeleteContainer(containerName);
   });
 });

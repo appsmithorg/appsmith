@@ -109,6 +109,7 @@ export class JSEditor {
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+  //#endregion
 
   // Pastes or types content into field
   private HandleJsContentFilling(toPaste: boolean, JSCode: string, el: any) {
@@ -123,7 +124,6 @@ export class JSEditor {
       });
     }
   }
-  //#endregion
 
   //#region Page functions
   public NavigateToNewJSEditor() {
