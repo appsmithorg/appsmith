@@ -70,7 +70,7 @@ import {
 } from "actions/analyticsActions";
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { DefaultFeatureFlagValue } from "@appsmith/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -517,7 +517,7 @@ export function* fetchFeatureFlags() {
     if (isValidResponse) {
       yield put(
         fetchFeatureFlagsSuccess({
-          ...DefaultFeatureFlagValue,
+          ...DEFAULT_FEATURE_FLAG_VALUE,
           ...response.data,
         }),
       );

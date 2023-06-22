@@ -23,7 +23,7 @@ import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system";
 import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
-import { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 
 /**
@@ -49,7 +49,7 @@ function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
   const isAppLogoEnabled = useFeatureFlagCheck(
-    FeatureFlag.APP_NAVIGATION_LOGO_UPLOAD,
+    FEATURE_FLAG.APP_NAVIGATION_LOGO_UPLOAD,
   );
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(

@@ -18,7 +18,7 @@ import {
   FIELD_REQUIRED_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const getTrimmedData = (formData: any) => {
   const dataType = getType(formData);
@@ -195,7 +195,7 @@ export const caculateIsHidden = (
       comparison = hiddenConfig.comparison;
     }
 
-    let flagValue: keyof FeatureFlags = FeatureFlag.TEST_FLAG;
+    let flagValue: keyof FeatureFlags = FEATURE_FLAG.TEST_FLAG;
     if ("flagValue" in hiddenConfig) {
       flagValue = hiddenConfig.flagValue;
     }
