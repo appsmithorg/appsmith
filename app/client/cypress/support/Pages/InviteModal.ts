@@ -18,6 +18,9 @@ export class InviteModal {
     _upgradeButton: "[data-testid='t--upgrade-btn']",
     _upgradeContent: "[data-testid='t--upgrade-content']",
     _restrictionChange: "[data-testid='t--change-embedding-restriction']",
+    _privateEmbedRampAppSettings:
+      "[data-testid='t--private-embed-settings-ramp']",
+    _privateEmbedRampLink: "[data-testid='t--private-embed-ramp-link']",
   };
 
   public SelectInviteTab() {

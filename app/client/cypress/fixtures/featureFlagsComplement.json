@@ -1,0 +1,9 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY": true
+  }
+}
