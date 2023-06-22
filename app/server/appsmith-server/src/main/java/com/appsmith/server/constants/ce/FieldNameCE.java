@@ -176,4 +176,6 @@ public class FieldNameCE {
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
 
     public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
+
+    public static final String VALIDATION_CONTEXT = "validationContext";
 }

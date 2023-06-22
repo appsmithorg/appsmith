@@ -13,10 +13,10 @@ public interface FeatureFlagServiceCE {
      * User object and simply wish to do a boolean check
      *
      * @param featureEnum
-     * @param user
+     * @param context
      * @return Boolean
      */
-    Boolean check(FeatureFlagEnum featureEnum, User user);
+    Mono<Boolean> check(FeatureFlagEnum featureEnum, Object context);
 
     /**
      * Check if a particular feature is enabled for the current logged in user. Useful in chaining reactive functions

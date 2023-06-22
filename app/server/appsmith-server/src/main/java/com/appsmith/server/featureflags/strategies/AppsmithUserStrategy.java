@@ -17,7 +17,7 @@ public class AppsmithUserStrategy extends AbstractFlipStrategy {
 
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext) {
-        User user = (User) executionContext.getValue(FieldName.USER, true);
+        User user = (User) executionContext.getValue(FieldName.VALIDATION_CONTEXT, true);
 
         return StringUtils.endsWith(user.getEmail(), "@appsmith.com");
     }

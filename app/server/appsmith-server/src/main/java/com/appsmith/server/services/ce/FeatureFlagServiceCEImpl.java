@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.configurations.FeatureFlagValidationContextConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -18,31 +19,38 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final SessionUserService sessionUserService;
 
+    private final FeatureFlagValidationContextConfig featureFlagValidationContextConfig;
+
     private final FF4j ff4j;
 
     @Autowired
     public FeatureFlagServiceCEImpl(SessionUserService sessionUserService,
-                                    FF4j ff4j) {
+                                    FF4j ff4j,
+                                    FeatureFlagValidationContextConfig featureFlagValidationContextConfig) {
         this.sessionUserService = sessionUserService;
         this.ff4j = ff4j;
+        this.featureFlagValidationContextConfig = featureFlagValidationContextConfig;
     }
 
     @Override
-    public Boolean check(FeatureFlagEnum featureEnum, User user) {
+    public Mono<Boolean> check(FeatureFlagEnum featureEnum, Object context) {
         if (featureEnum == null) {
-            return false;
+            return Mono.just(false);
         }
-        return check(featureEnum.toString(), user);
+        return Mono.just(check(featureEnum.toString(), context));
     }
 
     @Override
     public Mono<Boolean> check(FeatureFlagEnum featureEnum) {
-        return sessionUserService.getCurrentUser()
-                .map(user -> check(featureEnum, user));
+        Object validationContext = featureFlagValidationContextConfig
+                .featureFlagEnumValidationContextMap()
+                .getOrDefault(featureEnum, featureFlagValidationContextConfig.currentUserValidationContextProvider)
+                .getFeatureFlagValidationContext();
+        return check(featureEnum, validationContext);
     }
 
-    private Boolean check(String featureName, User user) {
-        return ff4j.check(featureName, new FlippingExecutionContext(Map.of(FieldName.USER, user)));
+    private Boolean check(String featureName, Object context) {
+        return ff4j.check(featureName, new FlippingExecutionContext(Map.of(FieldName.VALIDATION_CONTEXT, context)));
     }
 
     @Override

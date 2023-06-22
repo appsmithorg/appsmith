@@ -45,7 +45,7 @@ public class EmailBasedRolloutStrategy extends AbstractFlipStrategy {
      */
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext) {
-        User user = (User) executionContext.getValue(FieldName.USER, true);
+        User user = (User) executionContext.getValue(FieldName.VALIDATION_CONTEXT, true);
         int atIndex = user.getEmail().indexOf("@");
 
         if (atIndex > 0) {
