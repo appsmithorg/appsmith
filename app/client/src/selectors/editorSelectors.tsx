@@ -60,6 +60,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { unflattenDSLById } from "@shared/dsl";
+import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -977,14 +978,16 @@ export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
   getCurrentPageId,
-  (canvasWidgets, inPreviewMode, pageId) => {
+  getIsAnonymousDataPopupVisible,
+  (canvasWidgets, inPreviewMode, pageId, isAnonymousDataPopupVisible) => {
     const state = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
     );
     if (
       !state[pageId] ||
       Object.keys(canvasWidgets).length > 1 ||
-      inPreviewMode
+      inPreviewMode ||
+      isAnonymousDataPopupVisible
     )
       return false;
 
