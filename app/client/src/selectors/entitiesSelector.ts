@@ -1130,3 +1130,7 @@ export const getDatasourcesUsedInApplicationByActions = (
       ds.id !== TEMP_DATASOURCE_ID,
   );
 };
+
+export const getWidgetPositions = (state: AppState) => {
+  return state.entities.widgetPositions;
+};
