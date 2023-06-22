@@ -29,7 +29,7 @@ describe("Autocomplete tests for setters", () => {
 
     _.agHelper.GetNAssertElementText(
       _.locators._hints,
-      "Button1.setColour()",
+      "Button1.setColor()",
       "have.text",
       5,
     );
