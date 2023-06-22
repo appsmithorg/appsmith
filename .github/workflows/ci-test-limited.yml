@@ -85,7 +85,7 @@ jobs:
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
-          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+          echo "::set-output name=run_result::$run_result_env"
 
       # Download failed_spec list for all jobs in case of rerun
       - uses: actions/download-artifact@v3
@@ -156,18 +156,6 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
-
-      - name: Setup Arango docker & ElasticSearch containers
-        working-directory: app/client/cypress
-        run: |
-          docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
-          docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-        # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
-        # docker restart mssqldb
-        # sudo ufw allow 1433/tcp
-        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
-        # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
-        # docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
 
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v3
@@ -403,23 +391,26 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs
-        if: always()
+        if: failure()
         working-directory: "."
         run: |
-          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+          mkdir -p  ~/dockerlogs
+          docker logs appsmith 2>&1 > ~/dockerlogs/dockerlogs-${{ matrix.job }}.txt
 
       # Upload docker logs
-      - name: Upload docker logs on failure
-        if: always()
+      - name: Upload failed test list artifact
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: dockerlogs-${{ matrix.job }}
-          path: ~/dockerlogs.txt
+          name: dockerlogs
+          path: ~/dockerlogs
 
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::failedtest"
+          echo "failedtest" > ~/run_result
 
       # Create a directory ~/failed_spec_ci and add a dummy file
       # This will ensure upload and download steps are successful
@@ -461,21 +452,6 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      # Upload the screenshots as artifacts if there's a failure
-      - name: Upload screenshots on failure
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
-
-      # Upload the snapshots as artifacts for layout validation
-      - name: Upload snapshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: cypress-snapshots-visualRegression
-          path: app/client/cypress/snapshots/
-
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v3
@@ -486,4 +462,6 @@ jobs:
 
       # Set status = success
       - name: Save the status of the run
-        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::success"
+          echo "success" > ~/run_result
