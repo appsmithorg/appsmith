@@ -40,7 +40,7 @@ export const CONFIG = {
     borderWidth: "1",
     dynamicBindingPathList: [],
     primaryColumns: {},
-    tableData: undefined,
+    tableData: "",
     columnWidthMap: {},
     columnOrder: [],
     enableClientSideSearch: true,

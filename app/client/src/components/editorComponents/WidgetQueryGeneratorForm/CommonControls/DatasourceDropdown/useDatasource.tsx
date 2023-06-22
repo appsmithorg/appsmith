@@ -36,6 +36,7 @@ import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { getDatatype } from "utils/AppsmithUtils";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -52,7 +53,7 @@ function sortQueries(queries: ActionDataState, expectedDatatype: string) {
       B: 0,
     };
 
-    if (A.config.name > B.config.name) {
+    if (A.config.name < B.config.name) {
       score.A += SORT_INCREAMENT << SortingWeights.alphabetical;
     } else {
       score.B += SORT_INCREAMENT << SortingWeights.alphabetical;
@@ -70,15 +71,15 @@ function sortQueries(queries: ActionDataState, expectedDatatype: string) {
       score.B += SORT_INCREAMENT << SortingWeights.execution;
     }
 
-    if (typeof A.data?.body === expectedDatatype) {
+    if (getDatatype(A.data?.body) === expectedDatatype) {
       score.A += SORT_INCREAMENT << SortingWeights.datatype;
     }
 
-    if (typeof B.data?.body === expectedDatatype) {
+    if (getDatatype(B.data?.body) === expectedDatatype) {
       score.B += SORT_INCREAMENT << SortingWeights.datatype;
     }
 
-    return score.A < score.B ? -1 : 1;
+    return score.A > score.B ? -1 : 1;
   });
 }
 
@@ -94,6 +95,7 @@ export function useDatasource(searchText: string) {
     addBinding,
     config,
     errorMsg,
+    expectedType,
     isSourceOpen,
     onSourceClose,
     propertyName,
@@ -339,7 +341,7 @@ export function useDatasource(searchText: string) {
   const queries = useSelector(getActionsForCurrentPage);
 
   const queryOptions = useMemo(() => {
-    return sortQueries(queries, "array").map((query) => ({
+    return sortQueries(queries, expectedType).map((query) => ({
       id: query.config.id,
       label: query.config.name,
       value: `{{${query.config.name}.data}}`,

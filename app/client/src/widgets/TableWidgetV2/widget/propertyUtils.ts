@@ -947,3 +947,82 @@ export function selectColumnOptionsValidation(
 
 export const getColumnPath = (propPath: string) =>
   propPath.split(".").slice(0, 2).join(".");
+
+export const tableDataValidation = (
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) => {
+  const invalidResponse = {
+    isValid: false,
+    parsed: [],
+    messages: [
+      {
+        name: "TypeError",
+        message: `This value does not evaluate to type Array<Object>}`,
+      },
+    ],
+  };
+
+  if (value === "") {
+    return {
+      isValid: true,
+      parsed: [],
+    };
+  }
+
+  if (value === undefined || value === null) {
+    return {
+      isValid: false,
+      parsed: [],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Data is undefined, re-run your query or fix the data",
+        },
+      ],
+    };
+  }
+
+  if (!_.isString(value) && !Array.isArray(value)) {
+    return invalidResponse;
+  }
+
+  let parsed = value;
+
+  if (_.isString(value)) {
+    try {
+      parsed = JSON.parse(value as string);
+    } catch (e) {
+      return invalidResponse;
+    }
+  }
+
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) {
+      return {
+        isValid: true,
+        parsed: [],
+      };
+    }
+
+    for (let i = 0; i < parsed.length; i++) {
+      if (!_.isPlainObject(parsed[i])) {
+        return {
+          isValid: false,
+          parsed: [],
+          messages: [
+            {
+              name: "ValidationError",
+              message: `Invalid object at index ${i}`,
+            },
+          ],
+        };
+      }
+    }
+
+    return { isValid: true, parsed };
+  }
+
+  return invalidResponse;
+};

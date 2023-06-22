@@ -63,6 +63,7 @@ export const ErrorMessage = styled.div`
   font-size: 12px;
   line-height: 14px;
   color: var(--ads-v2-color-fg-error);
+  margin-top: 5px;
 `;
 
 export const Placeholder = styled.div`

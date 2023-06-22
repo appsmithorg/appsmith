@@ -37,6 +37,7 @@ type WidgetQueryGeneratorFormContextType = {
   isSourceOpen: boolean;
   onSourceClose: () => void;
   errorMsg: string;
+  expectedType: string;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -60,6 +61,7 @@ const DEFAULT_CONTEXT_VALUE = {
   onSourceClose: noop,
   errorMsg: "",
   propertyName: "",
+  expectedType: "",
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -73,6 +75,7 @@ type Props = {
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
   widgetId: string;
   errorMsg: string;
+  expectedType: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -80,7 +83,14 @@ function WidgetQueryGeneratorForm(props: Props) {
 
   const [pristine, setPristine] = useState(true);
 
-  const { errorMsg, onUpdate, propertyPath, propertyValue, widgetId } = props;
+  const {
+    errorMsg,
+    expectedType,
+    onUpdate,
+    propertyPath,
+    propertyValue,
+    widgetId,
+  } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);
 
@@ -183,6 +193,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       onSourceClose,
       errorMsg,
       propertyName: propertyPath,
+      expectedType,
     };
   }, [
     config,
