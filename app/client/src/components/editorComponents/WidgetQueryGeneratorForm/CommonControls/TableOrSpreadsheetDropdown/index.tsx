@@ -48,7 +48,7 @@ function TableOrSpreadsheetDropdown() {
           {options.map((option) => {
             return (
               <Option
-                className="t--one-click-binding-table-selector--table"
+                data-testId="t--one-click-binding-table-selector--table"
                 key={option.id}
                 value={option.value}
               >
@@ -57,7 +57,7 @@ function TableOrSpreadsheetDropdown() {
             );
           })}
         </Select>
-        <ErrorMessage data-testid="t--one-click-binding-table-selector--error">
+        <ErrorMessage data-testId="t--one-click-binding-table-selector--error">
           {error}
         </ErrorMessage>
       </SelectWrapper>
