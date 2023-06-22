@@ -1,5 +1,5 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import homePage from "../../../../../locators/HomePage";
+import homePageLocators from "../../../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
 const jsObject = "JSObject1";
@@ -9,7 +9,11 @@ let repoName, newWorkspaceName;
 import {
   agHelper,
   dataSources,
+  deployMode,
+  entityExplorer,
+  gitSync,
   homePage,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import flow ", function () {
@@ -23,11 +27,11 @@ describe("Git import flow ", function () {
   });
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     homePage.NavigateToHome();
-    cy.get(homePage.optionsIcon).first().click();
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(homePage.workspaceImportAppModal).should("be.visible");
+    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
+    cy.get(homePageLocators.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
-    cy.xpath(homePage.uploadLogo).selectFile(
+    cy.xpath(homePageLocators.uploadLogo).selectFile(
       "cypress/fixtures/gitImport.json",
       { force: true },
     );
@@ -55,7 +59,7 @@ describe("Git import flow ", function () {
       cy.testDatasource(true);
       agHelper.GetNClick(dataSources._saveDs);
       cy.wait(2000);
-      /*cy.get(homePage.toastMessage).should(
+      /*cy.get(homePageLocators.toastMessage).should(
         "contain",
         "Application imported successfully",
       ); */
@@ -83,9 +87,9 @@ describe("Git import flow ", function () {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
-    cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon).first().click();
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePageLocators.homeIcon).click();
+    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
     cy.get(".t--import-json-card").next().click();
     cy.importAppFromGit(repoName);
     cy.wait(5000);
@@ -115,7 +119,7 @@ describe("Git import flow ", function () {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    /* cy.get(homePage.toastMessage).should(
+    /* cy.get(homePageLocators.toastMessage).should(
       "contain",
      "Application imported successfully",
    ); */
@@ -171,7 +175,7 @@ describe("Git import flow ", function () {
 
     // deploy the app and validate data binding
     cy.wait(2000);
-    cy.get(homePage.publishButton).click();
+    cy.get(homePageLocators.publishButton).click();
     agHelper.AssertElementExist(gitSync._bottomBarPull);
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
@@ -216,7 +220,6 @@ describe("Git import flow ", function () {
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    //canvasHelper.OpenWidgetPane();
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
