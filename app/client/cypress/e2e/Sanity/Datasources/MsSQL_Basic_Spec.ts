@@ -138,12 +138,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   it("3.One click binding - should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
-
     oneClickBinding.ChooseAndAssertForm(
       `New from ${dsName}`,
       dsName,
@@ -171,8 +165,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     ].forEach((column) => {
       agHelper.AssertElementExist(table._headerCell(column));
     });
-
-    // agHelper.AssertElementExist(table._showPageItemsCount);
 
     table.EnableEditableOfColumn("episode_id", "v2");
 
@@ -209,8 +201,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     agHelper.AssertElementExist(table._bodyCell("Expanse"));
 
     agHelper.Sleep(1000);
-
-    // (cy as any).editTableCell(1, 0);
 
     agHelper.Sleep(500);
 

@@ -15,8 +15,6 @@ describe("Table widget one click binding feature", () => {
   it("1.should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("MySql");
 
     cy.get("@dsName").then((dsName) => {
@@ -42,7 +40,6 @@ describe("Table widget one click binding feature", () => {
       agHelper.AssertElementExist(table._headerCell(column));
     });
 
-    // agHelper.AssertElementExist(table._showPageItemsCount);
     table.EnableEditableOfColumn("Country", "v2");
 
     agHelper.GetNClick(table._addNewRow, 0, true);
@@ -70,8 +67,6 @@ describe("Table widget one click binding feature", () => {
     agHelper.AssertElementExist(table._bodyCell("Flag_Of_Macau.png"));
 
     agHelper.Sleep(1000);
-
-    // (cy as any).editTableCell(1, 0);
 
     agHelper.Sleep(500);
 

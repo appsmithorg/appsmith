@@ -975,7 +975,6 @@ export class DataSources {
       | "Oracle",
     navigateToCreateNewDs = true,
     testNSave = true,
-    databaseName?: string,
   ) {
     let guid: any;
     let dataSourceName = "";
