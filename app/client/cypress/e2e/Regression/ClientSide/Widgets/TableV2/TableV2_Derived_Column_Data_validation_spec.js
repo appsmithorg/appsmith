@@ -1,6 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import {agHelper, apiPage, entityExplorer, propPane} from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
@@ -14,7 +19,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-    apiPage.RunAPI()
+    apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column
     // Open property pane
     entityExplorer.SelectEntityByName("Table1");
