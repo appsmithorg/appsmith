@@ -101,8 +101,6 @@ export const useWidgetNameCanvas = () => {
       context.font = `400 ${FONT_SIZE}px sans-serif`;
       context.fillStyle = "#ffffff";
       context.fillText(text, HORIZONTAL_PADDING, VERTICAL_PADDING * 1.4);
-
-      console.log("####", { position, left, top, canvasWidth });
     }
   };
 
