@@ -45,7 +45,7 @@ FETCH NEXT
 
     expect(expr).toEqual([
       {
-        name: "Select_query",
+        name: "Select_someTable",
         type: "select",
         dynamicBindingPathList: [
           {
@@ -97,7 +97,7 @@ FETCH NEXT
 
     expect(expr).toEqual([
       {
-        name: "Select_query",
+        name: "Select_someTable",
         type: "select",
         dynamicBindingPathList: [
           {
@@ -159,7 +159,7 @@ FETCH NEXT
 
     expect(expr).toEqual([
       {
-        name: "Update_query",
+        name: "Update_someTable",
         type: "update",
         dynamicBindingPathList: [
           {
@@ -219,7 +219,7 @@ FETCH NEXT
     );
     expect(expr).toEqual([
       {
-        name: "Insert_query",
+        name: "Insert_someTable",
         type: "create",
         dynamicBindingPathList: [
           {
