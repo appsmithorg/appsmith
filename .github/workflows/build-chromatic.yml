@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
-        run: yarn install
+        run: yarn install --immutable
       
       - name: Publish to Chromatic
         id: chromatic-publish
