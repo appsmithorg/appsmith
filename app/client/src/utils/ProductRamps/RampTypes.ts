@@ -1,5 +1,9 @@
 export type EnvTypes = "CLOUD_HOSTED" | "SELF_HOSTED";
-export type RampSection = "workspace_share" | "app_share";
+export type RampSection =
+  | "workspace_share"
+  | "app_share"
+  | "share_modal"
+  | "app_settings";
 
 export type RampsForRolesTypes = {
   [key: string]: boolean;

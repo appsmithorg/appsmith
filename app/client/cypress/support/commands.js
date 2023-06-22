@@ -1108,13 +1108,11 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("sucessSave");
 
   cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
-    req.reply((res) => {
-      res.send({
-        //status: 200,
-        body: {
-          success: true, //since anything can be faked!
-        },
-      });
+    req.reply({
+      statusCode: 200,
+      body: {
+        success: false, //since anything can be faked!
+      },
     });
   });
 
@@ -1127,6 +1125,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/tenants", (req) => {
     req.headers["origin"] = "Cypress";
   }).as("postTenant");
+  cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -2152,5 +2151,4 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
-  onboarding.skipSignposting();
 });

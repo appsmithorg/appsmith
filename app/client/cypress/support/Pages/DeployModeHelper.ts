@@ -33,6 +33,7 @@ export class DeployMode {
     addDebugFlag = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
+
     // Wait before publish
     this.agHelper.Sleep(3000); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
@@ -97,7 +98,7 @@ export class DeployMode {
     ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
     this.assertHelper.AssertDocumentReady();
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
-    this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementVisible(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
   public NavigateToHomeDirectly() {

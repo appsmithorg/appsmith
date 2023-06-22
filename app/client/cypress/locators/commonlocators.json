@@ -168,7 +168,7 @@
   "debugger": ".t--debugger-count",
   "errorTab": "[data-testid=t--tab-ERROR]",
   "debugErrorMsg": "[data-testid=t--debugger-log-message]",
-  "tableButtonVariant": ".t--property-control-buttonvariant input",
+  "tableButtonVariant": ".t--property-control-buttonvariant",
   "debuggerLabel": "span.debugger-label",
   "debuggerToggle": "[data-testid=t--debugger-toggle]",
   "debuggerDownStreamErrMsg": "[data-testid=t--debugger-downStreamErrorMsg]",

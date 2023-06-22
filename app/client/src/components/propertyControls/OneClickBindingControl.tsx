@@ -54,9 +54,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   public render() {
     return (
       <WidgetQueryGeneratorForm
-        entityId={this.props.widgetProperties.widgetId}
         errorMsg={this.getErrorMessage()}
-        expectedType={this.props.expected?.autocompleteDataType}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}

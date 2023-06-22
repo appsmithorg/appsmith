@@ -64,6 +64,8 @@ function ExplorerContent() {
           toUrl: builderURL({ pageId }),
         });
       }
+
+      AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
       dispatch(forceOpenWidgetPanel(true));
       dispatch(setExplorerSwitchIndex(1));
       if (isFirstTimeUserOnboardingEnabled) {
