@@ -17,20 +17,25 @@ import {
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import { PathUtils } from "Linting/utils/pathUtils";
 import { extractReferencesFromPath } from "Linting/utils/getEntityDependencies";
-import { jsActionsInDataField } from "Linting/utils/jsActionsInDataFields";
 import { sortDifferencesByType } from "Linting/utils/sortDifferencesByType";
 import { getAllPathsFromNode } from "Linting/utils/entityPath";
 import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
 import { getLintErrorsFromTree } from "Linting/lintTree";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import { clearParsedJSCache, parsedJSCache } from "Linting/utils/parseJSEntity";
+import {
+  UPDATE_TYPE,
+  getJSActionsInDataFields,
+  initializeJSActionsInDataFields,
+  updateJSActionsInDataFields,
+} from "Linting/utils/jsActionsInDataFields";
 
 export let cachedEntityTree: TEntityTree = {};
 
 function initializeLinting() {
   if (isEmpty(cachedEntityTree)) {
     addAppsmithGlobalFnsToDependencyMap(AppsmithFunctionsWithFields);
-    jsActionsInDataField.initialize();
+    initializeJSActionsInDataFields();
     clearParsedJSCache();
   }
 }
@@ -63,7 +68,7 @@ export function lintTree({
       unEvalTree: getUnevalEntityTree(cachedEntityTree),
       jsPropertiesState,
       cloudHosting,
-      asyncJSFunctionsInDataFields: jsActionsInDataField.getMap(),
+      asyncJSFunctionsInDataFields: getJSActionsInDataFields(),
       configTree,
     });
 
@@ -101,10 +106,11 @@ function lintFirstTree(
         path,
         unevalEntityTree,
       );
-      const updatedPaths = jsActionsInDataField.update(
+      const updatedPaths = updateJSActionsInDataFields(
         path,
         references,
         entityTree,
+        UPDATE_TYPE.ADD,
       );
 
       lintingDependencyMap.addDependency(path, references);
@@ -154,10 +160,11 @@ function lintUpdatedTree(
       unevalEntityTree,
     );
     lintingDependencyMap.addDependency(pathString, references);
-    const updatedPaths = jsActionsInDataField.handlePathEdit(
+    const updatedPaths = updateJSActionsInDataFields(
       pathString,
       references,
       entityTree,
+      UPDATE_TYPE.EDIT,
     );
     pathsToLint.push(...updatedPaths, pathString);
   }
@@ -182,10 +189,11 @@ function lintUpdatedTree(
         lintingDependencyMap.addDependency(path, references);
         pathsToLint.push(path);
       }
-      const updatedPaths = jsActionsInDataField.update(
+      const updatedPaths = updateJSActionsInDataFields(
         path,
         references,
         entityTree,
+        UPDATE_TYPE.ADD,
       );
       const incomingDeps = lintingDependencyMap.getIncomingDependencies(path);
       pathsToLint.push(...updatedPaths, ...incomingDeps);
@@ -205,9 +213,11 @@ function lintUpdatedTree(
     );
 
     for (const path of Object.keys(allDeletedPaths)) {
-      const updatedPaths = jsActionsInDataField.handlePathDeletion(
+      const updatedPaths = updateJSActionsInDataFields(
         path,
+        [],
         entityTree,
+        UPDATE_TYPE.DELETE,
       );
       const incomingDeps = lintingDependencyMap.getIncomingDependencies(path);
       pathsToLint.push(...updatedPaths, ...incomingDeps);
