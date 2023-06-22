@@ -2228,6 +2228,7 @@ __metadata:
     "@types/react-dom": ^17.0.2
     autoprefixer: ^9.0.0
     babel-loader: ^8.3.0
+    chromatic: ^6.19.8
     colorjs.io: ^0.4.3
     postcss: ^8
     react-docgen-typescript: ^2.2.2
@@ -11743,6 +11744,17 @@ __metadata:
   version: 2.4.2
   resolution: "chroma-js@npm:2.4.2"
   checksum: cf9884c02d406286e4370599bcd1afbf089384407df46b3a69edfedcba7bb99e8f959a5cfdbfec750b305c441c06ca40cd1f70ba3a6c2ce739ac09a92520ddae
+  languageName: node
+  linkType: hard
+
+"chromatic@npm:^6.19.8":
+  version: 6.19.8
+  resolution: "chromatic@npm:6.19.8"
+  bin:
+    chroma: dist/bin.js
+    chromatic: dist/bin.js
+    chromatic-cli: dist/bin.js
+  checksum: 3f80373d9e77d3363924c274c8b9465b5f0ff835b7fb4a753848e37068a4564fa67ab205a4cf89820cf136fdefd637b54730819a5c376406a87bf8737ddf03ac
   languageName: node
   linkType: hard
 
