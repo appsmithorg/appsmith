@@ -23,7 +23,7 @@ import GlobalStyles from "globalStyles";
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 
-const shouldAutoFreeze = process.env.NODE_ENV === "development";
+const shouldAutoFreeze = process.env.NODE_ENV === "development ";
 
 setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
