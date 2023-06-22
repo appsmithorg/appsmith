@@ -50,6 +50,10 @@ import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import type {
+  EvalTreeResponseData,
+  JSVarMutatedEvents,
+} from "workers/Evaluation/types";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -318,6 +322,30 @@ export function* evalErrorHandler(
         log.debug(error);
       }
     }
+  });
+}
+
+export function* logJSVarCreatedEvent(
+  jsVarsCreatedEvent: EvalTreeResponseData["jsVarsCreatedEvent"],
+) {
+  if (!jsVarsCreatedEvent) return;
+
+  jsVarsCreatedEvent.forEach(({ path, type }) => {
+    AnalyticsUtil.logEvent("JS_VARIABLE_CREATED", {
+      path,
+      type,
+    });
+  });
+}
+
+export function* logJSVarMutationEvent(
+  jsVarsMutationEvent: JSVarMutatedEvents,
+) {
+  Object.values(jsVarsMutationEvent).forEach(({ path, type }) => {
+    AnalyticsUtil.logEvent("JS_VARIABLE_MUTATED", {
+      path,
+      type,
+    });
   });
 }
 

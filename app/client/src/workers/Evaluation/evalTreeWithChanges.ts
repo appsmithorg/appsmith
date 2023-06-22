@@ -80,6 +80,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     pathsToClearErrorsFor,
     isNewWidgetAdded: false,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
+    jsVarsCreatedEvent: [],
   };
 
   const data: UpdateDataTreeMessageData = {
