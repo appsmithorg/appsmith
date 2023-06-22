@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
+          cache: "yarn"
+          cache-dependency-path: "app/client/yarn.lock"
 
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
@@ -39,11 +41,3 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
              Storybook-Preview-URL: ${{ steps.chromatic-publish.outputs.buildUrl }}
-
-      - uses: LouisBrunner/checks-action@v1.1.1
-        if: always()
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: Storybook Deplpy Preview
-          conclusion: ${{ job.status }}
-          details_url: ${{ steps.chromatic-publish.outputs.buildUrl }}
