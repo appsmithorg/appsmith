@@ -4,7 +4,7 @@ import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationMSSQL,
+  ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
 export default abstract class MSSQL extends BaseQueryGenerator {
@@ -181,7 +181,7 @@ export default abstract class MSSQL extends BaseQueryGenerator {
   public static build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
-    pluginInitalValues: { actionConfiguration: ActionConfigurationMSSQL },
+    pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
   ) {
     const allBuildConfigs = [];
     if (widgetConfig.select) {

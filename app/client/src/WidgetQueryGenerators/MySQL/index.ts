@@ -4,7 +4,7 @@ import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationMySQL,
+  ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
 export default abstract class MySQL extends BaseQueryGenerator {
@@ -181,7 +181,7 @@ export default abstract class MySQL extends BaseQueryGenerator {
   public static build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
-    pluginInitalValues: { actionConfiguration: ActionConfigurationMySQL },
+    pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
   ) {
     const allBuildConfigs = [];
     if (widgetConfig.select) {
