@@ -29,6 +29,7 @@ export class CommonLocators {
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
+  _tableWidget = ".t--widget-tablewidgetv2";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
