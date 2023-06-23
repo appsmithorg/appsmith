@@ -1,13 +1,19 @@
 package com.appsmith.server.helpers;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
+import org.springframework.http.HttpHeaders;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Objects;
+
+import static com.appsmith.server.constants.ApiConstants.APPSMITH_SIGNATURE;
+import static com.appsmith.server.constants.ApiConstants.DATE;
 
 public class SignatureVerifier {
     private static final String publicVerificationKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICNwJ+zx2opXjjOga/YyzRxb2czvNgQ/twA+miCKDIX3 appsmith";
@@ -16,7 +22,21 @@ public class SignatureVerifier {
 
     private static final String EQUAL = "=";
 
-    public static boolean isSignatureValid(String signature, String dateHeader) {
+    /**
+     * Method to verify the API signature from CS.
+     * @param headers   Response headers from CS
+     * @return          If the signature is valid
+     */
+    public static boolean isSignatureValid(HttpHeaders headers) {
+        if (CollectionUtils.isEmpty(headers.get(APPSMITH_SIGNATURE))) {
+            return false;
+        }
+        String signature = Objects.requireNonNull(headers.get(APPSMITH_SIGNATURE)).get(0);
+        String date = Objects.requireNonNull(headers.get(DATE)).get(0);
+        return isSignatureValid(signature, date);
+    }
+
+    private static boolean isSignatureValid(String signature, String dateHeader) {
 
         String signingData = signature.split("\\.", 2)[0];
         String encodedSignature = signature.split("\\.", 2)[1];
