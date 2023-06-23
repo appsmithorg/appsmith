@@ -45,7 +45,7 @@ describe("excludeForAirgap", "Templates page filtering", () => {
       });
   });
 
-  it("3. should not retain filters when coming back from template detailed view", () => {
+  it("3. should reset filters when coming back from template detailed view", () => {
     templates.FilterTemplatesByName(NAME_FILTER);
     agHelper.Sleep();
     agHelper

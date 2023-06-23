@@ -39,12 +39,16 @@ export class Templates {
   }
 
   public SwitchToTemplatesTab() {
-    this.homePage.NavigateToHome();
-    this.agHelper.GetNClick(this.locators._templatesTab);
-    this.agHelper.AssertElementVisible(
-      this.locators._requestForTemplateBtn,
-      0,
-      30000,
-    ); //giving more time here for templates page to fully load, since there is no intercept validation for same
+    cy.url().then((url) => {
+      if (!url.endsWith("applications")) {
+        this.homePage.NavigateToHome();
+      }
+      this.agHelper.GetNClick(this.locators._templatesTab);
+      this.agHelper.AssertElementVisible(
+        this.locators._requestForTemplateBtn,
+        0,
+        30000,
+      ); //giving more time here for templates page to fully load, since there is no intercept validation for same
+    });
   }
 }
