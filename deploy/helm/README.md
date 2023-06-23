@@ -61,10 +61,11 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 ### Global parameters
 
-| Name 											 | Description 																								| Value 	|
-| -------------------------- | ---------------------------------------------------------- | ------- |
-| `global.namespaceOverride` | Override the namespace for resource deployed by the chart	| `""`	 	|
-| `global.storageClass`			 | Global StorageClass for Persistent Volume(s)								| `""`  	|
+| Name 											 | Description 																								| Value             	|
+| -------------------------- | ---------------------------------------------------------- | ------------------- |
+| `global.clusterDomain`     | Kubernetes cluster domain                                 	| `"cluster.local"`		|
+| `global.namespaceOverride` | Override the namespace for resource deployed by the chart	| `""`	 	            |
+| `global.storageClass`			 | Global StorageClass for Persistent Volume(s)								| `""`              	|
 
 ### Common parameters
 | Name 								| Description 																			| Value 				|

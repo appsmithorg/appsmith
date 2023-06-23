@@ -1,6 +1,7 @@
 ## Redis parameters
 redis:
   enabled: true
+  clusterDomain: "cluster.local"
   auth:
     enabled: false
   master:
@@ -11,6 +12,7 @@ redis:
 
 mongodb:
   enabled: true
+  clusterDomain: "cluster.local"
   service:
     nameOverride: appsmith-mongodb
   auth:
@@ -33,10 +35,12 @@ mongodb:
 
 ## @param global.storageClass Global StorageClass for Persistent Volume(s)
 ## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
+## @param global.clusterDomain Kubernetes cluster domain
 ##
 global:
   storageClass: ""
   namespaceOverride: ""
+  clusterDomain: "cluster.local"
 ## @param fullnameOverride String to fully override appsmith.fullname template
 ##
 fullnameOverride: ""
