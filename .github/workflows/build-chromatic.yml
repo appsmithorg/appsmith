@@ -42,4 +42,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           workingDir: ./app/client/packages/storybook
-          forceRebuild: ${{ github.event.pull_request.merged === true }}
