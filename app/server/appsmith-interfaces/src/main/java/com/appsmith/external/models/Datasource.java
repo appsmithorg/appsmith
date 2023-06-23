@@ -62,7 +62,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     Set<String> invalids;
 
     /*
@@ -71,7 +71,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
      */
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     Set<String> messages = new HashSet<>();
 
     /*

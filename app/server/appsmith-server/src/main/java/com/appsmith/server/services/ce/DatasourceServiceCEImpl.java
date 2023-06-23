@@ -251,9 +251,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<Datasource> updateDatasource(String id, Datasource datasource,
-                                             String activeEnvironmentId,
-                                             Boolean isUserRefreshedUpdate) {
+    public Mono<Datasource> updateDatasource(String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
         if (!hasText(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -289,9 +287,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<Datasource> updateDatasourceStorage(@NotNull DatasourceStorageDTO datasourceStorageDTO,
-                                                    String activeEnvironmentId,
-                                                    Boolean isUserRefreshedUpdate) {
+    public Mono<Datasource> updateDatasourceStorage(@NotNull DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
 
         String datasourceId = datasourceStorageDTO.getDatasourceId();
         String environmentId = datasourceStorageDTO.getEnvironmentId();
