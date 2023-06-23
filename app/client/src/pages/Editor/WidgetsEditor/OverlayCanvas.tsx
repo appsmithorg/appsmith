@@ -94,7 +94,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     context.fillText(
       text,
       left + HORIZONTAL_PADDING,
-      top + VERTICAL_PADDING * 1.4,
+      top + VERTICAL_PADDING * 1.2,
     );
   };
 
@@ -147,6 +147,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
 
   return (
     <OverlayCanvas
+      height="600"
       id={OVERLAY_CANVAS_ID}
       ref={canvasRef}
       width={props.canvasWidth}
