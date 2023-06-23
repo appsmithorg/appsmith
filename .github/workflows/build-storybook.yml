@@ -7,8 +7,6 @@ on:
     paths:
       - 'app/client/packages/design-system/**'
 
-
-
 jobs:
   storybook-deploy-release:
     runs-on: ubuntu-latest

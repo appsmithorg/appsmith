@@ -20,8 +20,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
-          cache: "yarn"
-          cache-dependency-path: "app/client/yarn.lock"
 
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
