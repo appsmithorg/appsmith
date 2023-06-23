@@ -5,6 +5,7 @@ import {
   draggableWidgets,
   deployMode,
   table,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const readTableLocalColumnOrder = (columnOrderKey: string) => {
@@ -119,26 +120,29 @@ describe("Table widget v2: tableData change test", function () {
     agHelper.EnterActionValue("Key", "test");
     agHelper.EnterActionValue("Value", "0");
 
+    // add a success callback
+    agHelper.GetNClick(propPane._actionCallbacks);
+    agHelper.GetNClick(propPane._actionAddCallback("success"));
+    agHelper.GetNClick(locators._dropDownValue("Show alert"));
+    agHelper.EnterActionValue("Message", "table data 1 set");
+
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 500, 600);
     propPane.UpdatePropertyFieldValue("Label", "Set table data 2");
     propPane.SelectPlatformFunction("onClick", "Store value");
     agHelper.EnterActionValue("Key", "test");
     agHelper.EnterActionValue("Value", "1");
 
-    agHelper.ClickButton("Set table data 1");
-
-    table.AssertTableHeaderOrder("statussteptaskaction");
-
-    agHelper.ClickButton("Set table data 2");
-
-    table.AssertTableHeaderOrder(
-      "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
-    );
+    // add a success callback
+    agHelper.GetNClick(propPane._actionCallbacks);
+    agHelper.GetNClick(propPane._actionAddCallback("success"));
+    agHelper.GetNClick(locators._dropDownValue("Show alert"));
+    agHelper.EnterActionValue("Message", "table data 2 set");
 
     deployMode.DeployApp();
 
     agHelper.ClickButton("Set table data 1");
 
+    agHelper.WaitUntilToastDisappear("table data 1 set");
     table.AssertTableHeaderOrder("statussteptaskaction");
     let tableLocalColumnOrder = readTableLocalColumnOrder(
       "tableWidgetColumnOrder",
@@ -149,6 +153,8 @@ describe("Table widget v2: tableData change test", function () {
       );
 
     agHelper.ClickButton("Set table data 2");
+
+    agHelper.WaitUntilToastDisappear("table data 2 set");
 
     table.AssertTableHeaderOrder(
       "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
