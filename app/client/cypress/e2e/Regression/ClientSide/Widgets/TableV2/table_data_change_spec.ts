@@ -186,7 +186,7 @@ describe("Table widget v2: tableData change test", function () {
     freezeColumnFromDropdown("status", "left");
     freezeColumnFromDropdown("action", "right");
 
-    agHelper.RefreshPage();
+    agHelper.RefreshPage(true, "viewPage");
 
     checkIfColumnIsFrozenViaCSS("status");
     checkIfColumnIsFrozenViaCSS("action");
@@ -207,7 +207,7 @@ describe("Table widget v2: tableData change test", function () {
     freezeColumnFromDropdown("id", "left");
     freezeColumnFromDropdown("updatedAt", "right");
 
-    agHelper.RefreshPage();
+    agHelper.RefreshPage(true, "viewPage");
 
     checkIfColumnIsFrozenViaCSS("id");
     checkIfColumnIsFrozenViaCSS("updatedAt");
