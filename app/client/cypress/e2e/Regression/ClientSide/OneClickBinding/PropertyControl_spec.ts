@@ -100,7 +100,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     propPane.ToggleJSMode("Table data", false);
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from Users",
+      "Users",
       "Users",
       "public.users",
       "gender",
@@ -111,7 +111,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     propPane.MoveToTab("Content");
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from sample Movies",
+      "sample Movies",
       "movies",
       "movies",
       "status",
