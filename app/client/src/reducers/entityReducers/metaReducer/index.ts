@@ -30,6 +30,8 @@ export const metaReducer = createReducer(initialState, {
   ) => {
     const { evalMetaUpdates } = action.payload;
 
+    if (!evalMetaUpdates.length) return state;
+
     // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
     const newMetaState = produce(state, (draftMetaState) => {
       evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
