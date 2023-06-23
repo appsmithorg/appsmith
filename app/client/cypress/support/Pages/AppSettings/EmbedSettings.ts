@@ -15,6 +15,8 @@ export class EmbedSettings {
     _showNavigationBar: "[data-testid='show-navigation-bar-toggle']",
     _enableForking: "[data-testid='forking-enabled-toggle']",
     _confirmForking: "[data-testid='allow-forking']",
+    _enablePublicAccessSettingsPage:
+      "[data-testid=t--embed-settings-application-public]",
   };
 
   public OpenEmbedSettings() {
@@ -63,5 +65,19 @@ export class EmbedSettings {
         this.assertHelper.AssertNetworkStatus("@updateApplication");
       }
     });
+  }
+
+  public TogglePublicAccess(check: true | false = true) {
+    this.agHelper
+      .GetElement(this.locators._enablePublicAccessSettingsPage)
+      .invoke("prop", "checked")
+      .then((isChecked) => {
+        if (isChecked !== check) {
+          this.agHelper.GetNClick(
+            this.locators._enablePublicAccessSettingsPage,
+          );
+          this.assertHelper.AssertNetworkStatus("@changeAccess");
+        }
+      });
   }
 }

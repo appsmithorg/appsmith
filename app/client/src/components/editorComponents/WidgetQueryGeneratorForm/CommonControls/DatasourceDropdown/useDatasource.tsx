@@ -24,7 +24,7 @@ import {
 import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
-import { Binding, DatasourceImage, ImageWrapper } from "../../styles";
+import { DatasourceImage, ImageWrapper, Placeholder } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptionType } from "../../types";
 import { invert } from "lodash";
@@ -36,10 +36,16 @@ import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
-export function useDatasource() {
+function filterOption(option: DropdownOptionType, searchText: string) {
+  return (
+    option.label &&
+    option.label.toLowerCase().includes(searchText.toLowerCase())
+  );
+}
+
+export function useDatasource(searchText: string) {
   const {
     addBinding,
-    addSnippet,
     config,
     errorMsg,
     isSourceOpen,
@@ -150,6 +156,7 @@ export function useDatasource() {
     if (mockDatasources.length) {
       mockDatasourceOptions = mockDatasourceOptions.concat(
         mockDatasources
+
           .filter(({ packageName }) => {
             if (!WidgetQueryGeneratorRegistry.has(packageName)) {
               return false;
@@ -280,24 +287,8 @@ export function useDatasource() {
           });
         },
       },
-      {
-        id: "Insert binding",
-        label: "Insert binding",
-        value: "Insert binding",
-        icon: <Binding>{"{ }"}</Binding>,
-        onSelect: () => {
-          addBinding("{{}}", true);
-
-          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
-            widgetName: widget.widgetName,
-            widgetType: widget.type,
-            propertyName: propertyName,
-            selectedAction: "Binding",
-          });
-        },
-      },
     ];
-  }, [currentPageId, history, addBinding, addSnippet, propertyName]);
+  }, [currentPageId, history, propertyName]);
 
   const queries = useSelector(getActionsForCurrentPage);
 
@@ -370,8 +361,15 @@ export function useDatasource() {
     }
   }, [isSourceOpen]);
 
+  const [filteredDatasourceOptions, filteredQueryOptions] = useMemo(() => {
+    return [
+      datasourceOptions.filter((d) => filterOption(d, searchText)),
+      queryOptions.filter((d) => filterOption(d, searchText)),
+    ];
+  }, [searchText, datasourceOptions, otherOptions, queryOptions]);
+
   return {
-    datasourceOptions,
+    datasourceOptions: filteredDatasourceOptions,
     otherOptions,
     selected: (() => {
       let source;
@@ -385,18 +383,17 @@ export function useDatasource() {
       }
 
       if (source) {
-        return {
-          key: source.id,
-          label: (
-            <DropdownOption
-              label={source?.label?.replace("sample ", "")}
-              leftIcon={source?.icon}
-            />
-          ),
-        };
+        return (
+          <DropdownOption
+            label={source?.label?.replace("sample ", "")}
+            leftIcon={source?.icon}
+          />
+        );
+      } else {
+        return <Placeholder>Connect data</Placeholder>;
       }
     })(),
-    queryOptions,
+    queryOptions: filteredQueryOptions,
     isSourceOpen,
     onSourceClose,
     error: config.datasource ? "" : errorMsg,

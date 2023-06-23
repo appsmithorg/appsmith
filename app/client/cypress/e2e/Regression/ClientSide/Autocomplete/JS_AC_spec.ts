@@ -223,8 +223,10 @@ describe("Autocomplete tests", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(7));
     agHelper.TypeText(
       locators._codeMirrorTextArea,
-      "const callBack = (user) => user.l",
+      "const callBack = (user) => user",
     );
+    agHelper.Sleep(500);
+    agHelper.TypeText(locators._codeMirrorTextArea, ".l");
     agHelper.GetNAssertElementText(locators._hints, "label");
     agHelper.TypeText(locators._codeMirrorTextArea, "abel;");
     agHelper.TypeText(locators._codeMirrorTextArea, "data.");
@@ -342,7 +344,7 @@ describe("Autocomplete tests", () => {
     entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "JSObject2");
-    agHelper.Sleep();
+    agHelper.Sleep(500);
     agHelper.TypeText(locators._codeMirrorTextArea, ".");
 
     agHelper.GetNAssertElementText(

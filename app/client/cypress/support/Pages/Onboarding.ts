@@ -6,19 +6,19 @@ let datasourceName;
 export class Onboarding {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
   private _datasources = ObjectsRegistry.DataSources;
+  private _debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
   completeSignposting() {
-    cy.get(OnboardingLocator.introModalBuild).click();
-
-    cy.get(OnboardingLocator.statusbar).click();
     cy.get(OnboardingLocator.checklistStatus).should("be.visible");
     cy.get(OnboardingLocator.checklistStatus).should("contain", "0 of 5");
-    cy.get(OnboardingLocator.checklistBack).click();
 
-    cy.get(OnboardingLocator.statusbar).click();
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("not.be.disabled");
+    this._aggregateHelper
+      .GetElement(OnboardingLocator.checklistConnectionBtn)
+      .realHover()
+      .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
+    this._aggregateHelper.AssertElementAbsence(OnboardingLocator.introModal);
     if (Cypress.env("AIRGAPPED")) {
       this._datasources.CreateDataSource("Mongo");
       cy.get("@dsName").then(($dsName) => {
@@ -28,24 +28,33 @@ export class Onboarding {
       cy.get(OnboardingLocator.datasourceMock).first().click();
     }
     cy.wait(1000);
-    cy.get(OnboardingLocator.statusbar).click();
+    this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.checklistStatus).should("contain", "1 of 5");
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("not.exist");
+    this._aggregateHelper
+      .GetElement(OnboardingLocator.checklistConnectionBtn)
+      .realHover()
+      .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistActionBtn).click();
     cy.get(OnboardingLocator.createQuery).should("be.visible");
     cy.get(OnboardingLocator.createQuery).click();
     cy.wait(1000);
-    cy.get(OnboardingLocator.statusbar).click();
+    this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.checklistStatus).should("contain", "2 of 5");
-    cy.get(OnboardingLocator.checklistActionBtn).should("not.exist");
+    this._aggregateHelper
+      .GetElement(OnboardingLocator.checklistActionBtn)
+      .realHover()
+      .should("have.css", "cursor", "auto");
     cy.get(OnboardingLocator.checklistWidgetBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistWidgetBtn).click();
     cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
     (cy as any).dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
-    cy.get(OnboardingLocator.statusbar).click();
+    this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.checklistStatus).should("contain", "3 of 5");
-    cy.get(OnboardingLocator.checklistWidgetBtn).should("not.exist");
+    this._aggregateHelper
+      .GetElement(OnboardingLocator.checklistWidgetBtn)
+      .realHover()
+      .should("have.css", "cursor", "auto");
 
     cy.get(OnboardingLocator.checklistConnectionBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistConnectionBtn).click();
@@ -56,9 +65,12 @@ export class Onboarding {
       .wait(500);
     cy.get(OnboardingLocator.widgetName).should("be.visible");
     cy.get(OnboardingLocator.widgetName).click();
-    cy.get(OnboardingLocator.statusbar).click();
+    this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.checklistStatus).should("contain", "4 of 5");
-    cy.get(OnboardingLocator.checklistConnectionBtn).should("not.exist");
+    this._aggregateHelper
+      .GetElement(OnboardingLocator.checklistConnectionBtn)
+      .realHover()
+      .should("have.css", "cursor", "auto");
 
     let open: any;
     cy.window().then((window: any) => {
@@ -67,8 +79,13 @@ export class Onboarding {
     });
     cy.get(OnboardingLocator.checklistDeployBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistDeployBtn).click();
-    cy.get(OnboardingLocator.checklistStatus).should("contain", "5 of 5");
-    cy.get(OnboardingLocator.checklistDeployBtn).should("not.exist");
+    this._aggregateHelper.AssertElementAbsence(OnboardingLocator.introModal);
+    this._aggregateHelper.Sleep();
+
+    this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
+    this._aggregateHelper.AssertElementExist(
+      OnboardingLocator.checklistCompletionBanner,
+    );
     cy.window().then((window) => {
       window.open = open;
     });
@@ -78,14 +95,6 @@ export class Onboarding {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
         this._aggregateHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
-      }
-    });
-  }
-
-  skipSignposting() {
-    cy.get("body").then(($body) => {
-      if ($body.find(OnboardingLocator.statusbarClose).length) {
-        this._aggregateHelper.GetNClick(OnboardingLocator.statusbarClose);
       }
     });
   }

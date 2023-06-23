@@ -164,7 +164,6 @@ describe("Boolean & Enum Datatype tests", function () {
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("verifyEnumOrdering");
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(1).then(($cellData) => {
