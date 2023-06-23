@@ -21,6 +21,8 @@ import {
   Tooltip,
 } from "design-system";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+
 const { intercomAppID } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {
@@ -93,10 +95,7 @@ const searchAction: Record<
       AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
         menuItem: CONTEXT_MENU_ACTIONS.DOCS,
       });
-      window.open(
-        "https://docs.appsmith.com/help-and-support/troubleshooting-guide",
-        "_blank",
-      );
+      openDoc(DocsLink.TROUBLESHOOT_ERROR);
     },
   },
   [CONTEXT_MENU_ACTIONS.INTERCOM]: {
