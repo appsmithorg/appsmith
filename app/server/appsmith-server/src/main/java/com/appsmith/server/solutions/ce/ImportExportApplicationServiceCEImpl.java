@@ -1324,7 +1324,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // attached to the application:
                                 // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                                 // the git flow only
-                                if (!StringUtils.isEmpty(applicationId) && !appendToApp && CollectionUtils.isNotEmpty(importActionCollectionResultDTO.getExistingActionCollections())) {
+                                if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
                                     // Remove unwanted action collections
                                     Set<String> invalidCollectionIds = new HashSet<>();
                                     for (ActionCollection collection : importActionCollectionResultDTO.getExistingActionCollections()) {

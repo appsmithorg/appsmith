@@ -14,6 +14,7 @@ import java.util.Map;
 public class ImportActionCollectionResultDTO {
     @Setter
     Collection<ActionCollection> existingActionCollections;
+    // Map of action collection id from the JSON file to the action collection object that was saved
     Map<String, ActionCollection> savedActionCollectionMap = new HashMap<>();
 
     // list of _id fields of the saved action collections, we'll need them later

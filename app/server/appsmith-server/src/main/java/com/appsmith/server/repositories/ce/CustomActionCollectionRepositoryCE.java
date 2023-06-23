@@ -3,6 +3,8 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,7 +38,7 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
-    Mono<List<ActionCollection>> bulkInsert(List<ActionCollection> newActions);
+    Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> newActions);
 
-    Mono<List<ActionCollection>> bulkUpdate(List<ActionCollection> actionCollections);
+    Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections);
 }

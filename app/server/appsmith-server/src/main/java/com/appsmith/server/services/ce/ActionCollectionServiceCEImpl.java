@@ -651,7 +651,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     actionCollection.makePristine();
                     actionCollection.setWorkspaceId(workspaceId);
                     actionCollection.setApplicationId(importedApplication.getId());
-                    generateAndSetPolicies(parentPage, actionCollection);
 
                     // Check if the action has gitSyncId and if it's already in DB
                     if (actionCollection.getGitSyncId() != null
@@ -694,6 +693,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
                         // this will generate the id and other auto generated fields e.g. createdAt
                         actionCollection.updateForBulkWriteOperation();
+                        generateAndSetPolicies(parentPage, actionCollection);
 
                         // create or update default resources for the action
                         // values already set to defaultResources are kept unchanged

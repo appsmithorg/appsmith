@@ -7,8 +7,10 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
+import com.mongodb.client.result.InsertManyResult;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -21,6 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -181,9 +184,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Mono<List<ActionCollection>> bulkInsert(List<ActionCollection> actionCollectionList) {
+    public Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> actionCollectionList) {
         if(CollectionUtils.isEmpty(actionCollectionList)) {
-            return Mono.just(actionCollectionList);
+            return Mono.just(Collections.emptyList());
         }
 
         // convert the list of action collections to a list of DBObjects
@@ -195,13 +198,13 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return mongoOperations.getCollection(mongoOperations.getCollectionName(ActionCollection.class))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .then(Mono.just(actionCollectionList));
+                .collectList();
     }
 
     @Override
-    public Mono<List<ActionCollection>> bulkUpdate(List<ActionCollection> actionCollections) {
+    public Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections) {
         if(CollectionUtils.isEmpty(actionCollections)) {
-            return Mono.just(actionCollections);
+            return Mono.just(Collections.emptyList());
         }
 
         // convert the list of new actions to a list of DBObjects
@@ -217,6 +220,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return mongoOperations.getCollection(mongoOperations.getCollectionName(ActionCollection.class))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .then(Mono.just(actionCollections));
+                .collectList();
     }
 }

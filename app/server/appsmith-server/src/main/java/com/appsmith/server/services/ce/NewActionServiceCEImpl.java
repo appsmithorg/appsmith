@@ -324,7 +324,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 return super.create(newAction)
                         .flatMap(savedAction -> {
                             // If the default action is not set then current action will be the default one
-                            if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
+                            if (!StringUtils.hasLength(savedAction.getDefaultResources().getActionId())) {
                                 savedAction.getDefaultResources().setActionId(savedAction.getId());
                             }
                             return repository.save(savedAction);
@@ -407,7 +407,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(repository::save)
                 .flatMap(savedAction -> {
                     // If the default action is not set then current action will be the default one
-                    if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
+                    if (!StringUtils.hasLength(savedAction.getDefaultResources().getActionId())) {
                         savedAction.getDefaultResources().setActionId(savedAction.getId());
                         return repository.save(savedAction);
                     }
@@ -979,10 +979,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
         // Get branched applicationId and pageId
-        Mono<NewPage> branchedPageMono = StringUtils.isEmpty(params.getFirst(FieldName.PAGE_ID))
+        Mono<NewPage> branchedPageMono = !StringUtils.hasLength(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
                 : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission());
-        Mono<Application> branchedApplicationMono = StringUtils.isEmpty(params.getFirst(FieldName.APPLICATION_ID))
+        Mono<Application> branchedApplicationMono = !StringUtils.hasLength(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
                 : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission());
 
@@ -990,10 +990,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMapMany(tuple -> {
                     String applicationId = tuple.getT1().getId();
                     String pageId = tuple.getT2().getId();
-                    if (!CollectionUtils.isEmpty(params.get(FieldName.PAGE_ID)) && !StringUtils.isEmpty(pageId)) {
+                    if (!CollectionUtils.isEmpty(params.get(FieldName.PAGE_ID)) && StringUtils.hasLength(pageId)) {
                         updatedParams.set(FieldName.PAGE_ID, pageId);
                     }
-                    if (!CollectionUtils.isEmpty(params.get(FieldName.APPLICATION_ID)) && !StringUtils.isEmpty(applicationId)) {
+                    if (!CollectionUtils.isEmpty(params.get(FieldName.APPLICATION_ID)) && StringUtils.hasLength(applicationId)) {
                         updatedParams.set(FieldName.APPLICATION_ID, applicationId);
                     }
                     return getUnpublishedActions(updatedParams, includeJsActions);
@@ -1480,7 +1480,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
-        if (StringUtils.isEmpty(branchName)) {
+        if (!StringUtils.hasLength(branchName)) {
             return repository.findById(defaultActionId, permission)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
@@ -1494,7 +1494,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
-        if (StringUtils.isEmpty(branchName)) {
+        if (!StringUtils.hasLength(branchName)) {
             return Mono.just(defaultActionId);
         }
         return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
@@ -1678,7 +1678,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 importActionResultDTO.setExistingActions(actionsInCurrentApp.values());
 
                 for (NewAction newAction : importedNewActionList) {
-                    if (newAction.getUnpublishedAction() == null || org.apache.commons.lang3.StringUtils.isEmpty(newAction.getUnpublishedAction().getPageId())) {
+                    if (newAction.getUnpublishedAction() == null || !StringUtils.hasLength(newAction.getUnpublishedAction().getPageId())) {
                         continue;
                     }
 
@@ -1697,7 +1697,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     if (publishedAction != null && publishedAction.getValidName() != null) {
                         publishedAction.setId(newAction.getId());
-                        if (StringUtils.isEmpty(publishedAction.getPageId())) {
+                        if (!StringUtils.hasLength(publishedAction.getPageId())) {
                             publishedAction.setPageId(fallbackParentPageId);
                         }
                         NewPage publishedActionPage = updatePageInAction(publishedAction, pageNameMap, importActionResultDTO.getActionIdMap());
@@ -1820,7 +1820,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 mapsDTO.getUnpublishedActionIdToCollectionIdMap().get(newAction.getId()).get(0)
                         );
                         if (unpublishedAction.getDefaultResources() != null
-                                && org.apache.commons.lang3.StringUtils.isEmpty(unpublishedAction.getDefaultResources().getCollectionId())) {
+                                && !StringUtils.hasLength(unpublishedAction.getDefaultResources().getCollectionId())) {
 
                             unpublishedAction.getDefaultResources().setCollectionId(
                                     mapsDTO.getUnpublishedActionIdToCollectionIdMap().get(newAction.getId()).get(1)
@@ -1835,7 +1835,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         );
 
                         if (publishedAction.getDefaultResources() != null
-                                && org.apache.commons.lang3.StringUtils.isEmpty(publishedAction.getDefaultResources().getCollectionId())) {
+                                && !StringUtils.hasLength(publishedAction.getDefaultResources().getCollectionId())) {
 
                             publishedAction.getDefaultResources().setCollectionId(
                                     mapsDTO.getPublishedActionIdToCollectionIdMap().get(newAction.getId()).get(1)
