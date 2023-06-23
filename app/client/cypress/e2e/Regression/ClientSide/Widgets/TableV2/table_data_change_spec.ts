@@ -125,6 +125,16 @@ describe("Table widget v2: tableData change test", function () {
     agHelper.EnterActionValue("Key", "test");
     agHelper.EnterActionValue("Value", "1");
 
+    agHelper.ClickButton("Set table data 1");
+
+    table.AssertTableHeaderOrder("statussteptaskaction");
+
+    agHelper.ClickButton("Set table data 2");
+
+    table.AssertTableHeaderOrder(
+      "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
+    );
+
     deployMode.DeployApp();
 
     agHelper.ClickButton("Set table data 1");
