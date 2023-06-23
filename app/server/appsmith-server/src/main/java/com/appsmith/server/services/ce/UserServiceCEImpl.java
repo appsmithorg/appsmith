@@ -429,7 +429,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
     }
 
-    private Mono<User> addUserPolicies(User savedUser, Boolean isAdminUser) {
+    protected Mono<User> addUserPolicies(User savedUser, Boolean isAdminUser) {
 
         // Create user management permission group
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
