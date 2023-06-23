@@ -379,7 +379,7 @@ export class DarkModeTheme implements ColorModeTheme {
    * Foreground colors
    */
   // Main application foreground color.
-  // Applies to static text and similar. In light mode it is extremely dark (and therefore desatured) shade of user-set seed color.
+  // Applies to static text and similar. In dark mode it is light (and therefore desatured) tint of user-set seed color.
   // This ensures harmonious combination with main accents and neutrals.
   private get fg() {
     const color = this.seedColor.clone();
