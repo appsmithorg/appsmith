@@ -21,4 +21,7 @@ public class AuthenticationConfigurationDTO {
 
     Map<String, Object> configuration;
 
+    // Stores the idp custom claim to appsmith user attribute mapping
+    Map<String, String> claims;
+
 }

@@ -6,7 +6,7 @@ on:
 
   # trigger for pushes to release and master
   push:
-    branches: [release,master]
+    branches: [master]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -14,7 +14,6 @@ on:
       - "!app/client/cypress/manual_TestSuite/**"
 
 jobs:
-
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
@@ -38,7 +37,7 @@ jobs:
       pr: 0
 
   build-docker-image:
-    needs: [ client-build-airgap, server-build, rts-build ]
+    needs: [client-build-airgap, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -49,7 +48,7 @@ jobs:
       airgap-enabled: "true"
 
   perf-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: perf-test
@@ -60,7 +59,7 @@ jobs:
       airgap-enabled: "true"
 
   ci-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test
@@ -274,4 +273,3 @@ jobs:
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.airgap_vars.outputs.airgap_tag}}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:latest
-

@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/listv2PaginationDsl.json");
 const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
@@ -87,7 +86,9 @@ const listData = [
 
 describe("List widget V2 page number and page size", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("listv2PaginationDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {

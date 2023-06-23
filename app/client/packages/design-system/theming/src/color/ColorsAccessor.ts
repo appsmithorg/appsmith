@@ -47,7 +47,7 @@ export class ColorsAccessor {
   }
 
   get isRed() {
-    return this.color.oklch.h >= 29 && this.color.oklch.h <= 50;
+    return this.color.oklch.h >= 5 && this.color.oklch.h <= 49;
   }
 
   get lightness() {

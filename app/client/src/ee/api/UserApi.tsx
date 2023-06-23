@@ -12,6 +12,7 @@ export interface FetchSamlMetadataPayload {
     signingCertificate: string;
     emailField: string;
   };
+  claims?: Record<string, any>;
 }
 
 class UserApi extends CE_UserApi {

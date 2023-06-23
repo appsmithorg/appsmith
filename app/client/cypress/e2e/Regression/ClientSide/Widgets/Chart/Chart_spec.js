@@ -1,13 +1,15 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("chartUpdatedDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
@@ -31,7 +33,7 @@ describe("Chart Widget Functionality", function () {
     /**
      * @param{Text} Random Input Value
      */
-    cy.testJsontext("title", this.data.chartIndata);
+    cy.testJsontext("title", this.dataSet.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .click()
       .contains("App Sign Up")
@@ -40,7 +42,7 @@ describe("Chart Widget Functionality", function () {
     //Entering the Chart data
     cy.testJsontext(
       "chart-series-data-control",
-      JSON.stringify(this.data.chartInput),
+      JSON.stringify(this.dataSet.chartInput),
     );
     cy.get(".t--propertypane").click("right");
 
@@ -54,16 +56,16 @@ describe("Chart Widget Functionality", function () {
     //Entring the label of x-axis
     cy.get(viewWidgetsPage.xlabel)
       .click({ force: true })
-      .type(this.data.command)
-      .type(this.data.plan);
+      .type(this.dataSet.command)
+      .type(this.dataSet.plan);
     //Entring the label of y-axis
     cy.get(viewWidgetsPage.ylabel)
       .click({ force: true })
-      .type(this.data.command)
+      .type(this.dataSet.command)
       .click({ force: true })
-      .type(this.data.ylabel);
+      .type(this.dataSet.ylabel);
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Pie Chart Widget Functionality", function () {
@@ -81,7 +83,7 @@ describe("Chart Widget Functionality", function () {
         .eq(k)
         .should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("3. Line Chart Widget Functionality", function () {
@@ -97,7 +99,7 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("4. Bar Chart Widget Functionality", function () {
@@ -113,7 +115,7 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("5. Area Chart Widget Functionality", function () {
@@ -129,7 +131,7 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("6. Column Chart Widget Functionality", function () {
@@ -145,7 +147,7 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("7. Toggle JS - Pie Chart Widget Functionality", function () {
@@ -164,7 +166,7 @@ describe("Chart Widget Functionality", function () {
         .eq(k)
         .should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("8. Toggle JS - Line Chart Widget Functionality", function () {
@@ -180,7 +182,7 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("9. Toggle JS - Bar Chart Widget Functionality", function () {
@@ -196,7 +198,7 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("10. Toggle JS - Area Chart Widget Functionality", function () {
@@ -212,7 +214,7 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("11. Toggle JS - Column Chart Widget Functionality", function () {
@@ -228,31 +230,31 @@ describe("Chart Widget Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("12. Chart - Modal", function () {
     //creating the Modal and verify Modal name
-    cy.createModal(this.data.ModalName, "onDataPointClick");
-    cy.PublishtheApp();
+    cy.createModal(this.dataSet.ModalName, "onDataPointClick");
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.chartPlotGroup).children().first().click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
   });
 
   it("13. Chart-Unckeck Visible field Validation", function () {
     // Making the widget invisible
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
   it("14. Chart-Check Visible field Validation", function () {
     // Making the widget visible
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
 
@@ -260,26 +262,26 @@ describe("Chart Widget Functionality", function () {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
   it("16. Toggle JS - Chart-Check Visible field Validation", function () {
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
 
   it("17. Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function () {
     cy.togglebarDisable(commonlocators.allowScroll);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.horizontalTab).should("not.exist");
   });
 
   it("18. Chart Widget Functionality To Check Horizontal Scroll Visible", function () {
     cy.togglebar(commonlocators.allowScroll);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.horizontalTab).eq(1).should("exist");
   });
 
@@ -329,9 +331,10 @@ describe("Chart Widget Functionality", function () {
       "font-family",
       '"Nunito Sans"',
     );
+    _.deployMode.DeployApp();
   });
 
   afterEach(() => {
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

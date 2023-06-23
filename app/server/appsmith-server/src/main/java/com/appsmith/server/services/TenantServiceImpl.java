@@ -75,15 +75,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     }
 
     @Override
-    public Mono<Tenant> getDefaultTenant() {
-        // Get the default tenant object from the DB and then populate the relevant user permissions in that
-        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
-        return repository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
-                        .switchIfEmpty(Mono.just(tenant)));
-    }
-
-    @Override
     public Mono<Tenant> getDefaultTenant(AclPermission aclPermission) {
         return repository.findBySlug(FieldName.DEFAULT, aclPermission);
     }
@@ -228,29 +219,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     }
 
     /**
-     * To get the Tenant with values that are pertinent to the client
-     * @param dbTenant Original tenant from the database
-     * @param clientTenant Tenant object that is sent to the client, can be null
-     * @return Tenant
-     */
-    private Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
-        TenantConfiguration tenantConfiguration;
-        if (clientTenant == null) {
-            clientTenant = new Tenant();
-            tenantConfiguration = new TenantConfiguration();
-        } else {
-            tenantConfiguration = clientTenant.getTenantConfiguration();
-        }
-
-        // Only copy the values that are pertinent to the client
-        tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
-        clientTenant.setTenantConfiguration(tenantConfiguration);
-        clientTenant.setUserPermissions(dbTenant.getUserPermissions());
-
-        return clientTenant;
-    }
-
-    /**
      * To check whether a tenant have valid license configuration
      * @param tenant Tenant
      * @return Boolean
@@ -259,11 +227,5 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         return tenant.getTenantConfiguration() != null &&
                 tenant.getTenantConfiguration().getLicense() != null &&
                 tenant.getTenantConfiguration().getLicense().getKey() != null;
-    }
-
-    @Override
-    public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
-        return getDefaultTenantId()
-                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
     }
 }

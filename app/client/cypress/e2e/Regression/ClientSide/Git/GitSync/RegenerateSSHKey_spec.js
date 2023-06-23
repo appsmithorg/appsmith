@@ -16,7 +16,7 @@ describe("Git regenerate SSH key flow", function () {
       repoName = repName;
       cy.regenerateSSHKey(repoName);
     });
-    cy.get("body").click(0, 0, { force: true });
+    _.agHelper.ClickOutside();
     cy.wait(2000);
   });
 
@@ -29,7 +29,7 @@ describe("Git regenerate SSH key flow", function () {
     cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
     cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
     cy.xpath(gitSyncLocators.confirmButton).click();
-    cy.reload();
+    _.agHelper.RefreshPage();
     cy.wait(2000);
     cy.validateToastMessage(Cypress.env("MESSAGES").ERROR_GIT_AUTH_FAIL());
     cy.wait("@gitStatus");

@@ -6,7 +6,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 type Props = {
-  intercomMessage?: string;
   logEventName?: EventName;
   logEventData?: any;
 };

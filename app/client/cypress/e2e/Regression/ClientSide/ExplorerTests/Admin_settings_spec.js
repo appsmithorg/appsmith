@@ -29,6 +29,9 @@ describe("Admin settings page", function () {
     cy.intercept("PUT", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
     }).as("postEnvVariables");
+    cy.intercept("PUT", "/api/v1/tenants", {
+      body: { responseMeta: { status: 200, success: true }, data: {} },
+    }).as("postTenantConfig");
   });
 
   it("1. should test that settings page is accessible to super user", () => {
@@ -139,17 +142,10 @@ describe("Admin settings page", function () {
     });
     cy.get(adminsSettings.saveButton).should("be.visible");
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
-    cy.intercept("POST", "/api/v1/admin/restart", {
-      body: { responseMeta: { status: 200, success: true }, data: true },
-    });
     cy.get(adminsSettings.saveButton).click();
-    cy.wait("@postEnvVariables").then((interception) => {
-      expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
-        instanceName,
-      );
+    cy.wait("@postTenantConfig").then((interception) => {
+      expect(interception.request.body.instanceName).to.equal(instanceName);
     });
-    cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.wait(3000);
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.wait(3000);
   });
@@ -178,10 +174,10 @@ describe("Admin settings page", function () {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
     cy.get(adminsSettings.saveButton).click();
+    cy.wait("@postTenantConfig").then((interception) => {
+      expect(interception.request.body.instanceName).to.equal(instanceName);
+    });
     cy.wait("@postEnvVariables").then((interception) => {
-      expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
-        instanceName,
-      );
       expect(interception.request.body.APPSMITH_MAIL_FROM).to.equal(
         `${fromAddress}@appsmith.com`,
       );
@@ -204,7 +200,8 @@ describe("Admin settings page", function () {
       cy.get("a")
         .should("have.attr", "target", "_blank")
         .invoke("removeAttr", "target")
-        .click();
+        .click()
+        .wait(3000); //for page to load fully;
       cy.url().should("contain", GOOGLE_MAPS_SETUP_DOC);
     });
   });
@@ -256,7 +253,8 @@ describe("Admin settings page", function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click();
+          .click()
+          .wait(3000); //for page to load fully;
         cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
       });
     },
@@ -275,7 +273,8 @@ describe("Admin settings page", function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click();
+          .click()
+          .wait(3000); //for page to load fully
         cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
       });
     },

@@ -147,7 +147,7 @@ import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import classNames from "classnames";
 import {
   APPSMITH_AI,
-  askAIEnabled,
+  isAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
 import {
   getAllDatasourceTableKeys,
@@ -157,12 +157,9 @@ import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
-import { getAppsmithConfigs } from "@appsmith/configs";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
-
-const { cloudHosting } = getAppsmithConfigs();
 
 export type CodeEditorExpected = {
   type: string;
@@ -317,6 +314,12 @@ class CodeEditor extends Component<Props, State> {
       props.input.value,
     );
     this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
+    /**
+     * Decides if AI is enabled by looking at repo, feature flags, props and environment
+     */
+    this.AIEnabled =
+      isAIEnabled(this.props.featureFlags, this.props.mode) &&
+      Boolean(this.props.AIAssisted);
   }
 
   componentDidMount(): void {
@@ -1137,11 +1140,6 @@ class CodeEditor extends Component<Props, State> {
     changeObj?: CodeMirror.EditorChangeLinkedList,
   ) => {
     const value = this.editor?.getValue() || "";
-    if (changeObj && changeObj.origin === "complete") {
-      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
-        searchString: changeObj.text[0],
-      });
-    }
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
@@ -1479,16 +1477,6 @@ class CodeEditor extends Component<Props, State> {
       evaluated = pathEvaluatedValue;
     }
     const entityInformation = this.getEntityInformation();
-
-    /**
-     * Decides if AI is enabled by looking at repo, feature flags, props and environment
-     */
-    this.AIEnabled = Boolean(
-      askAIEnabled &&
-        this.props.featureFlags.ask_ai &&
-        this.props.AIAssisted &&
-        cloudHosting,
-    );
 
     /**
      * AI button is to be shown when following conditions are satisfied

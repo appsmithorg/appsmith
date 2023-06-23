@@ -8,13 +8,14 @@ import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.KeycloakIntegrationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_BASE_URL;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
+import static java.lang.Boolean.TRUE;
 
 @Service
 public class SamlConfigurationServiceImpl implements SamlConfigurationService {
@@ -53,33 +54,45 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                         return Mono.error(new AppsmithException(AppsmithError.SAML_ALREADY_CONFIGURED));
                     }
 
+                    return Mono.just(envVarMap);
+                })
+                .flatMap(envVarMap -> {
+
                     // In Keycloak, create a realm and client
                     Mono<Boolean> initializeKeycloakMono = keycloakIntegrationService.createRealm()
                             .then(keycloakIntegrationService.createClient(baseUrl));
 
-
+                    return initializeKeycloakMono;
+                })
+                .flatMap(keyclaokInitialized -> {
                     if (configuration.getImportFromUrl() != null && !configuration.getImportFromUrl().isEmpty()) {
 
                         // We seem to be importing from a URL
-                        return initializeKeycloakMono
-                                .then(keycloakIntegrationService.createSamlIdentityProviderFromIdpConfigFromUrl(
-                                        Map.of("url", configuration.getImportFromUrl()), baseUrl)
-                                );
+                        return keycloakIntegrationService.createSamlIdentityProviderFromIdpConfigFromUrl(
+                                Map.of("url", configuration.getImportFromUrl()), baseUrl, configuration.getClaims());
+
                     } else if (configuration.getImportFromXml() != null && !configuration.getImportFromXml().isEmpty()) {
 
                         // We seem to be importing from XML
-
-                        return initializeKeycloakMono
-                                .then(keycloakIntegrationService.createSamlIdentityProviderFromXml(configuration.getImportFromXml(), baseUrl));
+                        return keycloakIntegrationService.createSamlIdentityProviderFromXml(
+                                configuration.getImportFromXml(), baseUrl, configuration.getClaims());
 
                     } else if (configuration.getConfiguration() != null) {
 
-                        return initializeKeycloakMono
-                                .then(keycloakIntegrationService.createSamlIdentityProviderExplicitConfiguration(configuration.getConfiguration(), baseUrl));
+                        // The user has explicitly configured the individual fields
+                        return keycloakIntegrationService.createSamlIdentityProviderExplicitConfiguration(
+                                configuration.getConfiguration(), baseUrl, configuration.getClaims());
                     }
 
                     return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                })
+                .flatMap(identityProviderCreated -> {
+                    // Now update the client with custom claims so that they are exposed in Appsmith
+                    if (CollectionUtils.isEmpty(configuration.getClaims())) {
+                        return Mono.just(TRUE);
+                    }
 
+                    return keycloakIntegrationService.addClientClaims(configuration.getClaims(), baseUrl);
                 })
                 .onErrorResume(AppsmithException.class, error -> {
                     if (error instanceof AppsmithException &&

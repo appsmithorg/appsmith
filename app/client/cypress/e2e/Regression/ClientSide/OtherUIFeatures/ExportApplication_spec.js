@@ -1,10 +1,8 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 import homePage from "../../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../locators/commonlocators.json");
-const agHelper = ObjectsRegistry.AggregateHelper;
-const HomePage = ObjectsRegistry.HomePage;
+
 describe("Export application as a JSON file", function () {
   let workspaceId;
   let appid;
@@ -12,8 +10,9 @@ describe("Export application as a JSON file", function () {
   let appname;
 
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(5000);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check if exporting app flow works as expected", function () {
@@ -26,7 +25,7 @@ describe("Export application as a JSON file", function () {
     // cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.exportAppFromMenu).click({ force: true });
-    agHelper.ValidateToastMessage("Successfully exported");
+    _.agHelper.ValidateToastMessage("Successfully exported");
     // fetching the exported app file manually to be verified.
     cy.get(`a[id=t--export-app-link]`).then((anchor) => {
       const url = anchor.prop("href");
@@ -44,16 +43,16 @@ describe("Export application as a JSON file", function () {
   it("2. User with admin access,should be able to export the app", function () {
     if (CURRENT_REPO === REPO.CE) {
       cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      HomePage.NavigateToHome();
-      agHelper.GenerateUUID();
+      _.homePage.NavigateToHome();
+      _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        HomePage.CreateNewWorkspace("exportApp" + uid);
-        HomePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
+        _.homePage.CreateNewWorkspace("exportApp" + uid);
+        _.homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
         appid = "App" + uid;
-        cy.get("h2").contains("Drag and drop a widget here");
+        //cy.get("h2").contains("Drag and drop a widget here");
         cy.get(homePage.shareApp).click({ force: true });
         // cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.adminRole);
-        HomePage.InviteUserToWorkspaceFromApp(
+        _.homePage.InviteUserToApplication(
           Cypress.env("TESTUSERNAME1"),
           "Administrator",
         );
@@ -84,16 +83,16 @@ describe("Export application as a JSON file", function () {
 
   it("3. User with developer access,should not be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    HomePage.NavigateToHome();
-    agHelper.GenerateUUID();
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      HomePage.CreateNewWorkspace("exportApp" + uid);
-      HomePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
+      _.homePage.CreateNewWorkspace("exportApp" + uid);
+      _.homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
       appid = "App" + uid;
       workspaceId = "exportApp" + uid;
-      cy.get("h2").contains("Drag and drop a widget here");
+      //cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      HomePage.InviteUserToApplication(
+      _.homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "Developer",
       );
@@ -119,17 +118,17 @@ describe("Export application as a JSON file", function () {
 
   it("4. User with viewer access,should not be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    HomePage.NavigateToHome();
-    agHelper.GenerateUUID();
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      HomePage.CreateNewWorkspace("exportApp" + uid);
-      HomePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
+      _.homePage.CreateNewWorkspace("exportApp" + uid);
+      _.homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
       appid = "App" + uid;
       workspaceId = "exportApp" + uid;
-      cy.get("h2").contains("Drag and drop a widget here");
+      //cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
 
-      HomePage.InviteUserToApplication(
+      _.homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );

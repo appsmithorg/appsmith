@@ -1,5 +1,4 @@
 import { agHelper, autoLayout } from "../../../../support/Objects/ObjectsCore";
-
 let testHeight;
 
 describe("Auto conversion algorithm usecases for fixed Layout", function () {
@@ -7,7 +6,6 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
     cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
       agHelper.AddDsl(val);
     });
-    cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;

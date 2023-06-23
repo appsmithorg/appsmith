@@ -164,13 +164,14 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
           activeGroups.map((group: BaseGroupRoleProps) => {
             const removedGroup =
               getFilteredData(removedActiveGroups, group, true).length > 0;
-            const hasPermission =
-              entityName === "role"
-                ? isPermitted(
-                    group?.userPermissions,
-                    PERMISSION_TYPE.UNASSIGN_PERMISSIONGROUPS,
-                  )
-                : true;
+            const hasPermission = group?.userPermissions
+              ? isPermitted(
+                  group?.userPermissions,
+                  entityName === "role"
+                    ? PERMISSION_TYPE.UNASSIGN_PERMISSIONGROUPS
+                    : PERMISSION_TYPE.REMOVE_USERS_FROM_USERGROUPS,
+                )
+              : true;
             return (
               <EachGroup
                 className={`${removedGroup ? "removed" : ""} ${

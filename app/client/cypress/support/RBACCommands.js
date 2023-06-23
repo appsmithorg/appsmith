@@ -228,7 +228,7 @@ Cypress.Commands.add("AssignRoleToUser", (Role, userEmail) => {
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
   cy.get(RBAC.selectFromDropdownInviteModal).click();
-  cy.get(`[label="${Role}"]`).first().click();
+  cy.get(`[label="${Role}"]`).first().scrollIntoView().click();
   cy.get(".ads-v2-modal__content-header h3").click();
   cy.get(RBAC.inviteButton).click();
   cy.wait("@associateRoles").should(

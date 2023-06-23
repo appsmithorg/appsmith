@@ -108,7 +108,7 @@ public class Migration012RenameIndexesWithLongNames {
         // remove-structure-from-within-datasource
         dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
         DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceStorageStructure.class,
-            DatabaseChangelog1.makeIndex("datasourceId", "envId")
+            DatabaseChangelog1.makeIndex("datasourceId", "environmentId")
                 .unique().named("dsConfigStructure_dsId_envId")
         );
     }

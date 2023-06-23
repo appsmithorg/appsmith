@@ -51,10 +51,4 @@ public class TenantController extends TenantControllerCE {
         return service.refreshAndGetCurrentLicense()
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
-
-    @PutMapping("updateDefaultTenantConfiguration")
-    public Mono<ResponseDTO<Tenant>> updateTenantConfiguration(@RequestBody TenantConfiguration tenantConfiguration) {
-        return service.updateDefaultTenantConfiguration(tenantConfiguration)
-                .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
-    }
 }

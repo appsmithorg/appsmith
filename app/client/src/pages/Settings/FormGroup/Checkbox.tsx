@@ -7,7 +7,6 @@ import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { Checkbox, Tag, Text } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import type { EventName } from "utils/AnalyticsUtil";
 import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
 import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
 
@@ -26,8 +25,6 @@ type CheckboxProps = {
   needsUpgrade?: boolean;
   text: string;
   labelSuffix?: React.ReactElement;
-  upgradeLogEventName?: EventName;
-  upgradeIntercomMessage?: string;
   isPropertyDisabled?: boolean;
 };
 
@@ -100,8 +97,6 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
           isDisabled: setting.isDisabled && setting.isDisabled(settings),
           needsUpgrade: setting.needsUpgrade,
           labelSuffix: setting.textSuffix,
-          upgradeLogEventName: setting.upgradeLogEventName,
-          upgradeIntercomMessage: setting.upgradeIntercomMessage,
           isPropertyDisabled: isTenantConfig(setting.id)
             ? false
             : !setting.name?.toLowerCase().includes("enable"),

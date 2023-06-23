@@ -18,10 +18,7 @@ import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
-import {
-  JS_ORIGIN_URI_FORM,
-  REDIRECT_URL_FORM,
-} from "@appsmith/constants/forms";
+import { ORIGIN_URI_FORM, REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
 import {
   getThirdPartyAuths,
@@ -95,7 +92,7 @@ export const GoogleAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.UNEDITABLEFIELD,
       label: "JavaScript origin URL",
-      formName: JS_ORIGIN_URI_FORM,
+      formName: ORIGIN_URI_FORM,
       fieldName: "js-origin-url-form",
       value: "",
       tooltip:
@@ -112,7 +109,7 @@ export const GoogleAuth: AdminConfigType = {
       fieldName: "redirect-url-form",
       value: "/login/oauth2/code/google",
       tooltip:
-        "This URL will be used while configuring the Google OAuth Client ID's authorized Redirect URIs",
+        "This URL will be used while configuring the Google OAuth Client ID's authorized redirect URIs",
       helpText: "Paste this URL in your Google developer console.",
     },
     {
@@ -148,7 +145,7 @@ export const GoogleAuth: AdminConfigType = {
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Github authentication",
+  title: "GitHub authentication",
   subText: createMessage(GITHUB_AUTH_DESC),
   canSave: true,
   settings: [
@@ -159,6 +156,32 @@ export const GithubAuth: AdminConfigType = {
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GITHUB_SIGNUP_SETUP_DOC,
+    },
+    {
+      id: "APPSMITH_OAUTH2_GITHUB_HOMEPAGE_URL",
+      category: SettingCategories.GITHUB_AUTH,
+      subCategory: SettingSubCategories.GITHUB,
+      controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "Homepage URL",
+      formName: ORIGIN_URI_FORM,
+      fieldName: "homepage-url-form",
+      value: "",
+      tooltip:
+        "This URL will be used while configuring the GitHub OAuth Client ID's homepage URL",
+      helpText: "Paste this URL in your GitHub developer settings.",
+    },
+    {
+      id: "APPSMITH_OAUTH2_GITHUB_REDIRECT_URL",
+      category: SettingCategories.GITHUB_AUTH,
+      subCategory: SettingSubCategories.GITHUB,
+      controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "Redirect URL",
+      formName: REDIRECT_URL_FORM,
+      fieldName: "callback-url-form",
+      value: "/login/oauth2/code/github",
+      tooltip:
+        "This URL will be used while configuring the GitHub OAuth Client ID's Authorization callback URL",
+      helpText: "Paste this URL in your GitHub developer settings.",
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
@@ -201,7 +224,7 @@ export const GoogleAuthCallout: AuthMethodType = {
 export const GithubAuthCallout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
-  label: "Github",
+  label: "GitHub",
   subText: createMessage(GITHUB_AUTH_DESC),
   image: Github,
 };

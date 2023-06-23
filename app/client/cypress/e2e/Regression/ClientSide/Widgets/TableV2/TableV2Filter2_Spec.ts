@@ -1,24 +1,16 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-let dataSet: any;
-
 describe("Verify various Table_Filter combinations", function () {
-  before(() => {
-    cy.fixture("example").then(function (data: any) {
-      dataSet = data;
-    });
-  });
-
   it("1. Adding Data to Table Widget", function () {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
-    //_.propPane.EnterJSContext("Table data", JSON.stringify(dataSet.TableInput));
+    //_.propPane.EnterJSContext("Table data", JSON.stringify(this.dataSet.TableInput));
     _.table.AddSampleTableData();
-    //_.propPane.EnterJSContext("Table Data", JSON.stringify(dataSet.TableInput));
+    //_.propPane.EnterJSContext("Table Data", JSON.stringify(this.dataSet.TableInput));
     _.propPane.UpdatePropertyFieldValue(
       "Table data",
-      JSON.stringify(dataSet.TableInput),
+      JSON.stringify(this.dataSet.TableInput),
     );
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
     _.agHelper.PressEscape();
     /*
       Changing id and orderAmount to "Plain text" column type

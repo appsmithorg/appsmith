@@ -4,6 +4,7 @@ export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   public homePage = ObjectsRegistry.HomePage;
+  public assertHelper = ObjectsRegistry.AssertHelper;
 
   private _adminSettingsBtn = '[data-testid="t--admin-settings-menu-option"]';
   private _settingsList = ".t--settings-category-list";
@@ -16,6 +17,7 @@ export class AdminSettings {
   public NavigateToAdminSettings() {
     this.homePage.NavigateToHome();
     this.agHelper.GetNClick(this._adminSettingsBtn);
+    this.assertHelper.AssertNetworkStatus("getEnvVariables");
     this.agHelper.AssertElementVisible(this._settingsList);
   }
 }

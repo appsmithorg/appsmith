@@ -14,13 +14,15 @@ public interface KeycloakIntegrationService {
 
     Mono<Map<String, Object>> importSamlConfigFromUrl(Map<String, String> config, String baseUrl);
 
-    Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest);
+    Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest, Map<String, String> claims);
 
-    Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration, String baseUrl);
+    Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration, String baseUrl, Map<String, String> claims);
 
-    Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request, String baseUrl);
+    Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request, String baseUrl, Map<String, String> claims);
 
     Mono<Boolean> deleteRealm();
 
-    Mono<Boolean> createSamlIdentityProviderFromXml(String importFromXml, String baseUrl);
+    Mono<Boolean> createSamlIdentityProviderFromXml(String importFromXml, String baseUrl, Map<String, String> claims);
+
+    Mono<Boolean> addClientClaims(Map<String, String> claims, String baseUrl);
 }
