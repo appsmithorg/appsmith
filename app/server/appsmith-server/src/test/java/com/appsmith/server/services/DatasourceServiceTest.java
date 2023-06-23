@@ -1739,7 +1739,6 @@ public class DatasourceServiceTest {
         Datasource datasource = createDatasourceObject("testDs", workspaceId, "postgres-plugin");
         datasource.getDatasourceStorages().put("randomName", generateSampleDatasourceStorageDTO());
         datasource.getDatasourceStorages().put("randomName2", generateSampleDatasourceStorageDTO());
-        datasource.getDatasourceStorages().put("randomName3", generateSampleDatasourceStorageDTO());
 
         Mono<Datasource> datasourceMono = datasourceService.create(datasource);
 
