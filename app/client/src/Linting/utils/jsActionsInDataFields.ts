@@ -1,141 +1,100 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { get, isString } from "lodash";
+import { difference, get, isString } from "lodash";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import type { TEntity } from "Linting/lib/entity";
 import { isDynamicEntity } from "Linting/lib/entity";
 import { isJSEntity } from "Linting/lib/entity";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import type { TEntityTree } from "./entityTree";
-import { getUnevalEntityTree } from "./entityTree";
-import DependencyMap from "entities/DependencyMap";
-import { getAllPathsFromNode } from "./entityPath";
-import { lintingDependencyMap } from "./lintingDependencyMap";
 import { entityFns } from "workers/Evaluation/fns";
 import { parsedJSCache } from "./parseJSEntity";
 import { PathUtils } from "./pathUtils";
+import type DependencyMap from "entities/DependencyMap";
 
-export enum UPDATE_TYPE {
-  ADD = "ADD",
-  DELETE = "DELETE",
-  EDIT = "EDIT",
-}
-let jsActionsInDataFields: DependencyMap | undefined = undefined;
+const noResponse = {
+  asyncJSFunctionsInPath: [],
+  removedAsyncJSFunctionsInPath: [],
+};
 
-export function getJSActionsInDataFields() {
-  const inverseMap: Map<string, string> =
-    jsActionsInDataFields?.getDependenciesInverse() || new Map();
-  const map: Record<string, string[]> = {};
-  for (const [jsfn, boundDataFields] of inverseMap.entries()) {
-    map[jsfn] = [...boundDataFields];
-  }
-  return map;
-}
-
-export function initializeJSActionsInDataFields() {
-  jsActionsInDataFields = new DependencyMap();
-}
-function handlePathUpdate(
-  fullPath: string,
-  referencesInPath: string[],
-  entityTree: TEntityTree,
-) {
-  if (!jsActionsInDataFields) return [];
-
+function handlePathUpdate({
+  dependencyMap,
+  entityTree,
+  fullPath,
+  previousReferencesInPath,
+  referencesInPath,
+}: {
+  fullPath: string;
+  referencesInPath: string[];
+  previousReferencesInPath: string[];
+  entityTree: TEntityTree;
+  dependencyMap: DependencyMap;
+}) {
   const { entityName } = getEntityNameAndPropertyPath(fullPath);
   const entity = entityTree[entityName];
+  if (!entity || !isDynamicEntity(entity)) return noResponse;
+  if (
+    isJSEntity(entity) &&
+    isAsyncJSFunction(fullPath, entityTree, dependencyMap)
+  ) {
+    return {
+      asyncJSFunctionsInPath: [fullPath],
+      removedAsyncJSFunctionsInPath: [],
+    };
+  }
   // Only datafields can cause updates
-  if (!entity || !PathUtils.isDataPath(fullPath, entity)) return [];
-
+  if (!PathUtils.isDataPath(fullPath, entity)) return noResponse;
   const asyncJSFunctionsInvokedInPath = getJSActionInvocationsInPath(
     entity,
     referencesInPath,
     fullPath,
     entityTree,
+    dependencyMap,
   );
-  const pathsToAdd = asyncJSFunctionsInvokedInPath.reduce(
-    (paths: Record<string, true>, currentPath) => {
-      return { ...paths, [currentPath]: true } as const;
-    },
-    { [fullPath]: true } as Record<string, true>,
+
+  const asyncFunctionsInPreviousReferences = previousReferencesInPath.filter(
+    (reference) => isAsyncJSFunction(reference, entityTree, dependencyMap),
   );
-  jsActionsInDataFields.addNodes(pathsToAdd);
 
-  const currentNodeDependencies = [
-    ...(jsActionsInDataFields.getDependencies().get(fullPath) || []),
-  ];
+  const removedAsyncFunctionsInPath = difference(
+    asyncFunctionsInPreviousReferences,
+    asyncJSFunctionsInvokedInPath,
+  );
 
-  const updatedDependencies = asyncJSFunctionsInvokedInPath
-    .filter((x) => !currentNodeDependencies.includes(x))
-    .concat(
-      currentNodeDependencies.filter(
-        (x) => !asyncJSFunctionsInvokedInPath.includes(x),
-      ),
-    );
-  jsActionsInDataFields.addDependency(fullPath, asyncJSFunctionsInvokedInPath);
-  return updatedDependencies;
+  return {
+    asyncJSFunctionsInPath: asyncJSFunctionsInvokedInPath,
+    removedAsyncJSFunctionsInPath: removedAsyncFunctionsInPath,
+  };
 }
 
-function handlePathDeletion(deletedPath: string, entityTree: TEntityTree) {
-  if (!jsActionsInDataFields) return [];
-  const updatedJSFns = new Set<string>();
+function handlePathDeletion({
+  dependencyMap,
+  entityTree,
+  fullPath: deletedPath,
+  previousReferencesInPath,
+}: {
+  fullPath: string;
+  previousReferencesInPath: string[];
+  entityTree: TEntityTree;
+  dependencyMap: DependencyMap;
+}) {
+  const removedAsyncFunctionsInPath = new Set<string>();
   const { entityName } = getEntityNameAndPropertyPath(deletedPath);
   const entity = entityTree[entityName];
-  if (!entity) return [];
+  if (!entity) return noResponse;
 
-  const allDeletedPaths = getAllPathsFromNode(
-    deletedPath,
-    getUnevalEntityTree(entityTree),
-  );
-
-  for (const path of Object.keys(allDeletedPaths)) {
-    const pathDependencies = jsActionsInDataFields.getDependencies().get(path);
-    if (!pathDependencies) continue;
-    pathDependencies.forEach((funcName) => updatedJSFns.add(funcName));
-  }
-  jsActionsInDataFields.removeNodes(allDeletedPaths);
-
-  return Array.from(updatedJSFns);
-}
-
-function handlePathEdit(
-  editedPath: string,
-  dependenciesInPath: string[],
-  entityTree: TEntityTree,
-) {
-  if (!jsActionsInDataFields) return [];
-  let updatedJSFns: string[] = [];
-  const { entityName } = getEntityNameAndPropertyPath(editedPath);
-  const entity = entityTree[entityName];
-  if (!entity) return [];
-
-  if (isJSEntity(entity)) {
-    if (isAsyncJSFunction(editedPath, entityTree)) {
-      jsActionsInDataFields.addNodes({ [editedPath]: true });
-      const dependentPaths =
-        lintingDependencyMap.getIncomingDependencies(editedPath);
-      for (const dependentPath of dependentPaths) {
-        const updatedPaths = handlePathUpdate(
-          dependentPath,
-          [
-            ...(lintingDependencyMap.getDependencies().get(dependentPath) ||
-              []),
-          ],
-          entityTree,
-        );
-        updatedJSFns = [...updatedJSFns, ...updatedPaths];
-      }
-    } else {
-      jsActionsInDataFields.removeNodes({ [editedPath]: true });
-    }
-  } else {
-    const updatedPaths = handlePathUpdate(
-      editedPath,
-      dependenciesInPath,
+  for (const reference of previousReferencesInPath) {
+    const isAsyncFunction = isAsyncJSFunction(
+      reference,
       entityTree,
+      dependencyMap,
     );
-    updatedJSFns = [...updatedJSFns, ...updatedPaths];
+    if (!isAsyncFunction) continue;
+    removedAsyncFunctionsInPath.add(reference);
   }
-  return updatedJSFns;
+  return {
+    asyncJSFunctionsInPath: [],
+    removedAsyncJSFunctionsInPath: removedAsyncFunctionsInPath,
+  };
 }
 
 function getJSActionInvocationsInPath(
@@ -143,6 +102,7 @@ function getJSActionInvocationsInPath(
   dependencies: string[],
   fullPath: string,
   entityTree: TEntityTree,
+  dependencyMap: DependencyMap,
 ) {
   const invokedAsyncJSFunctions = new Set<string>();
   const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
@@ -150,7 +110,7 @@ function getJSActionInvocationsInPath(
 
   dependencies.forEach((dependant) => {
     if (
-      isAsyncJSFunction(dependant, entityTree) &&
+      isAsyncJSFunction(dependant, entityTree, dependencyMap) &&
       isFunctionInvoked(dependant, unevalPropValue)
     ) {
       invokedAsyncJSFunctions.add(dependant);
@@ -181,6 +141,7 @@ export function isFunctionInvoked(
 export function isAsyncJSFunction(
   jsFnFullname: string,
   entityTree: TEntityTree,
+  dependencyMap: DependencyMap,
 ) {
   const { entityName: jsObjectName, propertyPath } =
     getEntityNameAndPropertyPath(jsFnFullname);
@@ -191,11 +152,8 @@ export function isAsyncJSFunction(
   if (!propertyConfig) return false;
   return (
     ("isMarkedAsync" in propertyConfig && propertyConfig.isMarkedAsync) ||
-    lintingDependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields) ||
-    lintingDependencyMap.isRelated(
-      jsFnFullname,
-      getAllEntityActions(entityTree),
-    )
+    dependencyMap.isRelated(jsFnFullname, AppsmithFunctionsWithFields) ||
+    dependencyMap.isRelated(jsFnFullname, getAllEntityActions(entityTree))
   );
 }
 
@@ -216,21 +174,4 @@ function getAllEntityActions(entityTree: TEntityTree) {
   return [...allEntityActions];
 }
 
-export function updateJSActionsInDataFields(
-  fullPath: string,
-  dependenciesInPath: string[],
-  entityTree: TEntityTree,
-  updateType: UPDATE_TYPE,
-) {
-  switch (updateType) {
-    case UPDATE_TYPE.ADD: {
-      return handlePathUpdate(fullPath, dependenciesInPath, entityTree);
-    }
-    case UPDATE_TYPE.EDIT: {
-      return handlePathEdit(fullPath, dependenciesInPath, entityTree);
-    }
-    case UPDATE_TYPE.DELETE: {
-      return handlePathDeletion(fullPath, entityTree);
-    }
-  }
-}
+export default { handlePathUpdate, handlePathDeletion };

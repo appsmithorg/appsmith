@@ -166,14 +166,13 @@ export default class DependencyMap {
     }
     return false;
   };
-  getDependencies() {
-    return this.#dependencies;
-  }
-  getDependenciesInverse() {
-    return this.#dependenciesInverse;
-  }
+
   getIncomingDependencies(node: string) {
     const nodes = this.#dependenciesInverse.get(node);
+    return Array.from(nodes || []);
+  }
+  getOutgoingDependencies(node: string) {
+    const nodes = this.#dependencies.get(node);
     return Array.from(nodes || []);
   }
 }

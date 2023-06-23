@@ -53,7 +53,8 @@ export class PathUtils {
     return paths.map((path) => `${parentName}.${path}`);
   }
   static isDataPath(fullPath: string, entity: TEntity) {
-    if (!isWidgetEntity(entity)) return false;
+    if (!isWidgetEntity(entity) || !this.isDynamicLeaf(entity, fullPath))
+      return false;
     const entityConfig = entity.getConfig();
     const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
     return !(propertyPath in entityConfig.triggerPaths);

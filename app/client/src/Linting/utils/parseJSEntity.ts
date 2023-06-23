@@ -17,14 +17,10 @@ type TParsedJSEntity = Record<string, string> & {
 
 type TParsedJSEntityConfig = Record<string, TParsedJSProperty>;
 
-export let parsedJSCache: Record<
+export const parsedJSCache: Record<
   string,
   { parsedEntity: TParsedJSEntity; parsedEntityConfig: TParsedJSEntityConfig }
 > = {};
-
-export function clearParsedJSCache() {
-  parsedJSCache = {};
-}
 
 export function parseJSEntity(entity: JSEntity) {
   const jsEntityBody = entity.getRawEntity().body;
