@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/listv2PaginationDsl.json");
 const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
@@ -87,7 +86,9 @@ const listData = [
 
 describe("List widget V2 page number and page size", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("listv2PaginationDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
@@ -164,20 +165,13 @@ describe("List widget V2 page number and page size", () => {
       cy.wait(2000);
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
         _.dataSources.ToggleUsePreparedStatement(false);
       });
       // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type(
-          "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-          {
-            force: true,
-            parseSpecialCharSequences: false,
-          },
-        );
+      _.dataSources.EnterQuery(
+        "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
+      );
+
       cy.WaitAutoSave();
 
       cy.runQuery();
@@ -221,21 +215,10 @@ describe("List widget V2 page number and page size", () => {
       // switching off Use Prepared Statement toggle
       cy.get(queryLocators.switch).last().click({ force: true });
 
-      //.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({ force: true });
+      _.dataSources.EnterQuery(
+        "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
+      );
 
-      // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type(
-          "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
-          {
-            force: true,
-            parseSpecialCharSequences: false,
-          },
-        );
       cy.WaitAutoSave();
 
       cy.runQuery();

@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
+import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -132,14 +133,19 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 })
                 .onErrorResume(error -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED, datasourceStorage,
                         getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false, error)).then(Mono.error(error)))
-                .flatMap(structure -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
-                                datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
-                        .then(datasourceStorage.getDatasourceId() == null
-                                ? Mono.empty()
-                                : datasourceStructureService
-                                .saveStructure(datasourceStorage.getDatasourceId(), structure)
-                                .thenReturn(structure)
-                        ));
+                .flatMap(structure -> {
+                    String datasourceId = datasourceStorage.getDatasourceId();
+                    String environmentId = datasourceStorage.getEnvironmentId();
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
+                                    datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
+                            .then(!hasText(datasourceId)
+                                    ? Mono.empty()
+                                    : datasourceStructureService
+                                    .saveStructure(datasourceId, environmentId, structure)
+                                    .thenReturn(structure)
+                            );
+                });
 
 
         // This mono, when computed, will load the structure of the datasourceStorage by calling the plugin method.

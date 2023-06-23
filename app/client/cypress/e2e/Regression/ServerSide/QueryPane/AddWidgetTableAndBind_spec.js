@@ -1,15 +1,19 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
-const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 let datasourceName;
 
 describe("Addwidget from Query and bind with other widgets", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("inputdsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
@@ -17,21 +21,9 @@ describe("Addwidget from Query and bind with other widgets", function () {
   });
 
   it("1. Create a PostgresDataSource", () => {
-    cy.createPostgresDatasource();
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
-  });
-
-  it("2. Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM configs LIMIT 10;");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
+    dataSources.CreateDataSource("Postgres");
+    dataSources.CreateQueryAfterDSSaved("SELECT * FROM configs LIMIT 10;");
+    //Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
     // Mock the response for this test
     cy.intercept("/api/v1/actions/execute", {
       fixture: "addWidgetTable-mock",
@@ -55,7 +47,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       });
   });
 
-  it("3. Input widget test with default value from table widget", () => {
+  it("2. Input widget test with default value from table widget", () => {
     entityExplorer.SelectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
     cy.wait("@updateLayout").should(
@@ -63,9 +55,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  it("4. validation of data displayed in input widget based on row data selected", function () {
+    //validation of data displayed in input widget based on row data selected
     cy.isSelectRow(1);
     cy.readTableV2dataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
@@ -79,7 +69,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
     });
   });
 
-  it("5. Input widget test with default value from table widget[Bug#4136]", () => {
+  it("3. Input widget test with default value from table widget[Bug#4136]", () => {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.get(".t--property-pane-title").click({ force: true });
     cy.get(".t--property-pane-title")

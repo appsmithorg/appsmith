@@ -1,9 +1,11 @@
-const dsl = require("../../../../../fixtures/ButtonGroup_MenuButton_Width_dsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("In a button group widget, menu button width", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("ButtonGroup_MenuButton_Width_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("If target width is smaller than min-width, The menu button popover width should be set to minimum width", () => {

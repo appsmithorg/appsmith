@@ -2,7 +2,10 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 // Edit mode modal
 export class Templates {
+  private agHelper = ObjectsRegistry.AggregateHelper;
+  private homePage = ObjectsRegistry.HomePage;
   public locators = {
+    _templatesTab: ".t--templates-tab",
     _forkApp: ".t--fork-template",
     _templateCard: "[data-testid='template-card']",
     _templatesSearchInput: "[data-testid='t--application-search-input']",
@@ -10,6 +13,7 @@ export class Templates {
     _templateViewGoBack: "[data-testid='t--template-view-goback']",
     templateDialogBox: "[data-testid=t--templates-dialog-component]",
     _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
+    _requestForTemplateBtn: "span:contains('Request for a template')",
   };
 
   FilterTemplatesByName(query: string) {
@@ -32,5 +36,15 @@ export class Templates {
 
   GetTemplatesCardsList() {
     return cy.get(this.locators._templateCard);
+  }
+
+  public SwitchToTemplatesTab() {
+    this.homePage.NavigateToHome();
+    this.agHelper.GetNClick(this.locators._templatesTab);
+    this.agHelper.AssertElementVisible(
+      this.locators._requestForTemplateBtn,
+      0,
+      30000,
+    ); //giving more time here for templates page to fully load, since there is no intercept validation for same
   }
 }
