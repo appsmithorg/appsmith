@@ -234,7 +234,6 @@ export class HomePage {
     if (skipSignposting) {
       this.agHelper.AssertElementVisible(this.entityExplorer._entityExplorer);
       this.onboarding.closeIntroModal();
-      this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
