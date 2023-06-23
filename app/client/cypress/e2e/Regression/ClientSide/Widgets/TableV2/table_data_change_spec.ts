@@ -175,6 +175,7 @@ describe("Table widget v2: tableData change test", function () {
 
     agHelper.ClickButton("Set table data 1");
 
+    agHelper.WaitUntilToastDisappear("table data 1 set");
     table.AssertTableHeaderOrder("statussteptaskaction");
     tableLocalColumnOrder = readTableLocalColumnOrder("tableWidgetColumnOrder");
     if (tableLocalColumnOrder)
@@ -191,6 +192,8 @@ describe("Table widget v2: tableData change test", function () {
     checkIfColumnIsFrozenViaCSS("action");
 
     agHelper.ClickButton("Set table data 2");
+
+    agHelper.WaitUntilToastDisappear("table data 2 set");
 
     table.AssertTableHeaderOrder(
       "statusidnamegenderavataremailaddresscreatedAtupdatedAt",
