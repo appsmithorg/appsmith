@@ -50,7 +50,6 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
-import OverlayCanvasContainer from "./OverlayCanvas";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -241,15 +240,12 @@ function WidgetsEditor() {
             <PropertyPaneContainer />
           </div>
           {isAutoLayout && (
-            <>
-              <canvas
-                height={20}
-                id="widget-drag-image"
-                style={{ position: "absolute" }}
-                width={100}
-              />
-              <OverlayCanvasContainer />
-            </>
+            <canvas
+              height={20}
+              id="widget-drag-image"
+              style={{ position: "absolute" }}
+              width={100}
+            />
           )}
         </>
       )}

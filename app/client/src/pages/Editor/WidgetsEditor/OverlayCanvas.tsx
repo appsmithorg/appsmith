@@ -10,19 +10,19 @@ const OverlayCanvas = styled.canvas`
   z-index: 2;
   pointer-events: none;
 `;
-const PIXEL_RATIO = window.devicePixelRatio || 1;
+// const PIXEL_RATIO = window.devicePixelRatio || 1;
 const OVERLAY_CANVAS_ID = "overlay-canvas";
-const FONT_SIZE = 7;
+const FONT_SIZE = 14;
 const LINE_HEIGHT = Math.floor(FONT_SIZE * 1.2);
-const VERTICAL_PADDING = 2;
-const HORIZONTAL_PADDING = 3;
+const VERTICAL_PADDING = 4;
+const HORIZONTAL_PADDING = 6;
 
 const HEIGHT = Math.floor(LINE_HEIGHT + VERTICAL_PADDING);
 
 const FILL_COLOR = "rgb(239, 117, 65)";
 const TEXT_COLOR = "rgb(255, 255, 255)";
 
-const OverlayCanvasContainer = () => {
+const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   const selectedWidgets: FlattenedWidgetProps[] = useSelector(
     getSelectedWidgetDsl(),
   );
@@ -35,10 +35,10 @@ const OverlayCanvasContainer = () => {
       const context: CanvasRenderingContext2D | null = canvas?.getContext("2d");
       if (!context) return;
       context.imageSmoothingEnabled = false;
-      canvas.width = canvas.width * PIXEL_RATIO;
-      canvas.height = canvas.height * PIXEL_RATIO;
-      console.log("####", { PIXEL_RATIO });
-      context.scale(PIXEL_RATIO, PIXEL_RATIO);
+      // canvas.width = canvas.width * PIXEL_RATIO;
+      // canvas.height = canvas.height * PIXEL_RATIO;
+      // console.log("####", { PIXEL_RATIO });
+      // context.scale(PIXEL_RATIO, PIXEL_RATIO);
     }
 
     return () => {
@@ -61,7 +61,7 @@ const OverlayCanvasContainer = () => {
     top: number,
     fillColor: string,
     strokeColor: string,
-    radius = 2,
+    radius = 4,
   ) => {
     context.fillStyle = fillColor;
     context.strokeStyle = strokeColor;
@@ -117,10 +117,8 @@ const OverlayCanvasContainer = () => {
     const componentWidth: number = textWidth + HORIZONTAL_PADDING * 2;
 
     const left: number =
-      (widgetPosition.left + widgetPosition.width) / PIXEL_RATIO -
-      componentWidth +
-      9;
-    const top: number = widgetPosition.top / PIXEL_RATIO + 5.5;
+      widgetPosition.left + widgetPosition.width - componentWidth - 1;
+    const top: number = widgetPosition.top + 11;
     console.log("####", {
       left,
       top,
@@ -147,7 +145,13 @@ const OverlayCanvasContainer = () => {
     context?.save();
   };
 
-  return <OverlayCanvas id={OVERLAY_CANVAS_ID} ref={canvasRef} />;
+  return (
+    <OverlayCanvas
+      id={OVERLAY_CANVAS_ID}
+      ref={canvasRef}
+      width={props.canvasWidth}
+    />
+  );
 };
 
 export default OverlayCanvasContainer;

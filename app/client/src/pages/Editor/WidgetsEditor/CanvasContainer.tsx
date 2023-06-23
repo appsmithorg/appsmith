@@ -34,6 +34,7 @@ import {
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import type { AppState } from "@appsmith/reducers";
+import OverlayCanvasContainer from "./OverlayCanvas";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -230,6 +231,7 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
+      <OverlayCanvasContainer canvasWidth={canvasWidth} />
     </>
   );
 }
