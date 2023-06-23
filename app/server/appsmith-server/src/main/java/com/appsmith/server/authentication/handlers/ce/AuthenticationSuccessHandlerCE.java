@@ -19,6 +19,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -33,21 +34,15 @@ import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.appsmith.server.helpers.RedirectHelper.FIRST_TIME_USER_EXPERIENCE_PARAM;
-import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -67,6 +62,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final ConfigService configService;
     private final FeatureFlagService featureFlagService;
     private final CommonConfig commonConfig;
+
+    private final UserIdentifierService userIdentifierService;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -206,24 +203,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
-    private String getUserIdentifier(User user){
-        String userIdentifier = user.getUsername();
-        if (!commonConfig.isCloudHosting()) {
-            userIdentifier = hash(user.getUsername());
-        }
-        return userIdentifier;
-    }
-
-    private String hash(String value) {
-        return value == null ? "" : DigestUtils.sha256Hex(value);
-    }
-
     private Mono<Void> addDefaultUserTraits(User user){
-        String identifier = getUserIdentifier(user);
+        String identifier = userIdentifierService.getUserIdentifier(user);
         List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
         String emailTrait;
         if (!commonConfig.isCloudHosting()) {
-            emailTrait = hash(user.getEmail());
+            emailTrait = userIdentifierService.hash(user.getEmail());
         } else {
             emailTrait = user.getEmail();
         }

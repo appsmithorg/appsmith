@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -13,9 +12,9 @@ import com.appsmith.server.featureflags.FeatureFlagTrait;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final Map<String, Map<String, Boolean>> featureFlagCache;
 
-    private final CommonConfig commonConfig;
+    private final UserIdentifierService userIdentifierService;
 
     @Autowired
     public FeatureFlagServiceCEImpl(SessionUserService sessionUserService,
@@ -56,24 +55,15 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                     TenantService tenantService,
                                     ConfigService configService,
                                     CloudServicesConfig cloudServicesConfig,
-                                    CommonConfig commonConfig) {
+                                    UserIdentifierService userIdentifierService) {
         this.sessionUserService = sessionUserService;
         this.ff4j = ff4j;
         this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
-        this.commonConfig = commonConfig;
         this.featureFlagCache = new ConcurrentHashMap<>();
+        this.userIdentifierService = userIdentifierService;
     }
-
-    private String getUserIdentifier(User user){
-        String userIdentifier = user.getUsername();
-        if (!commonConfig.isCloudHosting()) {
-            userIdentifier = hash(user.getUsername());
-        }
-        return userIdentifier;
-    }
-
 
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
@@ -81,7 +71,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         if (Boolean.TRUE.equals(check)) {
             return Mono.just(check);
         }
-        String userIdentifier = getUserIdentifier(user);
+        String userIdentifier = userIdentifierService.getUserIdentifier(user);
 
         if (this.featureFlagCache.containsKey(userIdentifier) &&
                 this.featureFlagCache.get(userIdentifier).containsKey(featureName)) {
@@ -136,7 +126,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         return userMono
                 .flatMap(user -> {
-                    String userIdentifier = getUserIdentifier(user);
+                    String userIdentifier = userIdentifierService.getUserIdentifier(user);
                     if (this.featureFlagCache.containsKey(userIdentifier)) {
                         return Mono.just(this.featureFlagCache.get(userIdentifier));
                     } else {
@@ -145,15 +135,12 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 });
     }
 
-    private String hash(String value) {
-        return value == null ? "" : DigestUtils.sha256Hex(value);
-    }
 
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(User user) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
         Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
-        String userIdentifier = getUserIdentifier(user);
+        String userIdentifier = userIdentifierService.getUserIdentifier(user);
         return Mono.zip(instanceIdMono, defaultTenantIdMono)
                 .flatMap(tuple2 -> {
                     return this.getRemoteFeatureFlagsByIdentity(

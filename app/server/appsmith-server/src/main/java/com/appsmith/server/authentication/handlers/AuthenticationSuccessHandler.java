@@ -11,6 +11,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -33,10 +34,11 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         WorkspacePermission workspacePermission,
                                         ConfigService configService,
                                         FeatureFlagService featureFlagService,
-                                        CommonConfig commonConfig) {
+                                        CommonConfig commonConfig,
+                                        UserIdentifierService userIdentifierService) {
 
         super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
                 userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission,
-                configService, featureFlagService, commonConfig);
+                configService, featureFlagService, commonConfig, userIdentifierService);
     }
 }
