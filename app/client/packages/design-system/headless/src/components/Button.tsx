@@ -32,7 +32,7 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
         })}
         ref={domRef}
       >
-        {children}
+        Pawan 2
       </button>
     </FocusRing>
   );
