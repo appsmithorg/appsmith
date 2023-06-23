@@ -48,6 +48,8 @@ import type { ActionEntityConfig } from "entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -346,6 +348,9 @@ export function* logSuccessfulBindings(
     ? {}
     : { ...successfulBindingsMap.get() };
 
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const instanceId: string = yield select(getInstanceId);
+
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
@@ -404,6 +409,8 @@ export function* logSuccessfulBindings(
               entityType,
               propertyPath,
               isUndefined,
+              orgId: workspaceId,
+              instanceId,
             });
           }
         }

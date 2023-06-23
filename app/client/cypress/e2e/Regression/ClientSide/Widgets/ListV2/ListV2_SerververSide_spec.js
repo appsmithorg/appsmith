@@ -1,21 +1,18 @@
-const dsl = require("../../../../../fixtures/Listv2/Listv2JSObjects.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
-
-let ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor,
-  deployMode = ObjectsRegistry.DeployMode;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 describe("List widget V2 Serverside Pagination", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/Listv2JSObjects").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Next button disabled when there's no data", () => {
-    jsEditor.CreateJSObject(
+    _.jsEditor.CreateJSObject(
       `
         const pageNo = List1.pageNo;
         const pageSize = List1.pageSize;
@@ -32,7 +29,7 @@ describe("List widget V2 Serverside Pagination", () => {
       },
     );
 
-    ee.SelectEntityByName("List1", "Widgets");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
     cy.get(commonlocators.listPaginateActivePage).should("have.text", "1");
     cy.get(commonlocators.listPaginateNextButton).click({
@@ -51,7 +48,7 @@ describe("List widget V2 Serverside Pagination", () => {
   });
 
   it("2. Next button disabled but visible in view mode when there's no data", () => {
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
 
     cy.get(commonlocators.listPaginateActivePage).should("have.text", "1");
     cy.get(commonlocators.listPaginateNextButton).click({
@@ -68,7 +65,7 @@ describe("List widget V2 Serverside Pagination", () => {
     });
     cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
 
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. SelectedItemView and TriggeredItemView", () => {

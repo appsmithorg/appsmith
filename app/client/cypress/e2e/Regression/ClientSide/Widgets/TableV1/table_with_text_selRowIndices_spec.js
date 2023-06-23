@@ -1,10 +1,12 @@
-const dsl = require("../../../../../fixtures/tableWithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget edge case scenario testing", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableWithTextWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("Check if the selectedRowIndices does not contain -1", function () {
     cy.openPropertyPane("tablewidget");

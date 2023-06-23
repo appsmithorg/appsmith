@@ -76,6 +76,7 @@ export function useSheets() {
     error: sheets?.error,
     options,
     isLoading,
+    labelText: "Select sheet from " + config.table,
     label: (
       <Label>
         Select sheet from <Bold>{config.table}</Bold>

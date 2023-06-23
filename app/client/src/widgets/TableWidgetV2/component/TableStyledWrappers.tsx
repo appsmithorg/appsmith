@@ -298,6 +298,10 @@ export const TableWrapper = styled.div<{
       display: block;
     }
 
+    &.hide-menu {
+      display: none;
+    }
+
     &.hide {
       &:hover {
         .bp3-popover2-target {

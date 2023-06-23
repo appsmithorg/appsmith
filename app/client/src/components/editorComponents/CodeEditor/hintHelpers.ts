@@ -4,7 +4,6 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
@@ -50,8 +49,8 @@ export const bindingHint: HintHelper = (editor) => {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
       if (shouldShow) {
-        AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});
         CodemirrorTernService.complete(editor);
+
         return true;
       }
       // @ts-expect-error: Types are not available

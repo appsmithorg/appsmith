@@ -47,6 +47,7 @@ Cypress.on("fail", (error) => {
 });
 
 Cypress.env("MESSAGES", MESSAGES);
+let dataSet; // Declare a variable to hold the test data
 
 before(function () {
   if (RapidMode.config.enabled) {
@@ -57,7 +58,7 @@ before(function () {
       }
     });
 
-    Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+    //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
     if (!RapidMode.config.usesDSL) {
       cy.visit(RapidMode.url());
       cy.wait("@getWorkspace");
@@ -77,7 +78,7 @@ before(function () {
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
-  cy.visit("/setup/welcome");
+  cy.visit("/setup/welcome", { timeout: 60000 });
   cy.wait("@getMe");
   cy.wait(2000);
   cy.url().then((url) => {
@@ -106,14 +107,9 @@ before(function () {
       cy.LogOut();
     }
   });
-});
 
-before(function () {
-  if (RapidMode.config.enabled) {
-    return;
-  }
   //console.warn = () => {};
-  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
@@ -126,10 +122,33 @@ before(function () {
     localStorage.setItem("AppName", id);
   });
 
-  cy.fixture("example").then(function (data) {
-    this.data = data;
+  cy.fixture("TestDataSet1").then(function (data) {
+    this.dataSet = data;
   });
 });
+
+// before(function () {
+//   if (RapidMode.config.enabled) {
+//     return;
+//   }
+//   // //console.warn = () => {};
+//   // //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+//   // const username = Cypress.env("USERNAME");
+//   // const password = Cypress.env("PASSWORD");
+//   // cy.LoginFromAPI(username, password);
+//   // cy.wait(3000);
+//   // cy.get(".t--applications-container .createnew")
+//   //   .should("be.visible")
+//   //   .should("be.enabled");
+//   // cy.generateUUID().then((id) => {
+//   //   cy.CreateAppInFirstListedWorkspace(id);
+//   //   localStorage.setItem("AppName", id);
+//   // });
+
+//   // cy.fixture("TestDataSet1").then(function (data) {
+//   //   this.dataSet = data;
+//   // });
+// });
 
 beforeEach(function () {
   //cy.window().then((win) => (win.onbeforeunload = undefined));
@@ -137,7 +156,7 @@ beforeEach(function () {
     window.addEventListener("beforeunload", this.beforeunloadFunction);
   }
   initLocalstorage();
-  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer
   cy.DeleteEntityStateLocalStorage();
@@ -150,11 +169,14 @@ after(function () {
   if (RapidMode.config.enabled) {
     return;
   }
-  //-- Deleting the application by Api---//
-  cy.DeleteAppByApi();
-  //-- LogOut Application---//
-  cy.LogOut();
-
+  if (Cypress.env("CYPRESS_CI") === "1") {
+    //-- Deleting the application by Api---//
+    cy.DeleteAppByApi();
+    //-- LogOut Application---//
+    cy.LogOut();
+  } else {
+    cy.log("Running locally, hence skipping app delete!");
+  }
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");

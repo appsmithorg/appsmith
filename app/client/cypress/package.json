@@ -26,7 +26,7 @@
     "@typescript-eslint/parser": "^5.25.0",
     "chalk": "^4.1.1",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "11.2.0",
+    "cypress": "^12.14.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-log-to-output": "^1.1.2",

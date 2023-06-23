@@ -15,15 +15,15 @@ describe("JsonForm widget basis c usecases", function () {
     cy.openPropertyPane("jsonformwidget");
     cy.get(jsonform.jsformInput).should(
       "have.value",
-      this.data.defaultSource.name,
+      this.dataSet.defaultSource.name,
     );
     cy.get(jsonform.jsformDOB).should(
       "have.value",
-      this.data.defaultSource.date_of_birth,
+      this.dataSet.defaultSource.date_of_birth,
     );
     cy.get(".t--jsonformfield-employee_id input").should(
       "have.value",
-      this.data.defaultSource.employee_id,
+      this.dataSet.defaultSource.employee_id,
     );
   });
 
@@ -35,20 +35,20 @@ describe("JsonForm widget basis c usecases", function () {
     cy.get(jsonform.jsformEmpID).type("375");
     cy.get(jsonform.jsformInput).should(
       "not.have.value",
-      this.data.defaultSource.name,
+      this.dataSet.defaultSource.name,
     );
     cy.get(jsonform.jsformEmpID).should(
       "not.have.value",
-      this.data.defaultSource.employee_id,
+      this.dataSet.defaultSource.employee_id,
     );
     cy.get("button:contains('Reset')").click({ force: true });
     cy.get(jsonform.jsformInput).should(
       "have.value",
-      this.data.defaultSource.name,
+      this.dataSet.defaultSource.name,
     );
     cy.get(jsonform.jsformEmpID).should(
       "have.value",
-      this.data.defaultSource.employee_id,
+      this.dataSet.defaultSource.employee_id,
     );
   });
 

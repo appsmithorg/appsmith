@@ -1,24 +1,24 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Text Field Property Control", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
     const schema = {
       name: "John",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -110,7 +110,9 @@ describe("Text Field Property Control", () => {
     const schema = {
       check: false,
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("check");
@@ -149,7 +151,9 @@ describe("Text Field Property Control", () => {
     const schema = {
       switch: true,
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("switch");
@@ -190,7 +194,9 @@ describe("Text Field Property Control", () => {
     const schema = {
       state: "Karnataka",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("state");
@@ -238,7 +244,9 @@ describe("Text Field Property Control", () => {
     const schema = {
       hobbies: [],
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("hobbies");
@@ -304,7 +312,9 @@ describe("Text Field Property Control", () => {
     const sourceData = {
       radio: "Y",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.openFieldConfiguration("radio");

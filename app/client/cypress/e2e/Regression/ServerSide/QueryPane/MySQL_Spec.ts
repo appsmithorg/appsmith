@@ -1,10 +1,9 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+import {
+  agHelper,
+  dataSources,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 let dsName: any;
-
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources;
 
 describe("Validate MySQL query UI flows - Bug 14054", () => {
   it("1. Create a new MySQL DS", () => {
@@ -42,7 +41,10 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
       "Default",
       "Extra",
     ]);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("3. Validate SHOW & verify query response", () => {
@@ -51,16 +53,14 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
     agHelper.RenameWithInPane("verifyShow");
     runQueryNValidate("SHOW tables;", ["Tables_in_fakeapi"]);
     runQueryNValidate("SHOW databases", ["Database"]);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
-  it("4. Verify Deletion of the datasource", () => {
-    ee.SelectEntityByName(dsName, "Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
-
-    cy.wait("@deleteDatasource").should((response: any) => {
-      expect(response.status).to.be.oneOf([200, 409]);
-    });
+  after("4. Verify Deletion of the datasource", () => {
+    dataSources.DeleteDSFromEntityExplorer(dsName, [200, 409]);
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {

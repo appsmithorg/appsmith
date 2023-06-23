@@ -1,22 +1,32 @@
-import * as _ from "../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  dataSources,
+  entityItems,
+} from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 
-let dsName: any, query: string;
-
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
-  before("Create a new MySQL DS & adding data into it", () => {
-    _.dataSources.CreateDataSource("MsSql");
+  let dsName: any,
+    query: string,
+    containerName = "mssqldb";
+
+  before("Create MsSql container & adding data into it", () => {
+    dataSources.StartContainerNVerify("MsSql", containerName, 20000);
+
+    dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.dataSources.CreateQueryAfterDSSaved(
+      dataSources.CreateQueryAfterDSSaved(
         "Create database fakeapi;",
         "MsSQL_queries",
       );
-      _.dataSources.RunQuery();
+      dataSources.RunQuery();
 
       query = "USE fakeapi;";
-      _.dataSources.EnterQuery(query);
-      _.dataSources.RunQuery();
+      dataSources.EnterQuery(query);
+      dataSources.RunQuery();
 
       query = `CREATE TABLE amazon_sales(
         uniq_id                                    VARCHAR(32) NOT NULL PRIMARY KEY
@@ -40,8 +50,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
      INSERT INTO amazon_sales(uniq_id,product_name,manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,amazon_category_and_sub_category,customers_who_bought_this_item_also_bought) VALUES ('87bbb472ef9d90dcef140a551665c929','Hornby Santa''s Express Train Set','Hornby','£69.93','3 new','36',7,'4.3 out of 5 stars','Hobbies > Model Trains & Railway Sets > Rail Vehicles > Trains','http://www.amazon.co.uk/Hornby-R8221-Gauge-Track-Extension/dp/B000PVFYZ0 | http://www.amazon.co.uk/Hornby-R8222-Gauge-Track-Extension/dp/B000RK3FZK | http://www.amazon.co.uk/Hornby-R6368-RailRoad-Gauge-Brake/dp/B000WDWT22 | http://www.amazon.co.uk/Hornby-R6370-RailRoad-Tredegar-Gauge/dp/B000WDZH58 | http://www.amazon.co.uk/Hornby-R044-Passing-Contact-Switch/dp/B000H5V0RK | http://www.amazon.co.uk/Hornby-Gauge-Logan-Plank-Wagon/dp/B00SWV6RAG');
      INSERT INTO amazon_sales(uniq_id,product_name,manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,amazon_category_and_sub_category,customers_who_bought_this_item_also_bought) VALUES ('7e2aa2b4596a39ba852449718413d7cc','Hornby Gauge Western Express Digital Train Set with eLink and TTS Loco Train Set','Hornby','£235.58','4 new','1',1,'5.0 out of 5 stars','Hobbies > Model Trains & Railway Sets > Rail Vehicles > Trains','http://www.amazon.co.uk/Hornby-Western-Master-E-Link-Electric/dp/B00BUKPXS8 | http://www.amazon.co.uk/Hornby-Gloucester | http://www.amazon.co.uk/Hornby-Majestic-E-Link-Gauge-Electric/dp/B00BUKPXU6 | http://www.amazon.co.uk/Hornby-Gauge-Master-Glens/dp/B00TQNJIIW | http://www.amazon.co.uk/Hornby-Gauge-Eurostar-2014-Train/dp/B00TQNJIIC | http://www.amazon.co.uk/HORNBY-Digital-Train-Layout-Track/dp/B006BRH55Y');
      INSERT INTO amazon_sales(uniq_id,product_name,manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,amazon_category_and_sub_category,customers_who_bought_this_item_also_bought) VALUES ('5afbaf65680c9f378af5b3a3ae22427e','Learning Curve Chuggington Interactive Chatsworth','Chuggington',NULL,'1 new','8',1,'4.8 out of 5 stars','Hobbies > Model Trains & Railway Sets > Rail Vehicles > Trains','http://www.amazon.co.uk/Learning-Curve-Chuggington | http://www.amazon.co.uk/Chuggington | http://www.amazon.co.uk/Learning-Curve-Chuggington | http://www.amazon.co.uk/Learning-Chuggington');`;
-      _.dataSources.EnterQuery(query);
-      _.dataSources.RunQuery();
+      dataSources.EnterQuery(query);
+      dataSources.RunQuery();
 
       query = `CREATE TABLE Simpsons(
         episode_id       VARCHAR(7) NOT NULL PRIMARY KEY
@@ -55,20 +65,20 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
        ,rating           NUMERIC(3,1)
        ,votes            INTEGER
      );
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E1',1,1,1,'Simpsons Roasting on an Open Fire','The family is forced to spend all of their savings to get Bart''s new tattoo removed, and with no money for Christmas, Homer is forced to become a store Santa.','1989-12-17','https://m.media-amazon.com/images/M/MV5BZjJjMzMwOTctODk5ZC00NWM4LTgyNjAtNjNmN2I1OTc5OTAyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',8.1,5499);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E2',1,2,2,'Bart the Genius','Bart ends up at a school for gifted children after cheating on an IQ test.','1990-01-14','https://m.media-amazon.com/images/M/MV5BOTA0MTk3ZjktZGFhMi00ODcxLTlkYzgtZTJiMTQ5Y2I4MzhiXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',7.8,3456);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E3',1,3,3,'Homer''s Odyssey','After losing his job, Homer contemplates ending it all, until he discovers a new life path as a safety advocate.','1990-01-21','https://m.media-amazon.com/images/M/MV5BMzQ3M2M1YjQtNTkzNS00MDlhLWFiY2QtOWJiODZhNGJlZWMxXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',7.4,3034);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E4',1,4,4,'There''s No Disgrace Like Home','After being embarrassed by the rest of the family at a company picnic, Homer becomes obsessed with improving their behavior towards each other.','1990-01-28','https://m.media-amazon.com/images/M/MV5BOTZmNmE1NDUtMmRhOC00ZTYyLTkzMTEtOTM5YTgwMTc5YmMxXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',7.7,2978);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E5',1,5,5,'Bart the General','After being beaten up by Nelson Muntz one too many times, Bart turns to Grampa for help, and soon leads a rebellion against the school bully.','1990-02-04','https://m.media-amazon.com/images/M/MV5BMzk4ZDU2OTMtZjM0NC00ZWIyLWFmNmQtMjcyZGQ1OWE0ZWMyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',8.0,3023);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E6',1,6,6,'Moaning Lisa','A depressed Lisa''s spirit is lifted when she meets a jazz-man, Bleeding Gums Murphy.','1990-02-11','https://m.media-amazon.com/images/M/MV5BODI3ZmEzMmEtNjE2MS00MjMyLWI0MmEtMTdhMWE4YzUwMzkwXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',7.6,2903);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E7',1,7,7,'The Call of the Simpsons','Homer takes the family camping, but it soon becomes a misadventure when they lose their equipment and Homer is mistaken for Bigfoot.','1990-02-18','https://m.media-amazon.com/images/M/MV5BOTkxMzY3Y2QtMWMyMC00NDllLTkyMTctZTY4MDFjZGExYTc1XkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',7.8,2807);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E8',1,8,8,'The Telltale Head','Bart gets more than he bargained for when he saws the head off a statue of the town''s founder.','1990-02-25','https://m.media-amazon.com/images/M/MV5BMzhhNTM3ZDYtYWQ3OS00NDU2LTk4MGEtOGZmMWUwODlmMjQyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',7.7,2733);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E9',1,9,9,'Life on the Fast Lane','Marge contemplates an affair with a handsome bowling instructor.','1990-03-18','https://m.media-amazon.com/images/M/MV5BNzcxYWExZWYtMzY1MC00YjhlLWFmZmUtOTQ3ODZhZTUwN2EzXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_AL_.jpg',7.5,2716);
-     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E10',1,10,10,'Homer''s Night Out','After a photograph of Homer canoodling with an exotic dancer is distributed throughout Springfield, he finds himself kicked out of the house by Marge.','1990-03-25','https://m.media-amazon.com/images/M/MV5BMTQ4NzU0MjY1OF5BMl5BanBnXkFtZTgwNTE4NTQ2MjE@._V1_UX224_CR0,0,224,126_AL_.jpg',7.3,2624);`;
-      _.dataSources.EnterQuery(query);
-      _.dataSources.RunQuery();
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E1',1,1,1,'Simpsons Roasting on an Open Fire','The family is forced to spend all of their savings to get Bart''s new tattoo removed, and with no money for Christmas, Homer is forced to become a store Santa.','1989-12-17','https://m.media-amazon.com/images/M/MV5BZjJjMzMwOTctODk5ZC00NWM4LTgyNjAtNjNmN2I1OTc5OTAyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',8.1,5499);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E2',1,2,2,'Bart the Genius','Bart ends up at a school for gifted children after cheating on an IQ test.','1990-01-14','https://m.media-amazon.com/images/M/MV5BOTA0MTk3ZjktZGFhMi00ODcxLTlkYzgtZTJiMTQ5Y2I4MzhiXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.8,3456);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E3',1,3,3,'Homer''s Odyssey','After losing his job, Homer contemplates ending it all, until he discovers a new life path as a safety advocate.','1990-01-21','https://m.media-amazon.com/images/M/MV5BMzQ3M2M1YjQtNTkzNS00MDlhLWFiY2QtOWJiODZhNGJlZWMxXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.4,3034);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E4',1,4,4,'There''s No Disgrace Like Home','After being embarrassed by the rest of the family at a company picnic, Homer becomes obsessed with improving their behavior towards each other.','1990-01-28','https://m.media-amazon.com/images/M/MV5BOTZmNmE1NDUtMmRhOC00ZTYyLTkzMTEtOTM5YTgwMTc5YmMxXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.7,2978);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E5',1,5,5,'Bart the General','After being beaten up by Nelson Muntz one too many times, Bart turns to Grampa for help, and soon leads a rebellion against the school bully.','1990-02-04','https://m.media-amazon.com/images/M/MV5BMzk4ZDU2OTMtZjM0NC00ZWIyLWFmNmQtMjcyZGQ1OWE0ZWMyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',8.0,3023);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E6',1,6,6,'Moaning Lisa','A depressed Lisa''s spirit is lifted when she meets a jazz-man, Bleeding Gums Murphy.','1990-02-11','https://m.media-amazon.com/images/M/MV5BODI3ZmEzMmEtNjE2MS00MjMyLWI0MmEtMTdhMWE4YzUwMzkwXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.6,2903);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E7',1,7,7,'The Call of the Simpsons','Homer takes the family camping, but it soon becomes a misadventure when they lose their equipment and Homer is mistaken for Bigfoot.','1990-02-18','https://m.media-amazon.com/images/M/MV5BOTkxMzY3Y2QtMWMyMC00NDllLTkyMTctZTY4MDFjZGExYTc1XkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.8,2807);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E8',1,8,8,'The Telltale Head','Bart gets more than he bargained for when he saws the head off a statue of the town''s founder.','1990-02-25','https://m.media-amazon.com/images/M/MV5BMzhhNTM3ZDYtYWQ3OS00NDU2LTk4MGEtOGZmMWUwODlmMjQyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.7,2733);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E9',1,9,9,'Life on the Fast Lane','Marge contemplates an affair with a handsome bowling instructor.','1990-03-18','https://m.media-amazon.com/images/M/MV5BNzcxYWExZWYtMzY1MC00YjhlLWFmZmUtOTQ3ODZhZTUwN2EzXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_UY126_UX224_ALjpg',7.5,2716);
+     INSERT INTO Simpsons(episode_id,season,episode,number_in_series,title,summary,air_date,episode_image,rating,votes) VALUES ('S1-E10',1,10,10,'Homer''s Night Out','After a photograph of Homer canoodling with an exotic dancer is distributed throughout Springfield, he finds himself kicked out of the house by Marge.','1990-03-25','https://m.media-amazon.com/images/M/MV5BMTQ4NzU0MjY1OF5BMl5BanBnXkFtZTgwNTE4NTQ2MjE@._V1_UX224_CR0,0,224,126_ALjpg',7.3,2624);`;
+      dataSources.EnterQuery(query);
+      dataSources.RunQuery();
     });
-    //_.agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
+    //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
   });
 
   it("1. Validate simple queries - Show all existing tables, Describe table & verify query responses", () => {
@@ -97,34 +107,40 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       "IS_NULLABLE",
       "SS_DATA_TYPE",
     ]);
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("2. Run a Select query & Add Suggested widget - Table", () => {
     query = `Select * from Simpsons;`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
-    _.dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
+    dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
+    dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
 
-    _.dataSources.AddSuggesstedWidget(Widgets.Table);
-    _.agHelper.GetNClick(_.propPane._deleteWidget);
+    dataSources.AddSuggesstedWidget(Widgets.Table);
+    agHelper.GetNClick(propPane._deleteWidget);
 
-    _.entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   after("Verify Deletion of the datasource", () => {
-    _.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      dsName,
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+    entityExplorer.SelectEntityByName(dsName, "Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: entityItems.Datasource,
+    });
+    dataSources.StopNDeleteContainer(containerName);
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
-    _.dataSources.EnterQuery(query);
-    _.dataSources.RunQuery();
-    _.dataSources.AssertQueryResponseHeaders(columnHeaders);
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryResponseHeaders(columnHeaders);
   }
 });

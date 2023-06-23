@@ -9,7 +9,7 @@ const {
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
-let logString, dataSet;
+let logString;
 
 const generateTestLogString = () => {
   const randString = Cypress._.random(0, 1e4);
@@ -18,11 +18,6 @@ const generateTestLogString = () => {
 };
 
 describe("Debugger logs", function () {
-  before(() => {
-    cy.fixture("testdata").then(function (data) {
-      dataSet = data;
-    });
-  });
   this.beforeEach(() => {
     logString = generateTestLogString();
   });
@@ -129,9 +124,10 @@ describe("Debugger logs", function () {
           console.log('${logString}');
         } () }}`,
     );
+    agHelper.Sleep(); //Wait for CI flakyness
     agHelper.ClickButton("Submit");
     debuggerHelper.DoesConsoleLogExist(logString);
-    debuggerHelper.Assert_Consecutive_Console_Log_Count(5);
+    debuggerHelper.AssertConsecutiveConsoleLogCount(5);
   });
 
   it("9. Console log grouping on button click with different log in between", function () {
@@ -150,7 +146,7 @@ describe("Debugger logs", function () {
     agHelper.ClickButton("Submit");
     debuggerHelper.DoesConsoleLogExist(logString);
     debuggerHelper.DoesConsoleLogExist(`Different ${logString}`);
-    debuggerHelper.Assert_Consecutive_Console_Log_Count(2);
+    debuggerHelper.AssertConsecutiveConsoleLogCount(2);
   });
 
   it("10. Console log grouping on button click from different source", function () {
@@ -166,7 +162,7 @@ describe("Debugger logs", function () {
     agHelper.ClickButton("Submit");
     agHelper.ClickButton("Submit2");
     debuggerHelper.DoesConsoleLogExist(logString);
-    debuggerHelper.Assert_Consecutive_Console_Log_Count(0);
+    debuggerHelper.AssertConsecutiveConsoleLogCount(0);
     propPane.DeleteWidgetFromPropertyPane("Button1");
     propPane.DeleteWidgetFromPropertyPane("Button2");
   });

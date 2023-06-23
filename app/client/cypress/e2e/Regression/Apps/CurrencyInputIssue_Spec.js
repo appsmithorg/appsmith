@@ -1,11 +1,7 @@
 /// <reference types="Cypress" />
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { homePage, agHelper } from "../../../support/Objects/ObjectsCore";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
-
 const themelocators = require("../../../locators/ThemeLocators.json");
-
-let homePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
 
 const widgetName = "currencyinputwidget";
 const wiggetClass = `.t--widget-${widgetName}`;
@@ -13,7 +9,7 @@ const widgetInput = `${wiggetClass} input`;
 
 describe("Currency Input Issue", function () {
   it("1. Import application json &should check that the widget input is not showing any error", function () {
-    cy.visit("/applications");
+    agHelper.VisitNAssert("/applications", "getReleaseItems");
     homePage.ImportApp("CurrencyInputIssueExport.json");
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();

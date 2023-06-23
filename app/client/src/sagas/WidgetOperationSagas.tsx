@@ -487,6 +487,7 @@ export function* setWidgetDynamicPropertySaga(
     isDynamic,
     propertyPath,
     shouldRejectDynamicBindingPathList = true,
+    skipValidation = false,
     widgetId,
   } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
@@ -517,14 +518,27 @@ export function* setWidgetDynamicPropertySaga(
       );
     }
 
-    const { parsed } = yield call(
-      validateProperty,
-      propertyPath,
-      propertyValue,
-      widget,
-    );
+    /*
+     * We need to run the validation function to parse the value present in the
+     * js mode to use that in the non js mode.
+     *  - if the value is valid to be used on non js mode, we will use the same value
+     *  - if the value is invalid to be used on non js mode, we will use the default value
+     *    returned by the validation function.
+     *
+     * Sometimes (eg: in one click binding control) we don't want to do validation and retain the
+     * same value while switching from js to non js mode. use `skipValidation` flag to turn off validation.
+     */
 
-    widget = set(widget, propertyPath, parsed);
+    if (!skipValidation) {
+      const { parsed } = yield call(
+        validateProperty,
+        propertyPath,
+        propertyValue,
+        widget,
+      );
+
+      widget = set(widget, propertyPath, parsed);
+    }
   }
 
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
@@ -942,7 +956,12 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 
   const allAllowedToCopy = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be copied
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCopy) {
@@ -1896,7 +1915,12 @@ function* cutWidgetSaga() {
   }
 
   const allAllowedToCut = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be cut
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCut) {

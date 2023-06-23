@@ -1,5 +1,4 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("FilePicker Widget Functionality", function () {
@@ -9,7 +8,9 @@ describe("FilePicker Widget Functionality", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    cy.fixture("newFormDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Create API to be used in Filepicker", function () {
@@ -19,8 +20,8 @@ describe("FilePicker Widget Functionality", function () {
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(
-      this.data.paginationUrl,
-      this.data.paginationParam,
+      this.dataSet.paginationUrl,
+      this.dataSet.paginationParam,
     );
     cy.SaveAndRunAPI();
   });

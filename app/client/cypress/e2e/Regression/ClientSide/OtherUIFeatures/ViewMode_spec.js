@@ -1,6 +1,5 @@
-/// <reference types="Cypress" />
-const dsl = require("../../../../fixtures/previewMode.json");
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const BASE_URL = Cypress.config().baseUrl;
 
@@ -14,8 +13,10 @@ Cypress.Commands.add("getSharedUrl", () => {
 
 describe("Preview mode functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.PublishtheApp();
+    cy.fixture("previewMode").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
+    _.deployMode.DeployApp();
     cy.url().then((url) => cy.setSharedUrl(url));
   });
 
