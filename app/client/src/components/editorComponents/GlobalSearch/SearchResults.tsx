@@ -421,7 +421,7 @@ function SearchItemComponent(props: ItemProps) {
 
   return (
     <SearchItemContainer
-      className="t--docHit"
+      className="t--searchHit"
       isActiveItem={isActiveItem}
       itemType={itemType}
       onClick={(e: React.MouseEvent) => {
