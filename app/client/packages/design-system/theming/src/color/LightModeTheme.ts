@@ -371,7 +371,7 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgNeutral() {
-    return "##f2f2f2";
+    return "#f2f2f2";
   }
 
   private get bgNeutralHover() {
