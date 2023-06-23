@@ -67,6 +67,7 @@ function TemplateList(props: TemplateListProps) {
         </FilterWrapper>
         <ListWrapper>
           <TemplatesContent
+            filterWithAllowPageImport
             isForkingEnabled
             onForkTemplateClick={onForkTemplateClick}
             onTemplateClick={props.onTemplateClick}

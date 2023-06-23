@@ -195,7 +195,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: perf
         shell: bash
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'

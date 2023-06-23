@@ -8,7 +8,7 @@ let cachedLottie: LottiePlayer | null = null;
 
 export type LazyAnimationItem = Pick<
   AnimationItem,
-  "play" | "addEventListener" | "destroy"
+  "play" | "addEventListener" | "destroy" | "goToAndStop"
 >;
 
 const lazyLottie = {
@@ -32,7 +32,7 @@ const lazyLottie = {
 
     const abortController = new AbortController();
     const queuedCommands: Array<{
-      commandName: "play" | "addEventListener";
+      commandName: "play" | "addEventListener" | "goToAndStop";
       args: any[];
     }> = [];
 
@@ -59,6 +59,9 @@ const lazyLottie = {
         return () => {
           throw new Error("Not implemented");
         };
+      },
+      goToAndStop(...args) {
+        queuedCommands.push({ commandName: "goToAndStop", args });
       },
       destroy() {
         abortController.abort();

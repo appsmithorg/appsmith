@@ -56,7 +56,7 @@ function ThemeSelector() {
         <SettingSection
           className="px-4 py-3 border-t border-b"
           isDefaultOpen={false}
-          title="Applied Theme"
+          title="Applied theme"
         >
           <ThemeCard theme={selectedTheme} />
         </SettingSection>

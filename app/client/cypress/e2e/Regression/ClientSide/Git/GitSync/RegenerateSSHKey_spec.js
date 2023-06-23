@@ -1,22 +1,26 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  homePage,
+  gitSync,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git regenerate SSH key flow", function () {
   let repoName;
 
   it("1. Verify SSH key regeneration flow ", () => {
-    _.homePage.NavigateToHome();
-    _.agHelper.GenerateUUID();
+    homePage.NavigateToHome();
+    agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      _.homePage.CreateNewWorkspace("ssh_" + uid);
-      _.homePage.CreateAppInWorkspace("ssh_" + uid);
+      homePage.CreateNewWorkspace("ssh_" + uid);
+      homePage.CreateAppInWorkspace("ssh_" + uid);
     });
-    _.gitSync.CreateNConnectToGit(repoName);
+    gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
       cy.regenerateSSHKey(repoName);
     });
-    cy.get("body").click(0, 0, { force: true });
+    agHelper.ClickOutside();
     cy.wait(2000);
   });
 
@@ -29,7 +33,7 @@ describe("Git regenerate SSH key flow", function () {
     cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
     cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
     cy.xpath(gitSyncLocators.confirmButton).click();
-    cy.reload();
+    agHelper.RefreshPage();
     cy.wait(2000);
     cy.validateToastMessage(Cypress.env("MESSAGES").ERROR_GIT_AUTH_FAIL());
     cy.wait("@gitStatus");
@@ -43,7 +47,7 @@ describe("Git regenerate SSH key flow", function () {
     cy.wait(2000);
   });
   after(() => {
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    gitSync.DeleteTestGithubRepo(repoName);
     cy.DeleteAppByApi();
   });
 });

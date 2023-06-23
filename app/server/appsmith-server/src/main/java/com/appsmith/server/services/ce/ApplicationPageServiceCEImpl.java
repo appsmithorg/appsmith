@@ -53,6 +53,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -99,11 +100,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final TransactionalOperator transactionalOperator;
 
 
     public static final Integer EVALUATION_VERSION = 2;
 
-
+    @Override
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -951,7 +953,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getDeletePermission())
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
-                .map(responseUtils::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources)
+                .as(transactionalOperator::transactional);
     }
 
     /**

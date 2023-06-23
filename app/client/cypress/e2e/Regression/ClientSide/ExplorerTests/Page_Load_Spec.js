@@ -1,32 +1,37 @@
-const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
-
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Page Load tests", () => {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("PageLoadDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     cy.CreatePage();
     cy.get("h2").contains("Drag and drop a widget here");
   });
 
   it("1. Published page loads correctly", () => {
     //add page within page
-    cy.addDsl(dsl);
+    cy.fixture("PageLoadDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     // Update the text to be asserted later
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");
     // Publish
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
@@ -42,7 +47,7 @@ describe("Page Load tests", () => {
       "This is Page 2",
     );
     // Test after reload
-    cy.reload();
+    agHelper.RefreshPage(true, "viewPage");
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
@@ -76,18 +81,21 @@ describe("Page Load tests", () => {
   });
 
   it("2. Hide Page and validate published app", () => {
-    cy.get(publish.backToEditor).click();
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Hide");
-    cy.PublishtheApp();
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page1",
+      action: "Hide",
+    });
+    deployMode.DeployApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",
       "This is Page 1",
     );
     cy.contains("Page2").should("not.exist");
-    cy.get(publish.backToEditor).click();
-    _.entityExplorer.SelectEntityByName("Page2");
-    cy.PublishtheApp();
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Page2");
+    deployMode.DeployApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",

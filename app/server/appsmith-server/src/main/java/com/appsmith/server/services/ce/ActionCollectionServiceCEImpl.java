@@ -517,4 +517,29 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return super.create(collection);
     }
 
+    @Override
+    public void populateDefaultResources(ActionCollection actionCollection, ActionCollection branchedActionCollection,String branchName) {
+        DefaultResources defaultResources = branchedActionCollection.getDefaultResources();
+        // Create new action but keep defaultApplicationId and defaultActionId same for both the actions
+        defaultResources.setBranchName(branchName);
+        actionCollection.setDefaultResources(defaultResources);
+
+        String defaultPageId = branchedActionCollection.getUnpublishedCollection() != null
+                ? branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId()
+                : branchedActionCollection.getPublishedCollection().getDefaultResources().getPageId();
+        DefaultResources defaultsDTO = new DefaultResources();
+        defaultsDTO.setPageId(defaultPageId);
+        if (actionCollection.getUnpublishedCollection() != null) {
+            actionCollection.getUnpublishedCollection().setDefaultResources(defaultsDTO);
+        }
+        if (actionCollection.getPublishedCollection() != null) {
+            actionCollection.getPublishedCollection().setDefaultResources(defaultsDTO);
+        }
+        actionCollection.getUnpublishedCollection()
+                .setDeletedAt(branchedActionCollection.getUnpublishedCollection().getDeletedAt());
+        actionCollection.setDeletedAt(branchedActionCollection.getDeletedAt());
+        actionCollection.setDeleted(branchedActionCollection.getDeleted());
+        // Set policies from existing branch object
+        actionCollection.setPolicies(branchedActionCollection.getPolicies());
+    }
 }

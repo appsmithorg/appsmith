@@ -1,9 +1,12 @@
+import { Icon, MenuItem } from "design-system";
 import React from "react";
 import styled from "styled-components";
+import { DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW } from "../../constants";
 
 const Container = styled.div`
   display: flex;
   width: calc(100% - 10px);
+  height: 100%;
 `;
 
 const LeftSection = styled.div`
@@ -12,14 +15,9 @@ const LeftSection = styled.div`
   align-items: center;
 `;
 
-const RightSection = styled.div`
-  width: 16px;
-`;
-
 const IconContainer = styled.div`
   width: 24px;
   display: flex;
-  margin-top: 3px;
 `;
 
 const Label = styled.div`
@@ -32,22 +30,52 @@ type Props = {
   label?: JSX.Element | string;
   leftIcon?: JSX.Element;
   rightIcon?: JSX.Element;
+  className?: string;
 };
 
 export function DropdownOption(props: Props) {
-  const { label, leftIcon, rightIcon } = props;
+  const { className, label, leftIcon, rightIcon } = props;
 
   return (
-    <Container>
+    <Container className={className}>
       <LeftSection>
         {leftIcon && <IconContainer>{leftIcon}</IconContainer>}
         <Label>{label}</Label>
       </LeftSection>
-      {rightIcon && (
-        <RightSection>
-          <IconContainer>{rightIcon}</IconContainer>
-        </RightSection>
-      )}
+      {rightIcon && <IconContainer>{rightIcon}</IconContainer>}
     </Container>
   );
+}
+
+type LoadmoreProps = {
+  count: number;
+  onLoadMore: () => void;
+};
+
+export function LoadMoreOptions(props: LoadmoreProps) {
+  if (props.count > DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW) {
+    return (
+      <MenuItem>
+        <div
+          data-testId="t--one-click-binding-datasource--load-more"
+          onMouseDown={(e) => {
+            e?.stopPropagation();
+          }}
+          onMouseUp={(e) => {
+            e?.stopPropagation();
+            props.onLoadMore();
+          }}
+        >
+          <DropdownOption
+            label={`Load ${
+              props.count - DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW
+            } more`}
+            leftIcon={<Icon name="context-menu" size="md" />}
+          />
+        </div>
+      </MenuItem>
+    );
+  } else {
+    return null;
+  }
 }

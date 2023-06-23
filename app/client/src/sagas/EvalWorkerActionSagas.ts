@@ -30,6 +30,7 @@ export type UpdateDataTreeMessageData = {
 
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "workers/Linting/types";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -110,6 +111,19 @@ export function* processTriggerHandler(message: any) {
   if (messageType === MessageType.REQUEST)
     yield call(evalWorker.respond, message.messageId, result);
 }
+export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
+  const {
+    body: { data: executedFns },
+  } = data;
+
+  for (const executedFn of executedFns) {
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: "JS",
+      name: executedFn,
+    });
+  }
+  yield call(logJSFunctionExecution, data);
+}
 
 export function* handleEvalWorkerMessage(message: TMessage<any>) {
   const { body } = message;
@@ -136,7 +150,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
-      yield call(logJSFunctionExecution, message);
+      yield call(handleJSExecutionLog, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {

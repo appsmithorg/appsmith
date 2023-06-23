@@ -1,14 +1,19 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const agHelper = ObjectsRegistry.AggregateHelper,
-  apiPage = ObjectsRegistry.ApiPage,
-  dataSources = ObjectsRegistry.DataSources;
+import {
+  agHelper,
+  apiPage,
+  dataSources,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel Test Functionality", function () {
   afterEach(function () {
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   it("1. PUT Action test API feature", function () {

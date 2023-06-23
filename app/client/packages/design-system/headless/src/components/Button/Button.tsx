@@ -12,13 +12,15 @@ export interface ButtonProps extends SpectrumAriaBaseButtonProps {
   "aria-busy"?: boolean;
   /** Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. */
   "aria-disabled"?: boolean;
+  /** Indicates if the button can be dragged, this is mandatory for editor because of this bug - https://bugzilla.mozilla.org/show_bug.cgi?id=568313 */
+  draggable?: boolean;
 }
 
 export type ButtonRef = React.Ref<HTMLButtonElement>;
 type ButtonRefObject = React.RefObject<HTMLButtonElement>;
 
 export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
-  const { autoFocus, children, className, isDisabled } = props;
+  const { autoFocus, children, className, draggable, isDisabled } = props;
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
   const { buttonProps, isPressed } = useButton(props, ref as ButtonRefObject);
@@ -33,6 +35,7 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
       data-disabled={isDisabled ? "" : undefined}
       data-focused={isFocusVisible ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
+      draggable={draggable ? "true" : undefined}
       ref={ref}
     >
       {children}

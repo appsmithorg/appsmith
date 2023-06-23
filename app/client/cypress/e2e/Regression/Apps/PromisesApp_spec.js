@@ -1,18 +1,23 @@
-import * as _ from "../../../support/Objects/ObjectsCore";
-import homePage from "../../../locators/HomePage";
-const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  apiPage,
+} from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("JSEditor tests", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("promisesStoreValueDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
     cy.fixture("datasources").then((datasourceFormData) => {
-      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
-      _.apiPage.RunAPI();
-      _.jsEditor.CreateJSObject(
+      apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
+      apiPage.RunAPI();
+      jsEditor.CreateJSObject(
         `export default {
         myFun1: async () => { //comment
           await this.clearStore()		//clear store value before running the case
@@ -47,7 +52,7 @@ describe("JSEditor tests", function () {
           shouldCreateNewJSObj: true,
         },
       );
-      _.entityExplorer.SelectEntityByName("Page1", "Pages");
+      entityExplorer.SelectEntityByName("Page1", "Pages");
       cy.wait(2000);
       // verify text in the text widget
       cy.get(".t--draggable-textwidget span")
@@ -62,10 +67,7 @@ describe("JSEditor tests", function () {
       cy.get(".t--switch-widget-active .bp3-control-indicator").click({
         force: true,
       });
-      cy.get(homePage.toastMessage).should(
-        "contain",
-        "Switch widget has changed",
-      );
+      agHelper.AssertContains("Switch widget has changed");
 
       // select an option from select widget
       cy.get(".bp3-button.select-button").click({ force: true });
@@ -106,7 +108,7 @@ describe("JSEditor tests", function () {
      cy.get('.t--table-widget-page-input').within(()=>{
        cy.get('input.bp3-input').should('have.value', '1')
      })
-    cy.get(homePage.toastMessage).should(
+    cy.get(homePageLocators.toastMessage).should(
       "contain",
       "Success running API query",
       "GREEN",
@@ -116,14 +118,12 @@ describe("JSEditor tests", function () {
 
   //Skipping reason? to add
   it.skip("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
-    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.jsEditor.SelectFunctionDropdown("clearStore");
-    _.jsEditor.RunJSObj();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    jsEditor.SelectFunctionDropdown("clearStore");
+    jsEditor.RunJSObj();
+    cy.wait("@postExecute")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
       .eq(5)

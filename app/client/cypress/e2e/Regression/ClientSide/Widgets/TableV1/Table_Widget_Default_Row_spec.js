@@ -1,9 +1,10 @@
-const dsl = require("../../../../../fixtures/defaultTableDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane deafult feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("defaultTableDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Verify default table row Data", function () {
@@ -18,10 +19,5 @@ describe("Table Widget property pane deafult feature validation", function () {
       cy.log("the table is" + tabValue);
       cy.get(".bp3-ui-text span").eq(0).should("have.text", tabData);
     });
-  });
-
-  afterEach(() => {
-    // put your clean up code if any
-    cy.goToEditFromPublish();
   });
 });

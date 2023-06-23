@@ -79,7 +79,7 @@ public class FileUtilsImpl implements FileInterface {
 
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
-    private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN = Pattern.compile("(.*?)\\.(md|git|gitignore|yml)$");
+    private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN = Pattern.compile("(.*?)\\.(md|git|gitignore|yml|yaml)$");
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 

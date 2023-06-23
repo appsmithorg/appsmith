@@ -60,6 +60,7 @@ while ! curl --fail --silent localhost/rts-api/v1/health-check; do
 done
 echo 'RTS started.'
 
+sh /opt/appsmith/run-starting-page-init.sh &
 
 # Ref -Dlog4j2.formatMsgNoLookups=true https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot
 exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \

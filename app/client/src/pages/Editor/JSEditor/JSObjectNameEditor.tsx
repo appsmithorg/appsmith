@@ -128,7 +128,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               isEditingDefault={isNew}
               isInvalid={isInvalidNameForEntity}
               onTextChanged={handleNameChange}
-              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "JS object")}
+              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "JS Object")}
               type="text"
               underline
               updating={saveStatus.isSaving}

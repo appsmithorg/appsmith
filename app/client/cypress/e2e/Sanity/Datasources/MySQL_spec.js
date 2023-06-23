@@ -1,7 +1,6 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { dataSources } from "../../../support/Objects/ObjectsCore";
 
-let dataSource = ObjectsRegistry.DataSources;
 let datasourceName;
 
 describe("MySQL datasource test cases", function () {
@@ -17,7 +16,7 @@ describe("MySQL datasource test cases", function () {
       datasourceName = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName);
       cy.testSaveDatasource();
-      dataSource.DeleteDatasouceFromActiveTab(datasourceName);
+      dataSources.DeleteDatasouceFromActiveTab(datasourceName);
     });
   });
 

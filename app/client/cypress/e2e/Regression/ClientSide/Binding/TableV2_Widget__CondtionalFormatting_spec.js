@@ -1,13 +1,18 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const dsl = require("../../../../fixtures/tableV2WidgetCondnFormatDsl.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 condtional formatting to remain consistent", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2WidgetCondnFormatDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. check the cell styles before and after sorting", function () {
-    cy.openPropertyPane("tablewidgetv2");
+    entityExplorer.SelectEntityByName("Table1");
     //Check Font weight, font style, and text color before sorting
     cy.readTableV2dataValidateCSS("0", "1", "font-weight", "700");
     cy.readTableV2dataValidateCSS("0", "1", "font-style", "normal");
