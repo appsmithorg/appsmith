@@ -39,7 +39,6 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 export function useDatasource() {
   const {
     addBinding,
-    addSnippet,
     config,
     errorMsg,
     isSourceOpen,
@@ -297,7 +296,7 @@ export function useDatasource() {
         },
       },
     ];
-  }, [currentPageId, history, addBinding, addSnippet, propertyName]);
+  }, [currentPageId, history, addBinding, propertyName]);
 
   const queries = useSelector(getActionsForCurrentPage);
 
