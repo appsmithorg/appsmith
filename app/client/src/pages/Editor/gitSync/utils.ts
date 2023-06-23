@@ -60,8 +60,7 @@ export const getIsActiveItem = (
  * @returns {string}
  */
 export const removeSpecialChars = (input: string): string => {
-  const separatorRegex = /(?![/-])\W+/;
-  return input.split(separatorRegex).join("_");
+  return input.replace(/[^\w/-]/g, "_");
 };
 
 /**
