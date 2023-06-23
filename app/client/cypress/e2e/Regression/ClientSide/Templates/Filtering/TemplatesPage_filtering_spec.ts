@@ -10,7 +10,7 @@ describe("excludeForAirgap", "Templates page filtering", () => {
 
   before(() => {
     homePage.NavigateToHome();
-    homePage.SwitchToTemplatesTab();
+    templates.SwitchToTemplatesTab();
   });
   beforeEach(() =>
     agHelper.AssertElementVisible(templates.locators._templateCard),
@@ -45,7 +45,7 @@ describe("excludeForAirgap", "Templates page filtering", () => {
       });
   });
 
-  it("3. should retain filters when coming back from template detailed view", () => {
+  it("3. should not retain filters when coming back from template detailed view", () => {
     templates.FilterTemplatesByName(NAME_FILTER);
     agHelper.Sleep();
     agHelper
@@ -56,10 +56,10 @@ describe("excludeForAirgap", "Templates page filtering", () => {
         agHelper.AssertText(
           templates.locators._templatesSearchInput,
           "val",
-          NAME_FILTER,
+          "",
         );
         if (typeof headerText === "string") {
-          templates.AssertResultsHeaderText(headerText, "have.text");
+          templates.AssertResultsHeaderText(headerText, "not.have.text");
         }
       });
   });
