@@ -25,7 +25,7 @@ public class DatasourceStructureServiceCEImpl implements DatasourceStructureServ
     }
 
     @Override
-    public Mono<UpdateResult> saveStructure(String datasourceId, DatasourceStructure structure) {
-        return repository.updateStructure(datasourceId, structure);
+    public Mono<UpdateResult> saveStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+        return repository.updateStructure(datasourceId, environmentId, structure);
     }
 }

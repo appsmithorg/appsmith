@@ -11,5 +11,5 @@ public interface DatasourceStructureServiceCE {
 
     Mono<DatasourceStorageStructure> save(DatasourceStorageStructure datasourceStorageStructure);
 
-    Mono<UpdateResult> saveStructure(String datasourceId, DatasourceStructure structure);
+    Mono<UpdateResult> saveStructure(String datasourceId, String environmentId, DatasourceStructure structure);
 }

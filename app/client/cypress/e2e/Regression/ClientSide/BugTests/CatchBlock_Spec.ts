@@ -1,11 +1,10 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const {
-  AggregateHelper: agHelper,
-  ApiPage: apiPage,
-  EntityExplorer: ee,
-  JSEditor: jsEditor,
-} = ObjectsRegistry;
+import {
+  agHelper,
+  jsEditor,
+  apiPage,
+  entityExplorer,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {
   it("1. Triggers the catch block when the API hits a 404", () => {
@@ -24,8 +23,15 @@ describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {
       },
     );
     agHelper.AssertContains("404 hit : Api1 failed to execute");
-    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?", true);
-    ee.SelectEntityByName("Api1", "Queries/JS");
-    ee.ActionContextMenuByEntityName("Api1", "Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Api1",
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 });

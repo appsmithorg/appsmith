@@ -1,12 +1,13 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let guid, datasourceName;
-
-let dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper;
+import {
+  dataSources,
+  agHelper,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Verify setting tab form controls not to have tooltip and tooltip (underline) styles", function () {
+  let guid, datasourceName;
+
   before("Creates a new Mongo datasource", () => {
     dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
@@ -47,7 +48,10 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
         });
       });
 
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
     dataSources.DeleteDatasouceFromActiveTab(datasourceName, 200);
   });
 });

@@ -1,10 +1,11 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const deployMode = ObjectsRegistry.DeployMode;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const homePage = ObjectsRegistry.HomePage;
+import {
+  agHelper,
+  deployMode,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Sidebar navigation style", function () {
   before(() => {
