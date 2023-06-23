@@ -1,5 +1,7 @@
 export * from "ce/utils";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import type { MenuItemProps } from "design-system-old";
+import { useSelector } from "react-redux";
 
 export const openInNewTab = (url: string) => {
   const newWindow = window.open(url, "_blank", "noopener,noreferrer");
@@ -27,5 +29,8 @@ export const addItemsInContextMenu = (
 };
 
 export const useHtmlPageTitle = () => {
-  return "Applications";
+  const tentantConfig = useSelector(getTenantConfig);
+  const { instanceName } = tentantConfig;
+
+  return instanceName ?? "Applications";
 };

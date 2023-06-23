@@ -9,65 +9,28 @@ on:
         required: false
         type: string
         default: "0"
-      airgap_run_id:
-        description: "Run id to download the docker image artifact:"
-        required: false
-        type: string
-        default: "0"
 
 jobs:
   server-build:
     name: server-build
-    if: inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
+    if: inputs.normal_run_id == '0'
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
       pr: 0
       skip-tests: "true"
 
-  client-build-airgap:
-    name: client-build-airgap
-    if: inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-      skip-tests: "true"
-      airgap-enabled: "true"
-
   rts-build:
     name: rts-build
-    if: inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
+    if: inputs.normal_run_id == '0'
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
       pr: 0
 
-  build-docker-image-airgap:
-    needs: [client-build-airgap, server-build, rts-build]
-    # Only run if the build step is successful
-    if: success() && inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
-    name: build-docker-image-airgap
-    uses: ./.github/workflows/build-docker-image.yml
-    secrets: inherit
-    with:
-      pr: 0
-      airgap-enabled: "true"
-
-  ci-test-limited-airgap:
-    needs: [build-docker-image-airgap]
-    # Only run if the build step is successful
-    if: success() && inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
-    name: ci-test-limited-airgap
-    uses: ./.github/workflows/ci-test-limited.yml
-    secrets: inherit
-    with:
-      pr: 0
-      airgap-enabled: "true"
-
   client-build:
     name: client-build
-    if: inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
+    if: inputs.normal_run_id == '0'
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
@@ -76,7 +39,7 @@ jobs:
 
   build-docker-image:
     needs: [client-build, server-build, rts-build]
-    if: inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
+    if: inputs.normal_run_id == '0'
     # Only run if the build step is successful
     name: build-docker-image
     uses: ./.github/workflows/build-docker-image.yml
@@ -86,7 +49,7 @@ jobs:
 
   ci-test-limited:
     needs: [build-docker-image]
-    if: inputs.normal_run_id == '0' && inputs.airgap_run_id == '0'
+    if: inputs.normal_run_id == '0'
     # Only run if the build step is successful
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited.yml
@@ -103,14 +66,3 @@ jobs:
     with:
       pr: 0
       previous-workflow-run-id: ${{ fromJson(inputs.normal_run_id) }}
-
-  ci-test-limited-airgap-existing-docker-image:
-    # Only run if the previous run-id is provided
-    if: inputs.airgap_run_id != '0'
-    name: ci-test-limited-airgap-existing-image
-    uses: ./.github/workflows/ci-test-limited.yml
-    secrets: inherit
-    with:
-      pr: 0
-      previous-workflow-run-id: ${{ fromJson(inputs.airgap_run_id) }}
-      airgap-enabled: "true"

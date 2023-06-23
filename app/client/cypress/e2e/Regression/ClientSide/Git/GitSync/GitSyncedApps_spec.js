@@ -288,7 +288,6 @@ describe("Git sync apps", function () {
     // create postgres select query
     //cy.CheckAndUnfoldEntityItem("Datasources");
     dataSources.NavigateFromActiveDS(datasourceName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
     agHelper.RenameWithInPane("get_users");
     dataSources.RunQuery();

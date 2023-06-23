@@ -8,6 +8,7 @@ import {
   homePage,
   dataSources,
   table,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 // import { INTERCEPT } from "../../../../fixtures/variables";
 let dsName: any;
@@ -30,7 +31,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
 
-    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(
       dataSources._dropdownOption,
@@ -79,7 +80,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     dataSources.CreateDataSource("MySql", false);
 
-    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "customers");
 
@@ -146,7 +147,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 `;
 
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateProductLines");
     dataSources.EnterQuery(tableCreateQuery);
     agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -175,11 +175,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClickByContains(dataSources._dropdownOption, "productlines");
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.AssertContains("Successfully generated a page");
-    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.AssertNetworkStatus("@getActions", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@getActions", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.AssertNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table
@@ -244,7 +244,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(3);
 
     //validating update happened fine!
@@ -273,7 +273,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE productlines;";
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropProductlines");
     dataSources.EnterQuery(deleteTblQuery);
     agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -320,12 +319,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     jsonFromHeader: string,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.AssertNetworkStatus("@updateLayout", 200);
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
 

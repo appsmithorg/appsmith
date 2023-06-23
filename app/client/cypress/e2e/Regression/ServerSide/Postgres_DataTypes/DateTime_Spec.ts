@@ -6,6 +6,7 @@ import {
   dataSources,
   table,
   locators,
+  assertHelper,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
@@ -28,7 +29,6 @@ describe("DateTime Datatype tests", function () {
     tstz TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, dater date NOT NULL, timer time NOT NULL,
     timertz time with time zone not null default now(), intervaler interval not null);`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -264,8 +264,8 @@ describe("DateTime Datatype tests", function () {
 
   it("8. Deleting records - datetimetypes", () => {
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     agHelper
       .GetText(table._showPageItemsCount)

@@ -4,6 +4,7 @@ import {
   homePage,
   agHelper,
   dataSources,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Import, Export and Fork application and validate data binding", function () {
@@ -119,7 +120,7 @@ describe("Import, Export and Fork application and validate data binding", functi
             { force: true },
           );
           if (!Cypress.env("AIRGAPPED")) {
-            agHelper.AssertNetworkStatus("@getReleaseItems");
+            assertHelper.AssertNetworkStatus("@getReleaseItems");
           } else {
             agHelper.Sleep(2000);
           }

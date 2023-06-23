@@ -1,5 +1,5 @@
 import {
-  agHelper,
+  assertHelper,
   entityExplorer,
   entityItems,
   homePage,
@@ -269,7 +269,7 @@ describe("Delete Permission flow ", function () {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    agHelper.AssertNetworkStatus("@deleteDatasource", 200);
+    assertHelper.AssertNetworkStatus("@deleteDatasource", 200);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");

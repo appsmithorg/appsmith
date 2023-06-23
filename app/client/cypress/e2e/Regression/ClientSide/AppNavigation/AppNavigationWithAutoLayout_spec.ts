@@ -24,12 +24,8 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
     );
-    agHelper.GetNClickByContains(
-      appSettings.locators._navigationMenuItem,
-      "Page1",
-    );
-    agHelper.Sleep(3000); //wait a bit before proceeding, for CI!
-    agHelper.AssertNetworkStatus("@getWorkspace");
+    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
+    agHelper.GetNClick(locators._canvas);
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
     agHelper.AssertElementExist(locators._fixedLayout);

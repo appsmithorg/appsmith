@@ -4,6 +4,7 @@ import {
   entityItems,
   dataSources,
   hostPort,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
@@ -370,6 +371,6 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    agHelper.AssertNetworkStatus("@deleteDatasource", 200);
+    assertHelper.AssertNetworkStatus("@deleteDatasource", 200);
   });
 });

@@ -17,6 +17,7 @@ public class Url extends UrlCE {
 
     // Cloud Services URLs
     final public static String USAGE_REPORT_URL = BASE_URL + VERSION + "/usage/report";
+    final public static String API_KEY_URL = BASE_URL + VERSION + "/api-key";
 
 
 }

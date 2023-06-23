@@ -7,6 +7,7 @@ import {
   dataSources,
   table,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Array Datatype tests", function () {
@@ -27,7 +28,6 @@ describe("Array Datatype tests", function () {
   it("1. Creating table query - arraytypes + Bug 14493", () => {
     query = `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
@@ -173,7 +173,6 @@ describe("Array Datatype tests", function () {
     agHelper.RenameWithInPane("verifyArrayFunctions");
 
     query = `SELECT name FROM arraytypes WHERE pay_by_quarter[1] <> pay_by_quarter[2];`;
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["name"]);
@@ -597,8 +596,8 @@ describe("Array Datatype tests", function () {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted

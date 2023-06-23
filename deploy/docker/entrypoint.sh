@@ -456,15 +456,16 @@ init_postgres() {
 
     if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
         echo "Found existing Postgres, Skipping initialization"
+        chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
-      mkdir -p $POSTGRES_DB_PATH
+      mkdir -p "$POSTGRES_DB_PATH"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres $POSTGRES_DB_PATH
+      chown postgres:postgres "$POSTGRES_DB_PATH"
 
       # Initialize the postgres db file system
-      su -m postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
 
       # Start the postgres server in daemon mode
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"

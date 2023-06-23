@@ -53,7 +53,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "contain",
       "template added successfully",
     );
-    _.agHelper.AssertNetworkStatus("updateLayout");
+    _.assertHelper.AssertNetworkStatus("updateLayout");
     // [Bug]: Getting 'Resource not found' error on deploying template #17477
     _.deployMode.DeployApp();
     cy.get(".t--page-switch-tab")
@@ -101,6 +101,6 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "contain",
       "template added successfully",
     );
-    _.agHelper.AssertNetworkStatus("updateLayout");
+    _.assertHelper.AssertNetworkStatus("updateLayout");
   });
 });
