@@ -85,6 +85,7 @@ export function evalTreeWithChanges(
     pathsToClearErrorsFor,
     isNewWidgetAdded: false,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
+    jsVarsCreatedEvent: [],
   };
 
   const data: UpdateDataTreeMessageData = {
