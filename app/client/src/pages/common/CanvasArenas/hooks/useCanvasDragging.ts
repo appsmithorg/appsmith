@@ -121,7 +121,7 @@ export const useCanvasDragging = (
 
   const drawRandomBlock = () => {
     if (!stickyCanvasRef.current) return;
-    console.log("#### drawRandomBlock ####");
+
     const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
     canvasCtx.save();
     canvasCtx.beginPath();

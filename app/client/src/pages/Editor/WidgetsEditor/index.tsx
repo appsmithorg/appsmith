@@ -50,8 +50,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
-import { getSelectedWidgetDsl } from "selectors/ui";
-import { useWidgetNameCanvas } from "../useWidgetNameCanvas";
+import OverlayCanvasContainer from "./OverlayCanvas";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -85,15 +84,6 @@ function WidgetsEditor() {
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
-
-  const selectedWidgets = useSelector(getSelectedWidgetDsl());
-  const { renderWidgetNameComponent, resetCanvas } = useWidgetNameCanvas();
-
-  useEffect(() => {
-    if (selectedWidgets?.length) {
-      renderWidgetNameComponent(selectedWidgets);
-    } else resetCanvas();
-  }, [selectedWidgets]);
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -258,20 +248,7 @@ function WidgetsEditor() {
                 style={{ position: "absolute" }}
                 width={100}
               />
-              <canvas
-                height="22"
-                id="widget-name-canvas"
-                style={{
-                  position: "absolute",
-                  zIndex: 2,
-                  borderTopLeftRadius: 4,
-                  borderTopRightRadius: 4,
-                  borderColor: "transparent",
-                  background: "rgb(239, 117, 65)",
-                  fontSize: 14,
-                }}
-                width="100"
-              />
+              <OverlayCanvasContainer />
             </>
           )}
         </>
