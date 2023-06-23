@@ -771,6 +771,7 @@ function DevicePopover(props: DevicePopoverProps) {
     onItemClick,
     onMenuClick,
   } = props;
+  console.log("***", "items is ", items);
 
   const handleDeviceMute = useCallback(() => {
     if (onDeviceMute) {
@@ -861,6 +862,7 @@ function CameraComponent(props: CameraComponentProps) {
         ? {
             height: 720,
             width: 1280,
+            facingMode: { exact: "environment" },
           }
         : {},
     );
@@ -979,6 +981,8 @@ function CameraComponent(props: CameraComponentProps) {
         });
       }
       if (mediaDeviceInfo.kind === "videoinput") {
+        const stringMessage = `hey ${JSON.stringify(mediaDeviceInfo)}`;
+        alert(stringMessage);
         setVideoConstraints({
           ...videoConstraints,
           deviceId: mediaDeviceInfo.deviceId,
@@ -1138,6 +1142,19 @@ function CameraComponent(props: CameraComponentProps) {
         <DisabledOverlayer disabled={disabled}>
           <CameraOfflineIcon />
         </DisabledOverlayer>
+
+        <p
+          style={{
+            color: "white",
+            width: "100%",
+            height: "400px",
+            backgroundColor: "red",
+            overflow: "scroll",
+          }}
+        >
+          This is a p tag, {JSON.stringify({ videoInputs: videoInputs })}
+        </p>
+        <p />
 
         <Webcam
           audio
