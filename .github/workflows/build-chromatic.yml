@@ -2,7 +2,6 @@ name: 'Build Storybook Preview and Publish to Chromatic'
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, closed]
     paths:
       - 'app/client/packages/design-system/**'
 
@@ -11,18 +10,11 @@ jobs:
     runs-on: ubuntu-latest
    
     steps:
-      - name: Checkout PR if merged = false
+      - name: Checkout PR
         uses: actions/checkout@v3
-        if: github.event.pull_request.merged == false
         with:
           fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
-
-      - name: Checkout Release if merged = true
-        uses: actions/checkout@v3
-        if: github.event.pull_request.merged == true 
-        with:
-          fetch-depth: 0
 
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v3
