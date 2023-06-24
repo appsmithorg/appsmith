@@ -272,4 +272,29 @@ public class ApplicationSnapshotServiceTest {
         StepVerifier.create(snapshotFlux)
                 .verifyComplete();
     }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void getWithoutDataByApplicationId_WhenSnanshotNotFound_ReturnsEmptySnapshot() {
+        String uniqueString = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("Test workspace " + uniqueString);
+
+        Mono<ApplicationSnapshot> applicationSnapshotMono = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("Test app for snapshot");
+                    testApplication.setWorkspaceId(createdWorkspace.getId());
+                    return applicationPageService.createApplication(testApplication);
+                })
+                .flatMap(application1 -> {
+                    return applicationSnapshotService.getWithoutDataByApplicationId(application1.getId(), null);
+                });
+
+        StepVerifier.create(applicationSnapshotMono)
+                .assertNext(applicationSnapshot -> {
+                    assertThat(applicationSnapshot.getId()).isNull();
+                })
+                .verifyComplete();
+    }
 }
