@@ -111,7 +111,8 @@
                 "path": "datasourceConfiguration.properties[0].value",
                 "comparison": "EQUALS",
                 "value": "Yes"
-              }
+              },
+              "placeholderText": "27017"
             }
           ]
         },

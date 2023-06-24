@@ -1,22 +1,22 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
-let jsEditor = ObjectsRegistry.JSEditor;
+import {
+  apiPage,
+  agHelper,
+  entityExplorer,
+  entityItems,
+  jsEditor,
+} from "../../../../support/Objects/ObjectsCore";
 
 const firstApiName = "First";
 const secondApiName = "Second";
 
 describe("Api Naming conflict on a page test", function () {
   it("1. Expects actions on the same page cannot have identical names", function () {
-    cy.log("Login Successful");
     // create an API
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI(firstApiName);
-
+    apiPage.CreateApi(firstApiName);
     // create another API
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI(secondApiName);
-    ee.ExpandCollapseEntity("Queries/JS", true);
+    apiPage.CreateApi(secondApiName);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     // try to rename one of the APIs with an existing API name
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
@@ -26,28 +26,30 @@ describe("Api Naming conflict on a page test", function () {
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
     //cy.RenameEntity(firstApiName);
     cy.validateMessage(firstApiName);
-    cy.ClearSearch();
-    cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+    agHelper.PressEnter();
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: secondApiName,
+      action: "Delete",
+      entityType: entityItems.Api,
     });
-    cy.deleteActionAndConfirm();
-    cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: firstApiName,
+      action: "Delete",
+      entityType: entityItems.Api,
     });
-    cy.deleteActionAndConfirm();
   });
 });
 
 describe("Api Naming conflict on different pages test", function () {
   it("2. It expects actions on different pages can have identical names", function () {
-    cy.log("Login Successful");
     // create a new API
     cy.CreateAPI(firstApiName);
-    ee.ExpandCollapseEntity("Queries/JS", true);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
+
     // create a new page and an API on that page
-    ee.AddNewPage();
+    entityExplorer.AddNewPage();
     cy.CreateAPI(firstApiName);
-    ee.ExpandCollapseEntity("Queries/JS", true);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     cy.get(".t--entity-name").contains(firstApiName).should("exist");
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
@@ -67,8 +69,7 @@ describe("Api Naming conflict on different pages test", function () {
 
 describe("Entity Naming conflict test", function () {
   it("3. Expects JS objects and actions to not have identical names on the same page.", function () {
-    cy.log("Login Successful");
-    ee.ExpandCollapseEntity("Queries/JS", true);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and name it
     jsEditor.CreateJSObject('return "Hello World";');
     cy.get(`.t--entity-item:contains('JSObject1')`).within(() => {
@@ -89,7 +90,7 @@ describe("Entity Naming conflict test", function () {
     cy.selectAction("Edit name");
 
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
-    ee.ValidateDuplicateMessageToolTip(firstApiName);
+    entityExplorer.ValidateDuplicateMessageToolTip(firstApiName);
     cy.get("body").click(0, 0);
     cy.wait(2000);
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {

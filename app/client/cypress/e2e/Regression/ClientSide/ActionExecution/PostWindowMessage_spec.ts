@@ -1,25 +1,23 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { draggableWidgets } from "../../../../support/Objects/ObjectsCore";
-
-const {
-  AggregateHelper: agHelper,
-  CommonLocators: locator,
-  DeployMode: deployMode,
-  EntityExplorer: ee,
-  PropertyPane: propPane,
-} = ObjectsRegistry;
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  deployMode,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Post window message", () => {
   it("1. Posts message to an iframe within Appsmith", () => {
-    ee.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
-    ee.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPlatformFunction("onClick", "Post message");
     agHelper.EnterActionValue("Message", "After postMessage");
     agHelper.EnterActionValue("Target iframe", "Iframe1");
 
-    ee.SelectEntityByName("Iframe1", "Widgets");
+    entityExplorer.SelectEntityByName("Iframe1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "srcDoc",
       `<!doctype html>
@@ -43,7 +41,7 @@ describe("Post window message", () => {
     );
     propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
-    deployMode.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locators._spanButton("Submit"));
     agHelper.AssertElementVisible("#iframe-Iframe1");
     agHelper.Sleep(5000); //allowing time for elements to load fully before clicking - for CI flaky
     cy.get("#iframe-Iframe1").then((element) => {

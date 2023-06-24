@@ -36,6 +36,7 @@ public class ApplicationSnapshot extends BaseDomain {
      * @return Updated at timestamp in ISO format
      */
     public String getUpdatedTime() {
+        if(this.getUpdatedAt() == null) return null;
         return DateUtils.ISO_FORMATTER.format(this.getUpdatedAt());
     }
 }

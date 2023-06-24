@@ -4,10 +4,13 @@ const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("GlobalSearch", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("MultipleWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {

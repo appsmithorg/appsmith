@@ -192,7 +192,7 @@ describe("Table widget - Select column type functionality", () => {
     _.propPane.NavigateBackToPropertyPane();
 
     const checkSameOptionsInNewRowWhileEditing = () => {
-      _.propPane.ToggleOnOrOff("Allow adding a row", "On");
+      _.propPane.TogglePropertyState("Allow adding a row", "On");
 
       _.propPane.OpenTableColumnSettings("step");
 
@@ -257,7 +257,7 @@ describe("Table widget - Select column type functionality", () => {
   it("8. should check that 'new row select options' is working", () => {
     const checkNewRowOptions = () => {
       // New row select options should be visible when "Same options in new row" is turned off
-      _.propPane.ToggleOnOrOff("Same options in new row", "Off");
+      _.propPane.TogglePropertyState("Same options in new row", "Off");
       cy.get(".t--property-control-newrowoptions").should("exist");
 
       // New row select options should appear in table

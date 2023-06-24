@@ -9,7 +9,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New JS object",
+        title: "New JS Object",
       }),
     );
 
@@ -92,7 +92,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New JS object",
+        title: "New JS Object",
       }),
     );
 
@@ -154,7 +154,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New JS object",
+        title: "New JS Object",
       }),
     );
 

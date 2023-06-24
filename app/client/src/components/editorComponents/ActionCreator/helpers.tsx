@@ -394,7 +394,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   // this function gets a list of all the queries/apis and attaches it to actionList
   getApiAndQueryOptions(plugins, actions, dispatch, handleClose);
 
-  // this function gets a list of all the JS objects and attaches it to actionList
+  // this function gets a list of all the JS Objects and attaches it to actionList
   getJSOptions(pageId, jsActions, dispatch);
 
   return actionList;
@@ -475,7 +475,7 @@ export function getJSOptions(
   dispatch: any,
 ) {
   const createJSObject: TreeDropdownOption = {
-    label: "New JS object",
+    label: "New JS Object",
     value: AppsmithFunction.jsFunction,
     id: "create",
     icon: "plus",
@@ -546,7 +546,7 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const actions = useSelector(getActionsForCurrentPage);
   const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
-  // this function gets all the Queries/API's/JS objects and attaches it to actionList
+  // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
     pageId,
     pluginGroups,

@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("List widget V2 PropertyPane", () => {
@@ -11,22 +10,18 @@ describe("List widget V2 PropertyPane", () => {
     });
     cy.openPropertyPane("listwidgetv2");
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidgetv2).should("not.exist");
-    cy.get(publishPage.backToEditor).click({
-      force: true,
-    });
+    _.deployMode.NavigateBacktoEditor();
 
     // Open Property pane
     cy.openPropertyPane("listwidgetv2");
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000); //for the deployed page to load fully
     cy.get(widgetsPage.listWidgetv2).should("be.visible");
-    cy.get(publishPage.backToEditor).click({
-      force: true,
-    });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. Toggle JS - Validate isVisible", function () {
@@ -36,17 +31,16 @@ describe("List widget V2 PropertyPane", () => {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidgetv2).should("not.exist");
-    cy.get(publishPage.backToEditor).click({ force: true });
-
+    _.deployMode.NavigateBacktoEditor();
     // Open Property pane
     cy.openPropertyPane("listwidgetv2");
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidgetv2).should("be.visible");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Renaming the widget from Property pane and Entity explorer ", function () {

@@ -1,15 +1,15 @@
 /// <reference types="Cypress" />
 
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableInputDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const propPane = ObjectsRegistry.PropertyPane;
+import {
+  agHelper,
+  propPane,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
@@ -21,14 +21,16 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   });
 
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(5000); //dsl to settle!
+    cy.fixture("tableInputDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2);
-    cy.wait(5000); //dsl to settle!
+    cy.fixture("displayWidgetDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -39,7 +41,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    cy.openPropertyPane("inputwidgetv2");
+    entityExplorer.SelectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();

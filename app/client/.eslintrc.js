@@ -1,5 +1,15 @@
 // The `@type` comment improves auto-completion for VS Code users: https://github.com/appsmithorg/appsmith/pull/21602#discussion_r1144528505
 /** @type {import('eslint').Linter.Config} */
+const fs = require("fs");
+const path = require("path");
+const JSON5 = require("json5");
+
+const baseEslintConfig = JSON5.parse(
+  fs.readFileSync(path.join(__dirname, "./.eslintrc.base.json"), "utf8"),
+);
+const baseNoRestrictedImports =
+  baseEslintConfig.rules["@typescript-eslint/no-restricted-imports"][1];
+
 const eslintConfig = {
   extends: ["./.eslintrc.base.json"],
   rules: {
@@ -10,6 +20,7 @@ const eslintConfig = {
       "error",
       {
         paths: [
+          ...(baseNoRestrictedImports.paths ?? []),
           {
             name: "codemirror",
             message:
@@ -26,21 +37,10 @@ const eslintConfig = {
           },
         ],
         patterns: [
+          ...(baseNoRestrictedImports.patterns ?? []),
           {
-            group: ["@blueprintjs/core/lib/esnext/*"],
-            message:
-              "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory.",
-          },
-          {
-            group: ["*.svg"],
-            importNames: ["ReactComponent"],
-            message:
-              "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from design-system-old (e.g. const StarIcon = importSvg(() => import('./star.svg'))).",
-          },
-          {
-            group: ["remixicon-react/*"],
-            message:
-              "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star'))).",
+            group: ["**/ce/*"],
+            message: "Reason: Please use @appsmith import instead.",
           },
         ],
       },
@@ -74,6 +74,14 @@ eslintConfig.overrides = [
         getRestrictedImportsOverrideForCodeEditor(eslintConfig),
       "no-restricted-syntax":
         getRestrictedSyntaxOverrideForCodeEditor(eslintConfig),
+    },
+  },
+  {
+    files: ["**/ee/**/*"],
+    rules: {
+      ...eslintConfig.rules,
+      "@typescript-eslint/no-restricted-imports":
+        getRestrictedImportsOverrideForEE(eslintConfig),
     },
   },
 ];
@@ -111,6 +119,21 @@ function getRestrictedSyntaxOverrideForCodeEditor(eslintConfig) {
   }
 
   return [errorLevel, ...newRules];
+}
+
+function getRestrictedImportsOverrideForEE(eslintConfig) {
+  const [errorLevel, existingRules] =
+    eslintConfig.rules["@typescript-eslint/no-restricted-imports"];
+
+  const newPatterns = (existingRules.patterns ?? []).filter(
+    (i) => i.group[0] !== "**/ce/*",
+  );
+
+  if (newPatterns.length === 0) {
+    return ["off"];
+  }
+
+  return [errorLevel, { paths: existingRules.paths, patterns: newPatterns }];
 }
 
 module.exports = eslintConfig;

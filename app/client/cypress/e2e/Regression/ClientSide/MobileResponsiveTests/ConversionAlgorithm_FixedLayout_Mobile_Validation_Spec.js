@@ -1,11 +1,12 @@
-const dsl = require("../../../../fixtures/conversionFrAutoLayoutDsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
+import { agHelper, autoLayout } from "../../../../support/Objects/ObjectsCore";
+
 let testHeight;
 
 describe("Auto conversion algorithm usecases for fixed Layout", function () {
   it("1. Validate basic conversion algorithm usecases fixed layout usecase Mobile", function () {
-    cy.addDsl(dsl);
-    cy.wait(5000); //for dsl to settle
+    cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     //cy.openPropertyPane("containerwidget");
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
@@ -25,17 +26,9 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                 cy.log(bheight);
                 cy.log(dheight);
                 cy.wait(3000);
-                cy.get(commonlocators.autoConvert).click({ force: true });
-                cy.wait(2000);
-                cy.get(commonlocators.convert).click({ force: true });
-                cy.wait(2000);
-                cy.get(commonlocators.refreshApp).click({ force: true });
-                cy.wait(2000);
-                cy.wait("@updateLayout").should(
-                  "have.nested.property",
-                  "response.body.responseMeta.status",
-                  200,
-                );
+
+                autoLayout.ConvertToAutoLayoutAndVerify();
+
                 cy.get(".t--widget-audiorecorderwidget")
                   .invoke("css", "height")
                   .then((a1height) => {
@@ -48,44 +41,9 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                             expect(aheight).to.not.equal(a1height);
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
-                            cy.get(commonlocators.discardSnapshot).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.reload();
-                            cy.wait(5000);
-                            cy.get(commonlocators.autoConvert).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.xpath(commonlocators.desktopOption).click({
-                              force: true,
-                            });
-                            cy.xpath(commonlocators.mobileOption).click({
-                              force: true,
-                            });
-                            cy.get(commonlocators.convert).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.get(commonlocators.convertanyways).click({
-                              force: true,
-                            });
-                            cy.wait("@snapshotSuccess").should(
-                              "have.nested.property",
-                              "response.body.responseMeta.status",
-                              201,
-                            );
-                            cy.get(commonlocators.refreshApp).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.wait("@updateLayout").should(
-                              "have.nested.property",
-                              "response.body.responseMeta.status",
-                              200,
-                            );
-                            cy.wait(2000);
+
+                            autoLayout.ConvertToFixedLayoutAndVerify("MOBILE");
+
                             cy.get(".t--widget-audiorecorderwidget")
                               .invoke("css", "height")
                               .then((raheight) => {

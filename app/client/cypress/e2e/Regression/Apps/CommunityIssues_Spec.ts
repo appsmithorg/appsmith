@@ -1,15 +1,14 @@
 /// <reference types="Cypress" />
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-
-let homePage = ObjectsRegistry.HomePage,
-  dataSources = ObjectsRegistry.DataSources,
-  table = ObjectsRegistry.Table,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor,
-  locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+import {
+  homePage,
+  dataSources,
+  table,
+  agHelper,
+  deployMode,
+  propPane,
+  entityExplorer,
+  locators,
+} from "../../../support/Objects/ObjectsCore";
 
 describe("AForce - Community Issues page validations", function () {
   before(function () {
@@ -63,7 +62,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("serversidepagination", "true");
 
     propPane
@@ -107,16 +106,16 @@ describe("AForce - Community Issues page validations", function () {
   it("3. Validate table navigation with Server Side pagination disabled with Default selected row selection", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
-    ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("serversidepagination", "Off");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    propPane.TogglePropertyState("Server side pagination", "Off");
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
     table.AssertPageNumber(1, "Off", "v2");
     table.AssertSelectedRow(selectedRow);
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
-    ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("serversidepagination", "On");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    propPane.TogglePropertyState("Server side pagination", "On");
   });
 
   it("4. Change Default selected row in table and verify", () => {
@@ -133,7 +132,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   it.skip("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default search text", "Bug", false);
     propPane.TypeTextIntoField("Default search text", "Bug");
     deployMode.DeployApp();
@@ -142,7 +141,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
 
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default search text", "Question", false);
     propPane.TypeTextIntoField("Default search text", "Question");
 
@@ -152,7 +151,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
 
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default search text", "Epic", false);
     propPane.TypeTextIntoField("Default search text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
     deployMode.DeployApp();
@@ -161,13 +160,13 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
 
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.RemoveText("defaultsearchtext");
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("enableclientsidesearch", "true");
 
     deployMode.DeployApp();
@@ -184,8 +183,8 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
 
-    ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("enableclientsidesearch", "Off");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    propPane.TogglePropertyState("Client side search", "Off");
 
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -200,8 +199,8 @@ describe("AForce - Community Issues page validations", function () {
 
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
-    ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("enableclientsidesearch", "On");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    propPane.TogglePropertyState("Client side search", "On");
   });
 
   it("7. Validate Filter table", () => {
@@ -262,21 +261,21 @@ describe("AForce - Community Issues page validations", function () {
     // table.WaitUntilTableLoad(0,0,"v2")
 
     cy.get(table._addIcon).closest("div").click();
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
     agHelper.SelectFromDropDown("Suggestion", "t--modal-widget");
 
-    cy.get(locator._inputWidgetv1InDeployed)
+    cy.get(locators._inputWidgetv1InDeployed)
       .eq(3)
       .type("Adding Title Suggestion via script");
-    cy.get(locator._textAreainputWidgetv1InDeployed)
+    cy.get(locators._textAreainputWidgetv1InDeployed)
       .eq(1)
       .type("Adding Description Suggestion via script");
-    cy.get(locator._inputWidgetv1InDeployed)
+    cy.get(locators._inputWidgetv1InDeployed)
       .eq(4)
       .type("https://github.com/appsmithorg/appsmith/issues/12532");
     agHelper.SelectFromMultiSelect(["Epic", "Task"], 1);
     cy.xpath(table._visibleTextSpan("Labels")).click();
-    cy.get(locator._inputWidgetv1InDeployed)
+    cy.get(locators._inputWidgetv1InDeployed)
       .eq(5)
       .type(
         "https://release.app.appsmith.com/applications/62486d45ab307a026918639e/pages/62486d45ab307a02691863a7",
@@ -289,7 +288,7 @@ describe("AForce - Community Issues page validations", function () {
     );
 
     agHelper.ClickButton("Confirm");
-    agHelper.AssertElementAbsence(locator._toastMsg); //Making sure internal api doesnt throw error
+    agHelper.AssertElementAbsence(locators._toastMsg); //Making sure internal api doesnt throw error
     agHelper.Sleep(3000);
     table.SearchTable("Suggestion", 2);
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -305,18 +304,18 @@ describe("AForce - Community Issues page validations", function () {
 
   it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
     agHelper.Sleep(2000);
-    agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     agHelper.Sleep(2000);
     table.SelectTableRow(0, 1, true, "v2");
-    agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisible(locators._widgetInDeployed("tabswidget"));
     agHelper
-      .GetNClick(locator._inputWidgetv1InDeployed, 0, true, 0)
+      .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");
     agHelper
-      .GetNClick(locator._textAreainputWidgetv1InDeployed, 0, true, 0)
+      .GetNClick(locators._textAreainputWidgetv1InDeployed, 0, true, 0)
       .type("-updating desc");
     agHelper
-      .GetNClick(locator._inputWidgetv1InDeployed, 1)
+      .GetNClick(locators._inputWidgetv1InDeployed, 1)
       .type("-updating issue link");
     agHelper.SelectFromDropDown("Troubleshooting", "t--widget-tabswidget");
     agHelper.SelectFromMultiSelect(["Epic", "Task"], 0, false);
@@ -327,15 +326,15 @@ describe("AForce - Community Issues page validations", function () {
       1,
     );
     agHelper
-      .GetNClick(locator._inputWidgetv1InDeployed, 2)
+      .GetNClick(locators._inputWidgetv1InDeployed, 2)
       .type("-updating answer link");
 
     //cy.get("body").tab().type("{enter}")
 
     //agHelper.TypeTab()
-    // cy.get(locator._widgetInDeployed('multiselectwidget'))
+    // cy.get(locators._widgetInDeployed('multiselectwidget'))
     // .eq(0).typeTab(false, false)
-    // cy.get(locator._widgetInDeployed('multiselectwidget'))
+    // cy.get(locators._widgetInDeployed('multiselectwidget'))
     // .eq(0).trigger('focus').trigger('keydown', {
     //   key: 'Enter',
     // })
@@ -371,13 +370,13 @@ describe("AForce - Community Issues page validations", function () {
 
   it("10. Validate Deleting the newly created issue", () => {
     agHelper.Sleep(2000);
-    agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     table.SelectTableRow(0, 0, true, "v2");
-    agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisible(locators._widgetInDeployed("tabswidget"));
     agHelper.Sleep();
     cy.get(table._trashIcon).closest("div").click({ force: true });
-    agHelper.WaitUntilEleDisappear(locator._widgetInDeployed("tabswidget"));
-    agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
+    agHelper.WaitUntilEleDisappear(locators._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     table.WaitForTableEmpty("v2");
 
     //2nd search is not working, hence commenting below

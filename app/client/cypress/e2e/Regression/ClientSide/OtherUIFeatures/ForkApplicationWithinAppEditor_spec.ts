@@ -33,7 +33,10 @@ describe("Fork application across workspaces", function () {
 
     cy.get(_.locators._forkAppToWorkspaceBtn).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait("@postForkAppWorkspace").its("status").should("equal", 200);
+
+    cy.wait("@postForkAppWorkspace")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     // check that forked application has same dsl
     cy.get("@getPage")
       .its("response.body.data")

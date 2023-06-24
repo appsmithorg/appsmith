@@ -1,18 +1,15 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const {
-  AggregateHelper: agHelper,
-  CommonLocators: locator,
-  DeployMode: deployMode,
-  EntityExplorer: ee,
-  JSEditor: jsEditor,
-  PropertyPane: propPane,
-} = ObjectsRegistry;
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("storeValue Action test", () => {
   before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    ee.NavigateToSwitcher("Explorer");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Bug 14653: Running consecutive storeValue actions and await", function () {
@@ -42,7 +39,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -104,7 +101,7 @@ describe("storeValue Action test", () => {
     });
 
     // Button1
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -115,8 +112,8 @@ describe("storeValue Action test", () => {
     });
 
     // Button 2
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    ee.SelectEntityByName("Button2", "Widgets");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    entityExplorer.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "modifyStorePath");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -171,7 +168,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "SetStore");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -181,7 +178,7 @@ describe("storeValue Action test", () => {
       );
     });
 
-    ee.SelectEntityByName("Button2", "Widgets");
+    entityExplorer.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {

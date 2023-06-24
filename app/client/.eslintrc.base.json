@@ -54,7 +54,27 @@
       { "caseSensitive": false }
     ],
     "no-console": "warn",
-    "no-debugger": "warn"
+    "no-debugger": "warn",
+    "@typescript-eslint/no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@blueprintjs/core/lib/esnext/*"],
+            "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
+          },
+          {
+            "group": ["*.svg"],
+            "importNames": ["ReactComponent"],
+            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from design-system-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
+          },
+          {
+            "group": ["remixicon-react/*"],
+            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
+          }
+        ]
+      }
+    ]
   },
   "settings": {
     "import/resolver": {

@@ -63,11 +63,6 @@ describe("Switch datasource", function () {
 
   it("4. By switching datasources execute a query with both the datasources", function () {
     cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from public.users limit 10");
     cy.wait(3000);
     cy.runQuery();
     cy.wait("@saveAction").should(

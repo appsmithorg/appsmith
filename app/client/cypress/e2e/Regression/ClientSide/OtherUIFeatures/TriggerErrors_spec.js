@@ -1,10 +1,10 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const dsl = require("../../../../fixtures/debuggerTableDsl.json");
-const debuggerHelper = ObjectsRegistry.DebuggerHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Trigger errors in the debugger", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("debuggerTableDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Trigger errors need to be shown in the errors tab", function () {
     cy.openPropertyPane("tablewidget");
@@ -17,10 +17,10 @@ describe("Trigger errors in the debugger", function () {
     cy.isSelectRow(1);
     cy.wait(5000);
     //should be 2 if we decide to show trigger errors in the debugger.
-    debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(1);
     // Fix code
     cy.testJsontext("onrowselected", "{{console.log('test')}}");
     cy.isSelectRow(1);
-    debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(1);
   });
 });
