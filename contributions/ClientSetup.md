@@ -66,6 +66,8 @@ On your development machine, please ensure that:
           ```
 
         - If you want to use the backend server running on your local, you do not need to pass a parameter when running `start-https.sh`.
+     
+        - This command is supposed to start a docker container running the nginx image. If in your case the container stops immediately and in the container logs you see this error line like `[emerg] 1#1: invalid log level "<folder name>" in /etc/nginx/nginx.conf:4`, it is because you have a spacing in the root folder name. Make sure to name the root folder in one word only. For example: `/home/adam/my_projects/appsmith` and NOT `/home/adam/my projects/appsmith`.
 
 ### Steps to build & run the code:
 
