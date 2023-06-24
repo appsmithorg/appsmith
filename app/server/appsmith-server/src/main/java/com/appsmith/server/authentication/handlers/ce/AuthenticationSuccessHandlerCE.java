@@ -223,7 +223,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue){
         FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
-        //TODO: check hashing of email for self-hosted
         featureFlagTrait.setIdentifier(identifier);
         featureFlagTrait.setTraitKey(traitKey);
         featureFlagTrait.setTraitValue(traitValue);
