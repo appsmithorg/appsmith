@@ -149,6 +149,7 @@ const DSEditorWrapper = styled.div`
 const DataStructureContainer = styled.div`
   width: 400px;
   display: flex;
+  flex: 1;
   flex-direction: column;
   overflow-y: scroll;
 `;
@@ -557,7 +558,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           )
         }
         {this.renderSaveDisacardModal()}
-        {shouldViewMode && this.renderDatasourceStructure()}
+        {shouldViewMode &&
+          pluginDatasourceForm !==
+            DatasourceComponentTypes.RestAPIDatasourceForm &&
+          this.renderDatasourceStructure()}
       </>
     );
   }
