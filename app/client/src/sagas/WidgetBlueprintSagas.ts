@@ -12,6 +12,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
 import { toast } from "design-system";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
+import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -128,6 +129,26 @@ export function* executeWidgetBlueprintOperations(
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
             widgets[params.widgetId][params.propertyName] =
               params.propertyValue;
+            const { dynamicTriggerPathList } = getPropertiesToUpdate(
+              widgets[params.widgetId],
+              { [params.propertyName]: params.propertyValue },
+              [params.propertyName],
+            );
+            const widgetDynamicTriggerPathList =
+              widgets[params.widgetId].dynamicTriggerPathList;
+            //if dynamicTriggerPathList already exits on widget
+            if (
+              widgetDynamicTriggerPathList &&
+              Array.isArray(widgetDynamicTriggerPathList)
+            ) {
+              widgets[params.widgetId].dynamicTriggerPathList = [
+                ...dynamicTriggerPathList,
+                ...widgetDynamicTriggerPathList,
+              ];
+            } else {
+              widgets[params.widgetId].dynamicTriggerPathList =
+                dynamicTriggerPathList;
+            }
           });
         break;
     }
