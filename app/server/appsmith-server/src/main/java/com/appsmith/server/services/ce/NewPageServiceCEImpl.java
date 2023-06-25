@@ -6,7 +6,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -236,9 +235,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = applicationPermission.getEditPermission();
         }
 
-        Mono<ApplicationSnapshot> applicationSnapshotMono = applicationSnapshotRepository.findWithoutData(applicationId)
-                .defaultIfEmpty(new ApplicationSnapshot());
-
         Mono<Application> applicationMono = applicationService.findById(applicationId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 // Throw a 404 error if the application has never been published
@@ -370,7 +366,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     return Mono.just(pageNameIdDTOList);
                 });
 
-        return Mono.zip(applicationMono, pagesListMono, applicationSnapshotMono)
+        return Mono.zip(applicationMono, pagesListMono)
                 .map(tuple -> {
                     log.debug("Populating applicationPagesDTO ...");
                     Application application = tuple.getT1();
@@ -382,12 +378,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
                     applicationPagesDTO.setPages(nameIdDTOList);
                     applicationPagesDTO.setApplication(application);
-
-                    // set the latest snapshot time if there is a snapshot for this application for edit mode
-                    ApplicationSnapshot applicationSnapshot = tuple.getT3();
-                    if(!view && StringUtils.hasLength(applicationSnapshot.getId())) {
-                        applicationPagesDTO.setLatestSnapshotTime(applicationSnapshot.getUpdatedTime());
-                    }
                     return applicationPagesDTO;
                 });
     }

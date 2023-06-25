@@ -11,4 +11,6 @@ public interface WorkspaceService extends WorkspaceServiceCE {
     Mono<Workspace> retrieveById(String workspaceId);
 
     Flux<Environment> getDefaultEnvironment(String workspaceId);
+
+    Mono<String> verifyEnvironmentIdByWorkspaceId(String workspaceId, String environmentId);
 }
