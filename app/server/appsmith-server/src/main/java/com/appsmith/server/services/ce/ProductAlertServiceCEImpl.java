@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -25,13 +26,13 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 @PropertySource("classpath:/productAlerts/productAlertMessages.yml")
 public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
-    String messageListJSONString;
+    private final String messageListJSONString;
 
-    CommonConfig commonConfig;
+    private final CommonConfig commonConfig;
 
-    ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
-    ProductAlertResponseDTO[] messages;
+    private final ProductAlertResponseDTO[] messages;
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -50,7 +51,7 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
     public Mono<ProductAlertResponseDTO> getSingleApplicableMessage() {
         return Mono.fromCallable(() -> {
             List<ProductAlertResponseDTO> applicableMessages =
-                    Arrays.stream(messages).filter(this::evaluateAlertApplicability).toList();
+                    Arrays.stream(messages).sorted().filter(this::evaluateAlertApplicability).toList();
             return applicableMessages.get(0);
         }).onErrorResume(error -> {
             log.error("exception while getting and filtering product alert messages", error);
@@ -65,7 +66,12 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
         switch (productAlertResponseDTO.getContext()) {
             case COMMON_CONFIG:
                 EvaluationContext context = new StandardEvaluationContext(commonConfig);
-                return (Boolean) expression.getValue(context);
+                try {
+                    return (Boolean) expression.getValue(context);
+                } catch (EvaluationException ee) {
+                    log.error("error while evaluating applicability expression");
+                    throw ee;
+                }
             case STATIC:
                 return (Boolean) expression.getValue();
             default:
