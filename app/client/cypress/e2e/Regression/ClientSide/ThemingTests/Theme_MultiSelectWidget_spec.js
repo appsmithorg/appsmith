@@ -1,18 +1,24 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  deployMode,
+  appSettings,
+  theme,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 let themeFont;
 
 describe("Theme validation usecase for multi-select widget", function () {
   it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
-    //cy.reload(); // To remove the rename tooltip
-    _.entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 300, 80);
-    cy.get(themelocator.canvas).click({ force: true });
-    cy.wait(2000);
-
-    _.appSettings.OpenAppSettings();
-    _.appSettings.GoToThemeSettings();
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.MULTISELECT, 300, 80);
+    agHelper.GetNClick(locators._canvas);
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
@@ -31,7 +37,7 @@ describe("Theme validation usecase for multi-select widget", function () {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.xpath(_.theme.locators._boxShadow("L")).click({ force: true });
+    cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -71,33 +77,33 @@ describe("Theme validation usecase for multi-select widget", function () {
 
     //Color - Bug 23501 - hence skipping
     // cy.wait(1000);
-    // _.theme.ChangeThemeColor("purple", "Primary");
+    // theme.ChangeThemeColor("purple", "Primary");
     // cy.get(themelocator.inputColor).should("have.value", "purple");
     // cy.wait(1000);
 
-    // _.theme.ChangeThemeColor("brown", "Background");
+    // theme.ChangeThemeColor("brown", "Background");
     // cy.get(themelocator.inputColor).should("have.value", "brown");
     // cy.wait(1000);
     // cy.contains("Color").click({ force: true });
-    _.appSettings.ClosePane();
+    appSettings.ClosePane();
   });
 
   it.skip("2. Publish the App and validate Font across the app + Bug 15007", function () {
     //Skipping due to mentioned bug
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .first()
       .should("have.css", "font-family", themeFont);
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .last()
       .should("have.css", "font-family", themeFont);
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it.skip("3. Validate current theme feature", function () {
     cy.get("#canvas-selection-0").click({ force: true });
-    _.appSettings.OpenAppSettings();
-    _.appSettings.GoToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
@@ -110,12 +116,12 @@ describe("Theme validation usecase for multi-select widget", function () {
           .invoke("css", "background-color")
           .then((selectedBackgroudColor) => {
             expect("rgba(0, 0, 0, 0)").to.equal(selectedBackgroudColor);
-            _.appSettings.ClosePane();
+            appSettings.ClosePane();
           });
       });
 
     //Publish the App and validate change of Theme across the app in publish mode
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
       "background-color",

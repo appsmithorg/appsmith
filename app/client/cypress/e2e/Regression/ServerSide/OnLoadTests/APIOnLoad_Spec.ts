@@ -4,6 +4,7 @@ import {
   propPane,
   apiPage,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("JSObjects OnLoad Actions tests", function () {
@@ -32,7 +33,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       "[PageLoadApi] will be executed automatically on page load",
     );
     agHelper.RefreshPage();
-    agHelper.AssertNetworkStatus("@postExecute");
+    assertHelper.AssertNetworkStatus("@postExecute");
   });
 
   it("2. Shows when API failed to load on page load.", function () {

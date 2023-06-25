@@ -39,7 +39,6 @@ describe("JSObjects OnLoad Actions tests", function () {
     );
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true); //Only before calling confirmation is enabled by User here
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("GetEmployee");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;

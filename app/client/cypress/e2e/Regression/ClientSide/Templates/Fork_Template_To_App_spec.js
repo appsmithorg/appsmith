@@ -25,7 +25,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
 
   it("1. Fork a template to the current app + Bug 17477", () => {
     cy.wait(3000);
-    cy.get(template.startFromTemplateCard).click();
+    _.entityExplorer.AddNewPage("Add page from template");
     // Commented out below code as fetch template call is not going through when template dialog is closed
     // cy.wait("@fetchTemplate").should(
     //   "have.nested.property",
@@ -53,7 +53,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "contain",
       "template added successfully",
     );
-    _.agHelper.AssertNetworkStatus("updateLayout");
+    _.assertHelper.AssertNetworkStatus("updateLayout");
     // [Bug]: Getting 'Resource not found' error on deploying template #17477
     _.deployMode.DeployApp();
     cy.get(".t--page-switch-tab")
@@ -101,6 +101,6 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "contain",
       "template added successfully",
     );
-    _.agHelper.AssertNetworkStatus("updateLayout");
+    _.assertHelper.AssertNetworkStatus("updateLayout");
   });
 });

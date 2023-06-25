@@ -63,7 +63,6 @@ describe("Git discard changes:", function () {
     cy.wait("@getPage");
     // create new postgres query
     dataSources.NavigateFromActiveDS(datasourceName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(`SELECT * FROM public."category" LIMIT 10;`);
     agHelper.RenameWithInPane(query2);
     dataSources.RunQuery();
@@ -183,7 +182,8 @@ describe("Git discard changes:", function () {
     agHelper
       .GetElement(gitSyncLocators.discardChanges)
       .children()
-      .should("have.text", "Discard changes");
+      .should("have.text", "Discard & pull");
+
     agHelper.GetNClick(gitSyncLocators.discardChanges);
     agHelper.AssertContains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
     agHelper

@@ -298,17 +298,16 @@ function DatasourceCard(props: DatasourceCardProps) {
                     : createMessage(RECONNECT_BUTTON_TEXT)}
                 </Button>
               )}
-            {datasource.isConfigured && (
-              <NewActionButton
-                datasource={datasource}
-                disabled={
-                  !canCreateDatasourceActions ||
-                  !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
-                }
-                eventFrom="active-datasources"
-                pluginType={plugin.type}
-              />
-            )}
+            <NewActionButton
+              datasource={datasource}
+              disabled={
+                !datasource.isConfigured ||
+                !canCreateDatasourceActions ||
+                !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
+              }
+              eventFrom="active-datasources"
+              pluginType={plugin.type}
+            />
             {(canDeleteDatasource || canEditDatasource) && (
               <MenuWrapper
                 className="t--datasource-menu-option"

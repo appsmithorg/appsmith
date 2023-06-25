@@ -17,12 +17,8 @@ describe("Page orientation and navigation related usecases ", function () {
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
     );
-    agHelper.GetNClickByContains(
-      appSettings.locators._navigationMenuItem,
-      "Page1",
-    );
-    agHelper.Sleep(3000); //wait a bit before proceeding, for CI!
-    agHelper.AssertNetworkStatus("@getWorkspace");
+    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
+    agHelper.GetNClick(locators._canvas);
   });
 
   it("2. Validate change with height width for fill widget - Input widget", function () {

@@ -69,8 +69,7 @@ describe("Property Pane Search", function () {
     propPane.Search("text formaTTing");
     propPane.AssertIfPropertyOrSectionExists("textformatting", "STYLE");
 
-    // Clear the search input for the next test
-    propPane.Search("");
+    agHelper.ClearTextField(propPane._propertyPaneSearchInput);
   });
 
   it("4. Search for Properties inside a panel", function () {
@@ -140,7 +139,7 @@ describe("Property Pane Search", function () {
     propPane.AssertIfPropertyOrSectionExists("events", "CONTENT");
 
     propPane.Search("visible");
-    propPane.AssertIfPropertyOrSectionExists("events", "CONTENT", "visible");
+    propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
 
     propPane.Search("color");
     propPane.AssertIfPropertyOrSectionExists("color", "STYLE");

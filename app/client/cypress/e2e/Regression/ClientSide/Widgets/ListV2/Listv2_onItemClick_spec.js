@@ -93,7 +93,7 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.INPUT_V2,
       250,
       50,
-      ".t--draggable-containerwidget",
+      draggableWidgets.CONTAINER,
     );
 
     cy.get(`${widgetSelector("Input1")} input`)
@@ -107,7 +107,7 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.SELECT,
       250,
       50,
-      ".t--draggable-containerwidget",
+      draggableWidgets.CONTAINER,
     );
 
     cy.get(`${widgetSelector("Select1")} button`)
@@ -121,7 +121,7 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.BUTTON,
       250,
       50,
-      ".t--draggable-containerwidget",
+      draggableWidgets.CONTAINER,
     );
 
     cy.get(`${widgetSelector("Button1")} button`)

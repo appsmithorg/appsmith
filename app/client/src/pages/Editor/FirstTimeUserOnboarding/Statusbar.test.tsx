@@ -1,19 +1,24 @@
+const dispatch = jest.fn();
+
 import React from "react";
 import { Provider } from "react-redux";
-import { render, screen } from "test/testUtils";
+import { render } from "test/testUtils";
 import OnboardingStatusbar from "./Statusbar";
 import { getStore } from "./testUtils";
-import {
-  ONBOARDING_STATUS_STEPS_FIRST,
-  ONBOARDING_STATUS_STEPS_SECOND,
-  ONBOARDING_STATUS_STEPS_THIRD,
-  ONBOARDING_STATUS_STEPS_FOURTH,
-  ONBOARDING_STATUS_STEPS_FIVETH,
-  ONBOARDING_STATUS_STEPS_SIXTH,
-} from "@appsmith/constants/messages";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { SIGNPOSTING_STEP } from "./Utils";
+import { signpostingStepUpdateInit } from "actions/onboardingActions";
 
 let container: any = null;
+
+jest.mock("react-redux", () => {
+  const originalModule = jest.requireActual("react-redux");
+  return {
+    ...originalModule,
+    useDispatch: () => dispatch,
+  };
+});
 
 function renderComponent(store: any) {
   render(
@@ -30,52 +35,77 @@ describe("Statusbar", () => {
     document.body.appendChild(container);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("is rendered", async () => {
     renderComponent(getStore(0));
-    const statusbar = screen.queryAllByTestId("statusbar-container");
-    expect(statusbar).toHaveLength(1);
+    expect(dispatch).toHaveBeenCalledTimes(5);
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: {
+          completed: false,
+          step: expect.any(String),
+        },
+        type: ReduxActionTypes.SIGNPOSTING_STEP_UPDATE_INIT,
+      }),
+    );
   });
 
-  it("is pro", async () => {
-    renderComponent(getStore(0));
-    const statusbar = screen.queryAllByTestId("statusbar-container");
-    expect(statusbar).not.toBeNull();
-  });
-
-  it("is showing first step", async () => {
-    renderComponent(getStore(0));
-    const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FIRST());
-  });
-
-  it("is showing second step", async () => {
+  it("on completing first step", async () => {
     renderComponent(getStore(1));
-    const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_SECOND());
+    expect(dispatch).toHaveBeenNthCalledWith(
+      1,
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.CONNECT_A_DATASOURCE,
+        completed: true,
+      }),
+    );
   });
 
-  it("is showing third step", async () => {
+  it("on completing second step", async () => {
     renderComponent(getStore(2));
-    const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_THIRD());
+    expect(dispatch).toHaveBeenNthCalledWith(
+      2,
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.CREATE_A_QUERY,
+        completed: true,
+      }),
+    );
   });
 
-  it("is showing fourth step", async () => {
+  it("on completing third step", async () => {
     renderComponent(getStore(3));
-    const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FOURTH());
+    expect(dispatch).toHaveBeenNthCalledWith(
+      3,
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.ADD_WIDGETS,
+        completed: true,
+      }),
+    );
   });
 
-  it("is showing fifth step", async () => {
+  it("on completing fourth step", async () => {
     renderComponent(getStore(4));
-    const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FIVETH());
+    expect(dispatch).toHaveBeenNthCalledWith(
+      4,
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.CONNECT_DATA_TO_WIDGET,
+        completed: true,
+      }),
+    );
   });
 
-  it("is showing sixth step", async () => {
+  it("on completing fifth step", async () => {
     renderComponent(getStore(5));
-    const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_SIXTH());
+    expect(dispatch).toHaveBeenNthCalledWith(
+      5,
+      signpostingStepUpdateInit({
+        step: SIGNPOSTING_STEP.DEPLOY_APPLICATIONS,
+        completed: true,
+      }),
+    );
   });
 
   it("should test useIsWidgetActionConnectionPresent function", () => {

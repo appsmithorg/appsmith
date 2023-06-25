@@ -85,7 +85,7 @@ jobs:
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
-          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+          echo "::set-output name=run_result::$run_result_env"
 
       # Download failed_spec list for all jobs in case of rerun
       - uses: actions/download-artifact@v3
@@ -156,18 +156,6 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
-
-      - name: Setup MSSQL & Arango docker & ElasticSearch containers
-        working-directory: app/client/cypress
-        run: |
-          docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
-          docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
-          docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-        # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
-        # docker restart mssqldb
-        # sudo ufw allow 1433/tcp
-        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
-        # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
 
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v3
@@ -250,13 +238,19 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
+      # - name: Set Pull Request Title
+      #   env:
+      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+      #   run: |
+      #     echo "test: Cypress (#24586)\n\n## Description\r\n- This PR adds the No Error toast to NavigateBacktoEditor() which\r\nsometimes results in Edit page not being load in CI runs" | awk -F '\\\\n' '{sub(/.*#/, "#", $1); sub(/).*/, "", $1); print $1}'
+
       - name: Save Git values
         # pass env variables from this step to other steps
         # using GitHub Actions environment file
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
           echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
-          echo COMMIT_INFO_MESSAGE=Run from $(git rev-parse --abbrev-ref HEAD) on commit $(git show -s --pretty=%H | cut -c 1-7)>> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=Workflow run on $(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
@@ -277,7 +271,7 @@ jobs:
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -320,11 +314,10 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE || github.event.pull_request.title }}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
@@ -339,7 +332,7 @@ jobs:
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -382,11 +375,10 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE || github.event.pull_request.title }}
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
@@ -399,23 +391,26 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs
-        if: always()
+        if: failure()
         working-directory: "."
         run: |
-          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+          mkdir -p  ~/dockerlogs
+          docker logs appsmith 2>&1 > ~/dockerlogs/dockerlogs-${{ matrix.job }}.txt
 
       # Upload docker logs
-      - name: Upload docker logs on failure
-        if: always()
+      - name: Upload failed test list artifact
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: dockerlogs-${{ matrix.job }}
-          path: ~/dockerlogs.txt
+          name: dockerlogs
+          path: ~/dockerlogs
 
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::failedtest"
+          echo "failedtest" > ~/run_result
 
       # Create a directory ~/failed_spec_ci and add a dummy file
       # This will ensure upload and download steps are successful
@@ -457,21 +452,6 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      # Upload the screenshots as artifacts if there's a failure
-      - name: Upload screenshots on failure
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
-
-      # Upload the snapshots as artifacts for layout validation
-      - name: Upload snapshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: cypress-snapshots-visualRegression
-          path: app/client/cypress/snapshots/
-
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v3
@@ -482,4 +462,6 @@ jobs:
 
       # Set status = success
       - name: Save the status of the run
-        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::success"
+          echo "success" > ~/run_result

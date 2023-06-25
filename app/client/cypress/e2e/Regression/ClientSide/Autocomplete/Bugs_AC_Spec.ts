@@ -1,16 +1,25 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  table,
+  installer,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Autocomplete bug fixes", function () {
   it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
-    _.table.AddSampleTableData();
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 200, 600);
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.TypeTextIntoField("Text", "{{Table1.");
-    _.agHelper.AssertElementExist(_.locators._hints);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "Best match");
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
+    table.AddSampleTableData();
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 200, 600);
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{Table1.");
+    agHelper.AssertElementExist(locators._hints);
+    agHelper.GetNAssertElementText(locators._hints, "Best match");
+    agHelper.GetNAssertElementText(
+      locators._hints,
       "selectedRow",
       "have.text",
       1,
@@ -18,42 +27,34 @@ describe("Autocomplete bug fixes", function () {
   });
 
   it("2. Bug #13983 Verifies if object properties are in autocomplete list", function () {
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.TypeTextIntoField("Text", '{{Table1.selectedRow["');
-    _.agHelper.AssertElementExist(_.locators._hints);
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
-      "status",
-      "contain.text",
-    );
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", '{{Table1.selectedRow["');
+    agHelper.AssertElementExist(locators._hints);
+    agHelper.GetNAssertElementText(locators._hints, "status", "contain.text");
 
-    _.propPane.TypeTextIntoField("Text", "{{Table1.selectedRow['");
-    _.agHelper.AssertElementExist(_.locators._hints);
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
-      "status",
-      "contain.text",
-    );
+    propPane.TypeTextIntoField("Text", "{{Table1.selectedRow['");
+    agHelper.AssertElementExist(locators._hints);
+    agHelper.GetNAssertElementText(locators._hints, "status", "contain.text");
   });
 
   it("3. Bug #13983 Verifies if object properties are in autocomplete list", function () {
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.TypeTextIntoField("Text", '{{Table1.selectedRo"');
-    _.agHelper.AssertElementAbsence(_.locators._hints);
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", '{{Table1.selectedRo"');
+    agHelper.AssertElementAbsence(locators._hints);
 
-    _.propPane.TypeTextIntoField("Text", '{{"');
-    _.agHelper.AssertElementAbsence(_.locators._hints);
+    propPane.TypeTextIntoField("Text", '{{"');
+    agHelper.AssertElementAbsence(locators._hints);
   });
 
   it("4. Bug #14990 Checks if copied widget show up on autocomplete suggestions", function () {
-    _.entityExplorer.CopyPasteWidget("Text1");
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.UpdatePropertyFieldValue("Text", "");
-    _.propPane.TypeTextIntoField("Text", "{{Te");
-    _.agHelper.AssertElementExist(_.locators._hints);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "Best match");
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
+    entityExplorer.CopyPasteWidget("Text1");
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.UpdatePropertyFieldValue("Text", "");
+    propPane.TypeTextIntoField("Text", "{{Te");
+    agHelper.AssertElementExist(locators._hints);
+    agHelper.GetNAssertElementText(locators._hints, "Best match");
+    agHelper.GetNAssertElementText(
+      locators._hints,
       "Text1Copy.text",
       "have.text",
       1,
@@ -62,7 +63,7 @@ describe("Autocomplete bug fixes", function () {
 
   it("5. Bug #14100 Custom columns name label change should reflect in autocomplete", function () {
     // select table widget
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     // add new column
     cy.get(".t--add-column-btn").click();
     // edit column name
@@ -70,15 +71,15 @@ describe("Autocomplete bug fixes", function () {
       "[data-rbd-draggable-id='customColumn1'] .t--edit-column-btn",
     ).click();
 
-    _.propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
+    propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
     cy.wait(500);
     // select text widget
-    _.entityExplorer.SelectEntityByName("Text1");
+    entityExplorer.SelectEntityByName("Text1");
 
     // type {{Table1.selectedRow. and check for autocompletion suggestion having edited column name
-    _.propPane.TypeTextIntoField("Text", "{{Table1.selectedRow.");
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
+    propPane.TypeTextIntoField("Text", "{{Table1.selectedRow.");
+    agHelper.GetNAssertElementText(
+      locators._hints,
       "columnAlias",
       "have.text",
       0,
@@ -86,25 +87,25 @@ describe("Autocomplete bug fixes", function () {
   });
 
   it("6. feat #16426 Autocomplete for fast-xml-parser", function () {
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.TypeTextIntoField("Text", "{{xmlParser.j");
-    _.agHelper.GetNAssertElementText(_.locators._hints, "j2xParser");
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{xmlParser.j");
+    agHelper.GetNAssertElementText(locators._hints, "j2xParser");
 
-    _.propPane.TypeTextIntoField("Text", "{{new xmlParser.j2xParser().p");
-    _.agHelper.GetNAssertElementText(_.locators._hints, "parse");
+    propPane.TypeTextIntoField("Text", "{{new xmlParser.j2xParser().p");
+    agHelper.GetNAssertElementText(locators._hints, "parse");
   });
 
   it(
     "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
     function () {
-      _.entityExplorer.ExpandCollapseEntity("Libraries");
-      _.installer.OpenInstaller();
-      _.installer.installLibrary("uuidjs", "UUID");
-      _.installer.CloseInstaller();
-      _.entityExplorer.SelectEntityByName("Text1");
-      _.propPane.TypeTextIntoField("Text", "{{UUI");
-      _.agHelper.GetNAssertElementText(_.locators._hints, "UUID");
+      entityExplorer.ExpandCollapseEntity("Libraries");
+      installer.OpenInstaller();
+      installer.installLibrary("uuidjs", "UUID");
+      installer.CloseInstaller();
+      entityExplorer.SelectEntityByName("Text1");
+      propPane.TypeTextIntoField("Text", "{{UUI");
+      agHelper.GetNAssertElementText(locators._hints, "UUID");
     },
   );
 
@@ -112,27 +113,27 @@ describe("Autocomplete bug fixes", function () {
     "excludeForAirgap",
     "8. No autocomplete for Removed libraries",
     function () {
-      _.entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
-      _.installer.uninstallLibrary("uuidjs");
-      _.propPane.TypeTextIntoField("Text", "{{UUID.");
-      _.agHelper.AssertElementAbsence(_.locators._hints);
+      entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
+      installer.uninstallLibrary("uuidjs");
+      propPane.TypeTextIntoField("Text", "{{UUID.");
+      agHelper.AssertElementAbsence(locators._hints);
     },
   );
 
   it("9. Bug #20449 Cursor should be between parenthesis when function is autocompleted (Property Pane)", function () {
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.TypeTextIntoField("Text", "{{console.l");
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{console.l");
 
-    _.agHelper.GetNClickByContains(_.locators._hints, "log");
+    agHelper.GetNClickByContains(locators._hints, "log");
 
-    _.propPane.TypeTextIntoField("Text", '"hello"', false);
+    propPane.TypeTextIntoField("Text", '"hello"', false);
 
     // If the cursor was not between parenthesis, the following command will fail
-    _.propPane.ValidatePropertyFieldValue("Text", '{{console.log("hello")}}');
+    propPane.ValidatePropertyFieldValue("Text", '{{console.log("hello")}}');
   });
 
   it("10. Bug #20449 Cursor should be between parenthesis when function is autocompleted (JS Object)", function () {
-    _.jsEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
     myFun1: () => {
 
@@ -147,17 +148,17 @@ describe("Autocomplete bug fixes", function () {
       },
     );
 
-    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(3));
+    agHelper.GetNClick(jsEditor._lineinJsEditor(3));
 
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "console.l");
+    agHelper.TypeText(locators._codeMirrorTextArea, "console.l");
 
-    _.agHelper.GetNClickByContains(_.locators._hints, "log");
+    agHelper.GetNClickByContains(locators._hints, "log");
 
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "'hello'");
+    agHelper.TypeText(locators._codeMirrorTextArea, "'hello'");
 
     // If the cursor was not between parenthesis, the following command will fail
-    _.agHelper.GetNAssertContains(
-      _.jsEditor._lineinJsEditor(3),
+    agHelper.GetNAssertContains(
+      jsEditor._lineinJsEditor(3),
       "console.log('hello')",
     );
   });

@@ -8,6 +8,7 @@ import {
   table,
   locators,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("UUID Datatype tests", function () {
@@ -46,7 +47,6 @@ describe("UUID Datatype tests", function () {
   it("2. Creating table query - uuidtype", () => {
     query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, guid uuid, nil uuid);`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
@@ -72,31 +72,26 @@ describe("UUID Datatype tests", function () {
   it("4. Creating all queries - uuidtype", () => {
     query = `INSERT INTO public."uuidtype" ("v1", "v4", "guid", "nil") VALUES ('{{version1.data[0]}}', '{{version4.data}}', '{{guid.data}}', '{{nill.data}}');`;
     entityExplorer.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
 
     query = `UPDATE public."uuidtype" SET "v1" ='{{version1.data[0] ? version1.data[0] : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "guid" ='{{guid.data ? guid.data :  Table1.selectedRow.guid}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     entityExplorer.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
 
     query = `DELETE FROM public."uuidtype"`;
     entityExplorer.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."uuidtype"`;
     entityExplorer.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
     query = `DELETE FROM public."uuidtype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
     entityExplorer.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
@@ -272,7 +267,6 @@ describe("UUID Datatype tests", function () {
 
     //Validating use of extention
     query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews(1);
     dataSources.AssertQueryResponseHeaders(["affectedRows"]);
@@ -359,8 +353,8 @@ describe("UUID Datatype tests", function () {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });

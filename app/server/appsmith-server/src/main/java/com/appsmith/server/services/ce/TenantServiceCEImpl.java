@@ -80,7 +80,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      */
     @Override
     public Mono<Tenant> getTenantConfiguration() {
-        return configService.getInstanceId()
+        Mono<Tenant> dbTenantMono = getDefaultTenant();
+        Mono<Tenant> clientTenantMono = configService.getInstanceId()
                 .map(instanceId -> {
                     final Tenant tenant = new Tenant();
                     tenant.setInstanceId(instanceId);
@@ -102,6 +103,51 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
                     return tenant;
                 });
+
+        return Mono.zip(dbTenantMono, clientTenantMono)
+                .map(tuple -> {
+                    Tenant dbTenant = tuple.getT1();
+                    Tenant clientTenant = tuple.getT2();
+                    return getClientPertinentTenant(dbTenant, clientTenant);
+                });
+    }
+
+    @Override
+    public Mono<Tenant> getDefaultTenant() {
+        // Get the default tenant object from the DB and then populate the relevant user permissions in that
+        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
+        return repository.findBySlug(FieldName.DEFAULT)
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
+                        .switchIfEmpty(Mono.just(tenant)));
+    }
+
+    @Override
+    public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
+        return getDefaultTenantId()
+                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
+    }
+
+    /**
+     * To get the Tenant with values that are pertinent to the client
+     * @param dbTenant Original tenant from the database
+     * @param clientTenant Tenant object that is sent to the client, can be null
+     * @return Tenant
+     */
+    protected Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
+        TenantConfiguration tenantConfiguration;
+        if (clientTenant == null) {
+            clientTenant = new Tenant();
+            tenantConfiguration = new TenantConfiguration();
+        } else {
+            tenantConfiguration = clientTenant.getTenantConfiguration();
+        }
+
+        // Only copy the values that are pertinent to the client
+        tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
+        clientTenant.setTenantConfiguration(tenantConfiguration);
+        clientTenant.setUserPermissions(dbTenant.getUserPermissions());
+
+        return clientTenant;
     }
 
 }
