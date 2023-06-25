@@ -36,7 +36,7 @@ describe("UUID Datatype tests", function () {
   });
 
   it("2. Creating table query - uuidtype", () => {
-    query = `CREATE table uuidtype6 (serialid SERIAL primary key, v1 uuid, v4 uuid, nil uuid);`;
+    query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, nil uuid);`;
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
@@ -47,12 +47,12 @@ describe("UUID Datatype tests", function () {
       action: "Refresh",
     });
     agHelper.AssertElementVisible(
-      entityExplorer._entityNameInExplorer("public.uuidtype6"),
+      entityExplorer._entityNameInExplorer("public.uuidtype"),
     );
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype6", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype", "SELECT");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -61,27 +61,27 @@ describe("UUID Datatype tests", function () {
   });
 
   it("4. Creating all queries - uuidtype", () => {
-    query = `INSERT INTO public."uuidtype6" ("v1", "v4", "nil") VALUES ('{{version1.data}}', '{{version4.data}}', '{{nill.data}}');`;
+    query = `INSERT INTO public."uuidtype" ("v1", "v4", "nil") VALUES ('{{version1.data}}', '{{version4.data}}', '{{nill.data}}');`;
     entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
 
-    query = `UPDATE public."uuidtype6" SET "v1" ='{{version1.data ? version1.data : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
+    query = `UPDATE public."uuidtype" SET "v1" ='{{version1.data ? version1.data : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
 
-    query = `DELETE FROM public."uuidtype6"`;
+    query = `DELETE FROM public."uuidtype"`;
     entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
-    query = `drop table public."uuidtype6"`;
+    query = `drop table public."uuidtype"`;
     entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
-    query = `DELETE FROM public."uuidtype6" WHERE serialId = {{Table1.selectedRow.serialid}}`;
+    query = `DELETE FROM public."uuidtype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
     entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
@@ -90,7 +90,7 @@ describe("UUID Datatype tests", function () {
     entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
-  it("5. Inserting record - uuidtype6", () => {
+  it("5. Inserting record - uuidtype", () => {
     entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -144,7 +144,7 @@ describe("UUID Datatype tests", function () {
     });
   });
 
-  it("7. Inserting another record - uuidtype6", () => {
+  it("7. Inserting another record - uuidtype", () => {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locators._modal);
@@ -380,7 +380,7 @@ describe("UUID Datatype tests", function () {
       action: "Refresh",
     });
     agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.uuidtype6"),
+      entityExplorer._entityNameInExplorer("public.uuidtype"),
     );
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
