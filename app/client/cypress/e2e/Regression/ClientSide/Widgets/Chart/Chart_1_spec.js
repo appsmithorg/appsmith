@@ -1,7 +1,4 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

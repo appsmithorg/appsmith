@@ -239,7 +239,11 @@ export class AggregateHelper extends ReusableHelper {
   public GetNAssertElementText(
     selector: string,
     text: string,
-    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
+    textPresence:
+      | "have.text"
+      | "not.have.text"
+      | "contain.text"
+      | "not.contain.text" = "have.text",
     index = 0,
   ) {
     if (index >= 0)
@@ -819,10 +823,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public GetElementLength(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.its("length");
+    return this.GetElement(selector).its("length");
   }
 
   public Sleep(timeout = 1000) {

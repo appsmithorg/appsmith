@@ -52,6 +52,7 @@ export function* bindDataToWidgetSaga(
   // Pranav has an Open PR for this file so just returning for now
   if (!currentAction) return;
 
+  //TODO (Balaji): Abstraction leak. propertyPath should come from the widget
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:
     case WidgetTypes.FORM_BUTTON_WIDGET:
