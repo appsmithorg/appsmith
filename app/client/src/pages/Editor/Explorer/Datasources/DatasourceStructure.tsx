@@ -11,14 +11,23 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
+import {
+  Menu,
+  MenuTrigger,
+  Button,
+  Tooltip,
+  MenuContent,
+  Divider,
+} from "design-system";
 import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";
 import styled from "styled-components";
+import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 
 type DatasourceStructureProps = {
   dbStructure: DatasourceTable;
   step: number;
   datasourceId: string;
+  context: DatasourceStructureContext;
 };
 
 const StyledMenuContent = styled(MenuContent)`
@@ -58,7 +67,11 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
             isIconButton
             kind="tertiary"
             onClick={() => setActive(!active)}
-            startIcon="increase-control-v2"
+            startIcon={
+              props.context !== DatasourceStructureContext.EXPLORER
+                ? "lightning"
+                : "increase-control-v2"
+            }
           />
         </MenuTrigger>
       </Tooltip>
@@ -91,15 +104,19 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
       name={dbStructure.name}
       step={props.step}
     >
-      {columnsAndKeys.map((field, index) => {
-        return (
-          <DatasourceField
-            field={field}
-            key={`${field.name}${index}`}
-            step={props.step + 1}
-          />
-        );
-      })}
+      <>
+        {columnsAndKeys.map((field, index) => {
+          return (
+            <DatasourceField
+              field={field}
+              key={`${field.name}${index}`}
+              step={props.step + 1}
+            />
+          );
+        })}
+
+        {props.context !== DatasourceStructureContext.EXPLORER && <Divider />}
+      </>
     </Entity>
   );
 }

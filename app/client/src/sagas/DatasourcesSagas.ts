@@ -1203,6 +1203,7 @@ function* fetchDatasourceStructureSaga(
       payload: {
         error,
         show: false,
+        datasourceId: action.payload.id,
       },
     });
     AppsmithConsole.error({
@@ -1320,6 +1321,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
       payload: {
         error,
         show: false,
+        datasourceId: action.payload.id,
       },
     });
     AppsmithConsole.error({

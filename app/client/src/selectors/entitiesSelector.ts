@@ -117,8 +117,11 @@ export const getDatasourceFirstTableName = (
   return "";
 };
 
-export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
-  return state.entities.datasources.fetchingDatasourceStructure;
+export const getIsFetchingDatasourceStructure = (
+  state: AppState,
+  datasourceId: string,
+): boolean => {
+  return state.entities.datasources.fetchingDatasourceStructure[datasourceId];
 };
 
 export const getMockDatasources = (state: AppState): MockDatasource[] => {
@@ -1131,6 +1134,7 @@ export const getDatasourcesUsedInApplicationByActions = (
     },
     new Set(),
   );
+  // NOTE: make sure to check current url and see if datasource needs adding
   return datasources.filter(
     (ds) =>
       datasourceIdsUsedInCurrentApplication.has(ds.id) &&

@@ -13,7 +13,10 @@ import {
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
+import {
+  DatasourceStructureContainer,
+  DatasourceStructureContext,
+} from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { getAction } from "selectors/entitiesSelector";
 import {
@@ -86,7 +89,9 @@ const ExplorerDatasourceEntity = React.memo(
     });
 
     const isFetchingDatasourceStructure = useSelector((state: AppState) => {
-      return state.entities.datasources.fetchingDatasourceStructure;
+      return state.entities.datasources.fetchingDatasourceStructure[
+        props.datasource.id
+      ];
     });
 
     const expandDatasourceId = useSelector((state: AppState) => {
@@ -155,6 +160,7 @@ const ExplorerDatasourceEntity = React.memo(
         updateEntityName={updateDatasourceNameCall}
       >
         <DatasourceStructureContainer
+          context={DatasourceStructureContext.EXPLORER}
           datasourceId={props.datasource.id}
           datasourceStructure={datasourceStructure}
           step={props.step}
