@@ -51,4 +51,7 @@ public class GitStatusDTO {
 
         // Documentation url for discard and pull functionality
         String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
+
+        // File Format migration
+        String migrationMessage = "";
 }
