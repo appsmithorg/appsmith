@@ -8,7 +8,7 @@ import type { SliderComponentProps } from "../component/Slider";
 import SliderComponent from "../component/Slider";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
@@ -56,6 +56,25 @@ class NumberSliderWidget extends BaseWidget<
       "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       value: "number",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultValue",
+          type: "number",
+        },
+      },
     };
   }
 
