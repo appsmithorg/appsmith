@@ -164,4 +164,8 @@ public class DatasourceStorage extends BaseDomain {
         this.setPluginId(pluginMap.get(this.getPluginId()));
         this.setIsRecentlyCreated(null);
     }
+
+    public boolean isEmbedded() {
+        return this.getDatasourceId() == null;
+    }
 }

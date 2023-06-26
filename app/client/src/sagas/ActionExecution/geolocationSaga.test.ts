@@ -5,6 +5,8 @@ import {
   getUserLocation,
 } from "./geolocationSaga";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
+import { logActionExecutionError } from "./errorUtils";
+
 const mockFn = jest.fn();
 
 jest.mock("./errorUtils.ts", () => ({
@@ -79,8 +81,14 @@ describe("getCurrentLocationSaga", () => {
     };
     const iter = getCurrentLocationSaga(trigger);
     expect(iter.next().value).toEqual(call(getUserLocation, payload.options));
-    iter.next();
-    expect(mockFn).toBeCalled();
+
+    expect(iter.next().value).toEqual(
+      call(
+        logActionExecutionError,
+        "Cannot read properties of undefined (reading 'coords')",
+        true,
+      ),
+    );
     expect(iter.next().done).toBe(true);
   });
 });

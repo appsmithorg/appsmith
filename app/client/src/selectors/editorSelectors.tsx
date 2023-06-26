@@ -32,7 +32,6 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
@@ -60,6 +59,8 @@ import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { nestDSL } from "@shared/dsl";
+import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -522,10 +523,7 @@ export const getCanvasWidgetDsl = createSelector(
           canvasWidget.widgetName,
         );
       });
-
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
-    });
+    return nestDSL(widgets);
   },
 );
 
@@ -978,14 +976,16 @@ export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
   getCurrentPageId,
-  (canvasWidgets, inPreviewMode, pageId) => {
+  getIsAnonymousDataPopupVisible,
+  (canvasWidgets, inPreviewMode, pageId, isAnonymousDataPopupVisible) => {
     const state = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
     );
     if (
       !state[pageId] ||
       Object.keys(canvasWidgets).length > 1 ||
-      inPreviewMode
+      inPreviewMode ||
+      isAnonymousDataPopupVisible
     )
       return false;
 

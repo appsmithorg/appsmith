@@ -10,8 +10,6 @@
     "test:unit": "yarn g:jest"
   },
   "dependencies": {
-    "@capsizecss/core": "^3.1.0",
-    "@capsizecss/metrics": "^1.0.1",
     "@design-system/headless": "workspace:^",
     "@design-system/theming": "workspace:^",
     "@react-aria/utils": "^3.16.0",

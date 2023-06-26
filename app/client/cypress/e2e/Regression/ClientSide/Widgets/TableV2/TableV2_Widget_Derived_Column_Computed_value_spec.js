@@ -1,9 +1,11 @@
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Test to add column", function () {

@@ -103,4 +103,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
+
+    void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
 }

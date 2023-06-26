@@ -235,27 +235,65 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
   }
 
-  .sql-hint-label{
-    color: #6D6D6D;
-  }
-
-  .CodeMirror-hint:hover{
-    .sql-hint-label{
-      color: #090707;
+  .cm-sql-hint{
+    font-family: ${(props) => props.theme.fonts.code};
+    display: flex;
+    padding-left: ${(props) => props.theme.spaces[11]}px !important;
+    &:hover{
+      background: var(--ads-v2-color-bg-subtle);
+      color: var(--ads-v2-color-fg);
+      &:after {
+        color: var(--ads-v2-color-fg);
+      }
     }
+    position: relative;
   }
+  .cm-sql-hint:before {
+    content: attr(icontext);
+    left: 7px;
+    bottom: 6px;
+    height: 12px;
+    width: 12px;
+    border-radius: var(--ads-v2-border-radius);
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: normal;
+    text-align: center;
+    color: var(--ads-v2-color-fg);
+    margin-right: ${(props) => props.theme.spaces[13]}px;
+    position:absolute;
+  }
+  .cm-sql-hint:after{
+    content: attr(hinttype);
+    display: flex;
+    justify-content: flex-end;
+    flex: 1;
+    padding-right: 10px;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 10px;
+    line-height: 13px;
+    letter-spacing: -0.24px;
+    padding-left: 10px;
+    color: ${(props) => props.theme.colors.codeMirror.dataType.fullForm};
+  }
+  .cm-sql-hint-unknown:before {
+    background:${(props) => props.theme.colors.dataTypeBg.unknown};
+  }
+  .cm-sql-hint-keyword:before {
+    background:${(props) => props.theme.colors.dataTypeBg.object};
+  }
+  .cm-sql-hint-text:before {
+    background:${(props) => props.theme.colors.dataTypeBg.number};
+  }
+  .cm-sql-hint-int4:before {
+    background:${(props) => props.theme.colors.dataTypeBg.array};
+  }
+  .cm-sql-hint-table:before {
+    background:${(props) => props.theme.colors.dataTypeBg.function};
+  }
+}
 
-  .CodeMirror-hint-active{
-    .sql-hint-label{
-      color: #fff
-    }
-  }
-
-  .CodeMirror-hint-active:hover{
-    .sql-hint-label{
-      color: #fff
-    }
-  }
   .CodeMirror-Tern-hint-doc {
     display: none;
     &.visible {

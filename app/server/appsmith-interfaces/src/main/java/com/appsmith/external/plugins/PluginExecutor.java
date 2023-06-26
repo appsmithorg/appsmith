@@ -10,27 +10,25 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import io.micrometer.observation.ObservationRegistry;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import org.pf4j.ExtensionPoint;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
@@ -96,8 +94,8 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param datasourceConfiguration
      * @return boolean
      */
-    default boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-        return CollectionUtils.isEmpty(validateDatasource(datasourceConfiguration));
+    default boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration, boolean isEmbeddedDatasource) {
+        return isEmpty(validateDatasource(datasourceConfiguration, isEmbeddedDatasource));
     }
 
     /**
@@ -112,6 +110,14 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @return Set                      : The set of invalid strings informing the user of all the invalid fields
      */
     Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration);
+    default Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration,
+                                           boolean isEmbeddedDatasource) {
+        if (!isEmbeddedDatasource) {
+            return this.validateDatasource(datasourceConfiguration);
+        }
+
+        return Set.of();
+    }
 
     /**
      * This function tests the datasource by executing a test query or hitting the endpoint to check the correctness
@@ -227,7 +233,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                                       ExecuteActionDTO executeActionDTO) {
         //Do variable substitution
         //Do this only if params have been provided in the execute command
-        if (executeActionDTO != null && !CollectionUtils.isEmpty(executeActionDTO.getParams())) {
+        if (executeActionDTO != null && !isEmpty(executeActionDTO.getParams())) {
             Map<String, String> replaceParamsMap = executeActionDTO
                     .getParams()
                     .stream()

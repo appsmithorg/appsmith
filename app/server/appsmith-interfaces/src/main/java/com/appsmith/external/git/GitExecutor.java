@@ -175,4 +175,6 @@ public interface GitExecutor {
     Mono<Boolean> testConnection(String publicKey, String privateKey, String remoteUrl);
 
     Mono<Boolean> resetHard(Path repoSuffix, String branchName);
+
+    Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName);
 }

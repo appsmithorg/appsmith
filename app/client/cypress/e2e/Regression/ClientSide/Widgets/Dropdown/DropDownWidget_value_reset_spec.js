@@ -1,10 +1,11 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/dropDownWidget_reset_check_dsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Check value does not reset on navigation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("dropDownWidget_reset_check_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check if the dropdown value does not change on navigation", function () {
@@ -28,7 +29,4 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
       .last()
       .should("have.text", "Red");
   });
-});
-afterEach(() => {
-  cy.goToEditFromPublish();
 });

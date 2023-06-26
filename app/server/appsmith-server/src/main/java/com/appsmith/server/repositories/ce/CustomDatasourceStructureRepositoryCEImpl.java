@@ -8,12 +8,13 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 public class CustomDatasourceStructureRepositoryCEImpl
@@ -25,10 +26,17 @@ public class CustomDatasourceStructureRepositoryCEImpl
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
+    public static Criteria getDatasourceIdAndEnvironmentIdCriteria(String datasourceId, String environmentId) {
+        return new Criteria().andOperator(
+                where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.datasourceId)).is(datasourceId),
+                where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.environmentId)).is(environmentId)
+        );
+    }
+
     @Override
-    public Mono<UpdateResult> updateStructure(String datasourceId, DatasourceStructure structure) {
+    public Mono<UpdateResult> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return mongoOperations.upsert(
-                query(where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.datasourceId)).is(datasourceId)),
+                new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
                 Update.update(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.structure), structure),
                 DatasourceStorageStructure.class
         );

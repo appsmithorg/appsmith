@@ -42,6 +42,7 @@ import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
 import { Spinner } from "design-system";
 import { isCanvasCodeActive } from "selectors/canvasCodeSelectors";
 import CanvasCodeContainer from "./CanvasCodeContainer";
+import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 
 type EditorProps = {
   canvasCodeActive: boolean;
@@ -194,6 +195,7 @@ class Editor extends Component<Props> {
             <TemplatesModal />
             <ImportedApplicationSuccessModal />
             <ReconnectDatasourceModal />
+            <SignpostingOverlay />
           </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />

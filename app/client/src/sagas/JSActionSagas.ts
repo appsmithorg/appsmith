@@ -60,6 +60,9 @@ import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
+import { updateAndSaveLayout } from "actions/pageActions";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidgets } from "./selectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -266,6 +269,7 @@ export function* deleteJSCollectionSaga(
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       // @ts-expect-error: response.data is of type unknown
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
@@ -274,7 +278,7 @@ export function* deleteJSCollectionSaga(
       history.push(builderURL({ pageId }));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
-        text: "JS object was deleted",
+        text: "JS Object was deleted",
         source: {
           type: ENTITY_TYPE.JSACTION,
           // @ts-expect-error: response.data is of type unknown
@@ -284,6 +288,15 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
+
+      const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+      yield put(
+        updateAndSaveLayout(widgets, {
+          shouldReplay: false,
+          isRetry: false,
+          updatedWidgetIds: [],
+        }),
+      );
     }
   } catch (error) {
     yield put(deleteJSCollectionError({ id: actionPayload.payload.id }));

@@ -7,5 +7,6 @@
   "globalSearchClose": ".t--global-clear-input",
   "createNew": ".t--file-operation",
   "recentlyopenItem": "//span[@class='text']",
-  "category": ".t--global-search-category"
+  "category": ".t--global-search-category",
+  "blankAPI":"span:contains('New blank API')"
 }

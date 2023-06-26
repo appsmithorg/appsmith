@@ -9,7 +9,8 @@ export class ThemeSettings {
       themeName +
       "']//ancestor::div[@class= 'space-y-1 group']",
     _colorPickerV2Popover: ".t--colorpicker-v2-popover",
-    _colorPickerV2Color: ".t--colorpicker-v2-color",
+    _colorPickerV2Color:
+      "//h3[text()='All Colors']/following-sibling::div//div[contains(@class,'t--colorpicker-v2-color')]",
     _colorRingPrimary: "[data-testid='theme-primaryColor']",
     _colorRingBackground: "[data-testid='theme-backgroundColor']",
     _colorInput: (option: string) =>
@@ -25,7 +26,7 @@ export class ThemeSettings {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this.locators._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this.locators._themeCard(newTheme));
-    this.agHelper.AssertContains("Theme " + newTheme + " Applied");
+    this.agHelper.AssertContains("Theme " + newTheme + " applied");
   }
 
   public ChangeThemeColor(

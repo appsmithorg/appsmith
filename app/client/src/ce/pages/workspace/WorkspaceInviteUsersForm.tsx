@@ -62,7 +62,6 @@ import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 import { getRampLink, showProductRamps } from "utils/ProductRamps";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -367,7 +366,6 @@ function WorkspaceInviteUsersForm(props: any) {
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
-  const instanceId = useSelector(getInstanceId);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const canManage = isPermitted(
@@ -472,7 +470,6 @@ function WorkspaceInviteUsersForm(props: any) {
             role: roles,
             numberOfUsersInvited: usersAsStringsArray.length,
             orgId: props.workspaceId,
-            instanceId,
           });
           return inviteUsersToWorkspace(
             {

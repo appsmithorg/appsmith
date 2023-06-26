@@ -205,6 +205,7 @@ describe("Migration Validate", function () {
 
       // cy.wait(4000);
       // cy.get("div.tableWrap").should("be.visible"); //wait for page load!
+      cy.wait("@getWorkspace");
 
       cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
         errorMsg: "Page is not loaded evn after 10 secs",

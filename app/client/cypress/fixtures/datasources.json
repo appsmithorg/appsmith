@@ -48,6 +48,12 @@
   "redis-host": "host.docker.internal",
   "redis-port": "6379",
 
+  "oracle-host": "random-data",
+  "oracle-port": "40",
+  "oracle-name": "random-name",
+  "oracle-username": "random-username",
+  "oracle-password": "random-password",
+
   "OAuth_Username": "testuser@appsmith.com",
   "OAuth_Host": "http://localhost:6001",
   "OAuth_ApiUrl": "http://host.docker.internal:6001",
@@ -61,6 +67,8 @@
   "mockApiUrl": "http://host.docker.internal:5001/v1/mock-api?records=10",
   "echoApiUrl": "http://host.docker.internal:5001/v1/mock-api/echo",
   "randomCatfactUrl": "http://host.docker.internal:5001/v1/catfact/random",
+  "multipartAPI": "http://host.docker.internal:5001/v1/mock-api/echo-multipart",
+  "randomTrumpApi":"http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
 
   "firestore-database-url": "https://appsmith-22e8b.firebaseio.com",
   "firestore-projectID": "appsmith-22e8b",

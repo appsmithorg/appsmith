@@ -129,9 +129,7 @@ function* executeInIntervals(
         source: triggerMeta.source,
       });
     } catch (e) {
-      logActionExecutionError(
-        e.message,
-      );
+      yield call(logActionExecutionError, e.message);
     }
     yield delay(interval);
   }

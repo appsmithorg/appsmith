@@ -1,21 +1,78 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { Bold, ErrorMessage, SelectWrapper } from "../../styles";
 import { useDatasource } from "./useDatasource";
-import { Select, Option, Icon } from "design-system";
-import { DropdownOption } from "./DropdownOption";
+import {
+  Icon,
+  Menu,
+  MenuTrigger,
+  MenuContent,
+  MenuGroupName,
+  Text,
+  MenuItem,
+  MenuSeparator,
+  SearchInput,
+} from "design-system";
+import { DropdownOption, LoadMoreOptions } from "./DropdownOption";
 import styled from "styled-components";
 import type { DropdownOptionType } from "../../types";
-import type { DefaultOptionType } from "rc-select/lib/Select";
-import { DATASOURCE_DROPDOWN_SECTIONS } from "../../constants";
+import {
+  DATASOURCE_DROPDOWN_SECTIONS,
+  DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW,
+} from "../../constants";
 
-const SectionHeader = styled.div`
-  cursor: default;
-  font-weight: 500;
-  line-height: 19px;
-  color: var(--ads-v2-color-gray-600);
+const StyledDropdownTrigger = styled.div<{
+  isDisabled: boolean;
+  isValid: boolean;
+}>`
+  width: 100%;
+  border: 1px solid
+    var(
+      ${(props) =>
+        props.isValid ? "--ads-v2-color-border" : "--ads-v2-color-fg-error"}
+    );
+  border-radius: var(--ads-v2-border-radius);
+  box-sizing: border-box;
+  padding: 7px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: ${(props) => (props.isDisabled ? "default" : "pointer")};
+  ${(props) => (props.isDisabled ? "pointer-events: none;" : "")}
+
+  &:hover {
+    border-color: var(--ads-v2-color-gray-400);
+  }
+
+  &:active,
+  &:focus {
+    border-color: var(--ads-v2-color-gray-600);
+  }
+
+  & .selected-item {
+    width: calc(100% - 16px);
+  }
+`;
+
+const StyledMenuSeparator = styled(MenuSeparator)`
+  margin: 10px 0px;
+`;
+
+const StyledInputContainer = styled.div`
+  padding: 10px 8px;
+`;
+
+const StyledMenuGroupName = styled(MenuGroupName)`
+  margin-bottom: 5px;
+`;
+
+const StyledMenuContent = styled(MenuContent)`
+  width: 350px;
+  max-width: 350px;
 `;
 
 function DatasourceDropdown() {
+  const [searchText, setSearchText] = useState("");
+
   const {
     datasourceOptions,
     disabled,
@@ -25,7 +82,7 @@ function DatasourceDropdown() {
     otherOptions,
     queryOptions,
     selected,
-  } = useDatasource();
+  } = useDatasource(searchText);
 
   const [open, setOpen] = useState(false);
 
@@ -33,134 +90,179 @@ function DatasourceDropdown() {
     setOpen(isSourceOpen);
   }, [isSourceOpen]);
 
-  return (
-    <SelectWrapper className="space-y-2">
-      <Select
-        className="t--one-click-binding-datasource-selector"
-        dropdownClassName="one-click-binding-datasource-dropdown"
-        dropdownStyle={{
-          minWidth: "350px",
-          maxHeight: "300px",
-        }}
-        filterOption={(value: string, option?: DefaultOptionType) => {
-          if (
-            [
-              DATASOURCE_DROPDOWN_SECTIONS.BIND_TO_QUERY,
-              DATASOURCE_DROPDOWN_SECTIONS.GENERATE_A_QUERY,
-              DATASOURCE_DROPDOWN_SECTIONS.OTHER_ACTIONS,
-            ].includes(option?.value as string)
-          ) {
-            return false;
-          } else {
-            return !!option?.value
-              ?.toString()
-              ?.toLocaleLowerCase()
-              .includes(value);
-          }
-        }}
-        isDisabled={disabled}
-        isValid={!error}
-        onDropdownVisibleChange={(open: boolean) => {
-          !open && onSourceClose();
-          setOpen(open);
-        }}
-        onSelect={(value: string, selectedOption: DefaultOptionType) => {
-          const option = [
-            ...datasourceOptions,
-            ...otherOptions,
-            ...queryOptions,
-          ].find((option) => option.id === selectedOption.key);
+  const [showMoreQueries, setShowMoreQueries] = useState(false);
 
-          option?.onSelect?.(value, option as DropdownOptionType);
+  const [showMoreDataSources, setShowMoreDataSources] = useState(false);
+
+  const onChange = useCallback((value: string) => setSearchText(value), []);
+
+  return (
+    <SelectWrapper data-testId="t--one-click-binding-datasource-selector">
+      <Menu
+        onOpenChange={(open: boolean) => {
+          setOpen(open);
           onSourceClose();
-          setOpen(false);
         }}
         open={open}
-        placeholder="Connect data"
-        showSearch
-        value={selected}
-        virtual={false}
       >
-        {queryOptions.length && (
-          <Option
-            className="t--one-click-binding-datasource-selector--bind-to-query"
-            disabled
-            key="Bind to query"
+        <MenuTrigger>
+          <StyledDropdownTrigger
+            data-testId="t--one-click-binding-datasource-trigger"
+            isDisabled={disabled}
+            isValid={!error}
           >
-            <SectionHeader>
-              {DATASOURCE_DROPDOWN_SECTIONS.BIND_TO_QUERY}
-            </SectionHeader>
-          </Option>
-        )}
-
-        {queryOptions.map((option) => {
-          return (
-            <Option
-              className="t--one-click-binding-datasource-selector--query"
-              key={option.id}
-              label={option.label}
-              value={option.label}
-            >
-              <DropdownOption label={option.label} leftIcon={option.icon} />
-            </Option>
-          );
-        })}
-
-        <Option
-          className={`${
-            queryOptions.length && "has-seperator"
-          } t--one-click-binding-datasource-selector--generate-a-query`}
-          disabled
-          key="Generate a query"
-        >
-          <SectionHeader>
-            {DATASOURCE_DROPDOWN_SECTIONS.GENERATE_A_QUERY}
-          </SectionHeader>
-        </Option>
-
-        {datasourceOptions.map((option) => {
-          return (
-            <Option
-              data-testid="t--one-click-binding-datasource-selector--datasource"
-              key={option.id}
-              value={option.label}
-            >
-              <DropdownOption
-                label={
-                  <span>
-                    New from {option.data.isSample ? "sample " : ""}
-                    <Bold>{option.label?.replace("sample ", "")}</Bold>
-                  </span>
-                }
-                leftIcon={option.icon}
-                rightIcon={<Icon name="add-box-line" size="md" />}
+            <div className="selected-item">{selected}</div>
+            <div>
+              <Icon name="arrow-down-s-line" size="md" />
+            </div>
+          </StyledDropdownTrigger>
+        </MenuTrigger>
+        <StyledMenuContent align="end">
+          <div
+            onKeyDown={(e) => {
+              // This is to prevent the Menu component to take focus away from the input
+              // https://github.com/radix-ui/primitives/issues/1175
+              e.stopPropagation();
+            }}
+          >
+            <StyledInputContainer>
+              <SearchInput
+                autoFocus
+                data-testId="t--one-click-binding-datasource--search"
+                onChange={onChange}
+                size="md"
+                type="text"
+                value={searchText}
               />
-            </Option>
-          );
-        })}
+            </StyledInputContainer>
 
-        <Option
-          className="has-seperator t--one-click-binding-datasource-selector--other-actions"
-          disabled
-          key="Other actions"
-        >
-          <SectionHeader>
-            {DATASOURCE_DROPDOWN_SECTIONS.OTHER_ACTIONS}
-          </SectionHeader>
-        </Option>
+            {!!queryOptions.length && (
+              <StyledMenuGroupName data-testId="t--one-click-binding-datasource-selector--bind-to-query">
+                <Text kind="heading-xs">
+                  {DATASOURCE_DROPDOWN_SECTIONS.CONNECT_TO_QUERY}
+                </Text>
+              </StyledMenuGroupName>
+            )}
 
-        {otherOptions.map((option: DropdownOptionType) => {
-          return (
-            <Option
-              className="t--one-click-binding-datasource-selector--other-action"
-              key={option.id}
-              value={option.label}
-            >
-              <DropdownOption label={option.label} leftIcon={option.icon} />
-            </Option>
-          );
-        })}
-      </Select>
+            {queryOptions
+              .slice(
+                0,
+                showMoreQueries
+                  ? queryOptions.length
+                  : DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW,
+              )
+              .map((option) => {
+                return (
+                  <MenuItem
+                    data-testId="t--one-click-binding-datasource-selector--query"
+                    key={option.id}
+                    onSelect={() => {
+                      option.onSelect(option.value, option);
+                      onSourceClose();
+                      setOpen(false);
+                    }}
+                  >
+                    <DropdownOption
+                      label={option.label}
+                      leftIcon={option.icon}
+                    />
+                  </MenuItem>
+                );
+              })}
+
+            {!showMoreQueries && (
+              <LoadMoreOptions
+                count={queryOptions.length}
+                onLoadMore={() => {
+                  setShowMoreQueries(true);
+                }}
+              />
+            )}
+
+            {!!queryOptions.length &&
+              (!!datasourceOptions.length || !!otherOptions.length) && (
+                <StyledMenuSeparator />
+              )}
+
+            {!!datasourceOptions.length && (
+              <StyledMenuGroupName data-testid="t--one-click-binding-datasource-selector--generate-a-query">
+                <Text kind="heading-xs">
+                  {DATASOURCE_DROPDOWN_SECTIONS.CHOOSE_DATASOURCE_TO_CONNECT}
+                </Text>
+              </StyledMenuGroupName>
+            )}
+
+            {datasourceOptions
+              .slice(
+                0,
+                showMoreDataSources
+                  ? datasourceOptions.length
+                  : DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW,
+              )
+              .map((option) => {
+                return (
+                  <MenuItem
+                    data-testId="t--one-click-binding-datasource-selector--datasource"
+                    key={option.id}
+                    onSelect={() => {
+                      option?.onSelect?.(option.value || "", option);
+                      onSourceClose();
+                      setOpen(false);
+                    }}
+                  >
+                    <DropdownOption
+                      label={
+                        <span>
+                          New from {option.data.isSample ? "sample " : ""}
+                          <Bold>{option.label?.replace("sample ", "")}</Bold>
+                        </span>
+                      }
+                      leftIcon={option.icon}
+                      rightIcon={<Icon name="add-box-line" size="md" />}
+                    />
+                  </MenuItem>
+                );
+              })}
+
+            {!showMoreDataSources && (
+              <LoadMoreOptions
+                count={datasourceOptions.length}
+                onLoadMore={() => {
+                  setShowMoreDataSources(true);
+                }}
+              />
+            )}
+
+            {!!datasourceOptions.length && !!otherOptions.length && (
+              <StyledMenuSeparator />
+            )}
+
+            {!!otherOptions.length && (
+              <StyledMenuGroupName data-testid="t--one-click-binding-datasource-selector--other-actions">
+                <Text kind="heading-xs">
+                  {DATASOURCE_DROPDOWN_SECTIONS.OTHER_ACTIONS}
+                </Text>
+              </StyledMenuGroupName>
+            )}
+
+            {otherOptions.map((option: DropdownOptionType) => {
+              return (
+                <MenuItem
+                  data-testId="t--one-click-binding-datasource-selector--other-action"
+                  key={option.id}
+                  onSelect={() => {
+                    option.onSelect?.(option.value || "", option);
+                    onSourceClose();
+                    setOpen(false);
+                  }}
+                >
+                  <DropdownOption label={option.label} leftIcon={option.icon} />
+                </MenuItem>
+              );
+            })}
+          </div>
+        </StyledMenuContent>
+      </Menu>
       <ErrorMessage>{error}</ErrorMessage>
     </SelectWrapper>
   );
