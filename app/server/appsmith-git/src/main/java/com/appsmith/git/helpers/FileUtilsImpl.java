@@ -272,7 +272,7 @@ public class FileUtilsImpl implements FileInterface {
                                 }
                             });
                             // Remove deleted widgets from the file system
-                            //scanAndDeleteFileForDeletedResources(validWidgets, pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                            deleteWidgets(pageSpecificDirectory.resolve(CommonConstants.WIDGETS).toFile(), validWidgets);
                         }
                         validPages.add(pageName);
                     }
@@ -543,7 +543,7 @@ public class FileUtilsImpl implements FileInterface {
             try {
                 FileUtils.deleteDirectory(directory.toFile());
             } catch (IOException e){
-                log.debug("Unable to delete directory for path {} with message {}", directory, e.getMessage());
+                log.error("Unable to delete directory for path {} with message {}", directory, e.getMessage());
             }
         }
     }
@@ -559,11 +559,11 @@ public class FileUtilsImpl implements FileInterface {
         }
         catch(DirectoryNotEmptyException e)
         {
-            log.debug("Unable to delete non-empty directory at {}", filePath);
+            log.error("Unable to delete non-empty directory at {}", filePath);
         }
         catch(IOException e)
         {
-            log.debug("Unable to delete file, {}", e.getMessage());
+            log.error("Unable to delete file, {}", e.getMessage());
         }
     }
 
@@ -940,6 +940,28 @@ public class FileUtilsImpl implements FileInterface {
                 }
             } else if (file.isDirectory()) {
                 readFilesRecursively(file, jsonMap, rootPath);
+            }
+        }
+    }
+
+    private void deleteWidgets(File directory, Set<String> validNameSet) {
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return;
+        }
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                deleteWidgets(file, validNameSet);
+            }
+
+            String name = file.getName();
+            if (!validNameSet.contains(name.replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING))) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file.toPath());
+                } else {
+                    deleteFile(file.toPath());
+                }
             }
         }
     }
