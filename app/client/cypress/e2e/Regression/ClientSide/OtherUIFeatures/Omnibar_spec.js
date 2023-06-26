@@ -50,6 +50,7 @@ describe("Omnibar functionality test cases", () => {
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",
     );
+    cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).contains("Create new").click();
 
     // create new api, js object and cURL import from omnibar

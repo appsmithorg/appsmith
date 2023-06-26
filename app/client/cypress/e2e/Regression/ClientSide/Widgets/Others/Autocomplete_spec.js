@@ -49,9 +49,6 @@ describe("Autocomplete using slash command and mustache tests", function () {
           .eq(1)
           .should("have.text", "New binding");
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert snippet");
-        cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
       });
