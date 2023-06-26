@@ -1391,7 +1391,7 @@ export class DataSources {
   public StartContainerNVerify(
     containerType: "MsSql" | "Arango" | "Elasticsearch",
     containerName: string,
-    timeout = 40000,
+    sleepTime = 30000,
   ) {
     let containerCommand = "";
     switch (containerType) {
@@ -1415,7 +1415,7 @@ export class DataSources {
       }).then((isReady) => {
         if (isReady) {
           cy.log("Run id of started container is:" + result.stdout);
-          this.agHelper.Sleep(timeout); //allow some time for container to settle start for CI
+          this.agHelper.Sleep(sleepTime); //allow some time for container to settle start for CI
         } else
           cy.log(
             `Error from ${containerName} container start action:` +
