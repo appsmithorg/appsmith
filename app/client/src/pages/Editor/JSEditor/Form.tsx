@@ -396,6 +396,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                           customGutter={JSGutters}
                           dataTreePath={`${currentJSCollection.name}.body`}
                           disabled={!isChangePermitted}
+                          fallbackComponentHeight={"100%"}
                           folding
                           height={"100%"}
                           hideEvaluatedValue

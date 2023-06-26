@@ -93,6 +93,8 @@ export function InputText(props: {
         showLightningMenu={false}
         showLineNumbers={props.showLineNumbers}
         {...editorProps}
+        // this value should be changed if ever the height of the wrapper of this component changes
+        fallbackComponentHeight={customStyle.minHeight}
       />
     </div>
   );

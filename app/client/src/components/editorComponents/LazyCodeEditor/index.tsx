@@ -161,7 +161,11 @@ class LazyCodeEditorStateMachine {
  *     3. If there isn't enough idle time to render the CodeEditor component,
  *        then render it immediately upon focus event.
  */
-function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
+function LazyCodeEditor({
+  input,
+  placeholder,
+  ...otherProps
+}: EditorProps & { fallbackComponentHeight: string | number | undefined }) {
   const [renderTarget, setRenderTarget] = useState<
     "editor" | "editor-focused" | "fallback"
   >("fallback");
@@ -225,6 +229,7 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
     return (
       <LazyEditorWrapper className="t--lazyCodeEditor-fallback">
         <CodeEditorFallback
+          height={otherProps.fallbackComponentHeight}
           input={input}
           isReadOnly={otherProps.isReadOnly}
           onInteracted={() => {

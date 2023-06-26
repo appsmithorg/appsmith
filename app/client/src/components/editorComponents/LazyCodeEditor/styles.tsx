@@ -6,6 +6,7 @@ export const HighlighedCodeContainer = styled("div")<{
   contentKind: ContentKind;
   showLineNumbers?: boolean;
   isReadOnly?: boolean;
+  height?: string | number | undefined;
 }>`
   width: 100%;
   background-color: #fff !important;
@@ -13,6 +14,7 @@ export const HighlighedCodeContainer = styled("div")<{
   line-height: 21px !important;
 
   min-height: inherit;
+  ${(props) => props?.height && `height: ${props.height}`};
   padding: 6px;
 
   pre {

@@ -12,6 +12,7 @@ import { Spinner } from "design-system";
 import { JS_OBJECT_START_STATEMENT } from "workers/Linting/constants";
 
 export default function CodeEditorFallback({
+  height,
   input,
   isReadOnly,
   onInteracted,
@@ -20,7 +21,7 @@ export default function CodeEditorFallback({
   showLoadingProgress,
 }: Pick<
   EditorProps,
-  "input" | "placeholder" | "showLineNumbers" | "isReadOnly"
+  "input" | "placeholder" | "showLineNumbers" | "isReadOnly" | "height"
 > & {
   onInteracted: () => void;
   showLoadingProgress: boolean;
@@ -70,6 +71,7 @@ export default function CodeEditorFallback({
       <HighlighedCodeContainer
         className="LazyCodeEditor"
         contentKind={contentKind}
+        height={height}
         isReadOnly={isReadOnly}
         onFocus={onInteracted}
         onMouseEnter={onInteracted}
