@@ -29,7 +29,6 @@
             <artifactId>HikariCP</artifactId>
             <scope>provided</scope>
             <version>5.0.1</version>
-<!--            <scope>compile</scope>-->
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
