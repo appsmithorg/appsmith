@@ -1,9 +1,12 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
+import org.pf4j.util.StringUtils;
 import org.springframework.http.HttpHeaders;
 
 import java.nio.charset.StandardCharsets;
@@ -33,11 +36,17 @@ public class SignatureVerifier {
         }
         String signature = Objects.requireNonNull(headers.get(APPSMITH_SIGNATURE)).get(0);
         String date = Objects.requireNonNull(headers.get(DATE)).get(0);
+        if (StringUtils.isNullOrEmpty(signature) || StringUtils.isNullOrEmpty(date)) {
+            return false;
+        }
         return isSignatureValid(signature, date);
     }
 
     private static boolean isSignatureValid(String signature, String dateHeader) {
 
+        if (signature.split("\\.", 2).length != 2) {
+            return false;
+        }
         String signingData = signature.split("\\.", 2)[0];
         String encodedSignature = signature.split("\\.", 2)[1];
 
