@@ -137,7 +137,12 @@ const CardWrapper = styled.div`
 
 const StatusbarWrapper = styled.div`
   width: 252px;
-  height: 199px;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
   .cs-icon {
     margin: auto;
     border-radius: var(--ads-v2-border-radius-circle);
@@ -255,7 +260,10 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
       <ModalContent
         className={"t--import-application-modal"}
-        style={{ width: "fit-content" }}
+        style={{
+          width: importingApplication ? "40vw" : "fit-content",
+          minWidth: "30vw",
+        }}
       >
         <ModalHeader>
           {createMessage(IMPORT_APPLICATION_MODAL_TITLE)}

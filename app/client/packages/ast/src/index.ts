@@ -118,6 +118,25 @@ export interface CallExpressionNode extends Node {
   arguments: ArgumentTypes[];
 }
 
+// https://github.com/estree/estree/blob/master/es5.md#thisexpression
+export interface ThisExpressionNode extends Expression {
+  type: "ThisExpression";
+}
+
+// https://github.com/estree/estree/blob/master/es5.md#conditionalexpression
+export interface ConditionalExpressionNode extends Expression {
+  type: "ConditionalExpression";
+  test: Expression;
+  alternate: Expression;
+  consequent: Expression;
+}
+
+// https://github.com/estree/estree/blob/master/es2017.md#awaitexpression
+export interface AwaitExpressionNode extends Expression {
+  type: "AwaitExpression";
+  argument: Expression;
+}
+
 export interface BlockStatementNode extends Node {
   type: "BlockStatement";
   body: [Node];
@@ -181,6 +200,21 @@ export const isMemberExpressionNode = (
 ): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
 };
+
+export const isThisExpressionNode = (
+  node: Node,
+): node is ThisExpressionNode => {
+  return node.type === NodeTypes.ThisExpression;
+};
+
+export const isConditionalExpressionNode = (
+  node: Node,
+): node is ConditionalExpressionNode =>
+  node.type === NodeTypes.ConditionalExpression;
+
+export const isAwaitExpressionNode = (
+  node: Node,
+): node is AwaitExpressionNode => node.type === NodeTypes.AwaitExpression;
 
 export const isBinaryExpressionNode = (
   node: Node,

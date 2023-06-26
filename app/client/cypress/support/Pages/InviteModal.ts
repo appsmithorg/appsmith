@@ -18,6 +18,9 @@ export class InviteModal {
     _upgradeButton: "[data-testid='t--upgrade-btn']",
     _upgradeContent: "[data-testid='t--upgrade-content']",
     _restrictionChange: "[data-testid='t--change-embedding-restriction']",
+    _privateEmbedRampAppSettings:
+      "[data-testid='t--private-embed-settings-ramp']",
+    _privateEmbedRampLink: "[data-testid='t--private-embed-ramp-link']",
   };
 
   public SelectInviteTab() {
@@ -79,12 +82,7 @@ export class InviteModal {
     this.SelectEmbedTab();
     this.embedSettings.ToggleShowNavigationBar(toShowNavBar);
     cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
-    if (toShowNavBar === "true") {
-      this.agHelper.AssertElementExist(this.commonLocators._backToEditor);
-      this.deployPage.NavigateBacktoEditor();
-    } else {
-      this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
-      cy.go("back");
-    }
+    this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
+    cy.go("back");
   }
 }

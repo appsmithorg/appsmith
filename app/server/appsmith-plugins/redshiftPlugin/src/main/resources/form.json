@@ -7,7 +7,7 @@
         {
           "label": "Connection mode",
           "configProperty": "datasourceConfiguration.connection.mode",
-          "controlType": "DROP_DOWN",
+          "controlType": "SEGMENTED_CONTROL",
           "isRequired": true,
           "initialValue": "READ_WRITE",
           "options": [
@@ -29,13 +29,15 @@
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
+              "validationRegex": "^((?![/:]).)*$",
+              "placeholderText": "myapp.abcde.redshift.net"
             },
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "placeholderText": "5439"
             }
           ]
         },

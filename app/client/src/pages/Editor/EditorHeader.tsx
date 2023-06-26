@@ -90,8 +90,8 @@ import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
 import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import type { NavigationSetting } from "constants/AppConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -150,9 +150,11 @@ const AppsmithLink = styled((props) => {
   return <Link {...props} />;
 })`
   height: 24px;
+  min-width: 24px;
   width: 24px;
   display: inline-block;
   img {
+    min-width: 24px;
     width: 24px;
     height: 24px;
   }
@@ -240,7 +242,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
-  const isMultiPane = useSelector(isMultiPaneActive);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -255,9 +256,32 @@ export function EditorHeader(props: EditorHeaderProps) {
       publishApplication(applicationId);
 
       const appName = currentApplication ? currentApplication.name : "";
+      const pageCount = currentApplication?.pages?.length;
+      const navigationSettingsWithPrefix: Record<
+        string,
+        NavigationSetting[keyof NavigationSetting]
+      > = {};
+
+      if (currentApplication?.applicationDetail?.navigationSetting) {
+        const settingKeys = Object.keys(
+          currentApplication.applicationDetail.navigationSetting,
+        ) as Array<keyof NavigationSetting>;
+
+        settingKeys.map((key: keyof NavigationSetting) => {
+          if (currentApplication?.applicationDetail?.navigationSetting?.[key]) {
+            const value: NavigationSetting[keyof NavigationSetting] =
+              currentApplication.applicationDetail.navigationSetting[key];
+
+            navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
+          }
+        });
+      }
+
       AnalyticsUtil.logEvent("PUBLISH_APP", {
         appId: applicationId,
         appName,
+        pageCount,
+        ...navigationSettingsWithPrefix,
       });
     }
   };
@@ -316,60 +340,57 @@ export function EditorHeader(props: EditorHeaderProps) {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          {!isMultiPane && (
-            <Tooltip
-              content={
-                <div className="flex items-center justify-between">
-                  <span>
-                    {!pinned
-                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
-                  </span>
-                  <span className="ml-4">{modText()} /</span>
-                </div>
-              }
-              placement="bottomLeft"
+          <Tooltip
+            content={
+              <div className="flex items-center justify-between">
+                <span>
+                  {!pinned
+                    ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                    : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                </span>
+                <span className="ml-4">{modText()} /</span>
+              </div>
+            }
+            placement="bottomLeft"
+          >
+            <SidebarNavButton
+              className={classNames({
+                "transition-all transform duration-400": true,
+                "-translate-x-full opacity-0": isPreviewingApp,
+                "translate-x-0 opacity-100": !isPreviewingApp,
+              })}
+              kind="tertiary"
+              onClick={onPin}
+              size="md"
             >
-              <SidebarNavButton
-                className={classNames({
-                  "transition-all transform duration-400": true,
-                  "-translate-x-full opacity-0": isPreviewingApp,
-                  "translate-x-0 opacity-100": !isPreviewingApp,
-                })}
-                kind="tertiary"
-                onClick={onPin}
-                size="md"
+              <div
+                className="t--pin-entity-explorer group relative"
+                onMouseEnter={onMenuHover}
               >
-                <div
-                  className="t--pin-entity-explorer group relative"
-                  onMouseEnter={onMenuHover}
-                >
+                <Icon
+                  className="absolute transition-opacity group-hover:opacity-0"
+                  name="hamburger"
+                  size="md"
+                />
+                {pinned && (
                   <Icon
-                    className="absolute transition-opacity group-hover:opacity-0"
-                    name="hamburger"
+                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                    name="menu-fold"
+                    onClick={onPin}
                     size="md"
                   />
-                  {pinned && (
-                    <Icon
-                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                      name="double-arrow-left"
-                      onClick={onPin}
-                      size="md"
-                    />
-                  )}
-                  {!pinned && (
-                    <Icon
-                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                      name="double-arrow-right"
-                      onClick={onPin}
-                      size="md"
-                    />
-                  )}
-                </div>
-              </SidebarNavButton>
-            </Tooltip>
-          )}
-
+                )}
+                {!pinned && (
+                  <Icon
+                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                    name="menu-unfold"
+                    onClick={onPin}
+                    size="md"
+                  />
+                )}
+              </div>
+            </SidebarNavButton>
+          </Tooltip>
           <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
             <AppsmithLink to={APPLICATIONS_URL}>
               <img
@@ -423,7 +444,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         >
           <HelpBar />
         </HeaderSection>
-        <HeaderSection className="gap-x-2">
+        <HeaderSection className="gap-x-1">
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}

@@ -1,11 +1,13 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let ag = ObjectsRegistry.AggregateHelper;
-let ee = ObjectsRegistry.EntityExplorer;
+import {
+  dataSources,
+  entityExplorer,
+  agHelper,
+  entityItems,
+  assertHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
@@ -17,18 +19,17 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   // });
 
   it("1. Creates a new Postgres datasource", function () {
-    _.dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
   });
 
   it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
-    ee.NavigateToSwitcher("Widgets");
+    entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
-    ag.TypeDynamicInputValueNValidate(
+    agHelper.TypeDynamicInputValueNValidate(
       "select * from users limit {{Table1.pageSize}} OFFSET {{((Table1.pageNo - 1)*Table1.pageSize)}}",
       ".CodeEditorTarget",
       true,
@@ -81,7 +82,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       (29, 'CRUD User29', 'IN PROGRESS', 'Male','cruduser29@ihg.com', '19624 Scofield Way', 'Editor'),
       (30, 'CRUD User30', 'APPROVED', 'Female','cruduser30@ihg.com', '19624 Scofield Way', 'Admin');`;
 
-    cy.get(queryLocators.templateMenu).click({ force: true });
     //cy.typeValueNValidate(tableCreateQuery);//Since type method is slow for such big text - using paste!
     cy.get(".CodeMirror textarea").focus().paste(tableCreateQuery);
     cy.EvaluateCurrentValue(tableCreateQuery);
@@ -92,7 +92,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("4. Validate Select record from Postgress datasource", () => {
     let selectQuery = "select * from public.users_crud";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(selectQuery);
 
     // cy.xpath(queryLocators.codeTextArea).paste(selectQuery);
@@ -105,7 +104,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let insertQuery =
       "INSERT INTO public.users_crud (id, name, gender, email) VALUES (31, 'CRUD User11','Male','cruduser31@ihg.com');";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(insertQuery);
     cy.runAndDeleteQuery();
   });
@@ -114,7 +112,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let updateQuery =
       "UPDATE public.users_crud SET status = 'PENDING', role = 'Viewer' WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(updateQuery);
     cy.runAndDeleteQuery();
   });
@@ -122,7 +119,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("7. Validate Delete record from Postgress datasource", () => {
     let deleteQuery = "DELETE FROM public.users_crud WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(deleteQuery);
     cy.runAndDeleteQuery();
   });
@@ -152,14 +148,14 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "response.body.responseMeta.status",
       200,
     ); //This verifies the Select on the table, ie page is created fine
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     cy.ClickGotIt();
-    cy.wait(2000);
+    cy.wait(3000);
     //Verifying Update from UI
     cy.xpath(generatePage.selectRowinTable)
       .eq(0)
       .scrollIntoView()
-      .should("be.visible")
       .click({ force: true });
 
     //Commenting below section as it will be replaced with new JSON Form CRUD!
@@ -275,28 +271,31 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("9. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Public.users_crud",
-      "Delete",
-    );
+    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Public.users_crud",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
+    entityExplorer.SelectEntityByName("Page1");
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
     let deleteTblQuery = "DROP TABLE public.users_crud;";
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
-    cy.typeValueNValidate(deleteTblQuery);
-    cy.runQuery();
-    _.entityExplorer.ExpandCollapseEntity("Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    dataSources.NavigateFromActiveDS(datasourceName, true);
+    dataSources.EnterQuery(deleteTblQuery);
+    dataSources.RunQuery();
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: datasourceName,
+      action: "Refresh",
+    });
     cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();
   });
 
   it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
+    dataSources.NavigateFromActiveDS(datasourceName, true);
     cy.typeValueNValidate("select * from public.users limit 10");
     cy.runQuery();
     cy.typeValueNValidate("select * from public.users_crud limit 10");
@@ -313,7 +312,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(
       "select * from public.users where name='Ayush1234' ORDER BY id LIMIT 10",
     );
@@ -323,6 +321,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("13. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
+    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
   });
 });

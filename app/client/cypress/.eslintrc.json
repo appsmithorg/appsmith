@@ -12,6 +12,7 @@
     "prefer-const": "off",
     "@typescript-eslint/no-non-null-assertion": "error",
     "cypress/unsafe-to-chain-command": "off",
-    "@typescript-eslint/adjacent-overload-signatures": "off"
+    "@typescript-eslint/adjacent-overload-signatures": "off",
+    "jest/no-disabled-tests": "off"
   }
 }

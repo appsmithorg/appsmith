@@ -168,6 +168,9 @@
                     },
                     {
                         "key": "primaryColumns.EditActions1.isDiscardDisabled"
+                    },
+                    {
+                      "key": "tableData"
                     }
                 ],
                 "compactMode": "DEFAULT",

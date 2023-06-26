@@ -1,12 +1,16 @@
-const dsl = require("../../../../../fixtures/TreeSelectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Single Select Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("TreeSelectDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check isDirty meta property", function () {
@@ -70,21 +74,21 @@ describe("Single Select Widget Functionality", function () {
 
   it("5. To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. To Check Visible Widget", function () {
     cy.openPropertyPane("singleselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("7. To Check Option Not Found", function () {
@@ -121,6 +125,33 @@ describe("Single Select Widget Functionality", function () {
     cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
     // tooltip help icon shows
     cy.get(".tree-select-tooltip").should("be.visible");
+  });
+
+  it("10. To Validate onOptionChange Event gets triggered only when option is changed", () => {
+    cy.openPropertyPane("singleselecttreewidget");
+    // Click onOptionChange Event from propertypane
+    cy.get(toggleJSButton("onoptionchange")).click({ force: true });
+    // Add a message to alert event in onOptionChange
+    cy.testJsontext("onoptionchange", `{{showAlert('Option Changed')}}`);
+    // Open the widget
+    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    // Search for Green option in the search input
+    cy.get(formWidgetsPage.treeSelectFilterInput).click().type("Green");
+    // Select the Green Option
+    cy.treeSelectDropdown("Green");
+    // Validate if toast message exists or not
+    cy.get(".Toastify__toast-body").should("exist");
+    // Validate the toast message
+    cy.validateToastMessage("Option Changed");
+    // Open the widget
+    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    // Search for Green option (selecting same option) in the search input
+    cy.get(formWidgetsPage.treeSelectFilterInput).click().type("Green");
+    // Select the Green Option
+    cy.treeSelectDropdown("Green");
+    cy.wait(400);
+    // Validate if toast message exists or not
+    cy.get(".Toastify__toast-body").should("not.exist");
   });
 });
 afterEach(() => {

@@ -33,7 +33,8 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
+import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -117,6 +118,7 @@ function CanvasContainer(props: CanvasContainerProps) {
     pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -188,12 +190,15 @@ function CanvasContainer(props: CanvasContainerProps) {
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
           "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
-          "mt-4": !shouldShowSnapShotBanner && showCanvasTopSection,
+          "mt-4":
+            !shouldShowSnapShotBanner &&
+            (showCanvasTopSection || showAnonymousDataPopup),
           "mt-8":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
-            !isPreviewingNavigation,
+            !isPreviewingNavigation &&
+            !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}

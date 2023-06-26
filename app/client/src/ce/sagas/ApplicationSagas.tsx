@@ -102,7 +102,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
-import { identity, merge, pickBy } from "lodash";
+import { identity, isEmpty, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -625,7 +625,10 @@ export function* forkApplicationSaga(
       application: ApplicationResponsePayload;
       isPartialImport: boolean;
       unConfiguredDatasourceList: Datasource[];
-    }> = yield call(ApplicationApi.forkApplication, action.payload);
+    }> = yield call(ApplicationApi.forkApplication, {
+      applicationId: action.payload.applicationId,
+      workspaceId: action.payload.workspaceId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
@@ -644,12 +647,24 @@ export function* forkApplicationSaga(
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
-          id: action.payload.workspaceId,
+          workspaceId: action.payload.workspaceId,
         },
       });
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
       });
+
+      if (action.payload.editMode) {
+        const appId = application.id;
+        const pageId = application.defaultPageId;
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+          payload: {
+            applicationId: appId,
+            pageId,
+          },
+        });
+      }
       history.push(pageURL);
 
       const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
@@ -836,7 +851,9 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  if (!datasource.datasourceConfiguration) {
+  // Added isEmpty instead of ! condition as ! does not account for
+  // datasourceConfiguration being empty
+  if (isEmpty(datasource.datasourceConfiguration)) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,

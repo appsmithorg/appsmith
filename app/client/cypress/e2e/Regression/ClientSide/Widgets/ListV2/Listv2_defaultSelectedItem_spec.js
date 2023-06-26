@@ -1,7 +1,5 @@
 const dsl = require("../../../../../fixtures/Listv2/ListV2_Reset_dsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
-
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -57,7 +55,9 @@ function setUpDataSource() {
 
 describe("List widget v2 defaultSelectedItem", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/ListV2_Reset_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Loads the Page with the default Selected Item", () => {
@@ -140,7 +140,7 @@ describe("List widget v2 defaultSelectedItem", () => {
 
     // In view Mode
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.waitUntil(() =>
       cy
@@ -159,7 +159,7 @@ describe("List widget v2 defaultSelectedItem", () => {
       const data = JSON.parse(val.text());
       cy.wrap(data?.id).should("deep.equal", 4);
     });
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });
 

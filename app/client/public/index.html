@@ -15,39 +15,6 @@
       transition: all ease-in 0.3s;
     }
   </style>
-  <%=
-    (function () {
-      // This code emits additional `link rel="preload"` tags for edit.html and view.html.
-      // This helps to load edit and view modes faster.
-      //
-      // If you code-split some code and need to preload it as well, here’s how to do that:
-      //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
-      //  2) Add the name into the `chunksToPreload` array below
-      let chunksToPreload = [];
-      if (htmlWebpackPlugin.options.appsmithHtmlTarget === 'edit-mode') {
-        chunksToPreload = [
-          ...compilation.namedChunkGroups.get("editor").chunks,
-          ...compilation.namedChunkGroups.get("global-search").chunks,
-        ]
-      } else if (htmlWebpackPlugin.options.appsmithHtmlTarget === 'view-mode') {
-        chunksToPreload = [...compilation.namedChunkGroups.get("AppViewer").chunks]
-      }
-
-      return chunksToPreload.flatMap(i => [...i.files])
-        .map(url => `<link rel="preload" as="${getPreloadValueForFile(url)}" href="${webpackConfig.output.publicPath + url}" />`)
-        .join('\n')
-
-      function getPreloadValueForFile(fileName) {
-        if (fileName.endsWith('.js')) {
-          return 'script';
-        } else if (fileName.endsWith('.css')) {
-          return 'style';
-        }
-
-        throw new Error(`Unknown preload type for file: ${fileName}`);
-      }
-    })()
-  %>
   <script>
     // '' (empty strings), 'false' are falsy
     // could return either boolean or string based on value
@@ -63,9 +30,32 @@
       }
 
       return result;
-    }
+    };
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+  </script>
+  <script>
+    window.__APPSMITH_CHUNKS_TO_PRELOAD =
+  <%=
+    (function () {
+      // This code emits URLs to be preloaded as soon as the main bundle loads.
+      // If you code-split away some files and need to preload them as well, here’s how to do that:
+      //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
+      //  2) Add the name into the `chunksToPreload` array below
+      let chunksToPreload = {
+        'edit-mode': [...getChunkUrls("editor"), ...getChunkUrls("global-search")],
+        'view-mode': getChunkUrls("AppViewer")
+      };
+
+      return JSON.stringify(chunksToPreload);
+
+      function getChunkUrls(chunkName) {
+        return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
+      }
+    })()
+      %>
+  </script>
+  <script>
     if (CLOUD_HOSTING && ZIPY_KEY) {
       const script = document.createElement('script');
       script.crossOrigin = "anonymous";
@@ -77,7 +67,6 @@
       const head = document.getElementsByTagName('head')[0];
       head && head.appendChild(script);
     }
-
     // This function is triggered on load of google apis javascript library
     // Even though the script is loaded asynchronously, in case of firefox run on windows
     // The gapi script is getting loaded even before the last script of index.html
@@ -91,7 +80,8 @@
     };
   </script>
   <!-- Adding this Library to access google file picker API in case of limiting google sheet access -->
-  <script async defer id="googleapis" src="https://apis.google.com/js/api.js" onload="gapiLoaded()" onerror="onError()"></script>
+  <script async defer id="googleapis" src="https://apis.google.com/js/api.js" onload="gapiLoaded()"
+    onerror="onError()"></script>
 </head>
 
 <body class="appsmith-light-theme">

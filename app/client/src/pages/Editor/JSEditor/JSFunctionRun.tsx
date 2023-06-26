@@ -83,9 +83,16 @@ export function JSFunctionRun({
         {options.map((option) => (
           <Option key={option.value}>
             <OptionWrapper>
-              <OptionLabelWrapper>
-                <OptionLabel renderAs="p">{option.label}</OptionLabel>
-              </OptionLabelWrapper>
+              <Tooltip
+                content={option.label}
+                // Here, 18 is the maximum charecter length because the width of this menu does not change
+                isDisabled={(option.label?.length || 0) < 18}
+                placement="right"
+              >
+                <OptionLabelWrapper>
+                  <OptionLabel renderAs="p">{option.label}</OptionLabel>
+                </OptionLabelWrapper>
+              </Tooltip>
               {option.hasCustomBadge && <Tag isClosable={false}>{"Async"}</Tag>}
             </OptionWrapper>
           </Option>
@@ -93,18 +100,21 @@ export function JSFunctionRun({
       </Select>
       <Tooltip
         content={createMessage(NO_JS_FUNCTION_TO_RUN, jsCollection.name)}
+        isDisabled={!showTooltip}
         placement="topRight"
-        visible={showTooltip}
       >
-        <Button
-          className={testLocators.runJSAction}
-          isDisabled={disabled}
-          isLoading={isLoading}
-          onClick={onButtonClick}
-          size="md"
-        >
-          {RUN_BUTTON_DEFAULTS.CTA_TEXT}
-        </Button>
+        {/* this span exists to make the disabled button visible to the tooltip */}
+        <span>
+          <Button
+            className={testLocators.runJSAction}
+            isDisabled={disabled}
+            isLoading={isLoading}
+            onClick={onButtonClick}
+            size="md"
+          >
+            {RUN_BUTTON_DEFAULTS.CTA_TEXT}
+          </Button>
+        </span>
       </Tooltip>
     </DropdownWithCTAWrapper>
   );

@@ -8,7 +8,7 @@ import type {
 } from "design-system-old";
 import { Classes, Text, TextType } from "design-system-old";
 import _ from "lodash";
-import { Icon, Tooltip } from "design-system";
+import { Tooltip, Icon } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
@@ -50,12 +50,6 @@ const OptionWrapper = styled.div<{
   }
 `;
 
-const CreateIconWrapper = styled.div`
-  margin: 0px 8px 0px 0px;
-  cursor: pointer;
-  height: 16px;
-`;
-
 const ImageWrapper = styled.div`
   height: 16px;
   width: auto;
@@ -67,6 +61,12 @@ const ImageWrapper = styled.div`
 export const DatasourceImage = styled.img`
   height: 16px;
   width: 16px;
+`;
+
+const CreateIconWrapper = styled.div`
+  margin: 0px 8px 0px 0px;
+  cursor: pointer;
+  height: 16px;
 `;
 
 interface DataSourceOptionType extends RenderDropdownOptionType {

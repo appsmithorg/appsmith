@@ -2,7 +2,16 @@ import testdata from "../../../../fixtures/testdata.json";
 import commonlocators from "../../../../locators/commonlocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const widgetsToTest = {
+const widgetsToTest: Record<
+  string,
+  {
+    widgetName: string;
+    widgetPrefixName: string;
+    textBindingValue: string;
+    assertWidgetReset: () => void;
+    setupWidget?: () => void;
+  }
+> = {
   [_.draggableWidgets.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
@@ -25,6 +34,9 @@ const widgetsToTest = {
     textBindingValue: testdata.tableBindingValue,
     assertWidgetReset: () => {
       selectTableAndReset();
+    },
+    setupWidget: () => {
+      _.table.AddSampleTableData();
     },
   },
   [_.draggableWidgets.SWITCHGROUP]: {
@@ -413,6 +425,10 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         _.agHelper.AddDsl(val);
       });
       _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 100);
+
+      if (testConfig.setupWidget) {
+        testConfig.setupWidget();
+      }
     });
 
     it("2. Bind Button on click  and Text widget content", () => {

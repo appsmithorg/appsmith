@@ -52,7 +52,7 @@
               "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],
-          "initialValue": "https://www.googleapis.com/auth/drive.file",
+          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive",
           "customStyles": {
             "width": "340px"
           }

@@ -154,7 +154,7 @@
               {
                 "label": "Connection mode",
                 "configProperty": "datasourceConfiguration.connection.mode",
-                "controlType": "DROP_DOWN",
+                "controlType": "SEGMENTED_CONTROL",
                 "initialValue": "READ_WRITE",
                 "options": [
                   {
@@ -328,7 +328,7 @@
               {
                 "label": "Connection mode",
                 "configProperty": "datasourceConfiguration.connection.mode",
-                "controlType": "DROP_DOWN",
+                "controlType": "SEGMENTED_CONTROL",
                 "isRequired": true,
                 "initialValue": "READ_WRITE",
                 "options": [

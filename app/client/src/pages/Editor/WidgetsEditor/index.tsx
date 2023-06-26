@@ -13,7 +13,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
@@ -25,16 +24,12 @@ import {
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
-import {
-  getIsOnboardingTasksView,
-  inGuidedTour,
-} from "selectors/onboardingSelectors";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
 import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
@@ -50,6 +45,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
+import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -57,9 +53,7 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
-  const isMultiPane = useSelector(isMultiPaneActive);
   const isPreviewMode = useSelector(previewModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
@@ -169,79 +163,69 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
-      {showOnboardingTasks ? (
-        <OnboardingTasks />
-      ) : (
-        <>
-          {guidedTourEnabled && <Guide />}
+      {guidedTourEnabled && <Guide />}
+      <div className="relative flex flex-row w-full overflow-hidden">
+        <div
+          className={classNames({
+            "relative flex flex-col w-full overflow-hidden": true,
+            "m-8 border border-gray-200":
+              isAppSettingsPaneWithNavigationTabOpen,
+          })}
+        >
+          {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
+          <AnonymousDataPopup />
+          <div
+            className="relative flex flex-row w-full overflow-hidden"
+            data-testid="widgets-editor"
+            draggable
+            id="widgets-editor"
+            onClick={handleWrapperClick}
+            onDragStart={onDragStart}
+            style={{
+              fontFamily: fontFamily,
+            }}
+          >
+            {showNavigation()}
 
-          <div className="relative flex flex-row w-full overflow-hidden">
-            <div
+            <PageViewContainer
               className={classNames({
-                "relative flex flex-col w-full overflow-hidden": true,
-                "m-8 border border-gray-200":
+                "relative flex flex-row w-full justify-center overflow-hidden":
+                  true,
+                "select-none pointer-events-none":
                   isAppSettingsPaneWithNavigationTabOpen,
               })}
+              hasPinnedSidebar={
+                isPreviewingNavigation && !isMobile
+                  ? currentApplicationDetails?.applicationDetail
+                      ?.navigationSetting?.orientation ===
+                      NAVIGATION_SETTINGS.ORIENTATION.SIDE && isAppSidebarPinned
+                  : false
+              }
+              isPreviewMode={isPreviewMode}
+              isPublished={isPublished}
+              sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
-              {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
+              {shouldShowSnapShotBanner && (
+                <div className="absolute top-0 z-1 w-full">
+                  <SnapShotBannerCTA />
+                </div>
+              )}
+              <CanvasContainer
+                isAppSettingsPaneWithNavigationTabOpen={
+                  AppSettingsTabs.Navigation === appSettingsPaneContext?.type
+                }
+                isPreviewMode={isPreviewMode}
+                navigationHeight={navigationHeight}
+                shouldShowSnapShotBanner={shouldShowSnapShotBanner}
+              />
+            </PageViewContainer>
 
-              <div
-                className="relative flex flex-row w-full overflow-hidden"
-                data-testid="widgets-editor"
-                draggable
-                id="widgets-editor"
-                onClick={handleWrapperClick}
-                onDragStart={onDragStart}
-                style={{
-                  fontFamily: fontFamily,
-                }}
-              >
-                {showNavigation()}
-
-                <PageViewContainer
-                  className={classNames({
-                    "relative flex flex-row w-full justify-center overflow-hidden":
-                      true,
-                    "select-none pointer-events-none":
-                      isAppSettingsPaneWithNavigationTabOpen,
-                  })}
-                  hasPinnedSidebar={
-                    isPreviewingNavigation && !isMobile
-                      ? currentApplicationDetails?.applicationDetail
-                          ?.navigationSetting?.orientation ===
-                          NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
-                        isAppSidebarPinned
-                      : false
-                  }
-                  isPreviewMode={isPreviewMode}
-                  isPublished={isPublished}
-                  sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
-                >
-                  {shouldShowSnapShotBanner && (
-                    <div className="absolute top-0 z-1 w-full">
-                      <SnapShotBannerCTA />
-                    </div>
-                  )}
-                  <CanvasContainer
-                    isAppSettingsPaneWithNavigationTabOpen={
-                      AppSettingsTabs.Navigation ===
-                      appSettingsPaneContext?.type
-                    }
-                    isPreviewMode={isPreviewMode}
-                    navigationHeight={navigationHeight}
-                    shouldShowSnapShotBanner={shouldShowSnapShotBanner}
-                  />
-                </PageViewContainer>
-
-                <CrudInfoModal />
-              </div>
-              <Debugger />
-            </div>
-
-            {!isMultiPane && <PropertyPaneContainer />}
+            <CrudInfoModal />
           </div>
-        </>
-      )}
+          <Debugger />
+        </div>
+        <PropertyPaneContainer />
+      </div>
     </EditorContextProvider>
   );
 }

@@ -9,6 +9,7 @@ import "codemirror-graphql/mode";
 import QueryWrapper from "./QueryWrapperWithCSS";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   TabBehaviour,
@@ -56,6 +57,8 @@ function QueryEditor(props: QueryProps) {
         </Text>
       </QueryHeader>
       <Field
+        border={CodeEditorBorder.NONE}
+        borderLess
         component={LazyCodeEditor}
         evaluatedPopUpLabel="Query"
         {...props}

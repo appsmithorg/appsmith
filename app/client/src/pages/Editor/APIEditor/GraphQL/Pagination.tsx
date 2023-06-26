@@ -307,7 +307,7 @@ function PaginationTypeBasedWrapper({
                 name={separateKeyPath}
                 onChange={onSeparateKeyChange}
               >
-                <Text> {separateKeyLabel} </Text>
+                {separateKeyLabel}
               </Checkbox>
             </CheckboxFieldWrapper>
           )}
@@ -379,11 +379,11 @@ function Pagination(props: PaginationProps) {
               value: PaginationType.NONE,
             },
             {
-              label: "Paginate via Limit and Offset",
+              label: "Paginate using limit and offset",
               value: PaginationType.PAGE_NO,
             },
             {
-              label: "Paginate via Cursor based",
+              label: "Paginate using cursor",
               value: PaginationType.CURSOR,
             },
           ]}
@@ -425,11 +425,11 @@ function Pagination(props: PaginationProps) {
                     label: props.limitBased?.limit?.name,
                     value: props.limitBased?.limit?.name,
                   }}
-                  valueLabel="Limit Value"
+                  valueLabel="Limit value"
                   valuePath={`${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Limit}.value`}
                   valuePlaceholder="{{Table1.pageSize}}"
                   valueTooltip="Override the value of the limit variable selected i.e. the no of rows returned"
-                  variableLabel="Limit Variable"
+                  variableLabel="Limit variable"
                   variableOptions={variableOptions}
                   variableTooltip="Select the limit variable from the query"
                 />
@@ -461,11 +461,11 @@ function Pagination(props: PaginationProps) {
                     label: props.limitBased?.offset?.name,
                     value: props.limitBased?.offset?.name,
                   }}
-                  valueLabel="Offset Value"
+                  valueLabel="Offset value"
                   valuePath={`${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Offset}.value`}
                   valuePlaceholder="{{Table1.pageNo * Table1.pageSize}}"
                   valueTooltip="Override the value of the offset variable selected ie the no of rows omitted from the beginning"
-                  variableLabel="Offset Variable"
+                  variableLabel="Offset variable"
                   variableOptions={variableOptions}
                   variableTooltip="Select the offset variable from the query"
                 />
@@ -487,9 +487,9 @@ function Pagination(props: PaginationProps) {
               </Text>
               <PaginationSection>
                 <SubHeading kind="body-m" renderAs={"p"}>
-                  Configure Previous Page
+                  Configure previous page
                 </SubHeading>
-                {/* Previous Limit Value */}
+                {/* Previous Limit value */}
                 <PaginationTypeBasedWrapper
                   actionName={props.actionName}
                   className="t--apiFormPaginationPrevLimit"
@@ -518,11 +518,11 @@ function Pagination(props: PaginationProps) {
                     label: paginationPrev?.limit?.name,
                     value: paginationPrev?.limit?.name,
                   }}
-                  valueLabel="Limit Variable Value"
+                  valueLabel="Limit variable value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Limit}.value`}
                   valuePlaceholder="{{Table1.pageSize}}"
                   valueTooltip="Override the value for the previous no of rows to be fetched"
-                  variableLabel="Limit Variable Name"
+                  variableLabel="Limit variable name"
                   variableOptions={variableOptions}
                   variableTooltip="Select the variable from the query that holds the last/previous limit value"
                 />
@@ -554,20 +554,20 @@ function Pagination(props: PaginationProps) {
                     label: paginationPrev?.cursor?.name,
                     value: paginationPrev?.cursor?.name,
                   }}
-                  valueLabel="Start Cursor Value"
+                  valueLabel="Start cursor value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Cursor}.value`}
                   valuePlaceholder="{{Api1.data.previousCursor}}"
                   valueTooltip="Binding the widget action to the previous page activity"
-                  variableLabel="Start Cursor Variable"
+                  variableLabel="Start cursor variable"
                   variableOptions={variableOptions}
                   variableTooltip="Select the variable which holds the before cursor"
                 />
               </PaginationSection>
               <PaginationSection>
                 <SubHeading kind="body-m" renderAs={"p"}>
-                  Configure Next Page
+                  Configure next page
                 </SubHeading>
-                {/* Next Limit Value */}
+                {/* Next Limit value */}
                 <PaginationTypeBasedWrapper
                   actionName={props.actionName}
                   className="t--apiFormPaginationNextLimit"
@@ -606,11 +606,11 @@ function Pagination(props: PaginationProps) {
                   separateKeyLabel="Enable separate value for first limit variable"
                   separateKeyPath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}.isSeparate`}
                   separateValueFlag={!!paginationNext?.limit?.isSeparate}
-                  valueLabel="Limit Variable Value"
+                  valueLabel="Limit variable value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}.value`}
                   valuePlaceholder="{{Table1.pageSize}}"
                   valueTooltip="Override the value for the next no of rows to be fetched"
-                  variableLabel="Limit Variable Name"
+                  variableLabel="Limit variable name"
                   variableOptions={variableOptions}
                   variableTooltip="Select the variable from the query that holds the first/next limit value"
                 />
@@ -642,11 +642,11 @@ function Pagination(props: PaginationProps) {
                     label: paginationNext?.cursor?.name,
                     value: paginationNext?.cursor?.name,
                   }}
-                  valueLabel="End Cursor Value"
+                  valueLabel="End cursor value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Cursor}.value`}
                   valuePlaceholder="{{Api1.data.nextCursor}}"
                   valueTooltip="Binding the widget action to the next page activity"
-                  variableLabel="End Cursor Variable"
+                  variableLabel="End cursor variable"
                   variableOptions={variableOptions}
                   variableTooltip="Select the variable which holds the after cursor"
                 />

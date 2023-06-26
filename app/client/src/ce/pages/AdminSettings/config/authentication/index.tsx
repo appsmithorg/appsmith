@@ -18,21 +18,26 @@ import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
-import {
-  JS_ORIGIN_URI_FORM,
-  REDIRECT_URL_FORM,
-} from "@appsmith/constants/forms";
+import { ORIGIN_URI_FORM, REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
 import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
 } from "@appsmith/selectors/tenantSelectors";
+import {
+  FORM_LOGIN_DESC,
+  GITHUB_AUTH_DESC,
+  GOOGLE_AUTH_DESC,
+  OIDC_AUTH_DESC,
+  SAML_AUTH_DESC,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Form login",
-  subText: "Enable your workspace to sign in with Appsmith form.",
+  subText: createMessage(FORM_LOGIN_DESC),
   canSave: true,
   settings: [
     {
@@ -70,7 +75,7 @@ export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Google authentication",
-  subText: "Enable your workspace to sign in with Google (OAuth).",
+  subText: createMessage(GOOGLE_AUTH_DESC),
   canSave: true,
   settings: [
     {
@@ -87,7 +92,7 @@ export const GoogleAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.UNEDITABLEFIELD,
       label: "JavaScript origin URL",
-      formName: JS_ORIGIN_URI_FORM,
+      formName: ORIGIN_URI_FORM,
       fieldName: "js-origin-url-form",
       value: "",
       tooltip:
@@ -104,7 +109,7 @@ export const GoogleAuth: AdminConfigType = {
       fieldName: "redirect-url-form",
       value: "/login/oauth2/code/google",
       tooltip:
-        "This URL will be used while configuring the Google OAuth Client ID's authorized Redirect URIs",
+        "This URL will be used while configuring the Google OAuth Client ID's authorized redirect URIs",
       helpText: "Paste this URL in your Google developer console.",
     },
     {
@@ -140,9 +145,8 @@ export const GoogleAuth: AdminConfigType = {
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Github authentication",
-  subText:
-    "Enable your workspace to sign in with Github SAML single sign-on (SSO).",
+  title: "GitHub authentication",
+  subText: createMessage(GITHUB_AUTH_DESC),
   canSave: true,
   settings: [
     {
@@ -152,6 +156,32 @@ export const GithubAuth: AdminConfigType = {
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GITHUB_SIGNUP_SETUP_DOC,
+    },
+    {
+      id: "APPSMITH_OAUTH2_GITHUB_HOMEPAGE_URL",
+      category: SettingCategories.GITHUB_AUTH,
+      subCategory: SettingSubCategories.GITHUB,
+      controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "Homepage URL",
+      formName: ORIGIN_URI_FORM,
+      fieldName: "homepage-url-form",
+      value: "",
+      tooltip:
+        "This URL will be used while configuring the GitHub OAuth Client ID's homepage URL",
+      helpText: "Paste this URL in your GitHub developer settings.",
+    },
+    {
+      id: "APPSMITH_OAUTH2_GITHUB_REDIRECT_URL",
+      category: SettingCategories.GITHUB_AUTH,
+      subCategory: SettingSubCategories.GITHUB,
+      controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "Redirect URL",
+      formName: REDIRECT_URL_FORM,
+      fieldName: "callback-url-form",
+      value: "/login/oauth2/code/github",
+      tooltip:
+        "This URL will be used while configuring the GitHub OAuth Client ID's Authorization callback URL",
+      helpText: "Paste this URL in your GitHub developer settings.",
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
@@ -178,7 +208,7 @@ export const FormAuthCallout: AuthMethodType = {
   id: "APPSMITH_FORM_LOGIN_AUTH",
   category: SettingCategories.FORM_AUTH,
   label: "Form login",
-  subText: "Enable your workspace to sign in with Appsmith Form.",
+  subText: createMessage(FORM_LOGIN_DESC),
   image: Lock,
   icon: "lock-password-line",
 };
@@ -187,17 +217,15 @@ export const GoogleAuthCallout: AuthMethodType = {
   id: "APPSMITH_GOOGLE_AUTH",
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
-  subText:
-    "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).",
+  subText: createMessage(GOOGLE_AUTH_DESC),
   image: Google,
 };
 
 export const GithubAuthCallout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
-  label: "Github",
-  subText:
-    "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).",
+  label: "GitHub",
+  subText: createMessage(GITHUB_AUTH_DESC),
   image: Github,
 };
 
@@ -205,7 +233,7 @@ export const SamlAuthCallout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   category: "saml",
   label: "SAML 2.0",
-  subText: `Enable your workspace to sign in with your preferred SAML2 compliant provider.`,
+  subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
   needsUpgrade: true,
 };
@@ -214,7 +242,7 @@ export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: "oidc",
   label: "OIDC",
-  subText: `Enable your workspace to sign in with your preferred OIDC compliant provider.`,
+  subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
   needsUpgrade: true,
 };

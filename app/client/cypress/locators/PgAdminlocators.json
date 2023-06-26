@@ -1,6 +1,7 @@
 {
   "dropdownChevronLeft": ".t--close-editor",
   "addNewtable": "//span[text()='New Table']",
+  "inputValues":"//div[@class='bp3-input-group']",
   "addTablename": "(//div[@class='bp3-input-group']//input)[2]",
   "addColumn": "//span[text()='Add Column']/parent::button/parent::div",
   "addColumnName": "div[data-testid='input-container']",
@@ -15,11 +16,13 @@
   "confirmButton": "//span[text()='Confirm']",
   "columnNamefield": "//span[text()='Column name']",
   "datatypefield": "//span[text()='Data Type']",
-  "bookname": "(//div[@class='bp3-input-group']//input)[5]",
-  "bookgenre": "(//div[@class='bp3-input-group']//input)[6]",
-  "bookprice": "(//div[@class='bp3-input-group']//input)[7]",
-  "bookquantity": "(//div[@class='bp3-input-group']//input)[8]",
+  "bookname": "(//div[@class='bp3-input-group'])[5]",
+  "bookgenre": "(//div[@class='bp3-input-group'])[6]",
+  "bookprice": "(//div[@class='bp3-input-group'])[7]",
+  "bookquantity": "(//div[@class='bp3-input-group'])[8]",
   "addtoCart": "//span[@class='bp3-button-text' and text()='Submit']",
   "deletefromCart": "//span[@class='bp3-button-text' and text()='Delete']",
-  "editbookquantity": "(//div[@class='bp3-input-group']//input)[4]"
+  "editbookquantity": "(//div[@class='bp3-input-group'])[4]",
+  "addButton":"//span[text()='Add']/parent::button",
+  "editButton":"//span[text()='Edit']/parent::button"
 }

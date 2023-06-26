@@ -19,9 +19,10 @@ public class Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDef
 
     private final MongoTemplate mongoTemplate;
 
+    // An old index that's no longer present in the source.
     private final static String oldPermissionGroupIndexNameDefaultWorkspaceIdDeleted = "permission_group_workspace_deleted_compound_index";
 
-    private final static String newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType = "permission_group_domainId_domainType_deleted_deleted_compound_index";
+    public final static String newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType = "permission_group_domainId_domainType_deleted";
 
     public Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;

@@ -182,7 +182,11 @@ const PropertyControl = memo((props: Props) => {
   } = enhancementFns || {};
 
   const toggleDynamicProperty = useCallback(
-    (propertyName: string, isDynamic: boolean) => {
+    (
+      propertyName: string,
+      isDynamic: boolean,
+      shouldValidateValueOnDynamicPropertyOff?: boolean,
+    ) => {
       AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
         widgetType: widgetProperties?.type,
         widgetName: widgetProperties?.widgetName,
@@ -209,6 +213,7 @@ const PropertyControl = memo((props: Props) => {
           propertyName,
           !isDynamic,
           shouldRejectDynamicBindingPathList,
+          !shouldValidateValueOnDynamicPropertyOff,
         ),
       );
     },
@@ -689,8 +694,9 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
-    const canDisplayValueInUI =
-      PropertyControlFactory.controlUIToggleValidation.get(config.controlType);
+    const controlMethods = PropertyControlFactory.controlMethods.get(
+      config.controlType,
+    );
 
     const customJSControl = getCustomJSControl();
 
@@ -713,7 +719,8 @@ const PropertyControl = memo((props: Props) => {
         }
 
         // disable button if value can't be represented in UI mode
-        if (!canDisplayValueInUI?.(config, value)) isToggleDisabled = true;
+        if (!controlMethods?.canDisplayValueInUI?.(config, value))
+          isToggleDisabled = true;
       }
 
       // Enable button if the value is same as the one defined in theme stylesheet.
@@ -765,16 +772,27 @@ const PropertyControl = memo((props: Props) => {
                 content={JS_TOGGLE_DISABLED_MESSAGE}
                 isDisabled={!isToggleDisabled}
               >
-                <ToggleButton
-                  className={classNames("t--js-toggle", {
-                    "is-active": isDynamic,
-                  })}
-                  icon="js-toggle-v2"
-                  isDisabled={isToggleDisabled}
-                  isSelected={isDynamic}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                  size="sm"
-                />
+                <span>
+                  <ToggleButton
+                    className={classNames("t--js-toggle", {
+                      "is-active": isDynamic,
+                    })}
+                    icon="js-toggle-v2"
+                    isDisabled={isToggleDisabled}
+                    isSelected={isDynamic}
+                    onClick={() =>
+                      toggleDynamicProperty(
+                        propertyName,
+                        isDynamic,
+                        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                          config,
+                          propertyValue,
+                        ),
+                      )
+                    }
+                    size="sm"
+                  />
+                </span>
               </Tooltip>
             )}
             {isPropertyDeviatedFromTheme && (

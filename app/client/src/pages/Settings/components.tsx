@@ -22,7 +22,7 @@ export const SettingsHeader = styled(Text)`
 export const SettingsSubHeader = styled(Text)``;
 
 export const SettingsFormWrapper = styled.div`
-  max-width: 30rem;
+  max-width: 40rem;
   .openid_tag {
     .${Classes.TAG_REMOVE} {
       display: none;

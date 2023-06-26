@@ -19,7 +19,7 @@ import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
 import { Input, Switch } from "design-system";
-import ManualUpgrades from "ce/components/BottomBar/ManualUpgrades";
+import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";

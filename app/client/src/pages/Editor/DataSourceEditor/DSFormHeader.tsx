@@ -1,31 +1,29 @@
 import React, { useState } from "react";
-import { Icon, IconSize } from "design-system-old";
 import FormTitle from "./FormTitle";
 import NewActionButton from "./NewActionButton";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { Position } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import type { Datasource } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_DELETE,
-} from "ce/constants/messages";
-import { createMessage } from "design-system-old/build/constants/messages";
+  EDIT,
+  createMessage,
+} from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDispatch } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
-import { MenuComponent, RedMenuItem } from "components/utils/formComponents";
+import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
-import { Button } from "design-system";
-import { EDIT } from "ce/constants/messages";
+import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 export const ActionWrapper = styled.div`
   display: flex;
   gap: 16px;
+  align-items: center;
 `;
 
 export const FormTitleContainer = styled.div`
@@ -37,22 +35,12 @@ export const FormTitleContainer = styled.div`
 export const Header = styled.div`
   display: flex;
   flex-direction: row;
-  flex: "1 1 10%";
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--ads-v2-color-border);
   padding: var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
   margin: 0 var(--ads-v2-spaces-7);
-`;
-
-export const EditDatasourceButton = styled(Button)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    max-width: 160px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
+  height: 120px;
 `;
 
 export const PluginImageWrapper = styled.div`
@@ -86,7 +74,6 @@ type DSFormHeaderProps = {
   isDeleting: boolean;
   isNewDatasource: boolean;
   isPluginAuthorized: boolean;
-  isSaving: boolean;
   pluginImage: string;
   pluginType: string;
   pluginName: string;
@@ -124,24 +111,27 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const renderMenuOptions = () => {
     return [
-      <RedMenuItem
-        className="t--datasource-option-delete"
-        icon="delete"
-        isLoading={isDeleting}
+      <MenuItem
+        className="t--datasource-option-delete error-menuitem"
+        disabled={isDeleting}
         key={"delete-datasource-button"}
-        onSelect={() => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        onSelect={(e: Event) => {
+          e.preventDefault();
+          e.stopPropagation();
           if (!isDeleting) {
             confirmDelete ? deleteAction() : setConfirmDelete(true);
           }
         }}
-        text={
-          isDeleting
-            ? createMessage(CONFIRM_CONTEXT_DELETING)
-            : confirmDelete
-            ? createMessage(CONFIRM_CONTEXT_DELETE)
-            : createMessage(CONTEXT_DELETE)
-        }
-      />,
+        startIcon="delete-bin-line"
+      >
+        {isDeleting
+          ? createMessage(CONFIRM_CONTEXT_DELETING)
+          : confirmDelete
+          ? createMessage(CONFIRM_CONTEXT_DELETE)
+          : createMessage(CONTEXT_DELETE)}
+      </MenuItem>,
     ];
   };
 
@@ -157,22 +147,29 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
       {viewMode && (
         <ActionWrapper>
           {canDeleteDatasource && (
-            <MenuComponent
-              menuItemWrapperWidth="160px"
-              onClose={onCloseMenu}
-              position={Position.LEFT}
-              target={
-                <Icon
-                  fillColor={Colors.GRAY2}
-                  name="context-menu"
-                  size={IconSize.XXXL}
-                />
-              }
+            <MenuWrapper
+              className="t--datasource-menu-option"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
             >
-              {renderMenuOptions()}
-            </MenuComponent>
+              <StyledMenu onOpenChange={onCloseMenu}>
+                <MenuTrigger>
+                  <Button
+                    data-testid="t--context-menu-trigger"
+                    isIconButton
+                    kind="tertiary"
+                    size="md"
+                    startIcon="context-menu"
+                  />
+                </MenuTrigger>
+                <MenuContent style={{ zIndex: 100 }} width="200px">
+                  {renderMenuOptions()}
+                </MenuContent>
+              </StyledMenu>
+            </MenuWrapper>
           )}
-          <EditDatasourceButton
+          <Button
             className="t--edit-datasource"
             kind="secondary"
             onClick={() => {
@@ -183,9 +180,10 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
                 entryPoint: DatasourceEditEntryPoints.DATASOURCE_FORM_EDIT,
               });
             }}
+            size="md"
           >
             {createMessage(EDIT)}
-          </EditDatasourceButton>
+          </Button>
           <NewActionButton
             datasource={datasource as Datasource}
             disabled={!canCreateDatasourceActions || !isPluginAuthorized}

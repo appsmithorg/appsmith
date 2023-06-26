@@ -57,9 +57,10 @@ function ForkTemplate({
       <Modal onOpenChange={closeModal} open={showForkModal}>
         <ModalContent style={{ width: "640px" }}>
           <ModalHeader>{createMessage(CHOOSE_WHERE_TO_FORK)}</ModalHeader>
-          <ModalBody>
+          <ModalBody style={{ overflow: "unset", paddingBottom: "4px" }}>
             <Select
               dropdownMatchSelectWidth
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
               // TODO: (Albin) Fix this
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               //@ts-ignore

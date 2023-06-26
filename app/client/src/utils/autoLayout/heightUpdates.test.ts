@@ -6,7 +6,7 @@ import {
 } from "./data/heightTestData";
 import { EMPTY_TABS_DATA, TABS_DATA } from "./data/tabsData";
 
-describe("auto layout: heightUpdates", () => {
+describe("auto-layout: heightUpdates", () => {
   beforeEach(() => {
     jest
       .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
@@ -189,7 +189,7 @@ describe("auto layout: heightUpdates", () => {
   });
 });
 
-describe("auto layout dynamic height: tabs widget", () => {
+describe("auto-layout dynamic height: tabs widget", () => {
   beforeEach(() => {
     jest
       .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")

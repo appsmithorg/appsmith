@@ -1,10 +1,11 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const deployMode = ObjectsRegistry.DeployMode;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const homePage = ObjectsRegistry.HomePage;
+import {
+  agHelper,
+  deployMode,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Top + Stacked navigation style", function () {
   before(() => {
@@ -73,7 +74,9 @@ describe("Test Top + Stacked navigation style", function () {
       .should("be.visible");
     cy.get(appNavigationLocators.scrollArrows).last().trigger("mousedown");
     cy.wait(3000);
-    cy.get(appNavigationLocators.scrollArrows).last().trigger("mouseup");
+    cy.get(appNavigationLocators.scrollArrows)
+      .last()
+      .trigger("mouseup", { force: true });
     cy.get(appNavigationLocators.navigationMenuItem)
       .contains(pageName)
       .should("not.be.visible");
@@ -84,7 +87,9 @@ describe("Test Top + Stacked navigation style", function () {
       .should("not.be.visible");
     cy.get(appNavigationLocators.scrollArrows).first().trigger("mousedown");
     cy.wait(3000);
-    cy.get(appNavigationLocators.scrollArrows).first().trigger("mouseup");
+    cy.get(appNavigationLocators.scrollArrows)
+      .first()
+      .trigger("mouseup", { force: true });
     cy.get(appNavigationLocators.navigationMenuItem)
       .contains(pageName)
       .should("be.visible");

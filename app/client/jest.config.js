@@ -48,6 +48,7 @@ module.exports = {
       "<rootDir>/node_modules/@blueprintjs/popover2/lib/esnext",
     "^@blueprintjs/select$":
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
+    "design-system": "<rootDir>/node_modules/design-system/build",
   },
   globals: {
     "ts-jest": {

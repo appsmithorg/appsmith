@@ -41,6 +41,8 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -130,13 +132,24 @@ function Pages() {
 
   const [isMenuOpen, openMenu] = useState(false);
 
+  const workspaceId = useSelector(getCurrentWorkspaceId);
+  const instanceId = useSelector(getInstanceId);
+
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
       "Page",
       pages.map((page: Page) => page.pageName),
     );
 
-    dispatch(createNewPageFromEntities(applicationId, name));
+    dispatch(
+      createNewPageFromEntities(
+        applicationId,
+        name,
+        workspaceId,
+        false,
+        instanceId,
+      ),
+    );
   }, [dispatch, pages, applicationId]);
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);

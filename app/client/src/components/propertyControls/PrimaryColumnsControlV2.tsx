@@ -8,7 +8,6 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
@@ -31,7 +30,6 @@ import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
-
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
@@ -41,6 +39,12 @@ const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
     height: 16px;
     padding: 0;
   }
+`;
+
+const EmptyStateLabel = styled.div`
+  margin: 20px 0px;
+  text-align: center;
+  color: var(--ads-v2-color-fg);
 `;
 
 interface ReduxStateProps {
@@ -80,7 +84,6 @@ const getOriginalColumn = (
 type State = {
   focusedIndex: number | null;
   duplicateColumnIds: string[];
-  hasEditableColumn: boolean;
   hasScrollableList: boolean;
 };
 
@@ -107,12 +110,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     this.state = {
       focusedIndex: null,
       duplicateColumnIds,
-      hasEditableColumn: false,
       hasScrollableList: false,
     };
-  }
-  componentDidMount() {
-    this.checkAndUpdateIfEditableColumnPresent();
   }
 
   componentDidUpdate(prevProps: ControlProps): void {
@@ -134,7 +133,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         frozenColumnIndex === 0 ? columns.length - 1 : frozenColumnIndex,
         true,
       );
-      this.checkAndUpdateIfEditableColumnPresent();
     }
 
     const listElement = document.querySelector(`.${LIST_CLASSNAME}`);
@@ -157,7 +155,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
 
     // If there are no columns, show empty state
     if (Object.keys(columns).length === 0) {
-      return <EmptyDataState />;
+      return <EmptyStateLabel>Table columns will appear here</EmptyStateLabel>;
     }
     // Get an empty array of length of columns
     let columnOrder: string[] = new Array(Object.keys(columns).length);
@@ -207,7 +205,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       <>
         <div className="flex pt-2 pb-2 justify-between">
           <div>{Object.values(reorderedColumns).length} columns</div>
-          {this.state.hasEditableColumn && (
+          {this.isEditableColumnPresent() && (
             <EdtiableCheckboxWrapper
               className="flex t--uber-editable-checkbox"
               rightPadding={this.state.hasScrollableList}
@@ -236,7 +234,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
                 DraggableListCard({
                   ...props,
                   showCheckbox: true,
-                  placeholder: "Column Title",
+                  placeholder: "Column title",
                 })
               }
               toggleCheckbox={this.toggleCheckbox}
@@ -454,16 +452,10 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     }
   };
 
-  checkAndUpdateIfEditableColumnPresent = () => {
-    const hasEditableColumn = !!Object.values(this.props.propertyValue).find(
-      (column) => isColumnTypeEditable((column as ColumnProperties).columnType),
+  isEditableColumnPresent = () => {
+    return Object.values(this.props.propertyValue).some((column) =>
+      isColumnTypeEditable((column as ColumnProperties).columnType),
     );
-
-    if (hasEditableColumn !== this.state.hasEditableColumn) {
-      this.setState({
-        hasEditableColumn,
-      });
-    }
   };
 
   static getControlType() {

@@ -9,8 +9,8 @@ import com.appsmith.external.helpers.restApiUtils.helpers.DatasourceUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.InitUtils;
-import com.appsmith.external.helpers.restApiUtils.helpers.SmartSubstitutionUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.RestAPIActivateUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.SmartSubstitutionUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.URIUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -73,9 +73,22 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     }
 
     @Override
-    public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+    public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration,
+                                          boolean isEmbeddedDatasource) {
         /* Use the default validation routine for REST API based plugins */
-        return datasourceUtils.validateDatasource(datasourceConfiguration);
+        return datasourceUtils.validateDatasource(datasourceConfiguration, isEmbeddedDatasource);
+    }
+
+    @Override
+    public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+        /**
+         * This method is not expected to be used as the REST API based plugins may have embedded datasource. Instead
+         * the following variant should be used:
+         * validateDatasource(DatasourceConfiguration datasourceConfiguration, boolean isEmbeddedDatasource)
+         */
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_VALIDATE_DATASOURCE_ERROR, "This method should " +
+                "not be used for this plugin as it may have embedded datasource. Please use validateDatasource" +
+                "(dsConfig, isEmbedded).");
     }
 
     @Override

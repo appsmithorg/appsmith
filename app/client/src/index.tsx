@@ -1,3 +1,6 @@
+// This file must be executed as early as possible to ensure the preloads are triggered ASAP
+import "./preload-route-chunks";
+
 import React from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";
@@ -19,9 +22,10 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
-const shouldAutoFreeze = process.env.NODE_ENV === "development";
-setAutoFreeze(shouldAutoFreeze);
 
+const shouldAutoFreeze = process.env.NODE_ENV === "development";
+
+setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
 
 appInitializer();

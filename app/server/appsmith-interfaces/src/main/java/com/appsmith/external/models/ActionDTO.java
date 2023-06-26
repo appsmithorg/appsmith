@@ -192,6 +192,7 @@ public class ActionDTO implements Identifiable {
         this.setCacheResponse(null);
         if (this.getDatasource() != null) {
             this.getDatasource().setCreatedAt(null);
+            this.getDatasource().setDatasourceStorages(null);
         }
         if (this.getUserPermissions() != null) {
             this.getUserPermissions().clear();

@@ -154,6 +154,14 @@ export const handlers = {
   ) => {
     draftState.currentWorkspace = action.payload;
   },
+  [ReduxActionTypes.RESET_CURRENT_WORKSPACE]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.currentWorkspace = {
+      id: "",
+      name: "",
+    };
+  },
   [ReduxActionTypes.FETCH_CURRENT_WORKSPACE]: (
     draftState: WorkspaceReduxState,
   ) => {

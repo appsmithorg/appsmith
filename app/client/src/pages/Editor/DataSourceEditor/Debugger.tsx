@@ -73,7 +73,12 @@ export const ResizerContentContainer = styled.div`
   &.saas-form-resizer-content,
   &.api-datasource-content-container {
     flex-direction: column;
-    padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+    padding: 0 var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
+  }
+  .db-form-content-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 `;
 

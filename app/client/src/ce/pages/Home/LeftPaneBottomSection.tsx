@@ -44,7 +44,6 @@ export const LeftPaneVersionData = styled.div`
   justify-content: space-between;
   color: var(--ads-v2-color-fg-emphasis);
   font-size: 8px;
-  width: 92%;
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 

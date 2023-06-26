@@ -1,6 +1,5 @@
 import React from "react";
 import ColumnDropdown from "./ColumnDropdown";
-import { Section } from "../styles";
 import { noop } from "lodash";
 
 type Props = {
@@ -16,7 +15,7 @@ export default function WidgetSpecificControls(props: Props) {
   if (props.hasSearchableColumn) {
     searchableColumn = (
       <ColumnDropdown
-        alias="searchable_columns"
+        alias="searchableColumn"
         label="Select a searchable column"
         onSelect={noop}
       />
@@ -25,18 +24,14 @@ export default function WidgetSpecificControls(props: Props) {
 
   if (props.hasAliasPicker && props.aliases) {
     aliasPicker = props.aliases.map((alias) => {
-      <ColumnDropdown
-        alias={`column.${alias}`}
-        label={alias}
-        onSelect={noop}
-      />;
+      <ColumnDropdown alias={`alias.${alias}`} label={alias} onSelect={noop} />;
     });
   }
 
   return (
-    <Section>
+    <>
       {searchableColumn}
       {aliasPicker}
-    </Section>
+    </>
   );
 }

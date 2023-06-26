@@ -66,7 +66,7 @@ const CategoryDisplay = styled.div`
     margin-left: var(--ads-v2-spaces-3);
     transition: 0.2s all ease;
     &:hover {
-      fill: var(--ads-v2-color-bg-muted);
+      fill: var(--ads-v2-color-fg-muted);
     }
   }
 `;

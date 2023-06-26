@@ -170,10 +170,14 @@ export const createPage = (
   applicationId: string,
   pageName: string,
   layouts: Partial<PageLayout>[],
+  orgId: string,
   blockNavigation?: boolean,
+  instanceId?: string,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
+    orgId,
+    instanceId,
   });
   return {
     type: ReduxActionTypes.CREATE_PAGE_INIT,
@@ -189,10 +193,14 @@ export const createPage = (
 export const createNewPageFromEntities = (
   applicationId: string,
   pageName: string,
+  orgId: string,
   blockNavigation?: boolean,
+  instanceId?: string,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
+    orgId,
+    instanceId,
   });
   return {
     type: ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,

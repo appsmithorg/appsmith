@@ -54,21 +54,16 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
-import {
-  getFirstTimeUserOnboardingComplete,
-  getIsFirstTimeUserOnboardingEnabled,
-} from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
-import { removeFirstTimeUserOnboardingApplicationId } from "actions/onboardingActions";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 
 //  ---------- Styles ----------
 
@@ -143,7 +138,7 @@ const OptionWrapper = styled.div`
 `;
 // Constants
 
-const datasourceIcon = "layout-left-2-line";
+const datasourceIcon = "layout-5-line";
 const columnIcon = "layout-column-line";
 
 const GENERATE_PAGE_MODE = {
@@ -261,8 +256,9 @@ function GeneratePageForm() {
   const selectedDatasourcePluginPackageName: string =
     generateCRUDSupportedPlugin[selectedDatasourcePluginId];
 
-  const isGoogleSheetPlugin =
-    selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS;
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(
+    selectedDatasourcePluginPackageName,
+  );
 
   const isS3Plugin =
     selectedDatasourcePluginPackageName === PluginPackageName.S3;
@@ -290,13 +286,6 @@ function GeneratePageForm() {
 
   const { bucketList, failedFetchingBucketList, isFetchingBucketList } =
     useS3BucketList();
-
-  const isFirstTimeUserOnboardingEnabled = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  const isFirstTimeUserOnboardingComplete = useSelector(
-    getFirstTimeUserOnboardingComplete,
-  );
 
   const onSelectDataSource = useCallback(
     (
@@ -566,15 +555,6 @@ function GeneratePageForm() {
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
-    if (isFirstTimeUserOnboardingEnabled) {
-      dispatch(removeFirstTimeUserOnboardingApplicationId(applicationId));
-    }
-    if (isFirstTimeUserOnboardingComplete) {
-      dispatch({
-        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
-        payload: false,
-      });
-    }
   };
 
   const handleFormSubmit = () => {

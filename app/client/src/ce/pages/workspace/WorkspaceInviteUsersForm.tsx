@@ -21,6 +21,12 @@ import {
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
   USERS_HAVE_ACCESS_TO_ALL_APPS,
   NO_USERS_INVITED,
+  BUSINESS_EDITION_TEXT,
+  INVITE_USER_RAMP_TEXT,
+  CUSTOM_ROLES_RAMP_TEXT,
+  BUSINESS_TEXT,
+  CUSTOM_ROLE_DISABLED_OPTION_TEXT,
+  CUSTOM_ROLE_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -30,6 +36,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
+import { Callout, Checkbox } from "design-system";
 import {
   Avatar,
   Button,
@@ -40,6 +47,8 @@ import {
   Option,
   Tooltip,
   toast,
+  Tag,
+  Link,
 } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -51,6 +60,8 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
+import { getRampLink, showProductRamps } from "utils/ProductRamps";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -151,7 +162,7 @@ export const ManageUsersContainer = styled.div`
 export const ErrorTextContainer = styled.div`
   display: flex;
   margin-top: 4px;
-  gap: 8px;
+  gap: 4px;
 
   > p {
     color: var(--ads-v2-color-fg-error);
@@ -161,6 +172,26 @@ export const ErrorTextContainer = styled.div`
     path {
       fill: var(--ads-v2-color-fg-error);
     }
+  }
+`;
+
+export const WorkspaceText = styled.div`
+  a {
+    display: inline;
+  }
+`;
+export const CustomRoleRampTooltip = styled(Tooltip)`
+  pointer-events: auto;
+`;
+export const RampLink = styled(Link)`
+  display: inline;
+`;
+
+export const StyledCheckbox = styled(Checkbox)`
+  height: 16px;
+
+  .ads-v2-checkbox {
+    padding: 0;
   }
 `;
 
@@ -219,6 +250,75 @@ const validate = (values: any) => {
   }
   return errors;
 };
+
+function InviteUserText({
+  isApplicationInvite,
+}: {
+  isApplicationInvite: boolean;
+}) {
+  return (
+    <Text
+      color="var(--ads-v2-color-fg)"
+      data-testid="helper-message"
+      kind="action-m"
+    >
+      {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) && isApplicationInvite ? (
+        <>
+          {createMessage(INVITE_USER_RAMP_TEXT)}
+          <Link kind="primary" target="_blank" to={getRampLink("app_share")}>
+            {createMessage(BUSINESS_EDITION_TEXT)}
+          </Link>
+        </>
+      ) : (
+        createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)
+      )}
+    </Text>
+  );
+}
+
+export function CustomRolesRamp() {
+  const [dynamicProps, setDynamicProps] = useState<any>({});
+  const rampText = (
+    <Text color="var(--ads-v2-color-white)" kind="action-m">
+      {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
+      <RampLink
+        className="inline"
+        kind="primary"
+        onClick={() => {
+          setDynamicProps({ visible: false });
+          window.open(getRampLink("workspace_share"), "_blank");
+          // This reset of prop is required because, else the tooltip will be controlled by the state
+          setTimeout(() => {
+            setDynamicProps({});
+          }, 1);
+        }}
+      >
+        {createMessage(BUSINESS_EDITION_TEXT)}
+      </RampLink>
+    </Text>
+  );
+  return (
+    <CustomRoleRampTooltip
+      content={rampText}
+      placement="right"
+      {...dynamicProps}
+    >
+      <div className="flex flex-col gap-1">
+        <div className="flex gap-1">
+          <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-xs">
+            {createMessage(CUSTOM_ROLE_TEXT)}
+          </Text>
+          <Tag isClosable={false} size="md">
+            {createMessage(BUSINESS_TEXT)}
+          </Tag>
+        </div>
+        <Text kind="body-s">
+          {createMessage(CUSTOM_ROLE_DISABLED_OPTION_TEXT)}
+        </Text>
+      </div>
+    </CustomRoleRampTooltip>
+  );
+}
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
@@ -369,6 +469,7 @@ function WorkspaceInviteUsersForm(props: any) {
             ...(cloudHosting ? { users: usersAsStringsArray } : {}),
             role: roles,
             numberOfUsersInvited: usersAsStringsArray.length,
+            orgId: props.workspaceId,
           });
           return inviteUsersToWorkspace(
             {
@@ -380,16 +481,6 @@ function WorkspaceInviteUsersForm(props: any) {
           );
         })}
       >
-        <div className="flex gap-2 mb-2">
-          <Text
-            color="var(--ads-v2-color-fg)"
-            data-testid="helper-message"
-            kind="action-m"
-          >
-            {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-          </Text>
-        </div>
-
         <StyledInviteFieldGroup>
           <div style={{ width: "60%" }}>
             <TagListField
@@ -403,16 +494,21 @@ function WorkspaceInviteUsersForm(props: any) {
               placeholder={placeholder || "Enter email address(es)"}
               type="email"
             />
-            {((submitFailed && error) || emailError) && (
+            {emailError && (
               <ErrorTextContainer>
-                <Icon name="alert-line" size="md" />
-                <Text renderAs="p">{error || emailError}</Text>
+                <Icon name="alert-line" size="sm" />
+                <Text kind="body-s" renderAs="p">
+                  {emailError}
+                </Text>
               </ErrorTextContainer>
             )}
           </div>
           <div style={{ width: "40%" }}>
             <Select
               data-testid="t--invite-role-input"
+              getPopupContainer={(triggerNode) =>
+                triggerNode.parentNode.parentNode
+              }
               isDisabled={disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
               listHeight={400}
@@ -424,19 +520,33 @@ function WorkspaceInviteUsersForm(props: any) {
             >
               {styledRoles.map((role: any) => (
                 <Option key={role.key} label={role.value} value={role.key}>
-                  <div className="flex flex-col gap-1">
-                    <Text
-                      color="var(--ads-v2-color-fg-emphasis)"
-                      kind={role.description && "heading-xs"}
-                    >
-                      {role.value}
-                    </Text>
-                    {role.description && (
-                      <Text kind="body-s">{role.description}</Text>
+                  <div className="flex gap-1 items-center">
+                    {isMultiSelectDropdown && (
+                      <StyledCheckbox
+                        isSelected={selectedOption.find(
+                          (v) => v.key == role.key,
+                        )}
+                      />
                     )}
+                    <div className="flex flex-col gap-1">
+                      <Text
+                        color="var(--ads-v2-color-fg-emphasis)"
+                        kind={role.description && "heading-xs"}
+                      >
+                        {role.value}
+                      </Text>
+                      {role.description && (
+                        <Text kind="body-s">{role.description}</Text>
+                      )}
+                    </div>
                   </div>
                 </Option>
               ))}
+              {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                <Option disabled>
+                  <CustomRolesRamp />
+                </Option>
+              )}
             </Select>
           </div>
           <div>
@@ -451,7 +561,12 @@ function WorkspaceInviteUsersForm(props: any) {
             </Button>
           </div>
         </StyledInviteFieldGroup>
-
+        <div className="flex gap-2 mt-2 items-start">
+          <Icon className="mt-1" name="user-3-line" size="md" />
+          <WorkspaceText>
+            <InviteUserText isApplicationInvite={isApplicationInvite} />
+          </WorkspaceText>
+        </div>
         {isLoading ? (
           <div className="pt-4 overflow-hidden">
             <Spinner size="lg" />
@@ -511,6 +626,9 @@ function WorkspaceInviteUsersForm(props: any) {
             )}
           </>
         )}
+        <ErrorBox message={submitFailed}>
+          {submitFailed && error && <Callout kind="error">{error}</Callout>}
+        </ErrorBox>
         {canManage && !disableManageUsers && (
           <ManageUsersContainer>
             <ManageUsers

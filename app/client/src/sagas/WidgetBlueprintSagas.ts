@@ -75,6 +75,7 @@ export type BlueprintOperationChildOperationsFn = (
   widgetPropertyMaps: {
     defaultPropertyMap: Record<string, string>;
   },
+  isAutoLayout?: boolean,
 ) => ChildOperationFnResponse;
 
 export type BlueprintBeforeOperationsFn = (
@@ -156,6 +157,7 @@ export function* executeWidgetBlueprintChildOperations(
 
   let widgets = canvasWidgets,
     message;
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
 
   for (const widgetId of widgetIds) {
     // Get the default properties map of the current widget
@@ -171,7 +173,7 @@ export function* executeWidgetBlueprintChildOperations(
 
     ({ message: currMessage, widgets } = (
       operation.fn as BlueprintOperationChildOperationsFn
-    )(widgets, widgetId, parentId, widgetPropertyMaps));
+    )(widgets, widgetId, parentId, widgetPropertyMaps, isAutoLayout));
     //set message if one of the widget has any message to show
     if (currMessage) message = currMessage;
   }

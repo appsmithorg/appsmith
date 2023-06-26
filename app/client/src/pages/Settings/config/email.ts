@@ -89,9 +89,6 @@ export const config: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "SMTP username",
-      isVisible: (values: Record<string, any>) => {
-        return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
-      },
     },
     {
       id: "APPSMITH_MAIL_PASSWORD",
@@ -99,9 +96,6 @@ export const config: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.PASSWORD,
       label: "SMTP password",
-      isVisible: (values: Record<string, any>) => {
-        return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
-      },
     },
     {
       id: "APPSMITH_MAIL_TEST_EMAIL",
@@ -115,6 +109,8 @@ export const config: AdminConfigType = {
                 smtpHost: settings["APPSMITH_MAIL_HOST"],
                 smtpPort: settings["APPSMITH_MAIL_PORT"],
                 fromEmail: settings["APPSMITH_MAIL_FROM"],
+                starttlsEnabled:
+                  settings["APPSMITH_MAIL_SMTP_TLS_ENABLED"] || false,
                 username: settings["APPSMITH_MAIL_USERNAME"],
                 password: settings["APPSMITH_MAIL_PASSWORD"],
               },

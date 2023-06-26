@@ -28,6 +28,7 @@ import {
   migrateColumnFreezeAttributes,
   migrateTableSelectOptionAttributesForNewRow,
   migrateBindingPrefixSuffixForInlineEditValidationControl,
+  migrateTableWidgetTableDataJsMode,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -36,7 +37,6 @@ import {
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 // import defaultTemplate from "templates/default";
@@ -84,6 +84,7 @@ import {
   migrateListWidgetChildrenForAutoHeight,
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
+import { flattenDSL } from "@shared/dsl";
 
 /**
  * adds logBlackList key for all list widget children
@@ -881,9 +882,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 21) {
-    const {
-      entities: { canvasWidgets },
-    } = CanvasWidgetsNormalizer.normalize(currentDSL);
+    const canvasWidgets = flattenDSL(currentDSL);
     currentDSL = migrateWidgetsWithoutLeftRightColumns(
       currentDSL,
       canvasWidgets,
@@ -1181,6 +1180,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version == 78) {
     currentDSL =
       migrateBindingPrefixSuffixForInlineEditValidationControl(currentDSL);
+    currentDSL.version = 79;
+  }
+
+  if (currentDSL.version == 79) {
+    currentDSL = migrateTableWidgetTableDataJsMode(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

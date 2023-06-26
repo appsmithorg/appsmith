@@ -69,6 +69,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.util.AssertionErrors.fail;
@@ -1903,5 +1904,30 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+
+
+    /**
+     * Please note that this test also serves to test the GraphQL plugin flow as the API handling part for both is
+     * handled via a common flow, hence not adding a duplicate test for the GraphQL plugin.
+     */
+    @Test
+    public void testGetApiWithoutBody() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/get");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setFormData(new HashMap<>());
+
+        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNull(result.getRequest().getBody());
+                })
+                .verifyComplete();
+    }
+
 }
 

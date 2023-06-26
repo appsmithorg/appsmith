@@ -1,6 +1,5 @@
 const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
@@ -72,7 +71,9 @@ function testJsontextClear(endp) {
 
 describe("List widget v2 - meta hydration tests", () => {
   before(() => {
-    _.agHelper.AddDsl(dsl);
+    cy.fixture("Listv2/MetaHydrationDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
@@ -131,7 +132,7 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(200);
+    cy.wait(3000); //for page to load fully
 
     cy.waitUntil(() =>
       cy
@@ -177,7 +178,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in FirstPage
     //   First Row
-    cy.wait(300);
+    cy.wait(3000); //for page to load fully
     cy.waitUntil(() =>
       cy
         .get(
@@ -234,7 +235,7 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(300);
+    cy.wait(3000); //for page to load fully
 
     //Validate values in SecondPage
     //   First Row
@@ -292,7 +293,7 @@ describe("List widget v2 - meta hydration tests", () => {
   });
 
   it("3. using server side data in view mode", () => {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
       "have.length",
       3,
@@ -317,7 +318,7 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(200);
+    cy.wait(3000);
 
     cy.waitUntil(() =>
       cy
@@ -362,7 +363,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in FirstPage
     //   First Row
-    cy.wait(300);
+    cy.wait(3000); //for page to load fully
     cy.waitUntil(() =>
       cy
         .get(
@@ -422,7 +423,7 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in SecondPage
     //   First Row
-    cy.wait(300);
+    _.agHelper.Sleep(3000); //for navigated page to load! no intercepts avilable here - for CI
     cy.waitUntil(() =>
       cy
         .get(
@@ -474,7 +475,5 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("selectwidget", "Green", 2);
     verifyValueOfWidget("inputwidgetv2", "Sixth", 2);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
-
-    cy.get(publishPage.backToEditor).click({ force: true });
   });
 });

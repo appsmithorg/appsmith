@@ -1,1 +1,3 @@
-SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10
+SELECT * FROM <<your_table_name>> LIMIT 10
+
+-- Please enter a valid table name and hit RUN

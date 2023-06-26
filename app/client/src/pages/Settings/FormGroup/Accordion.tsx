@@ -8,7 +8,7 @@ import { Icon, Text } from "design-system";
 
 const AccordionWrapper = styled.div`
   margin-top: 40px;
-  max-width: 30rem;
+  max-width: 40rem;
 `;
 
 const AccordionHeader = styled(Text)`

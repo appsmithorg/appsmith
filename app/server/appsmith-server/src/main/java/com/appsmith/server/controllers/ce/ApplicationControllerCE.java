@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -242,11 +242,10 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
                                                                              @PathVariable String workspaceId,
-                                                                             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId,
-                                                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                                             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, file, applicationId, branchName))
+                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
@@ -285,8 +284,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @GetMapping("/import/{workspaceId}/datasources")
-    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
-        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, workspaceId)
+    public Mono<ResponseDTO<List<DatasourceDTO>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
+        return importExportApplicationService.findDatasourceDTOByApplicationId(defaultApplicationId, workspaceId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

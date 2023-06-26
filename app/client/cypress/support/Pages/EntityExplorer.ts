@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { EntityItems } from "./AssertHelper";
 
 type templateActions =
   | "SELECT"
@@ -16,10 +17,29 @@ type templateActions =
   | "Select"
   | "Create";
 
+interface EntityActionParams {
+  entityNameinLeftSidebar: string;
+  action?:
+    | "Show bindings"
+    | "Edit name"
+    | "Delete"
+    | "Clone"
+    | "Settings"
+    | "Copy to page"
+    | "Move to page"
+    | "Hide"
+    | "Refresh";
+  subAction?: string;
+  entityType?: EntityItems;
+  toAssertAction?: boolean;
+  toastToValidate?: string;
+}
+
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
@@ -44,8 +64,8 @@ export class EntityExplorer {
   private _moreOptionsPopover =
     "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
   private _pageClone = ".single-select >div:contains('Clone')";
-  private getPageLocator = (pageName: string) =>
-    `.t--entity-name:contains(${pageName})`;
+  private _pageNameDiv = (pageName: string) =>
+    `.t--entity.page:contains('${pageName}')`;
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
   _createNewPopup = ".bp3-overlay-content";
@@ -85,7 +105,7 @@ export class EntityExplorer {
       .click(
         ctrlKey ? { ctrlKey, force: true } : { multiple: true, force: true },
       );
-    this.agHelper.Sleep(500);
+    this.agHelper.Sleep(); //for selection to settle
   }
 
   public SelectEntityInModal(
@@ -111,7 +131,10 @@ export class EntityExplorer {
     this.agHelper.GetNClick(this.locator._newPage);
     this.agHelper.GetNClick(this._newPageOptions(option));
     if (option === "New blank page") {
-      this.agHelper.ValidateNetworkStatus("@createPage", 201);
+      this.assertHelper.AssertNetworkStatus("@createPage", 201);
+      return cy
+        .get("@createPage")
+        .then(($pageName: any) => $pageName.response?.body.data.name);
     }
   }
 
@@ -128,8 +151,8 @@ export class EntityExplorer {
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).should(
-      "have.length",
+    this.agHelper.AssertElementLength(
+      this._entityNameInExplorer(entityNameinLeftSidebar),
       1,
     );
   }
@@ -203,12 +226,14 @@ export class EntityExplorer {
       });
   }
 
-  public ActionContextMenuByEntityName(
-    entityNameinLeftSidebar: string,
+  public ActionContextMenuByEntityName({
+    entityNameinLeftSidebar,
     action = "Delete",
     subAction = "",
-    jsDelete = false,
-  ) {
+    entityType = EntityItems.Query,
+    toAssertAction,
+    toastToValidate = "",
+  }: EntityActionParams) {
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
@@ -217,15 +242,14 @@ export class EntityExplorer {
     cy.xpath(this.locator._contextMenuItem(action)).click({ force: true });
     this.agHelper.Sleep(1000);
     if (action == "Delete") {
-      subAction = "Are you sure?";
-    }
-    if (subAction) {
-      cy.xpath(this.locator._contextMenuItem(subAction)).click({ force: true });
-      this.agHelper.Sleep(300);
-    }
-    if (action == "Delete") {
-      jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
-      jsDelete && this.agHelper.AssertContains("deleted successfully");
+      toAssertAction = toAssertAction === false ? false : true;
+      this.agHelper.DeleteEntityNAssert(entityType, toAssertAction);
+    } else if (subAction) {
+      this.agHelper.ActionContextMenuSubItem({
+        subAction: subAction,
+        force: true,
+        toastToValidate: toastToValidate,
+      });
     }
   }
 
@@ -235,7 +259,7 @@ export class EntityExplorer {
       .click({ force: true });
     cy.xpath(this.locator._contextMenuItem("Delete")).click({ force: true });
     this.agHelper.Sleep(500);
-    this.agHelper.ValidateNetworkStatus("@updateLayout");
+    this.assertHelper.AssertNetworkStatus("@updateLayout");
     this.AssertEntityAbsenceInExplorer(widgetNameinLeftSidebar);
   }
 
@@ -250,7 +274,11 @@ export class EntityExplorer {
       cy.wrap($el)
         .invoke("text")
         .then(($query) => {
-          this.ActionContextMenuByEntityName($query, "Delete", "Are you sure?");
+          this.ActionContextMenuByEntityName({
+            entityNameinLeftSidebar: $query as string,
+            action: "Delete",
+            entityType: EntityItems.Query,
+          });
         });
     });
   }
@@ -274,31 +302,69 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(widgetType: string, x = 200, y = 200) {
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    dropTargetId = "",
+  ) {
     this.NavigateToSwitcher("Widgets");
     this.agHelper.Sleep();
+    this.agHelper.ClearTextField(this.locator._entityExplorersearch);
+    this.agHelper.TypeText(
+      this.locator._entityExplorersearch,
+      widgetType.split("widget")[0].trim(),
+    );
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
-    cy.get(this.locator._dropHere)
+    cy.get(
+      dropTargetId
+        ? this.locator._widgetInCanvas(dropTargetId) +
+            " " +
+            this.locator._dropHere
+        : this.locator._dropHere,
+    )
       .first()
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+    this.agHelper.Sleep(200);
+    cy.get(
+      dropTargetId
+        ? this.locator._widgetInCanvas(dropTargetId) +
+            " " +
+            this.locator._dropHere
+        : this.locator._dropHere,
+    )
+      .first()
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");
     } else {
-      cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+      if (dropTargetId) {
+        this.agHelper.AssertElementExist(
+          `${this.locator._widgetInCanvas(
+            dropTargetId,
+          )} ${this.locator._widgetInCanvas(widgetType)}`,
+        );
+      } else {
+        this.agHelper.AssertElementExist(
+          this.locator._widgetInCanvas(widgetType),
+        );
+      }
     }
     this.agHelper.Sleep(200); //waiting a bit for widget properties to open
   }
 
   public ClonePage(pageName = "Page1") {
     this.SelectEntityByName(pageName, "Pages");
-    this.ActionContextMenuByEntityName(pageName, "Clone");
-    this.agHelper.ValidateNetworkStatus("@clonePage", 201);
+    this.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: pageName,
+      action: "Clone",
+    });
+    this.assertHelper.AssertNetworkStatus("@clonePage", 201);
   }
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
@@ -339,12 +405,22 @@ export class EntityExplorer {
     renameVal: string,
     viaMenu = false,
   ) {
-    if (viaMenu) this.ActionContextMenuByEntityName(entityName, "Edit name");
+    if (viaMenu)
+      this.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: entityName,
+        action: "Edit name",
+      });
     else cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
     this.AssertEntityPresenceInExplorer(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
+  }
+
+  public VerifyIsCurrentPage(pageName: string) {
+    this.agHelper
+      .GetElement(this._pageNameDiv(pageName))
+      .should("have.class", "activePage");
   }
 }

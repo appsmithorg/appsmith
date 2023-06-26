@@ -28,6 +28,7 @@ export default [
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
+        defaultValue: "left",
         fullWidth: false,
         options: [
           {

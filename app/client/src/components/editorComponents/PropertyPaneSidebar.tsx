@@ -20,8 +20,6 @@ import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors"
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
-import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 import styled from "styled-components";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
@@ -56,8 +54,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
-  const isMultiPane = useSelector(isMultiPaneActive);
-  const paneCount = useSelector(getPaneCount);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,
@@ -112,14 +108,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     shouldNotRenderPane,
     keepThemeWhileDragging,
   ]);
-  const showResizer = isAppSettingsPaneOpen
-    ? false
-    : isMultiPane
-    ? paneCount === PaneLayoutOptions.THREE_PANE
-    : true;
 
   return (
-    <div className="relative h-full">
+    <div className="relative">
       {/* PROPERTY PANE */}
       <div
         className={classNames({
@@ -131,7 +122,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         ref={sidebarRef}
       >
         {/* RESIZER */}
-        {showResizer && (
+        {!isAppSettingsPaneOpen && (
           <StyledResizer
             className={`absolute top-0 left-0 w-2 h-full -ml-1 group cursor-ew-resize ${tailwindLayers.resizer}`}
             onMouseDown={onMouseDown}

@@ -12,7 +12,7 @@ type FieldHelperProps = {
 };
 
 export const StyledFormGroup = styled.div`
-  width: 30rem;
+  width: 40rem;
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   &.t--admin-settings-dropdown {
     div {

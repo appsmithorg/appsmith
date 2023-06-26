@@ -89,7 +89,7 @@ describe("Update Application", () => {
     cy.get(homePage.applicationCard)
       .first()
       .find(homePage.applicationCardName)
-      .trigger("mouseover");
+      .trigger("mouseover", { force: true });
     cy.get(".bp3-popover-target.bp3-popover-open").should("not.exist");
   });
 });

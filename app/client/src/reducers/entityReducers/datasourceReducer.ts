@@ -12,6 +12,7 @@ import type {
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { DropdownOption } from "design-system-old";
 import produce from "immer";
+import { assign } from "lodash";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -337,6 +338,15 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
   ): DatasourceDataState => {
+    return produce(state, (draftState) => {
+      draftState.loading = false;
+      draftState.list.forEach((datasource) => {
+        if (datasource.id === action.payload.id) {
+          assign(datasource, action.payload);
+        }
+      });
+    });
+
     return {
       ...state,
       loading: false,

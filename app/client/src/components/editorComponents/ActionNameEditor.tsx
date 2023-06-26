@@ -103,6 +103,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
           <div
             style={{
               display: "flex",
+              alignItems: "center",
             }}
           >
             {currentPlugin && (

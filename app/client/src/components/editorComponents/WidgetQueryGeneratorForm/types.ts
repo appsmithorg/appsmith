@@ -1,12 +1,8 @@
-import type { DropdownOption } from "design-system-old";
-import type { DatasourceTable } from "entities/Datasource";
-
-export type QueryGeneratorFromProps = any;
-
-export interface DatasourceTableDropdownOption extends DropdownOption {
-  data: DatasourceTable;
-}
-
-export interface DropdownOptionType extends DropdownOption {
-  id: string;
+export interface DropdownOptionType {
+  id?: string;
+  label?: string;
+  value?: string;
+  icon?: JSX.Element;
+  onSelect?: (value: string, option: DropdownOptionType) => void;
+  data?: any;
 }

@@ -52,6 +52,7 @@ export function SuperUserForm() {
 
 const StyledNonSuperUserForm = styled.form`
   width: 400px;
+  margin-right: 3rem;
 `;
 
 const Space = styled.div`
@@ -117,10 +118,11 @@ function NonSuperUser(
       </DropdownWrapper>
       <ActionContainer>
         <StyledButton
-          className="t--get-started-button"
+          className="w-full t--get-started-button"
           isDisabled={props.invalid}
           kind="primary"
           renderAs="button"
+          size={"md"}
           type="submit"
         >
           {createMessage(WELCOME_ACTION)}

@@ -14,7 +14,6 @@ const initialState: MainCanvasReduxState = {
   initialized: false,
   width: 0,
   height: 0,
-  scale: 1,
   isMobile: false,
 };
 
@@ -35,7 +34,6 @@ const mainCanvasReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasLayoutPayload>,
   ) => {
     state.width = action.payload.width || state.width;
-    state.scale = action.payload.scale;
     state.initialized = true;
     state.isMobile =
       action.payload.width <= layoutConfigurations.MOBILE.maxWidth;
@@ -46,7 +44,6 @@ export interface MainCanvasReduxState {
   initialized: boolean;
   width: number;
   height: number;
-  scale: number;
   isMobile: boolean;
 }
 

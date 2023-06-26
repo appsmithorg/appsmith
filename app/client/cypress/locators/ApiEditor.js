@@ -20,7 +20,7 @@ export default {
   apiPaginationPrevTest: ".t--apiFormPaginationPrevTest",
   apiPaginationNextTest: ".t--apiFormPaginationNextTest",
   apiPaginationTab:
-    ".t--apiFormPaginationType label:contains('Paginate with Response URL') input",
+    ".t--apiFormPaginationType label:contains('Paginate with response URL') input",
   apiTab: ".react-tabs__tab-list li",
   bodyType: ".t--apiFormPostBodyType",
   bodyTypeSelected:

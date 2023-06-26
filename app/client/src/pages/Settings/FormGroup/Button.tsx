@@ -8,7 +8,7 @@ import type { SettingComponentProps } from "./Common";
 
 const ButtonWrapper = styled.div`
   width: 357px;
-  margin-top: 3px;
+  margin-bottom: 8px;
 `;
 
 export const StyledButton = styled(Button)`

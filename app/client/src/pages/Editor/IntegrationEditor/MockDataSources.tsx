@@ -9,6 +9,7 @@ import { getQueryParams } from "utils/URLUtils";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const MockDataSourceWrapper = styled.div`
   overflow: auto;
@@ -111,13 +112,17 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
       workspaceId,
       packageName: currentPlugin.packageName,
       pluginName: currentPlugin.name,
+      from: DatasourceCreateEntryPoints.CREATE_NEW_DATASOURCE,
     });
+
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       mockDatasourceName: datasource.name,
       pluginName: currentPlugin.name,
       pluginPackageName: currentPlugin.packageName,
     });
+
     const queryParams = getQueryParams();
+
     dispatch(
       addMockDatasourceToWorkspace(
         datasource.name,

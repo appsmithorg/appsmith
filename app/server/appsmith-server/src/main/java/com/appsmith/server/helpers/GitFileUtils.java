@@ -359,6 +359,7 @@ public class GitFileUtils {
         application.setPublishedPages(null);
         application.setIsPublic(null);
         application.setSlug(null);
+        application.setPublishedApplicationDetail(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {

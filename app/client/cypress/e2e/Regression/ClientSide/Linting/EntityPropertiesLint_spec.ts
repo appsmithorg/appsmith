@@ -1,16 +1,18 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const jsEditor = ObjectsRegistry.JSEditor,
-  locator = ObjectsRegistry.CommonLocators,
-  ee = ObjectsRegistry.EntityExplorer,
-  apiPage = ObjectsRegistry.ApiPage,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane;
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  entityItems,
+  apiPage,
+  draggableWidgets,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Linting of entity properties", () => {
   before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("Explorer");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Shows correct lint error when wrong Api property is binded", () => {
@@ -18,7 +20,7 @@ describe("Linting of entity properties", () => {
     // create Api1
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
     // Edit Button onclick property
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
       `{{function(){
@@ -28,7 +30,7 @@ describe("Linting of entity properties", () => {
     cy.wait(200);
     cy.focused().blur();
     propPane.UpdatePropertyFieldValue("Label", `{{Api1.${invalidProperty}}}`);
-    cy.get(locator._lintErrorElement)
+    cy.get(locators._lintErrorElement)
       .should("have.length", 2)
       .first()
       .trigger("mouseover");
@@ -52,7 +54,7 @@ describe("Linting of entity properties", () => {
     );
     const invalidProperty = "unknownFunction";
     // Edit Button onclick and text property
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
       `{{function(){
@@ -65,27 +67,31 @@ describe("Linting of entity properties", () => {
       `{{JSObject1.${invalidProperty}}}`,
     );
     // Assert lint errors
-    cy.get(locator._lintErrorElement)
+    cy.get(locators._lintErrorElement)
       .should("have.length", 2)
       .first()
       .trigger("mouseover");
     agHelper.AssertContains(`"${invalidProperty}" doesn't exist in JSObject1`);
 
     // Edit JS Object and add "unknown" function
-    ee.SelectEntityByName("JSObject1", "Queries/JS");
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     jsEditor.EditJSObj(`export default {
       ${invalidProperty}: () => {
         console.log("JSOBJECT 1")
       }
   }`);
     // select button, and assert that no lint is present
-    ee.SelectEntityByName("Button1", "Widgets");
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    agHelper.AssertElementAbsence(locators._lintErrorElement);
     // delete JSObject
-    ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
     // select button, and assert that lint error is present
-    ee.SelectEntityByName("Button1", "Widgets");
-    cy.get(locator._lintErrorElement)
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    cy.get(locators._lintErrorElement)
       .should("have.length", 2)
       .first()
       .trigger("mouseover");
@@ -106,7 +112,7 @@ describe("Linting of entity properties", () => {
     );
 
     // select button, and assert that no lint error is present
-    ee.SelectEntityByName("Button1", "Widgets");
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    agHelper.AssertElementAbsence(locators._lintErrorElement);
   });
 });

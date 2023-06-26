@@ -260,6 +260,7 @@ public class Application extends BaseDomain {
         this.setPublishedCustomJSLibs(new HashSet<>());
         this.setExportWithConfiguration(null);
         this.setForkWithConfiguration(null);
+        this.setForkingEnabled(null);
         super.sanitiseToExportDBObject();
     }
 

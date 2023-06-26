@@ -25,7 +25,7 @@ export interface BatchPropertyUpdatePayload {
   modify?: Record<string, unknown>; //Key value pairs of paths and values to update
   remove?: string[]; //Array of paths to delete
   triggerPaths?: string[]; // Array of paths in the modify and remove list which are trigger paths
-  postUpdateAction?: ReduxActionType; // Array of action types we need to dispatch after propert updates.
+  postUpdateAction?: ReduxActionType; // Array of action types we need to dispatch after property updates.
 }
 
 export const batchUpdateWidgetProperty = (
@@ -65,6 +65,7 @@ export const setWidgetDynamicProperty = (
   propertyPath: string,
   isDynamic: boolean,
   shouldRejectDynamicBindingPathList = true,
+  skipValidation = false,
 ): ReduxAction<SetWidgetDynamicPropertyPayload> => {
   return {
     type: ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
@@ -73,6 +74,7 @@ export const setWidgetDynamicProperty = (
       propertyPath,
       isDynamic,
       shouldRejectDynamicBindingPathList,
+      skipValidation,
     },
   };
 };
@@ -117,7 +119,6 @@ export interface UpdateWidgetPropertyPayload {
 export interface UpdateCanvasLayoutPayload {
   width: number;
   height: number;
-  scale: number;
 }
 
 export interface SetWidgetDynamicPropertyPayload {
@@ -125,6 +126,7 @@ export interface SetWidgetDynamicPropertyPayload {
   propertyPath: string;
   isDynamic: boolean;
   shouldRejectDynamicBindingPathList?: boolean;
+  skipValidation?: boolean;
 }
 
 export interface DeleteWidgetPropertyPayload {

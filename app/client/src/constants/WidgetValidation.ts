@@ -34,11 +34,15 @@ export type Validator = (
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
 
-export const DATA_TREE_KEYWORDS = {
+export const DATATREE_INTERNAL_KEYWORDS = {
   actionPaths: "actionPaths",
-  appsmith: "appsmith",
   pageList: "pageList",
   [EXECUTION_PARAM_KEY]: EXECUTION_PARAM_KEY,
+};
+
+export const DATA_TREE_KEYWORDS = {
+  appsmith: "appsmith",
+  ...DATATREE_INTERNAL_KEYWORDS,
 };
 
 export const JAVASCRIPT_KEYWORDS = {

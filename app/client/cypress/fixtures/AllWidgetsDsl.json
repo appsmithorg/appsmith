@@ -1065,8 +1065,13 @@
         "mobileBottomRow": 151,
         "widgetName": "Table1",
         "defaultPageSize": 0,
-        "columnOrder": ["step", "task", "status", "action"],
-        "dynamicPropertyPathList": [],
+        "columnOrder": [
+          "step",
+          "task",
+          "status",
+          "action"
+        ],
+        "dynamicPropertyPathList": [{"key": "tableData"}],
         "displayName": "Table",
         "bottomRow": 151,
         "columnWidthMap": {

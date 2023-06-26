@@ -13,6 +13,7 @@ import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
 import type { Theme } from "constants/DefaultTheme";
 import { Icon, Menu, toast, MenuTrigger } from "design-system";
+import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;
@@ -80,6 +81,8 @@ export function EditorAppName(props: EditorAppNameProps) {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] =
+    useState(false);
 
   const onBlur = (value: string) => {
     if (props.onBlur) props.onBlur(value);
@@ -123,48 +126,57 @@ export function EditorAppName(props: EditorAppNameProps) {
   const NavigationMenuData = GetNavigationMenuData({
     editMode,
     theme,
+    setForkApplicationModalOpen,
   });
 
   return defaultValue !== "" ? (
-    <Menu
-      className="t--application-edit-menu"
-      onOpenChange={handleOnInteraction}
-      open={isPopoverOpen}
-    >
-      <MenuTrigger disabled={isEditing}>
-        <Container onClick={handleAppNameClick}>
-          <EditableAppName
-            className={props.className}
-            defaultSavingState={defaultSavingState}
-            defaultValue={defaultValue}
-            editInteractionKind={props.editInteractionKind}
-            fill={props.fill}
-            hideEditIcon
-            inputValidation={inputValidation}
-            isEditing={isEditing}
-            isEditingDefault={isEditingDefault}
-            isError={props.isError}
-            isInvalid={isInvalid}
-            onBlur={onBlur}
-            placeholder={props.placeholder}
-            savingState={savingState}
-            setIsEditing={setIsEditing}
-            setIsInvalid={setIsInvalid}
-            setSavingState={setSavingState}
-          />
-          {!isEditing && (
-            <StyledIcon
-              name={isPopoverOpen ? "expand-less" : "down-arrow"}
-              size="md"
+    <>
+      <Menu
+        className="t--application-edit-menu"
+        onOpenChange={handleOnInteraction}
+        open={isPopoverOpen}
+      >
+        <MenuTrigger disabled={isEditing}>
+          <Container onClick={handleAppNameClick}>
+            <EditableAppName
+              className={props.className}
+              defaultSavingState={defaultSavingState}
+              defaultValue={defaultValue}
+              editInteractionKind={props.editInteractionKind}
+              fill={props.fill}
+              hideEditIcon
+              inputValidation={inputValidation}
+              isEditing={isEditing}
+              isEditingDefault={isEditingDefault}
+              isError={props.isError}
+              isInvalid={isInvalid}
+              onBlur={onBlur}
+              placeholder={props.placeholder}
+              savingState={savingState}
+              setIsEditing={setIsEditing}
+              setIsInvalid={setIsInvalid}
+              setSavingState={setSavingState}
             />
-          )}
-        </Container>
-      </MenuTrigger>
-      <NavigationMenu
-        menuItems={NavigationMenuData}
-        setIsPopoverOpen={setIsPopoverOpen}
+            {!isEditing && (
+              <StyledIcon
+                name={isPopoverOpen ? "expand-less" : "down-arrow"}
+                size="md"
+              />
+            )}
+          </Container>
+        </MenuTrigger>
+        <NavigationMenu
+          menuItems={NavigationMenuData}
+          setIsPopoverOpen={setIsPopoverOpen}
+        />
+      </Menu>
+      <ForkApplicationModal
+        applicationId={props.applicationId || ""}
+        isInEditMode
+        isModalOpen={isForkApplicationModalopen}
+        setModalClose={setForkApplicationModalOpen}
       />
-    </Menu>
+    </>
   ) : null;
 }
 

@@ -1,76 +1,119 @@
-import React, { forwardRef } from "react";
-import { Icon as HeadlessIcon } from "@design-system/headless";
 import type {
   ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
 } from "@design-system/headless";
+import React, { forwardRef } from "react";
+import { Icon as HeadlessIcon } from "@design-system/headless";
+import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
-import { StyledButton } from "./index.styled";
-import type { fontFamilyTypes } from "../../utils/typography";
-
-export type ButtonVariants = "primary" | "secondary" | "tertiary";
+import { DragContainer, StyledButton } from "./index.styled";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
-  /**
-   *  @default primary
+  /** variant of the button
+   *
+   * @default "filled"
    */
-  variant?: ButtonVariants;
-  isLoading?: boolean;
-  fontFamily?: fontFamilyTypes;
+  variant?: "filled" | "outlined" | "ghost";
+  /** Color tone of the button */
+  color?: "accent" | "neutral" | "positive" | "negative" | "warning";
+  /** When true, makes the button occupy all the space available */
   isFitContainer?: boolean;
-  isFocused?: boolean;
+  /** Indicates the loading state of the button */
+  isLoading?: boolean;
+  /** Icon to be used in the button of the button */
   icon?: React.ReactNode;
+  /** Indicates the position of icon of the button */
   iconPosition?: "start" | "end";
+  /** Makes the button visually and functionaly disabled but focusable */
+  visuallyDisabled?: boolean;
 }
 
 export const Button = forwardRef(
   (props: ButtonProps, ref: HeadlessButtonRef) => {
+    props = useVisuallyDisabled(props);
     const {
       children,
-      fontFamily,
+      color = "accent",
       icon,
       iconPosition = "start",
       isFitContainer = false,
       isLoading,
-      // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixedhttps://github.com/adobe/react-spectrum/issues/4350
+      // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
       onKeyUp,
-      variant = "primary",
+      variant = "filled",
+      visuallyDisabled,
       ...rest
     } = props;
+    const { visuallyHiddenProps } = useVisuallyHidden();
 
     const renderChildren = () => {
       if (isLoading) {
         return (
-          <HeadlessIcon>
-            <Spinner />
-          </HeadlessIcon>
+          <>
+            <HeadlessIcon>
+              <Spinner />
+            </HeadlessIcon>
+            {/* TODO(pawan): How to make sure "Loading..." text is internationalized? */}
+            <span {...visuallyHiddenProps}>Loading...</span>
+          </>
         );
       }
 
       return (
         <>
           {icon}
-          <Text fontFamily={fontFamily} lineClamp={1}>
-            {children}
-          </Text>
+          <Text lineClamp={1}>{children}</Text>
         </>
       );
     };
 
     return (
       <StyledButton
+        aria-busy={isLoading ? true : undefined}
+        aria-disabled={
+          visuallyDisabled || isLoading || props.isDisabled ? true : undefined
+        }
+        color={color}
         data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? undefined : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
+        draggable
         ref={ref}
+        variant={variant}
         {...rest}
       >
         {renderChildren()}
+        <DragContainer data-hidden="" />
       </StyledButton>
     );
   },
 );
+
+/**
+ * This hook is used to disable all click/press events on a button
+ * when the button is visually disabled
+ */
+const useVisuallyDisabled = (props: ButtonProps) => {
+  let computedProps = props;
+
+  if (props.visuallyDisabled || props.isLoading) {
+    computedProps = {
+      ...props,
+      isDisabled: false,
+      // disabling click/press events
+      onPress: undefined,
+      onPressStart: undefined,
+      onPressEnd: undefined,
+      onPressChange: undefined,
+      onPressUp: undefined,
+      onKeyDown: undefined,
+      onKeyUp: undefined,
+    };
+  }
+
+  return computedProps;
+};

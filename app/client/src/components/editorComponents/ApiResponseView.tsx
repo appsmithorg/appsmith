@@ -173,7 +173,7 @@ const HelpSection = styled.div`
 `;
 
 const ResponseBodyContainer = styled.div`
-  overflow-y: auto;
+  overflow-y: clip;
   height: 100%;
   display: grid;
 `;

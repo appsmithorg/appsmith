@@ -70,10 +70,10 @@ export const showUndoRedoToast = (
   const actionKey = shouldUndo
     ? `${modText()} Z`
     : isMacOrIOS()
-    ? `REDO (${modText()} ${shiftText()} Z)`
-    : `REDO (${modText()} Y)`;
+    ? `${modText()} ${shiftText()} Z`
+    : `${modText()} Y`;
 
-  toast.show(`${widgetText} Press ${actionKey} to ${action}`);
+  toast.show(`${widgetText}. Press ${actionKey} to ${action}`);
 };
 
 function getActionDescription(isCreated: boolean, isMultiple: boolean) {
