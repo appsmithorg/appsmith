@@ -77,6 +77,7 @@ describe("Tests fetch calls", () => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
     entityExplorer.SelectEntityByName("Button1");
     propPane.TypeTextIntoField("Label", "getUserID");
+    agHelper.Sleep(2000);
     propPane.EnterJSContext(
       "onClick",
       `{{fetch('https://jsonplaceholder.typicode.com/todos/1')
