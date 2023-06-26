@@ -332,6 +332,8 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
 
+      _.dataSources.NavigateToActiveTab();
+
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       cy.get(`${datasource.datasourceCard}`)
         .filter(":contains('Users')")
