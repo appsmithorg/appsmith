@@ -137,7 +137,10 @@ export function EditorAppName(props: EditorAppNameProps) {
         open={isPopoverOpen}
       >
         <MenuTrigger disabled={isEditing}>
-          <Container onClick={handleAppNameClick}>
+          <Container
+            data-testid="t--application-edit-menu-cta"
+            onClick={handleAppNameClick}
+          >
             <EditableAppName
               className={props.className}
               defaultSavingState={defaultSavingState}
