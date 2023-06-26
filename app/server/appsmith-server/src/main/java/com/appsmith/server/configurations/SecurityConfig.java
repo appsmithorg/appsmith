@@ -12,11 +12,15 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -34,8 +38,10 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
@@ -84,6 +90,12 @@ public class SecurityConfig {
 
     @Autowired
     private RedirectHelper redirectHelper;
+
+    @Value("${appsmith.internal.username}")
+    private String INTERNAL_USER_NAME;
+
+    @Value("${appsmith.internal.password}")
+    private String INTERNAL_PASSWORD;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -149,7 +161,11 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view")
                 )
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**").permitAll()
+                .pathMatchers("/public/**", "/oauth2/**").permitAll()
+                .pathMatchers("/actuator/**").authenticated()
+                .and()
+                .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(getInternalAuthenticationManager()))
+                .authorizeExchange()
                 .anyExchange()
                 .authenticated()
                 .and()
@@ -174,6 +190,19 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
+    }
+
+    private ReactiveAuthenticationManager getInternalAuthenticationManager() {
+        return authentication -> {
+            String name = authentication.getName();
+            String password = authentication.getCredentials().toString();
+
+            if (INTERNAL_USER_NAME.equals(name) && INTERNAL_PASSWORD.equals(password)) {
+                return Mono.just(UsernamePasswordAuthenticationToken.authenticated(name, password, new ArrayList<>()));
+            } else {
+                return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(name, password));
+            }
+        };
     }
 
     /**
