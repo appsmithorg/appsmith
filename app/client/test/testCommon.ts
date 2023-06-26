@@ -1,7 +1,5 @@
-import {
-  Page,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";
 import { APP_MODE } from "entities/App";
@@ -15,9 +13,9 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import type { AppState } from "@appsmith/reducers";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import type { DSLWidget } from "widgets/constants";
+import { nestDSL } from "@shared/dsl";
 
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
   const dispatch = useDispatch();
@@ -96,9 +94,7 @@ export function MockPageDSL({ children, dsl }: any) {
 export const mockGetCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   (canvasWidgets: CanvasWidgetsReduxState): DSLWidget => {
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets,
-    });
+    return nestDSL(canvasWidgets);
   },
 );
 
