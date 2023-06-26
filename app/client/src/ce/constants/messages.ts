@@ -318,7 +318,7 @@ export const SAVE_DATASOURCE = () => "Save as datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
-  "Edit Datasource to access authentication settings";
+  "Edit datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "Enable";
@@ -982,29 +982,67 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
+export const SIGNPOSTING_POPUP_SUBTITLE = () =>
+  "These are all the things you need to do to build your first application.";
+export const SIGNPOSTING_SUCCESS_POPUP = {
+  title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
+  subtitle: () =>
+    "You can carry on building the app from here on. If you are still not sure, checkout our documentation or try guided tour.",
+};
+
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
   bold: () => "Connect your datasource",
-  normal: () => "to start building an application.",
+  normal: () => "to start building your app",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
-  bold: () => "Create a query",
-  normal: () => "of your datasource.",
+  bold: () => "Write a query",
+  normalPrefix: () => "to import your",
+  normal: () => "data into appsmith",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
-  bold: () => "Start visualising your application",
-  normal: () => "using widgets.",
+  bold: () => "Drag & drop a widget,",
+  normal: () => "so you can build a beautiful UI",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
   bold: () => "Connect your data to the widgets",
-  normal: () => "using JavaScript.",
+  normal: () => "using JavaScript bindings",
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
   bold: () => "Deploy your application,",
   normal: () => "and see your creation live.",
+};
+
+export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
+export const SIGNPOSTING_TOOLTIP = {
+  DEFAULT: {
+    content: () =>
+      "Finish these 5 steps to learn the basics in-order to build an app & deploy it. This would take 5 mins of your time.",
+  },
+  CONNECT_A_DATASOURCE: {
+    content: () => "Let's add a datasource",
+  },
+  CREATE_QUERY: {
+    content: () =>
+      "You successfully connected a datasource. Now try to create a query.",
+  },
+  ADD_WIDGET: {
+    content: () =>
+      "You successfully created a query. Now its time to drag & drop a widget to bind data.",
+  },
+  CONNECT_DATA_TO_WIDGET: {
+    content: () =>
+      "You have a widget on the canvas now, its time to bind the data with it.",
+  },
+  DEPLOY_APPLICATION: {
+    content: () => "Deploy you application to see what you’ve built.",
+  },
+  DOCUMENTATION: {
+    content: () => "Open documentation",
+  },
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
@@ -1033,6 +1071,9 @@ export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
+export const SIGNPOSTING_INFO_MENU = {
+  documentation: () => "Open documentation",
+};
 
 //Statusbar
 export const ONBOARDING_STATUS_STEPS_FIRST = () => "First, add a datasource";

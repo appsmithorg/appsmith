@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
@@ -342,4 +343,64 @@ public class DatasourceStructureSolutionTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyDatasourceStorageStructureEntriesWithTwoEnvironmentId() {
+        doReturn(Mono.just(generateDatasourceStructureObject()))
+                .when(datasourceContextService).retryOnce(any(), any());
+
+        // creating an entry with environmentId as randomId and then
+        datasourceStructureService.
+                saveStructure(datasourceId, "randomId", generateDatasourceStructureObject())
+                .block();
+
+        datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId).block();
+
+        Mono<DatasourceStorageStructure> datasourceStorageStructureMono =
+                datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, defaultEnvironmentId);
+
+        StepVerifier
+                .create(datasourceStorageStructureMono)
+                .assertNext(datasourceStorageStructure -> {
+                    assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
+                    assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
+                })
+                .verifyComplete();
+
+        Mono<DatasourceStorageStructure> datasourceStorageStructureMonoWithRandomEnvironmentId =
+                datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, "randomId");
+
+        StepVerifier
+                .create(datasourceStorageStructureMonoWithRandomEnvironmentId)
+                .assertNext(datasourceStorageStructure -> {
+                    assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
+                    assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo("randomId");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyDuplicateKeyErrorOnSave() {
+        doReturn(Mono.just(generateDatasourceStructureObject()))
+                .when(datasourceContextService).retryOnce(any(), any());
+
+        datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId).block();
+
+        DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
+        datasourceStorageStructure.setDatasourceId(datasourceId);
+        datasourceStorageStructure.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorageStructure.setStructure(new DatasourceStructure());
+
+        Mono<DatasourceStorageStructure>  datasourceStorageStructureMono =
+                datasourceStructureService.save(datasourceStorageStructure);
+
+        StepVerifier
+                .create(datasourceStorageStructureMono)
+                .verifyErrorSatisfies(error ->  {
+                    assertThat(error).isInstanceOf(DuplicateKeyException.class);
+                });
+    }
+
 }

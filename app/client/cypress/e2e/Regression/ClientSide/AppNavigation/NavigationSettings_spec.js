@@ -4,6 +4,7 @@ import {
   locators,
   entityExplorer,
   deployMode,
+  appSettings,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test app's navigation settings", function () {
@@ -44,6 +45,7 @@ describe("Test app's navigation settings", function () {
     ).click({
       force: true,
     });
+    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
     deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
