@@ -45,10 +45,10 @@ const eslintConfig = {
         ],
       },
     ],
-    // Annoyingly, the `no-restricted-imports` rule doesn’t allow to restrict imports of
-    // `editorComponents/CodeEditor` but not `editorComponents/CodeEditor/*`: https://stackoverflow.com/q/64995811/1192426
-    // So we’re using `no-restricted-syntax` instead.
     "no-restricted-syntax": [
+      // Annoyingly, the `no-restricted-imports` rule doesn’t allow to restrict imports of
+      // `editorComponents/CodeEditor` but not `editorComponents/CodeEditor/*`: https://stackoverflow.com/q/64995811/1192426
+      // So we’re using `no-restricted-syntax` instead.
       "error",
       {
         // Match all
@@ -60,6 +60,20 @@ const eslintConfig = {
           "ImportDeclaration[importKind!='type'][source.value=/editorComponents\\u002FCodeEditor(\\u002Findex)?$/]",
         message:
           "Please don’t import CodeEditor directly – this will cause it to be bundled in the main chunk. Instead, use the LazyCodeEditor component.",
+      },
+      // Annoyingly, no-restricted-imports follows the gitignore exclude syntax,
+      // so there’s no way to exclude all @uppy/* but not @uppy/*/*.css imports:
+      // https://github.com/eslint/eslint/issues/16927
+      {
+        // Match all
+        //   - `import` statements
+        //   - that are not `import type` statements – we allow type imports as they don’t lead to bundling the dependency
+        //   - that import `@uppy/*` unless the `*` part ends with `.css`
+        // Note: using `\\u002F` instead of `/` due to https://eslint.org/docs/latest/extend/selectors#known-issues
+        selector:
+          "ImportDeclaration[importKind!='type'][source.value=/^@uppy\\u002F(?!.*.css$)/]",
+        message:
+          "Please don’t import Uppy directly. End users rarely use Uppy (e.g. only when they need to upload a file) – but Uppy bundles ~200 kB of JS. Please import it lazily instead.",
       },
     ],
   },
