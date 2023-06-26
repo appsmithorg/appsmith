@@ -65,18 +65,16 @@ Cypress.Commands.add("NavigateToActiveDatasources", () => {
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click({ force: true });
-  cy.wait("@testDatasource").should(
-    "have.nested.property",
-    "response.body.data.success",
-    expectedRes,
-  );
+  cy.wait("@testDatasource")
+    .its("response.body.data.success")
+    .should("eq", expectedRes);
 });
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click({ force: true });
-  cy.wait("@saveDatasource").then((xhr) => {
-    expect(xhr.status).to.equal(201);
-  });
+  cy.wait("@saveDatasource")
+    .its("response.body.responseMeta.status")
+    .should("eq", 201);
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {

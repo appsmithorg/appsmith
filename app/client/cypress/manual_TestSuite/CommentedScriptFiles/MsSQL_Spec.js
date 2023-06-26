@@ -100,7 +100,7 @@
 //   });
 
 //   it.skip("Create new app and Generate CRUD page using a new datasource", function() {
-//     cy.NavigateToHome();
+//     _.homePage.NavigateToHome();
 
 //     cy.get(homePage.createNew)
 //       .first()

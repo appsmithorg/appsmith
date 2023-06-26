@@ -192,18 +192,18 @@ function* BindWidgetToDatasource(
       );
 
       //TODO(Balaji): Need to make changes to plugin saga to execute the actions in parallel
-      for (const action of actionsToRun) {
-        yield put(runAction(action.id, undefined, true));
+      for (const actionToRun of actionsToRun) {
+        yield put(runAction(actionToRun.id, undefined, true));
 
         const runResponse: ReduxAction<unknown> = yield take([
-          ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+          ReduxActionTypes.RUN_ACTION_SUCCESS,
           ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
         ]);
 
         if (
           runResponse.type === ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR
         ) {
-          throw new Error(`Unable to run action: ${action.name}`);
+          throw new Error(`Unable to run action: ${actionToRun.name}`);
         }
       }
 
@@ -217,7 +217,10 @@ function* BindWidgetToDatasource(
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.SELECT])) {
         queryBindingConfig[QUERY_TYPE.SELECT] = {
           data: `{{${queryNameMap[QUERY_TYPE.SELECT]}.data}}`,
-          run: `{{${queryNameMap[QUERY_TYPE.SELECT]}.run()}}`,
+          run: `{{
+            ${queryNameMap[QUERY_TYPE.SELECT]}.run();
+            ${queryNameMap[QUERY_TYPE.TOTAL_RECORD]}.run();
+          }}`,
         };
       }
 

@@ -50,6 +50,7 @@ import {
   dynamicTriggerErrorHandler,
   evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
+  logJSVarCreatedEvent,
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
@@ -65,7 +66,10 @@ import {
 } from "actions/globalSearchActions";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
+  TriggerKind,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
@@ -146,6 +150,7 @@ export function* updateDataTreeHandler(
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
+    jsVarsCreatedEvent,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -221,6 +226,8 @@ export function* updateDataTreeHandler(
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
+
+  yield call(logJSVarCreatedEvent, jsVarsCreatedEvent);
 }
 
 /**
@@ -401,6 +408,7 @@ function* executeAsyncJSFunction(
       type: ENTITY_TYPE.JSACTION,
     },
     triggerPropertyName: `${collectionName}.${action.name}`,
+    triggerKind: TriggerKind.JS_FUNCTION_EXECUTION,
   };
   const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   const response: JSFunctionExecutionResponse = yield call(

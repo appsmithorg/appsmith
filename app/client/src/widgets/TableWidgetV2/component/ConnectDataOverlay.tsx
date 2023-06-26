@@ -38,18 +38,12 @@ const ConnecData = styled(Button)`
   margin-bottom: 16px;
 `;
 
-const Footer = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-`;
-
 export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   return (
     <Wrapper>
       <Container>
         <Header className="t--cypress-table-overlay-header">
-          Connect your or sample datasources to display data
+          Connect your data or use sample data to display table
         </Header>
         <ConnecData
           className="t--cypress-table-overlay-connectdata"
@@ -58,7 +52,6 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
         >
           Connect data
         </ConnecData>
-        <Footer>or write a new binding</Footer>
       </Container>
     </Wrapper>
   );

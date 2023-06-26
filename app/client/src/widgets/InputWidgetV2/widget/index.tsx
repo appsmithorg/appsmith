@@ -271,11 +271,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         "!doc": "The text value of the input",
         "!url": "https://docs.appsmith.com/widget-reference/input",
       },
-      inputText: {
-        "!type": "string",
-        "!doc": "The unformatted text value of the input",
-        "!url": "https://docs.appsmith.com/widget-reference/input",
-      },
       isValid: "bool",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",

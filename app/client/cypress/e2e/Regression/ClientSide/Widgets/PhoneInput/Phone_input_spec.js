@@ -1,4 +1,4 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 
 const widgetName = "phoneinputwidget";
@@ -16,7 +16,9 @@ const searchAndSelectOption = (optionValue) => {
 };
 describe("Phone input widget - ", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("emptyDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Add new dropdown widget", () => {

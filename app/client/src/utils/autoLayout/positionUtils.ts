@@ -362,7 +362,7 @@ export function extractAlignmentInfo(
     }
 
     // Make sure that the height of the widget that cannot be vertically resized is
-    // set to the minimum height after converting from fixed to auto layout.
+    // set to the minimum height after converting from fixed to auto-layout.
     //but should not set for canvas type widgets
     if (
       firstTimeDSLUpdate &&

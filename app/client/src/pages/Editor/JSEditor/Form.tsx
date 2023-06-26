@@ -147,7 +147,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   useEffect(() => {
     if (hash) {
       // Hash here could mean to navigate (set cursor/focus) to a particular function
-      // If the hash has a function name in this JS object, we will set that
+      // If the hash has a function name in this JS Object, we will set that
       const actionName = hash.substring(1);
       const position = getJSPropertyLineFromName(
         currentJSCollection.body,

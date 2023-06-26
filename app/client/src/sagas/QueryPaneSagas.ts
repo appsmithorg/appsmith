@@ -319,7 +319,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
   if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
-  yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
   const pluginTemplates: Record<string, unknown> = yield select(
     getPluginTemplates,
   );

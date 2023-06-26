@@ -1,138 +1,101 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  entityItems,
+  jsEditor,
+  gitSync,
+  dataSources,
+  draggableWidgets,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
-const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 describe("Git discard changes:", function () {
   let datasourceName;
   let repoName;
-  const query1 = "get_users";
-  const query2 = "get_allusers";
+  const query1 = "get_employees";
+  const query2 = "get_category";
   const jsObject = "JSObject1";
-  const page2 = "Page_2";
-  const page3 = "Page_3";
+  const page2 = "Page2";
+  const page3 = "Page3";
 
   it("1. Create an app with Query1 and JSObject1, connect it to git", () => {
     // Create new postgres datasource
-
-    _.dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
-      _.dataSources.CreateQueryAfterDSSaved(
-        "SELECT * FROM users ORDER BY id LIMIT 10;",
+      dataSources.CreateQueryAfterDSSaved(
+        `SELECT * FROM public."employees" where employee_id=1`,
         query1,
       );
-      _.dataSources.RunQuery();
+      dataSources.RunQuery();
     });
 
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.wait(1000);
-    cy.get(".t--entity-item:contains(Page1)").first().click();
+    entityExplorer.SelectEntityByName("Page1", "Pages");
     cy.wait("@getPage");
     // bind input widget to postgres query on page1
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
-    cy.get(".t--widget-inputwidgetv2").should("exist");
-    cy.EnableAllCodeEditors();
-    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
-      .last()
-      .click({ force: true })
-      .type(`{{${query1}.data[0].name}}`, {
-        parseSpecialCharSequences: false,
-      });
-    cy.wait(2000);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.Createpage(page2);
-    cy.wait(1000);
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+    propPane.UpdatePropertyFieldValue(
+      "Default value",
+      `{{${query1}.data[0].first_name}}`,
+    );
+    entityExplorer.AddNewPage();
+    entityExplorer.SelectEntityByName(page2, "Pages");
     cy.wait("@getPage");
-    _.jsEditor.CreateJSObject('return "Success";');
-    cy.get(explorer.addWidget).click();
-    // bind input widget to JSObject response on page2
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
-    cy.get(".t--widget-inputwidgetv2").should("exist");
-    cy.EnableAllCodeEditors();
-    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
-      .last()
-      .click({ force: true })
-      .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
-
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    jsEditor.CreateJSObject('return "Success";');
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+    propPane.UpdatePropertyFieldValue(
+      "Default value",
+      `{{JSObject1.myFun1()}}`,
+    );
+    entityExplorer.NavigateToSwitcher("Explorer");
     // connect app to git
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      _.gitSync.CreateNConnectToGit(repoName);
-      _.gitSync.CreateGitBranch(repoName);
-    });
+    gitSync.CreateNConnectToGit();
+    gitSync.CreateGitBranch();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
   });
 
   it("2. Add new datasource query, discard changes, verify query is deleted", () => {
-    cy.get(`.t--entity-item:contains("Page1")`).first().click();
+    entityExplorer.SelectEntityByName("Page1", "Pages");
     cy.wait("@getPage");
     // create new postgres query
-    cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.get(datasource.datasourceCard)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(datasource.datasourceCard)
-      .within(() => {
-        cy.get(datasource.createQuery).click();
-      });
-    cy.get(queryLocators.queryNameField).type(`${query2}`);
-    cy.get(queryLocators.switch).last().click({ force: true });
-    cy.get(queryLocators.templateMenu).click();
-    cy.xpath(queryLocators.query).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM users;", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
-    cy.WaitAutoSave();
-    cy.runQuery();
-    // navoigate to Page1
-    cy.get(`.t--entity-item:contains(Page1)`).first().click();
+    dataSources.NavigateFromActiveDS(datasourceName, true);
+    dataSources.EnterQuery(`SELECT * FROM public."category" LIMIT 10;`);
+    agHelper.RenameWithInPane(query2);
+    dataSources.RunQuery();
+    // navigate to Page1
+    entityExplorer.SelectEntityByName("Page1", "Pages");
     cy.wait("@getPage");
     // discard changes
-    cy.gitDiscardChanges();
-    cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    gitSync.DiscardChanges();
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     // verify query2 is not present
-    cy.get(`.t--entity-name:contains(${query2})`).should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer(query2);
   });
 
   it("3. Add new JSObject , discard changes verify JSObject is deleted", () => {
-    _.jsEditor.CreateJSObject('return "Success";');
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    // verify jsObject is not duplicated
+    jsEditor.CreateJSObject('return "Success";');
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.AssertEntityPresenceInExplorer(jsObject);
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
-    cy.gitDiscardChanges();
-    cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    gitSync.DiscardChanges();
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     // verify jsObject2 is deleted after discarding changes
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer(jsObject);
   });
 
   it("4. Delete page2 and trigger discard flow, page2 should be available again", () => {
     cy.Deletepage(page2);
     // verify page is deleted
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
-    cy.wait(2000);
-    cy.gitDiscardChanges();
-    cy.wait(5000);
+    //entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.AssertEntityAbsenceInExplorer(page2);
+    gitSync.DiscardChanges();
     // verify page2 is recovered back
-    cy.get(`.t--entity-name:contains(${page2})`).should("be.visible");
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    entityExplorer.AssertEntityPresenceInExplorer(page2);
+    entityExplorer.SelectEntityByName(page2, "Pages");
     cy.wait("@getPage");
     // verify data binding on page2
     cy.get(".bp3-input").should("have.value", "Success");
@@ -140,73 +103,66 @@ describe("Git discard changes:", function () {
 
   it("5. Delete Query1 and trigger discard flow, Query1 will be recovered", () => {
     // navigate to Page1
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    entityExplorer.SelectEntityByName("Page1", "Pages");
     // delete query1
-    _.entityExplorer.SelectEntityByName(query1, "Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(query1, "Delete");
+    entityExplorer.SelectEntityByName(query1, "Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: query1,
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
     // verify Query1 is deleted
-    cy.get(`.t--entity-name:contains(${query1})`).should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer(query1);
     // discard changes
-    cy.gitDiscardChanges();
-    cy.wait(5000);
+    gitSync.DiscardChanges();
     //verify query1 is recovered
-    cy.get(`.t--entity-name:contains(${query1})`).should("be.visible");
-
-    cy.get(".bp3-input").should("have.value", "Test user 7");
+    entityExplorer.AssertEntityPresenceInExplorer(query1);
+    cy.get(".bp3-input").should("have.value", "Nancy");
   });
 
   it("6. Delete JSObject1 and trigger discard flow, JSObject1 should be active again", () => {
     // navigate to page2
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    entityExplorer.SelectEntityByName(page2, "Pages");
     cy.wait("@getPage");
     cy.wait(3000);
     /* create and save jsObject */
-    //     _.jsEditor.CreateJSObject('return "Success";');
+    //     jsEditor.CreateJSObject('return "Success";');
     // delete jsObject1
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(`.t--entity-item:contains(${jsObject})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.selectAction("Delete");
-    cy.selectAction("Are you sure?");
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("not.exist");
+    entityExplorer.SelectEntityByName(jsObject, "Queries/JS");
+    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?", true);
+    entityExplorer.AssertEntityAbsenceInExplorer(jsObject);
     // discard changes
-    cy.gitDiscardChanges();
-    cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    gitSync.DiscardChanges();
+    entityExplorer.SelectEntityByName(page2, "Pages");
     cy.wait("@getPage");
     cy.wait(3000);
     //verify JSObject is recovered
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("exist");
+    entityExplorer.AssertEntityPresenceInExplorer(jsObject);
     cy.get(".bp3-input").should("have.value", "Success");
   });
 
   it("7. Add new page i.e page3, go to page2 & discard changes, verify page3 is removed", () => {
-    // create new page page3 and move to page1
+    // create new page page3 and move to page2
     cy.Createpage(page3);
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    entityExplorer.SelectEntityByName(page2, "Pages");
     // discard changes
-    cy.gitDiscardChanges();
-    cy.wait(5000);
+    gitSync.DiscardChanges();
     // verify page3 is removed
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
+    entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.AssertEntityAbsenceInExplorer(page3);
   });
 
   it(`8. Add new page i.e page3, discard changes should not throw error: "resource not found"`, () => {
     cy.Createpage(page3);
-    cy.gitDiscardChanges();
-    cy.wait(5000);
-    cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
+    gitSync.DiscardChanges();
+    entityExplorer.AssertEntityAbsenceInExplorer(page3);
   });
 
   it("9. On discard failure an error message should be show and user should be able to discard again", () => {
     cy.Createpage(page3);
 
-    _.agHelper.GetNClick(gitSyncLocators.bottomBarCommitButton);
-    _.agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
+    agHelper.GetNClick(gitSyncLocators.bottomBarCommitButton);
+    agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
     cy.intercept("PUT", "/api/v1/git/discard/app/*", {
       body: {
         responseMeta: {
@@ -223,31 +179,30 @@ describe("Git discard changes:", function () {
       delay: 1000,
     });
 
-    _.agHelper
+    agHelper
       .GetElement(gitSyncLocators.discardChanges)
       .children()
-      .should("have.text", "Discard changes");
-    _.agHelper.GetNClick(gitSyncLocators.discardChanges);
-    _.agHelper.AssertContains(
-      Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
-    );
-    _.agHelper
+      .should("have.text", "Discard & pull");
+
+    agHelper.GetNClick(gitSyncLocators.discardChanges);
+    agHelper.AssertContains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
+    agHelper
       .GetElement(gitSyncLocators.discardChanges)
       .children()
       .should("have.text", "Are you sure?");
-    _.agHelper.GetNClick(gitSyncLocators.discardChanges);
-    _.agHelper.AssertContains(
+    agHelper.GetNClick(gitSyncLocators.discardChanges);
+    agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
     );
     cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-    _.agHelper.Sleep(2000);
+    agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementVisible(".ads-v2-callout__children");
-    _.agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
+    agHelper.AssertElementVisible(".ads-v2-callout__children");
+    agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
   });
 
   after(() => {
     //clean up
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    //gitSync.DeleteTestGithubRepo(repoName);
   });
 });

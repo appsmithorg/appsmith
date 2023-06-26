@@ -114,18 +114,20 @@ export function TopStacked(props: TopStackedProps) {
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >
-      <ScrollBtnContainer
-        className="left-0 scroll-arrows"
-        kind="tertiary"
-        onMouseDown={() => startScrolling(true)}
-        onMouseLeave={stopScrolling}
-        onMouseUp={stopScrolling}
-        onTouchEnd={stopScrolling}
-        onTouchStart={() => startScrolling(true)}
-        size="sm"
-        startIcon="left-arrow-2"
-        visible={shouldShowLeftArrow}
-      />
+      {tabsScrollable && (
+        <ScrollBtnContainer
+          className="left-0 scroll-arrows"
+          kind="tertiary"
+          onMouseDown={() => startScrolling(true)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(true)}
+          size="sm"
+          startIcon="left-arrow-2"
+          visible={shouldShowLeftArrow}
+        />
+      )}
 
       <div
         className="flex w-full hidden-scrollbar gap-x-2  items-center"
@@ -153,18 +155,20 @@ export function TopStacked(props: TopStackedProps) {
         })}
       </div>
 
-      <ScrollBtnContainer
-        className="right-0 scroll-arrows"
-        kind="tertiary"
-        onMouseDown={() => startScrolling(false)}
-        onMouseLeave={stopScrolling}
-        onMouseUp={stopScrolling}
-        onTouchEnd={stopScrolling}
-        onTouchStart={() => startScrolling(false)}
-        size="sm"
-        startIcon="right-arrow-2"
-        visible={shouldShowRightArrow}
-      />
+      {tabsScrollable && (
+        <ScrollBtnContainer
+          className="right-0 scroll-arrows"
+          kind="tertiary"
+          onMouseDown={() => startScrolling(false)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(false)}
+          size="sm"
+          startIcon="right-arrow-2"
+          visible={shouldShowRightArrow}
+        />
+      )}
     </Container>
   );
 }

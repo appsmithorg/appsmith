@@ -1,0 +1,36 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# WDS team
+app/client/packages/design-system/* @appsmithorg/wds
+app/client/packages/storybook/* @appsmithorg/wds
+
+app/client/.husky @KelvinOm
+app/client/.yarn @KelvinOm
+app/client/.editorconfig @KelvinOm
+app/client/.eslintrc.base.json @KelvinOm
+app/client/.eslintrc.js @KelvinOm
+app/client/.gitignore @KelvinOm
+app/client/.lintstagedrc @KelvinOm
+app/client/.nvmrc @KelvinOm
+app/client/.prettierignore @KelvinOm
+app/client/.prettierrc @KelvinOm
+app/client/.yarnrc.yml @KelvinOm
+app/client/jest.config.js @KelvinOm
+app/client/package.json @KelvinOm
+app/client/tsconfig.json @KelvinOm
+app/client/tsconfig.path.json @KelvinOm
+
+# App viewers pod
+app/client/src/widgets/* @appsmithorg/app-viewers
+app/client/src/components/propertyControls/* @appsmithorg/app-viewers
+app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192 @berzerkeer
+app/client/src/WidgetQueryGenerators/* @sbalaji1192 @berzerkeer
+app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @sbalaji1192 @berzerkeer
+app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
+app/client/src/pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/* @dhruvikn
+app/client/src/ce/pages/AppViewer/NavigationLogo.tsx @dhruvikn
+app/client/src/ce/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
+app/client/src/ee/pages/AppViewer/NavigationLogo.tsx @dhruvikn
+app/client/src/ee/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn

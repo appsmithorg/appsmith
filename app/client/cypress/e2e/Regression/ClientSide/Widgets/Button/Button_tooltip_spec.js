@@ -1,22 +1,24 @@
-const dsl = require("../../../../../fixtures/buttondsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Button Widget Functionality - Validate tooltip visibility", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 300, 300);
   });
 
   it("1. Validate show/hide tooltip feature on normal button", function () {
-    cy.openPropertyPane("buttonwidget");
     // Add tooltip
-    cy.testJsontext(
-      "tooltip",
+    _.propPane.UpdatePropertyFieldValue(
+      "Tooltip",
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
     );
+
     // Hover in
-    cy.get(widgetsPage.buttonWidget).trigger("mouseover");
+    _.agHelper
+      .GetElement(_.locators._widgetInCanvas(_.draggableWidgets.BUTTON))
+      .realHover();
     // Check if a tooltip is displayed
     cy.get(".btnTooltipContainer .bp3-popover2-content").should(
       "have.text",
@@ -25,11 +27,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
     // Hover out
     cy.get(widgetsPage.buttonWidget).trigger("mouseout");
     // Check if the tooltip is disappeared
-    cy.get(".bp3-popover2-content")
-      .contains(
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
-      )
-      .should("not.exist");
+    cy.get(".bp3-popover2-content").should("not.exist");
   });
 
   it("2. Validate show/hide tooltip feature for a disabled button on deploy", function () {
@@ -42,9 +40,12 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
       commonlocators.disabledField,
     );
     // Publish
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Hover in
-    cy.get(publish.buttonWidget).trigger("mouseover");
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed(_.draggableWidgets.BUTTON))
+      .realHover();
+    //cy.get(publish.buttonWidget).trigger("mouseover");
     // Check if a tooltip is displayed
     cy.get("body").then(($ele) => {
       if ($ele.find(".bp3-popover2-content").length <= 0) {
@@ -58,10 +59,6 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
     // Hover out
     cy.get(publish.buttonWidget).trigger("mouseout");
     // Check if the tooltip is disappeared
-    cy.get(".bp3-popover2-content")
-      .contains(
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
-      )
-      .should("not.exist");
+    cy.get(".bp3-popover2-content").should("not.exist");
   });
 });

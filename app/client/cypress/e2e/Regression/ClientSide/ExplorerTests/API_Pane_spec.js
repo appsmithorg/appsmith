@@ -46,7 +46,10 @@ describe("Entity explorer API pane related testcases", function () {
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("FirstAPI", "Show bindings");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "FirstAPI",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{FirstAPI.isLoading}}");
@@ -60,19 +63,29 @@ describe("Entity explorer API pane related testcases", function () {
     ee.SelectEntityByName("Page1");
     agHelper.Sleep(); //for the selected entity to settle loading!
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("FirstAPI", "Edit name");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "FirstAPI",
+      action: "Edit name",
+    });
     cy.EditApiNameFromExplorer("SecondAPI");
     cy.xpath(apiwidget.popover)
       .last()
       .should("be.hidden")
       .invoke("show")
       .click({ force: true });
-    ee.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
-    agHelper.AssertContains("moved to page");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "SecondAPI",
+      action: "Move to page",
+      subAction: pageid,
+      toastToValidate: "action moved to page",
+    });
     cy.wait(500);
     ee.ExpandCollapseEntity("Queries/JS");
     ee.AssertEntityPresenceInExplorer("SecondAPI");
-    ee.ActionContextMenuByEntityName("SecondAPI", "Show bindings");
+    ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "SecondAPI",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{SecondAPI.isLoading}}");
