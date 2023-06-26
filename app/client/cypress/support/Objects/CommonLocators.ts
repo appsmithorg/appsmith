@@ -178,6 +178,7 @@ export class CommonLocators {
   _cancelActionExecution = ".t--cancel-action-button";
   _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
+  _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
