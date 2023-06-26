@@ -11,7 +11,7 @@ describe("Validate Elasticsearch DS", () => {
     containerName = "elasticsearch1";
 
   before("Create a new ElasticSearch DS", () => {
-    dataSources.StartContainerNVerify("Elasticsearch", containerName);
+    dataSources.StartContainerNVerify("Elasticsearch", containerName, 40000);
     dataSources.CreateDataSource("Elasticsearch");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
