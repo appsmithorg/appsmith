@@ -69,12 +69,7 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
         }
 
         if (!Boolean.TRUE.equals(forkWithConfiguration)) {
-            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-            dsConfig.setAuthentication(null);
-            if (newDatasourceStorageDTO.getDatasourceConfiguration() != null) {
-                dsConfig.setConnection(newDatasourceStorageDTO.getDatasourceConfiguration().getConnection());
-            }
-            newDatasourceStorageDTO.setDatasourceConfiguration(dsConfig);
+            newDatasourceStorageDTO.setDatasourceConfiguration(null);
         }
 
         /*

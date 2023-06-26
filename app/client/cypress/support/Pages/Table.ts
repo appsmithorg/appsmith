@@ -150,6 +150,7 @@ export class Table {
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
   _updateMode = (mode: "Single" | "Multi") =>
     "//span[text()='" + mode + " Row']/ancestor::div";
+  _hideMenu = ".hide-menu";
   _tableColumnHeaderMenuTrigger = (columnName: string) =>
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
