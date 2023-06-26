@@ -655,12 +655,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         /**
          * We reset the sticky values of the columns that were frozen by the developer.
          */
-        columnOrder.forEach((colName: string) => {
-          if (this.props.primaryColumns[colName]?.sticky !== StickyType.NONE) {
-            propertiesToAdd[`primaryColumns.${colName}.sticky`] =
-              StickyType.NONE;
-          }
-        });
+        if (Object.keys(this.props.primaryColumns).length > 0) {
+          columnOrder.forEach((colName: string) => {
+            if (
+              this.props.primaryColumns[colName]?.sticky !== StickyType.NONE
+            ) {
+              propertiesToAdd[`primaryColumns.${colName}.sticky`] =
+                StickyType.NONE;
+            }
+          });
+        }
 
         /**
          * We pickup the left and the right frozen columns from the localstorage
