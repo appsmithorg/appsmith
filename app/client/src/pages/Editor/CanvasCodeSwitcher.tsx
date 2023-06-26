@@ -19,6 +19,8 @@ import {
 import { getSelectedTab } from "selectors/canvasCodeSelectors";
 import { canvasCodeToggle } from "actions/globalSearchActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 
 type CanvasCodeSwitcherProps = {
   pageId: string;
@@ -98,7 +100,8 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
     if (
       identifyEntityFromPath(location.pathname).entity ===
         FocusEntity.DATASOURCE ||
-      matchGeneratePagePath(location.pathname)
+      matchGeneratePagePath(location.pathname) ||
+      getEntityInCurrentPath(location.pathname).id === TEMP_DATASOURCE_ID
     )
       return;
 
