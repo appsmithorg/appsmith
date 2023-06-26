@@ -72,12 +72,11 @@ describe("Tests fetch calls", () => {
     agHelper.AssertContains("anonymousUser", "exist");
   });
 
-  it.skip("3. Tests if fetch works with store value", function () {
+  it("3. Tests if fetch works with store value", function () {
     entityExplorer.NavigateToSwitcher("Widgets");
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
     entityExplorer.SelectEntityByName("Button1");
     propPane.TypeTextIntoField("Label", "getUserID");
-    agHelper.Sleep(2000);
     propPane.EnterJSContext(
       "onClick",
       `{{fetch('https://jsonplaceholder.typicode.com/todos/1')
