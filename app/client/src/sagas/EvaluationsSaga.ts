@@ -50,6 +50,7 @@ import {
   dynamicTriggerErrorHandler,
   evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
+  logJSVarCreatedEvent,
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
@@ -138,6 +139,7 @@ export function* updateDataTreeHandler(
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
+    jsVarsCreatedEvent,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -213,6 +215,8 @@ export function* updateDataTreeHandler(
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
+
+  yield call(logJSVarCreatedEvent, jsVarsCreatedEvent);
 }
 
 /**
