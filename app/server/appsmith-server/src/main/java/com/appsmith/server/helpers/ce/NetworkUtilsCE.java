@@ -10,12 +10,11 @@ import java.time.Duration;
 @Slf4j
 public class NetworkUtilsCE {
 
-
     private static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
+    
+    protected static String cachedAddress = null;
 
-    private static String cachedAddress = null;
-
-    private static final String FALLBACK_IP = "unknown";
+    protected static final String FALLBACK_IP = "unknown";
 
     public NetworkUtilsCE() {
     }
