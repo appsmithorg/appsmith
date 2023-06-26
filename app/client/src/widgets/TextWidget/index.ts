@@ -8,6 +8,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "widgets/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { get } from "lodash";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 export const CONFIG = {
@@ -41,13 +42,13 @@ export const CONFIG = {
         {
           type: BlueprintOperationTypes.MODIFY_PROPS,
           fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-            if (!isDynamicValue(widget.text)) return [];
+            if (!isDynamicValue(widget.text)) {
+              return [];
+            }
 
-            const dynamicBindingPathList: any[] = get(
-              widget,
-              "dynamicBindingPathList",
-              [],
-            );
+            const dynamicBindingPathList: DynamicPath[] = [
+              ...get(widget, "dynamicBindingPathList", []),
+            ];
 
             dynamicBindingPathList.push({
               key: "text",
