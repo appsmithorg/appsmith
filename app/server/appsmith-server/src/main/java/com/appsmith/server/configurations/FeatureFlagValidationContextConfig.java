@@ -21,6 +21,11 @@ public class FeatureFlagValidationContextConfig {
 
     @Bean
     public Map<FeatureFlagEnum, FeatureFlagValidationContextProvider<?>> featureFlagEnumValidationContextMap() {
+        EnumMap<FeatureFlagEnum, CurrentUserValidationContextProvider> featureFlagEnumMap = new EnumMap<>(FeatureFlagEnum.class);
+        featureFlagEnumMap.put(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS, currentUserValidationContextProvider);
+        featureFlagEnumMap.put(FeatureFlagEnum.MULTIPLE_PANES, currentUserValidationContextProvider);
+        featureFlagEnumMap.put(FeatureFlagEnum.APP_NAVIGATION_LOGO_UPLOAD, currentUserValidationContextProvider);
+        featureFlagEnumMap.put(FeatureFlagEnum.APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY, currentUserValidationContextProvider);
         return new EnumMap<>(FeatureFlagEnum.class);
     }
 }
