@@ -604,6 +604,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetClosestNClick(
+    selector: string,
+    closestSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .closest(closestSelector)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
+
   public GetHoverNClick(
     selector: string,
     index = 0,

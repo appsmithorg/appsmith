@@ -3,6 +3,8 @@ import {
   entityExplorer,
   propPane,
   deployMode,
+  assertHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import data from "../../../../fixtures/TestDataSet1.json";
 
@@ -28,29 +30,21 @@ describe("Test Create Api and Bind to Button widget", function () {
 
     //Works in the published version"
     deployMode.DeployApp();
-    cy.wait(3000);
-    cy.get("span:contains('Submit')").closest("div").click();
-    cy.wait("@postExecute")
-      .its("response.body.responseMeta.status")
-      .should("eq", 200);
-    cy.wait(3000);
-
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    agHelper.Sleep(3000);
+    agHelper.GetClosestNClick(locators._submit,"div",0,true);
+    assertHelper.AssertNetworkStatus("@postExecute",200)  
+    agHelper.Sleep(3000);
+    assertHelper.AssertNetworkStatus("@postExecute",200)  
     deployMode.NavigateBacktoEditor();
   });
 
   it("2. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.ToggleJSMode("onClick", false);
-    cy.get(".action-block-tree").click({ force: true });
-    cy.get(".t--action-selector-popup .t--delete").click({ force: true });
+    agHelper.GetNClick(propPane._actionCard,0,true);
+    agHelper.GetNClick(propPane._actionSelectorDelete,0,true);
     propPane.SelectPlatformFunction("onClick", "Clear interval");
     agHelper.EnterActionValue("Id", "myInterval");
-
     propPane.ToggleJSMode("onClick");
     propPane.ValidatePropertyFieldValue(
       "onClick",

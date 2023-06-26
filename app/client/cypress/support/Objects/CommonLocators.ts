@@ -225,4 +225,5 @@ export class CommonLocators {
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
+  _submitBtn = "span:contains('Submit')";
 }

@@ -1,51 +1,49 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
-const commonLocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
   entityExplorer,
   deployMode,
   homePage,
+  appSettings,
+  locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("General checks for app navigation", function () {
   it("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
     // App header should appear when there is a single page in the application
     deployMode.DeployApp();
-    cy.get(appNavigationLocators.header).should("exist");
+    agHelper.AssertElementExist(appSettings.locators._header);
     deployMode.NavigateBacktoEditor();
-
     // Navigation should appear alongside app header when there are two pages
     entityExplorer.AddNewPage();
     deployMode.DeployApp();
-    cy.get(appNavigationLocators.topStacked).should("exist");
+    agHelper.AssertElementExist(appSettings.locators._topStacked);
   });
 
   it("2. Application name, share button, edit button, and user dropdown should be available in the app header", () => {
-    cy.get(appNavigationLocators.applicationName).should("exist");
-    cy.get(appNavigationLocators.shareButton).should("exist");
-    cy.get(appNavigationLocators.editButton).should("exist");
-    cy.get(appNavigationLocators.userProfileDropdownButton).should("exist");
+    agHelper.AssertElementExist(appSettings.locators._applicationName);
+    agHelper.AssertElementExist(appSettings.locators._shareButton);
+    agHelper.AssertElementExist(appSettings.locators._editButton);
+    agHelper.AssertElementExist(
+      appSettings.locators._userProfileDropdownButton
+    );
   });
 
   it("3. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
     // Share
-    cy.get(
-      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
-    ).click();
-    cy.wait(1000);
-    cy.get(appNavigationLocators.modal).should("exist");
-    cy.get(appNavigationLocators.modalClose).first().click({ force: true });
-
+    agHelper.GetNClick(`${appSettings.locators._header} ${appSettings.locators._shareButton}`)
+    agHelper.Sleep(1000);
+    agHelper.AssertElementExist(appSettings.locators._editButton);
+    agHelper.AssertElementExist(appSettings.locators._modal);
+    agHelper.GetNClick(appSetings.locators._modalClose);
     // Edit
-    cy.get(
-      `${appNavigationLocators.header} ${appNavigationLocators.editButton}`,
-    ).click();
-    cy.get(commonLocators.canvas).should("exist");
-
+    agHelper.GetNClick(`${appSettings.locators._header} ${appSettings.locators._editButton}`)
+    agHelper.AssertElementExist(appSettings.locators._canvas);
     // User profile dropdown
     deployMode.DeployApp();
-    cy.get(appNavigationLocators.userProfileDropdownButton).click();
-    cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
+    agHelper.GetNClick(appSettings.locators.__userProfileDropdownButton);
+    agHelper.AssertElementExist(appSettings.locators._userProfileDropdownMenu);
     deployMode.NavigateBacktoEditor();
   });
 
@@ -53,12 +51,10 @@ describe("General checks for app navigation", function () {
     // Import an application
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingApp.json");
-
-    cy.wait("@importNewApplication").then((interception) => {
+    assertHelper.WaitForNetworkCall("@importNewApplication")
+    .then((interception) => {
       agHelper.Sleep();
-
       const { isPartialImport } = interception.response.body.data;
-
       if (isPartialImport) {
         homePage.AssertNCloseImport();
       } else {
@@ -68,20 +64,14 @@ describe("General checks for app navigation", function () {
       deployMode.DeployApp();
 
       // Assert app header, top stacked navigation and page menu items
-      cy.get(appNavigationLocators.header).should("exist");
-      cy.get(appNavigationLocators.topStacked).should("exist");
-      cy.get(appNavigationLocators.navigationMenuItem).should(
-        "have.length",
-        10,
-      );
+          agHelper.AssertElementExist(appSettings.locators._header);
+    agHelper.AssertElementExist(appSettings.locators._topStacked);
+    agHelper.AssertElementLength(appSettings.locators._navigationMenuItem,10)
+          // Switch page
 
-      // Switch page
-      cy.get(appNavigationLocators.navigationMenuItem)
-        .contains("Page5")
-        .click({ force: true });
-
+    agHelper.GetNClickByContains(appSettings.locators._navigationMenuItem,"Page5")
       // Assert active page menu item
-      cy.get(appNavigationLocators.navigationMenuItem)
+    cy.get(appSettings.locators._navigationMenuItem)
         .contains("Page5")
         .parent()
         .parent()

@@ -27,6 +27,17 @@ export class AppSettings {
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
     _updateStatus: ".ads-v2-icon.rotate",
+    _header: ".t--app-viewer-navigation-header",
+    _topStacked: ".t--app-viewer-navigation-top-stacked",
+    _applicationName: ".t--app-viewer-application-name",
+    _shareButton: ".t--app-viewer-share-button",
+    _editButton: ".t--back-to-editor",
+    _userProfileDropdownButton: ".t--profile-menu-icon",
+    _modal: "div[role=dialog]",
+    _modalClose: "div[role=dialog] button[aria-label='Close']",
+    _canvas: ".t--canvas-artboard",
+    _userProfileDropdownMenu: ".ads-v2-menu",
+    _navigationMenuItem: ".t--page-switch-tab",
   };
 
   public errorMessageSelector = (fieldId: string) => {
