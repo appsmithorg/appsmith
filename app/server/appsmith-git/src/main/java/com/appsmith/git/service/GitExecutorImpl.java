@@ -519,7 +519,7 @@ public class GitExecutorImpl implements GitExecutor {
                     } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                         modifiedJSLibs++;
                     } else if (x.equals(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION)) {
-                        response.setMigrationMessage("The File system is migrated to the latest format. These are system generated and you can commit these changes");
+                        response.setMigrationMessage(CommonConstants.FILE_MIGRATION_MESSAGE);
                     }
                 }
                 response.setModified(modifiedAssets);
