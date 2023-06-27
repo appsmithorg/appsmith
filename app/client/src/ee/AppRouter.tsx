@@ -12,13 +12,9 @@ import { connect, useSelector } from "react-redux";
 
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import { getCurrentUser } from "actions/authActions";
-import {
-  getCurrentUserLoading,
-  selectFeatureFlags,
-} from "selectors/usersSelectors";
+import { getCurrentUserLoading } from "selectors/usersSelectors";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import type FeatureFlags from "entities/FeatureFlags";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
@@ -43,7 +39,6 @@ function AppRouter(props: {
   getCurrentTenant: () => void;
   isLicenseValid: boolean;
   safeCrashCode?: ERROR_CODES;
-  featureFlags: FeatureFlags;
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
@@ -105,7 +100,6 @@ function AppRouter(props: {
 const mapStateToProps = (state: AppState) => ({
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
-  featureFlags: selectFeatureFlags(state),
   isLicenseValid: isValidLicense(state),
 });
 
