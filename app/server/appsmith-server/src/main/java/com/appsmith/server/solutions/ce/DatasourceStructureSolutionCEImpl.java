@@ -80,7 +80,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                                   boolean ignoreCache) {
 
         if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
-            return Mono.empty();
+            return analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED,
+                            datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false))
+                    .then(Mono.just(new DatasourceStructure()));
         }
 
         Mono<DatasourceStorageStructure> configurationStructureMono = datasourceStructureService
