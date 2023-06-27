@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
-import { Icon, Text } from "design-system";
+import { Callout, Icon, Text } from "design-system";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -36,9 +36,13 @@ const Wrapper = styled.div`
   gap: 6px;
 `;
 
+const CalloutContainer = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
+`;
+
 const Changes = styled.div`
   margin-top: ${(props) => props.theme.spaces[7]}px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 export enum Kind {
@@ -202,6 +206,13 @@ export default function GitChangesList() {
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
   ) : changes.length ? (
-    <Changes data-testid={"t--git-change-statuses"}>{changes}</Changes>
+    <Changes data-testid={"t--git-change-statuses"}>
+      {changes}
+      {status?.migrationMessage ? (
+        <CalloutContainer>
+          <Callout kind="info">{status.migrationMessage}</Callout>
+        </CalloutContainer>
+      ) : null}
+    </Changes>
   ) : null;
 }
