@@ -12,7 +12,6 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -91,8 +90,11 @@ public class SecurityConfig {
     @Autowired
     private RedirectHelper redirectHelper;
 
+    @Value("${appsmith.internal.auth.enabled}")
+    private boolean INTERNAL_AUTH_ENABLED;
+
     @Value("${appsmith.internal.username}")
-    private String INTERNAL_USER_NAME;
+    private String INTERNAL_USERNAME;
 
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
@@ -197,12 +199,20 @@ public class SecurityConfig {
             String name = authentication.getName();
             String password = authentication.getCredentials().toString();
 
-            if (INTERNAL_USER_NAME.equals(name) && INTERNAL_PASSWORD.equals(password)) {
+            if (isAuthorizedToAccessInternal(name, password)) {
                 return Mono.just(UsernamePasswordAuthenticationToken.authenticated(name, password, new ArrayList<>()));
             } else {
                 return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(name, password));
             }
         };
+    }
+
+    private boolean isAuthorizedToAccessInternal(String username, String password) {
+        if (Boolean.TRUE.equals(INTERNAL_AUTH_ENABLED)) {
+            return INTERNAL_USERNAME.equals(username) && INTERNAL_PASSWORD.equals(password);
+        } else {
+            return true;
+        }
     }
 
     /**
