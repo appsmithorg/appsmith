@@ -696,7 +696,6 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
-export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 
 export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
@@ -706,6 +705,16 @@ export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
 export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
 export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
+
+// Datasource structure
+
+export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const SCHEMA_LABEL = () => "Schema";
+export const STRUCTURE_NOT_FETCHED = () =>
+  "We could not fetch the schema of the database.";
+export const TEST_DATASOURCE_AND_FIX_ERRORS = () =>
+  "Test the datasource and fix the errors.";
+export const LOADING_SCHEMA = () => "Loading schema...";
 
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";

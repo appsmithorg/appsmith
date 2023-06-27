@@ -2,12 +2,13 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { get, isEqual, memoize } from "lodash";
+import { get, isEmpty, isEqual, memoize } from "lodash";
 import {
   getPluginImages,
   getDatasource,
   getPlugin,
   getDatasourceFormButtonConfig,
+  getIsFetchingDatasourceStructure,
 } from "selectors/entitiesSelector";
 import {
   switchDatasource,
@@ -21,6 +22,7 @@ import {
   initializeDatasourceFormDefaults,
   datasourceDiscardAction,
   refreshDatasourceStructure,
+  fetchDatasourceStructure,
 } from "actions/datasourceActions";
 import {
   DATASOURCE_DB_FORM,
@@ -86,6 +88,8 @@ import {
   DatasourceStructureContext,
 } from "../Explorer/Datasources/DatasourceStructureContainer";
 import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructureHeader";
+import DatasourceStructureNotFound from "../Explorer/Datasources/DatasourceStructureNotFound";
+import DatasourceStructureLoadingContainer from "../Explorer/Datasources/DatasourceStructureLoadingContainer";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -122,6 +126,7 @@ interface ReduxStateProps {
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
+  isDatasourceStructureLoading: boolean;
 }
 
 const Form = styled.div`
@@ -147,10 +152,14 @@ const DSEditorWrapper = styled.div`
 `;
 
 const DataStructureContainer = styled.div`
-  width: 400px;
   display: flex;
   flex: 1;
   flex-direction: column;
+  overflow: hidden;
+`;
+
+const DataStructureListWrapper = styled.div`
+  width: 400px;
   overflow-y: scroll;
 `;
 
@@ -196,6 +205,7 @@ export interface DatasourcePaneFunctions {
   initializeFormWithDefaults: (pluginType: string) => void;
   datasourceDiscardAction: (pluginId: string) => void;
   dispatchRefresh: (id: string) => void;
+  fetchDatasourceStructure: (id: string) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -325,6 +335,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         }
         toast.show(responseMessage || createMessage(message));
       }
+    }
+
+    if (
+      this.props.datasourceId &&
+      this.props.datasourceStructure === undefined &&
+      this.props.pluginDatasourceForm !==
+        DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      this.props.fetchDatasourceStructure(this.props.datasourceId);
     }
   }
 
@@ -484,13 +503,36 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     return (
       <DataStructureContainer>
         <DatasourceStructureHeader datasourceId={this.props.datasourceId} />
-        {!!this.props.datasourceStructure}
-        <DataStructureList
-          context={DatasourceStructureContext.DATASOURCE}
-          datasourceId={this.props.datasourceId}
-          datasourceStructure={this.props.datasourceStructure}
-          step={0}
-        />
+        {!this.props.isDatasourceStructureLoading ? (
+          <>
+            {!isEmpty(this.props.datasourceStructure) &&
+              !("error" in this.props.datasourceStructure) && (
+                <DataStructureListWrapper>
+                  <DataStructureList
+                    context={DatasourceStructureContext.DATASOURCE}
+                    datasourceId={this.props.datasourceId}
+                    datasourceStructure={this.props.datasourceStructure}
+                    step={0}
+                  />
+                </DataStructureListWrapper>
+              )}
+
+            {isEmpty(this.props.datasourceStructure) ||
+              ("error" in this.props.datasourceStructure &&
+                !this.props.isDatasourceStructureLoading && (
+                  <DatasourceStructureNotFound
+                    datasourceId={this.props.datasourceId}
+                    error={this.props?.datasourceStructure?.error}
+                    pluginName={this.props.pluginName}
+                    setDatasourceViewMode={this.props.setDatasourceViewMode}
+                  />
+                ))}
+          </>
+        ) : (
+          <DataStructureListWrapper>
+            <DatasourceStructureLoadingContainer />
+          </DataStructureListWrapper>
+        )}
       </DataStructureContainer>
     );
   }
@@ -790,6 +832,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const datasourceStructure =
     state.entities.datasources.structure[datasourceId];
+  const isDatasourceStructureLoading = getIsFetchingDatasourceStructure(
+    state,
+    datasourceId,
+  );
 
   return {
     canCreateDatasourceActions,
@@ -809,6 +855,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
+    isDatasourceStructureLoading,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode,
     pluginType: plugin?.type ?? "",
@@ -853,6 +900,9 @@ const mapDispatchToProps = (
     dispatch(datasourceDiscardAction(pluginId)),
   dispatchRefresh: (id) => {
     dispatch(refreshDatasourceStructure(id));
+  },
+  fetchDatasourceStructure: (id: string) => {
+    dispatch(fetchDatasourceStructure(id, true));
   },
 });
 

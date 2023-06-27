@@ -24,6 +24,8 @@ export const DatasourceCreateEntryPoints = {
 export const DatasourceEditEntryPoints = {
   DATASOURCE_CARD_EDIT: "DATASOURCE_CARD_EDIT",
   DATASOURCE_FORM_EDIT: "DATASOURCE_FORM_EDIT",
+  DATASOURCE_STRUCTURE_VIEW_MODE_EDIT_DATASOURCE:
+    "DATASOURCE_STRUCTURE_VIEW_MODE_EDIT_DATASOURCE",
 };
 
 export const DB_QUERY_DEFAULT_TABLE_NAME = "<<your_table_name>>";

@@ -10,11 +10,12 @@ import type { ReactElement } from "react";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
-import { Input, Spinner, Text } from "design-system";
+import { Input } from "design-system";
 import styled from "styled-components";
 import { getIsFetchingDatasourceStructure } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
+import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";
 
 type Props = {
   datasourceId: string;
@@ -31,17 +32,11 @@ export enum DatasourceStructureContext {
 
 const DatasourceStructureSearchContainer = styled.div`
   margin-bottom: 1rem;
-`;
-
-const DatasourceStructureLoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  & > p {
-    margin-top: 0.5rem;
-  }
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  z-index: 10;
+  background: white;
 `;
 
 const Container = (props: Props) => {
@@ -49,7 +44,7 @@ const Container = (props: Props) => {
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
-  let view: ReactElement<Props> = <div />;
+  let view: ReactElement<Props> | JSX.Element = <div />;
 
   const [datasourceStructure, setDatasourceStructure] = useState(
     props.datasourceStructure,
@@ -96,19 +91,8 @@ const Container = (props: Props) => {
       }))
       .filter((table) => tables.has(table.name));
 
-    // console.log(
-    //   "hereee filter",
-    //   value,
-    //   filteredStructure,
-    //   tables,
-    //   columns,
-    //   filteredDastasourceStructure,
-    // );
-
     setDatasourceStructure({ tables: filteredDastasourceStructure });
   };
-
-  // console.log("hereeee final", datasourceStructure, flatStructure);
 
   if (!isLoading) {
     if (props.datasourceStructure?.tables?.length) {
@@ -152,18 +136,11 @@ const Container = (props: Props) => {
       );
     }
   } else if (
+    // intentionally leaving this here in case we want to show loading states in the exploer or query editor page
     props.context !== DatasourceStructureContext.EXPLORER &&
     isLoading
   ) {
-    view = (
-      <DatasourceStructureLoadingContainer>
-        <Spinner size={"sm"} />
-        <Text kind="body-s" renderAs="p">
-          {" "}
-          Loading schema...
-        </Text>
-      </DatasourceStructureLoadingContainer>
-    );
+    view = <DatasourceStructureLoadingContainer />;
   }
 
   return view;

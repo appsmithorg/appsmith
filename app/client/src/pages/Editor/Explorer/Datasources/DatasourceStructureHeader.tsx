@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { Icon, Text } from "design-system";
 import styled from "styled-components";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
+import { SCHEMA_LABEL, createMessage } from "@appsmith/constants/messages";
 
 type Props = {
   datasourceId: string;
@@ -10,9 +11,12 @@ type Props = {
 
 const HeaderWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+`;
+
+const IconWrapper = styled.div`
+  margin-left: 1rem;
 `;
 
 export default function DatasourceStructureHeader(props: Props) {
@@ -25,12 +29,11 @@ export default function DatasourceStructureHeader(props: Props) {
   return (
     <HeaderWrapper>
       <Text kind="heading-s" renderAs="h3">
-        {" "}
-        Schema{" "}
+        {createMessage(SCHEMA_LABEL)}
       </Text>
-      <div onClick={dispatchRefresh}>
+      <IconWrapper onClick={dispatchRefresh}>
         <Icon name="refresh" size={"md"} />
-      </div>
+      </IconWrapper>
     </HeaderWrapper>
   );
 }
