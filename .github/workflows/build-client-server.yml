@@ -17,7 +17,7 @@ jobs:
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 24825
       skip-tests: "true"
 
   client-build:
@@ -26,7 +26,7 @@ jobs:
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 24825
       skip-tests: "true"
 
   rts-build:
@@ -35,7 +35,7 @@ jobs:
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 24825
       
   build-docker-image:
     needs: [ client-build, server-build, rts-build ]
@@ -45,7 +45,7 @@ jobs:
     uses: ./.github/workflows/build-docker-image.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 24825
 
   ci-test-limited:
     needs: [ build-docker-image ]
@@ -55,7 +55,7 @@ jobs:
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 24825
 
   ci-test-limited-existing-docker-image:
     # Only run if the previous run-id is provided
