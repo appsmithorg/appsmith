@@ -113,6 +113,10 @@ public class DSLTransformerHelper {
     public static JSONObject getNestedDSL(Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {
         // start from the root
         JSONObject dsl = jsonMap.get(CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER + CommonConstants.JSON_EXTENSION);
+        // Empty page with no widgets
+        if (!pathMapping.containsKey(CommonConstants.MAIN_CONTAINER)) {
+            return dsl;
+        }
         for (String path : pathMapping.get(CommonConstants.MAIN_CONTAINER)) {
             JSONObject child = getChildren(path, jsonMap, pathMapping);
             JSONArray children = dsl.optJSONArray(CommonConstants.CHILDREN);
