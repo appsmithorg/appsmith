@@ -54,7 +54,7 @@ const StyleTabText = styled.div<{
   display: flex;
 
   & div {
-    max-width: 12.5rem;
+    max-width: inherit;
     display: flex;
     align-items: center;
     justify-content: center;
