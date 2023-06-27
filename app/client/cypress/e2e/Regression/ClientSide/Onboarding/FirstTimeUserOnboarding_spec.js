@@ -176,6 +176,7 @@ describe("FirstTimeUserOnboarding", function () {
       });
       cy.get(OnboardingLocator.checklistDeployBtn).should("be.visible");
       cy.get(OnboardingLocator.checklistDeployBtn).click();
+      agHelper.GetNClick(debuggerHelper.locators._helpButton);
       agHelper.AssertElementExist(OnboardingLocator.checklistCompletionBanner);
       agHelper.AssertElementAbsence(OnboardingLocator.checklistDeployBtn);
       cy.window().then((window) => {
