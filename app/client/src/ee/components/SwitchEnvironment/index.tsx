@@ -4,15 +4,17 @@ import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
 import { ENVIRONMENT_QUERY_KEY } from "@appsmith/sagas/EnvironmentSagas";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
 import { Option, Select, Text } from "design-system";
 import { getDefaultEnvironemnt } from "@appsmith/selectors/environmentSelectors";
+import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const Wrapper = styled.div`
   display: flex;
   border-right: 1px solid var(--ads-v2-color-border);
   padding: 0px 16px;
+
   .rc-select-selector {
     min-width: 129px;
     width: 129px;
@@ -21,18 +23,16 @@ const Wrapper = styled.div`
 `;
 
 type Props = {
-  allowedToRender: boolean;
   defaultEnvironemnt?: EnvironmentType;
   environmentList: Array<EnvironmentType>;
 };
 
-const SwitchEnvironment = ({
-  allowedToRender,
-  defaultEnvironemnt,
-  environmentList,
-}: Props) => {
+const SwitchEnvironment = ({ defaultEnvironemnt, environmentList }: Props) => {
   // state to store the selected environment
   const [selectedEnv, setSelectedEnv] = useState(defaultEnvironemnt);
+  const allowedToRender = useFeatureFlagCheck(
+    FEATURE_FLAG.DATASOURCE_ENVIRONMENTS,
+  );
 
   // function to set the selected environment
   const setSelectedEnvironment = (env: EnvironmentType) => {
@@ -80,9 +80,6 @@ const SwitchEnvironment = ({
 const mapStateToProps = (state: AppState) => {
   return {
     environmentList: getEnvironments(state),
-    // Fetching feature flags from the store and checking if the feature is enabled
-    allowedToRender:
-      selectFeatureFlags(state)?.DATASOURCE_ENVIRONMENTS || false,
     defaultEnvironemnt: getDefaultEnvironemnt(state),
   };
 };

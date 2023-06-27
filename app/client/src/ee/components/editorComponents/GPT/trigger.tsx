@@ -1,12 +1,12 @@
 export * from "ce/components/editorComponents/GPT/trigger";
-
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import {
   EditorModes,
   type TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
+
 const { cloudHosting } = getAppsmithConfigs();
 export const APPSMITH_AI = "AI";
 

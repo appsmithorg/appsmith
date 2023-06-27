@@ -45,17 +45,13 @@ import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
-import {
-  getCurrentUserLoading,
-  selectFeatureFlags,
-} from "selectors/usersSelectors";
+import { getCurrentUserLoading } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import type FeatureFlags from "entities/FeatureFlags";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
@@ -135,7 +131,6 @@ function AppRouter(props: {
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
   safeCrashCode?: ERROR_CODES;
-  featureFlags: FeatureFlags;
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
@@ -189,7 +184,6 @@ function AppRouter(props: {
 const mapStateToProps = (state: AppState) => ({
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
-  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
