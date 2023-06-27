@@ -1,10 +1,10 @@
+import { nestDSL, flattenDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { get, partition } from "lodash";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
 import {
@@ -40,8 +40,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
 
   if (!autoDSL || !autoDSL.children) return autoDSL;
 
-  const normalizedAutoDSL =
-    CanvasWidgetsNormalizer.normalize(autoDSL).entities.canvasWidgets;
+  const normalizedAutoDSL = flattenDSL(autoDSL);
 
   const alteredNormalizedAutoDSL = alterLayoutForDesktop(
     normalizedAutoDSL,
@@ -50,10 +49,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
     true,
   );
 
-  const alteredAutoDSL: DSLWidget = CanvasWidgetsNormalizer.denormalize(
-    MAIN_CONTAINER_WIDGET_ID,
-    { canvasWidgets: alteredNormalizedAutoDSL },
-  );
+  const alteredAutoDSL: DSLWidget = nestDSL(alteredNormalizedAutoDSL);
 
   return alteredAutoDSL;
 }
