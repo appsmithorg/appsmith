@@ -70,6 +70,7 @@ import {
   isDatasourceAuthorizedForQueryCreation,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
+import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
 
 const Section = styled.div`
   display: flex;
@@ -254,6 +255,7 @@ function ReconnectDatasourceModal() {
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);
   const pageIdForImport = useSelector(getPageIdForImport);
+  const environmentsFetched = useSelector(areEnvironmentsFetched);
   const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const unconfiguredDatasourceIds = unconfiguredDatasources.map(
     (ds: Datasource) => ds.id,
@@ -375,12 +377,12 @@ function ReconnectDatasourceModal() {
 
   // todo uncomment this to fetch datasource config
   useEffect(() => {
-    if (isModalOpen && workspaceId) {
+    if (isModalOpen && workspaceId && environmentsFetched) {
       dispatch(
         initDatasourceConnectionDuringImportRequest(workspaceId as string),
       );
     }
-  }, [workspaceId, isModalOpen]);
+  }, [workspaceId, isModalOpen, environmentsFetched]);
 
   useEffect(() => {
     if (isModalOpen) {
