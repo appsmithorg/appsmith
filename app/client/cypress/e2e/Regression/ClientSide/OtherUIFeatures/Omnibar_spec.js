@@ -179,6 +179,8 @@ describe("Omnibar functionality test cases", () => {
       cy.get(omnibar.categoryTitle)
         .contains("Search documentation")
         .click({ force: true });
+      cy.get(omnibar.globalSearchInput).type("Connecting to datasources");
+      cy.wait(2000); // for value to register
       cy.url().then(($urlBeforeDocu) => {
         cy.get(omnibar.openDocumentationLink)
           .invoke("removeAttr", "target")
@@ -186,7 +188,7 @@ describe("Omnibar functionality test cases", () => {
           .wait(3000);
         cy.url().should(
           "contain",
-          "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
+          "https://docs.appsmith.com/learning-and-resources/tutorials/review-moderator-dashboard/connecting-to-data-source-and-binding-queries",
         ); // => true
         cy.wait(2000);
         //cy.go(-1);

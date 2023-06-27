@@ -282,6 +282,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         appName,
         pageCount,
         ...navigationSettingsWithPrefix,
+        isPublic: !!currentApplication?.isPublic,
       });
     }
   };
