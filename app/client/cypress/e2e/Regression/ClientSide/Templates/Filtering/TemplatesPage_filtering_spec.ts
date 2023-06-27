@@ -15,7 +15,10 @@ describe("excludeForAirgap", "Templates page filtering", () => {
   beforeEach(() =>
     agHelper.AssertElementVisible(templates.locators._templateCard),
   );
-  afterEach(() => agHelper.RefreshPage());
+  afterEach(() => {
+    cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
+    agHelper.RefreshPage(false, "fetchFilters");
+  });
 
   it("1. should filter templates by name", () => {
     agHelper
