@@ -1,17 +1,20 @@
+import { useRadio } from "@react-aria/radio";
 import { mergeProps } from "@react-aria/utils";
 import { useFocusRing } from "@react-aria/focus";
 import { useHover } from "@react-aria/interactions";
 import { useFocusableRef } from "@react-spectrum/utils";
+import type { SpectrumRadioProps } from "@react-types/radio";
 import React, { forwardRef, useContext, useRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import type { SpectrumRadioProps } from "@react-types/radio";
 import type { FocusableRef, StyleProps } from "@react-types/shared";
-import { useRadio } from "@react-aria/radio";
-import type { RadioGroupContext } from "./context";
-import { RadioContext } from "./context";
 
-export interface RadioProps extends Omit<SpectrumRadioProps, keyof StyleProps> {
-  icon?: React.ReactNode;
+import { RadioContext } from "./context";
+import type { RadioGroupContext } from "./context";
+import type { InlineLabelProps } from "../Checkbox/Checkbox";
+
+export interface RadioProps
+  extends Omit<SpectrumRadioProps, keyof StyleProps>,
+    InlineLabelProps {
   className?: string;
 }
 
@@ -47,7 +50,7 @@ export const Radio = forwardRef((props: RadioProps, ref: RadioRef) => {
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
-      data-state={state.selectedValue === props.value ? "selected" : ""}
+      data-state={state.selectedValue === props.value ? "selected" : undefined}
       ref={domRef}
     >
       <input

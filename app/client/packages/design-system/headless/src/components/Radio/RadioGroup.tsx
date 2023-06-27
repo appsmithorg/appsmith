@@ -8,11 +8,13 @@ import type { SpectrumRadioGroupProps } from "@react-types/radio";
 
 import { Field } from "../Field";
 import { RadioContext } from "./context";
+import type { LabelProps } from "../Field";
 
 export type RadioGroupRef = DOMRef<HTMLDivElement>;
 export interface RadioGroupProps
   extends Omit<SpectrumRadioGroupProps, keyof StyleProps> {
   className?: string;
+  labelWidth?: LabelProps["labelWidth"];
 }
 
 export const RadioGroup = forwardRef(

@@ -1,12 +1,7 @@
 import { css } from "styled-components";
 import type { LabelProps as HeadlessLabelProps } from "@design-system/headless";
 
-type FieldStylesProps = Pick<
-  HeadlessLabelProps,
-  "labelPosition" | "isEmphasized"
-> & {
-  labelWidth?: string;
-};
+type FieldStylesProps = Pick<HeadlessLabelProps, "isEmphasized" | "labelWidth">;
 
 // NOTE: these field styles are used in every input component that has a label
 // for e.g input, select, checkbox group, toggle group, radio group, etc
@@ -21,18 +16,14 @@ export const fieldStyles = css<FieldStylesProps>`
     }
 
     &[data-disabled] {
-      cursor: not-allowed;
       opacity: var(--opacity-disabled);
-
-      & > * {
-        pointer-events: none;
-      }
+      cursor: default;
     }
   }
 
   /**
   * ----------------------------------------------------------------------------
-  * LABEL
+  * FIELD LABEL
   *-----------------------------------------------------------------------------
   */
   & [data-field-label] {
@@ -83,6 +74,10 @@ export const fieldStyles = css<FieldStylesProps>`
 
     &[data-orientation="horizontal"] {
       flex-direction: row;
+    }
+
+    &[data-disabled] [data-label] {
+      cursor: default;
     }
   }
 `;
