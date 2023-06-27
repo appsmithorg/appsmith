@@ -3,6 +3,7 @@ import { isDynamicEntity, isWidgetEntity } from "Linting/lib/entity";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
+  isTrueObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { toPath, union } from "lodash";
 
@@ -78,4 +79,24 @@ export class PathUtils {
         relativePropertyPath in entity.getConfig().triggerPaths)
     );
   }
+
+  static getAllPaths = (
+    records: any,
+    curKey = "",
+    result: Record<string, true> = {},
+  ): Record<string, true> => {
+    if (curKey) result[curKey] = true;
+    if (Array.isArray(records)) {
+      for (let i = 0; i < records.length; i++) {
+        const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
+        PathUtils.getAllPaths(records[i], tempKey, result);
+      }
+    } else if (isTrueObject(records)) {
+      for (const key of Object.keys(records)) {
+        const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
+        PathUtils.getAllPaths(records[key], tempKey, result);
+      }
+    }
+    return result;
+  };
 }

@@ -1,4 +1,4 @@
-import type { TEntity } from "Linting/lib/entity";
+import type { IEntity } from "Linting/lib/entity";
 import { isDynamicEntity } from "Linting/lib/entity";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { find, get } from "lodash";
@@ -13,7 +13,7 @@ export function getAllPathsFromNode(
   return getAllPaths(obj);
 }
 export function isPathADynamicBinding(
-  entity: TEntity,
+  entity: IEntity,
   entityPropertyPath: string,
 ) {
   if (!isDynamicEntity(entity)) return false;

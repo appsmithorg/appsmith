@@ -233,7 +233,7 @@ function getActionPropertyPathDependencies(
 export function extractReferencesFromPath(
   entity: TEntity,
   fullPropertyPath: string,
-  tree: Record<string, unknown>,
+  tree: Record<string, true>,
 ) {
   if (!PathUtils.isDynamicLeaf(entity, fullPropertyPath)) return [];
   const entityPropertyPath = getPropertyPath(fullPropertyPath);

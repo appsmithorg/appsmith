@@ -1,24 +1,24 @@
 import type { TParsedJSProperty } from "@shared/ast";
-import type { JSEntity, TEntity } from "Linting/lib/entity";
+import type { JSEntity, IEntity } from "Linting/lib/entity";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { jsLintEntityParser } from "./entityParser";
 
-export interface TDiffGenerator {
+export interface EntityDiffGenerator {
   generate(
-    baseEntity?: TEntity,
-    compareEntity?: TEntity,
+    baseEntity?: IEntity,
+    compareEntity?: IEntity,
   ): Diff<unknown>[] | undefined;
 }
 
-class DefaultDiffGenerator implements TDiffGenerator {
-  generate(baseEntity?: TEntity, compareEntity?: TEntity) {
+class DefaultDiffGenerator implements EntityDiffGenerator {
+  generate(baseEntity?: IEntity, compareEntity?: IEntity) {
     return diff(
       this.generateDiffObj(baseEntity),
       this.generateDiffObj(compareEntity),
     );
   }
-  generateDiffObj(entity?: TEntity) {
+  generateDiffObj(entity?: IEntity) {
     if (!entity) {
       return {};
     }
@@ -26,7 +26,7 @@ class DefaultDiffGenerator implements TDiffGenerator {
   }
 }
 
-class JSLintDiffGenerator implements TDiffGenerator {
+class JSLintDiffGenerator implements EntityDiffGenerator {
   generate(baseEntity?: JSEntity, compareEntity?: JSEntity) {
     return diff(
       this.generateDiffObj(baseEntity),

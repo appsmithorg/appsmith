@@ -175,4 +175,22 @@ export default class DependencyMap {
     const nodes = this.#dependencies.get(node);
     return Array.from(nodes || []);
   }
+
+  getAllReachableNodes(source: string, targets: string[]) {
+    const reachableNodes: string[] = [];
+    if (targets.includes(source)) reachableNodes.push(source);
+    const visited = new Set();
+    const queue = [source];
+    while (queue.length) {
+      const node = queue.shift() as string;
+      if (visited.has(node)) continue;
+      visited.add(node);
+      if (targets.includes(node)) reachableNodes.push(source);
+      const nodes = this.#dependencies.get(node) || [];
+      for (const n of nodes) {
+        queue.push(n);
+      }
+    }
+    return reachableNodes;
+  }
 }
