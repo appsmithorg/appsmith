@@ -618,9 +618,9 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._port, this.hp.redis_port.toString());
   }
 
-  public TestSaveDatasource(expectedRes = true) {
+  public TestSaveDatasource(expectedRes = true, isForkModal = false) {
     this.TestDatasource(expectedRes);
-    this.SaveDatasource();
+    this.SaveDatasource(isForkModal);
   }
 
   public TestDatasource(expectedRes = true) {
@@ -631,10 +631,12 @@ export class DataSources {
     }
   }
 
-  public SaveDatasource() {
+  public SaveDatasource(isForkModal = false) {
     this.agHelper.GetNClick(this._saveDs);
     this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
-    this.agHelper.AssertContains("datasource created");
+    if (!isForkModal) {
+      this.agHelper.AssertContains("datasource created");
+    }
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {

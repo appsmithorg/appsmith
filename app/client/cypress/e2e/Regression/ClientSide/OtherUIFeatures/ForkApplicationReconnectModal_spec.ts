@@ -35,15 +35,14 @@ describe("Fork application across workspaces", function () {
 
         homePage.ForkApplication(currentAppName, forkWorkspaceName);
 
-        cy.get("@dsName").then(($dsName) => {
-          dataSources.FillMongoDSForm();
-          dataSources.TestDatasource();
-        });
+        dataSources.FillMongoDSForm();
+        dataSources.TestSaveDatasource(true, true);
       });
     });
   });
 
   after(() => {
+    homePage.NavigateToHome();
     homePage.DeleteApplication(currentAppName);
     homePage.DeleteApplication(currentAppName);
     homePage.DeleteWorkspace(currentWorkspace);
