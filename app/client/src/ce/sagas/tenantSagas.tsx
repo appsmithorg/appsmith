@@ -13,6 +13,8 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAllGeneralSettingIds } from "@appsmith/utils/adminSettingsHelpers";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
@@ -46,6 +48,9 @@ export function* updateTenantConfigSaga(
   action: ReduxAction<UpdateTenantConfigRequest>,
 ) {
   try {
+    const { appVersion } = getAppsmithConfigs();
+    const generalSettings = getAllGeneralSettingIds();
+    const settings = action.payload.tenantConfiguration;
     const response: ApiResponse = yield call(
       TenantApi.updateTenantConfig,
       action.payload,
@@ -54,6 +59,21 @@ export function* updateTenantConfigSaga(
 
     if (isValidResponse) {
       const payload = response.data as any;
+
+      if (Object.keys(settings).some((e) => generalSettings.includes(e))) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          version: appVersion.id,
+          ...(settings["singleSessionPerUserEnabled"]
+            ? { session_limit_enabled: settings["singleSessionPerUserEnabled"] }
+            : {}),
+          ...(settings["showRolesAndGroups"]
+            ? {
+                programmatic_access_control_enabled:
+                  settings["showRolesAndGroups"],
+              }
+            : {}),
+        });
+      }
 
       // If the tenant config is not present, we need to set the default config
       yield put({

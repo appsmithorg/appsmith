@@ -1,4 +1,5 @@
 import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
+import { config } from "@appsmith/pages/AdminSettings/config/general";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import type { User } from "constants/userConstants";
 
@@ -48,4 +49,9 @@ export const isTenantConfig = (name: string): boolean => {
   const fields: string[] = tenantConfigConnection;
 
   return fields.includes(name);
+};
+
+export const getAllGeneralSettingIds = (): string[] => {
+  const settings = config.settings;
+  return settings?.map((each) => each.id) || [];
 };
