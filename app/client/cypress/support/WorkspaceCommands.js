@@ -9,6 +9,7 @@ import explorer from "../locators/explorerlocators";
 import { ObjectsRegistry } from "../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
+const assertHelper = ObjectsRegistry.AssertHelper;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -269,6 +270,11 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.reload();
   cy.wait(4000);
   cy.get("#loading").should("not.exist");
+
+  assertHelper.AssertNetworkStatus("@getPage");
+  assertHelper.AssertNetworkStatus("@getLibraries");
+  assertHelper.AssertNetworkStatus("@getPlugins");
+
   cy.get("#sidebar").should("be.visible");
   cy.wait("@getPluginForm") //replacing this since flaky in CI - to monitor
     .its("response.body.responseMeta.status")

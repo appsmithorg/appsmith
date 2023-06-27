@@ -209,7 +209,7 @@ public class DatabaseChangelogEE {
 
         Criteria readPgCriteria = where("policies.permission").is("read:permissionGroups");
 
-        Query query = new Query(interestingPermissionGroupCriteria.andOperator(readPgCriteria));
+        Query query = new Query(interestingPermissionGroupCriteria.andOperator(readPgCriteria).and("policies.permissionGroups").exists(true));
 
         Update update = new Update().set("policies.$.permissionGroups", Set.of());
 

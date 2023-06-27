@@ -1,6 +1,7 @@
 import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export interface LoginUserRequest {
   email: string;
@@ -183,7 +184,7 @@ export class UserApi extends Api {
     return Api.put(UserApi.leaveWorkspaceURL + "/" + request.workspaceId);
   }
 
-  static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
+  static fetchFeatureFlags(): AxiosPromise<ApiResponse<FeatureFlags>> {
     return Api.get(UserApi.featureFlagsURL);
   }
 

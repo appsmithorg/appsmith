@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDefaultPageId } from "sagas/selectors";
 import { getSettings } from "selectors/settingsSelectors";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 import {
   AppsmithFrameAncestorsSetting,
@@ -17,6 +17,7 @@ import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
