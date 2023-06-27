@@ -1,13 +1,26 @@
 import type { Datasource } from "entities/Datasource";
-import { getQueryParams } from "utils/URLUtils";
 
 export const ENVIRONMENT_QUERY_KEY = "environment";
+export const ENVIRONMENT_LOCAL_STORAGE_KEY = "currentEnvironment";
+export const ENVIRONMENT_ID_LOCAL_STORAGE_KEY = "currentEnvironmentId";
+
+export const updateLocalStorage = (name: string, id: string) => {
+  // Set the values of currentEnv and currentEnvId in localStorage also
+  localStorage.setItem(ENVIRONMENT_LOCAL_STORAGE_KEY, name.toLowerCase());
+  localStorage.setItem(ENVIRONMENT_ID_LOCAL_STORAGE_KEY, id);
+};
 
 // function to get the current environment from the URL
 export const getCurrentEnvironment = () => {
-  const queryParams = getQueryParams();
-  if (!!queryParams && queryParams.hasOwnProperty(ENVIRONMENT_QUERY_KEY)) {
-    return queryParams[ENVIRONMENT_QUERY_KEY].toLowerCase();
+  const localStorageEnv = localStorage.getItem(ENVIRONMENT_LOCAL_STORAGE_KEY);
+  //compare currentEnv with local storage and get currentEnvId from localstorage if true
+
+  if (localStorageEnv && localStorageEnv.length > 0) {
+    const localStorageEnvId = localStorage.getItem(
+      ENVIRONMENT_ID_LOCAL_STORAGE_KEY,
+    );
+    if (!!localStorageEnvId && localStorageEnvId?.length > 0)
+      return localStorageEnvId;
   }
   return "unused_env";
 };

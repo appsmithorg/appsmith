@@ -39,7 +39,7 @@ export interface JSONtoFormProps {
   datasourceId: string;
   featureFlags?: FeatureFlags;
   setupConfig: (config: ControlProps) => void;
-  currentEnvionment: string;
+  currentEnvironment: string;
 }
 
 export class JSONtoForm<
@@ -64,10 +64,10 @@ export class JSONtoForm<
     if (
       !this.props.formData ||
       !this.props.formData.hasOwnProperty("datasourceStorages") ||
-      !this.props.hasOwnProperty("currentEnvionment") ||
-      !this.props.currentEnvionment ||
+      !this.props.hasOwnProperty("currentEnvironment") ||
+      !this.props.currentEnvironment ||
       !this.props.formData.datasourceStorages.hasOwnProperty(
-        this.props.currentEnvionment,
+        this.props.currentEnvironment,
       )
     ) {
       return null;
@@ -78,7 +78,7 @@ export class JSONtoForm<
     // when feature flag is removed
     if (
       isHidden(
-        this.props.formData.datasourceStorages[this.props.currentEnvionment],
+        this.props.formData.datasourceStorages[this.props.currentEnvironment],
         section.hidden,
         this.props?.featureFlags,
         false, // viewMode is false here.
@@ -106,7 +106,7 @@ export class JSONtoForm<
     const customConfig = {
       ...config,
       configProperty:
-        `datasourceStorages.${this.props.currentEnvionment}.` +
+        `datasourceStorages.${this.props.currentEnvironment}.` +
         config.configProperty,
     };
     try {
@@ -147,7 +147,7 @@ export class JSONtoForm<
           if (
             isHidden(
               this.props.formData.datasourceStorages[
-                this.props.currentEnvionment
+                this.props.currentEnvironment
               ],
               propertyControlOrSection.hidden,
               this.props?.featureFlags,

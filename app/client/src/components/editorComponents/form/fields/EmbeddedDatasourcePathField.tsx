@@ -64,6 +64,7 @@ import { isString } from "lodash";
 
 type ReduxStateProps = {
   workspaceId: string;
+  currentEnvironment: string;
   datasource: EmbeddedRestDatasource;
   datasourceList: Datasource[];
   datasourceObject?: Datasource;
@@ -184,8 +185,10 @@ const StyledTooltip = styled.span<{ width?: number }>`
 `;
 
 //Avoiding styled components since ReactDOM.render cannot directly work with it
-function CustomHint(props: { datasource: Datasource }) {
-  const currentEnvironment = getCurrentEnvironment();
+function CustomHint(props: {
+  currentEnvironment: string;
+  datasource: Datasource;
+}) {
   return (
     <div style={hintContainerStyles}>
       <div style={mainContainerStyles}>
@@ -197,7 +200,7 @@ function CustomHint(props: { datasource: Datasource }) {
       <span style={datasourceInfoStyles}>
         {get(
           props.datasource,
-          `datasourceStorages.${currentEnvironment}.datasourceConfiguration.url`,
+          `datasourceStorages.${props.currentEnvironment}.datasourceConfiguration.url`,
         )}
       </span>
     </div>
@@ -339,8 +342,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   };
 
   handleDatasourceHint = (): HintHelper => {
-    const { datasourceList } = this.props;
-    const currentEnvironment = getCurrentEnvironment();
+    const { currentEnvironment, datasourceList } = this.props;
     return () => {
       return {
         showHint: (editor: CodeMirror.Editor) => {
@@ -370,7 +372,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                       : "datasource-hint custom",
                     render: (element: HTMLElement, self: any, data: any) => {
                       ReactDOM.render(
-                        <CustomHint datasource={data.data} />,
+                        <CustomHint
+                          currentEnvironment={currentEnvironment}
+                          datasource={data.data}
+                        />,
                         element,
                       );
                     },
@@ -583,6 +588,7 @@ const mapStateToProps = (
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction || {};
   let datasourceFromDataSourceList: Datasource | undefined;
+  const currentEnvironment = getCurrentEnvironment();
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     datasourceFromDataSourceList = getDatasource(
@@ -593,15 +599,14 @@ const mapStateToProps = (
       datasourceMerged = merge(
         {},
         datasourceFromAction,
-        datasourceFromDataSourceList.datasourceStorages[
-          getCurrentEnvironment()
-        ],
+        datasourceFromDataSourceList.datasourceStorages[currentEnvironment],
       );
     }
   }
 
   return {
     workspaceId: state.ui.workspaces.currentWorkspace.id,
+    currentEnvironment,
     datasource: datasourceMerged,
     datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),
     datasourceObject: datasourceFromDataSourceList,

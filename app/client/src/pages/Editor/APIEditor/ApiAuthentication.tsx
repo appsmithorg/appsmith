@@ -129,6 +129,7 @@ function ApiAuthentication(props: Props): JSX.Element {
 const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
+  const currentEnvironment = getCurrentEnvironment();
   let datasourceMerged: EmbeddedRestDatasource = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
@@ -139,16 +140,14 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
         {},
         datasourceFromAction,
         // datasourceFromDataSourceList,
-        datasourceFromDataSourceList.datasourceStorages[
-          getCurrentEnvironment()
-        ],
+        datasourceFromDataSourceList.datasourceStorages[currentEnvironment],
       );
 
       // update the id in object to datasourceId, this is because the value in id post merge is the id of the datasource storage
       // and not of the datasource.
       datasourceMerged.id =
         datasourceFromDataSourceList.datasourceStorages[
-          getCurrentEnvironment()
+          currentEnvironment
         ].datasourceId;
     }
   }

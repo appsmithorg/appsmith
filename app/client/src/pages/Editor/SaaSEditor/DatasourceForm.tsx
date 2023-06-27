@@ -76,7 +76,7 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
-import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -167,7 +167,7 @@ class SaasEditorWrapper extends React.Component<
     this.state = {
       requiredFields: {},
       configDetails: {},
-      currentEditingEnvironment: DEFAULT_ENV_ID,
+      currentEditingEnvironment: getCurrentEnvironment(),
     };
   }
 
@@ -175,7 +175,6 @@ class SaasEditorWrapper extends React.Component<
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
-        ...this.state,
         requiredFields: {},
         configDetails: {},
       });
@@ -190,7 +189,6 @@ class SaasEditorWrapper extends React.Component<
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
     this.setState({
-      ...this.state,
       configDetails,
       requiredFields,
     });
@@ -201,7 +199,7 @@ class SaasEditorWrapper extends React.Component<
       <SaaSEditor
         {...this.props}
         configDetails={this.state.configDetails}
-        currentEnvionment={this.state.currentEditingEnvironment}
+        currentEnvironment={this.state.currentEditingEnvironment}
         requiredFields={this.state.requiredFields}
         setupConfig={this.setupConfig}
       />
@@ -486,6 +484,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   !hideDatasourceSection ? (
                     <DatasourceInformation
                       config={formConfig[0]}
+                      currentEnvironment={this.props.currentEnvironment}
                       datasource={datasource}
                       viewMode={viewMode}
                     />
@@ -496,6 +495,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             {/* Render datasource form call-to-actions */}
             {datasource && (
               <DatasourceAuth
+                currentEnvironment={this.props.currentEnvironment}
                 datasource={datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
                 formData={formData}

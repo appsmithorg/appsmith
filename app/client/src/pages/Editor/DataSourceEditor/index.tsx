@@ -250,7 +250,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
-        ...this.state,
         requiredFields: {},
         configDetails: {},
       });
@@ -344,7 +343,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
     this.setState({
-      ...this.state,
       configDetails,
       requiredFields,
     });
@@ -441,7 +439,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     showFilterPane: boolean,
   ) => {
     this.setState({
-      ...this.state,
       filterParams: {
         id,
         name,
@@ -517,7 +514,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditorForm
           applicationId={this.props.applicationId}
-          currentEnvionment={this.state.filterParams.id}
+          currentEnvironment={this.state.filterParams.id}
           datasourceId={datasourceId}
           formConfig={formConfig}
           formData={formData}
@@ -654,6 +651,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
                   <DatasourceAuth
+                    currentEnvironment={this.state.filterParams.id}
                     datasource={datasource as Datasource}
                     datasourceButtonConfiguration={
                       datasourceButtonConfiguration

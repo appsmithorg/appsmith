@@ -38,13 +38,13 @@ export default class RenderDatasourceInformation extends React.Component<{
   config: any;
   datasource: Datasource;
   viewMode?: boolean;
+  currentEnvironment: string;
 }> {
   renderKVArray = (children: Array<any>) => {
     try {
-      const currentEnvionment = getCurrentEnvironment();
       // setup config for each child
       const firstConfigProperty =
-        `datasourceStorages.${currentEnvionment}.` +
+        `datasourceStorages.${this.props.currentEnvironment}.` +
           children[0].configProperty || children[0].configProperty;
       const configPropertyInfo = firstConfigProperty.split("[*].");
       const values = get(this.props.datasource, configPropertyInfo[0], null);
@@ -92,13 +92,13 @@ export default class RenderDatasourceInformation extends React.Component<{
 
   renderDatasourceSection(section: any) {
     const { datasource, viewMode } = this.props;
-    const currentEnvionment = getCurrentEnvironment();
+    const currentEnvironment = getCurrentEnvironment();
     return (
       <React.Fragment key={datasource.id}>
         {map(section.children, (section) => {
           if (
             isHidden(
-              datasource.datasourceStorages[currentEnvionment],
+              datasource.datasourceStorages[currentEnvironment],
               section.hidden,
               undefined,
               viewMode,
@@ -115,7 +115,7 @@ export default class RenderDatasourceInformation extends React.Component<{
             try {
               const { configProperty, controlType, label } = section;
               const customConfigProperty =
-                `datasourceStorages.${currentEnvionment}.` + configProperty;
+                `datasourceStorages.${currentEnvironment}.` + configProperty;
               const reactKey = datasource.id + "_" + label;
               if (controlType === "FIXED_KEY_INPUT") {
                 return (
