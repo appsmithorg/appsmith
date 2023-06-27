@@ -102,6 +102,10 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         justify-content: space-between;
         flex: 1;
         padding: 6px;
+        .command-desc {
+          font-size: 12px;
+          color: #6A7585;
+        }
       }
       .command {
         display: flex;
