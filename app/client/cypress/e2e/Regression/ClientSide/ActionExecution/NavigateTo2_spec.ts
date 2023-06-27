@@ -1,20 +1,26 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  deployMode,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Navigate To feature", () => {
   it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {
-    _.entityExplorer.AddNewPage(); // page 2
-    _.entityExplorer.SelectEntityByName("Page1");
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 300, 300);
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
-    _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
-    _.agHelper.TypeText(
-      _.propPane._actionSelectorFieldByLabel("Enter URL"),
+    entityExplorer.AddNewPage(); // page 2
+    entityExplorer.SelectEntityByName("Page1");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
+    agHelper.GetNClick(propPane._navigateToType("URL"));
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Enter URL"),
       "wrongPage",
     );
-    _.deployMode.DeployApp();
-    _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateToastMessage("Enter a valid URL or page name");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.DeployApp();
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("Enter a valid URL or page name");
+    deployMode.NavigateBacktoEditor();
   });
 });

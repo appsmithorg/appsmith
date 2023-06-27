@@ -1,11 +1,13 @@
-const dsl = require("../../../../../fixtures/InputWidgetV2InsideListDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Input widget V2 - ", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("InputWidgetV2InsideListDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Validate input widget resets OnSubmit", () => {

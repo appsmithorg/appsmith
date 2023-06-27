@@ -10,19 +10,16 @@ import reactor.core.publisher.Mono;
 public interface TenantService extends TenantServiceCE {
     Mono<Tenant> findById(String id, AclPermission aclPermission);
     Mono<Tenant> save(Tenant tenant);
-    Mono<Tenant> getDefaultTenant();
 
     Mono<Tenant> getDefaultTenant(AclPermission aclPermission);
 
     /**
-     * To add a license key to the default tenant and redirect user with 3xx
-     * If the license key is being added for the first time. ie super-user signup -> Redirect to first application
-     * page, else -> Redirect to applications page.
-     * @param licenseKey License key received from client
+     * To add a license key to the default tenant and return redirect URL
+     * @param licenseKey License key
      * @param exchange ServerWebExchange
-     * @return Mono of Void - User is redirected
+     * @return Mono of String
      */
-    Mono<Void> addTenantLicenseKey(String licenseKey, ServerWebExchange exchange);
+    Mono<String> addLicenseKeyAndGetRedirectUrl(String licenseKey, ServerWebExchange exchange);
 
     /**
      * To update the default tenant's license key
@@ -52,6 +49,4 @@ public interface TenantService extends TenantServiceCE {
      * @return Boolean
      */
     Boolean isValidLicenseConfiguration(Tenant tenant);
-
-    Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration);
 }

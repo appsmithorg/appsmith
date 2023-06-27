@@ -11,5 +11,9 @@
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
+  },
+  "dependencies": {
+    "@capsizecss/core": "^3.1.1",
+    "@capsizecss/metrics": "^1.2.0"
   }
 }

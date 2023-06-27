@@ -272,7 +272,7 @@ describe("isFunctionAsync", () => {
   });
 });
 
-describe.only("convertAllDataTypesToString", () => {
+describe("convertAllDataTypesToString", () => {
   const cases = [
     { index: 0, input: 0, expected: "0" },
     { index: 1, input: -1, expected: "-1" },

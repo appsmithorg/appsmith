@@ -146,6 +146,9 @@ public class DatabaseChangelogEE {
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        if (Objects.nonNull(defaultTenant.getTenantConfiguration())) {
+            tenantConfiguration = defaultTenant.getTenantConfiguration();
+        }
         tenantConfiguration.setWhiteLabelLogo("https://assets.appsmith.com/appsmith-logo-full.png");
         tenantConfiguration.setWhiteLabelEnable("false");
         tenantConfiguration.setWhiteLabelFavicon("https://assets.appsmith.com/appsmith-favicon-orange.ico");
@@ -206,7 +209,7 @@ public class DatabaseChangelogEE {
 
         Criteria readPgCriteria = where("policies.permission").is("read:permissionGroups");
 
-        Query query = new Query(interestingPermissionGroupCriteria.andOperator(readPgCriteria));
+        Query query = new Query(interestingPermissionGroupCriteria.andOperator(readPgCriteria).and("policies.permissionGroups").exists(true));
 
         Update update = new Update().set("policies.$.permissionGroups", Set.of());
 

@@ -195,6 +195,60 @@ const sampleProcessedTableData = [
 ];
 
 describe("Validates getFilteredTableData Properties", () => {
+  const inputWithDisplayText = {
+    processedTableData: [
+      { url: "A.COM", __originalIndex__: 0 },
+      { url: "B.COM", __originalIndex__: 1 },
+      { url: "C.COM", __originalIndex__: 2 },
+      { url: "D.COM", __originalIndex__: 3 },
+    ],
+    sortOrder: { column: "url", order: "asc" },
+    columnOrder: ["url"],
+    primaryColumns: {
+      url: {
+        index: 0,
+        width: 150,
+        id: "url",
+        alias: "url",
+        originalId: "url",
+        horizontalAlignment: "LEFT",
+        verticalAlignment: "CENTER",
+        columnType: "url",
+        textColor: "#231F20",
+        textSize: "PARAGRAPH",
+        fontStyle: "REGULAR",
+        enableFilter: true,
+        enableSort: true,
+        isVisible: true,
+        isDerived: false,
+        label: "awesome",
+        isAscOrder: undefined,
+        displayText: ["Z", "Y", "X", "W"],
+        computedValue: ["A.COM", "B.COM", "C.COM", "D.COM"],
+      },
+    },
+    tableColumns: [
+      {
+        index: 0,
+        width: 150,
+        id: "url",
+        horizontalAlignment: "LEFT",
+        verticalAlignment: "CENTER",
+        columnType: "url",
+        textColor: "#231F20",
+        textSize: "PARAGRAPH",
+        fontStyle: "REGULAR",
+        enableFilter: true,
+        enableSort: true,
+        isVisible: true,
+        isDerived: false,
+        label: "awesome",
+        isAscOrder: undefined,
+        displayText: ["Z", "Y", "X", "W"],
+        computedValue: ["A.COM", "B.COM", "C.COM", "D.COM"],
+      },
+    ],
+  };
   it("validates generate filtered table data", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
@@ -1081,6 +1135,72 @@ describe("Validates getFilteredTableData Properties", () => {
 
     let result = getProcessedTableData(input, moment, _);
 
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("validate generated sorted table data for URL columntype with display text property", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = { ...inputWithDisplayText };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = [
+      { url: "D.COM", __originalIndex__: 3 },
+      { url: "C.COM", __originalIndex__: 2 },
+      { url: "B.COM", __originalIndex__: 1 },
+      { url: "A.COM", __originalIndex__: 0 },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("validate filters on table data for URL columntype with display text", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      ...inputWithDisplayText,
+      filters: [
+        {
+          condition: "contains",
+          column: "url",
+          value: "Y",
+        },
+      ],
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = [{ url: "B.COM", __originalIndex__: 1 }];
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("validate search on table data for URL columntype with display text", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      ...inputWithDisplayText,
+      searchText: "Y",
+      enableClientSideSearch: true,
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = [{ url: "B.COM", __originalIndex__: 1 }];
+
+    let result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 });

@@ -142,12 +142,12 @@ import {
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import classNames from "classnames";
 import {
   APPSMITH_AI,
-  askAIEnabled,
+  isAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
 import {
   getAllDatasourceTableKeys,
@@ -157,12 +157,10 @@ import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getDeleteLineShortcut } from "./utils/deleteLine";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
-
-const { cloudHosting } = getAppsmithConfigs();
 
 export type CodeEditorExpected = {
   type: string;
@@ -317,6 +315,12 @@ class CodeEditor extends Component<Props, State> {
       props.input.value,
     );
     this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
+    /**
+     * Decides if AI is enabled by looking at repo, feature flags, props and environment
+     */
+    this.AIEnabled =
+      isAIEnabled(this.props.featureFlags, this.props.mode) &&
+      Boolean(this.props.AIAssisted);
   }
 
   componentDidMount(): void {
@@ -375,6 +379,9 @@ class CodeEditor extends Component<Props, State> {
         [getSaveAndAutoIndentKey()]: (editor) => {
           saveAndAutoIndentCode(editor);
           AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
+        },
+        [getDeleteLineShortcut()]: () => {
+          return;
         },
       };
 
@@ -528,12 +535,17 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
-    if (identifierHasChanged && shouldFocusOnPropertyControl()) {
-      setTimeout(() => {
-        if (this.props.editorIsFocused) {
-          this.editor.focus();
-        }
-      }, 200);
+    if (identifierHasChanged) {
+      if (this.state.showAIWindow) {
+        this.setState({ showAIWindow: false });
+      }
+      if (shouldFocusOnPropertyControl()) {
+        setTimeout(() => {
+          if (this.props.editorIsFocused) {
+            this.editor.focus();
+          }
+        }, 200);
+      }
     }
     this.editor.operation(() => {
       if (prevProps.lintErrors !== this.props.lintErrors) {
@@ -849,7 +861,7 @@ class CodeEditor extends Component<Props, State> {
         /*
          * We only want focus to go out for code editors in JS pane with binding prompts
          * This is so the esc closes the binding prompt.
-         * but this is not needed in the JS object editor, since there are no prompts there
+         * but this is not needed in the JS Object editor, since there are no prompts there
          * So we check for the following so the JS editor does not have this behaviour -
          * isFocused : editor is focused
          * hinterOpen : autocomplete hinter is closed
@@ -1132,11 +1144,6 @@ class CodeEditor extends Component<Props, State> {
     changeObj?: CodeMirror.EditorChangeLinkedList,
   ) => {
     const value = this.editor?.getValue() || "";
-    if (changeObj && changeObj.origin === "complete") {
-      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
-        searchString: changeObj.text[0],
-      });
-    }
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
@@ -1474,16 +1481,6 @@ class CodeEditor extends Component<Props, State> {
       evaluated = pathEvaluatedValue;
     }
     const entityInformation = this.getEntityInformation();
-
-    /**
-     * Decides if AI is enabled by looking at repo, feature flags, props and environment
-     */
-    this.AIEnabled = Boolean(
-      askAIEnabled &&
-        this.props.featureFlags.ask_ai &&
-        this.props.AIAssisted &&
-        cloudHosting,
-    );
 
     /**
      * AI button is to be shown when following conditions are satisfied

@@ -1,11 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Table widget with Add button test and validation", function () {
@@ -74,7 +76,7 @@ describe("Table Widget property pane feature validation", function () {
       .click();
     cy.get(".t--dropdown-option")
       .children()
-      .contains("Plain Text")
+      .contains("Plain text")
       .click();
     cy.changeColumnType("Button", false); */
     const color1 = "rgb(255, 0, 0)";

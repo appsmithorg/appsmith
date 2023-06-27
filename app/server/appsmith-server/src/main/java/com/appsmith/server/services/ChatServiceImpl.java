@@ -41,7 +41,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Mono<ChatGenerationResponseDTO> generateCode(ChatGenerationDTO chatGenerationDTO, ChatGenerationType type) {
-        Mono<Boolean> featureFlagMono = this.featureFlagService.check(FeatureFlagEnum.ask_ai)
+        FeatureFlagEnum featureFlagEnum = this.getFeatureFlagByType(type);
+        Mono<Boolean> featureFlagMono = this.featureFlagService.check(featureFlagEnum)
                 .filter(isAllowed -> isAllowed)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
 
@@ -133,5 +134,15 @@ public class ChatServiceImpl implements ChatService {
             }
         }
         return Mono.just(chatGenerationDTO);
+    }
+
+    private FeatureFlagEnum getFeatureFlagByType(ChatGenerationType type) {
+        FeatureFlagEnum featureFlagEnum = FeatureFlagEnum.ask_ai;
+        if(type == ChatGenerationType.SQL) {
+            featureFlagEnum = FeatureFlagEnum.ask_ai_sql;
+        } else if(type == ChatGenerationType.JS_FUNC) {
+            featureFlagEnum = FeatureFlagEnum.ask_ai_js;
+        }
+        return featureFlagEnum;
     }
 }

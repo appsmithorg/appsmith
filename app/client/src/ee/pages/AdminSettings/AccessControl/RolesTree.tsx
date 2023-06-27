@@ -30,6 +30,7 @@ import {
   Spinner,
 } from "design-system";
 import { usePrevious } from "@mantine/hooks";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 
 let dataToBeSent: any[] = [];
 
@@ -213,6 +214,7 @@ const IconTypes: any = {
       width="16"
     />
   ),
+  ActionCollection: JsFileIconV2(),
 };
 
 function Table({

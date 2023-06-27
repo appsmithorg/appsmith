@@ -87,17 +87,3 @@ export const getLoginUrl = (method: string): string => {
 
   return urls[method];
 };
-
-export const isTenantConfig = (name: string): boolean => {
-  const fields: string[] = [
-    "APPSMITH_SHOW_ROLES_AND_GROUPS",
-    "APPSMITH_ENABLE_SINGLE_SESSION_PER_USER",
-  ];
-
-  return fields.includes(name);
-};
-
-export const tenantConfigConnection: any = {
-  showRolesAndGroups: "APPSMITH_SHOW_ROLES_AND_GROUPS",
-  singleSessionPerUserEnabled: "APPSMITH_ENABLE_SINGLE_SESSION_PER_USER",
-};

@@ -126,12 +126,12 @@ export const ADMIN_BILLING_SETTINGS_TITLE = () => "License & billing";
 export const ADMIN_BILLING_SETTINGS_SUBTITLE = () =>
   "View customer portal to view usage and billing related information, and to manage your subscription.";
 export const NO_ACTIVE_SUBSCRIPTION = () => "No active subscription";
-export const GET_STARTED_MESSAGE = () =>
-  "Kindly choose one of the following option to get started";
+export const LICENSE_GET_STARTED_MESSAGE = () =>
+  "We need a license key to start or verify a subscription.";
 export const LICENSE_KEY_FORM_INPUT_LABEL = () =>
   "If you already have a license, please enter the key to continue";
-export const LICENSE_KEY_CTA_LABEL = () =>
-  "If you do not have a license key, please visit our customer portal to start trial or buy a subscription";
+export const LICENSE_KEY_MODAL_INPUT_LABEL = () => "Enter license key";
+export const LICENSE_KEY_CTA_LABEL = () => "Don’t have a license key?";
 export const TRIAL_EXPIRY_WARNING = (gracePeriod: number, suffix: string) =>
   `Your trial will expire in <span>${gracePeriod}</span> ${suffix}. `;
 export const CONTINUE_USING_FEATURES = () =>
@@ -183,6 +183,9 @@ export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
 export const ENTERPRISE = () => `Enterprise`;
 export const SELF_SERVE = () => `Business`;
 export const AIRGAPPED = () => `Airgapped`;
+export const SUBMIT_BUTTON = () => "Submit";
+export const LICENSE_FORM_DESCIPTION = () =>
+  "Your previous license will be invalid";
 // Welcome form EE
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
 

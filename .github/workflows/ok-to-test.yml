@@ -31,4 +31,5 @@ jobs:
             ok-to-test
             perf-test
             ci-merge-check
+            ok-to-test-airgap
           permission: write

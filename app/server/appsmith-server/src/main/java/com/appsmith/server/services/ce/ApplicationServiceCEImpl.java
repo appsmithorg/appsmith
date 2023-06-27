@@ -881,6 +881,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(assetService::remove);
     }
 
+
     @Override
     public Map<String, Object> getAnalyticsProperties(Application savedApplication) {
         Map<String, Object> analyticsProperties = new HashMap<>();

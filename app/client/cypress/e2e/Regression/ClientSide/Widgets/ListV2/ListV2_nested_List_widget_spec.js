@@ -1,12 +1,9 @@
-const dsl = require("../../../../../fixtures/Listv2/copy_paste_listv2_dsl.json");
-const nestedSiblingDsl = require("../../../../../fixtures/Listv2/ListV2_nested_sibling_listwidget_dsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 function checkAutosuggestion(label, type) {
   cy.get(".CodeMirror-hints")
@@ -27,8 +24,10 @@ describe(" Nested List Widgets ", function () {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("a. Pasting - should show toast when nesting is greater than 3", function () {
-    cy.addDsl(dsl);
+  it("1. Pasting - should show toast when nesting is greater than 3", function () {
+    cy.fixture("Listv2/copy_paste_listv2_dsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
     cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
     // Copy List1
     cy.get(widgetsPage.copyWidget).click({ force: true });
@@ -67,7 +66,7 @@ describe(" Nested List Widgets ", function () {
     cy.get(`${widgetSelector("List2Copy1")}`).should("not.exist");
   });
 
-  it("b. No cyclic dependency when using levelData in a child widget", () => {
+  it("2. No cyclic dependency when using levelData in a child widget", () => {
     cy.dragAndDropToWidgetBySelector(
       "textwidget",
       '[data-widgetname-cy="List1"] [type="CONTAINER_WIDGET"]',
@@ -137,8 +136,11 @@ describe(" Nested List Widgets ", function () {
     );
   });
 
-  it("c. Accessing CurrentView, SelectedItemView and TriggeredItemView from Sibling List widget", () => {
-    cy.addDsl(nestedSiblingDsl);
+  it("3. Accessing CurrentView, SelectedItemView and TriggeredItemView from Sibling List widget", () => {
+    cy.fixture("Listv2/ListV2_nested_sibling_listwidget_dsl").then((val) => {
+      agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
+    });
 
     cy.waitUntil(() =>
       cy

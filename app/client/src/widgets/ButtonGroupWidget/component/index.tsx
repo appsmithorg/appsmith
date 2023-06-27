@@ -40,6 +40,7 @@ interface ButtonData {
   label?: string;
   iconName?: string;
 }
+
 // Extract props influencing to width change
 const getButtonData = (
   groupButtons: Record<string, GroupButtonProps>,
@@ -408,7 +409,6 @@ class ButtonGroupComponent extends React.Component<
       };
     });
 
-    // @ts-expect-error: setTimeout return type mismatch
     this.timer = setTimeout(() => {
       this.setState(() => {
         return {

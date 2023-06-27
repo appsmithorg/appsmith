@@ -1,5 +1,5 @@
 import homePage from "../../../../locators/HomePage";
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Workspace Import Application", function () {
   let workspaceId;
@@ -7,11 +7,13 @@ describe("Workspace Import Application", function () {
   let appname;
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Can Import Application from json", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -36,7 +38,7 @@ describe("Workspace Import Application", function () {
           cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
             newWorkspaceName =
               createWorkspaceInterception.response.body.data.name;
-            cy.renameWorkspace(newWorkspaceName, workspaceId);
+            _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
             cy.get(homePage.workspaceImportAppOption).click({ force: true });
 
             cy.get(homePage.workspaceImportAppModal).should("be.visible");

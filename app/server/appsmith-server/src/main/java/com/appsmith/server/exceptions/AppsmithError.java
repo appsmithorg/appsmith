@@ -132,7 +132,7 @@ public enum AppsmithError {
     AUTHENTICATION_FAILURE(500, AppsmithErrorCode.AUTHENTICATION_FAILURE.getCode(), "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT, "Authentication failed", ErrorType.AUTHENTICATION_ERROR, null),
     INSTANCE_REGISTRATION_FAILURE(500, AppsmithErrorCode.INSTANCE_REGISTRATION_FAILURE.getCode(), "Registration for instance failed with error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, "Registration failed for this instance", ErrorType.INTERNAL_ERROR, null),
     TOO_MANY_REQUESTS(429, AppsmithErrorCode.TOO_MANY_REQUESTS.getCode(), "Too many requests received. Please try later.", AppsmithErrorAction.DEFAULT, "Too many requests", ErrorType.INTERNAL_ERROR, null),
-    INVALID_JS_ACTION(400, AppsmithErrorCode.INVALID_JS_ACTION.getCode(), "Something went wrong while trying to parse this action. Please check the JS object for errors.", AppsmithErrorAction.DEFAULT, "Invalid action in JS object", ErrorType.BAD_REQUEST, null),
+    INVALID_JS_ACTION(400, AppsmithErrorCode.INVALID_JS_ACTION.getCode(), "Something went wrong while trying to parse this action. Please check the JS Object for errors.", AppsmithErrorAction.DEFAULT, "Invalid action in JS Object", ErrorType.BAD_REQUEST, null),
     CYCLICAL_DEPENDENCY_ERROR(400, AppsmithErrorCode.CYCLICAL_DEPENDENCY_ERROR.getCode(), "Cyclical dependency error encountered while parsing relationship [{0}] where the relationship is denoted as (source : target).", AppsmithErrorAction.DEFAULT, "Cyclical Dependency in Page Load Actions", ErrorType.CONFIGURATION_ERROR, null),
     CLOUD_SERVICES_ERROR(500, AppsmithErrorCode.CLOUD_SERVICES_ERROR.getCode(), "Received error from cloud services {0}", AppsmithErrorAction.DEFAULT, "Error in cloud services", ErrorType.INTERNAL_ERROR, null),
     GIT_APPLICATION_LIMIT_ERROR(402, AppsmithErrorCode.GIT_APPLICATION_LIMIT_ERROR.getCode(), "You have reached the maximum number of private git repo counts which can be connected to the workspace. Please reach out to Appsmith support to opt for commercial plan.", AppsmithErrorAction.DEFAULT, "Maximum number of Git repo connection limit reached", ErrorType.EE_FEATURE_ERROR, null),
@@ -184,6 +184,8 @@ public enum AppsmithError {
     UNKNOWN_SERVER_VARIABLE_TYPE(500, AppsmithErrorCode.UNKNOWN_SERVER_VARIABLE_TYPE.getCode(), "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, "Unexpected server variable type", ErrorType.INTERNAL_ERROR, null),
     MIGRATION_FAILED(500, AppsmithErrorCode.MIGRATION_FAILED.getCode(), "Migration {0} failed. Reason: {1}. Note: {2}", AppsmithErrorAction.DEFAULT, "Migration failed", ErrorType.INTERNAL_ERROR, null),
     APPSMITH_AI_ERROR(500, AppsmithErrorCode.APPSMITH_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Appsmith AI error", ErrorType.EE_FEATURE_ERROR, null),
+    INVALID_API_KEY(403, AppsmithErrorCode.INVALID_API_KEY.getCode(), "Invalid Api Key", AppsmithErrorAction.DEFAULT, "Invalid Api Key", ErrorType.AUTHENTICATION_ERROR, null),
+    API_KEY_ALREADY_EXISTS(403, AppsmithErrorCode.API_KEY_ALREADY_EXISTS.getCode(), "Can't create a new API key. There already exists an API Key", AppsmithErrorAction.DEFAULT, "Api Key already exists", ErrorType.AUTHENTICATION_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

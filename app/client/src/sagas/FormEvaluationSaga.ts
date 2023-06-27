@@ -231,7 +231,7 @@ function* fetchDynamicValueSaga(
     }
 
     // Call the API to fetch the dynamic values
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<{ trigger?: unknown }> = yield call(
       PluginsApi.fetchDynamicFormValues,
       url,
       {
@@ -243,7 +243,6 @@ function* fetchDynamicValueSaga(
       },
     );
     dynamicFetchedValues.isLoading = false;
-    // @ts-expect-error: we don't know what the response will be
     if (response.responseMeta.status === 200 && "trigger" in response.data) {
       dynamicFetchedValues.data = response.data.trigger;
       dynamicFetchedValues.hasFetchFailed = false;

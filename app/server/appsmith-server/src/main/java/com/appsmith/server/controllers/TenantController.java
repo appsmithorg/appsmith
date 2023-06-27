@@ -37,9 +37,9 @@ public class TenantController extends TenantControllerCE {
     }
 
     @PostMapping("license")
-    public Mono<Void> addTenantLicenseKey(@RequestBody @Valid TenantConfiguration.License license, ServerWebExchange exchange) {
-        return service.addTenantLicenseKey(license.getKey(), exchange);
-
+    public Mono<ResponseDTO<String>> addLicenseKeyAndGetRedirectUrl(@RequestBody @Valid TenantConfiguration.License license, ServerWebExchange exchange) {
+        return service.addLicenseKeyAndGetRedirectUrl(license.getKey(), exchange)
+                .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 
     /**
@@ -49,12 +49,6 @@ public class TenantController extends TenantControllerCE {
     @GetMapping("license")
     public Mono<ResponseDTO<Tenant>> getLicense() {
         return service.refreshAndGetCurrentLicense()
-                .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
-    }
-
-    @PutMapping("updateDefaultTenantConfiguration")
-    public Mono<ResponseDTO<Tenant>> updateTenantConfiguration(@RequestBody TenantConfiguration tenantConfiguration) {
-        return service.updateDefaultTenantConfiguration(tenantConfiguration)
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 }

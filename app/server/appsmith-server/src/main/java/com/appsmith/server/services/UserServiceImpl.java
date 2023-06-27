@@ -212,7 +212,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                         }
                     }
 
-                    params.put("instanceName", StringUtils.defaultIfEmpty(commonConfig.getInstanceName(), "Appsmith"));
+                    params.put("instanceName", StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
                     params.put("logoUrl", StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
                     params.put("brandPrimaryColor", primaryColor);
                     params.put("brandBackgroundColor", backgroundColor);

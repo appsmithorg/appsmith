@@ -17,7 +17,7 @@ export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
   `};
 
   &[data-label] {
-    min-height: calc(5 * var(--sizing-root-unit));
+    min-height: calc(5 * var(--root-unit));
     display: flex;
     align-items: center;
   }
@@ -44,8 +44,8 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
     --checkbox-box-shadow: 0px 0px 0px var(--checkbox-border-width)
       var(--checkbox-border-color) inset;
 
-    width: calc(4 * var(--sizing-root-unit));
-    height: calc(4 * var(--sizing-root-unit));
+    width: calc(4 * var(--root-unit));
+    height: calc(4 * var(--root-unit));
     box-shadow: var(--checkbox-box-shadow);
     border-radius: clamp(0px, var(--border-radius-1), 0.375rem);
     color: transparent;

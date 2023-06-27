@@ -7,10 +7,17 @@ describe("Mongo Form to Native conversion works", () => {
 
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
-    _.agHelper.TypeDynamicInputValueNValidate(
-      "listingAndReviews",
-      formControls.mongoCollection,
-    );
+    _.assertHelper.AssertNetworkStatus("@trigger");
+    _.dataSources.EnterJSContext({
+      fieldProperty: _.dataSources._mongoCollectionPath,
+      fieldLabel: "Collection",
+      fieldValue: "listingAndReviews",
+    });
+    // _.dataSources.ValidateNSelectDropdown(
+    //   "Collection",
+    //   "",
+    //   "listingAndReviews",
+    // );
 
     _.agHelper.TypeDynamicInputValueNValidate(
       "{beds : {$lte: 2}}",
@@ -44,10 +51,13 @@ describe("Mongo Form to Native conversion works", () => {
       "Find document(s)",
     );
 
-    _.agHelper.TypeDynamicInputValueNValidate(
-      "modifyCollection",
-      formControls.mongoCollection,
-    );
+    cy.wait(500);
+
+    _.agHelper.EnterValue("modifyCollection", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",

@@ -24,6 +24,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -73,12 +74,14 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       NewPageRepository newPageRepository,
                                       NewActionRepository newActionRepository,
                                       ActionCollectionRepository actionCollectionRepository,
-                                      DatasourceRepository datasourceRepository, DatasourcePermission datasourcePermission) {
+                                      DatasourceRepository datasourceRepository,
+                                      DatasourcePermission datasourcePermission,
+                                      TransactionalOperator transactionalOperator) {
 
         super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
                 gitFileUtils, themeService, responseUtils, workspacePermission,
-                applicationPermission, pagePermission, actionPermission);
+                applicationPermission, pagePermission, actionPermission, transactionalOperator);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.permissionGroupService = permissionGroupService;

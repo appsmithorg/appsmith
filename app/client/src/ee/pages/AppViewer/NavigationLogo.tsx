@@ -11,7 +11,10 @@ import {
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { getViewModePageList } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getViewModePageList,
+} from "selectors/editorSelectors";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
@@ -52,6 +55,7 @@ function NavigationLogo(props: NavigationLogoProps) {
   );
   const tenantConfig = useSelector(getTenantConfig);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const currentPageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     if (logoAssetId?.length) {
@@ -83,7 +87,8 @@ function NavigationLogo(props: NavigationLogoProps) {
     <Link
       className={classNames({
         "mr-4": true,
-        "pointer-events-none select-none": pages.length <= 1,
+        "pointer-events-none select-none":
+          pages.length <= 1 || defaultPage.pageId === currentPageId,
       })}
       to={pageUrl}
     >
