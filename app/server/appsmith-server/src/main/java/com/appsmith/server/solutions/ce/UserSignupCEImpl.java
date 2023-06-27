@@ -130,6 +130,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return pair.getT2();
                 });
 
+
         return Mono
                 .zip(
                         createUserAndSendEmailMono,
