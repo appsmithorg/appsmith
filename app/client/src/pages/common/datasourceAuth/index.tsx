@@ -35,6 +35,8 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
+import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 interface Props {
   datasource: Datasource;
@@ -157,6 +159,8 @@ function DatasourceAuth({
   const canManageDatasource = hasManageDatasourcePermission(
     datasourcePermissions,
   );
+
+  const isEnabledForDSSchema = useFeatureFlagCheck(FEATURE_FLAG.a_b_ds_schema);
 
   // hooks
   const dispatch = useDispatch();
@@ -340,12 +344,14 @@ function DatasourceAuth({
           isDisabled={
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }
+          isIconButton={!!isEnabledForDSSchema}
           isLoading={isSaving}
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}
           size="md"
+          startIcon={isEnabledForDSSchema ? "oval-check-fill" : ""}
         >
-          {createMessage(SAVE_BUTTON_TEXT)}
+          {!isEnabledForDSSchema && createMessage(SAVE_BUTTON_TEXT)}
         </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
