@@ -14,7 +14,8 @@ import {
   isNil,
   isNumber,
   isString,
-  isObject,
+  isPlainObject,
+  uniq,
 } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -139,8 +140,25 @@ export function defaultOptionValueValidation(
 }
 
 function labelValueKeyOptions(widget: WidgetProps) {
-  if (isObject(widget.sourceData?.[0])) {
-    return Object.keys(widget.sourceData[0]).map((d) => ({
+  const sourceData = widget.sourceData;
+  let parsedValue: Record<string, unknown> | undefined = sourceData;
+
+  if (isString(sourceData)) {
+    try {
+      parsedValue = JSON.parse(sourceData);
+    } catch (e) {}
+  }
+
+  if (isArray(parsedValue)) {
+    return uniq(
+      parsedValue.reduce((keys, obj) => {
+        if (isPlainObject(obj)) {
+          Object.keys(obj).forEach((d) => keys.push(d));
+        }
+
+        return keys;
+      }, []),
+    ).map((d: unknown) => ({
       label: d,
       value: d,
     }));
@@ -227,6 +245,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             dependencies: ["sourceData"],
             options: labelValueKeyOptions,
+            validation: {
+              type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+              params: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  required: true,
+                },
+              },
+            },
           },
           {
             helpText: "",
@@ -246,6 +273,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             dependencies: ["sourceData"],
             options: labelValueKeyOptions,
+            validation: {
+              type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+              params: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  required: true,
+                },
+              },
+            },
           },
           {
             helpText: "Selects the option with value by default",

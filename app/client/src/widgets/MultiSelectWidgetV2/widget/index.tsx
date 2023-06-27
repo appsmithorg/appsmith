@@ -9,6 +9,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
 import type { LoDashStatic } from "lodash";
+import { isPlainObject, uniq } from "lodash";
 import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
@@ -24,6 +25,12 @@ import {
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import {
+  defaultValueExpressionPrefix,
+  getDefaultValueExpressionSuffix,
+  getOptionLabelValueExpressionPrefix,
+  optionLabelValueExpressionSuffix,
+} from "../constants";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -199,6 +206,34 @@ export function defaultOptionValueValidation(
   };
 }
 
+function labelValueKeyOptions(widget: WidgetProps) {
+  const sourceData = widget.sourceData;
+  let parsedValue: Record<string, unknown> | undefined = sourceData;
+
+  if (isString(sourceData)) {
+    try {
+      parsedValue = JSON.parse(sourceData);
+    } catch (e) {}
+  }
+
+  if (isArray(parsedValue)) {
+    return uniq(
+      parsedValue.reduce((keys, obj) => {
+        if (isPlainObject(obj)) {
+          Object.keys(obj).forEach((d) => keys.push(d));
+        }
+
+        return keys;
+      }, []),
+    ).map((d: unknown) => ({
+      label: d,
+      value: d,
+    }));
+  } else {
+    return [];
+  }
+}
+
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
@@ -239,8 +274,8 @@ class MultiSelectWidget extends BaseWidget<
           {
             helpText:
               "Allows users to select multiple options. Values must be unique",
-            propertyName: "options",
-            label: "Options",
+            propertyName: "sourceData",
+            label: "Source Data",
             controlType: "INPUT_TEXT",
             placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
@@ -249,29 +284,10 @@ class MultiSelectWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                unique: ["value"],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
                     required: true,
-                    allowedKeys: [
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                      {
-                        name: "value",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                    ],
                   },
                 },
               },
@@ -280,10 +296,134 @@ class MultiSelectWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
+            helpText: "",
+            propertyName: "optionLabel",
+            label: "Label",
+            controlType: "DROP_DOWN",
+            customJSControl: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: getOptionLabelValueExpressionPrefix,
+                suffix: optionLabelValueExpressionSuffix,
+              },
+            },
+            placeholderText: "",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            dependencies: ["sourceData"],
+            options: labelValueKeyOptions,
+            validation: {
+              type: ValidationTypes.UNION,
+              params: {
+                types: [
+                  {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      required: true,
+                    },
+                  },
+                  {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.UNION,
+                        params: {
+                          types: [
+                            {
+                              type: ValidationTypes.TEXT,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              type: ValidationTypes.NUMBER,
+                              params: {
+                                required: true,
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          {
+            helpText: "",
+            propertyName: "optionValue",
+            label: "Value",
+            controlType: "DROP_DOWN",
+            customJSControl: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: getOptionLabelValueExpressionPrefix,
+                suffix: optionLabelValueExpressionSuffix,
+              },
+            },
+            placeholderText: "",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            dependencies: ["sourceData"],
+            options: labelValueKeyOptions,
+            validation: {
+              type: ValidationTypes.UNION,
+              params: {
+                types: [
+                  {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      required: true,
+                    },
+                  },
+                  {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.UNION,
+                        params: {
+                          types: [
+                            {
+                              type: ValidationTypes.TEXT,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              type: ValidationTypes.NUMBER,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              type: ValidationTypes.BOOLEAN,
+                              params: {
+                                required: true,
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          {
             helpText: "Selects the option(s) with value by default",
             propertyName: "defaultOptionValue",
             label: "Default selected values",
-            controlType: "SELECT_DEFAULT_VALUE_CONTROL",
+            controlType: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: defaultValueExpressionPrefix,
+                suffix: getDefaultValueExpressionSuffix,
+              },
+            },
             placeholderText: "[GREEN]",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -664,6 +804,7 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
+      options: `{{(()=>{${derivedProperties.getOptions}})()}}`,
       value: `{{this.selectedOptionValues}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
       selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,

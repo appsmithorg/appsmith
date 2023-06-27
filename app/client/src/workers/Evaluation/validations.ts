@@ -1240,4 +1240,47 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: resultValue,
     };
   },
+  [ValidationTypes.UNION]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+    propertyPath: string,
+  ): ValidationResponse => {
+    if (config.params?.types && config.params?.types.length > 0) {
+      for (const childConfig of config.params.types) {
+        const result = VALIDATORS[childConfig.type](
+          childConfig,
+          value,
+          props,
+          propertyPath,
+        );
+
+        if (result.isValid) {
+          return result;
+        }
+      }
+
+      return {
+        isValid: false,
+        parsed: config.params.defaultValue,
+        messages: [
+          {
+            name: "ValidationError",
+            message: config.params.defaultErrorMessage || "",
+          },
+        ],
+      };
+    } else {
+      return {
+        isValid: false,
+        parsed: undefined,
+        messages: [
+          {
+            name: "ValidationError",
+            message: "Invalid validation configuration",
+          },
+        ],
+      };
+    }
+  },
 };
