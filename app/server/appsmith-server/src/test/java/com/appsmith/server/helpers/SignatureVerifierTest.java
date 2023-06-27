@@ -7,7 +7,7 @@ import org.springframework.http.HttpHeaders;
 import java.time.Instant;
 import java.util.UUID;
 
-import static com.appsmith.server.constants.ApiConstants.APPSMITH_SIGNATURE;
+import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ApiConstants.DATE;
 
 class SignatureVerifierTest {
@@ -17,7 +17,7 @@ class SignatureVerifierTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(DATE, Instant.now().toString());
-        headers.set(APPSMITH_SIGNATURE, "");
+        headers.set(CLOUD_SERVICES_SIGNATURE, "");
         Assertions.assertFalse(SignatureVerifier.isSignatureValid(headers));
     }
 
@@ -26,7 +26,16 @@ class SignatureVerifierTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(DATE, Instant.now().toString());
-        headers.set(APPSMITH_SIGNATURE, UUID.randomUUID().toString());
+        headers.set(CLOUD_SERVICES_SIGNATURE, UUID.randomUUID().toString());
         Assertions.assertFalse(SignatureVerifier.isSignatureValid(headers));
+    }
+
+    @Test
+    public void validatePublicKeyParam_validPublicKey_validParamGenerated() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(DATE, Instant.now().toString());
+        headers.set(CLOUD_SERVICES_SIGNATURE, String.format("%s.%s", UUID.randomUUID(), UUID.randomUUID()));
+        Assertions.assertFalse(SignatureVerifier.isSignatureValid(headers));
+        Assertions.assertNotNull(SignatureVerifier.getPublicKeyParameters());
     }
 }

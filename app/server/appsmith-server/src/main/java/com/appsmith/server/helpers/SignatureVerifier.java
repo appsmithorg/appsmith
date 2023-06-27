@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
@@ -13,17 +13,22 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Objects;
 
-import static com.appsmith.server.constants.ApiConstants.APPSMITH_SIGNATURE;
+import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ApiConstants.DATE;
 
+@Slf4j
 public class SignatureVerifier {
-    private static final String publicVerificationKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICNwJ+zx2opXjjOga/YyzRxb2czvNgQ/twA+miCKDIX3 appsmith";
+
+    // Public key for verifying signatures with ED25519 scheme.
+    private static final String PUBLIC_VERIFICATION_KEY = "AAAAC3NzaC1lZDI1NTE5AAAAICNwJ+zx2opXjjOga/YyzRxb2czvNgQ/twA+miCKDIX3";
 
     private static final String TIMESTAMP = "timestamp";
 
     private static final String EQUAL = "=";
+
+    @Getter
+    private static AsymmetricKeyParameter publicKeyParameters = null;
 
     /**
      * Method to verify the API signature from CS.
@@ -31,31 +36,37 @@ public class SignatureVerifier {
      * @return          If the signature is valid
      */
     public static boolean isSignatureValid(HttpHeaders headers) {
-        if (CollectionUtils.isEmpty(headers.get(APPSMITH_SIGNATURE))) {
+        if (CollectionUtils.isEmpty(headers.get(CLOUD_SERVICES_SIGNATURE)) || CollectionUtils.isEmpty(headers.get(DATE))) {
             return false;
         }
-        String signature = Objects.requireNonNull(headers.get(APPSMITH_SIGNATURE)).get(0);
-        String date = Objects.requireNonNull(headers.get(DATE)).get(0);
+        String signature = headers.get(CLOUD_SERVICES_SIGNATURE).get(0);
+        String date = headers.get(DATE).get(0);
         if (StringUtils.isNullOrEmpty(signature) || StringUtils.isNullOrEmpty(date)) {
             return false;
         }
-        return isSignatureValid(signature, date);
+        try {
+            if (getParsedPublicKeyParam() == null) {
+                return false;
+            }
+            return isSignatureValid(signature, date);
+        } catch (Exception exception) {
+            log.debug("Error occurred while verifying CS signature.", exception);
+            return false;
+        }
     }
 
     private static boolean isSignatureValid(String signature, String dateHeader) {
-
-        if (signature.split("\\.", 2).length != 2) {
+        String[] signatureParts = signature.split("\\.", 2);
+        if (signatureParts.length != 2) {
             return false;
         }
-        String signingData = signature.split("\\.", 2)[0];
-        String encodedSignature = signature.split("\\.", 2)[1];
+        String signingData = signatureParts[0];
+        String encodedSignature = signatureParts[1];
 
         // Decode base64 signature and signing data to byte arrays
         byte[] signatureBytes = Base64.getUrlDecoder().decode(encodedSignature);
         byte[] signingDataBytes = signingData.getBytes(StandardCharsets.UTF_8);
 
-        String publicKeyBody = publicVerificationKey.split(" ")[1];
-        AsymmetricKeyParameter publicKeyParameters = OpenSSHPublicKeyUtil.parsePublicKey(Base64.getDecoder().decode(publicKeyBody));
         // Set up Ed25519 verifier
         Ed25519Signer verifier = new Ed25519Signer();
         verifier.init(false, publicKeyParameters);
@@ -74,5 +85,12 @@ public class SignatureVerifier {
             return dateHeader.equals(date) && Instant.parse(date).isAfter(Instant.now().minus(24, ChronoUnit.HOURS));
         }
         return false;
+    }
+
+    private static AsymmetricKeyParameter getParsedPublicKeyParam() {
+        if (publicKeyParameters == null && !StringUtils.isNullOrEmpty(PUBLIC_VERIFICATION_KEY)) {
+            publicKeyParameters = OpenSSHPublicKeyUtil.parsePublicKey(Base64.getDecoder().decode(PUBLIC_VERIFICATION_KEY));
+        }
+        return publicKeyParameters;
     }
 }
