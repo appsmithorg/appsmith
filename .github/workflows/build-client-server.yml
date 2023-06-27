@@ -28,6 +28,7 @@ jobs:
     with:
       pr: 24825
       skip-tests: "true"
+      check-test-files: "true"
 
   rts-build:
     name: rts-build
