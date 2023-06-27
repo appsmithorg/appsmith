@@ -60,12 +60,12 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
 
     @Override
     public Mono<Void> onAuthenticationSuccess(
-        WebFilterExchange webFilterExchange,
-        Authentication authentication
+            WebFilterExchange webFilterExchange,
+            Authentication authentication
     ) {
         return super.onAuthenticationSuccess(webFilterExchange, authentication)
-            .then(this.logoutUserFromExistingSessionsBasedOnTenantConfig(authentication, webFilterExchange))
-            .then();
+                .then(this.logoutUserFromExistingSessionsBasedOnTenantConfig(authentication, webFilterExchange))
+                .then();
     }
 
     private Mono<User> logoutUserFromExistingSessionsBasedOnTenantConfig(Authentication authentication, WebFilterExchange exchange) {
@@ -73,17 +73,17 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
         // TODO update to fetch user specific tenant after multi-tenancy is introduced
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
         return tenantMono
-            .flatMap(tenant -> {
-                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                if (tenantConfiguration != null && Boolean.TRUE.equals(tenantConfiguration.getSingleSessionPerUserEnabled())) {
-                    // In a separate thread, we delete all other active sessions of this user.
-                    sessionUserService.logoutExistingSessions(currentUser.getEmail(), exchange)
-                        .thenReturn(currentUser)
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe();
-                }
-                return Mono.just(currentUser);
-            });
+                .flatMap(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    if (tenantConfiguration != null && Boolean.TRUE.equals(tenantConfiguration.getSingleSessionPerUserEnabled())) {
+                        // In a separate thread, we delete all other active sessions of this user.
+                        sessionUserService.logoutExistingSessions(currentUser.getEmail(), exchange)
+                                .thenReturn(currentUser)
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .subscribe();
+                    }
+                    return Mono.just(currentUser);
+                });
     }
 
 }
