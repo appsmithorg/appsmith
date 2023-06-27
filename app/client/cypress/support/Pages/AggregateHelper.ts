@@ -830,7 +830,10 @@ export class AggregateHelper extends ReusableHelper {
     cy.wait(timeout);
   }
 
-  public RefreshPage(reloadWithoutCache = true, networkCall = "getWorkspace") {
+  public RefreshPage(
+    reloadWithoutCache = true,
+    networkCallAlias = "getWorkspace",
+  ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
     // cy.window()
@@ -841,7 +844,7 @@ export class AggregateHelper extends ReusableHelper {
       this.assertHelper.AssertDocumentReady();
     });
     this.Sleep(2000);
-    this.assertHelper.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
+    this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
