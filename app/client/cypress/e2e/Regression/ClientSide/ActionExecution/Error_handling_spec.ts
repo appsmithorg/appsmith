@@ -34,10 +34,6 @@ describe("Test Create Api and Bind to Button widget", function () {
     agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-
-    cy.wait("@postExecute")
-      .its("response.body.responseMeta.status")
-      .should("eq", 200);
     agHelper.AssertElementAbsence(locators._toastMsg);
   });
 });

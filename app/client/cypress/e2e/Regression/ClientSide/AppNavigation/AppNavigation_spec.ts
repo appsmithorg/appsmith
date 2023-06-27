@@ -5,7 +5,6 @@ import {
   deployMode,
   homePage,
   appSettings,
-  locators,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
@@ -26,23 +25,27 @@ describe("General checks for app navigation", function () {
     agHelper.AssertElementExist(appSettings.locators._shareButton);
     agHelper.AssertElementExist(appSettings.locators._editButton);
     agHelper.AssertElementExist(
-      appSettings.locators._userProfileDropdownButton
+      appSettings.locators._userProfileDropdownButton,
     );
   });
 
   it("3. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
     // Share
-    agHelper.GetNClick(`${appSettings.locators._header} ${appSettings.locators._shareButton}`)
+    agHelper.GetNClick(
+      `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
+    );
     agHelper.Sleep(1000);
     agHelper.AssertElementExist(appSettings.locators._editButton);
     agHelper.AssertElementExist(appSettings.locators._modal);
-    agHelper.GetNClick(appSetings.locators._modalClose);
+    agHelper.GetNClick(appSettings.locators._modalClose);
     // Edit
-    agHelper.GetNClick(`${appSettings.locators._header} ${appSettings.locators._editButton}`)
+    agHelper.GetNClick(
+      `${appSettings.locators._header} ${appSettings.locators._editButton}`,
+    );
     agHelper.AssertElementExist(appSettings.locators._canvas);
     // User profile dropdown
     deployMode.DeployApp();
-    agHelper.GetNClick(appSettings.locators.__userProfileDropdownButton);
+    agHelper.GetNClick(appSettings.locators._userProfileDropdownButton);
     agHelper.AssertElementExist(appSettings.locators._userProfileDropdownMenu);
     deployMode.NavigateBacktoEditor();
   });
@@ -51,35 +54,42 @@ describe("General checks for app navigation", function () {
     // Import an application
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingApp.json");
-    assertHelper.WaitForNetworkCall("@importNewApplication")
-    .then((interception) => {
-      agHelper.Sleep();
-      const { isPartialImport } = interception.response.body.data;
-      if (isPartialImport) {
-        homePage.AssertNCloseImport();
-      } else {
-        homePage.AssertImportToast();
-      }
+    assertHelper
+      .WaitForNetworkCall("@importNewApplication")
+      .then((interception) => {
+        agHelper.Sleep();
+        const { isPartialImport } = interception.response.body.data;
+        if (isPartialImport) {
+          homePage.AssertNCloseImport();
+        } else {
+          homePage.AssertImportToast();
+        }
 
-      deployMode.DeployApp();
+        deployMode.DeployApp();
 
-      // Assert app header, top stacked navigation and page menu items
-          agHelper.AssertElementExist(appSettings.locators._header);
-    agHelper.AssertElementExist(appSettings.locators._topStacked);
-    agHelper.AssertElementLength(appSettings.locators._navigationMenuItem,10)
-          // Switch page
-
-    agHelper.GetNClickByContains(appSettings.locators._navigationMenuItem,"Page5")
-      // Assert active page menu item
-    cy.get(appSettings.locators._navigationMenuItem)
-        .contains("Page5")
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .should("have.class", "is-active");
-      deployMode.NavigateBacktoEditor();
-    });
+        // Assert app header, top stacked navigation and page menu items
+        agHelper.AssertElementExist(appSettings.locators._header);
+        agHelper.AssertElementExist(appSettings.locators._topStacked);
+        agHelper.AssertElementLength(
+          appSettings.locators._navigationMenuItem,
+          10,
+        );
+        // Switch page
+        agHelper.GetNClickByContains(
+          appSettings.locators._navigationMenuItem,
+          "Page5",
+        );
+        // Assert active page menu item
+        agHelper
+          .GetElement(appSettings.locators._navigationMenuItem)
+          .contains("Page5")
+          .parent()
+          .parent()
+          .parent()
+          .parent()
+          .parent()
+          .should("have.class", "is-active");
+        deployMode.NavigateBacktoEditor();
+      });
   });
 });

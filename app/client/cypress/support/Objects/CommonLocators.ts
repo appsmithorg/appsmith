@@ -226,4 +226,18 @@ export class CommonLocators {
   _sqlKeyword = ".cm-m-sql.cm-keyword";
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
   _submitBtn = "span:contains('Submit')";
+  _autoHeightLimitMin = "[data-testid='t--auto-height-overlay-handles-min']";
+  _autoHeightLimitMin_div = "[data-testid='t--auto-height-overlay-handles-min'] div";
+  _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
+  _labelContains = (value: string) => `label:Contains('${value}')`;
+  _showColumnButton = ".t--show-column-btn";
+  _toastBody = ".Toastify__toast-body span";
+  _propertyPaneHeightLabel = ".t--property-pane-section-general .t--property-control-label:contains('Height')"
+  _listCollapseToggle = ".t--entity-item:contains('List1') .t--entity-collapse-toggle";
+  _tabId1 = ".t--tabid-tab1";
+  _tabId2 = ".t--tabid-tab2";
+  _showTabsProperty = ".t--property-control-showtabs input";
+  _addOptionProperty = ".t--property-control-options-add";
+  _optionContent = ".rc-select-item-option-content";
+  _dropdownOptionSpan = ".t--dropdown-option span"
 }

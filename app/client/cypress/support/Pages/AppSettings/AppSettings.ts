@@ -37,7 +37,6 @@ export class AppSettings {
     _modalClose: "div[role=dialog] button[aria-label='Close']",
     _canvas: ".t--canvas-artboard",
     _userProfileDropdownMenu: ".ads-v2-menu",
-    _navigationMenuItem: ".t--page-switch-tab",
   };
 
   public errorMessageSelector = (fieldId: string) => {
