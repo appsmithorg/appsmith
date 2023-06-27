@@ -96,7 +96,7 @@ jobs:
         if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
         uses: peter-evans/create-or-update-comment@v1
         with:
-          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          issue-number: ${{ inputs.pr }}
           body: |
             <b>Below new test files are written in js 🔴 </b>
             <b>Expected format ts. Please fix and retrigger ok-to-test:</b>
