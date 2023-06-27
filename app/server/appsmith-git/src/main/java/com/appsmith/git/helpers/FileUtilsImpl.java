@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -262,14 +263,11 @@ public class FileUtilsImpl implements FileInterface {
                                 }
                                 validWidgets.add(widgetName);
                                 Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
-                                // Canvas Widget data is already saved in the immediate parent, so no need to save it again
-                                if (!widgetName.matches(CANVAS_WIDGET)) {
-                                    saveWidgets(
-                                            jsonObject,
-                                            widgetName,
-                                            path
-                                    );
-                                }
+                                saveWidgets(
+                                        jsonObject,
+                                        widgetName,
+                                        path
+                                );
                             });
                             // Remove deleted widgets from the file system
                             deleteWidgets(pageSpecificDirectory.resolve(CommonConstants.WIDGETS).toFile(), validWidgets);
@@ -879,11 +877,13 @@ public class FileUtilsImpl implements FileInterface {
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(page.getName(), readPageMetadata(page.toPath(), gson));
 
+                JSONObject mainContainer = getMainContainer(pageMap.get(page.getName()), gson);
+
                 // Read widgets data recursively from the widgets directory
                 Map<String, JSONObject> widgetsData = readWidgetsData(page.toPath().resolve(CommonConstants.WIDGETS).toString());
                 // Construct the nested DSL from the widgets data
                 Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(widgetsData.keySet().stream().toList());
-                JSONObject nestedDSL = DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories);
+                JSONObject nestedDSL = DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories, mainContainer);
                 pageDsl.put(page.getName(), nestedDSL.toString());
                 actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
                 actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
@@ -927,10 +927,7 @@ public class FileUtilsImpl implements FileInterface {
             if (file.isFile()) {
                 String filePath = file.getAbsolutePath();
                 String relativePath = filePath.replace(rootPath, CommonConstants.EMPTY_STRING);
-                relativePath = relativePath.substring(relativePath.indexOf("//") + 1);
-                if (!relativePath.startsWith(CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER)) {
-                    relativePath = CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER + relativePath;
-                }
+                relativePath = CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER + relativePath.substring(relativePath.indexOf("//") + 1);
                 try {
                     String fileContent = new String(Files.readAllBytes(file.toPath()));
                     JSONObject jsonObject = new JSONObject(fileContent);
@@ -964,5 +961,11 @@ public class FileUtilsImpl implements FileInterface {
                 }
             }
         }
+    }
+
+    private JSONObject getMainContainer(Object pageJson, Gson gson) {
+        JSONObject pageJSON = new JSONObject(gson.toJson(pageJson));
+        JSONArray layouts =  pageJSON.getJSONObject("unpublishedPage").getJSONArray("layouts");
+        return layouts.getJSONObject(0).getJSONObject("dsl");
     }
 }

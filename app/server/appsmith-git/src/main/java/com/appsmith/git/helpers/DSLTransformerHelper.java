@@ -35,8 +35,10 @@ public class DSLTransformerHelper {
         JSONArray children = jsonObject.optJSONArray(CommonConstants.CHILDREN);
         if (children != null) {
             // Check if the children object has type=CANVAS_WIDGET
-            jsonObject = removeChildrenIfNotCanvasWidget(jsonObject);
-            flattenedMap.put(prefix + widgetName, jsonObject);
+            removeChildrenIfNotCanvasWidget(jsonObject);
+            if (!isCanvasWidget(jsonObject)) {
+                flattenedMap.put(prefix + widgetName, jsonObject);
+            }
 
             for (int i = 0; i < children.length(); i++) {
                 JSONObject childObject = children.getJSONObject(i);
@@ -44,7 +46,9 @@ public class DSLTransformerHelper {
                 flattenObject(childObject, childPrefix, flattenedMap);
             }
         } else {
-            flattenedMap.put(prefix + widgetName, jsonObject);
+            if (!isCanvasWidget(jsonObject)) {
+                flattenedMap.put(prefix + widgetName, jsonObject);
+            }
         }
     }
 
@@ -70,6 +74,10 @@ public class DSLTransformerHelper {
     public static boolean hasChildren(JSONObject jsonObject) {
         JSONArray children = jsonObject.optJSONArray(CommonConstants.CHILDREN);
         return children != null && children.length() > 0;
+    }
+
+    public static boolean isCanvasWidget(JSONObject jsonObject) {
+        return jsonObject.optString(CommonConstants.WIDGET_TYPE).startsWith(CommonConstants.CANVAS_WIDGET);
     }
 
     public static Map<String, List<String>> calculateParentDirectories(List<String> paths) {
@@ -110,25 +118,24 @@ public class DSLTransformerHelper {
      * /List1/Container1/Container1.json,
      * /MainContainer.json
      */
-    public static JSONObject getNestedDSL(Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {
+    public static JSONObject getNestedDSL(Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping, JSONObject mainContainer) {
         // start from the root
-        JSONObject dsl = jsonMap.get(CommonConstants.DELIMITER_PATH + CommonConstants.MAIN_CONTAINER + CommonConstants.JSON_EXTENSION);
         // Empty page with no widgets
         if (!pathMapping.containsKey(CommonConstants.MAIN_CONTAINER)) {
-            return dsl;
+            return mainContainer;
         }
         for (String path : pathMapping.get(CommonConstants.MAIN_CONTAINER)) {
             JSONObject child = getChildren(path, jsonMap, pathMapping);
-            JSONArray children = dsl.optJSONArray(CommonConstants.CHILDREN);
+            JSONArray children = mainContainer.optJSONArray(CommonConstants.CHILDREN);
             if (children == null) {
                 children = new JSONArray();
                 children.put(child);
-                dsl.put(CommonConstants.CHILDREN, children);
+                mainContainer.put(CommonConstants.CHILDREN, children);
             } else {
                 children.put(child);
             }
         }
-        return dsl;
+        return mainContainer;
     }
 
     public static JSONObject getChildren(String pathToWidget, Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {

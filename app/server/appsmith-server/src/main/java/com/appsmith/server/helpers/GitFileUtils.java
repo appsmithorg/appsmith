@@ -173,7 +173,10 @@ public class GitFileUtils {
                             : newPage.getPublishedPage().getName();
                     removeUnwantedFieldsFromPage(newPage);
                     JSONObject dsl = newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
-                    newPage.getUnpublishedPage().getLayouts().get(0).setDsl(null);
+                    // Get MainContainer widget data, remove the children and club with Canvas.json file
+                    JSONObject mainContainer = new JSONObject(dsl);
+                    mainContainer.remove("children");
+                    newPage.getUnpublishedPage().getLayouts().get(0).setDsl(mainContainer);
                     // pageName will be used for naming the json file
                     dslBody.put(pageName, dsl.toString());
                     resourceMap.put(pageName, newPage);
