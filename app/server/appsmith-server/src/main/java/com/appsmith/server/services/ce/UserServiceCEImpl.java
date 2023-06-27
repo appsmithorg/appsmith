@@ -409,27 +409,22 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userWithTenantMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to save user: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
-                .flatMap(savedUser -> addUserPolicies(savedUser, isAdminUser))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to create user role: {} ms", pair.getT1());
-                    return pair.getT2();
+                .flatMap(this::addUserPoliciesAndSaveToRepo)
+                .flatMap(crudUser -> {
+                    if (isAdminUser) {
+                        return userUtils.makeSuperUser(List.of(crudUser))
+                                .then(Mono.just(crudUser));
+                    }
+                    return Mono.just(crudUser);
                 })
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
                 ))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to identify user: {} ms", pair.getT1());
-                    return pair.getT2();
-                });
+                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
-    protected Mono<User> addUserPolicies(User savedUser, Boolean isAdminUser) {
+    protected Mono<User> addUserPolicies(User savedUser) {
 
         // Create user management permission group
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
@@ -445,22 +440,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
 
         return permissionGroupService.save(userManagementPermissionGroup)
-                .flatMap(savedPermissionGroup -> {
+                .map(savedPermissionGroup -> {
 
                     Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
                             savedUser.getId());
 
                     User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, savedUser);
 
-                    return repository.save(updatedWithPolicies);
-                })
-                .flatMap(crudUser -> {
-                    if (isAdminUser) {
-                        return userUtils.makeSuperUser(List.of(crudUser))
-                                .then(Mono.just(crudUser));
-                    }
-                    return Mono.just(crudUser);
+                    return updatedWithPolicies;
                 });
+    }
+
+    private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
+        return addUserPolicies(user)
+                .flatMap(repository::save);
     }
 
     /**
