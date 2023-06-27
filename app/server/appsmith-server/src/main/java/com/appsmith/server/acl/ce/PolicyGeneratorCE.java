@@ -330,10 +330,15 @@ public class PolicyGeneratorCE {
                 .stream().map(defaultEdge -> lateralGraph.getEdgeTarget(defaultEdge))
                 .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
                 .collect(Collectors.toSet());
+        Set<AclPermission> indirectChildFromLateralPermissions = lateralGraph.outgoingEdgesOf(aclPermission)
+                .stream().map(defaultEdge -> lateralGraph.getEdgeTarget(defaultEdge))
+                .filter(permission -> permission.getEntity().equals(aclPermission.getEntity()))
+                .collect(Collectors.toSet());
         childPermissionSet.addAll(lateralPermissions);
+        childPermissionSet.addAll(getAllChildPermissions(indirectChildFromLateralPermissions, destinationEntity));
         Set<AclPermission> directChildPermissions = hierarchyGraph.outgoingEdgesOf(aclPermission)
                 .stream().map(defaultEdge -> hierarchyGraph.getEdgeTarget(defaultEdge))
-                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
+                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity) || permission.getEntity().equals(aclPermission.getEntity()))
                 .collect(Collectors.toSet());
         childPermissionSet.addAll(directChildPermissions);
         childPermissionSet.addAll(getAllChildPermissions(directChildPermissions, destinationEntity));
