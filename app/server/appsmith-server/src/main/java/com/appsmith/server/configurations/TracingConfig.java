@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.observation.ServerRequestObservationContext;
 
-import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_;
+import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
 
 /**
  * This configuration file creates beans that are required to filter just Appsmith specific spans
@@ -45,7 +45,7 @@ public class TracingConfig {
     SpanExportingPredicate onlyAppsmithSpans() {
         return (finishedSpan) -> {
             if ((finishedSpan.getKind() != null && finishedSpan.getKind().equals(Span.Kind.SERVER))
-                    || finishedSpan.getName().startsWith(APPSMITH_)) {
+                    || finishedSpan.getName().startsWith(APPSMITH_SPAN_PREFIX)) {
                 // A span is either an http server request root or Appsmith specific
                 return true;
             } else {
