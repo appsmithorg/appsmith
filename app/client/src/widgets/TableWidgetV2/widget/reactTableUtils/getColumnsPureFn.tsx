@@ -7,11 +7,7 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_COLUMN_NAME,
 } from "../../constants";
-import { fetchSticky } from "../utilities";
-import type {
-  ColumnProperties,
-  ReactTableColumnProps,
-} from "../../component/Constants";
+import type { ReactTableColumnProps } from "../../component/Constants";
 import memoizeOne from "memoize-one";
 
 export type getColumns = (
@@ -19,9 +15,7 @@ export type getColumns = (
   columnWidthMap: { [key: string]: number } | undefined,
   orderedTableColumns: any,
   componentWidth: number,
-  primaryColumns: Record<string, ColumnProperties>,
   renderMode: RenderMode,
-  widgetId: string,
 ) => ReactTableColumnProps[];
 
 //TODO: (Vamsi) need to unit test this function
@@ -31,9 +25,7 @@ export const getColumnsPureFn: getColumns = (
   columnWidthMap = {},
   orderedTableColumns = [],
   componentWidth,
-  primaryColumns,
   renderMode,
-  widgetId,
 ) => {
   let columns: ReactTableColumnProps[] = [];
   const hiddenColumns: ReactTableColumnProps[] = [];
@@ -58,7 +50,7 @@ export const getColumnsPureFn: getColumns = (
         isHidden: false,
         isAscOrder: column.isAscOrder,
         isDerived: column.isDerived,
-        sticky: fetchSticky(column.id, primaryColumns, renderMode, widgetId),
+        sticky: column.sticky,
         metaProperties: {
           isHidden: isHidden,
           type: column.columnType,
