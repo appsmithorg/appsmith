@@ -35,9 +35,7 @@ import java.util.Map;
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;
-
     private final SegmentConfig segmentConfig;
-
     private final CommonConfig commonConfig;
 
     private final WorkspaceRepository workspaceRepository;
@@ -46,8 +44,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final NewActionRepository newActionRepository;
     private final DatasourceRepository datasourceRepository;
     private final UserRepository userRepository;
-
     private final ProjectProperties projectProperties;
+    private final NetworkUtils networkUtils;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -61,7 +59,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
             return;
         }
 
-        Mono.zip(configService.getInstanceId(), NetworkUtils.getExternalAddress())
+        Mono.zip(configService.getInstanceId(), networkUtils.getExternalAddress())
                 .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
@@ -116,7 +114,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
         Mono.zip(
                         configService.getInstanceId().defaultIfEmpty("null"),
-                        NetworkUtils.getExternalAddress(),
+                        networkUtils.getExternalAddress(),
                         workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),

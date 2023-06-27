@@ -75,6 +75,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final EnvManager envManager;
     private final CommonConfig commonConfig;
     private final UserUtils userUtils;
+    private final NetworkUtils networkUtils;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -88,7 +89,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                             AnalyticsService analyticsService,
                             EnvManager envManager,
                             CommonConfig commonConfig,
-                            UserUtils userUtils) {
+                            UserUtils userUtils,
+                            NetworkUtils networkUtils) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -99,6 +101,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.envManager = envManager;
         this.commonConfig = commonConfig;
         this.userUtils = userUtils;
+        this.networkUtils = networkUtils;
     }
 
     /**
@@ -373,7 +376,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return pair.getT2();
                 });
 
-        Mono<String> getExternalAddressMono = NetworkUtils.getExternalAddress().defaultIfEmpty("unknown")
+        Mono<String> getExternalAddressMono = networkUtils.getExternalAddress().defaultIfEmpty("unknown")
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken to get external address: {} ms", pair.getT1());

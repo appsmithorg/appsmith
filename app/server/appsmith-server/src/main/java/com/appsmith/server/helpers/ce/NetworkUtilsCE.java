@@ -16,7 +16,7 @@ public class NetworkUtilsCE {
 
     protected static final String FALLBACK_IP = "unknown";
 
-    public NetworkUtilsCE() {
+    protected NetworkUtilsCE() {
     }
 
     /**
@@ -24,7 +24,7 @@ public class NetworkUtilsCE {
      *
      * @return A publisher that yields the IP address.
      */
-    public static Mono<String> getExternalAddress() {
+    public Mono<String> getExternalAddress() {
         if (cachedAddress != null) {
             return Mono.just(cachedAddress);
         }
