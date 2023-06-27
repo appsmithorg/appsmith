@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -35,6 +35,8 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { logger } from "@sentry/utils";
 
 interface Props {
   datasource: Datasource;
@@ -157,6 +159,8 @@ function DatasourceAuth({
   const canManageDatasource = hasManageDatasourcePermission(
     datasourcePermissions,
   );
+
+  const { pushFeature } = useContext(WalkthroughContext) || {};
 
   // hooks
   const dispatch = useDispatch();
@@ -296,6 +300,27 @@ function DatasourceAuth({
     });
   };
 
+  useEffect(() => {
+    shouldRender &&
+      pushFeature &&
+      pushFeature({
+        targetId: "t--save-button-container",
+        onDismiss: () => {
+          logger.log("Dismiss");
+        },
+        details: {
+          title: "Query data fast",
+          description:
+            "Select a template from a database table to quickly create your first query.",
+        },
+        offset: {
+          position: "right",
+          top: -100,
+          left: 40,
+        },
+      });
+  }, [shouldRender]);
+
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
 
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
@@ -337,6 +362,7 @@ function DatasourceAuth({
       [DatasourceButtonType.SAVE]: (
         <Button
           className="t--save-datasource"
+          id="t--save-button-container"
           isDisabled={
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }

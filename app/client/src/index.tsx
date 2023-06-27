@@ -22,6 +22,7 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+import Walkthrough from "components/featureWalkthrough";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
@@ -35,7 +36,9 @@ function App() {
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>
         <LayersContext.Provider value={Layers}>
-          <ThemedAppWithProps />
+          <Walkthrough>
+            <ThemedAppWithProps />
+          </Walkthrough>
         </LayersContext.Provider>
       </Provider>
     </Sentry.ErrorBoundary>
