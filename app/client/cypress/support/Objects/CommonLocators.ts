@@ -178,6 +178,7 @@ export class CommonLocators {
   _cancelActionExecution = ".t--cancel-action-button";
   _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
+  _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
@@ -224,4 +225,13 @@ export class CommonLocators {
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
+  _appEditMenu = "[data-testid='t--application-edit-menu']";
+  _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
+  _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appThemeSettings = "#t--theme-settings-header";
+  _appChangeThemeBtn = ".t--change-theme-btn";
+  _appThemeCard = ".t--theme-card";
+  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+  _appNavigationSettings = "#t--navigation-settings-header";
+  _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
 }
