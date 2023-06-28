@@ -24,6 +24,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
 import { Button, Icon, Switch, Tooltip } from "design-system";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -142,6 +143,9 @@ function AppInviteUsersForm(props: any) {
                 isDisabled={isChangingViewAccess || isFetchingApplication}
                 isSelected={currentApplicationDetails.isPublic}
                 onChange={() => {
+                  AnalyticsUtil.logEvent("MAKE_APPLICATION_PUBLIC", {
+                    isPublic: !currentApplicationDetails.isPublic,
+                  });
                   changeAppViewAccess(
                     applicationId,
                     !currentApplicationDetails.isPublic,

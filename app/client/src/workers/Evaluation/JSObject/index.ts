@@ -160,8 +160,16 @@ export function saveResolvedFunctionsAndJSUpdates(
                 // in case we need to handle error state
               }
             } else if (parsedElement.type !== "literal") {
+              // when a jsobject property is of the type "prop1" or 'prop1', ast outputs the
+              // key as "\"prop1\"" or "\'prop1\'". We need to remove the extra quotes.
+              const isStringRepresentation =
+                parsedElement.key.startsWith("'") ||
+                parsedElement.key.startsWith('"');
+              const parsedKey = isStringRepresentation
+                ? parsedElement.key.slice(1, -1)
+                : parsedElement.key;
               variables.push({
-                name: parsedElement.key,
+                name: parsedKey,
                 value: parsedElement.value,
               });
               JSObjectCollection.updateUnEvalState(
