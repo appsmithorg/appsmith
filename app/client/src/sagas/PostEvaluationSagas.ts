@@ -48,6 +48,12 @@ import type { ActionEntityConfig } from "entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import type {
+  EvalTreeResponseData,
+  JSVarMutatedEvents,
+} from "workers/Evaluation/types";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -319,6 +325,30 @@ export function* evalErrorHandler(
   });
 }
 
+export function* logJSVarCreatedEvent(
+  jsVarsCreatedEvent: EvalTreeResponseData["jsVarsCreatedEvent"],
+) {
+  if (!jsVarsCreatedEvent) return;
+
+  jsVarsCreatedEvent.forEach(({ path, type }) => {
+    AnalyticsUtil.logEvent("JS_VARIABLE_CREATED", {
+      path,
+      type,
+    });
+  });
+}
+
+export function* logJSVarMutationEvent(
+  jsVarsMutationEvent: JSVarMutatedEvents,
+) {
+  Object.values(jsVarsMutationEvent).forEach(({ path, type }) => {
+    AnalyticsUtil.logEvent("JS_VARIABLE_MUTATED", {
+      path,
+      type,
+    });
+  });
+}
+
 export function* dynamicTriggerErrorHandler(errors: any[]) {
   if (errors.length > 0) {
     for (const error of errors) {
@@ -345,6 +375,9 @@ export function* logSuccessfulBindings(
   const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
     ? {}
     : { ...successfulBindingsMap.get() };
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const instanceId: string = yield select(getInstanceId);
 
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
@@ -404,6 +437,8 @@ export function* logSuccessfulBindings(
               entityType,
               propertyPath,
               isUndefined,
+              orgId: workspaceId,
+              instanceId,
             });
           }
         }

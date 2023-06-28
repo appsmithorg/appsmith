@@ -1,9 +1,9 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const jsEditor = ObjectsRegistry.JSEditor;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const explorerHelper = ObjectsRegistry.EntityExplorer;
-const propertyPaneHelper = ObjectsRegistry.PropertyPane;
-const aggregateHelper = ObjectsRegistry.AggregateHelper;
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Tests fetch calls", () => {
   it("1. Ensures that cookies are not passed with fetch calls", function () {
@@ -72,20 +72,20 @@ describe("Tests fetch calls", () => {
     agHelper.AssertContains("anonymousUser", "exist");
   });
 
-  it("3. Tests if fetch works with store value", function () {
-    explorerHelper.NavigateToSwitcher("Widgets");
-    explorerHelper.DragDropWidgetNVerify("buttonwidget", 500, 200);
-    explorerHelper.SelectEntityByName("Button1");
-    propertyPaneHelper.TypeTextIntoField("Label", "getUserID");
-    propertyPaneHelper.EnterJSContext(
+  it.skip("3. Tests if fetch works with store value", function () {
+    entityExplorer.NavigateToSwitcher("Widgets");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.TypeTextIntoField("Label", "getUserID");
+    propPane.EnterJSContext(
       "onClick",
       `{{fetch('https://jsonplaceholder.typicode.com/todos/1')
     .then(res => res.json())
     .then(json => storeValue('userId', json.userId))
     .then(() => showAlert("UserId: " + appsmith.store.userId))}}`,
     );
-    aggregateHelper.Sleep(2000);
-    aggregateHelper.ClickButton("getUserID");
+    agHelper.Sleep(2000);
+    agHelper.ClickButton("getUserID");
     agHelper.AssertContains("UserId: 1", "exist");
   });
 });

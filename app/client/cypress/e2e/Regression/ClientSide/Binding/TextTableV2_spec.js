@@ -1,7 +1,11 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/TextTableV2dsl.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table v2 Binding Functionality", function () {
   Cypress.on("uncaught:exception", (err, runnable) => {
@@ -11,7 +15,12 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("TextTableV2dsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
+  });
+  afterEach(() => {
+    deployMode.NavigateBacktoEditor();
   });
 
   it("1. Text-Table Binding Functionality For Id", function () {
@@ -32,7 +41,7 @@ describe("Text-Table v2 Binding Functionality", function () {
       cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
-      cy.PublishtheApp();
+      deployMode.DeployApp();
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "0").then((tabDataP) => {
         const tabValueP = tabDataP;
@@ -42,7 +51,6 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   it("2. Text-Table Binding Functionality For Email", function () {
-    cy.get(publish.backToEditor).click();
     cy.isSelectRow(2);
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.SelectEntityByName("Text4", "Container1");
@@ -57,7 +65,7 @@ describe("Text-Table v2 Binding Functionality", function () {
       cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
-      cy.PublishtheApp();
+      deployMode.DeployApp();
       cy.isSelectRow(2);
       cy.readTableV2dataPublish("2", "1").then((tabDataP) => {
         const tabValueP = tabDataP;
@@ -67,7 +75,6 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   it("3. Text-Table Binding Functionality For Total Length", function () {
-    cy.get(publish.backToEditor).click();
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.SelectEntityByName("Text4", "Container1");
     cy.testJsontext("text", "{{Table1.pageSize}}");
@@ -80,7 +87,7 @@ describe("Text-Table v2 Binding Functionality", function () {
 
         cy.EvaluateDataType("string");
         cy.validateEvaluatedValue(listingCount);
-        cy.PublishtheApp();
+        deployMode.DeployApp();
         cy.get(publish.tableV2Length)
           .find(".tr")
           .then((listing) => {
@@ -91,7 +98,6 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   it("4. Table Widget Functionality To Verify Default Row Selection is working", function () {
-    cy.get(publish.backToEditor).click();
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.testJsontext("defaultselectedrow", "2");
@@ -104,7 +110,7 @@ describe("Text-Table v2 Binding Functionality", function () {
       });
     entityExplorer.SelectEntityByName("Text4", "Container1");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.readTableV2dataPublish("2", "1").then((tabDataP) => {
       const tabValueP = tabDataP;
       cy.get(commonlocators.TextInside).should("have.text", tabValueP);
@@ -112,14 +118,16 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   it("5. Text-Table Binding Functionality For Username", function () {
-    cy.get(publish.backToEditor).click();
     entityExplorer.ExpandCollapseEntity("Widgets");
     /**
      * @param(Index)  Provide index value to select the row.
      */
     cy.isSelectRow(1);
     entityExplorer.SelectEntityByName("Text4", "Container1");
-    cy.testJsontext("text", JSON.stringify(this.data.textfun));
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      JSON.stringify(this.dataSet.textfun),
+    );
     /**
      * @param{Row Index} Provide the row index
      * @param(Column Index) Provide column index
@@ -130,7 +138,7 @@ describe("Text-Table v2 Binding Functionality", function () {
       cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
-      cy.PublishtheApp();
+      deployMode.DeployApp();
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "2").then((tabDataP) => {
         const tabValueP = `\"${tabDataP}\"`;

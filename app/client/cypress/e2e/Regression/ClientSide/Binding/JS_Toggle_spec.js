@@ -1,9 +1,13 @@
-const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("JS Toggle tests", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Js_toggle_dsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. switches the toggle to Button widget", () => {

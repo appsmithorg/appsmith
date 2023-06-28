@@ -60,6 +60,7 @@ export type FieldEntityInformation = {
   blockCompletions?: Array<{ parentPath: string; subPath: string }>;
   example?: ExpectedValueExample;
   mode?: TEditorModes;
+  token?: CodeMirror.Token;
 };
 
 export type HintHelper = (
