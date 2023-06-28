@@ -14,7 +14,6 @@ describe("Create, test, save then delete a mongo datasource using URI", function
       dsName = "Mongo" + uid;
       agHelper.RenameWithInPane(dsName, false);
 
-      // Edit datasource, change connection string uri param and click on back button
       dataSources.FillMongoDatasourceFormWithURI(
         datasourceFormData["mongo-uri"],
       );
