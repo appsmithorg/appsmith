@@ -101,7 +101,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                 line: cursor.line,
               },
               to: editor.getCursor(),
-              selectedHint: 0,
+              selectedHint: list[0].isHeader ? 1 : 0,
             };
             function handleSelection(selected: CommandsCompletion) {
               currentSelection = selected;
