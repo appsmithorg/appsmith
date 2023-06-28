@@ -160,7 +160,7 @@ function DatasourceAuth({
     datasourcePermissions,
   );
 
-  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const { popFeature, pushFeature } = useContext(WalkthroughContext) || {};
 
   // hooks
   const dispatch = useDispatch();
@@ -347,6 +347,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="tertiary"
           onClick={() => {
+            popFeature && popFeature();
             if (createMode) {
               const URL = integrationEditorURL({
                 pageId,
