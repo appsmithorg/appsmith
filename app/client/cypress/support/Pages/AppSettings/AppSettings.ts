@@ -37,6 +37,22 @@ export class AppSettings {
     _modalClose: "div[role=dialog] button[aria-label='Close']",
     _canvas: ".t--canvas-artboard",
     _userProfileDropdownMenu: ".ads-v2-menu",
+    _navigationPreview: ".t--navigation-preview",
+    _navStyleOptions: {
+      _stacked:
+        ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-stacked",
+      _inline:
+        ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-inline",
+    },
+    _colorStyleOptions: {
+      _light:
+        ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-light",
+      _theme:
+        ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-theme",
+    },
+    _topInline: ".t--app-viewer-navigation-top-inline",
+    _sidebarCollapseButton: ".t--app-viewer-navigation-sidebar-collapse"
+
   };
 
   public errorMessageSelector = (fieldId: string) => {
