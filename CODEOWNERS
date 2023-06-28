@@ -34,3 +34,7 @@ app/client/src/ce/pages/AppViewer/NavigationLogo.tsx @dhruvikn
 app/client/src/ce/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
 app/client/src/ee/pages/AppViewer/NavigationLogo.tsx @dhruvikn
 app/client/src/ee/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
+
+# New Developers Pod
+app/client/src/ce/entities/FeatureFlag.ts @hetunandu
+app/client/src/ee/entities/FeatureFlag.ts @hetunandu
