@@ -1,10 +1,13 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -41,7 +44,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
+import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
+import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
@@ -58,6 +66,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final CommonConfig commonConfig;
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserGroupRepository userGroupRepository;
+    private final PolicyUtils policyUtils;
+    private final PolicyGenerator policyGenerator;
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -81,7 +91,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            PermissionGroupService permissionGroupService,
                            UserUtils userUtils,
                            PermissionGroupRepository permissionGroupRepository,
-                           UserGroupRepository userGroupRepository) {
+                           UserGroupRepository userGroupRepository,
+                           PolicyGenerator policyGenerator) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService, analyticsService,
                 sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender, applicationRepository,
@@ -95,6 +106,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         this.commonConfig = commonConfig;
         this.permissionGroupRepository = permissionGroupRepository;
         this.userGroupRepository = userGroupRepository;
+        this.policyUtils = policyUtils;
+        this.policyGenerator = policyGenerator;
     }
 
     @Override
@@ -238,5 +251,23 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         return Mono.create(sink -> userCreateAndDefaultRoleAssignmentMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    /**
+     * The overridden method updates policy for the user resource, where the User resource will inherit permissions
+     * from the Tenant.
+     */
+    @Override
+    protected Mono<User> addUserPolicies(User savedUser) {
+        return super.addUserPolicies(savedUser).zipWith(tenantService.getDefaultTenant())
+                .map(pair -> {
+                    User user = pair.getT1();
+                    Tenant tenant = pair.getT2();
+                    Map<String, Policy> userPoliciesMapWithNewPermissions = policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, User.class)
+                            .stream()
+                            .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+                    policyUtils.addPoliciesToExistingObject(userPoliciesMapWithNewPermissions, user);
+                    return user;
+                });
     }
 }
