@@ -187,7 +187,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         return datasource2;
                     })
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)))
-                    .thenReturn(datasource1)
             );
         }
 
@@ -444,6 +443,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
                         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
                         // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
+
+                        if (!hasText(datasourceStorage.getId())) {
+                            return Mono.just(datasourceStorage);
+                        }
 
                         return datasourceStorageService.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, trueEnvironmentId)
                                 .map(dbDatasourceStorage ->  {

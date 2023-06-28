@@ -41,6 +41,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -78,7 +79,7 @@ public class DatasourceServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
-    @Autowired
+    @SpyBean
     DatasourceStorageService datasourceStorageService;
 
     @Autowired
@@ -1796,5 +1797,58 @@ public class DatasourceServiceTest {
                     assertThat(error).isInstanceOf(AppsmithException.class);
                     assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
                 });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyTestDatasourceWithSavedDatasourceButNoDatasourceStorageSucceeds() {
+        Datasource datasource = createDatasourceObject("sampleDatasource", workspaceId, "postgres-plugin");
+        DatasourceStorageDTO datasourceStorageDTO = generateSampleDatasourceStorageDTO();
+        datasource.getDatasourceStorages().put(defaultEnvironmentId, datasourceStorageDTO);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        Mockito.doReturn(Mono.just(datasourceStorage)).when(datasourceStorageService).create(Mockito.any());
+        Datasource dbDatasource = datasourceService.create(datasource).block();
+
+        assertThat(dbDatasource.getId()).isNotNull();
+        assertThat(dbDatasource.getDatasourceStorages()).isNotNull();
+        assertThat(dbDatasource.getDatasourceStorages().get(defaultEnvironmentId)).isNotNull();
+        assertThat(dbDatasource.getDatasourceStorages().get(defaultEnvironmentId).getId()).isNull();
+
+        datasourceStorageDTO.setDatasourceId(dbDatasource.getId());
+        datasourceStorageDTO.setWorkspaceId(workspaceId);
+        datasourceStorageDTO.setPluginId(dbDatasource.getPluginId());
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mono<DatasourceTestResult> testResultMono = datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
+
+        StepVerifier.create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyTestDatasourceWithoutSavedDatasource() {
+        Datasource datasource = createDatasourceObject("sampleDatasource", workspaceId, "postgres-plugin");
+        DatasourceStorageDTO datasourceStorageDTO = generateSampleDatasourceStorageDTO();
+
+        datasourceStorageDTO.setWorkspaceId(workspaceId);
+        datasourceStorageDTO.setPluginId(datasource.getPluginId());
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mono<DatasourceTestResult> testResultMono = datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
+
+        StepVerifier.create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
     }
 }
