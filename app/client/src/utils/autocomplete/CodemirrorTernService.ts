@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
 import type { Server, Def } from "tern";
-import type { Hint } from "codemirror";
+import type { Hint, Hints } from "codemirror";
 import type CodeMirror from "codemirror";
 import {
   getDynamicBindings,
@@ -75,6 +75,7 @@ type RequestQuery = {
   includeKeywords?: boolean;
   depth?: number;
   sort?: boolean;
+  expandWordForward?: boolean;
 };
 
 export type DataTreeDefEntityInformation = {
@@ -225,6 +226,9 @@ class CodeMirrorTernService {
       after = '"]';
     }
 
+    const token = cm.getTokenAt(cursor);
+    const handleAutocompleteSelection = dotToBracketNotationAtToken(token);
+
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       const isCustomKeyword = isCustomKeywordType(completion.name);
@@ -232,13 +236,14 @@ class CodeMirrorTernService {
       if (isCustomKeyword) {
         completion.isKeyword = true;
       }
-
       let className = typeToIcon(completion.type, completion.isKeyword);
       const dataType = getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
       if (dataType === "FUNCTION" && !completion.origin?.startsWith("LIB/")) {
-        completionText = completionText + "()";
+        if (token.type !== "string" && token.string !== "[") {
+          completionText = completionText + "()";
+        }
       }
       const codeMirrorCompletion: Completion = {
         text: completionText,
@@ -279,6 +284,8 @@ class CodeMirrorTernService {
           cursorHorizontalPos,
         );
         completions = [...completions, ...keywordCompletions];
+      } else {
+        codeMirrorCompletion.hint = handleAutocompleteSelection;
       }
       completions.push(codeMirrorCompletion);
     }
@@ -288,7 +295,7 @@ class CodeMirrorTernService {
 
     completions = AutocompleteSorter.sort(
       completions,
-      this.fieldEntityInformation,
+      { ...this.fieldEntityInformation, token },
       this.defEntityInformation.get(
         this.fieldEntityInformation.entityName || "",
       ),
@@ -364,6 +371,7 @@ class CodeMirrorTernService {
           caseInsensitive: true,
           guess: false,
           inLiteral: true,
+          depth: 3,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -473,7 +481,6 @@ class CodeMirrorTernService {
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
     query.includeKeywords = true;
-    query.depth = 0;
     query.sort = true;
     if (query.end == null) {
       const positions = pos || doc.doc.getCursor("end");
@@ -894,3 +901,30 @@ export const createCompletionHeader = (name: string): Completion => ({
 export default new CodeMirrorTernService({
   async: true,
 });
+
+function dotToBracketNotationAtToken(token: CodeMirror.Token) {
+  return (cm: CodeMirror.Editor, hints: Hints, curr: Hint) => {
+    let completion = curr.text;
+    if (token.type === "string") {
+      // | represents the cursor
+      // Cases like JSObject1["myV|"]
+      cm.replaceRange(completion, hints.from, hints.to);
+      return;
+    } else if (token.type === null && token.state?.lexical?.type === "]") {
+      // Cases like JSObject1[|]
+      cm.replaceRange(`"${completion}"`, hints.from, hints.to);
+      return;
+    }
+    const splitByDotOperator = completion.split(".");
+    if (splitByDotOperator.length === 1) {
+      const splitByBracketOperator = completion.split("[");
+      if (splitByBracketOperator.length === 1) {
+        if (completion.includes(" ")) {
+          completion = `["${completion}"]`;
+          hints.from.ch -= 1;
+        }
+      }
+    }
+    cm.replaceRange(completion, hints.from, hints.to);
+  };
+}
