@@ -9,10 +9,8 @@ import { uniq } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 
 export interface EntityParser {
-  parse<T>(entity: T): {
-    parsedEntity: ParsedEntity<T>;
-    parsedEntityConfig: Record<string, unknown>;
-  };
+  parse<T extends DataTreeEntity>(entity: T): ParsedEntity<T>;
+  parse<T extends TJSActionEntity>(entity: T): ParsedEntity<T>;
 }
 
 type TParsedJSEntity = Record<string, string> & {
@@ -26,25 +24,27 @@ export type ParsedJSCache = {
   parsedEntityConfig: TParsedJSEntityConfig;
 };
 
-export type ParsedEntity<T> = Partial<T>;
+export type ParsedEntity<T> = {
+  parsedEntity: Partial<T>;
+  parsedEntityConfig: Record<string, unknown>;
+};
 
 export class DefaultEntityParser implements EntityParser {
   parse<T extends DataTreeEntity>(entity: T) {
     return {
-      parsedEntity: entity as ParsedEntity<T>,
+      parsedEntity: entity,
       parsedEntityConfig: {},
     };
   }
 }
 
 export class JSLintEntityParser implements EntityParser {
-  #parsedJSCache: ParsedJSCache = {
+  #parsedJSCache: ParsedEntity<TJSActionEntity> = {
     parsedEntity: {},
     parsedEntityConfig: {},
   };
-  parse<T extends TJSActionEntity>(entity: TJSActionEntity) {
+  parse<T extends TJSActionEntity>(entity: T) {
     const jsEntityBody = entity.body;
-    const jsEntityName = entity.getName();
     if (
       this.#parsedJSCache &&
       entity.isEqual(this.#parsedJSCache.parsedEntity.body)
@@ -63,10 +63,7 @@ export class JSLintEntityParser implements EntityParser {
         parsedEntity: { body: jsEntityBody },
         parsedEntityConfig: {},
       };
-      return {
-        parsedEntity: { body: jsEntityBody },
-        parsedEntityConfig: {},
-      };
+      return this.#parsedJSCache;
     }
 
     const parsedJSEntity: TParsedJSEntity = {
@@ -99,10 +96,7 @@ export class JSLintEntityParser implements EntityParser {
       parsedEntityConfig: parsedJSEntityConfig,
     };
 
-    return {
-      parsedEntity: parsedJSEntity,
-      parsedEntityConfig: parsedJSEntityConfig,
-    };
+    return this.#parsedJSCache;
   }
 
   #isValidJSBody(jsBody: string) {

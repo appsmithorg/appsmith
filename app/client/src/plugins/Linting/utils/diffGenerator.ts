@@ -47,7 +47,7 @@ export class JSLintDiffGenerator implements EntityDiffGenerator {
       if (!parsedEntityConfig) continue;
       entityForDiff[propertyName] = this.getHashedConfigString(
         propertyValue,
-        parsedEntityConfig[propertyName],
+        parsedEntityConfig[propertyName] as TParsedJSProperty,
       );
     }
     return { [entity.getName()]: entityForDiff };
