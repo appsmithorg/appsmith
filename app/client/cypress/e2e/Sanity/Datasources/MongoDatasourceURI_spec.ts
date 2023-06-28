@@ -1,5 +1,4 @@
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../fixtures/datasources.json";
 
 let dsName: any;
 
