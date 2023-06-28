@@ -9,8 +9,8 @@ import { uniq } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 
 export interface EntityParser {
-  parse(entity: DataTreeEntity): {
-    parsedEntity: Record<string, unknown>;
+  parse<T>(entity: T): {
+    parsedEntity: ParsedEntity<T>;
     parsedEntityConfig: Record<string, unknown>;
   };
 }
@@ -21,24 +21,37 @@ type TParsedJSEntity = Record<string, string> & {
 
 type TParsedJSEntityConfig = Record<string, TParsedJSProperty>;
 
-export type parsedJSCache = Record<
-  string,
-  { parsedEntity: TParsedJSEntity; parsedEntityConfig: TParsedJSEntityConfig }
->;
+export type ParsedJSCache = {
+  parsedEntity: ParsedEntity<TJSActionEntity>;
+  parsedEntityConfig: TParsedJSEntityConfig;
+};
 
-class JSLintEntityParser implements EntityParser {
-  #parsedJSCache: parsedJSCache = {};
-  parse(entity: TJSActionEntity) {
+export type ParsedEntity<T> = Partial<T>;
+
+export class DefaultEntityParser implements EntityParser {
+  parse<T extends DataTreeEntity>(entity: T) {
+    return {
+      parsedEntity: entity as ParsedEntity<T>,
+      parsedEntityConfig: {},
+    };
+  }
+}
+
+export class JSLintEntityParser implements EntityParser {
+  #parsedJSCache: ParsedJSCache = {
+    parsedEntity: {},
+    parsedEntityConfig: {},
+  };
+  parse<T extends TJSActionEntity>(entity: TJSActionEntity) {
     const jsEntityBody = entity.body;
     const jsEntityName = entity.getName();
-    const cachedParsedJSEntity = this.#parsedJSCache[jsEntityName];
     if (
-      cachedParsedJSEntity &&
-      entity.isEqual(cachedParsedJSEntity.parsedEntity.body)
+      this.#parsedJSCache &&
+      entity.isEqual(this.#parsedJSCache.parsedEntity.body)
     ) {
       return {
-        parsedEntity: cachedParsedJSEntity.parsedEntity,
-        parsedEntityConfig: cachedParsedJSEntity.parsedEntityConfig,
+        parsedEntity: this.#parsedJSCache.parsedEntity,
+        parsedEntityConfig: this.#parsedJSCache.parsedEntityConfig,
       };
     }
 
@@ -46,7 +59,7 @@ class JSLintEntityParser implements EntityParser {
 
     if (!success) {
       // Save parsed entity to cache
-      this.#parsedJSCache[jsEntityName] = {
+      this.#parsedJSCache = {
         parsedEntity: { body: jsEntityBody },
         parsedEntityConfig: {},
       };
@@ -81,7 +94,7 @@ class JSLintEntityParser implements EntityParser {
     }
 
     // Save parsed entity to cache
-    this.#parsedJSCache[jsEntityName] = {
+    this.#parsedJSCache = {
       parsedEntity: parsedJSEntity,
       parsedEntityConfig: parsedJSEntityConfig,
     };

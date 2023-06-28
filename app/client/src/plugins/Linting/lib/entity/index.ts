@@ -51,20 +51,35 @@ export default class EntityFactory {
     T extends DataTreeEntity,
     K extends DataTreeEntityConfig | undefined,
   >(entity: T, config: K, classLoader: EntityClassLoader): IEntity {
-    const { diffGenerator, parser } = classLoader.load(entity);
+    const { DiffGenerator, Parser } = classLoader.load(entity);
     if (isWidget(entity)) {
-      return new WidgetEntity(entity, config as TWidgetEntityConfig);
+      return new WidgetEntity(
+        entity,
+        config as TWidgetEntityConfig,
+        new Parser(),
+        new DiffGenerator(),
+      );
     } else if (isJSAction(entity)) {
       return new JSEntity(
         entity,
         config as TJSActionEntityConfig,
-        parser,
-        diffGenerator,
+        new Parser(),
+        new DiffGenerator(),
       );
     } else if (isAction(entity)) {
-      return new ActionEntity(entity, config as TActionEntityConfig);
+      return new ActionEntity(
+        entity,
+        config as TActionEntityConfig,
+        new Parser(),
+        new DiffGenerator(),
+      );
     } else if (isAppsmith(entity)) {
-      return new AppsmithEntity(entity, undefined);
+      return new AppsmithEntity(
+        entity,
+        undefined,
+        new Parser(),
+        new DiffGenerator(),
+      );
     } else {
       return new PagelistEntity(entity as TPageListEntity, undefined);
     }
@@ -74,24 +89,24 @@ export default class EntityFactory {
 export class ActionEntity implements IEntity {
   private entity: TActionEntity;
   private config: TActionEntityConfig;
-  entityParser: EntityParser = defaultEntityParser;
+  entityParser: EntityParser;
   diffGenerator: EntityDiffGenerator = defaultDiffGenerator;
   constructor(
     entity: TActionEntity,
     config: TActionEntityConfig,
-    entityParser?: EntityParser,
-    diffGenerator?: EntityDiffGenerator,
+    entityParser: EntityParser,
+    diffGenerator: EntityDiffGenerator,
   ) {
     this.entity = entity;
     this.config = config;
-    if (entityParser) this.entityParser = entityParser;
-    if (diffGenerator) this.diffGenerator = diffGenerator;
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType() {
     return ENTITY_TYPE.ACTION;
   }
   getRawEntity() {
-    return this.entity;
+    return this.entityParser.parse(this.entity).parsedEntity;
   }
   getName() {
     return this.config.name;
@@ -110,24 +125,24 @@ export class ActionEntity implements IEntity {
 export class WidgetEntity implements IEntity {
   private entity: TWidgetEntity;
   private config: TWidgetEntityConfig;
-  entityParser: EntityParser = defaultEntityParser;
+  entityParser: EntityParser;
   diffGenerator: EntityDiffGenerator = defaultDiffGenerator;
   constructor(
     entity: TWidgetEntity,
     config: TWidgetEntityConfig,
-    entityParser?: EntityParser,
-    diffGenerator?: EntityDiffGenerator,
+    entityParser: EntityParser,
+    diffGenerator: EntityDiffGenerator,
   ) {
     this.entity = entity;
     this.config = config;
-    if (entityParser) this.entityParser = entityParser;
-    if (diffGenerator) this.diffGenerator = diffGenerator;
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType(): ENTITY_TYPE {
     return ENTITY_TYPE.WIDGET;
   }
   getRawEntity() {
-    return this.entity;
+    return this.entityParser.parse(this.entity).parsedEntity;
   }
   getName() {
     return this.entity.widgetName;
@@ -146,30 +161,25 @@ export class WidgetEntity implements IEntity {
 export class JSEntity implements IEntity {
   entity: TJSActionEntity;
   private config: TJSActionEntityConfig;
-  entityParser?: EntityParser;
+  entityParser: EntityParser;
   diffGenerator: EntityDiffGenerator = defaultDiffGenerator;
 
   constructor(
     entity: TJSActionEntity,
     config: TJSActionEntityConfig,
-    entityParser?: EntityParser,
-    diffGenerator?: EntityDiffGenerator,
+    entityParser: EntityParser,
+    diffGenerator: EntityDiffGenerator,
   ) {
     this.entity = entity;
     this.config = config;
-    if (entityParser) {
-      this.entityParser = entityParser;
-      this.entity = entityParser.parse(entity).parsedEntity;
-    }
-    if (diffGenerator) {
-      this.diffGenerator = diffGenerator;
-    }
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType() {
     return ENTITY_TYPE.JSACTION;
   }
   getRawEntity() {
-    return this.entity;
+    return this.entityParser.parse(this.entity).parsedEntity as TJSActionEntity;
   }
   getConfig() {
     return this.config;
@@ -188,7 +198,7 @@ export class JSEntity implements IEntity {
   }
   getFns() {
     const jsFunctions = [];
-    const { parsedEntity, parsedEntityConfig } = this.entityParser!.parse(
+    const { parsedEntity, parsedEntityConfig } = this.entityParser.parse(
       this.entity,
     );
     for (const propertyName of Object.keys(parsedEntityConfig)) {
@@ -209,8 +219,6 @@ export class JSEntity implements IEntity {
 export class PagelistEntity implements IEntity {
   private entity: TPageListEntity;
   private config: undefined;
-  entityParser: EntityParser = defaultEntityParser;
-  diffGenerator: EntityDiffGenerator = defaultDiffGenerator;
   constructor(entity: TPageListEntity, config: undefined) {
     this.entity = entity;
     this.config = config;
@@ -231,18 +239,25 @@ export class PagelistEntity implements IEntity {
     return "pageList";
   }
   computeDifference(oldEntity?: IEntity): Diff<unknown>[] | undefined {
-    return this.diffGenerator.generate(oldEntity, this);
+    return;
   }
 }
 
 export class AppsmithEntity implements IEntity {
   private entity: TAppsmithEntity;
   private config: undefined;
-  entityParser: EntityParser = defaultEntityParser;
-  diffGenerator: EntityDiffGenerator = defaultDiffGenerator;
-  constructor(entity: TAppsmithEntity, config: undefined) {
+  entityParser: EntityParser;
+  diffGenerator: EntityDiffGenerator;
+  constructor(
+    entity: TAppsmithEntity,
+    config: undefined,
+    entityParser: EntityParser,
+    diffGenerator: EntityDiffGenerator,
+  ) {
     this.entity = entity;
     this.config = config;
+    this.entityParser = entityParser;
+    this.diffGenerator = diffGenerator;
   }
   getType() {
     return ENTITY_TYPE.APPSMITH;

@@ -9,9 +9,17 @@ import EntityFactory from ".";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EntityParser } from "plugins/Linting/utils/entityParser";
-import { jsLintEntityParser } from "plugins/Linting/utils/entityParser";
+import {
+  DefaultEntityParser,
+  JSLintEntityParser,
+  jsLintEntityParser,
+} from "plugins/Linting/utils/entityParser";
 import type { EntityDiffGenerator } from "plugins/Linting/utils/diffGenerator";
-import { jsLintDiffGenerator } from "plugins/Linting/utils/diffGenerator";
+import {
+  DefaultDiffGenerator,
+  JSLintDiffGenerator,
+  jsLintDiffGenerator,
+} from "plugins/Linting/utils/diffGenerator";
 
 export abstract class EntityTree {
   protected tree = new Map<string, IEntity>();
@@ -59,8 +67,8 @@ export abstract class EntityTree {
 
 export interface EntityClassLoader {
   load(entity: DataTreeEntity): {
-    parser?: EntityParser;
-    diffGenerator?: EntityDiffGenerator;
+    Parser: { new (): EntityParser };
+    DiffGenerator: { new (): EntityDiffGenerator };
   };
 }
 
@@ -68,13 +76,13 @@ class LintEntityClassLoader implements EntityClassLoader {
   load(entity: DataTreeEntity) {
     if (isJSAction(entity)) {
       return {
-        parser: jsLintEntityParser,
-        diffGenerator: jsLintDiffGenerator,
+        Parser: JSLintEntityParser,
+        DiffGenerator: JSLintDiffGenerator,
       };
     }
     return {
-      parser: undefined,
-      diffGenerator: undefined,
+      Parser: DefaultEntityParser,
+      DiffGenerator: DefaultDiffGenerator,
     };
   }
 }

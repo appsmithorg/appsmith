@@ -11,7 +11,7 @@ export interface EntityDiffGenerator {
   ): Diff<unknown>[] | undefined;
 }
 
-class DefaultDiffGenerator implements EntityDiffGenerator {
+export class DefaultDiffGenerator implements EntityDiffGenerator {
   generate(baseEntity?: IEntity, compareEntity?: IEntity) {
     return diff(
       this.generateDiffObj(baseEntity),
@@ -26,7 +26,7 @@ class DefaultDiffGenerator implements EntityDiffGenerator {
   }
 }
 
-class JSLintDiffGenerator implements EntityDiffGenerator {
+export class JSLintDiffGenerator implements EntityDiffGenerator {
   generate(baseEntity?: JSEntity, compareEntity?: JSEntity) {
     return diff(
       this.generateDiffObj(baseEntity),
@@ -43,7 +43,7 @@ class JSLintDiffGenerator implements EntityDiffGenerator {
       entity.getRawEntity(),
     )) {
       const jsParser = entity.entityParser as typeof jsLintEntityParser;
-      const { parsedEntityConfig } = jsParser.parse(entity);
+      const { parsedEntityConfig } = jsParser.parse(entity.getRawEntity());
       if (!parsedEntityConfig) continue;
       entityForDiff[propertyName] = this.getHashedConfigString(
         propertyValue,
