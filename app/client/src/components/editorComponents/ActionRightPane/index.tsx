@@ -31,6 +31,16 @@ import {
 } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
+import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
+import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getPluginDatasourceComponenrFromId,
+  getPluginNameFromId,
+} from "selectors/entitiesSelector";
+import { DatasourceComponentTypes } from "api/PluginApi";
 
 const SideBar = styled.div`
   height: 100%;
@@ -142,14 +152,20 @@ const Placeholder = styled.div`
   text-align: center;
 `;
 
+const DataStructureListWrapper = styled.div`
+  overflow-y: scroll;
+`;
+
 type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
   label: string;
+  customLabelComponent?: JSX.Element | undefined;
 };
 
 export function Collapsible({
   children,
+  customLabelComponent,
   expand = true,
   label,
 }: CollapsibleProps) {
@@ -163,7 +179,11 @@ export function Collapsible({
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
         <Icon name="down-arrow" size="lg" />
-        <span className="label">{label}</span>
+        {!!customLabelComponent ? (
+          customLabelComponent
+        ) : (
+          <span className="label">{label}</span>
+        )}
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
         {children}
@@ -194,9 +214,12 @@ export function useEntityDependencies(actionName: string) {
 
 function ActionSidebar({
   actionName,
+  context,
+  datasourceId,
   entityDependencies,
   hasConnections,
   hasResponse,
+  pluginId,
   suggestedWidgets,
 }: {
   actionName: string;
@@ -207,6 +230,9 @@ function ActionSidebar({
     directDependencies: string[];
     inverseDependencies: string[];
   } | null;
+  datasourceId?: string;
+  pluginId?: string;
+  context: DatasourceStructureContext;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
@@ -232,6 +258,23 @@ function ActionSidebar({
     );
   };
 
+  const pluginName = useSelector((state) =>
+    getPluginNameFromId(state, pluginId || ""),
+  );
+
+  const pluginDatasourceForm = useSelector((state) =>
+    getPluginDatasourceComponenrFromId(state, pluginId || ""),
+  );
+
+  // A/B feature flag for datsource structure.
+  const isEnabledForDSSchema = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema),
+  );
+
+  const datasourceStructure = useSelector(
+    (state) => state.entities.datasources.structure[datasourceId || ""],
+  );
+
   const hasWidgets = Object.keys(widgets).length > 1;
 
   const pagePermissions = useSelector(getPagePermissions);
@@ -242,7 +285,12 @@ function ActionSidebar({
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
-  if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
+  if (
+    !hasConnections &&
+    !showSuggestedWidgets &&
+    !showSnipingMode &&
+    pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
+  ) {
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
@@ -256,6 +304,27 @@ function ActionSidebar({
       >
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
+
+      {!isEnabledForDSSchema &&
+        pluginDatasourceForm !==
+          DatasourceComponentTypes.RestAPIDatasourceForm && (
+          <Collapsible
+            customLabelComponent={
+              <DatasourceStructureHeader datasourceId={datasourceId || ""} />
+            }
+            label="Schema"
+          >
+            <DataStructureListWrapper>
+              <DataStructureList
+                context={context}
+                datasourceId={datasourceId || ""}
+                datasourceStructure={datasourceStructure}
+                pluginName={pluginName}
+                step={0}
+              />
+            </DataStructureListWrapper>
+          </Collapsible>
+        )}
 
       {hasConnections && (
         <Connections

@@ -1,6 +1,7 @@
 import {
   createMessage,
   SCHEMA_NOT_AVAILABLE,
+  TABLE_OR_COLUMN_NOT_FOUND,
 } from "@appsmith/constants/messages";
 import type {
   DatasourceStructure as DatasourceStructureType,
@@ -10,24 +11,27 @@ import type { ReactElement } from "react";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
-import { Input } from "design-system";
+import { Input, Text } from "design-system";
 import styled from "styled-components";
 import { getIsFetchingDatasourceStructure } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";
+import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 
 type Props = {
   datasourceId: string;
   datasourceStructure?: DatasourceStructureType;
   step: number;
   context: DatasourceStructureContext;
+  pluginName?: string;
 };
 
 export enum DatasourceStructureContext {
   EXPLORER = "EntityExplorer",
-  DATASOURCE = "Datasource",
-  ACTION_EDITOR = "Action Editor",
+  QUERY_EDITOR = "Query Editor",
+  // this does not exist yet, but in case it does in the future.
+  API_EDITOR = "Api Editor",
 }
 
 const DatasourceStructureSearchContainer = styled.div`
@@ -135,19 +139,40 @@ const Container = (props: Props) => {
                 />
               );
             })}
+
+          {!datasourceStructure?.tables?.length && (
+            <Text kind="body-s" renderAs="p">
+              {createMessage(TABLE_OR_COLUMN_NOT_FOUND)}
+            </Text>
+          )}
         </>
       );
     } else {
-      view = (
-        <EntityPlaceholder step={props.step + 1}>
-          {props.datasourceStructure &&
-          props.datasourceStructure.error &&
-          props.datasourceStructure.error.message &&
-          props.datasourceStructure.error.message !== "null"
-            ? props.datasourceStructure.error.message
-            : createMessage(SCHEMA_NOT_AVAILABLE)}
-        </EntityPlaceholder>
-      );
+      if (props.context !== DatasourceStructureContext.EXPLORER) {
+        view = (
+          <DatasourceStructureNotFound
+            datasourceId={props.datasourceId}
+            error={
+              !!props.datasourceStructure &&
+              "error" in props.datasourceStructure
+                ? props.datasourceStructure.error
+                : { message: createMessage(SCHEMA_NOT_AVAILABLE) }
+            }
+            pluginName={props?.pluginName || ""}
+          />
+        );
+      } else {
+        view = (
+          <EntityPlaceholder step={props.step + 1}>
+            {props.datasourceStructure &&
+            props.datasourceStructure.error &&
+            props.datasourceStructure.error.message &&
+            props.datasourceStructure.error.message !== "null"
+              ? props.datasourceStructure.error.message
+              : createMessage(SCHEMA_NOT_AVAILABLE)}
+          </EntityPlaceholder>
+        );
+      }
     }
   } else if (
     // intentionally leaving this here in case we want to show loading states in the exploer or query editor page

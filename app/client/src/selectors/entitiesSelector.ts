@@ -225,6 +225,18 @@ export const getPluginNameFromId = (
   return plugin.name;
 };
 
+export const getPluginDatasourceComponenrFromId = (
+  state: AppState,
+  pluginId: string,
+): string => {
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === pluginId,
+  );
+
+  if (!plugin) return "";
+  return plugin.datasourceComponent;
+};
+
 export const getPluginTypeFromDatasourceId = (
   state: AppState,
   datasourceId: string,

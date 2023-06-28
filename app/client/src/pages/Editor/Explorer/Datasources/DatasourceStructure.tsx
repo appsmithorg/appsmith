@@ -69,7 +69,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
             onClick={() => setActive(!active)}
             startIcon={
               props.context !== DatasourceStructureContext.EXPLORER
-                ? "lightning"
+                ? "add-line"
                 : "increase-control-v2"
             }
           />

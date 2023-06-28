@@ -12,28 +12,29 @@ type Props = {
 const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
-`;
-
-const IconWrapper = styled.div`
-  margin-left: 1rem;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 export default function DatasourceStructureHeader(props: Props) {
   const dispatch = useDispatch();
 
-  const dispatchRefresh = useCallback(() => {
-    dispatch(refreshDatasourceStructure(props.datasourceId));
-  }, [dispatch, props.datasourceId]);
+  const dispatchRefresh = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      event.stopPropagation();
+      dispatch(refreshDatasourceStructure(props.datasourceId));
+    },
+    [dispatch, props.datasourceId],
+  );
 
   return (
     <HeaderWrapper>
-      <Text kind="heading-s" renderAs="h3">
+      <Text kind="heading-xs" renderAs="h3">
         {createMessage(SCHEMA_LABEL)}
       </Text>
-      <IconWrapper onClick={dispatchRefresh}>
+      <div onClick={(event) => dispatchRefresh(event)}>
         <Icon name="refresh" size={"md"} />
-      </IconWrapper>
+      </div>
     </HeaderWrapper>
   );
 }

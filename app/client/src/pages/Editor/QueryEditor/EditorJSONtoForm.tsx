@@ -130,6 +130,7 @@ import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import SearchSnippets from "pages/common/SearchSnippets";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -358,6 +359,7 @@ type QueryFormProps = {
     id,
     value,
   }: UpdateActionPropertyActionPayload) => void;
+  datasourceId: string;
 };
 
 type ReduxProps = {
@@ -1090,14 +1092,15 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
-          <SidebarWrapper
-            show={(hasDependencies || !!output) && !guidedTourEnabled}
-          >
+          <SidebarWrapper show={true && !guidedTourEnabled}>
             <ActionRightPane
               actionName={actionName}
+              context={DatasourceStructureContext.QUERY_EDITOR}
+              datasourceId={props.datasourceId}
               entityDependencies={entityDependencies}
               hasConnections={hasDependencies}
               hasResponse={!!output}
+              pluginId={props.pluginId}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
           </SidebarWrapper>

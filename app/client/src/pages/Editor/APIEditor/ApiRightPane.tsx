@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -307,6 +308,7 @@ function ApiRightPane(props: any) {
             <SomeWrapper>
               <ActionRightPane
                 actionName={props.actionName}
+                context={DatasourceStructureContext.API_EDITOR}
                 entityDependencies={entityDependencies}
                 hasConnections={hasDependencies}
                 hasResponse={props.hasResponse}

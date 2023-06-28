@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { get, isEmpty, isEqual, memoize } from "lodash";
+import { get, isEqual, memoize } from "lodash";
 import {
   getPluginImages,
   getDatasource,
@@ -82,13 +82,6 @@ import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransf
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
-import {
-  DatasourceStructureContainer as DataStructureList,
-  DatasourceStructureContext,
-} from "../Explorer/Datasources/DatasourceStructureContainer";
-import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructureHeader";
-import DatasourceStructureNotFound from "../Explorer/Datasources/DatasourceStructureNotFound";
-import DatasourceStructureLoadingContainer from "../Explorer/Datasources/DatasourceStructureLoadingContainer";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 interface ReduxStateProps {
@@ -150,18 +143,6 @@ const DSEditorWrapper = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: row;
-`;
-
-const DataStructureContainer = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-`;
-
-const DataStructureListWrapper = styled.div`
-  width: 400px;
-  overflow-y: scroll;
 `;
 
 type DatasourceFilterState = {
@@ -500,44 +481,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
   }
 
-  renderDatasourceStructure() {
-    return (
-      <DataStructureContainer>
-        <DatasourceStructureHeader datasourceId={this.props.datasourceId} />
-        {!this.props.isDatasourceStructureLoading ? (
-          <>
-            {!isEmpty(this.props.datasourceStructure) &&
-              !("error" in this.props.datasourceStructure) && (
-                <DataStructureListWrapper>
-                  <DataStructureList
-                    context={DatasourceStructureContext.DATASOURCE}
-                    datasourceId={this.props.datasourceId}
-                    datasourceStructure={this.props.datasourceStructure}
-                    step={0}
-                  />
-                </DataStructureListWrapper>
-              )}
-
-            {isEmpty(this.props.datasourceStructure) ||
-              ("error" in this.props.datasourceStructure &&
-                !this.props.isDatasourceStructureLoading && (
-                  <DatasourceStructureNotFound
-                    datasourceId={this.props.datasourceId}
-                    error={this.props?.datasourceStructure?.error}
-                    pluginName={this.props.pluginName}
-                    setDatasourceViewMode={this.props.setDatasourceViewMode}
-                  />
-                ))}
-          </>
-        ) : (
-          <DataStructureListWrapper>
-            <DatasourceStructureLoadingContainer />
-          </DataStructureListWrapper>
-        )}
-      </DataStructureContainer>
-    );
-  }
-
   renderForm(showFilterComponent: boolean) {
     const {
       datasource,
@@ -601,11 +544,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           )
         }
         {this.renderSaveDisacardModal()}
-        {this.props.isEnabledForDSSchema &&
-          shouldViewMode &&
-          pluginDatasourceForm !==
-            DatasourceComponentTypes.RestAPIDatasourceForm &&
-          this.renderDatasourceStructure()}
       </>
     );
   }

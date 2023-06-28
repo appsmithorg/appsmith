@@ -1,88 +1,71 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Text, Button, Icon } from "design-system";
+import { Text, Button } from "design-system";
 import type { APIResponseError } from "api/ApiResponses";
-import {
-  EDIT_DATASOURCE,
-  STRUCTURE_NOT_FETCHED,
-  TEST_DATASOURCE_AND_FIX_ERRORS,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { EDIT_DATASOURCE, createMessage } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
+import history from "utils/history";
+import { getQueryParams } from "utils/URLUtils";
+import { datasourcesEditorIdURL } from "RouteBuilder";
+import { omit } from "lodash";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 export type Props = {
-  error: APIResponseError | undefined;
-  setDatasourceViewMode: (viewMode: boolean) => void;
+  error: APIResponseError | { message: string } | undefined;
   datasourceId: string;
-  pluginName: string;
+  pluginName?: string;
 };
 
 const NotFoundContainer = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100%;
-`;
-
-const NotFoundInfoWrapper = styled.div`
-  display: flex;
+  width: 100%;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
 `;
 
-const NotFoundText = styled(Text)<{ isApiErrorMsg?: boolean }>`
-  margin-bottom: 0.5rem;
-  text-align: center;
-  ${(props) => props?.isApiErrorMsg && "width: 70%"}
+const NotFoundText = styled(Text)`
+  margin-bottom: 1rem;
+  margin-top: 0.3rem;
 `;
 
 const ButtonWrapper = styled.div`
   width: fit-content;
 `;
 
-const IconWrapper = styled.div`
-  width: fit-content;
-  margin-bottom: 1rem;
-`;
-
 const DatasourceStructureNotFound = (props: Props) => {
-  const { datasourceId, error, pluginName, setDatasourceViewMode } = props;
+  const { datasourceId, error, pluginName } = props;
+
+  const pageId = useSelector(getCurrentPageId);
 
   const editDatasource = () => {
-    setDatasourceViewMode(false);
     AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
       datasourceId: datasourceId,
       pluginName: pluginName,
-      entryPoint:
-        DatasourceEditEntryPoints.DATASOURCE_STRUCTURE_VIEW_MODE_EDIT_DATASOURCE,
+      entryPoint: DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA,
     });
+
+    const url = datasourcesEditorIdURL({
+      pageId,
+      datasourceId: datasourceId,
+      params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
+    });
+    history.push(url);
   };
 
   return (
     <NotFoundContainer>
-      <NotFoundInfoWrapper>
-        <IconWrapper>
-          <Icon name="account-box-line" size={"lg"} />
-        </IconWrapper>
-        <NotFoundText kind="heading-xs" renderAs="p">
-          {createMessage(STRUCTURE_NOT_FETCHED)}
+      {error?.message && (
+        <NotFoundText kind="body-s" renderAs="p">
+          {error.message}
         </NotFoundText>
-        {error?.message && (
-          <NotFoundText isApiErrorMsg kind="body-m" renderAs="p">
-            {error.message}
-          </NotFoundText>
-        )}
-        <NotFoundText kind="body-m" renderAs="p">
-          {createMessage(TEST_DATASOURCE_AND_FIX_ERRORS)}
-        </NotFoundText>
-        <ButtonWrapper>
-          <Button kind="secondary" onClick={editDatasource} size={"md"}>
-            {createMessage(EDIT_DATASOURCE)}
-          </Button>
-        </ButtonWrapper>
-      </NotFoundInfoWrapper>
+      )}
+      <ButtonWrapper>
+        <Button kind="secondary" onClick={editDatasource} size={"md"}>
+          {createMessage(EDIT_DATASOURCE)}
+        </Button>
+      </ButtonWrapper>
     </NotFoundContainer>
   );
 };
