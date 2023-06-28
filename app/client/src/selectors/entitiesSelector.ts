@@ -1134,7 +1134,6 @@ export const getDatasourcesUsedInApplicationByActions = (
     },
     new Set(),
   );
-  // NOTE: make sure to check current url and see if datasource needs adding
   return datasources.filter(
     (ds) =>
       datasourceIdsUsedInCurrentApplication.has(ds.id) &&

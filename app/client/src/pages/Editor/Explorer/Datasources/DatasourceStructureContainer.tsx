@@ -40,15 +40,14 @@ const DatasourceStructureSearchContainer = styled.div`
 `;
 
 const Container = (props: Props) => {
-  // const isLoading = useEntityUpdateState(props.datasourceId);
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
   let view: ReactElement<Props> | JSX.Element = <div />;
 
-  const [datasourceStructure, setDatasourceStructure] = useState(
-    props.datasourceStructure,
-  );
+  const [datasourceStructure, setDatasourceStructure] = useState<
+    DatasourceStructureType | undefined
+  >(props.datasourceStructure);
 
   useEffect(() => {
     if (datasourceStructure !== props.datasourceStructure) {
@@ -74,20 +73,35 @@ const Container = (props: Props) => {
 
     const tables = new Set();
     const columns = new Set();
-    const filteredStructure = flatStructure.filter((item) =>
-      item.includes(value),
-    );
 
-    filteredStructure.forEach((structure) => {
+    flatStructure.forEach((structure) => {
       const segments = structure.split("~");
-      tables.add(segments[0]);
-      columns.add(segments[1]);
+      // if the value is present in the columns, add the column and its parent table.
+      if (segments[1].includes(value)) {
+        tables.add(segments[0]);
+        columns.add(segments[1]);
+        return;
+      }
+
+      // if the value is present in the table but not in the columns, add the table
+      if (segments[0].includes(value)) {
+        tables.add(segments[0]);
+        return;
+      }
     });
 
     const filteredDastasourceStructure = props.datasourceStructure.tables
       .map((structure) => ({
         ...structure,
-        columns: structure.columns.filter((column) => columns.has(column.name)),
+        columns:
+          // if the size of the columns set is 0, then simply default to the entire column
+          columns.size === 0
+            ? structure.columns
+            : structure.columns.filter((column) => columns.has(column.name)),
+        keys:
+          columns.size === 0
+            ? structure.keys
+            : structure.keys.filter((key) => columns.has(key.name)),
       }))
       .filter((table) => tables.has(table.name));
 

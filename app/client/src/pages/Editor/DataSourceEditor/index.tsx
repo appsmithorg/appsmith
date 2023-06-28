@@ -35,7 +35,6 @@ import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
-
 import {
   getCurrentApplicationId,
   getPagePermissions,
@@ -90,7 +89,8 @@ import {
 import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructureHeader";
 import DatasourceStructureNotFound from "../Explorer/Datasources/DatasourceStructureNotFound";
 import DatasourceStructureLoadingContainer from "../Explorer/Datasources/DatasourceStructureLoadingContainer";
-
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
@@ -127,6 +127,7 @@ interface ReduxStateProps {
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
   isDatasourceStructureLoading: boolean;
+  isEnabledForDSSchema: boolean;
 }
 
 const Form = styled.div`
@@ -600,7 +601,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           )
         }
         {this.renderSaveDisacardModal()}
-        {shouldViewMode &&
+        {this.props.isEnabledForDSSchema &&
+          shouldViewMode &&
           pluginDatasourceForm !==
             DatasourceComponentTypes.RestAPIDatasourceForm &&
           this.renderDatasourceStructure()}
@@ -830,6 +832,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
+  // A/B feature flag for datsource structure.
+  const isEnabledForDSSchema = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_ds_schema,
+  );
   const datasourceStructure =
     state.entities.datasources.structure[datasourceId];
   const isDatasourceStructureLoading = getIsFetchingDatasourceStructure(
@@ -873,6 +880,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
+    isEnabledForDSSchema,
   };
 };
 
