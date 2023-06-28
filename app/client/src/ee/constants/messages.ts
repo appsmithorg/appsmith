@@ -135,7 +135,9 @@ export const LICENSE_KEY_CTA_LABEL = () => "Don’t have a license key?";
 export const TRIAL_EXPIRY_WARNING = (gracePeriod: number, suffix: string) =>
   `Your trial will expire in <span>${gracePeriod}</span> ${suffix}. `;
 export const CONTINUE_USING_FEATURES = () =>
-  `to continue using Appsmith Business. `;
+  `to continue using Appsmith Business Edition. `;
+export const CONTINUE_USING_FEATURES_ENTERPRISE = () =>
+  `to continue using Appsmith Enterprise Edition. `;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
   `Please contact your administrator to upgrade and continue using Appsmith Business. `;
 export const TOTAL_USERS_MESSAGE = () => `Total users`;
@@ -144,6 +146,8 @@ export const NUMBER_OF_SELF_HOSTED_USERS = () =>
 export const BILLING_AND_USAGE = () => `Billing & usage`;
 export const OPEN_CUSTOMER_PORTAL = () => `Open customer portal`;
 export const BE_WELCOME_MESSAGE = () => "Welcome to Appsmith Business Edition";
+export const BE_WELCOME_MESSAGE_ENTERPRISE = () =>
+  "Welcome to Appsmith Enterprise Edition";
 export const BE_TRIAL_BANNER_EXPIRY_MESSAGE = (
   gracePeriod: number,
   suffix: string,
