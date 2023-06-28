@@ -14,6 +14,7 @@ export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
 export interface CheckboxGroupProps
   extends Omit<SpectrumCheckboxGroupProps, keyof StyleProps> {
   className?: string;
+  /** label width for the width, only used in side position */
   labelWidth?: LabelProps["labelWidth"];
 }
 

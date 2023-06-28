@@ -80,4 +80,15 @@ export const fieldStyles = css<FieldStylesProps>`
       cursor: default;
     }
   }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * FIELD WRAPPER
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-wrapper] {
+    gap: var(--spacing-3);
+    display: flex;
+    flex-direction: column;
+  }
 `;
