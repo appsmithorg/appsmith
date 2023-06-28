@@ -7,15 +7,54 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
-import { TELEMETRY_DOCS_PAGE_URL } from "./constants";
+import {
+  ANONYMOUS_DATA_POPOP_TIMEOUT,
+  TELEMETRY_DOCS_PAGE_URL,
+} from "./constants";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getIsAnonymousDataPopupVisible,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
+import {
+  getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
+  setFirstTimeUserOnboardingTelemetryCalloutVisibility,
+} from "utils/storage";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { deleteCanvasCardsState } from "actions/editorActions";
+import styled from "styled-components";
+import { showAnonymousDataPopup } from "actions/onboardingActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-export default function AnonymousDataPopup(props: {
-  onCloseCallout: () => void;
-}) {
+const Wrapper = styled.div`
+  margin: ${(props) =>
+    `${props.theme.spaces[7]}px ${props.theme.spaces[16]}px 0px ${props.theme.spaces[13]}px`};
+`;
+
+export default function AnonymousDataPopup() {
+  const user = useSelector(getCurrentUser);
+  const isAdmin = user?.isSuperUser || false;
+  const isOnboardingCompleted = useSelector(getFirstTimeUserOnboardingComplete);
+  const isAnonymousDataPopupVisible = useSelector(
+    getIsAnonymousDataPopupVisible,
+  );
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
+  const dispatch = useDispatch();
+
+  const hideAnonymousDataPopup = () => {
+    dispatch(showAnonymousDataPopup(false));
+    setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+  };
+
   useEffect(() => {
-    AnalyticsUtil.logEvent("DISPLAY_TELEMETRY_CALLOUT");
-  }, []);
+    if (isAnonymousDataPopupVisible) {
+      AnalyticsUtil.logEvent("DISPLAY_TELEMETRY_CALLOUT");
+    }
+  }, [isAnonymousDataPopupVisible]);
 
   const handleLinkClick = (link: string) => {
     if (link === ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH) {
@@ -26,8 +65,39 @@ export default function AnonymousDataPopup(props: {
     window.open(link, "_blank");
   };
 
+  const showShowAnonymousDataPopup = async () => {
+    const shouldPopupShow =
+      !isAirgapped() &&
+      isFirstTimeUserOnboardingEnabled &&
+      isAdmin &&
+      !isOnboardingCompleted;
+    if (shouldPopupShow) {
+      const isAnonymousDataPopupAlreadyOpen =
+        await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
+      //true if the modal was already shown else show the modal and set to already shown, also hide the modal after 10 secs
+      if (isAnonymousDataPopupAlreadyOpen) {
+        dispatch(showAnonymousDataPopup(false));
+      } else {
+        dispatch(deleteCanvasCardsState());
+        dispatch(showAnonymousDataPopup(true));
+        setTimeout(() => {
+          hideAnonymousDataPopup();
+        }, ANONYMOUS_DATA_POPOP_TIMEOUT);
+        await setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+      }
+    } else {
+      dispatch(showAnonymousDataPopup(shouldPopupShow));
+    }
+  };
+
+  useEffect(() => {
+    showShowAnonymousDataPopup();
+  }, []);
+
+  if (!isAnonymousDataPopupVisible) return null;
+
   return (
-    <div className="absolute top-5">
+    <Wrapper className="z-[1] self-center">
       <Callout
         isClosable
         kind="info"
@@ -42,12 +112,10 @@ export default function AnonymousDataPopup(props: {
             onClick: () => handleLinkClick(TELEMETRY_DOCS_PAGE_URL),
           },
         ]}
-        onClose={() => {
-          props.onCloseCallout();
-        }}
+        onClose={hideAnonymousDataPopup}
       >
         {createMessage(ONBOARDING_TELEMETRY_POPUP)}
       </Callout>
-    </div>
+    </Wrapper>
   );
 }

@@ -303,6 +303,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       username: uname,
       password: pword,
     },
+    timeout: 60000,
   });
 
   // Check if cookie is present
@@ -2150,5 +2151,4 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
-  onboarding.skipSignposting();
 });

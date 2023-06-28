@@ -30,69 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job:
-          [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-            31,
-            32,
-            33,
-            34,
-            35,
-            36,
-            37,
-            38,
-            39,
-            40,
-            41,
-            42,
-            43,
-            44,
-            45,
-            46,
-            47,
-            48,
-            49,
-            50,
-            51,
-            52,
-            53,
-            54,
-            55,
-            56,
-            57,
-            58,
-            59,
-          ]
+        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -147,7 +85,7 @@ jobs:
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
-          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+          echo "::set-output name=run_result::$run_result_env"
 
       # Download failed_spec list for all jobs in case of rerun
       - uses: actions/download-artifact@v3
@@ -333,7 +271,7 @@ jobs:
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -380,7 +318,6 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
@@ -395,7 +332,7 @@ jobs:
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -442,7 +379,6 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
-          headless: true
           record: true
           install: false
           parallel: true
@@ -455,23 +391,26 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs
-        if: always()
+        if: failure()
         working-directory: "."
         run: |
-          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+          mkdir -p  ~/dockerlogs
+          docker logs appsmith 2>&1 > ~/dockerlogs/dockerlogs-${{ matrix.job }}.txt
 
       # Upload docker logs
-      - name: Upload docker logs on failure
-        if: always()
+      - name: Upload failed test list artifact
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: dockerlogs-${{ matrix.job }}
-          path: ~/dockerlogs.txt
+          name: dockerlogs
+          path: ~/dockerlogs
 
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::failedtest"
+          echo "failedtest" > ~/run_result
 
       # Create a directory ~/failed_spec_ci and add a dummy file
       # This will ensure upload and download steps are successful
@@ -513,21 +452,6 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      # Upload the screenshots as artifacts if there's a failure
-      - name: Upload screenshots on failure
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
-
-      # Upload the snapshots as artifacts for layout validation
-      - name: Upload snapshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: cypress-snapshots-visualRegression
-          path: app/client/cypress/snapshots/
-
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v3
@@ -538,4 +462,6 @@ jobs:
 
       # Set status = success
       - name: Save the status of the run
-        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        run: |
+          echo "::set-output name=run_result::success"
+          echo "success" > ~/run_result

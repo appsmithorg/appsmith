@@ -35,18 +35,11 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
       cy.wait(2000);
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
         _.dataSources.ToggleUsePreparedStatement(false);
       });
 
       // Step6.2: writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
+      _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
       cy.WaitAutoSave();
 
       //Step7:
@@ -120,16 +113,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       cy.get(queryLocators.switch).last().click({ force: true });
 
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({ force: true });
+      _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
 
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
       cy.WaitAutoSave();
 
       cy.runQuery();
