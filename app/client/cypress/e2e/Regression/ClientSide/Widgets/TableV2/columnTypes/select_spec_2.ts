@@ -68,7 +68,7 @@ describe("Table widget v2: select column type test", function () {
     agHelper.GetNAssertContains(table._selectMenuItem, "No Results Found");
   });
 
-  it("2. should test that select column dropdown has no results found string when select option is {{null}} ", function () {
+  it("2. should test that select column dropdown has no results found string when select option is {{[null, null]}} ", function () {
     /**
      * Flow:
      * 1. Dnd table widget = DONE
