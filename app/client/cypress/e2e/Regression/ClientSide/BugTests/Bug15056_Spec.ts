@@ -1,5 +1,6 @@
 const dsl = require("../../../../fixtures/jsFunctionTriggerDsl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import testData from "../../../../fixtures/testdata.json";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const jsEditor = ObjectsRegistry.JSEditor;
@@ -12,10 +13,7 @@ describe("JS data update on button click", function () {
   });
 
   it("1. Populates js function data when triggered via button click", function () {
-    apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/posts",
-      "Api1",
-    );
+    apiPage.CreateAndFillApi(testData.baseUrl + testData.methods, "Api1");
 
     const jsObjectString = `export default {
         myVar1: [],
