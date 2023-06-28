@@ -18,7 +18,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
         .eq(CURRENT_REPO === REPO.EE ? 1 : 0)
         .should("have.text", "New binding");
       cy.get(`${dynamicInputLocators.hints} li`)
-        .eq(CURRENT_REPO === REPO.EE ? 1 : 2)
+        .eq(CURRENT_REPO === REPO.EE ? 2 : 1)
         .should("have.text", "Insert snippet");
       cy.get(`${dynamicInputLocators.hints} li`)
         .last()
