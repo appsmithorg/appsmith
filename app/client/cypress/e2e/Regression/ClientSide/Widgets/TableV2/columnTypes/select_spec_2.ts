@@ -3,36 +3,13 @@ import {
   propPane,
   agHelper,
   draggableWidgets,
-  deployMode,
   table,
-  locators,
 } from "../../../../../../support/Objects/ObjectsCore";
-
-const TABLE_DATA_1 = `[
-      {
-        "step": "#1",
-        "task": "Drop a table",
-        "status": "✅",
-        "action": ""
-      },
-      {
-        "step": "#2",
-        "task": "Create a query fetch_users with the Mock DB",
-        "status": "--",
-        "action": ""
-      },
-      {
-        "step": "#3",
-        "task": "Bind the query using => fetch_users.data",
-        "status": "--",
-        "action": ""
-      }
-    ]`;
 
 describe("Table widget v2: select column type test", function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
-    propPane.EnterJSContext("Table data", TABLE_DATA_1);
+    table.AddSampleTableData();
   });
   it("1. should test that select column dropdown has no results found string when select option is {{null}} ", function () {
     /**
