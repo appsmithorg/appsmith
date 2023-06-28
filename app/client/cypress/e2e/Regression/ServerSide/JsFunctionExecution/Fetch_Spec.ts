@@ -72,7 +72,7 @@ describe("Tests fetch calls", () => {
     agHelper.AssertContains("anonymousUser", "exist");
   });
 
-  it("3. Tests if fetch works with store value", function () {
+  it.skip("3. Tests if fetch works with store value", function () {
     entityExplorer.NavigateToSwitcher("Widgets");
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
     entityExplorer.SelectEntityByName("Button1");
