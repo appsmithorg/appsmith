@@ -8,7 +8,6 @@ import { CellWrapper } from "../TableStyledWrappers";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
-import { isNil } from "lodash";
 
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
@@ -190,8 +189,6 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
-  const isOptionsNull = props.options && props.options.some((d) => isNil(d));
-
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
       <StyledCellWrapper
@@ -225,7 +222,7 @@ export const SelectCell = (props: SelectProps) => {
           onClose={onClose}
           onFilterChange={onFilter}
           onOptionSelected={onSelect}
-          options={isOptionsNull ? [] : options}
+          options={options}
           placeholder={placeholderText}
           resetFilterTextOnClose={resetFilterTextOnClose}
           selectedIndex={selectedIndex}

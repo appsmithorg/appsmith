@@ -899,6 +899,15 @@ export function selectColumnOptionsValidation(
               uniqueValues = new Set();
 
               for (let j = 0; j < value[i].length; j++) {
+                if (_.isNil(value[i][j])) {
+                  _isValid = false;
+                  _message = `${generateErrorMessagePrefix(
+                    i,
+                    j,
+                  )} This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
+                  _parsed = [];
+                  break;
+                }
                 if ((_message = validateOption(value[i][j], i, j))) {
                   _isValid = false;
                   break;
@@ -915,6 +924,16 @@ export function selectColumnOptionsValidation(
           _parsed = value;
           _isValid = true;
           for (let i = 0; i < (value as Array<unknown>).length; i++) {
+            if (_.isNil((value as Array<unknown>)[i])) {
+              _isValid = false;
+              _message = `${generateErrorMessagePrefix(
+                null,
+                0,
+              )} This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
+              _parsed = [];
+              break;
+            }
+
             if (
               (_message = validateOption((value as Array<unknown>)[i], null, i))
             ) {
