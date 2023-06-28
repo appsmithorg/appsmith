@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { CURRENT_REPO, REPO } from "../../../../../cypress/fixtures/REPO";
 
 const {
   AggregateHelper,
@@ -18,12 +19,11 @@ describe("Property Pane Suggestions", () => {
   it("1. Should show Property Pane Suggestions on / command & when typing {{}}", () => {
     EntityExplorer.SelectEntityByName("Button1", "Widgets");
     PropertyPane.TypeTextIntoField("Label", "/");
-    AggregateHelper.GetNAssertElementText(CommonLocators._hints, "Bind data");
     AggregateHelper.GetNAssertElementText(
       CommonLocators._hints,
       "New binding",
       "have.text",
-      1,
+      CURRENT_REPO === REPO.EE ? 1 : 0,
     );
     AggregateHelper.GetNClickByContains(CommonLocators._hints, "New binding");
     PropertyPane.ValidatePropertyFieldValue("Label", "{{}}");
@@ -46,7 +46,7 @@ describe("Property Pane Suggestions", () => {
       CommonLocators._hints,
       "JSObject1",
       "have.text",
-      1,
+      CURRENT_REPO === REPO.EE ? 4 : 3,
     );
   });
 
