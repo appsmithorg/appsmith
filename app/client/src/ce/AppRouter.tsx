@@ -51,7 +51,10 @@ import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
-import { fetchFeatureFlagsInit } from "actions/userActions";
+import {
+  fetchFeatureFlagsInit,
+  fetchProductAlertInit,
+} from "actions/userActions";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
@@ -61,6 +64,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
+import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -130,9 +134,15 @@ function AppRouter(props: {
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
+  fetchProductAlert: () => void;
   safeCrashCode?: ERROR_CODES;
 }) {
-  const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
+  const {
+    fetchProductAlert,
+    getCurrentTenant,
+    getCurrentUser,
+    getFeatureFlags,
+  } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
 
@@ -140,6 +150,7 @@ function AppRouter(props: {
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
+    fetchProductAlert();
   }, []);
 
   useBrandingTheme();
@@ -174,6 +185,7 @@ function AppRouter(props: {
           <>
             <AppHeader />
             <Routes />
+            <ProductAlertBanner />
           </>
         )}
       </Suspense>
@@ -190,6 +202,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),
+  fetchProductAlert: () => dispatch(fetchProductAlertInit()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

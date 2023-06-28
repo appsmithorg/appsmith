@@ -25,6 +25,20 @@ const initialState: UsersReduxState = {
     data: DEFAULT_FEATURE_FLAG_VALUE,
     isFetched: false,
   },
+  productAlert: {
+    message: {
+      messageId: "1",
+      title: "Test Message",
+      message:
+        "Appsmith now supports only MongoDB versions 5.x or higher. For self-managed MongoDB, upgrade to v5.x or higher. If you don’t have self-managed MongoDB, just upgrade your Appsmith version to the latest.",
+      canDismiss: true,
+      remindLaterDays: 1,
+    },
+    config: {
+      dismissed: false,
+      snoozedOn: new Date(),
+    },
+  },
 };
 
 const usersReducer = createReducer(initialState, {
@@ -186,6 +200,13 @@ const usersReducer = createReducer(initialState, {
       isFetched: true,
     },
   }),
+  [ReduxActionTypes.FETCH_PRODUCT_ALERT_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<ProductAlert>,
+  ) => ({
+    ...state,
+    productAlert: action.payload,
+  }),
 });
 
 export interface PropertyPanePositionConfig {
@@ -195,6 +216,26 @@ export interface PropertyPanePositionConfig {
     top: number;
   };
 }
+
+export interface ProductAlert {
+  messageId: string;
+  title: string;
+  message: string;
+  canDismiss: boolean;
+  remindLaterDays: number;
+  learnMoreLink?: string;
+}
+
+export interface ProductAlertConfig {
+  dismissed: boolean;
+  snoozedOn: Date;
+}
+
+export interface ProductAlertState {
+  message?: ProductAlert;
+  config: ProductAlertConfig;
+}
+
 export interface UsersReduxState {
   current?: User;
   list: User[];
@@ -210,6 +251,7 @@ export interface UsersReduxState {
     isFetched: boolean;
     data: FeatureFlags;
   };
+  productAlert: ProductAlertState;
 }
 
 export default usersReducer;
