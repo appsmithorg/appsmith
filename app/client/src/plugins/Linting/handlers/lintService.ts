@@ -106,7 +106,7 @@ class LintService {
 
     for (const asyncFn of asyncFns) {
       const nodesThatDependOnAsyncFn =
-        this.dependencyMap.getIncomingDependencies(asyncFn);
+        this.dependencyMap.getDependents(asyncFn);
       const dataPathsThatDependOnAsyncFn = filterDataPaths(
         nodesThatDependOnAsyncFn,
         entityTree,
@@ -160,7 +160,7 @@ class LintService {
       }
 
       const previousDependencies =
-        this.dependencyMap.getOutgoingDependencies(pathString);
+        this.dependencyMap.getDirectDependencies(pathString);
       const references = extractReferencesFromPath(
         entity,
         pathString,
@@ -170,7 +170,7 @@ class LintService {
       pathsToLint.push(pathString);
       if (isJSEntity(entity) && asyncFns.includes(pathString)) {
         const nodesThatDependOnAsyncFn =
-          this.dependencyMap.getIncomingDependencies(pathString);
+          this.dependencyMap.getDependents(pathString);
         const dataPathsThatDependOnAsyncFn = filterDataPaths(
           nodesThatDependOnAsyncFn,
           entityTree,
@@ -183,15 +183,14 @@ class LintService {
       const isDataPath = PathUtils.isDataPath(pathString, entity);
       if (!isDataPath) continue;
 
-      const dependencies =
-        this.dependencyMap.getOutgoingDependencies(pathString);
+      const dependencies = this.dependencyMap.getDirectDependencies(pathString);
 
       const asyncDeps = intersection(asyncFns, dependencies);
       const prevAsyncDeps = intersection(asyncFns, previousDependencies);
 
       for (const asyncFn of asyncDeps) {
         const nodesThatDependOnAsyncFn =
-          this.dependencyMap.getIncomingDependencies(asyncFn);
+          this.dependencyMap.getDependents(asyncFn);
         const dataPathsThatDependOnAsyncFn = filterDataPaths(
           nodesThatDependOnAsyncFn,
           entityTree,
@@ -217,7 +216,7 @@ class LintService {
       this.dependencyMap.addNodes(allAddedPaths);
       for (const path of Object.keys(allAddedPaths)) {
         const previousDependencies =
-          this.dependencyMap.getOutgoingDependencies(path);
+          this.dependencyMap.getDirectDependencies(path);
         const references = extractReferencesFromPath(
           entity,
           path,
@@ -227,11 +226,11 @@ class LintService {
           this.dependencyMap.addDependency(path, references);
           pathsToLint.push(path);
         }
-        const incomingDeps = this.dependencyMap.getIncomingDependencies(path);
+        const incomingDeps = this.dependencyMap.getDependents(path);
         pathsToLint.push(...incomingDeps);
         if (isJSEntity(entity) && asyncFns.includes(pathString)) {
           const nodesThatDependOnAsyncFn =
-            this.dependencyMap.getIncomingDependencies(pathString);
+            this.dependencyMap.getDependents(pathString);
           const dataPathsThatDependOnAsyncFn = filterDataPaths(
             nodesThatDependOnAsyncFn,
             entityTree,
@@ -249,7 +248,7 @@ class LintService {
 
         for (const asyncFn of asyncDeps) {
           const nodesThatDependOnAsyncFn =
-            this.dependencyMap.getIncomingDependencies(asyncFn);
+            this.dependencyMap.getDependents(asyncFn);
           const dataPathsThatDependOnAsyncFn = filterDataPaths(
             nodesThatDependOnAsyncFn,
             entityTree,
@@ -274,11 +273,11 @@ class LintService {
 
       for (const path of Object.keys(allDeletedPaths)) {
         const previousDependencies =
-          this.dependencyMap.getOutgoingDependencies(path);
+          this.dependencyMap.getDirectDependencies(path);
         const asyncDeps = intersection(asyncFns, previousDependencies);
         for (const asyncFn of asyncDeps) {
           const nodesThatDependOnAsyncFn =
-            this.dependencyMap.getIncomingDependencies(asyncFn);
+            this.dependencyMap.getDependents(asyncFn);
           const dataPathsThatDependOnAsyncFn = nodesThatDependOnAsyncFn.filter(
             (path) => {
               const { entityName } = getEntityNameAndPropertyPath(path);
@@ -291,7 +290,7 @@ class LintService {
           asyncJSFunctionsInDataFields[asyncFn] = dataPathsThatDependOnAsyncFn;
         }
 
-        const incomingDeps = this.dependencyMap.getIncomingDependencies(path);
+        const incomingDeps = this.dependencyMap.getDependents(path);
         pathsToLint.push(...asyncDeps, ...incomingDeps);
       }
       this.dependencyMap.removeNodes(allDeletedPaths);

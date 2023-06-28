@@ -167,11 +167,11 @@ export default class DependencyMap {
     return false;
   };
 
-  getIncomingDependencies(node: string) {
+  getDependents(node: string) {
     const nodes = this.#dependenciesInverse.get(node);
     return Array.from(nodes || []);
   }
-  getOutgoingDependencies(node: string) {
+  getDirectDependencies(node: string) {
     const nodes = this.#dependencies.get(node);
     return Array.from(nodes || []);
   }
