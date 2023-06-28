@@ -241,7 +241,7 @@ public class FileUtilsImpl implements FileInterface {
                     Set<Map.Entry<String, Object>> pageEntries = applicationGitReference.getPages().entrySet();
 
                     Set<String> validPages = new HashSet<>();
-                    Set<String> validWidgets = new HashSet<>();
+                    Map<String, String> validWidgetToParentMap = new HashMap<>();
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -261,8 +261,8 @@ public class FileUtilsImpl implements FileInterface {
                                     // Save the widget as a directory or Save the widget as a file
                                     childPath = childPath.replace(widgetName, CommonConstants.EMPTY_STRING);
                                 }
-                                validWidgets.add(widgetName);
                                 Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
+                                validWidgetToParentMap.put(widgetName,  path.toFile().getName());
                                 saveWidgets(
                                         jsonObject,
                                         widgetName,
@@ -270,7 +270,7 @@ public class FileUtilsImpl implements FileInterface {
                                 );
                             });
                             // Remove deleted widgets from the file system
-                            deleteWidgets(pageSpecificDirectory.resolve(CommonConstants.WIDGETS).toFile(), validWidgets);
+                            deleteWidgets(pageSpecificDirectory.resolve(CommonConstants.WIDGETS).toFile(), validWidgetToParentMap);
                         }
                         validPages.add(pageName);
                     }
@@ -941,7 +941,7 @@ public class FileUtilsImpl implements FileInterface {
         }
     }
 
-    private void deleteWidgets(File directory, Set<String> validNameSet) {
+    private void deleteWidgets(File directory, Map<String, String> validWidgetToParentMap) {
         File[] files = directory.listFiles();
         if (files == null) {
             return;
@@ -949,11 +949,20 @@ public class FileUtilsImpl implements FileInterface {
 
         for (File file : files) {
             if (file.isDirectory()) {
-                deleteWidgets(file, validNameSet);
+                deleteWidgets(file, validWidgetToParentMap);
             }
 
-            String name = file.getName();
-            if (!validNameSet.contains(name.replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING))) {
+            String name = file.getName().replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING);
+            // If input widget was inside a container before, but the user moved it out of the container
+            // then we need to delete the widget from the container directory
+            // The check here is to validate if the parent is correct or not
+            if ( !validWidgetToParentMap.containsKey(name)) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file.toPath());
+                } else {
+                    deleteFile(file.toPath());
+                }
+            } else if(!file.getParentFile().getName().equals(validWidgetToParentMap.get(name)) && !name.equals(validWidgetToParentMap.get(name))) {
                 if (file.isDirectory()) {
                     deleteDirectory(file.toPath());
                 } else {
