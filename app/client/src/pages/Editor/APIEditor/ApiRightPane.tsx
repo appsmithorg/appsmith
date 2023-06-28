@@ -312,6 +312,7 @@ function ApiRightPane(props: any) {
                 entityDependencies={entityDependencies}
                 hasConnections={hasDependencies}
                 hasResponse={props.hasResponse}
+                pluginId={props.pluginId}
                 suggestedWidgets={props.suggestedWidgets}
               />
             </SomeWrapper>

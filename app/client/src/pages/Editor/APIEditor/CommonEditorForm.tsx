@@ -760,6 +760,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             datasources={props.datasources}
             hasResponse={props.hasResponse}
             onClick={updateDatasource}
+            pluginId={props.pluginId}
             suggestedWidgets={props.suggestedWidgets}
           />
         </Wrapper>

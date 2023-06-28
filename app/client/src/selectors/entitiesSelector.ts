@@ -225,7 +225,7 @@ export const getPluginNameFromId = (
   return plugin.name;
 };
 
-export const getPluginDatasourceComponenrFromId = (
+export const getPluginDatasourceComponentFromId = (
   state: AppState,
   pluginId: string,
 ): string => {

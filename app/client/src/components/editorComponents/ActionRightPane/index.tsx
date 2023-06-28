@@ -37,7 +37,7 @@ import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasourc
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getPluginDatasourceComponenrFromId,
+  getPluginDatasourceComponentFromId,
   getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
@@ -231,7 +231,7 @@ function ActionSidebar({
     inverseDependencies: string[];
   } | null;
   datasourceId?: string;
-  pluginId?: string;
+  pluginId: string;
   context: DatasourceStructureContext;
 }) {
   const dispatch = useDispatch();
@@ -263,7 +263,7 @@ function ActionSidebar({
   );
 
   const pluginDatasourceForm = useSelector((state) =>
-    getPluginDatasourceComponenrFromId(state, pluginId || ""),
+    getPluginDatasourceComponentFromId(state, pluginId || ""),
   );
 
   // A/B feature flag for datsource structure.
