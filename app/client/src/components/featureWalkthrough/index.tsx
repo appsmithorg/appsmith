@@ -3,22 +3,33 @@ import type { FeatureParams } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
 import WalkthroughRenderer from "./walkthroughRenderer";
+import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 
 export default function Walkthrough({ children }: any) {
-  const [feature, setFeature] = useState<FeatureParams | null>(null);
+  const [feature, setFeature] = useState<FeatureParams[]>([]);
   const pushFeature = (value: FeatureParams) => {
-    setFeature(value);
+    if (Array.isArray(value)) {
+      setFeature((e) => [...e, ...value]);
+    } else {
+      setFeature((e) => [...e, value]);
+    }
   };
 
   const popFeature = () => {
-    setFeature(null);
+    hideIndicator();
+    setFeature((e) => {
+      e.shift();
+      return [...e];
+    });
   };
 
   return (
-    <WalkthroughContext.Provider value={{ pushFeature, popFeature, feature }}>
+    <WalkthroughContext.Provider
+      value={{ pushFeature, popFeature, feature, isOpened: feature.length > 0 }}
+    >
       {children}
-      {feature &&
-        createPortal(<WalkthroughRenderer {...feature} />, document.body)}
+      {feature.length > 0 &&
+        createPortal(<WalkthroughRenderer {...feature[0]} />, document.body)}
     </WalkthroughContext.Provider>
   );
 }

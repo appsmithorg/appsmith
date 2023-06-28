@@ -1,6 +1,7 @@
 import type { OffsetType, PositionType } from "./walkthroughContext";
 
 const DEFAULT_POSITION: PositionType = "top";
+export const PADDING_HIGHLIGHT = 10;
 
 type PositionCalculator = {
   offset?: OffsetType;
@@ -19,35 +20,73 @@ export function getPosition({ offset, targetId }: PositionCalculator) {
   if (!coordinates) return null;
 
   const offsetValues = { top: offset?.top || 0, left: offset?.left || 0 };
+  const extraStyles = offset?.style || {};
+
+  /**
+   *      . - - - - - - - - - - - - - - - - - .
+   *      |                 Body              |
+   *      |                                   |
+   *      |      . - - - - - - - - - - .      |
+   *      |      |      Offset         |      |
+   *      |      |  . - - - - - - - .  |      |
+   *      |      |  | / / / / / / / |  |      |
+   *      |      |  | / / /Target/ /|  |      |
+   *      |      |  | / / / / / / / |  |      |
+   *      |      |  . - - - - - - - .  |      |
+   *      |      |                     |      |
+   *      |      . _ _ _ _ _ _ _ _ _ _ .      |
+   *      |                                   |
+   *      . - - - - - - - - - - - - - - - - - .
+   */
 
   switch (offset?.position || DEFAULT_POSITION) {
     case "top":
       return {
         bottom:
-          bodyCoordinates.height - coordinates.top + offsetValues.top + "px",
-        left:
-          coordinates.width / 2 + coordinates.left + offsetValues.left + "px",
+          bodyCoordinates.height -
+          coordinates.top -
+          offsetValues.top +
+          PADDING_HIGHLIGHT +
+          "px",
+        left: coordinates.left + offsetValues.left + PADDING_HIGHLIGHT + "px",
         transform: "translateX(-50%)",
+        ...extraStyles,
       };
     case "bottom":
       return {
-        top: coordinates.height + coordinates.top + offsetValues.top + "px",
-        left:
-          coordinates.width / 2 + coordinates.left + offsetValues.left + "px",
+        top:
+          coordinates.height +
+          coordinates.top +
+          offsetValues.top +
+          PADDING_HIGHLIGHT +
+          "px",
+        left: coordinates.left + offsetValues.left - PADDING_HIGHLIGHT + "px",
         transform: "translateX(-50%)",
+        ...extraStyles,
       };
     case "left":
       return {
-        top: coordinates.height / 2 + coordinates.top + offsetValues.top + "px",
+        top: coordinates.top + offsetValues.top - PADDING_HIGHLIGHT + "px",
         right:
-          bodyCoordinates.width - coordinates.left + offsetValues.left + "px",
+          bodyCoordinates.width -
+          coordinates.left -
+          offsetValues.left +
+          PADDING_HIGHLIGHT +
+          "px",
         transform: "translateY(-50%)",
+        ...extraStyles,
       };
     case "right":
       return {
-        top: coordinates.height / 2 + coordinates.top + offsetValues.top + "px",
-        left: coordinates.left + coordinates.width + offsetValues.left + "px",
+        top: coordinates.top + offsetValues.top - PADDING_HIGHLIGHT + "px",
+        left:
+          coordinates.left +
+          coordinates.width +
+          offsetValues.left +
+          PADDING_HIGHLIGHT +
+          "px",
         transform: "translateY(-50%)",
+        ...extraStyles,
       };
   }
 }

@@ -1,11 +1,8 @@
 import { Text } from "design-system";
-import { hideIndicator, showIndicator } from "pages/Editor/GuidedTour/utils";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { showIndicator } from "pages/Editor/GuidedTour/utils";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { GifPlayer } from "design-system-old";
-import thumbnail from "assets/icons/gifs/thumbnail.png";
-import configPagination from "assets/icons/gifs/config_pagination.gif";
-import { getPosition } from "./utils";
+import { PADDING_HIGHLIGHT, getPosition } from "./utils";
 import type {
   FeatureDetails,
   FeatureParams,
@@ -13,9 +10,8 @@ import type {
 } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
 
-const PADDING_HIGHLIGHT = 10;
-const MASKID = "mask__feature";
 const CLIPID = "clip__feature";
+const Z_INDEX = 1000;
 
 const WalkthroughWrapper = styled.div`
   left: 0px;
@@ -23,8 +19,9 @@ const WalkthroughWrapper = styled.div`
   position: fixed;
   width: 100%;
   height: 100%;
-  color: rgb(0, 0, 0, 0.6);
-  z-index: 9999;
+  color: rgb(0, 0, 0, 0.7);
+  z-index: ${Z_INDEX};
+  // This allows the user to click on the target element rather than the overlay div
   pointer-events: none;
 `;
 
@@ -43,7 +40,6 @@ const InstructionsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 296px;
-  z-index: 9999;
   pointer-events: auto;
 `;
 
@@ -61,33 +57,34 @@ type RefRectParams = {
 /*
  * Clip Path Polygon :
  * 1) 0 0 ---->  (body start) (body start)
- * 2) 0 ${ref.current.bh} ---->  (body start) (body end)
- * 3) ${ref.current.tx} ${ref.current.bh} ----> (target start) (body end)
- * 4) ${ref.current.tx} ${ref.current.ty} ----> (target start) (target start)
- * 5) ${ref.current.tx + ref.current.tw} ${ref.current.ty} ----> (target end) (target start)
- * 6) ${ref.current.tx + ref.current.tw} ${ref.current.ty + ref.current.th} ----> (target end) (target end)
- * 7) ${ref.current.tx} ${ref.current.ty + ref.current.th} ----> (target start) (target end)
- * 8) ${ref.current.tx} ${ref.current.bh} ----> (target start) (body end)
- * 9) ${ref.current.bw} ${ref.current.bh} ----> (body end) (body end)
- * 10) ${ref.current.bw} 0 ----> (body end) (body start)
- * 11) 0 0 ----> (body start) (body start)
+ * 2) 0 ${boundingRect.bh} ---->  (body start) (body end)
+ * 3) ${boundingRect.tx} ${boundingRect.bh} ----> (target start) (body end)
+ * 4) ${boundingRect.tx} ${boundingRect.ty} ----> (target start) (target start)
+ * 5) ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty} ----> (target end) (target start)
+ * 6) ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty + boundingRect.th} ----> (target end) (target end)
+ * 7) ${boundingRect.tx} ${boundingRect.ty + boundingRect.th} ----> (target start) (target end)
+ * 8) ${boundingRect.tx} ${boundingRect.bh} ----> (target start) (body end)
+ * 9) ${boundingRect.bw} ${boundingRect.bh} ----> (body end) (body end)
+ * 10) ${boundingRect.bw} 0 ----> (body end) (body start)
  *
  *
- *      1,11 ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← 10
+ *      1 ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ←10
  *      ↓                                   ↑
  *      ↓               Body                ↑
  *      ↓                                   ↑
  *      ↓                                   ↑
  *      ↓         4 → → → → → → → 5         ↑
- *      ↓         ↑               ↓         ↑
- *      ↓         ↑     Target    ↓         ↑
+ *      ↓         ↑ / / / / / / / ↓         ↑
+ *      ↓         ↑ / / /Target/ /↓         ↑
+ *      ↓         ↑ / / / / / / / ↓         ↑
  *      ↓         7 ← ← ← ← ← ← ← 6         ↑
+ *      ↓         ↑↓                        ↑
  *      ↓         ↑↓                        ↑
  *      2 → → → → 3,8 → → → → → → → → → → → 9
  */
 
 /**
- * Creates a Highlighting Mask around a target container
+ * Creates a Highlighting Clipping mask around a target container
  * @param targetId Id for the target container to show highlighting around it
  */
 
@@ -97,98 +94,80 @@ const WalkthroughRenderer = ({
   onDismiss,
   targetId,
 }: FeatureParams) => {
-  const [display, setDisplay] = useState<boolean>(false);
+  const [boundingRect, setBoundingRect] = useState<RefRectParams | null>(null);
   const { popFeature } = useContext(WalkthroughContext) || {};
-  const ref = useRef<RefRectParams | null>(null);
-  useEffect(() => {
+  const updateBoundingRect = () => {
     const highlightArea = document.querySelector(`#${targetId}`);
     if (highlightArea) {
       const boundingRect = highlightArea.getBoundingClientRect();
       const bodyRect = document.body.getBoundingClientRect();
-      ref.current = {
+      setBoundingRect({
         bw: bodyRect.width,
         bh: bodyRect.height,
         tw: boundingRect.width + 2 * PADDING_HIGHLIGHT,
         th: boundingRect.height + 2 * PADDING_HIGHLIGHT,
         tx: boundingRect.x - PADDING_HIGHLIGHT,
         ty: boundingRect.y - PADDING_HIGHLIGHT,
-      };
-      setDisplay(true);
+      });
     }
+  };
+
+  useEffect(() => {
+    updateBoundingRect();
+    window.addEventListener("resize", updateBoundingRect);
+    return () => {
+      window.removeEventListener("resize", updateBoundingRect);
+    };
   }, []);
 
   const onDismissWalkthrough = () => {
     onDismiss && onDismiss();
-    hideIndicator();
     popFeature && popFeature();
   };
 
-  if (!display || !ref.current) return null;
+  if (!boundingRect) return null;
 
   return (
-    <WalkthroughWrapper>
-      {showIndicator(`#${targetId}`, offset?.position)}
+    <WalkthroughWrapper className="t--walkthrough-overlay">
+      {showIndicator(`#${targetId}`, offset?.position, {
+        top: offset?.indicatorTop || 0,
+        left: offset?.indicatorLeft || 0,
+        zIndex: Z_INDEX + 1,
+      })}
       <SvgWrapper
-        height={ref.current.bh}
-        width={ref.current.bw}
+        height={boundingRect.bh}
+        width={boundingRect.bw}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <mask id={MASKID}>
-            <rect
-              fill="white"
-              height={ref.current.bh}
-              width={ref.current.bw}
-              x="0"
-              y="0"
-            />
-            <rect
-              fill="black"
-              height={ref.current.th}
-              width={ref.current.tw}
-              x={ref.current.tx}
-              y={ref.current.ty}
-            />
-          </mask>
           <clipPath id={CLIPID}>
             <polygon
               // See the comments above the component declaration to understand the below points assignment.
               points={`
                 0 0, 
-                0 ${ref.current.bh}, 
-                ${ref.current.tx} ${ref.current.bh}, 
-                ${ref.current.tx} ${ref.current.ty}, 
-                ${ref.current.tx + ref.current.tw} ${ref.current.ty},
-                ${ref.current.tx + ref.current.tw} ${
-                ref.current.ty + ref.current.th
+                0 ${boundingRect.bh}, 
+                ${boundingRect.tx} ${boundingRect.bh}, 
+                ${boundingRect.tx} ${boundingRect.ty}, 
+                ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
+                ${boundingRect.tx + boundingRect.tw} ${
+                boundingRect.ty + boundingRect.th
               }, 
-                ${ref.current.tx} ${ref.current.ty + ref.current.th}, 
-                ${ref.current.tx} ${ref.current.bh}, 
-                ${ref.current.bw} ${ref.current.bh}, 
-                ${ref.current.bw} 0,
-                0 0
+                ${boundingRect.tx} ${boundingRect.ty + boundingRect.th}, 
+                ${boundingRect.tx} ${boundingRect.bh}, 
+                ${boundingRect.bw} ${boundingRect.bh}, 
+                ${boundingRect.bw} 0
               `}
             />
           </clipPath>
         </defs>
         <rect
-          fill="currentcolor"
-          height={ref.current.bh}
-          style={{
-            mask: 'url("#' + MASKID + '")',
-          }}
-          width={ref.current.bw}
-          x="0"
-          y="0"
-        />
-        <rect
           onClick={onDismissWalkthrough}
           style={{
             clipPath: 'url("#' + CLIPID + '")',
             fill: "currentcolor",
-            height: ref.current.bh,
+            height: boundingRect.bh,
             pointerEvents: "auto",
-            width: ref.current.bw,
+            width: boundingRect.bw,
           }}
         />
       </SvgWrapper>
@@ -223,7 +202,7 @@ const InstructionsComponent = ({
         {details.title}
       </Text>
       <Text>{details.description}</Text>
-      <GifPlayer gif={configPagination} thumbnail={thumbnail} />
+      {details.imageURL && <img src={details.imageURL} />}
     </InstructionsWrapper>
   );
 };

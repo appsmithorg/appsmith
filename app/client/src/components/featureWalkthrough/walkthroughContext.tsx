@@ -4,15 +4,20 @@ export type PositionType = "top" | "bottom" | "left" | "right";
 
 export type OffsetType = {
   position?: PositionType;
+  // Adds an offset to top or bottom properties (of Instruction div) depending upon the position
   top?: number;
+  // Adds an offset to left or right properties (of Instruction div) depending upon the position
   left?: number;
+  // Style for the Instruction div overrides all other styles
+  style?: any;
+  indicatorTop?: number;
+  indicatorLeft?: number;
 };
 
 export type FeatureDetails = {
   title: string;
   description: string;
   imageURL?: string;
-  imageThumnail?: string;
 };
 
 export type FeatureParams = {
@@ -25,7 +30,8 @@ export type FeatureParams = {
 type WalkthroughContextType = {
   pushFeature: (feature: FeatureParams) => void;
   popFeature: () => void;
-  feature: FeatureParams | null;
+  feature: FeatureParams[];
+  isOpened: boolean;
 };
 
 const WalkthroughContext = React.createContext<

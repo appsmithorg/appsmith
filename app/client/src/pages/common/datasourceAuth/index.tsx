@@ -304,7 +304,7 @@ function DatasourceAuth({
     shouldRender &&
       pushFeature &&
       pushFeature({
-        targetId: "t--save-button-container",
+        targetId: "t--cancel-button-container",
         onDismiss: () => {
           logger.log("Dismiss");
         },
@@ -312,11 +312,12 @@ function DatasourceAuth({
           title: "Query data fast",
           description:
             "Select a template from a database table to quickly create your first query.",
+          imageURL:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqVdQhW3BWFadiDIMFKyGlRRJlf4HSwmU1gFfYK8b41g&s",
         },
         offset: {
-          position: "right",
-          top: -100,
-          left: 40,
+          position: "top",
+          top: -200,
         },
       });
   }, [shouldRender]);
@@ -342,6 +343,7 @@ function DatasourceAuth({
       [DatasourceButtonType.CANCEL]: (
         <Button
           className="t--cancel-edit-datasource"
+          id="t--cancel-button-container"
           key={buttonType}
           kind="tertiary"
           onClick={() => {
