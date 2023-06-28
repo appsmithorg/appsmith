@@ -1482,14 +1482,6 @@ class CodeEditor extends Component<Props, State> {
     }
     const entityInformation = this.getEntityInformation();
 
-    /**
-     * AI button is to be shown when following conditions are satisfied
-     * Enabled by feature flag and repo permissions
-     * Editor value is empty and editor is hovered or focused
-     * AI window is not open already
-     */
-    const showAIButton =
-      this.AIEnabled && !this.props.input.value && !this.state.showAIWindow;
     const showSlashCommandButton =
       showLightningMenu !== false &&
       !this.state.isFocused &&
@@ -1516,22 +1508,6 @@ class CodeEditor extends Component<Props, State> {
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       >
         <div className="flex absolute gap-1 top-[6px] right-[6px] z-4 justify-center">
-          <Button
-            className={classNames(
-              "ai-trigger invisible",
-              this.state.isFocused && "!visible",
-              !showAIButton && "!hidden",
-            )}
-            kind="tertiary"
-            onClick={(e) => {
-              e.stopPropagation();
-              this.setState({ showAIWindow: true });
-            }}
-            size="sm"
-            tabIndex={-1}
-          >
-            AI
-          </Button>
           <Button
             className={classNames(
               "commands-button invisible",
@@ -1630,6 +1606,7 @@ class CodeEditor extends Component<Props, State> {
               >
                 <BindingPrompt
                   editorTheme={this.props.theme}
+                  isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
                   promptMessage={this.props.promptMessage}
                   showLightningMenu={this.props.showLightningMenu}
