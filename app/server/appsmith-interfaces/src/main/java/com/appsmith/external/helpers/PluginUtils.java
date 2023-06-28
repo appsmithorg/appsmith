@@ -5,7 +5,6 @@ import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
@@ -14,7 +13,6 @@ import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +24,6 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,10 +42,6 @@ import static com.appsmith.external.constants.CommonFieldName.CHILDREN;
 import static com.appsmith.external.constants.CommonFieldName.CONDITION;
 import static com.appsmith.external.constants.CommonFieldName.KEY;
 import static com.appsmith.external.constants.CommonFieldName.VALUE;
-import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_CLOSED_ERROR_MSG;
-import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
-import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NULL_ERROR_MSG;
-import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR_MSG;
 
 @Slf4j
 public class PluginUtils {
@@ -496,37 +489,5 @@ public class PluginUtils {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(params);
         return executeActionDTO;
-    }
-
-    public static void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName) throws StaleConnectionException {
-        if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            String printMessage = MessageFormat.format(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in {0} plugin. Reporting back.", pluginName);
-            System.out.println(printMessage);
-
-            if (connectionPool == null) {
-                throw new StaleConnectionException(CONNECTION_POOL_NULL_ERROR_MSG);
-            }
-            else if (connectionPool.isClosed()) {
-                throw new StaleConnectionException(CONNECTION_POOL_CLOSED_ERROR_MSG);
-            }
-            else if (!connectionPool.isRunning()) {
-                throw new StaleConnectionException(CONNECTION_POOL_NOT_RUNNING_ERROR_MSG);
-            }
-            else {
-                /**
-                 * Ideally, code flow is never expected to reach here. However, this section has been added to catch
-                 * those cases wherein a developer updates the parent if condition but does not update the nested
-                 * if else conditions.
-                 */
-                throw new StaleConnectionException(UNKNOWN_CONNECTION_ERROR_MSG);
-            }
-        }
-    }
-
-    public static Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool,
-                                                                   String pluginName) throws SQLException {
-        checkHikariCPConnectionPoolValidity(connectionPool, pluginName);
-        return connectionPool.getConnection();
     }
 }

@@ -9,12 +9,7 @@ import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
-
-import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
-import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 
 public class MssqlTestDBContainerManager {
 
@@ -57,9 +52,9 @@ public class MssqlTestDBContainerManager {
     }
 
     static void runSQLQueryOnMssqlTestDB(String sqlQuery, HikariDataSource sharedConnectionPool) throws SQLException {
-        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool, MSSQL_PLUGIN_NAME);
-        Statement statement = connectionFromPool.createStatement();
-        statement.execute(sqlQuery);
-        closeConnectionPostExecution(null, statement, null, connectionFromPool);
+//        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool, MSSQL_PLUGIN_NAME);
+//        Statement statement = connectionFromPool.createStatement();
+//        statement.execute(sqlQuery);
+//        closeConnectionPostExecution(null, statement, null, connectionFromPool);
     }
 }

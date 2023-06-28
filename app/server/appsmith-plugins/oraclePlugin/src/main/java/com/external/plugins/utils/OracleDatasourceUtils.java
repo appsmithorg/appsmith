@@ -3,6 +3,7 @@ package com.external.plugins.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.HikariCPUtils;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -33,14 +34,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PluginName.ORACLE_PLUGIN_NAME;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.OraclePlugin.OraclePluginExecutor.scheduler;
+import static com.external.plugins.OraclePlugin.oracleDatasourceUtils;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
-public class OracleDatasourceUtils {
+public class OracleDatasourceUtils implements HikariCPUtils {
     public static final int MINIMUM_POOL_SIZE = 1;
     public static final int MAXIMUM_POOL_SIZE = 5;
     public static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
@@ -157,7 +158,8 @@ public class OracleDatasourceUtils {
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool, ORACLE_PLUGIN_NAME);
+                        connectionFromPool =
+                                oracleDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool, ORACLE_PLUGIN_NAME);
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue

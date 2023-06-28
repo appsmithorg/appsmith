@@ -15,6 +15,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.external.plugins.exceptions.RedshiftPluginError;
+import com.external.utils.RedshiftDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.NonNull;
@@ -50,7 +51,6 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.PluginConstants.PluginName.REDSHIFT_PLUGIN_NAME;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
 
@@ -58,6 +58,7 @@ import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
 public class RedshiftPlugin extends BasePlugin {
     public static final String JDBC_DRIVER = "com.amazon.redshift.jdbc.Driver";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+    public static RedshiftDatasourceUtils redshiftDatasourceUtils = new RedshiftDatasourceUtils();
 
     public RedshiftPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -214,7 +215,7 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromHikariConnectionPool(connectionPool, REDSHIFT_PLUGIN_NAME);
+                            connection = redshiftDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool, REDSHIFT_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 
@@ -571,7 +572,8 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromSupplier(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromHikariConnectionPool(connectionPool, REDSHIFT_PLUGIN_NAME);
+                            connection = redshiftDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool
+                                    , REDSHIFT_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 

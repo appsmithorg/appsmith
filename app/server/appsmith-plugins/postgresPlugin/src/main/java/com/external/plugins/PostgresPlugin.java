@@ -28,6 +28,7 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.datatypes.PostgresSpecificDataTypes;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
+import com.external.plugins.utils.PostgresDatasourceUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -78,7 +79,6 @@ import java.util.stream.Stream;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.PluginConstants.PluginName.POSTGRES_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
@@ -126,13 +126,14 @@ public class PostgresPlugin extends BasePlugin {
 
     private static int MAX_SIZE_SUPPORTED;
 
+    public static PostgresDatasourceUtils postgresDatasourceUtils = new PostgresDatasourceUtils();
+
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Extension
     public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
-
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY = "select a.attname                                                      as name,\n"
@@ -283,7 +284,8 @@ public class PostgresPlugin extends BasePlugin {
                 Connection connectionFromPool;
 
                 try {
-                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, POSTGRES_PLUGIN_NAME);
+                    connectionFromPool = postgresDatasourceUtils.getConnectionFromHikariConnectionPool(connection,
+                            POSTGRES_PLUGIN_NAME);
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari
@@ -633,7 +635,8 @@ public class PostgresPlugin extends BasePlugin {
 
                 Connection connectionFromPool;
                 try {
-                    connectionFromPool = getConnectionFromHikariConnectionPool(connection, POSTGRES_PLUGIN_NAME);
+                    connectionFromPool = postgresDatasourceUtils.getConnectionFromHikariConnectionPool(connection,
+                            POSTGRES_PLUGIN_NAME);
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari

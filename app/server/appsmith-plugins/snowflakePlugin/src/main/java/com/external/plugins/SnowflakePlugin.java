@@ -88,7 +88,8 @@ public class SnowflakePlugin extends BasePlugin {
                              * method defined in PluginUtils.java and not the same one. Please check the comment on
                              * the method definition to understand more.
                              */
-                            connectionFromPool = getConnectionFromHikariConnectionPool(connection,
+                            connectionFromPool =
+                                    getConnectionFromHikariConnectionPool(connection,
                                     SNOWFLAKE_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             if (e instanceof StaleConnectionException) {
@@ -286,7 +287,8 @@ public class SnowflakePlugin extends BasePlugin {
                              * method defined in PluginUtils.java and not the same one. Please check the comment on
                              * the method definition to understand more.
                              */
-                            connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool,
+                            connectionFromPool =
+                                    getConnectionFromHikariConnectionPool(connectionPool,
                                     SNOWFLAKE_PLUGIN_NAME);
                             return Mono.just(validateWarehouseDatabaseSchema(connectionFromPool));
                         } catch (SQLException e) {
@@ -330,7 +332,8 @@ public class SnowflakePlugin extends BasePlugin {
                              * method defined in PluginUtils.java and not the same one. Please check the comment on
                              * the method definition to understand more.
                              */
-                            connectionFromPool = getConnectionFromHikariConnectionPool(connection, SNOWFLAKE_PLUGIN_NAME);
+                            connectionFromPool =
+                                    getConnectionFromHikariConnectionPool(connection, SNOWFLAKE_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing

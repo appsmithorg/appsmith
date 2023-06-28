@@ -2,6 +2,7 @@ package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.HikariCPUtils;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.exceptions.RedshiftErrorMessages;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static com.external.plugins.RedshiftPlugin.JDBC_DRIVER;
 
-public class RedshiftDatasourceUtils {
+public class RedshiftDatasourceUtils implements HikariCPUtils {
 
     private static final int MINIMUM_POOL_SIZE = 1;
     private static final int MAXIMUM_POOL_SIZE = 5;

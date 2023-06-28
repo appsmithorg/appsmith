@@ -67,7 +67,6 @@ import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
@@ -93,6 +92,8 @@ public class MssqlPlugin extends BasePlugin {
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
     private static final long MS_SQL_DEFAULT_PORT = 1433L;
+
+    public static final MssqlDatasourceUtils mssqlDatasourceUtils = new MssqlDatasourceUtils();
 
     public MssqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -194,7 +195,8 @@ public class MssqlPlugin extends BasePlugin {
                         final List<String> columnsList = new ArrayList<>();
 
                         try {
-                            sqlConnectionFromPool = getConnectionFromHikariConnectionPool(hikariDSConnection,
+                            sqlConnectionFromPool =
+                                    mssqlDatasourceUtils.getConnectionFromHikariConnectionPool(hikariDSConnection,
                                     MSSQL_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari

@@ -42,6 +42,18 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!--
             Ideally this dependency should have been added in the pom.xml file of GraphQLPlugin module, but it is
             causing 'java.lang.NoClassDefFoundError' error. Hence, adding it here after many attempts of fixing it the right

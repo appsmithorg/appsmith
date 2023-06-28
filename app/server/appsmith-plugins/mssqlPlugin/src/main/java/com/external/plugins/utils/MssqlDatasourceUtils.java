@@ -3,13 +3,12 @@ package com.external.plugins.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.HikariCPUtils;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -25,13 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.MssqlPlugin.MssqlPluginExecutor.scheduler;
+import static com.external.plugins.MssqlPlugin.mssqlDatasourceUtils;
 
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class MssqlDatasourceUtils {
+public class MssqlDatasourceUtils implements HikariCPUtils {
 
     public static final String PRIMARY_KEY_INDICATOR = "PRIMARY KEY";
 
@@ -96,7 +94,8 @@ public class MssqlDatasourceUtils {
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool = getConnectionFromHikariConnectionPool(connection, MSSQL_PLUGIN_NAME);
+                        connectionFromPool = mssqlDatasourceUtils.getConnectionFromHikariConnectionPool(connection,
+                                MSSQL_PLUGIN_NAME);
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue

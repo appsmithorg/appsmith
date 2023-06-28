@@ -9,12 +9,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.testcontainers.containers.OracleContainer;
 
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-
-import static com.appsmith.external.constants.PluginConstants.PluginName.ORACLE_PLUGIN_NAME;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
-import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
 
 public class OracleTestDBContainerManager {
     public static final String ORACLE_USERNAME = "testUser";
@@ -50,10 +45,10 @@ public class OracleTestDBContainerManager {
     }
 
     static void runSQLQueryOnOracleTestDB(String sqlQuery, HikariDataSource sharedConnectionPool) throws SQLException {
-        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool,
-                ORACLE_PLUGIN_NAME);
-        Statement statement = connectionFromPool.createStatement();
-        statement.execute(sqlQuery);
-        closeConnectionPostExecution(null, statement, null, connectionFromPool);
+//        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool,
+//                ORACLE_PLUGIN_NAME);
+//        Statement statement = connectionFromPool.createStatement();
+//        statement.execute(sqlQuery);
+//        closeConnectionPostExecution(null, statement, null, connectionFromPool);
     }
 }

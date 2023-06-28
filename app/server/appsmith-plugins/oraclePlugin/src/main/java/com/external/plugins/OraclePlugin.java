@@ -61,7 +61,6 @@ import static com.appsmith.external.constants.CommonFieldName.PREPARED_STATEMENT
 import static com.appsmith.external.constants.PluginConstants.PluginName.ORACLE_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
-import static com.appsmith.external.helpers.PluginUtils.getConnectionFromHikariConnectionPool;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
@@ -80,6 +79,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class OraclePlugin extends BasePlugin {
+    public static final OracleDatasourceUtils oracleDatasourceUtils = new OracleDatasourceUtils();
 
     public OraclePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -198,7 +198,8 @@ public class OraclePlugin extends BasePlugin {
                         Connection connectionFromPool;
 
                         try {   
-                            connectionFromPool = getConnectionFromHikariConnectionPool(connectionPool,
+                            connectionFromPool =
+                                    oracleDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool,
                                     ORACLE_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
