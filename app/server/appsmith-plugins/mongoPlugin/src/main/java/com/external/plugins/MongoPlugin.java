@@ -119,6 +119,7 @@ import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.utils.DatasourceUtils.KEY_PASSWORD;
 import static com.external.plugins.utils.DatasourceUtils.KEY_URI_DEFAULT_DBNAME;
 import static com.external.plugins.utils.DatasourceUtils.KEY_USERNAME;
+import static com.external.plugins.utils.DatasourceUtils.MONGO_URI_REGEX;
 import static com.external.plugins.utils.DatasourceUtils.buildClientURI;
 import static com.external.plugins.utils.DatasourceUtils.buildURIFromExtractedInfo;
 import static com.external.plugins.utils.DatasourceUtils.extractInfoFromConnectionStringURI;
@@ -134,7 +135,6 @@ import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
-import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -155,14 +155,6 @@ public class MongoPlugin extends BasePlugin {
     private static final String VALUES = "values";
 
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
-
-    /*
-     * - The regex matches the following two pattern types:
-     *   - mongodb+srv://user:pass@some-url/some-db...
-     *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
-     * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
-     */
-    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?://)(?:(.+):(.+)@)?([^/?]+)/?([^?]+)?\\??(.+)?$";
 
     /**
      * We use this regex to identify the $regex attribute and the respective argument provided:

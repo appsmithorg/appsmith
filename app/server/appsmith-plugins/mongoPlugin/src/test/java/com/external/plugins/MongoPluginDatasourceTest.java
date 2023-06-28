@@ -2,90 +2,52 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mongodb.DBRef;
 import com.mongodb.MongoCommandException;
-import com.mongodb.MongoSecurityException;
-import com.mongodb.MongoSocketWriteException;
 import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.MongoCollection;
-import com.mongodb.reactivestreams.client.MongoDatabase;
-import org.bson.Document;
-import org.bson.types.BSONTimestamp;
-import org.bson.types.Decimal128;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
-import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
-import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
-import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
-import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
-import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
-import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
 import static com.external.plugins.constants.FieldName.BODY;
-import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.COUNT_QUERY;
-import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
-import static com.external.plugins.constants.FieldName.DELETE_QUERY;
-import static com.external.plugins.constants.FieldName.DISTINCT_KEY;
-import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
-import static com.external.plugins.constants.FieldName.FIND_LIMIT;
-import static com.external.plugins.constants.FieldName.FIND_PROJECTION;
-import static com.external.plugins.constants.FieldName.FIND_QUERY;
-import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
-import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static com.external.plugins.utils.DatasourceUtils.KEY_HOST_PORT;
+import static com.external.plugins.utils.DatasourceUtils.KEY_PASSWORD;
+import static com.external.plugins.utils.DatasourceUtils.KEY_URI_DEFAULT_DBNAME;
+import static com.external.plugins.utils.DatasourceUtils.KEY_URI_HEAD;
+import static com.external.plugins.utils.DatasourceUtils.KEY_URI_TAIL;
+import static com.external.plugins.utils.DatasourceUtils.KEY_USERNAME;
+import static com.external.plugins.utils.DatasourceUtils.MONGO_URI_REGEX;
+import static com.external.plugins.utils.DatasourceUtils.extractInfoFromConnectionStringURI;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -102,8 +64,6 @@ public class MongoPluginDatasourceTest {
 
     private static String address;
     private static Integer port;
-    private JsonNode value;
-    private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
     @Container
@@ -113,9 +73,6 @@ public class MongoPluginDatasourceTest {
     public static void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
-        String uri = "mongodb://" + address + ":" + port;
-        mongoClient = MongoClients.create(uri);
-
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -459,4 +416,42 @@ public class MongoPluginDatasourceTest {
         assertTrue(strings.contains("Missing default database name."));
     }
 
+    @Test
+    public void testURIRegexPassWithValidURIWithUsernamePassword() {
+        String uri = "mongodb://user:pass@localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin" +
+                "&minpoolsize=0";
+        Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
+        assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
+        assertEquals("user", extractedInfo.get(KEY_USERNAME));
+        assertEquals("pass", extractedInfo.get(KEY_PASSWORD));
+        assertEquals("localhost:28017", extractedInfo.get(KEY_HOST_PORT));
+        assertEquals("mongo_samples", extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
+        assertEquals("w=majority&retrywrites=true&authsource=admin&minpoolsize=0", extractedInfo.get(KEY_URI_TAIL));
+    }
+
+    @Test
+    public void testURIRegexPassWithValidURIWithoutUsernamePassword() {
+        String uri = "mongodb://@localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin" +
+                "&minpoolsize=0";
+        Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
+        assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
+        assertEquals(null, extractedInfo.get(KEY_USERNAME));
+        assertEquals(null, extractedInfo.get(KEY_PASSWORD));
+        assertEquals("localhost:28017", extractedInfo.get(KEY_HOST_PORT));
+        assertEquals("mongo_samples", extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
+        assertEquals("w=majority&retrywrites=true&authsource=admin&minpoolsize=0", extractedInfo.get(KEY_URI_TAIL));
+    }
+
+    @Test
+    public void testURIRegexPassWithValidURIWithoutAtUsernamePassword() {
+        String uri = "mongodb://localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin" +
+                "&minpoolsize=0";
+        Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
+        assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
+        assertEquals(null, extractedInfo.get(KEY_USERNAME));
+        assertEquals(null, extractedInfo.get(KEY_PASSWORD));
+        assertEquals("localhost:28017", extractedInfo.get(KEY_HOST_PORT));
+        assertEquals("mongo_samples", extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
+        assertEquals("w=majority&retrywrites=true&authsource=admin&minpoolsize=0", extractedInfo.get(KEY_URI_TAIL));
+    }
 }

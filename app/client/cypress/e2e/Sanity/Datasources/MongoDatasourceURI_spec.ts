@@ -4,7 +4,7 @@ import datasourceFormData from "../../../fixtures/datasources.json";
 let dsName: any;
 
 describe("Create, test, save then delete a mongo datasource using URI", function () {
-  it("1. Create, test, save then delete a mongo datasource using URI - #24660 ", function () {
+  it("1. Create, test, save then delete a mongo datasource using URI without username and password - <#> ", function () {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
