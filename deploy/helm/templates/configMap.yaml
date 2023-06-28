@@ -1,4 +1,4 @@
-{{- $clusterDomain := .Values.global.clusterDomain -}}
+{{- $clusterDomain := .Values.global.clusterDomain | default "cluster.local" -}}
 {{- $nameSpace := include "appsmith.namespace" . -}}
 {{- $name := include "appsmith.fullname" . -}}
 {{- $mongoUser := .Values.mongodb.auth.rootUser -}}
