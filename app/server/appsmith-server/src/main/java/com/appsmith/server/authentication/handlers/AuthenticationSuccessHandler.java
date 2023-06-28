@@ -44,11 +44,11 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         WorkspaceService workspaceService,
                                         WorkspaceRepository workspaceRepository,
                                         ApplicationPageService applicationPageService,
+                                        WorkspacePermission workspacePermission,
                                         ConfigService configService,
                                         FeatureFlagService featureFlagService,
                                         CommonConfig commonConfig,
                                         UserIdentifierService userIdentifierService,
-                                        WorkspacePermission workspacePermission,
                                         TenantService tenantService) {
 
         super(forkExamplesWorkspace, redirectHelper, sessionUserService, analyticsService, userDataService,
