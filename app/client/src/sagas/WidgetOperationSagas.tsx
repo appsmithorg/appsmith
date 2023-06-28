@@ -554,6 +554,7 @@ export function getPropertiesToUpdate(
   widget: WidgetProps,
   updates: Record<string, unknown>,
   triggerPaths?: string[],
+  isAddingWidget?: boolean,
 ): {
   propertyUpdates: Record<string, unknown>;
   dynamicTriggerPathList: DynamicPath[];
@@ -566,7 +567,18 @@ export function getPropertiesToUpdate(
   });
 
   // get the flat list of all updates (in case values are objects)
-  const updatePaths = getAllPaths(updates);
+  let updatePaths: Record<string, unknown>;
+
+  /**
+   * We have added a flag isAddingWidget because we want to add properties
+   * which have a dynamic value to the dynamicBindingPathList even when
+   * adding a new widget and not only while updating the said property.
+   */
+  if (isAddingWidget) {
+    updatePaths = getAllPaths(widgetWithUpdates);
+  } else {
+    updatePaths = getAllPaths(updates);
+  }
 
   const propertyUpdates: Record<string, unknown> = {
     ...updates,
@@ -583,7 +595,14 @@ export function getPropertiesToUpdate(
     getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
-    const propertyValue = getValueFromTree(updates, propertyPath);
+    let propertyValue;
+
+    if (isAddingWidget) {
+      propertyValue = getValueFromTree(widgetWithUpdates, propertyPath);
+    } else {
+      propertyValue = getValueFromTree(updatePaths, propertyPath);
+    }
+
     // only check if
     if (!_.isString(propertyValue)) {
       return;

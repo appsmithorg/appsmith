@@ -181,6 +181,8 @@ function* getChildWidgetProps(
     getPropertiesToUpdate,
     widget,
     themeConfigWithoutChildStylesheet,
+    undefined,
+    true,
   );
 
   if (params.dynamicBindingPathList) {
