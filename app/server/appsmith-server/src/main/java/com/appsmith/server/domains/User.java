@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,6 +101,9 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @JsonView(Views.Public.class)
     Boolean isAnonymous = false;
+
+    // This field represents the feature flag default traits update time
+    private Instant default_traits_updated_at;
 
     @JsonView(Views.Public.class)
     private String tenantId;

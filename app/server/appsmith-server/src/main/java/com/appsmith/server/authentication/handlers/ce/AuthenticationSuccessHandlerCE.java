@@ -162,9 +162,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                     }
                     /*
-                        Adding default traits to flagsmith for the logged-in user
+                        Adding default traits to flagsmith for the logged-in user, if not set earlier
+                        This will reduce the number of api calls made to the remote feature flagging service
                      */
-                    monos.add(addDefaultUserTraits(user));
+                    if (user.getDefault_traits_updated_at() == null){
+                        monos.add(addDefaultUserTraits(user));
+                        userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
+                    }
 
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
