@@ -160,7 +160,9 @@ function DatasourceAuth({
     datasourcePermissions,
   );
 
-  const isEnabledForDSSchema = useFeatureFlagCheck(FEATURE_FLAG.a_b_ds_schema);
+  const isEnabledForDSSchema = useFeatureFlagCheck(
+    FEATURE_FLAG.ab_ds_schema_enabled,
+  );
 
   // hooks
   const dispatch = useDispatch();

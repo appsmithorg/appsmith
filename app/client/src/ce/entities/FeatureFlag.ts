@@ -8,7 +8,7 @@ export const FEATURE_FLAG = {
   ask_ai_js: "ask_ai_js",
   APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY:
     "APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY",
-  a_b_ds_schema: "a_b_ds_schema",
+  ab_ds_schema_enabled: "ab_ds_schema_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -24,5 +24,5 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ask_ai_js: false,
   ask_ai_sql: false,
   APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY: false,
-  a_b_ds_schema: false,
+  ab_ds_schema_enabled: false,
 };
