@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ff4j.core.FeatureStore;
 import org.ff4j.core.FlippingExecutionContext;
 import org.ff4j.strategy.AbstractFlipStrategy;
+import reactor.core.publisher.Mono;
 
 /**
  * This strategy enables a given feature for Appsmith users only. Useful when features are under development and not
@@ -17,8 +18,8 @@ public class AppsmithUserStrategy extends AbstractFlipStrategy {
 
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext) {
-        User user = (User) executionContext.getValue(FieldName.VALIDATION_CONTEXT, true);
+        Mono<User> userMono = (Mono<User>) executionContext.getValue(FieldName.VALIDATION_CONTEXT, true);
 
-        return StringUtils.endsWith(user.getEmail(), "@appsmith.com");
+        return StringUtils.endsWith(userMono.block().getEmail(), "@appsmith.com");
     }
 }
