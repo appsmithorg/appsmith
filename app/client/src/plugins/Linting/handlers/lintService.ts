@@ -136,9 +136,8 @@ class LintService {
       pathsToLint: [],
       asyncJSFunctionsInDataFields,
     };
-    const entityTreeDiff = entityTree.computeDifferences(
-      this.cachedEntityTree as EntityTree,
-    );
+    const entityTreeDiff =
+      this.cachedEntityTree?.computeDifferences(entityTree);
     if (!entityTreeDiff) return NOOP;
 
     const entities = entityTree.getEntities();

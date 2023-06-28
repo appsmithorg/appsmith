@@ -18,6 +18,7 @@ import {
   DefaultDiffGenerator,
   JSLintDiffGenerator,
 } from "plugins/Linting/utils/diffGenerator";
+import { union } from "lodash";
 
 export abstract class EntityTree {
   protected tree = new Map<string, IEntity>();
@@ -28,13 +29,25 @@ export abstract class EntityTree {
     this.configTree = configTree;
   }
   abstract buildTree(unEvalTree: DataTree, configTree: ConfigTree): void;
-  computeDifferences(tree?: EntityTree) {
+  computeDifferences(newTree: EntityTree) {
     const differences: Diff<unknown>[] = [];
-    if (!tree) return differences;
-    for (const [name, entity] of this.tree.entries()) {
-      const otherEntity = tree.getEntityByName(name);
-      if (!otherEntity) continue; // TODO: Add new or Delete event
-      const difference = entity.computeDifference(otherEntity);
+    if (!newTree) return differences;
+    const entityNames = Object.keys(this.unEvalTree);
+    const newEntityNames = Object.keys(newTree.getRawTree());
+    const allEntityNames = union(entityNames, newEntityNames);
+    for (const entityName of allEntityNames) {
+      const entity = this.getEntityByName(entityName);
+      const newEntity = newTree.getEntityByName(entityName);
+
+      if (!newEntity) {
+        differences.push({
+          path: [entityName],
+          kind: "D",
+          lhs: entity?.getRawEntity(),
+        });
+        continue;
+      }
+      const difference = newEntity.computeDifference(entity);
       if (!difference) continue;
       differences.push(...difference);
     }

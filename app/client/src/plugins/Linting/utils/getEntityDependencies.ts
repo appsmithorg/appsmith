@@ -123,7 +123,7 @@ function getEntityInternalDependencyMap(entity: IEntity) {
   const entityName = entity.getName();
   const dependencies: TDependencyMap = {};
   const internalDependencyMap: TDependencyMap = entityConfig
-    ? entityConfig.dependencyMap
+    ? (entityConfig as Record<string, TDependencyMap>).dependencyMap
     : {};
 
   for (const [path, pathDependencies] of Object.entries(
