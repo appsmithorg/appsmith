@@ -1,5 +1,5 @@
-import type { IEntity } from "Linting/lib/entity";
-import { isDynamicEntity } from "Linting/lib/entity";
+import type { IEntity } from "plugins/Linting/lib/entity";
+import { isDynamicEntity } from "plugins/Linting/lib/entity";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { find, get } from "lodash";
 

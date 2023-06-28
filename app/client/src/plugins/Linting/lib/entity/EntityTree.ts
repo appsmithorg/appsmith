@@ -6,12 +6,12 @@ import type {
 import type { IEntity } from ".";
 import type { Diff } from "deep-diff";
 import EntityFactory from ".";
-import { PathUtils } from "Linting/utils/pathUtils";
-import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
-import type { EntityParser } from "Linting/utils/entityParser";
-import { jsLintEntityParser } from "Linting/utils/entityParser";
-import type { EntityDiffGenerator } from "Linting/utils/diffGenerator";
-import { jsLintDiffGenerator } from "Linting/utils/diffGenerator";
+import { PathUtils } from "plugins/Linting/utils/pathUtils";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { EntityParser } from "plugins/Linting/utils/entityParser";
+import { jsLintEntityParser } from "plugins/Linting/utils/entityParser";
+import type { EntityDiffGenerator } from "plugins/Linting/utils/diffGenerator";
+import { jsLintDiffGenerator } from "plugins/Linting/utils/diffGenerator";
 
 export abstract class EntityTree {
   protected tree = new Map<string, IEntity>();
@@ -27,7 +27,7 @@ export abstract class EntityTree {
     if (!tree) return differences;
     for (const [name, entity] of this.tree.entries()) {
       const otherEntity = tree.getEntityByName(name);
-      if (!otherEntity) continue;
+      if (!otherEntity) continue; // TODO: Add new or Delete event
       const difference = entity.computeDifference(otherEntity);
       if (!difference) continue;
       differences.push(...difference);

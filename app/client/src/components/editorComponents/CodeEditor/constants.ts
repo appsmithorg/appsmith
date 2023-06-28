@@ -1,4 +1,4 @@
-import { JS_OBJECT_START_STATEMENT } from "Linting/constants";
+import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
 import type { Position } from "codemirror";
 
 export const LINT_TOOLTIP_CLASS = "CodeMirror-lint-tooltip";

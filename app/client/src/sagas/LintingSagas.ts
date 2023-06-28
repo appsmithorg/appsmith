@@ -16,10 +16,10 @@ import type {
   LintTreeRequestPayload,
   LintTreeResponse,
   LintTreeSagaRequestData,
-} from "Linting/types";
+} from "plugins/Linting/types";
 import type { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { LintUtils } from "Linting/LintUtils";
+import { LintUtils } from "plugins/Linting/LintUtils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 

@@ -21,15 +21,13 @@ import type {
 import {
   defaultDiffGenerator,
   type EntityDiffGenerator,
-} from "Linting/utils/diffGenerator";
-import { defaultEntityParser } from "Linting/utils/entityParser";
-import type { EntityParser } from "Linting/utils/entityParser";
+} from "plugins/Linting/utils/diffGenerator";
+import type { EntityParser } from "plugins/Linting/utils/entityParser";
 import type { Diff } from "deep-diff";
 import type { EntityClassLoader } from "./EntityTree";
-import { isEmpty } from "lodash";
+
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
-import { parse } from "json5";
 
 enum ENTITY_TYPE {
   ACTION = "ACTION",

@@ -1,4 +1,4 @@
-import { LINT_WORKER_ACTIONS } from "Linting/types";
+import { LINT_WORKER_ACTIONS } from "plugins/Linting/types";
 import { updateJSLibraryGlobals } from "./updateJSLibraryGlobals";
 import { lintService } from "./lintService";
 

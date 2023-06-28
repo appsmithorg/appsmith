@@ -1,9 +1,3 @@
-import type {
-  ActionEntity,
-  JSEntity,
-  TEntity,
-  WidgetEntity,
-} from "Linting/lib/entity";
 import {
   addWidgetPropertyDependencies,
   convertPathToString,
@@ -18,9 +12,16 @@ import { mergeMaps } from "./mergeMaps";
 import { flatten, get, has, isString, toPath, union, uniq } from "lodash";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import { PathUtils } from "./pathUtils";
+import type {
+  ActionEntity,
+  IEntity,
+  JSEntity,
+  WidgetEntity,
+} from "../lib/entity";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export function getEntityDependencies(
-  entity: TEntity,
+  entity: IEntity,
 ): TDependencyMap | undefined {
   switch (entity.getType()) {
     case ENTITY_TYPE.ACTION:
@@ -101,7 +102,7 @@ function getActionDependencies(actionEntity: ActionEntity): TDependencyMap {
 
 function getDependencyFromEntityPath(
   propertyPath: string,
-  entity: TEntity,
+  entity: IEntity,
 ): TDependencyMap {
   const unevalPropValue = get(
     entity.getRawEntity(),
@@ -117,7 +118,7 @@ function getDependencyFromEntityPath(
   return dynamicPathDependency;
 }
 
-function getEntityInternalDependencyMap(entity: TEntity) {
+function getEntityInternalDependencyMap(entity: IEntity) {
   const entityConfig = entity.getConfig();
   const entityName = entity.getName();
   const dependencies: TDependencyMap = {};
@@ -138,7 +139,7 @@ function getEntityInternalDependencyMap(entity: TEntity) {
 }
 
 export function getEntityPathDependencies(
-  entity: TEntity,
+  entity: IEntity,
   fullPropertyPath: string,
 ) {
   switch (entity.getType()) {
@@ -231,13 +232,13 @@ function getActionPropertyPathDependencies(
 }
 
 export function extractReferencesFromPath(
-  entity: TEntity,
+  entity: IEntity,
   fullPropertyPath: string,
-  tree: Record<string, true>,
+  tree: Record<string, unknown>,
 ) {
   if (!PathUtils.isDynamicLeaf(entity, fullPropertyPath)) return [];
   const entityPropertyPath = getPropertyPath(fullPropertyPath);
-  const rawEntity = entity.getRawEntity();
+  const rawEntity = entity.getRawEntity() as DataTreeEntity;
   const propertyPathContent = get(rawEntity, entityPropertyPath);
   if (!isString(propertyPathContent)) return [];
 

@@ -1,4 +1,4 @@
-import type { TEntity } from "Linting/lib/entity";
+import type { TEntity } from "plugins/Linting/lib/entity";
 import type { ENTITY_TYPE } from "entities/DataTree/types";
 import type { createEntityTree } from "./entityTree";
 

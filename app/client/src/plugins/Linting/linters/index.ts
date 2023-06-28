@@ -2,9 +2,9 @@ import { GracefulWorkerService } from "utils/WorkerUtil";
 import type {
   LintTreeRequestPayload,
   updateJSLibraryProps,
-} from "Linting/types";
-import { LINT_WORKER_ACTIONS as LINT_ACTIONS } from "Linting/types";
-import { handlerMap } from "Linting/handlers";
+} from "plugins/Linting/types";
+import { LINT_WORKER_ACTIONS as LINT_ACTIONS } from "plugins/Linting/types";
+import { handlerMap } from "plugins/Linting/handlers";
 
 export interface ILinter {
   lintTree(args: LintTreeRequestPayload): any;

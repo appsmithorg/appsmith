@@ -1,5 +1,5 @@
-import { isJSEntity } from "Linting/lib/entity";
-import EntityFactory from "Linting/lib/entity";
+import { isJSEntity } from "plugins/Linting/lib/entity";
+import EntityFactory from "plugins/Linting/lib/entity";
 import type {
   ConfigTree,
   UnEvalTree,

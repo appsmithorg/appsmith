@@ -1,7 +1,7 @@
 import type { Diff, DiffArray } from "deep-diff";
 import { isEmpty, partition } from "lodash";
 
-export function sortDifferencesByType(differences: Diff<unknown>[]): {
+export function groupDifferencesByType(differences: Diff<unknown>[]): {
   edits: Diff<unknown>[];
   additions: Diff<unknown>[];
   deletions: Diff<unknown>[];
@@ -32,7 +32,7 @@ export function sortDifferencesByType(differences: Diff<unknown>[]): {
     [] as Diff<unknown>[],
   );
 
-  const result = sortDifferencesByType(refinedChanges);
+  const result = groupDifferencesByType(refinedChanges);
 
   return {
     edits: edits.concat(result.edits),

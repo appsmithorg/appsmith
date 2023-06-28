@@ -1,4 +1,4 @@
-import type { updateJSLibraryProps } from "Linting/types";
+import type { updateJSLibraryProps } from "plugins/Linting/types";
 import { isEqual } from "lodash";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";

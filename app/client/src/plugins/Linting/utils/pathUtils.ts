@@ -1,5 +1,5 @@
-import type { TEntity } from "Linting/lib/entity";
-import { isDynamicEntity, isWidgetEntity } from "Linting/lib/entity";
+import type { TEntity } from "plugins/Linting/lib/entity";
+import { isDynamicEntity, isWidgetEntity } from "plugins/Linting/lib/entity";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
