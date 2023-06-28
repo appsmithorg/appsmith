@@ -187,7 +187,6 @@ export default abstract class Snowflake extends BaseQueryGenerator {
     pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
   ) {
     const allBuildConfigs = [];
-    console.log(widgetConfig, formConfig, "widgetConfig");
     if (widgetConfig.select) {
       allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
     }
