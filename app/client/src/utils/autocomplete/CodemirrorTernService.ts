@@ -4,7 +4,6 @@ import type { Server, Def } from "tern";
 import type { Hint } from "codemirror";
 import type CodeMirror from "codemirror";
 import {
-  getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -203,6 +202,8 @@ class CodeMirrorTernService {
     const cursor = cm.getCursor();
     const { extraChars } = this.getFocusedDocValueAndPos(doc);
 
+    const query = this.getQueryForAutocomplete(cm);
+
     let completions: Completion[] = [];
     let after = "";
     const { end, start } = data;
@@ -302,13 +303,14 @@ class CodeMirrorTernService {
       list: completions,
       selectedHint: indexToBeSelected,
       lineValue,
+      query: this.getQueryForAutocomplete(cm),
     };
     let tooltip: HTMLElement | undefined = undefined;
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
 
     CodeMirror.on(obj, "shown", () => {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {
-        query: getDynamicBindings(lineValue)?.jsSnippets[0],
+        query,
         numberOfResults: completions.filter(
           (completion) => !completion.isHeader,
         ).length,
@@ -372,15 +374,19 @@ class CodeMirrorTernService {
     // When a function is picked, move the cursor between the parenthesis
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
     CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+      const hintsWithoutHeaders = hints.list.filter(
+        (h: Record<string, unknown>) => h.isHeader !== true,
+      );
+
       const selectedResultIndex = findIndex(
-        hints.list,
+        hintsWithoutHeaders,
         (item: Record<string, unknown>) =>
           item.displayText === selected.displayText,
       );
 
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         selectedResult: selected.text,
-        query: getDynamicBindings(hints.lineValue)?.jsSnippets[0],
+        query: hints.query,
         selectedResultIndex,
         selectedResultType: selected.type,
         isBestMatch:
@@ -878,6 +884,21 @@ class CodeMirrorTernService {
 
   setEntityInformation(entityInformation: FieldEntityInformation) {
     this.fieldEntityInformation = entityInformation;
+  }
+
+  getQueryForAutocomplete(cm: CodeMirror.Editor) {
+    const doc = this.findDoc(cm.getDoc());
+    const lineValue = this.lineValue(doc);
+    const { end, extraChars } = this.getFocusedDocValueAndPos(doc);
+
+    const stringFromEndCh = lineValue.substring(
+      extraChars,
+      end.ch + extraChars,
+    );
+    const splitBySpace = stringFromEndCh.split(" ");
+    const query = splitBySpace[splitBySpace.length - 1];
+
+    return query;
   }
 }
 
