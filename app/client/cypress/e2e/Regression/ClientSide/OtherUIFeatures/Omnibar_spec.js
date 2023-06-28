@@ -169,8 +169,8 @@ describe("Omnibar functionality test cases", () => {
 
     cy.xpath(omnibar.recentlyopenItem).eq(4).should("have.text", "Page1");
   });
-
-  it(
+  // skipping the test as search documenation feature is going to be removed
+  it.skip(
     "excludeForAirgap",
     "7. Verify documentation should open in new tab, on clicking open documentation",
     function () {
