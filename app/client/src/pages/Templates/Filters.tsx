@@ -96,6 +96,7 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
         // backgroundColor={Colors.GREY_900}
         // className="filter"
         isSelected={selected}
+        name={item.label}
         onChange={onClick}
         value={item.label}
       >

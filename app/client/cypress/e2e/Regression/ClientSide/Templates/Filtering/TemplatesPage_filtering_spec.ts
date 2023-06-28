@@ -37,9 +37,10 @@ describe("excludeForAirgap", "Templates page filtering", () => {
     agHelper
       .GetText(templates.locators._resultsHeader, "text")
       .then((headerText) => {
-        agHelper.GetElement("input[type='checkbox']").check(FUNCTIONS_FILTER, {
-          force: true,
-        });
+        FUNCTIONS_FILTER.map((func) =>
+          agHelper.CheckUncheck(`input[type='checkbox'][name='${func}']`, true),
+        );
+
         // here we check if header changes, if it does we can assume
         // list has been filtered
         if (typeof headerText === "string") {
