@@ -1,5 +1,6 @@
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { CURRENT_REPO, REPO } from "../../../../../fixtures/REPO";
 
 describe("Autocomplete using slash command and mustache tests", function () {
   before(() => {
@@ -14,10 +15,10 @@ describe("Autocomplete using slash command and mustache tests", function () {
       cy.get(dynamicInputLocators.hints).should("exist");
       // validates all autocomplete commands on entering / in label field
       cy.get(`${dynamicInputLocators.hints} li`)
-        .eq(1)
+        .eq(CURRENT_REPO === REPO.EE ? 1 : 0)
         .should("have.text", "New binding");
       cy.get(`${dynamicInputLocators.hints} li`)
-        .eq(2)
+        .eq(CURRENT_REPO === REPO.EE ? 1 : 2)
         .should("have.text", "Insert snippet");
       cy.get(`${dynamicInputLocators.hints} li`)
         .last()
