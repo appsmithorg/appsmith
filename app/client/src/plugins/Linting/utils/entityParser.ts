@@ -47,7 +47,7 @@ export class JSLintEntityParser implements EntityParser {
     const jsEntityBody = entity.body;
     if (
       this.#parsedJSCache &&
-      entity.isEqual(this.#parsedJSCache.parsedEntity.body)
+      jsEntityBody === this.#parsedJSCache.parsedEntity.body
     ) {
       return {
         parsedEntity: this.#parsedJSCache.parsedEntity,

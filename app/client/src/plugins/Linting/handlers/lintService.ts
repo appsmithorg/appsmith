@@ -12,7 +12,10 @@ import type {
   LintTreeResponse,
 } from "plugins/Linting/types";
 import { getLintErrorsFromTree } from "plugins/Linting/lintTree";
-import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import type {
+  TJSPropertiesState,
+  TJSpropertyState,
+} from "workers/Evaluation/JSObject/jsPropertiesState";
 import { isJSEntity } from "plugins/Linting/lib/entity";
 import DependencyMap from "entities/DependencyMap";
 import {
@@ -47,13 +50,17 @@ class LintService {
       isEmpty(this.cachedEntityTree) || forceLinting
         ? this.lintFirstTree(entityTree)
         : this.lintUpdatedTree(entityTree);
+
     const jsEntities = entityTree.getEntities().filter(isJSEntity);
     const jsPropertiesState: TJSPropertiesState = {};
     for (const jsEntity of jsEntities) {
       const rawEntity = jsEntity.getRawEntity();
       if (!jsEntity.entityParser) continue;
       const { parsedEntityConfig } = jsEntity.entityParser.parse(rawEntity);
-      jsPropertiesState[jsEntity.getName()] = parsedEntityConfig as any;
+      jsPropertiesState[jsEntity.getName()] = parsedEntityConfig as Record<
+        string,
+        TJSpropertyState
+      >;
     }
 
     const lintTreeResponse: LintTreeResponse = {

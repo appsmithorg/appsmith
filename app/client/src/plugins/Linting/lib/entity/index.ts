@@ -179,7 +179,11 @@ export class JSEntity implements IEntity {
     return ENTITY_TYPE.JSACTION;
   }
   getRawEntity() {
-    return this.entityParser.parse(this.entity).parsedEntity as TJSActionEntity;
+    const parsedBody = this.entityParser.parse(this.entity).parsedEntity;
+    for (const [propertyName, propertyValue] of Object.entries(parsedBody)) {
+      this.entity[propertyName] = propertyValue;
+    }
+    return this.entity;
   }
   getConfig() {
     return this.config;
@@ -238,7 +242,7 @@ export class PagelistEntity implements IEntity {
   getId() {
     return "pageList";
   }
-  computeDifference(oldEntity?: IEntity): Diff<unknown>[] | undefined {
+  computeDifference(): Diff<unknown>[] | undefined {
     return;
   }
 }

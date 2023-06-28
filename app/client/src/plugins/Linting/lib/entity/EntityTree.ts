@@ -12,13 +12,11 @@ import type { EntityParser } from "plugins/Linting/utils/entityParser";
 import {
   DefaultEntityParser,
   JSLintEntityParser,
-  jsLintEntityParser,
 } from "plugins/Linting/utils/entityParser";
 import type { EntityDiffGenerator } from "plugins/Linting/utils/diffGenerator";
 import {
   DefaultDiffGenerator,
   JSLintDiffGenerator,
-  jsLintDiffGenerator,
 } from "plugins/Linting/utils/diffGenerator";
 
 export abstract class EntityTree {
