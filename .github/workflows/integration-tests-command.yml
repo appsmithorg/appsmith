@@ -156,7 +156,7 @@ jobs:
       - name: Print cypress dashboard url
         id: dashboard_url
         run: |
-          cypress_url = $(cat ~/cypress_url)
+          cypress_url=$(cat ~/cypress_url)
           echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
 
       # Download failed_spec list for all jobs
