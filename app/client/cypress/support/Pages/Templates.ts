@@ -51,4 +51,27 @@ export class Templates {
       ); //giving more time here for templates page to fully load, since there is no intercept validation for same
     });
   }
+
+  refreshTemplatesPage(
+    withDummyData: boolean,
+    templateFixture = "Templates/AllowPageImportTemplates.json",
+  ) {
+    if (withDummyData) {
+      cy.fixture(templateFixture).then((templatesData) => {
+        cy.intercept(
+          {
+            method: "GET",
+            url: "/api/v1/app-templates",
+          },
+          {
+            statusCode: 200,
+            body: templatesData,
+          },
+        );
+      });
+    }
+    cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
+    this.agHelper.RefreshPage(false, "fetchFilters");
+    this.agHelper.AssertElementVisible(this.locators._templateCard);
+  }
 }

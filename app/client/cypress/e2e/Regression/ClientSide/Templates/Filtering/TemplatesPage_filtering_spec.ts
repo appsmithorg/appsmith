@@ -12,49 +12,33 @@ describe("excludeForAirgap", "Templates page filtering", () => {
     homePage.NavigateToHome();
     templates.SwitchToTemplatesTab();
   });
-  beforeEach(() =>
-    agHelper.AssertElementVisible(templates.locators._templateCard),
-  );
-  afterEach(() => {
-    cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
-    agHelper.RefreshPage(false, "fetchFilters");
-  });
 
   it("1. should filter templates by name", () => {
+    templates.refreshTemplatesPage(true);
+    templates.FilterTemplatesByName(NAME_FILTER);
+    templates.AssertResultsHeaderText("Showing all 2 templates", "have.text");
+  });
+
+  it("2. should filter templates by functions", () => {
+    templates.refreshTemplatesPage(true);
+    FUNCTIONS_FILTER.map((func) =>
+      agHelper.CheckUncheck(`input[type='checkbox'][name='${func}']`, true),
+    );
+
+    templates.AssertResultsHeaderText(
+      "Showing all 2 templates matching 2 filters",
+      "have.text",
+    );
+  });
+
+  it("2. should reset filters when coming back from template detailed view", () => {
+    templates.refreshTemplatesPage(false);
+
     agHelper
       .GetText(templates.locators._resultsHeader, "text")
       .then((headerText) => {
         templates.FilterTemplatesByName(NAME_FILTER);
-        // here we check if header changes, if it does we can assume
-        // list has been filtered
-        if (typeof headerText === "string") {
-          templates.AssertResultsHeaderText(headerText, "not.have.text");
-        }
-      });
-  });
-
-  it("2. should filter templates by functions", () => {
-    agHelper
-      .GetText(templates.locators._resultsHeader, "text")
-      .then((headerText) => {
-        FUNCTIONS_FILTER.map((func) =>
-          agHelper.CheckUncheck(`input[type='checkbox'][name='${func}']`, true),
-        );
-
-        // here we check if header changes, if it does we can assume
-        // list has been filtered
-        if (typeof headerText === "string") {
-          templates.AssertResultsHeaderText(headerText, "not.have.text");
-        }
-      });
-  });
-
-  it("3. should reset filters when coming back from template detailed view", () => {
-    templates.FilterTemplatesByName(NAME_FILTER);
-    agHelper.Sleep();
-    agHelper
-      .GetText(templates.locators._resultsHeader, "text")
-      .then((headerText) => {
+        agHelper.Sleep();
         agHelper.GetNClick(templates.locators._templateCard);
         agHelper.GetNClick(templates.locators._templateViewGoBack);
         agHelper.AssertText(
@@ -63,7 +47,7 @@ describe("excludeForAirgap", "Templates page filtering", () => {
           "",
         );
         if (typeof headerText === "string") {
-          templates.AssertResultsHeaderText(headerText, "not.have.text");
+          templates.AssertResultsHeaderText(headerText, "have.text");
         }
       });
   });
