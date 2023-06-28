@@ -3,8 +3,10 @@ import datasourceFormData from "../../../fixtures/datasources.json";
 
 let dsName: any;
 
+// TODO: add another test case to test URI with username and password when the following issue is fixed:
+//  https://github.com/appsmithorg/TestEventDriver/issues/40
 describe("Create, test, save then delete a mongo datasource using URI", function () {
-  it("1. Create, test, save then delete a mongo datasource using URI without username and password - <#> ", function () {
+  it("1. Create, test, save then delete a mongo datasource using URI without username and password - #24897 ", function () {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -14,12 +16,8 @@ describe("Create, test, save then delete a mongo datasource using URI", function
       dsName = "Mongo" + uid;
       agHelper.RenameWithInPane(dsName, false);
 
-      dataSources.FillMongoDatasourceFormWithURI(
-        datasourceFormData["mongo-uri"],
-      );
-      // TODO: update this to `true` when the following issue is fixed:
-      //  https://github.com/appsmithorg/TestEventDriver/issues/40
-      dataSources.TestSaveDatasource(false);
+      dataSources.FillMongoDatasourceFormWithURI();
+      dataSources.TestSaveDatasource(true);
       dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
