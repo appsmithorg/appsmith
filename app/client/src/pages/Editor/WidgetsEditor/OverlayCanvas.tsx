@@ -29,22 +29,60 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   const widgetPositions = useSelector(getWidgetPositions);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const widgetNamePositions = useRef<
+    { left: number; top: number; height: number; width: number } | undefined
+  >(undefined);
+
+  const canvasPositions = useRef<{ top: number; left: number }>({
+    top: 0,
+    left: 0,
+  });
+
   useEffect(() => {
     if (canvasRef?.current) {
       const canvas: HTMLCanvasElement = canvasRef?.current as HTMLCanvasElement;
       const context: CanvasRenderingContext2D | null = canvas?.getContext("2d");
+
+      const rect = canvas.getBoundingClientRect();
+      if (rect) {
+        canvasPositions.current = {
+          left: rect.left,
+          top: rect.top,
+        };
+      }
       if (!context) return;
       context.imageSmoothingEnabled = false;
       // canvas.width = canvas.width * PIXEL_RATIO;
       // canvas.height = canvas.height * PIXEL_RATIO;
       // console.log("####", { PIXEL_RATIO });
       // context.scale(PIXEL_RATIO, PIXEL_RATIO);
+
+      window.onmousemove = function (e) {
+        if (isMouseOver(e)) {
+          canvas.style.pointerEvents = "auto";
+        } else {
+          canvas.style.pointerEvents = "none";
+        }
+      };
     }
 
     return () => {
       resetCanvas();
     };
   }, [canvasRef?.current]);
+
+  const isMouseOver = (e: any) => {
+    const x = e.clientX - canvasPositions.current.left;
+    const y = e.clientY - canvasPositions.current.top;
+    if (widgetNamePositions.current) {
+      const { height, left, top, width } = widgetNamePositions.current;
+      if (x > left && x < left + width && y > top && y < top + height) {
+        return true;
+      }
+    }
+
+    return false;
+  };
 
   useEffect(() => {
     if (!selectedWidgets.length || !Object.keys(widgetPositions)?.length) {
@@ -130,6 +168,12 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
 
     // Draw component background
     drawRoundRect(context, componentWidth, left, top, FILL_COLOR, FILL_COLOR);
+    widgetNamePositions.current = {
+      left,
+      top,
+      width: componentWidth,
+      height: HEIGHT,
+    };
 
     // Draw text
     drawText(context, text, left, top);
@@ -143,6 +187,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     const context = canvas?.getContext("2d");
     context?.clearRect(0, 0, canvas.width, canvas.height);
     context?.save();
+    widgetNamePositions.current = undefined;
   };
 
   return (
