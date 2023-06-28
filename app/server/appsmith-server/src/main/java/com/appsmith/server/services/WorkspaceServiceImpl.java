@@ -1,10 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Environment;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -125,6 +128,16 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 .filter(Environment::getIsDefault)
                 .next()
                 .map(Environment::getId);
+    }
+
+    @Override
+    public Mono<String> verifyEnvironmentIdByWorkspaceId(String workspaceId, String environmentId) {
+        return environmentService.findByWorkspaceId(workspaceId)
+                .filter(environment -> environment.getId().equals(environmentId))
+                .next()
+                .map(Environment::getId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                        FieldName.ENVIRONMENT_ID, environmentId)));
     }
 
     @Override

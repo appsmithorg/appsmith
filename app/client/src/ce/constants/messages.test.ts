@@ -294,7 +294,8 @@ describe("messages without input", () => {
     { key: "MERGED_SUCCESSFULLY", value: "Merged successfully" },
     {
       key: "DISCARD_CHANGES_WARNING",
-      value: "This action will replace your local changes with the latest remote version.",
+      value:
+        "This action will replace your local changes with the latest remote version.",
     },
     {
       key: "DISCARD_SUCCESS",

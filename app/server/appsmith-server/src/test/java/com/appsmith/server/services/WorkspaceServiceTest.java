@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -130,6 +131,9 @@ public class WorkspaceServiceTest {
     private PluginService pluginService;
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    EnvironmentService environmentService;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -1645,5 +1649,39 @@ public class WorkspaceServiceTest {
 
         long countWorkspaceWithAdditionalFieldAfterUpdate = mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
         assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void verifyEnvironmentIdByWorkspaceIdMethodProvidesEnvironmentId() {
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        List<String> environmentIdList =
+                environmentService
+                        .findByWorkspaceId(createdWorkspace.getId())
+                        .map(Environment::getId)
+                        .collectList()
+                        .block();
+
+        assertThat(environmentIdList.size()).isEqualTo(2);
+        String environmentIdOne = environmentIdList.get(0);
+
+        Mono<String> verifiedEnvironmentIdMono = workspaceService
+                .verifyEnvironmentIdByWorkspaceId(createdWorkspace.getId(), environmentIdOne);
+
+        StepVerifier
+                .create(verifiedEnvironmentIdMono)
+                .assertNext(environmentId -> {
+                    assertThat(environmentId).isEqualTo(environmentIdOne);
+                });
+
+        String environmentIdTwo = environmentIdList.get(1);
+        Mono<String> verifiedEnvironmentIdTwoMono = workspaceService
+                .verifyEnvironmentIdByWorkspaceId(createdWorkspace.getId(), environmentIdTwo);
+
+        StepVerifier
+                .create(verifiedEnvironmentIdTwoMono)
+                .assertNext(environmentId -> {
+                    assertThat(environmentId).isEqualTo(environmentIdTwo);
+                });
     }
 }

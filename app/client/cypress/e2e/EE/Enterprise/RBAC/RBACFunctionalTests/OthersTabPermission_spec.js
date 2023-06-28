@@ -2,7 +2,7 @@ import homePageLocators from "../../../../../locators/HomePage";
 import locators from "../../../../../locators/AuditLogsLocators";
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { homePage } from "../../../../../support/Objects/ObjectsCore";
+import { homePage, agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Others tab permission Tests", function () {
   let workspaceName;
@@ -38,7 +38,7 @@ describe("Others tab permission Tests", function () {
         homePage.RenameWorkspace(newWorkspaceName, workspaceName);
       });
       cy.CreateAppForWorkspace(workspaceName, appName);
-      cy.visit("settings/general");
+      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.ViewAuditLogsRole(ViewAuditlogsRole);
       cy.CreateWorkspaceRole(CreateWorkspaceRole);
       cy.EditWorkspaceRole(EditWorkspaceRole, workspaceName);
@@ -121,7 +121,6 @@ describe("Others tab permission Tests", function () {
       Cypress.env("TESTPASSWORD2"),
     );
     cy.wait(2000);
-    cy.visit("/applications");
     cy.openWorkspaceOptionsPopup(workspaceName);
     cy.get(homePageLocators.workspaceNamePopoverContent)
       .find(".ads-v2-menu__menu-item")
@@ -131,7 +130,6 @@ describe("Others tab permission Tests", function () {
   });
 
   it("5. Verify user with EditWorkspaceRole is able to edit workspace name ", function () {
-    cy.visit("/applications");
     cy.wait(2000);
     cy.get(homePageLocators.workspaceList.concat(workspaceName).concat(")"))
       .scrollIntoView()
@@ -209,7 +207,6 @@ describe("Others tab permission Tests", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
-    cy.visit("/applications");
     // delete app
     cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
@@ -245,7 +242,7 @@ describe("Others tab permission Tests", function () {
 
   after(() => {
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/settings/roles");
+    agHelper.VisitNAssert("settings/roles", "fetchRoles");
     cy.DeleteRole(ViewAuditlogsRole);
     cy.DeleteRole(CreateWorkspaceRole);
     cy.DeleteRole(EditWorkspaceRole);

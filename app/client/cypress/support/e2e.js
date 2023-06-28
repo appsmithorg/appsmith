@@ -48,6 +48,13 @@ Cypress.on("uncaught:exception", () => {
 });
 
 Cypress.on("fail", (error) => {
+  cy.window()
+    .its("store")
+    .invoke("getState")
+    .then((state) => {
+      cy.log(`Editor initialised: ${state.ui.editor.initialized}`);
+      cy.log(`Loading guided tour: ${state.ui.guidedTour.loading}`);
+    });
   throw error; // throw error to have test still fail
 });
 
