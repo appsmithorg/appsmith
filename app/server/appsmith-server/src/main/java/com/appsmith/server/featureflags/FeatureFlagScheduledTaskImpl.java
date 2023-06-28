@@ -19,9 +19,7 @@ public class FeatureFlagScheduledTaskImpl implements FeatureFlagScheduledTask {
     private final FeatureFlagService featureFlagService;
 
     // Number of milliseconds between the start of each scheduled calls to this method.
-    @Scheduled(
-            initialDelay = 1 * 60 * 1000 /* 1 minute */,
-            fixedDelay = 1 * 60 * 1000 /* 1 minute */)
+    @Scheduled(fixedDelayString = "${appsmith.featureFlag.cache.in.milliseconds}")
     @Override
     public void updateFeatureFlags() {
         featureFlagService.refreshFeatureFlagsForAllUsers()
