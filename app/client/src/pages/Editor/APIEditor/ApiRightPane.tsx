@@ -309,6 +309,7 @@ function ApiRightPane(props: any) {
               <ActionRightPane
                 actionName={props.actionName}
                 context={DatasourceStructureContext.API_EDITOR}
+                datasourceId={props.datasourceId}
                 entityDependencies={entityDependencies}
                 hasConnections={hasDependencies}
                 hasResponse={props.hasResponse}

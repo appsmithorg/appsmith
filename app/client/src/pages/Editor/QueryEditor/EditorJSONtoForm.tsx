@@ -1092,6 +1092,7 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
+          {/* making this true because we always want to show the side pane, if this behaviour changes, we can return the old checks */}
           <SidebarWrapper show={true && !guidedTourEnabled}>
             <ActionRightPane
               actionName={actionName}

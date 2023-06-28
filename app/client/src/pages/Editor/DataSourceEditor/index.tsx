@@ -21,7 +21,6 @@ import {
   resetDefaultKeyValPairFlag,
   initializeDatasourceFormDefaults,
   datasourceDiscardAction,
-  refreshDatasourceStructure,
   fetchDatasourceStructure,
 } from "actions/datasourceActions";
 import {
@@ -82,8 +81,6 @@ import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransf
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
@@ -120,7 +117,6 @@ interface ReduxStateProps {
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
   isDatasourceStructureLoading: boolean;
-  isEnabledForDSSchema: boolean;
 }
 
 const Form = styled.div`
@@ -186,7 +182,6 @@ export interface DatasourcePaneFunctions {
   resetDefaultKeyValPairFlag: () => void;
   initializeFormWithDefaults: (pluginType: string) => void;
   datasourceDiscardAction: (pluginId: string) => void;
-  dispatchRefresh: (id: string) => void;
   fetchDatasourceStructure: (id: string) => void;
 }
 
@@ -319,6 +314,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       }
     }
 
+    // if the datasourceStructure is undefined (meaning it has not been fetched)
+    // then we fetch it.
     if (
       this.props.datasourceId &&
       this.props.datasourceStructure === undefined &&
@@ -771,10 +768,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   );
 
   // A/B feature flag for datsource structure.
-  const isEnabledForDSSchema = selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.ab_ds_schema,
-  );
   const datasourceStructure =
     state.entities.datasources.structure[datasourceId];
   const isDatasourceStructureLoading = getIsFetchingDatasourceStructure(
@@ -818,7 +811,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
-    isEnabledForDSSchema,
   };
 };
 
@@ -844,9 +836,6 @@ const mapDispatchToProps = (
     dispatch(initializeDatasourceFormDefaults(pluginType)),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
-  dispatchRefresh: (id) => {
-    dispatch(refreshDatasourceStructure(id));
-  },
   fetchDatasourceStructure: (id: string) => {
     dispatch(fetchDatasourceStructure(id, true));
   },

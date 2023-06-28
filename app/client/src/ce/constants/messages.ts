@@ -710,6 +710,8 @@ export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
+  "Search for table or attribute";
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";

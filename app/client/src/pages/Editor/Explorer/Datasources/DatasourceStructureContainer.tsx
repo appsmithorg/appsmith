@@ -1,5 +1,6 @@
 import {
   createMessage,
+  DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
   SCHEMA_NOT_AVAILABLE,
   TABLE_OR_COLUMN_NOT_FOUND,
 } from "@appsmith/constants/messages";
@@ -120,7 +121,9 @@ const Container = (props: Props) => {
             <DatasourceStructureSearchContainer>
               <Input
                 onChange={(value) => handleOnChange(value)}
-                placeholder="Search for table or attribute"
+                placeholder={createMessage(
+                  DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
+                )}
                 size={"md"}
                 startIcon="search"
                 type="text"
@@ -175,7 +178,7 @@ const Container = (props: Props) => {
       }
     }
   } else if (
-    // intentionally leaving this here in case we want to show loading states in the exploer or query editor page
+    // intentionally leaving this here in case we want to show loading states in the explorer or query editor page
     props.context !== DatasourceStructureContext.EXPLORER &&
     isLoading
   ) {

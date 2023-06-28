@@ -37,10 +37,12 @@ import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasourc
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
+  getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
   getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
 
 const SideBar = styled.div`
   height: 100%;
@@ -230,7 +232,7 @@ function ActionSidebar({
     directDependencies: string[];
     inverseDependencies: string[];
   } | null;
-  datasourceId?: string;
+  datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
 }) {
@@ -271,9 +273,19 @@ function ActionSidebar({
     selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema),
   );
 
-  const datasourceStructure = useSelector(
-    (state) => state.entities.datasources.structure[datasourceId || ""],
+  const datasourceStructure = useSelector((state) =>
+    getDatasourceStructureById(state, datasourceId),
   );
+
+  useEffect(() => {
+    if (
+      datasourceId &&
+      datasourceStructure === undefined &&
+      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      dispatch(fetchDatasourceStructure(datasourceId));
+    }
+  }, []);
 
   const hasWidgets = Object.keys(widgets).length > 1;
 
@@ -289,6 +301,7 @@ function ActionSidebar({
     !hasConnections &&
     !showSuggestedWidgets &&
     !showSnipingMode &&
+    // putting this here to make the placeholder only appear for rest APIs.
     pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
   ) {
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
@@ -305,7 +318,7 @@ function ActionSidebar({
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
 
-      {!isEnabledForDSSchema &&
+      {isEnabledForDSSchema &&
         pluginDatasourceForm !==
           DatasourceComponentTypes.RestAPIDatasourceForm && (
           <Collapsible
