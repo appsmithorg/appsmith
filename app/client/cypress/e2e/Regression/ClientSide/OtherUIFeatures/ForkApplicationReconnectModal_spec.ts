@@ -7,7 +7,7 @@ import {
 let currentWorkspace: string, currentAppName: string, forkWorkspaceName: string;
 
 describe("Fork application across workspaces", function () {
-  it("1. Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {
+  it("Bug 24702: Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {
     homePage.NavigateToHome();
     // Create new workspace to create App in
     agHelper.GenerateUUID();
