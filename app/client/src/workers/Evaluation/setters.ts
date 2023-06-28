@@ -46,7 +46,9 @@ class Setters {
     const evalMetaUpdates: EvalMetaUpdates = [];
 
     if (value === undefined) {
-      const error = new Error("undefined value");
+      const error = new Error(
+        `The value passed to ${entityName}.${setterMethodName}() evaluates to undefined.`,
+      );
       error.name = entityName + "." + setterMethodName + " failed";
       throw error;
     }
