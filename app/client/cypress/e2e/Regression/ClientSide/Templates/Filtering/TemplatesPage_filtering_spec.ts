@@ -31,7 +31,7 @@ describe("excludeForAirgap", "Templates page filtering", () => {
     );
   });
 
-  it("2. should reset filters when coming back from template detailed view", () => {
+  it("3. should reset filters when coming back from template detailed view", () => {
     templates.refreshTemplatesPage(false);
 
     agHelper
