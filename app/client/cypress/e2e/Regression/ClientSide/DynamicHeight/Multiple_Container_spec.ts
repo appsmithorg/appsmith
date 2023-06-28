@@ -26,16 +26,16 @@ describe("Dynamic Height Width validation for multiple container", function () {
     agHelper.Sleep(2000);
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
-      .then((oheight: number) => {
+      .then((outerContainerHeight: number) => {
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"), 1)
-          .then((mheight: number) => {
+          .then((middleContainerHeight: number) => {
             agHelper
               .GetWidgetCSSHeight(
                 locators._widgetInDeployed("containerwidget"),
                 2,
               )
-              .then((iheight: number) => {
+              .then((innerContainerHeight: number) => {
                 agHelper
                   .GetWidgetCSSHeight(
                     locators._widgetInDeployed("checkboxgroupwidget"),
@@ -58,24 +58,30 @@ describe("Dynamic Height Width validation for multiple container", function () {
                   .GetWidgetCSSHeight(
                     locators._widgetInDeployed("containerwidget"),
                   )
-                  .then((onewheight: number) => {
-                    expect(oheight).to.not.equal(onewheight);
+                  .then((outerContainerUpdatedHeight: number) => {
+                    expect(outerContainerHeight).to.not.equal(
+                      outerContainerUpdatedHeight,
+                    );
                   });
                 agHelper
                   .GetWidgetCSSHeight(
                     locators._widgetInDeployed("containerwidget"),
                     1,
                   )
-                  .then((mnewheight: number) => {
-                    expect(mheight).to.not.equal(mnewheight);
+                  .then((middleContainerUpdatedHeight: number) => {
+                    expect(middleContainerHeight).to.not.equal(
+                      middleContainerUpdatedHeight,
+                    );
                   });
                 agHelper
                   .GetWidgetCSSHeight(
                     locators._widgetInDeployed("containerwidget"),
                     2,
                   )
-                  .then((inewheight: number) => {
-                    expect(iheight).to.not.equal(inewheight);
+                  .then((innerContainerUpdatedHeight: number) => {
+                    expect(innerContainerHeight).to.not.equal(
+                      innerContainerUpdatedHeight,
+                    );
                   });
               });
           });

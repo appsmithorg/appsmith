@@ -2,9 +2,7 @@ import {
   entityExplorer,
   locators,
   agHelper,
-  deployMode,
   propPane,
-  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {

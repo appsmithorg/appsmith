@@ -24,7 +24,7 @@ describe("Dynamic Height Width validation", function () {
           .then((updatedContainerHeight: number) => {
             expect(initialContainerHeight).to.not.equal(updatedContainerHeight);
             expect(updatedContainerHeight).to.equal("100px");
-            agHelper.GetElement("body").type(`{${modifierKey}}z`);
+            agHelper.TypeText(locators._body, `{${modifierKey}}z`, 0, true);
             agHelper.Sleep(2000);
             agHelper
               .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))

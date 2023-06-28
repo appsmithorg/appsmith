@@ -2,9 +2,7 @@ import {
   entityExplorer,
   locators,
   agHelper,
-  deployMode,
   propPane,
-  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -25,9 +23,6 @@ describe("Dynamic Height Width validation", function () {
             agHelper
               .GetWidgetCSSHeight(locators._widgetInDeployed("formwidget"))
               .then((CurrentFormHeight) => {
-                // propPane.TypeTextIntoField('options',
-                // cy.updateCodeInput(
-                // ".t--property-control-options",
                 agHelper.UpdateCodeInput(
                   ".t--property-control-options",
                   `[

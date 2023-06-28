@@ -17,11 +17,13 @@ describe("Dynamic Height Width validation list widget", function () {
     entityExplorer.SelectEntityByName("List1", "Widgets");
     //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget with multitreeselect
     entityExplorer.SelectEntityByName("MultiTreeSelect1", "List1");
-    agHelper.GetElement("body").type(`{${modifierKey}}c`);
+    agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
+
     // agHelper.AssertElementAbsence(locators._toastBody);
     entityExplorer.SelectEntityByName("List1", "Widgets");
     propPane.MoveToTab("Style");
-    agHelper.GetElement("body").type(`{${modifierKey}}v`);
+    agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
+
     assertHelper.AssertNetworkStatus("@updateLayout");
     agHelper.GetNAssertContains(
       locators._toastBody,
@@ -55,21 +57,25 @@ describe("Dynamic Height Width validation list widget", function () {
         entityExplorer.SelectEntityByName("Text3", "Widgets");
         propPane.MoveToTab("Style");
 
-        agHelper.GetElement("body").type(`{${modifierKey}}c`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
+
         entityExplorer.SelectEntityByName("List1", "Widgets");
         propPane.MoveToTab("Style");
         agHelper.Sleep(500);
-        agHelper.GetElement("body").type(`{${modifierKey}}v`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
+
         assertHelper.AssertNetworkStatus("@updateLayout");
         agHelper.Sleep(2000);
         entityExplorer.NavigateToSwitcher("Explorer");
         entityExplorer.SelectEntityByName("Text3Copy");
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
-        agHelper.GetElement("body").type(`{${modifierKey}}c`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
+
         agHelper
           .GetElement("[data-testid='div-selection-0']")
           .click({ force: true });
-        agHelper.GetElement("body").type(`{${modifierKey}}v`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
+
         assertHelper.AssertNetworkStatus("@updateLayout");
         //Widgets when moved out of the list widget have dynamic height in property pane
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
@@ -79,7 +85,6 @@ describe("Dynamic Height Width validation list widget", function () {
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed("textwidget"))
           .then((height: number) => {
-            cy.log("height", height);
             propPane.SelectPropertiesDropDown("height", "Auto Height");
             assertHelper.AssertNetworkStatus("@updateLayout");
             agHelper.Sleep(3000);
@@ -88,17 +93,17 @@ describe("Dynamic Height Width validation list widget", function () {
               .GetWidgetCSSHeight(locators._widgetInDeployed("textwidget"))
               .wait(1000)
               .then((updatedListHeight: number) => {
-                cy.log("updatedListHeight", updatedListHeight);
                 expect(height).to.not.equal(updatedListHeight);
               });
           });
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
         agHelper.Sleep(2000);
-        agHelper.GetElement("body").type(`{${modifierKey}}c`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
+
         entityExplorer.SelectEntityByName("List1", "Widgets");
         propPane.MoveToTab("Style");
         agHelper.Sleep(500);
-        agHelper.GetElement("body").type(`{${modifierKey}}v`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
         assertHelper.AssertNetworkStatus("@updateLayout");
         agHelper.Sleep(2000);
 
@@ -108,11 +113,13 @@ describe("Dynamic Height Width validation list widget", function () {
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
         entityExplorer.SelectEntityByName("Text3CopyCopy");
         agHelper.Sleep(2000);
-        cy.get("body").type(`{${modifierKey}}x`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}x`, 0, true);
+
         entityExplorer.SelectEntityByName("List1");
         propPane.MoveToTab("Style");
         agHelper.Sleep(500);
-        cy.get("body").type(`{${modifierKey}}v`);
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
+
         assertHelper.AssertNetworkStatus("@updateLayout");
         agHelper.Sleep(2000);
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
