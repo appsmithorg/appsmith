@@ -249,10 +249,10 @@ function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
 
 export default function* layoutUpdateSagas() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.RECALCULATE_COLUMNS,
-      updateLayoutForMobileCheckpoint,
-    ),
+    // takeLatest(
+    //   ReduxActionTypes.RECALCULATE_COLUMNS,
+    //   updateLayoutForMobileCheckpoint,
+    // ),
     takeLatest(
       ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
       updateLayoutPositioningSaga,
