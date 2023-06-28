@@ -1194,7 +1194,8 @@ export class DataSources {
     this.agHelper.GetNClick(this._editDatasourceFromActiveTab(dsName));
   }
 
-  public FillMongoDatasourceFormWithURI(uri: string) {
+  public FillMongoDatasourceFormWithURI() {
+    const uri = this.hp.mongo_uri;
     this.ValidateNSelectDropdown(
       "Use mongo connection string URI",
       "No",

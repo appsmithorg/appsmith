@@ -35,7 +35,7 @@ describe("Fork application across workspaces", function () {
 
         homePage.ForkApplication(currentAppName, forkWorkspaceName);
 
-        dataSources.FillMongoDSForm();
+        dataSources.FillMongoDatasourceFormWithURI();
         dataSources.TestSaveDatasource(true, true);
       });
     });
