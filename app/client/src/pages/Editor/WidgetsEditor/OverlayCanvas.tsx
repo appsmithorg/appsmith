@@ -60,8 +60,10 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       window.onmousemove = function (e) {
         if (isMouseOver(e)) {
           canvas.style.pointerEvents = "auto";
+          canvas.style.cursor = "pointer";
         } else {
           canvas.style.pointerEvents = "none";
+          canvas.style.cursor = "default";
         }
       };
     }
