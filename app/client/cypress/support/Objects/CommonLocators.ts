@@ -243,4 +243,13 @@ export class CommonLocators {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
+  _appEditMenu = "[data-testid='t--application-edit-menu']";
+  _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
+  _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appThemeSettings = "#t--theme-settings-header";
+  _appChangeThemeBtn = ".t--change-theme-btn";
+  _appThemeCard = ".t--theme-card";
+  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+  _appNavigationSettings = "#t--navigation-settings-header";
+  _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
 }

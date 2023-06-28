@@ -177,7 +177,7 @@ function* updateSnapshotDetailsSaga() {
     );
     yield put(
       updateSnapshotDetails(
-        snapShotDetails
+        snapShotDetails && snapShotDetails.updatedTime
           ? { lastUpdatedTime: snapShotDetails.updatedTime?.toString() }
           : undefined,
       ),

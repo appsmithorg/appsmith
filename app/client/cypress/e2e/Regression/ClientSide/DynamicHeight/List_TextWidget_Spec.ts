@@ -49,7 +49,7 @@ describe("Dynamic Height Width validation list widget", function () {
           .then((updatedListHeight: number) => {
             expect(currentListHeight).to.equal(updatedListHeight);
           });
-        agHelper.GetNClick(locators._listCollapseToggle);
+        //agHelper.GetNClick(locators._listCollapseToggle);
         entityExplorer.SelectEntityByName("Container1", "List1");
 
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
