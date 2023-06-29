@@ -97,22 +97,22 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         </p>
 
         <div>
-          {Object.keys(filteredCards).map((category) => {
-            const cardsForThisCategory: WidgetCardProps[] =
-              filteredCards[category as WidgetTags];
+          {Object.keys(filteredCards).map((tag) => {
+            const cardsForThisTag: WidgetCardProps[] =
+              filteredCards[tag as WidgetTags];
 
-            if (!cardsForThisCategory?.length) {
+            if (!cardsForThisTag?.length) {
               return null;
             }
 
             return (
-              <div className="pb-3" key={category}>
+              <div className="pb-3" key={tag}>
                 <p className="pl-3 pb-3 text-sm leading-relaxed font-medium">
-                  {category}
+                  {tag}
                 </p>
 
                 <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
-                  {cardsForThisCategory.map((card) => (
+                  {cardsForThisTag.map((card) => (
                     <WidgetCard details={card} key={card.key} />
                   ))}
                 </div>
