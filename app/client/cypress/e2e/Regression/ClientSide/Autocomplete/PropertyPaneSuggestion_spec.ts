@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { CURRENT_REPO, REPO } from "../../../../../cypress/fixtures/REPO";
 
 const {
   AggregateHelper,
@@ -23,7 +22,7 @@ describe("Property Pane Suggestions", () => {
       CommonLocators._hints,
       "New binding",
       "have.text",
-      CURRENT_REPO === REPO.EE ? 1 : 0,
+      0,
     );
     AggregateHelper.GetNClickByContains(CommonLocators._hints, "New binding");
     PropertyPane.ValidatePropertyFieldValue("Label", "{{}}");
@@ -46,7 +45,7 @@ describe("Property Pane Suggestions", () => {
       CommonLocators._hints,
       "JSObject1",
       "have.text",
-      CURRENT_REPO === REPO.EE ? 4 : 3,
+      3,
     );
   });
 
