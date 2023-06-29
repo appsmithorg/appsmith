@@ -33,11 +33,11 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     }
 
     @Override
-    public Mono<Boolean> check(FeatureFlagEnum featureEnum, Object context) {
+    public Boolean check(FeatureFlagEnum featureEnum, Object context) {
         if (featureEnum == null) {
-            return Mono.just(false);
+            return false;
         }
-        return Mono.just(check(featureEnum.toString(), context));
+        return check(featureEnum.toString(), context);
     }
 
     @Override
@@ -46,7 +46,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .featureFlagEnumValidationContextMap()
                 .getOrDefault(featureEnum, featureFlagValidationContextConfig.currentUserValidationContextProvider)
                 .getFeatureFlagValidationContext();
-        return check(featureEnum, validationContext);
+        Mono<Object> validationContextMono = (Mono<Object>) validationContext;
+        return validationContextMono.map(validationContextObj -> {
+            return check(featureEnum, validationContextObj);
+        });
     }
 
     private Boolean check(String featureName, Object context) {
