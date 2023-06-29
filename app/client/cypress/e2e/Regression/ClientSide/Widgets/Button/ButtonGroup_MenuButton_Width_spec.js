@@ -36,7 +36,7 @@ describe("In a button group widget, menu button width", function () {
   it("2. If target width is bigger than min width, The menu button popover width should always be the same as the target width", () => {
     const minWidth = 12 * 12.3125;
     const widgetId = "t5l24fccio";
-
+    agHelper.Sleep(2000);
     // Get the default menu button
     cy.get(`.appsmith_widget_${widgetId} div.t--buttongroup-widget`)
       .children()
@@ -146,9 +146,5 @@ describe("In a button group widget, menu button width", function () {
         `${targetWidth}px`,
       );
     });
-  });
-
-  after(() => {
-    // clean up after done
   });
 });
