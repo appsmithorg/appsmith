@@ -307,8 +307,8 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
   const tagsOrder = Object.values(WIDGET_TAGS);
   const groupedCards: WidgetCardsGroupedByTags = {} as WidgetCardsGroupedByTags;
 
-  tagsOrder.forEach((category: WidgetTags) => {
-    groupedCards[category] = [];
+  tagsOrder.forEach((tag: WidgetTags) => {
+    groupedCards[tag] = [];
   });
 
   widgetCards.forEach((item) => {
