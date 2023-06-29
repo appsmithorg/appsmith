@@ -73,7 +73,7 @@ export class DarkModeTheme implements ColorModeTheme {
       fg: this.fg.toString(),
       fgAccent: this.fgAccent.toString(),
       fgOnAccent: this.fgOnAccent.toString(),
-      fgPositive: this.fgPositive.toString(),
+      fgPositive: this.fgPositive.to("sRGB").toString(),
       fgOnPositive: this.fgOnPositive.toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
       fgOnNegative: this.fgOnNegative.toString(),
@@ -85,13 +85,13 @@ export class DarkModeTheme implements ColorModeTheme {
       // bd
       bdAccent: this.bdAccent.toString(),
       bdFocus: this.bdFocus.toString(),
-      bdNegative: this.bdNegative.toString(),
-      bdNegativeHover: this.bdNegativeHover.toString(),
+      bdNegative: this.bdNegative.to("sRGB").toString(),
+      bdNegativeHover: this.bdNegativeHover.to("sRGB").toString(),
       bdNeutral: this.bdNeutral.toString(),
       bdNeutralHover: this.bdNeutralHover.toString(),
-      bdPositive: this.bdPositive.toString(),
+      bdPositive: this.bdPositive.to("sRGB").toString(),
+      bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
       bdWarning: this.bdWarning.toString(),
-      bdPositiveHover: this.bdPositiveHover.toString(),
     };
   };
 
