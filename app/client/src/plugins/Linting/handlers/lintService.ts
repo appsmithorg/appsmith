@@ -1,4 +1,4 @@
-import { intersection, isEmpty } from "lodash";
+import { get, intersection, isEmpty } from "lodash";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
@@ -104,8 +104,9 @@ class LintService {
       }
     }
 
-    const jsFns = entities.filter(isJSEntity).flatMap((e) => e.getFns());
-    const asyncFns = jsFns
+    const asyncFns = entities
+      .filter(isJSEntity)
+      .flatMap((e) => e.getFns())
       .filter(
         (fn) =>
           fn.isMarkedAsync ||
@@ -218,9 +219,8 @@ class LintService {
       const entity = entityTree.getEntityByName(entityName);
       if (!entity) continue;
       const allAddedPaths = PathUtils.getAllPaths({
-        [entityName]: entity.getRawEntity(),
+        [pathString]: get(entity.getRawEntity(), pathString),
       });
-
       this.dependencyMap.addNodes(allAddedPaths);
       for (const path of Object.keys(allAddedPaths)) {
         const previousDependencies =
