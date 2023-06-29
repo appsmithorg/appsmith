@@ -332,8 +332,8 @@
 
         <dependency>
             <groupId>io.sentry</groupId>
-            <artifactId>sentry-spring-boot-starter</artifactId>
-            <version>3.1.2</version>
+            <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+            <version>6.23.0</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
