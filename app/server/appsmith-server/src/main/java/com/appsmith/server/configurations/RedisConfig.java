@@ -8,12 +8,14 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
+import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
@@ -37,12 +39,16 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Configuration
 @Slf4j
 // Setting the maxInactiveInterval to 30 days
 @EnableRedisWebSession(maxInactiveIntervalInSeconds = 2592000)
 public class RedisConfig {
+
+    @Value("${appsmith.redis.url:}")
+    private String redisURL;
 
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
@@ -58,7 +64,7 @@ public class RedisConfig {
     @Bean
     @Primary
     public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
-        final URI redisUri = URI.create(System.getenv("APPSMITH_REDIS_URL"));
+        final URI redisUri = URI.create(redisURL);
         final String scheme = redisUri.getScheme();
 
         switch (scheme) {
