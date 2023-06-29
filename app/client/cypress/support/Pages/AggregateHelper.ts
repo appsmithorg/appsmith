@@ -128,7 +128,7 @@ export class AggregateHelper extends ReusableHelper {
           this.RefreshPage(reloadWithoutCache);
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-          this.Sleep(); //settling time for dsl
+          this.Sleep(2000); //settling time for dsl
           this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
           this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
         });
