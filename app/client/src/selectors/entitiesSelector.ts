@@ -51,6 +51,13 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
+// Returns non temp datasources
+export const getSavedDatasources = (state: AppState): Datasource[] => {
+  return state.entities.datasources.list.filter(
+    (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
+  );
+};
+
 export const getRecentDatasourceIds = (state: AppState): string[] => {
   return state.entities.datasources.recentDatasources;
 };

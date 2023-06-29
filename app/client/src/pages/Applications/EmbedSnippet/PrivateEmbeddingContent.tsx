@@ -1,6 +1,7 @@
 import React from "react";
-import { Text, Link, Button, Icon } from "design-system";
+import { Text, Link, Button, Icon, Tag } from "design-system";
 import {
+  BUSINESS_TEXT,
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
@@ -58,6 +59,9 @@ export function PrivateEmbedRampModal() {
             <Text kind="body-m">
               {createMessage(IN_APP_EMBED_SETTING.privateAppsText)}
             </Text>
+            <Tag className="ml-1 mt-0.5" isClosable={false}>
+              {createMessage(BUSINESS_TEXT)}
+            </Tag>
           </div>
           <Text
             className="w-7/10 block"
