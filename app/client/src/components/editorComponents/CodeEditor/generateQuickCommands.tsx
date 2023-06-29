@@ -15,6 +15,7 @@ import { Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import BetaCard from "../BetaCard";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -62,6 +63,7 @@ const generateCreateNewCommand = ({
   action,
   description,
   displayText,
+  isBeta,
   shortcut,
   text,
   triggerCompletionsPostPick,
@@ -80,6 +82,7 @@ const generateCreateNewCommand = ({
       <Command
         desc={description}
         icon={iconsByType[data.shortcut as Shortcuts]}
+        isBeta={isBeta}
         name={data.displayText}
       />,
       element,
@@ -98,14 +101,20 @@ const iconsByType = {
   [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" size="md" />,
 };
 
-function Command(props: { icon: any; name: string; desc?: string }) {
+function Command(props: {
+  icon: any;
+  name: string;
+  desc?: string;
+  isBeta?: boolean;
+}) {
   return (
     <div className="command-container">
       <div className="command">
         {props.icon}
-        <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+        <div className="overflow-hidden overflow-ellipsis whitespace-nowrap gap-1">
           {props.name}
-        </span>
+          {props.isBeta && <BetaCard />}
+        </div>
       </div>
       {props.desc ? <div className="command-desc">{props.desc}</div> : null}
     </div>
