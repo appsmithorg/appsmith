@@ -22,6 +22,7 @@ export const RadioGroup = forwardRef(
     const {
       children,
       className,
+      isDisabled = false,
       orientation = "vertical",
       validationState,
     } = props;
@@ -49,6 +50,7 @@ export const RadioGroup = forwardRef(
             value={{
               validationState,
               state,
+              isDisabled,
             }}
           >
             {children}

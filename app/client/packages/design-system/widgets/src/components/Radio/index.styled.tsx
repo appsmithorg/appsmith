@@ -72,8 +72,4 @@ export const StyledRadio = styled(HeadlessRadio)<RadioProps>`
   &[data-hovered][data-invalid] [data-icon] {
     --radio-border-color: var(--color-bd-negative-hover);
   }
-
-  &[data-disabled] {
-    cursor: default;
-  }
 `;

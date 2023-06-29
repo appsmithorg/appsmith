@@ -5,6 +5,7 @@ export type RadioGroupContext = {
   name?: string;
   validationState?: "valid" | "invalid";
   state: RadioGroupState;
+  isDisabled?: boolean;
 };
 
 export const RadioContext = React.createContext<RadioGroupContext | null>(null);

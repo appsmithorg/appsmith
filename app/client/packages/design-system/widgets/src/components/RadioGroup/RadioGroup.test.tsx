@@ -45,6 +45,7 @@ describe("@design-system/widgets/RadioGroup", () => {
       <RadioGroup data-testid="radio-group" label="Radio Group Label">
         <Radio value="value-1">Value 1</Radio>
         <Radio value="value-2">Value 2</Radio>
+        <Radio value="value-3">Value 3</Radio>
       </RadioGroup>,
     );
 

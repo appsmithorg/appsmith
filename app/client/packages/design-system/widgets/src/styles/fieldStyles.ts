@@ -14,11 +14,6 @@ export const fieldStyles = css<FieldStylesProps>`
     &[data-position="side"] {
       flex-direction: row;
     }
-
-    &[data-disabled] {
-      opacity: var(--opacity-disabled);
-      cursor: default;
-    }
   }
 
   /**
@@ -39,6 +34,11 @@ export const fieldStyles = css<FieldStylesProps>`
       min-height: calc(5 * var(--root-unit));
       width: ${({ labelWidth }) => labelWidth};
     }
+  }
+
+  &[data-disabled] [data-field-label] {
+    opacity: var(--opacity-disabled);
+    cursor: default;
   }
 
   /**

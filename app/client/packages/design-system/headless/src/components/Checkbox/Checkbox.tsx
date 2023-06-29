@@ -12,6 +12,7 @@ import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
 import { CheckIcon } from "./icons/CheckIcon";
 import { CheckboxGroupContext } from "./context";
 import { SubtractIcon } from "./icons/SubtractIcon";
+import type { CheckboxGroupContextType } from "./context";
 
 export type InlineLabelProps = {
   labelPosition?: "left" | "right";
@@ -34,7 +35,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
     children,
     className,
     icon = <CheckIcon size={ICON_SIZE} />,
-    isDisabled = false,
+    isDisabled: isDisabledProp = false,
     isIndeterminate = false,
     validationState,
   } = props;
@@ -42,13 +43,16 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const domRef = useFocusableRef(ref, inputRef);
   const { visuallyHiddenProps } = useVisuallyHidden();
-  const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
 
   // The hooks will be swapped based on whether the checkbox is a part of a CheckboxGroup.
   // Although this approach is not conventional since hooks cannot usually be called conditionally,
   // it should be safe in this case since the checkbox is not expected to be added or removed from the group.
-  const groupState = useContext(CheckboxGroupContext);
+  const { isDisabled: isGroupDisabled, state: groupState } = useContext(
+    CheckboxGroupContext,
+  ) as CheckboxGroupContextType;
+  const isDisabled = isDisabledProp || isGroupDisabled;
+  const { hoverProps, isHovered } = useHover({ isDisabled });
   const { inputProps } = groupState
     ? // eslint-disable-next-line react-hooks/rules-of-hooks
       useCheckboxGroupItem(
@@ -62,6 +66,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
           // the props for this individual checkbox, and not from the group via context.
           isRequired: props.isRequired,
           validationState: props.validationState,
+          isDisabled: isDisabled,
         },
         groupState,
         inputRef,
@@ -87,12 +92,9 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
       data-state={dataState}
       ref={domRef}
     >
-      <input
-        {...mergeProps(inputProps, visuallyHiddenProps, focusProps)}
-        ref={inputRef}
-      />
+      <input {...mergeProps(inputProps, focusProps)} ref={inputRef} />
       <span aria-hidden="true" data-icon="" role="presentation">
-        {isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon}
+        {icon && (isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon)}
       </span>
       {children}
     </label>

@@ -21,16 +21,20 @@ export interface RadioProps
 export type RadioRef = FocusableRef<HTMLLabelElement>;
 
 export const Radio = forwardRef((props: RadioProps, ref: RadioRef) => {
-  const { autoFocus, children, className, isDisabled = false } = props;
+  const {
+    autoFocus,
+    children,
+    className,
+    isDisabled: isDisabledProp = false,
+  } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const domRef = useFocusableRef(ref, inputRef);
   const { visuallyHiddenProps } = useVisuallyHidden();
-  const { hoverProps, isHovered } = useHover({ isDisabled });
-  const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
-
   const radioGroupProps = useContext(RadioContext) as RadioGroupContext;
   const { state, validationState } = radioGroupProps;
-
+  const isDisabled = isDisabledProp || radioGroupProps.isDisabled;
+  const { hoverProps, isHovered } = useHover({ isDisabled });
+  const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
   const { inputProps } = useRadio(
     {
       ...props,
@@ -53,10 +57,7 @@ export const Radio = forwardRef((props: RadioProps, ref: RadioRef) => {
       data-state={state.selectedValue === props.value ? "selected" : undefined}
       ref={domRef}
     >
-      <input
-        {...mergeProps(inputProps, visuallyHiddenProps, focusProps)}
-        ref={inputRef}
-      />
+      <input {...mergeProps(inputProps, focusProps)} ref={inputRef} />
       <span aria-hidden="true" data-icon="" role="presentation" />
       {children}
     </label>

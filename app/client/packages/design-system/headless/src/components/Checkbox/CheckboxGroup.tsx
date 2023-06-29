@@ -20,7 +20,7 @@ export interface CheckboxGroupProps
 
 export const CheckboxGroup = forwardRef(
   (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
-    const { children, className, orientation = "vertical" } = props;
+    const { children, className, isDisabled, orientation = "vertical" } = props;
     const domRef = useDOMRef(ref);
     const state = useCheckboxGroupState(props);
     const { descriptionProps, errorMessageProps, groupProps, labelProps } =
@@ -42,7 +42,12 @@ export const CheckboxGroup = forwardRef(
           data-field-group=""
           data-orientation={orientation}
         >
-          <CheckboxGroupContext.Provider value={state}>
+          <CheckboxGroupContext.Provider
+            value={{
+              state,
+              isDisabled,
+            }}
+          >
             {children}
           </CheckboxGroupContext.Provider>
         </div>
