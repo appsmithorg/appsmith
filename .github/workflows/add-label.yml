@@ -1,0 +1,30 @@
+name: Add Cypress-Only-Fixes Label on PR Merge
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  add_label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if PR is merged
+        id: check_pr_merged
+        run: echo "PR_MERGED=$(jq --raw-output .pull_request.merged $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+
+      - name: Add label
+        if: ${{ env.PR_MERGED == 'true' }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.issue;
+            const labelToAdd = 'cypress-flaky-fix';
+
+            github.issues.addLabels({
+              owner: issue.owner,
+              repo: issue.repo,
+              issue_number: issue.number,
+              labels: [labelToAdd]
+            });
