@@ -24,6 +24,12 @@ public class ProductFeatureAlertControllerCE {
     @GetMapping("/alert")
     public Mono<ResponseDTO<ProductAlertResponseDTO>> generateCode() {
         return productAlertService.getSingleApplicableMessage()
-                .map(message -> new ResponseDTO<>(HttpStatus.OK.value(), message, null));
+                .map(messages -> {
+                    if(messages.size() > 0) {
+                        return new ResponseDTO<>(HttpStatus.OK.value(), messages.get(0), null);
+                    } else {
+                        return new ResponseDTO<>(HttpStatus.OK.value(), new ProductAlertResponseDTO(), null);
+                    }
+                });
     }
 }
