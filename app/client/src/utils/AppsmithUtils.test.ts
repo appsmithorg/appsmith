@@ -1,7 +1,9 @@
 import {
   areArraysEqual,
   createBlobUrl,
+  DataType,
   getCamelCaseString,
+  getDatatype,
   parseBlobUrl,
 } from "utils/AppsmithUtils";
 import { isURL } from "./TypeHelpers";
@@ -91,5 +93,37 @@ describe("parseBlobUrl", () => {
       `blob:${window.location.origin}/123-123`,
       "raw",
     ]);
+  });
+});
+
+describe("getDatatype - should test the datatypes", () => {
+  it("1. String", () => {
+    expect(getDatatype("test")).toBe(DataType.STRING);
+  });
+
+  it("2. Number", () => {
+    [1, NaN].forEach((d) => {
+      expect(getDatatype(d)).toBe(DataType.NUMBER);
+    });
+  });
+
+  it("3. Boolean", () => {
+    [true, false].forEach((d) => {
+      expect(getDatatype(d)).toBe(DataType.BOOLEAN);
+    });
+  });
+
+  it("4. Object", () => {
+    expect(getDatatype({})).toBe(DataType.OBJECT);
+  });
+
+  it("5. Array", () => {
+    expect(getDatatype([])).toBe(DataType.ARRAY);
+  });
+
+  it("6. Rest of the types", () => {
+    expect(getDatatype(null)).toBe(DataType.NULL);
+
+    expect(getDatatype(undefined)).toBe(DataType.UNDEFINED);
   });
 });
