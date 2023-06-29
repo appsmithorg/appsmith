@@ -29,7 +29,6 @@ import {
   RESTART_POLL_INTERVAL,
   RESTART_POLL_TIMEOUT,
 } from "@appsmith/constants/tenantConstants";
-import { getAllGeneralSettingIds } from "@appsmith/utils/adminSettingsHelpers";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -81,7 +80,6 @@ export function* SaveAdminSettingsSaga(
 
   try {
     const { appVersion } = getAppsmithConfigs();
-    const generalSettings = getAllGeneralSettingIds();
     const hasDisableTelemetrySetting = settings.hasOwnProperty(
       "APPSMITH_DISABLE_TELEMETRY",
     );
@@ -105,10 +103,7 @@ export function* SaveAdminSettingsSaga(
         });
       }
 
-      if (
-        Object.keys(settings).some((e) => generalSettings.includes(e)) &&
-        (hasDisableTelemetrySetting || hasHideWatermarkSetting)
-      ) {
+      if (hasDisableTelemetrySetting || hasHideWatermarkSetting) {
         AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
           version: appVersion.id,
           ...(hasDisableTelemetrySetting

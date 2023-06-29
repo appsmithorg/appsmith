@@ -14,7 +14,6 @@ import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/red
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { getAllGeneralSettingIds } from "@appsmith/utils/adminSettingsHelpers";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
@@ -49,7 +48,6 @@ export function* updateTenantConfigSaga(
 ) {
   try {
     const { appVersion } = getAppsmithConfigs();
-    const generalSettings = getAllGeneralSettingIds();
     const settings = action.payload.tenantConfiguration;
     const hasSingleSessionUserSetting = settings.hasOwnProperty(
       "singleSessionPerUserEnabled",
@@ -65,10 +63,7 @@ export function* updateTenantConfigSaga(
     if (isValidResponse) {
       const payload = response.data as any;
 
-      if (
-        Object.keys(settings).some((e) => generalSettings.includes(e)) &&
-        (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting)
-      ) {
+      if (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting) {
         AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
           version: appVersion.id,
           ...(hasSingleSessionUserSetting
