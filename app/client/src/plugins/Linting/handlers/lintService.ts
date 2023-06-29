@@ -1,4 +1,4 @@
-import { get, intersection, isEmpty } from "lodash";
+import { get, intersection, isEmpty, uniq } from "lodash";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
@@ -143,19 +143,17 @@ class LintService {
       this.cachedEntityTree?.computeDifferences(entityTree);
     if (!entityTreeDiff) return NOOP;
 
-    const entities = entityTree.getEntities();
-    const asyncFns = entities
-      .filter(isJSEntity)
-      .flatMap((e) => e.getFns())
-      .filter(
-        (fn) =>
-          fn.isMarkedAsync ||
-          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields),
-      )
-      .map((fn) => fn.name);
-
     const { additions, deletions, edits } =
       groupDifferencesByType(entityTreeDiff);
+
+    const updatedPathsDetails: Record<
+      string,
+      {
+        previousDependencies: string[];
+        currentDependencies: string[];
+        updateType: "EDIT" | "ADD" | "DELETE";
+      }
+    > = {};
 
     for (const edit of edits) {
       const pathString = convertPathToString(edit?.path || []);
@@ -177,38 +175,12 @@ class LintService {
       );
       this.dependencyMap.addDependency(pathString, references);
       pathsToLint.push(pathString);
-      if (isJSEntity(entity) && asyncFns.includes(pathString)) {
-        const nodesThatDependOnAsyncFn =
-          this.dependencyMap.getDependents(pathString);
-        const dataPathsThatDependOnAsyncFn = filterDataPaths(
-          nodesThatDependOnAsyncFn,
-          entityTree,
-        );
-        if (!isEmpty(dataPathsThatDependOnAsyncFn)) {
-          asyncJSFunctionsInDataFields[pathString] =
-            dataPathsThatDependOnAsyncFn;
-        }
-      }
-      const isDataPath = PathUtils.isDataPath(pathString, entity);
-      if (!isDataPath) continue;
 
-      const dependencies = this.dependencyMap.getDirectDependencies(pathString);
-
-      const asyncDeps = intersection(asyncFns, dependencies);
-      const prevAsyncDeps = intersection(asyncFns, previousDependencies);
-
-      for (const asyncFn of asyncDeps) {
-        const nodesThatDependOnAsyncFn =
-          this.dependencyMap.getDependents(asyncFn);
-        const dataPathsThatDependOnAsyncFn = filterDataPaths(
-          nodesThatDependOnAsyncFn,
-          entityTree,
-        );
-        if (isEmpty(dataPathsThatDependOnAsyncFn)) continue;
-        asyncJSFunctionsInDataFields[asyncFn] = dataPathsThatDependOnAsyncFn;
-      }
-
-      pathsToLint.push(...asyncDeps, ...prevAsyncDeps);
+      updatedPathsDetails[pathString] = {
+        previousDependencies,
+        currentDependencies: references,
+        updateType: "EDIT",
+      };
     }
 
     for (const addition of additions) {
@@ -219,7 +191,7 @@ class LintService {
       const entity = entityTree.getEntityByName(entityName);
       if (!entity) continue;
       const allAddedPaths = PathUtils.getAllPaths({
-        [pathString]: get(entity.getRawEntity(), pathString),
+        [pathString]: get(entityTree.getRawTree(), pathString),
       });
       this.dependencyMap.addNodes(allAddedPaths);
       for (const path of Object.keys(allAddedPaths)) {
@@ -236,35 +208,12 @@ class LintService {
         }
         const incomingDeps = this.dependencyMap.getDependents(path);
         pathsToLint.push(...incomingDeps);
-        if (isJSEntity(entity) && asyncFns.includes(pathString)) {
-          const nodesThatDependOnAsyncFn =
-            this.dependencyMap.getDependents(pathString);
-          const dataPathsThatDependOnAsyncFn = filterDataPaths(
-            nodesThatDependOnAsyncFn,
-            entityTree,
-          );
-          if (!isEmpty(dataPathsThatDependOnAsyncFn)) {
-            asyncJSFunctionsInDataFields[pathString] =
-              dataPathsThatDependOnAsyncFn;
-          }
-        }
-        const isDataPath = PathUtils.isDataPath(pathString, entity);
-        if (!isDataPath) continue;
 
-        const asyncDeps = intersection(asyncFns, references);
-        const prevAsyncDeps = intersection(asyncFns, previousDependencies);
-
-        for (const asyncFn of asyncDeps) {
-          const nodesThatDependOnAsyncFn =
-            this.dependencyMap.getDependents(asyncFn);
-          const dataPathsThatDependOnAsyncFn = filterDataPaths(
-            nodesThatDependOnAsyncFn,
-            entityTree,
-          );
-          if (isEmpty(dataPathsThatDependOnAsyncFn)) continue;
-          asyncJSFunctionsInDataFields[asyncFn] = dataPathsThatDependOnAsyncFn;
-        }
-        pathsToLint.push(...asyncDeps, ...prevAsyncDeps);
+        updatedPathsDetails[path] = {
+          previousDependencies,
+          currentDependencies: references,
+          updateType: "ADD",
+        };
       }
     }
     for (const deletion of deletions) {
@@ -276,37 +225,85 @@ class LintService {
       if (!entity) continue;
 
       const allDeletedPaths = PathUtils.getAllPaths({
-        [entityName]: entity.getRawEntity(),
+        [pathString]: get(this.cachedEntityTree?.getRawTree(), pathString),
       });
 
       for (const path of Object.keys(allDeletedPaths)) {
         const previousDependencies =
           this.dependencyMap.getDirectDependencies(path);
-        const asyncDeps = intersection(asyncFns, previousDependencies);
-        for (const asyncFn of asyncDeps) {
-          const nodesThatDependOnAsyncFn =
-            this.dependencyMap.getDependents(asyncFn);
-          const dataPathsThatDependOnAsyncFn = nodesThatDependOnAsyncFn.filter(
-            (path) => {
-              const { entityName } = getEntityNameAndPropertyPath(path);
-              const entity = entityTree.getEntityByName(entityName);
-              if (!entity) return false;
-              return PathUtils.isDataPath(path, entity);
-            },
-          );
-          if (isEmpty(dataPathsThatDependOnAsyncFn)) continue;
-          asyncJSFunctionsInDataFields[asyncFn] = dataPathsThatDependOnAsyncFn;
-        }
+
+        updatedPathsDetails[path] = {
+          previousDependencies,
+          currentDependencies: [],
+          updateType: "DELETE",
+        };
 
         const incomingDeps = this.dependencyMap.getDependents(path);
-        pathsToLint.push(...asyncDeps, ...incomingDeps);
+        pathsToLint.push(...incomingDeps);
       }
       this.dependencyMap.removeNodes(allDeletedPaths);
     }
 
+    // generate async functions only after dependencyMap update is complete
+    const asyncFns = entityTree
+      .getEntities()
+      .filter(isJSEntity)
+      .flatMap((e) => e.getFns())
+      .filter(
+        (fn) =>
+          fn.isMarkedAsync ||
+          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields),
+      )
+      .map((fn) => fn.name);
+
+    // generate asyncFunctionsBoundToSyncFields
+
+    for (const [updatedPath, details] of Object.entries(updatedPathsDetails)) {
+      const { currentDependencies, previousDependencies, updateType } = details;
+      const { entityName } = getEntityNameAndPropertyPath(updatedPath);
+      if (!entityName) continue;
+      // Use cached entityTree in a delete event
+      const entityTreeToUse =
+        updateType === "DELETE" ? this.cachedEntityTree : entityTree;
+      const entity = entityTreeToUse?.getEntityByName(entityName);
+      if (!entity) continue;
+
+      if (isJSEntity(entity) && asyncFns.includes(updatedPath)) {
+        const nodesThatDependOnAsyncFn =
+          this.dependencyMap.getDependents(updatedPath);
+        const dataPathsThatDependOnAsyncFn = filterDataPaths(
+          nodesThatDependOnAsyncFn,
+          entityTree,
+        );
+        if (!isEmpty(dataPathsThatDependOnAsyncFn)) {
+          asyncJSFunctionsInDataFields[updatedPath] =
+            dataPathsThatDependOnAsyncFn;
+        }
+        continue;
+      }
+
+      const isDataPath = PathUtils.isDataPath(updatedPath, entity);
+      if (!isDataPath) continue;
+
+      const asyncDeps = intersection(asyncFns, currentDependencies);
+      const prevAsyncDeps = intersection(asyncFns, previousDependencies);
+
+      for (const asyncFn of asyncDeps) {
+        const nodesThatDependOnAsyncFn =
+          this.dependencyMap.getDependents(asyncFn);
+        const dataPathsThatDependOnAsyncFn = filterDataPaths(
+          nodesThatDependOnAsyncFn,
+          entityTree,
+        );
+        if (isEmpty(dataPathsThatDependOnAsyncFn)) continue;
+        asyncJSFunctionsInDataFields[asyncFn] = dataPathsThatDependOnAsyncFn;
+      }
+      pathsToLint.push(...asyncDeps, ...prevAsyncDeps);
+    }
+
     this.cachedEntityTree = entityTree;
     return {
-      pathsToLint,
+      pathsToLint: uniq(pathsToLint),
       entityTree,
       asyncJSFunctionsInDataFields,
     };
