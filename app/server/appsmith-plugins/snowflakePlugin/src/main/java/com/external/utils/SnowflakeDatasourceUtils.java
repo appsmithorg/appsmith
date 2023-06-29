@@ -13,14 +13,6 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR_MSG;
 
 public class SnowflakeDatasourceUtils {
-    /**
-     * Please note that this method is a duplicate of the identically named method defined in PluginUtils.java. I
-     * could not re-use the method in PluginUtils.java because of some Snowflake driver dependency related error that
-     * I could not fix even after putting in some significant effort, at which point it seemed like putting any more
-     * time would not be a good investment. This dependency error only came up when building with IntelliJ and did
-     * not come up when the API server is built and run on terminal. In case the dependency error is fixed, this
-     * duplicate method should be removed.
-     */
     public static void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName) throws StaleConnectionException {
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             String printMessage = MessageFormat.format(Thread.currentThread().getName() +
@@ -47,14 +39,6 @@ public class SnowflakeDatasourceUtils {
         }
     }
 
-    /**
-     * Please note that this method is a duplicate of the identically named method defined in PluginUtils.java. I
-     * could not re-use the method in PluginUtils.java because of some Snowflake driver dependency related error that
-     * I could not fix even after putting in some significant effort, at which point it seemed like putting any more
-     * time would not be a good investment. This dependency error only came up when building with IntelliJ and did
-     * not come up when the API server is built and run on terminal. In case the dependency error is fixed, this
-     * duplicate method should be removed.
-     */
     public static Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool,
                                                                    String pluginName) throws SQLException {
         checkHikariCPConnectionPoolValidity(connectionPool, pluginName);

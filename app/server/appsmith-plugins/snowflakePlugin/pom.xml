@@ -20,13 +20,11 @@
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
             <version>3.13.29</version>
-<!--            <scope>provided</scope>-->
         </dependency>
 
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-<!--            <scope>provided</scope>-->
             <version>5.0.1</version>
             <exclusions>
                 <exclusion>
@@ -119,7 +117,6 @@
                                 <artifactItem>
                                     <groupId>com.zaxxer</groupId>
                                     <artifactId>HikariCP</artifactId>
-                                    <version>5.0.1</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>net.snowflake</groupId>
