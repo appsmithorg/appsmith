@@ -730,7 +730,7 @@ export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
-export const DOCUMENTATION_TOOLTIP = () => "Open docs in omnibar";
+export const DOCUMENTATION_TOOLTIP = () => "Open docs in new tab";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
 export const LATEST_DP_SUBTITLE = () => "last deployed";
