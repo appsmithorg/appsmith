@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  allTemplatesFiltersSelector,
   templateModalOpenSelector,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
@@ -17,6 +18,7 @@ import { isEmpty } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import TemplateModalHeader from "./Header";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const ModalContentWrapper = styled(ModalContent)`
   width: 100%;
@@ -33,13 +35,16 @@ function TemplatesModal() {
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
   );
-  const filters = useSelector(
-    (state: AppState) => state.ui.templates.allFilters,
-  );
+  const filters = useSelector(allTemplatesFiltersSelector);
   const [showTemplateDetails, setShowTemplateDetails] = useState("");
 
   useEffect(() => {
     setShowTemplateDetails("");
+    if (templatesModalOpen) {
+      dispatch({
+        type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
+      });
+    }
   }, [templatesModalOpen]);
 
   useEffect(() => {
