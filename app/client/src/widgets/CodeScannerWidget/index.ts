@@ -3,11 +3,13 @@ import Widget from "./widget";
 import { ButtonPlacementTypes } from "components/constants";
 import { ScannerLayout } from "./constants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Code Scanner",
   iconSVG: IconSVG,
+  tags: [WIDGET_CATEGORIES.EXTERNAL_INPUT],
   needsMeta: true,
   searchTags: [
     "barcode scanner",

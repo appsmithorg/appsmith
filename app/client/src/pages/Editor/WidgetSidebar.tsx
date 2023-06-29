@@ -86,6 +86,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>
         <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
+          {/*  */}
           {filteredCards.map((card) => (
             <WidgetCard details={card} key={card.key} />
           ))}

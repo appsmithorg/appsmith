@@ -1,16 +1,17 @@
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Chart",
   iconSVG: IconSVG,
+  tags: [WIDGET_CATEGORIES.COLLECTIONS_AND_ORGANIZATIONS],
   needsMeta: true,
   searchTags: ["graph", "visuals", "visualisations"],
   defaults: {

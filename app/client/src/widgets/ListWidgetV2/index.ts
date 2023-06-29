@@ -12,7 +12,7 @@ import {
 } from "./widget/helper";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, WIDGET_CATEGORIES } from "constants/WidgetConstants";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -48,6 +48,10 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "List",
   iconSVG: IconSVG,
+  tags: [
+    WIDGET_CATEGORIES.ESSENTIAL_WIDGETS,
+    WIDGET_CATEGORIES.COLLECTIONS_AND_ORGANIZATIONS,
+  ],
   needsMeta: true,
   isCanvas: true,
   defaults: {

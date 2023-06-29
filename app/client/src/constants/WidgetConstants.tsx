@@ -209,6 +209,7 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   displayName: true,
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
+  tags: false,
 };
 
 /**
@@ -223,3 +224,35 @@ export const FLEXBOX_PADDING = 4;
 export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
+
+export const WIDGET_CATEGORIES = {
+  ESSENTIAL_WIDGETS: "Essential Widgets",
+  BUTTONS: "Buttons",
+  INPUT: "Input",
+  SELECT: "Select",
+  TOGGLES: "Toggles",
+  FORMS: "Forms",
+  MULTIMEDIA: "Multimedia",
+  COLLECTIONS_AND_ORGANIZATIONS: "Collections & organizations",
+  LAYOUT: "Layout",
+  SLIDERS: "Sliders",
+  CONTENT: "Content",
+  EXTERNAL_INPUT: "External input",
+} as const;
+
+export type WidgetCategories = keyof typeof WIDGET_CATEGORIES;
+
+// export const WidgetCategories = [
+//   "Essential Widgets",
+//   "Buttons",
+//   "Input",
+//   "Select",
+//   "Toggles",
+//   "Forms",
+//   "Multimedia",
+//   "Collections & organizations",
+//   "Layout",
+//   "Sliders",
+//   "Content",
+//   "External input",
+// ];

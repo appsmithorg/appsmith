@@ -1,13 +1,14 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Radio Group",
   iconSVG: IconSVG,
+  tags: [WIDGET_CATEGORIES.TOGGLES],
   needsMeta: true,
   features: {
     dynamicHeight: {

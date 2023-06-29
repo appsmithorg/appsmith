@@ -1,14 +1,15 @@
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
 import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "FilePicker",
   iconSVG: IconSVG,
+  tags: [WIDGET_CATEGORIES.INPUT],
   needsMeta: true,
   searchTags: ["upload"],
   defaults: {

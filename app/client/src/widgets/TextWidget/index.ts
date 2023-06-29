@@ -1,8 +1,10 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
+import {
+  DEFAULT_FONT_SIZE,
+  WIDGET_CATEGORIES,
+} from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { OverflowTypes } from "./constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -17,6 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Text",
   iconSVG: IconSVG,
+  tags: [WIDGET_CATEGORIES.ESSENTIAL_WIDGETS, WIDGET_CATEGORIES.CONTENT],
   searchTags: ["typography", "paragraph", "label"],
   defaults: {
     text: "Label",

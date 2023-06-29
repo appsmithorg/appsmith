@@ -5,9 +5,8 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, WIDGET_CATEGORIES } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { FlattenedWidgetProps } from "widgets/constants";
@@ -28,6 +27,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Stats Box",
   iconSVG: IconSVG,
+  tags: [WIDGET_CATEGORIES.COLLECTIONS_AND_ORGANIZATIONS],
   needsMeta: true,
   searchTags: ["statbox"],
   isCanvas: true,

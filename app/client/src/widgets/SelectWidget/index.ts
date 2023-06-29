@@ -6,6 +6,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -18,6 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Select",
   iconSVG: IconSVG,
+  tags: [WIDGET_CATEGORIES.ESSENTIAL_WIDGETS, WIDGET_CATEGORIES.SELECT],
   needsMeta: true,
   searchTags: ["dropdown"],
   defaults: {
