@@ -240,7 +240,8 @@ export const WIDGET_CATEGORIES = {
   EXTERNAL_INPUT: "External input",
 } as const;
 
-export type WidgetCategories = keyof typeof WIDGET_CATEGORIES;
+export type WidgetCategories =
+  (typeof WIDGET_CATEGORIES)[keyof typeof WIDGET_CATEGORIES];
 
 // export const WidgetCategories = [
 //   "Essential Widgets",
