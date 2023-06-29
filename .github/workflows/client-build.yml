@@ -65,22 +65,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get Changed Files
-        id: changed-files
-        uses: tj-actions/changed-files@v3
-        with:
-          path: 'app/client/cypress/e2e'
-          token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-
-      - name: Filter Diff Lines
-        id: filtered_diff
+      - name: Get changes diff in cupress/e2e
         run: |
-          diff_output=$(git diff HEAD~ --unified=0 --no-color --no-prefix -- $(echo "${{ steps.changed-files.outputs.files }}" | tr '\n' ' ') | grep -E '^(\+\+\+|---) a/path/to/your/directory/' | grep -v '+++ b/' | sed -E 's/^\+//')
-          echo "filtered-diff=$diff_output" >> $GITHUB_OUTPUT
+          git fetch --depth=1 origin release:release
+          git diff --unified=0 ${{ github.sha }} -- 'cypress/e2e' | grep -E '^diff |^\+\+\+ |^@@ |^\+[^+]'| awk '/^diff/ { filename = $NF } /^@@/{split($0, a, "[ ]"); linenumber=a[3]} /^\+[^+]/ { printf("%s %s %s\n", filename, linenumber, substr($0, 2)) }'>> ~/cypress_diff
 
-      - name: Display Filtered Diff Lines
-        run: |
-          echo "${{ steps.filtered_diff.outputs.filtered-diff }}"
+      - name: print the diff
+        run: cat ~/cypress_diff
         
       # get all the files changes in the cypress/e2e folder    
       - name: Get added files in cypress/e2e folder
