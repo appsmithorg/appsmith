@@ -61,11 +61,18 @@ jobs:
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - name: Get changes diff in cupress/e2e
+        continue-on-error: true
+        run: git diff --unified=0 HEAD -- 'cypress/e2e/' | grep -E '^diff |^\+\+\+ |^@@ |^\+[^+]'| awk '/^diff/ { filename = $NF } /^@@/{split($0, a, "[ ]"); linenumber=a[3]} /^\+[^+]/ { printf("%s %s %s\n", filename, linenumber, substr($0, 2)) }'>> ~/cypress_diff
+
+      - name: print the diff
+        continue-on-error: true
+        run: cat ~/cypress_diff
+        
       # get all the files changes in the cypress/e2e folder    
       - name: Get added files in cypress/e2e folder
         if: inputs.pr != 0

@@ -15,7 +15,7 @@ describe("Currency Input Issue", function () {
       agHelper.Sleep();
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
+        cy.get("reconnectDatasourceModal.SkipToAppBtn").click({
           force: true,
         });
         cy.wait(2000);
