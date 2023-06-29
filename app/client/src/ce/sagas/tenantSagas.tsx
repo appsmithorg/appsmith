@@ -63,10 +63,10 @@ export function* updateTenantConfigSaga(
       if (Object.keys(settings).some((e) => generalSettings.includes(e))) {
         AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
           version: appVersion.id,
-          ...(settings["singleSessionPerUserEnabled"]
+          ...(settings.hasOwnProperty("singleSessionPerUserEnabled")
             ? { session_limit_enabled: settings["singleSessionPerUserEnabled"] }
             : {}),
-          ...(settings["showRolesAndGroups"]
+          ...(settings.hasOwnProperty("showRolesAndGroups")
             ? {
                 programmatic_access_control_enabled:
                   settings["showRolesAndGroups"],

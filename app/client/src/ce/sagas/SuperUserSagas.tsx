@@ -102,10 +102,10 @@ export function* SaveAdminSettingsSaga(
       if (Object.keys(settings).some((e) => generalSettings.includes(e))) {
         AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
           version: appVersion.id,
-          ...(settings["APPSMITH_DISABLE_TELEMETRY"]
+          ...(settings.hasOwnProperty("APPSMITH_DISABLE_TELEMETRY")
             ? { telemetry_disabled: settings["APPSMITH_DISABLE_TELEMETRY"] }
             : {}),
-          ...(settings["APPSMITH_HIDE_WATERMARK"]
+          ...(settings.hasOwnProperty("APPSMITH_HIDE_WATERMARK")
             ? { watermark_disabled: settings["APPSMITH_HIDE_WATERMARK"] }
             : {}),
         });
