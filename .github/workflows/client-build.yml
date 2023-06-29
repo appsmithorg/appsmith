@@ -67,7 +67,7 @@ jobs:
 
       - name: Get changes diff in cupress/e2e
         continue-on-error: true
-        run: git diff --unified=0 HEAD -- 'cypress/e2e/' | grep -E '^diff |^\+\+\+ |^@@ |^\+[^+]'| awk '/^diff/ { filename = $NF } /^@@/{split($0, a, "[ ]"); linenumber=a[3]} /^\+[^+]/ { printf("%s %s %s\n", filename, linenumber, substr($0, 2)) }'>> ~/cypress_diff
+        run: git diff --unified=0 release -- 'cypress/e2e' | grep -E '^diff |^\+\+\+ |^@@ |^\+[^+]'| awk '/^diff/ { filename = $NF } /^@@/{split($0, a, "[ ]"); linenumber=a[3]} /^\+[^+]/ { printf("%s %s %s\n", filename, linenumber, substr($0, 2)) }'>> ~/cypress_diff
 
       - name: print the diff
         continue-on-error: true
