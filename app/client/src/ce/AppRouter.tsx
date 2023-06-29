@@ -61,6 +61,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
+import Walkthrough from "components/featureWalkthrough";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -171,10 +172,10 @@ function AppRouter(props: {
             <ErrorPage code={props.safeCrashCode} />
           </>
         ) : (
-          <>
+          <Walkthrough>
             <AppHeader />
             <Routes />
-          </>
+          </Walkthrough>
         )}
       </Suspense>
     </Router>

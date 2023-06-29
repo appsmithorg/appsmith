@@ -1,9 +1,18 @@
-import React, { useState } from "react";
+import React, { lazy, useState } from "react";
 import type { FeatureParams } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
-import WalkthroughRenderer from "./walkthroughRenderer";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
+import { retryPromise } from "utils/AppsmithUtils";
+
+const WalkthroughRenderer = lazy(() => {
+  return retryPromise(
+    () =>
+      import(
+        /* webpackChunkName: "walkthrough-renderer" */ "./walkthroughRenderer"
+      ),
+  );
+});
 
 export default function Walkthrough({ children }: any) {
   const [feature, setFeature] = useState<FeatureParams[]>([]);
