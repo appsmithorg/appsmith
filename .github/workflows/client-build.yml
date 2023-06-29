@@ -77,10 +77,10 @@ jobs:
         id: diff
         run: |
           echo "Fetching PR Diff..."
-          DIFF=$(curl -sSL -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT }}" \
+          DIFF=$(curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT }}" \
                       -H "Accept: application/vnd.github.diff" \
                       "https://api.github.com/repos/${{ github.repository }}/pull/24928")
-          DIFF_OUTPUT=$(echo "$DIFF" | grep -E '^(\+|-).*path/to/your/directory/')
+          DIFF_OUTPUT=$(echo "$DIFF" | grep -E '^(\+|-).*app/client/cypress/e2e')
           echo "$DIFF_OUTPUT"
         
       # get all the files changes in the cypress/e2e folder    
