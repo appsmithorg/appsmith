@@ -1,6 +1,6 @@
 const dsl = require("../../../../fixtures/jsFunctionTriggerDsl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import testData from "../../../../fixtures/testdata.json";
+import datasourceFormData from "../../../../fixtures/datasources.json";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const jsEditor = ObjectsRegistry.JSEditor;
@@ -13,7 +13,7 @@ describe("JS data update on button click", function () {
   });
 
   it("1. Populates js function data when triggered via button click", function () {
-    apiPage.CreateAndFillApi(testData.baseUrl + testData.methods, "Api1");
+    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl, "Api1");
 
     const jsObjectString = `export default {
         myVar1: [],

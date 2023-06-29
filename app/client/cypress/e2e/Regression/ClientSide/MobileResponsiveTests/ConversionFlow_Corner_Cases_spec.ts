@@ -68,9 +68,7 @@ describe("Handle Cases while conversion", () => {
     () => {
       entityExplorer.AddNewPage("Add page from template");
       agHelper.AssertElementVisible(template.templateDialogBox);
-      agHelper.GetNClick(
-        "//h1[text()='Marketing Dashboard']/parent::div//button[contains(@class, 't--fork-template')]",
-      );
+      agHelper.GetNClick(template.marketingDashboard);
       cy.wait(10000); // for templates page to load fully
       agHelper.GetNClick(template.selectCheckbox);
       cy.wait(1000);
