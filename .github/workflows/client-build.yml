@@ -65,13 +65,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get changes diff in cupress/e2e
-        run: |
-          git fetch --depth=1 origin release:release
-          git diff --unified=0 ${{ github.sha }} -- 'cypress/e2e' | grep -E '^diff |^\+\+\+ |^@@ |^\+[^+]'| awk '/^diff/ { filename = $NF } /^@@/{split($0, a, "[ ]"); linenumber=a[3]} /^\+[^+]/ { printf("%s %s %s\n", filename, linenumber, substr($0, 2)) }'>> ~/cypress_diff
+      # - name: Get changes diff in cupress/e2e
+      #   run: |
+      #     git fetch --depth=1 origin release:release
+      #     git diff --unified=0 ${{ github.sha }} -- 'cypress/e2e' | grep -E '^diff |^\+\+\+ |^@@ |^\+[^+]'| awk '/^diff/ { filename = $NF } /^@@/{split($0, a, "[ ]"); linenumber=a[3]} /^\+[^+]/ { printf("%s %s %s\n", filename, linenumber, substr($0, 2)) }'>> ~/cypress_diff
 
-      - name: print the diff
-        run: cat ~/cypress_diff
+      # - name: print the diff
+      #   run: cat ~/cypress_diff
+
+      - name: Get PR Diff
+        id: diff
+        run: |
+          echo "Fetching PR Diff..."
+          DIFF=$(curl -sSL -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT }}" \
+                      "https://api.github.com/repos/${{ github.repository }}/pulls/24928/diff")
+          DIFF_OUTPUT=$(echo "$DIFF" | grep -E '^(\+|-).*path/to/your/directory/')
+          echo "$DIFF_OUTPUT"
         
       # get all the files changes in the cypress/e2e folder    
       - name: Get added files in cypress/e2e folder
