@@ -440,9 +440,7 @@ export const makeParentsDependOnChildren = (
 
   const allNodes = Object.keys(depMap);
 
-  const visitedNodeCollection: Record<string, true> = {};
   for (const nodeKey of allNodes) {
-    if (visitedNodeCollection[nodeKey]) continue;
     if (!allkeys[nodeKey]) {
       logWarn(
         `makeParentsDependOnChild - ${nodeKey} is not present in dataTree.`,
@@ -455,7 +453,10 @@ export const makeParentsDependOnChildren = (
 
     const childNodes = depMap[nodeKey] || [];
     for (const childNodeKey of childNodes) {
-      if (visitedNodeCollection[nodeKey]) continue;
+      if (childNodeKey === nodeKey) {
+        depMap[nodeKey] = childNodes.filter((node) => node !== childNodeKey);
+      }
+
       if (!allkeys[childNodeKey]) {
         logWarn(
           `makeParentsDependOnChild - ${childNodeKey} is not present in dataTree.`,

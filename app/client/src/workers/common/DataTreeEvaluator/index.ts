@@ -1185,7 +1185,7 @@ export default class DataTreeEvaluator {
 
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = get(this.oldUnEvalTree, entityName);
+      const entity = get(this.evalTree, entityName);
       const entityConfig = get(this.oldConfigTree, entityName);
       if (entity && isWidget(entity)) {
         entityType = entity.type;
@@ -1193,6 +1193,8 @@ export default class DataTreeEvaluator {
         entityType = entityConfig.pluginType;
       } else if (entity && isJSAction(entity)) {
         entityType = entity.ENTITY_TYPE;
+      } else if (entityName === "appsmith") {
+        entityType = ENTITY_TYPE.APPSMITH;
       }
       this.errors.push({
         type: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
@@ -1202,6 +1204,7 @@ export default class DataTreeEvaluator {
           entityType,
           dependencyMap,
           diffs,
+          cyclicNodes,
         },
       });
       logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
