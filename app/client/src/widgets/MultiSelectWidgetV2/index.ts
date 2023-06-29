@@ -52,31 +52,31 @@ export const CONFIG = {
     placeholderText: "Select option(s)",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-    blueprint: {
-      operations: [
-        {
-          type: BlueprintOperationTypes.MODIFY_PROPS,
-          fn: (widget: WidgetProps) => {
-            return [
-              {
-                widgetId: widget.widgetId,
-                propertyName: "defaultOptionValue",
-                propertyValue: `${defaultValueExpressionPrefix}["GREEN", "RED"]${getDefaultValueExpressionSuffix(
-                  widget,
-                )}`,
-              },
-              {
-                widgetId: widget.widgetId,
-                propertyName: "dynamicBindingPathList",
-                propertyValue: widget.dynamicBindingPathList?.concat([
-                  { key: "defaultOptionValue" },
-                ]),
-              },
-            ];
-          },
-        },
-      ],
-    },
+    // blueprint: {
+    //   operations: [
+    //     {
+    //       type: BlueprintOperationTypes.MODIFY_PROPS,
+    //       fn: (widget: WidgetProps) => {
+    //         return [
+    //           {
+    //             widgetId: widget.widgetId,
+    //             propertyName: "defaultOptionValue",
+    //             propertyValue: `${defaultValueExpressionPrefix}["GREEN", "RED"]${getDefaultValueExpressionSuffix(
+    //               widget,
+    //             )}`,
+    //           },
+    //           {
+    //             widgetId: widget.widgetId,
+    //             propertyName: "dynamicBindingPathList",
+    //             propertyValue: widget.dynamicBindingPathList?.concat([
+    //               { key: "defaultOptionValue" },
+    //             ]),
+    //           },
+    //         ];
+    //       },
+    //     },
+    //   ],
+    // },
   },
 
   properties: {

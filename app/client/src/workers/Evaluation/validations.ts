@@ -124,6 +124,7 @@ function validateArray(
   // Keys whose values are supposed to be unique across all values in all objects in the array
   let uniqueKeys: Array<string> = [];
   const allowedKeyConfigs = config.params?.children?.params?.allowedKeys;
+
   if (
     config.params?.children?.type === ValidationTypes.OBJECT &&
     Array.isArray(allowedKeyConfigs) &&

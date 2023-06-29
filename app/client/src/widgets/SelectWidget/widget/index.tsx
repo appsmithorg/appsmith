@@ -306,6 +306,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                   example: `value1 | { "label": "label1", "value": "value1" }`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
+                dependentPaths: ["serverSideFiltering", "options"],
               },
             },
             dependencies: ["serverSideFiltering", "options"],

@@ -52,31 +52,6 @@ export const CONFIG = {
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-    blueprint: {
-      operations: [
-        {
-          type: BlueprintOperationTypes.MODIFY_PROPS,
-          fn: (widget: WidgetProps) => {
-            return [
-              {
-                widgetId: widget.widgetId,
-                propertyName: "defaultOptionValue",
-                propertyValue: `${defaultValueExpressionPrefix}"GREEN"${getDefaultValueExpressionSuffix(
-                  widget,
-                )}`,
-              },
-              {
-                widgetId: widget.widgetId,
-                propertyName: "dynamicBindingPathList",
-                propertyValue: widget.dynamicBindingPathList?.concat([
-                  { key: "defaultOptionValue" },
-                ]),
-              },
-            ];
-          },
-        },
-      ],
-    },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
