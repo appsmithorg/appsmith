@@ -13,7 +13,6 @@ describe("Validate API URL Evaluated value", () => {
     apiPage.CreateApi("SecondAPI");
     apiPage.EnterURL(
       `https://jsonplaceholder.typicode/{{SecondAPI.isLoading}}`,
-      true,
       `https://jsonplaceholder.typicode/false`,
     );
   });
