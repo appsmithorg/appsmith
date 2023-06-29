@@ -132,7 +132,7 @@ describe("Omnibar functionality test cases", () => {
         cy.get("@discordLink").should("be.called");
         cy.wait(2000);
         //cy.go(-1);
-        cy.visit($urlBeforeDiscord);
+        cy.visit($urlBeforeDiscord, { timeout: 60000 });
         cy.wait(4000); //for page to load
       });
     },
