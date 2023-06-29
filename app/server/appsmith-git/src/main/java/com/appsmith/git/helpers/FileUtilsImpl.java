@@ -248,7 +248,7 @@ public class FileUtilsImpl implements FileInterface {
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             // Save page metadata
-                            saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+                            saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(pageName + CommonConstants.JSON_EXTENSION), gson);
                             Map<String, JSONObject> result =  DSLTransformerHelper.flatten(new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
                             result.forEach((key, jsonObject) -> {
                                 // get path with splitting the name via key
@@ -761,7 +761,7 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     private Object readPageMetadata(Path directoryPath, Gson gson) {
-        return readFile(directoryPath.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+        return readFile(directoryPath.resolve(directoryPath.toFile().getName() + CommonConstants.JSON_EXTENSION), gson);
     }
 
     private ApplicationGitReference fetchApplicationReference(Path baseRepoPath, Gson gson) {

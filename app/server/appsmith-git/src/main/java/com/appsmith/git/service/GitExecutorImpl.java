@@ -2,6 +2,7 @@ package com.appsmith.git.service;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
+import com.appsmith.external.constants.GitConstants;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -488,14 +489,27 @@ public class GitExecutorImpl implements GitExecutor {
 
                 Set<String> queriesModified = new HashSet<>();
                 Set<String> jsObjectsModified = new HashSet<>();
+                Set<String> pagesModified = new HashSet<>();
                 int modifiedPages = 0;
                 int modifiedQueries = 0;
                 int modifiedJSObjects = 0;
                 int modifiedDatasources = 0;
                 int modifiedJSLibs = 0;
                 for (String x : modifiedAssets) {
-                    if (x.contains(CommonConstants.CANVAS)) {
-                        modifiedPages++;
+                    // begins with pages and filename and parent name should be same or contains widgets
+                    if (x.contains(CommonConstants.WIDGETS)) {
+                        if (!pagesModified.contains(getPageName(x))) {
+                            pagesModified.add(getPageName(x));
+                            modifiedPages++;
+                        }
+                    } else if (!x.contains(CommonConstants.WIDGETS)
+                            && x.startsWith(GitDirectories.PAGE_DIRECTORY)
+                            && !x.contains(GitDirectories.ACTION_DIRECTORY)
+                            && !x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY)) {
+                        if (!pagesModified.contains(getPageName(x))) {
+                            pagesModified.add(getPageName(x));
+                            modifiedPages++;
+                        }
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                         String queryName = x.split(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)[1];
                         int position = queryName.indexOf(CommonConstants.DELIMITER_PATH);
@@ -558,6 +572,11 @@ public class GitExecutorImpl implements GitExecutor {
         .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .flatMap(response -> response)
         .subscribeOn(scheduler);
+    }
+
+    private String getPageName(String path) {
+        String[] pathArray = path.split(CommonConstants.DELIMITER_PATH);
+        return pathArray[1];
     }
 
     @Override
