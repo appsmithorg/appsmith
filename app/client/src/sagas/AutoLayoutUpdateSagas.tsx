@@ -23,7 +23,6 @@ import {
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
@@ -31,6 +30,7 @@ import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors"
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { nestDSL, flattenDSL } from "@shared/dsl";
 
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
@@ -127,19 +127,13 @@ export function* updateLayoutPositioningSaga(
 
     //Convert fixed layout to auto-layout
     if (payloadPositioningType === AppPositioningTypes.AUTO) {
-      const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
-        MAIN_CONTAINER_WIDGET_ID,
-        { canvasWidgets: allWidgets },
-      );
+      const nestedDSL = nestDSL(allWidgets);
 
-      const autoDSL = convertDSLtoAuto(denormalizedDSL);
+      const autoDSL = convertDSLtoAuto(nestedDSL);
       log.debug("autoDSL", autoDSL);
 
-      yield put(
-        updateAndSaveLayout(
-          CanvasWidgetsNormalizer.normalize(autoDSL).entities.canvasWidgets,
-        ),
-      );
+      const flattenedDSL = flattenDSL(autoDSL);
+      yield put(updateAndSaveLayout(flattenedDSL));
 
       yield call(recalculateAutoLayoutColumnsAndSave);
     }

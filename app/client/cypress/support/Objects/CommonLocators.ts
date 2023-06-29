@@ -58,13 +58,14 @@ export class CommonLocators {
     item +
     "']/parent::div[@role='menuitem'] | //div[text()='" +
     item +
-    "']/ancestor::div[@role='menuitem']| //span[text()='" +
+    "']/ancestor::div[@role='menuitem'] | //span[text()='" +
     item +
     "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
+  _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
   _createNew = ".t--entity-add-btn.group.files button";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
@@ -177,6 +178,7 @@ export class CommonLocators {
   _cancelActionExecution = ".t--cancel-action-button";
   _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
+  _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
@@ -223,4 +225,13 @@ export class CommonLocators {
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
+  _appEditMenu = "[data-testid='t--application-edit-menu']";
+  _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
+  _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appThemeSettings = "#t--theme-settings-header";
+  _appChangeThemeBtn = ".t--change-theme-btn";
+  _appThemeCard = ".t--theme-card";
+  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+  _appNavigationSettings = "#t--navigation-settings-header";
+  _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
 }
