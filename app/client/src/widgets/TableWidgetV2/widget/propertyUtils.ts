@@ -781,6 +781,7 @@ export function selectColumnOptionsValidation(
     _parsed,
     _message = "";
   let uniqueValues: Set<unknown>;
+  const invalidArrayValueMessage = `This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
   const invalidMessage = `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`;
   const allowedValueTypes = ["string", "number", "boolean"];
   const allowedLabelTypes = ["string", "number"];
@@ -793,6 +794,15 @@ export function selectColumnOptionsValidation(
       rowIndex !== null ? ` Row: ${rowIndex}` : ""
     } index: ${optionIndex}.`;
   };
+
+  const generateInvalidArrayValueMessage = (
+    rowIndex: number | null,
+    optionIndex: number,
+  ) =>
+    `${generateErrorMessagePrefix(
+      rowIndex,
+      optionIndex,
+    )} ${invalidArrayValueMessage}`;
 
   const validateOption = (
     option: any,
@@ -899,6 +909,12 @@ export function selectColumnOptionsValidation(
               uniqueValues = new Set();
 
               for (let j = 0; j < value[i].length; j++) {
+                if (_.isNil(value[i][j])) {
+                  _isValid = false;
+                  _message = generateInvalidArrayValueMessage(i, j);
+                  _parsed = [];
+                  break;
+                }
                 if ((_message = validateOption(value[i][j], i, j))) {
                   _isValid = false;
                   break;
@@ -915,6 +931,13 @@ export function selectColumnOptionsValidation(
           _parsed = value;
           _isValid = true;
           for (let i = 0; i < (value as Array<unknown>).length; i++) {
+            if (_.isNil((value as Array<unknown>)[i])) {
+              _isValid = false;
+              _message = generateInvalidArrayValueMessage(null, i);
+              _parsed = [];
+              break;
+            }
+
             if (
               (_message = validateOption((value as Array<unknown>)[i], null, i))
             ) {
