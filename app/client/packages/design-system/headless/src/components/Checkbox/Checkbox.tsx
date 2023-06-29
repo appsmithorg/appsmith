@@ -48,12 +48,10 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
   // The hooks will be swapped based on whether the checkbox is a part of a CheckboxGroup.
   // Although this approach is not conventional since hooks cannot usually be called conditionally,
   // it should be safe in this case since the checkbox is not expected to be added or removed from the group.
-  const { isDisabled: isGroupDisabled, state: groupState } = useContext(
-    CheckboxGroupContext,
-  ) as CheckboxGroupContextType;
-  const isDisabled = isDisabledProp || isGroupDisabled;
+  const context = useContext(CheckboxGroupContext) as CheckboxGroupContextType;
+  const isDisabled = isDisabledProp || context?.isDisabled;
   const { hoverProps, isHovered } = useHover({ isDisabled });
-  const { inputProps } = groupState
+  const { inputProps } = context?.state
     ? // eslint-disable-next-line react-hooks/rules-of-hooks
       useCheckboxGroupItem(
         {
@@ -68,7 +66,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
           validationState: props.validationState,
           isDisabled: isDisabled,
         },
-        groupState,
+        context?.state,
         inputRef,
       )
     : // eslint-disable-next-line react-hooks/rules-of-hooks
