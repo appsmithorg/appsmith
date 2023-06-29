@@ -15,9 +15,9 @@ export const Label = forwardRef(
     const {
       children,
       labelPosition = "top",
-      labelAlign = props.labelPosition === "side" ? "start" : null,
+      labelAlign = labelPosition === "side" ? "start" : null,
       isRequired,
-      necessityIndicator = props.isRequired != null ? "icon" : null,
+      necessityIndicator = isRequired != null ? "icon" : null,
       includeNecessityIndicatorInAccessibilityName = false,
       htmlFor,
       for: labelFor,
