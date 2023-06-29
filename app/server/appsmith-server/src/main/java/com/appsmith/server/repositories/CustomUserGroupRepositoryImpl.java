@@ -67,6 +67,11 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
         return queryAll(List.of(criteria), aclPermission);
     }
 
+    public Flux<UserGroup> findAllByUsersIn(Set<String> userIds, AclPermission aclPermission) {
+        Criteria criteria = where(fieldName(QUserGroup.userGroup.users)).in(userIds);
+        return queryAll(List.of(criteria), aclPermission);
+    }
+
     @Override
     public Mono<UpdateResult> updateById(String id, Update updateObj) {
         if (id == null) {
