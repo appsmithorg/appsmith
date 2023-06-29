@@ -1,29 +1,37 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.fixture("tableTextPaginationDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Create an API and Execute the API and bind with Table", function () {
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
 
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
     cy.RunAPI();
     //Validate Table with API data and then add a column
-    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
-    _.entityExplorer.SelectEntityByName("Text1");
+    entityExplorer.SelectEntityByName("Text1");
 
-    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
-    _.entityExplorer.SelectEntityByName("Table1");
+    propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
+    entityExplorer.SelectEntityByName("Table1");
 
     cy.readTabledata("0", "4").then((tabData) => {
       const tableData = tabData;
@@ -44,25 +52,25 @@ describe("Test Create Api and Bind to Table widget", function () {
         cy.log("computed value of plain text " + tabData);
       });
     });
-    _.propPane.NavigateBackToPropertyPane();
+    propPane.NavigateBackToPropertyPane();
   });
 
   it("2. Check Image alignment is working as expected", function () {
-    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.editColumn("avatar");
     cy.changeColumnType("Image", false);
-    _.propPane.NavigateBackToPropertyPane();
-    _.entityExplorer.SelectEntityByName("Table1");
+    propPane.NavigateBackToPropertyPane();
+    entityExplorer.SelectEntityByName("Table1");
     cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
       .should("have.css", "background-position", "50% 50%");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
       .should("have.css", "background-position", "100% 50%");
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
@@ -70,7 +78,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("3. Update table json data and check the derived column values after update", function () {
-    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.backFromPropertyPanel();
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("name");
@@ -101,7 +109,7 @@ describe("Test Create Api and Bind to Table widget", function () {
         cy.log("computed value of plain text " + tabData);
         expect(tabData).to.be.equal(tabValue);
       });
-      //_.propPane.NavigateBackToPropertyPane();
+      //propPane.NavigateBackToPropertyPane();
     });
   });
 });

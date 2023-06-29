@@ -6,7 +6,7 @@ export const Wrapper = styled.div``;
 
 export const SelectWrapper = styled.div`
   display: inline-block;
-  margin: 5px 0 2px;
+  margin: 0 0 2px;
   max-width: ${DROPDOWN_TRIGGER_DIMENSION.WIDTH};
   width: 100%;
 `;
@@ -63,6 +63,7 @@ export const ErrorMessage = styled.div`
   font-size: 12px;
   line-height: 14px;
   color: var(--ads-v2-color-fg-error);
+  margin-top: 5px;
 `;
 
 export const Placeholder = styled.div`
