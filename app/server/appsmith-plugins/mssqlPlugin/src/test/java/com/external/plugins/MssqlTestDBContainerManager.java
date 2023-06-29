@@ -4,16 +4,23 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.utils.MssqlDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+
+import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
+import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 
 public class MssqlTestDBContainerManager {
 
     static MssqlPlugin.MssqlPluginExecutor mssqlPluginExecutor = new MssqlPlugin.MssqlPluginExecutor();
+
+    public static MssqlDatasourceUtils mssqlDatasourceUtils = new MssqlDatasourceUtils();
 
     @SuppressWarnings("rawtypes")
     public static MSSQLServerContainer getMssqlDBForTest() {
@@ -52,9 +59,10 @@ public class MssqlTestDBContainerManager {
     }
 
     static void runSQLQueryOnMssqlTestDB(String sqlQuery, HikariDataSource sharedConnectionPool) throws SQLException {
-//        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool, MSSQL_PLUGIN_NAME);
-//        Statement statement = connectionFromPool.createStatement();
-//        statement.execute(sqlQuery);
-//        closeConnectionPostExecution(null, statement, null, connectionFromPool);
+        java.sql.Connection connectionFromPool =
+                mssqlDatasourceUtils.getConnectionFromHikariConnectionPool(sharedConnectionPool, MSSQL_PLUGIN_NAME);
+        Statement statement = connectionFromPool.createStatement();
+        statement.execute(sqlQuery);
+        closeConnectionPostExecution(null, statement, null, connectionFromPool);
     }
 }

@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.external.utils.MySqlDatasourceUtils;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.R2dbcNonTransientResourceException;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 public class MySqlStaleConnectionErrorMessageTest {
     static MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
+    static MySqlDatasourceUtils mysqlDatasourceUtils = new MySqlDatasourceUtils();
 
     @Test
     public void testStaleConnectionExceptionReturnsUpstreamErrorOnTimeoutError() throws TimeoutException {

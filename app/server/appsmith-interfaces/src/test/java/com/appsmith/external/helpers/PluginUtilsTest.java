@@ -214,42 +214,4 @@ public class PluginUtilsTest {
     public void verifyUniquenessOfCommonPluginErrorCode() {
         assert (Arrays.stream(AppsmithPluginError.values()).map(AppsmithPluginError::getAppErrorCode).distinct().count() == AppsmithPluginError.values().length);
     }
-
-//    @Test
-//    public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsNull() {
-//        Exception exception = assertThrows(StaleConnectionException.class,() -> checkHikariCPConnectionPoolValidity(null
-//                , "pluginName"));
-//        String expectedErrorMessage = CONNECTION_POOL_NULL_ERROR_MSG;
-//        assertEquals(expectedErrorMessage, exception.getMessage());
-//    }
-//
-//    @Test
-//    public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsClosed() {
-//        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
-//        when(mockConnectionPool.isClosed()).thenReturn(true).thenReturn(true);
-//        Exception exception = assertThrows(StaleConnectionException.class,
-//                () -> checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
-//        String expectedErrorMessage = CONNECTION_POOL_CLOSED_ERROR_MSG;
-//        assertEquals(expectedErrorMessage, exception.getMessage());
-//    }
-//
-//    @Test
-//    public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsRunning() {
-//        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
-//        when(mockConnectionPool.isRunning()).thenReturn(false).thenReturn(false);
-//        Exception exception = assertThrows(StaleConnectionException.class,
-//                () -> checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
-//        String expectedErrorMessage = CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
-//        assertEquals(expectedErrorMessage, exception.getMessage());
-//    }
-//
-//    @Test
-//    public void testStaleConnectionErrorHasDefaultUpstreamError() {
-//        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
-//        when(mockConnectionPool.isRunning()).thenReturn(false).thenReturn(true);
-//        Exception exception = assertThrows(StaleConnectionException.class,
-//                () -> checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
-//        String expectedErrorMessage = UNKNOWN_CONNECTION_ERROR_MSG;
-//        assertEquals(expectedErrorMessage, exception.getMessage());
-//    }
 }

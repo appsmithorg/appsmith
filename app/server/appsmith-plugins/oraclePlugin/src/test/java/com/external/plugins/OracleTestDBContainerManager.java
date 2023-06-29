@@ -5,17 +5,24 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.utils.OracleDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.testcontainers.containers.OracleContainer;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+
+import static com.appsmith.external.constants.PluginConstants.PluginName.ORACLE_PLUGIN_NAME;
+import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
 
 public class OracleTestDBContainerManager {
     public static final String ORACLE_USERNAME = "testUser";
     public static final String ORACLE_PASSWORD = "testPassword";
     public static final String ORACLE_DB_NAME = "testDB";
     public static final String ORACLE_DOCKER_HUB_CONTAINER = "gvenzl/oracle-xe:21-slim-faststart";
+
+    public static OracleDatasourceUtils oracleDatasourceUtils = new OracleDatasourceUtils();
     static OraclePlugin.OraclePluginExecutor oraclePluginExecutor = new OraclePlugin.OraclePluginExecutor();
 
     public static OracleContainer getOracleDBForTest() {
@@ -45,10 +52,11 @@ public class OracleTestDBContainerManager {
     }
 
     static void runSQLQueryOnOracleTestDB(String sqlQuery, HikariDataSource sharedConnectionPool) throws SQLException {
-//        java.sql.Connection connectionFromPool = getConnectionFromHikariConnectionPool(sharedConnectionPool,
-//                ORACLE_PLUGIN_NAME);
-//        Statement statement = connectionFromPool.createStatement();
-//        statement.execute(sqlQuery);
-//        closeConnectionPostExecution(null, statement, null, connectionFromPool);
+        java.sql.Connection connectionFromPool =
+                oracleDatasourceUtils.getConnectionFromHikariConnectionPool(sharedConnectionPool,
+                ORACLE_PLUGIN_NAME);
+        Statement statement = connectionFromPool.createStatement();
+        statement.execute(sqlQuery);
+        closeConnectionPostExecution(null, statement, null, connectionFromPool);
     }
 }
