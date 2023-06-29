@@ -111,7 +111,7 @@ function Command(props: {
     <div className="command-container">
       <div className="command">
         {props.icon}
-        <div className="overflow-hidden overflow-ellipsis whitespace-nowrap gap-1">
+        <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2">
           {props.name}
           {props.isBeta && <BetaCard />}
         </div>
