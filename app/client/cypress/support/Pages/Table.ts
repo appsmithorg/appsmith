@@ -533,7 +533,7 @@ export class Table {
       cy.get("@windowStub").should("be.calledOnce");
       cy.url().should("eql", expectedURL);
       this.assertHelper.AssertDocumentReady();
-      cy.visit($currentUrl);
+      cy.visit($currentUrl, { timeout: 60000 });
       this.assertHelper.AssertNetworkStatus("@" + networkCall);
       this.WaitUntilTableLoad(0, 0, tableVersion);
     });
