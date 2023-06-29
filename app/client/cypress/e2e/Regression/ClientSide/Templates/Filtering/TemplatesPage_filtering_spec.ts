@@ -14,13 +14,13 @@ describe("excludeForAirgap", "Templates page filtering", () => {
   });
 
   it("1. should filter templates by name", () => {
-    templates.refreshTemplatesPage(true);
+    templates.RefreshTemplatesPage(true);
     templates.FilterTemplatesByName(NAME_FILTER);
     templates.AssertResultsHeaderText("Showing all 2 templates", "have.text");
   });
 
   it("2. should filter templates by functions", () => {
-    templates.refreshTemplatesPage(true);
+    templates.RefreshTemplatesPage(true);
     FUNCTIONS_FILTER.map((func) =>
       agHelper.CheckUncheck(`input[type='checkbox'][name='${func}']`, true),
     );
@@ -32,7 +32,7 @@ describe("excludeForAirgap", "Templates page filtering", () => {
   });
 
   it("3. should reset filters when coming back from template detailed view", () => {
-    templates.refreshTemplatesPage(false);
+    templates.RefreshTemplatesPage(false);
 
     agHelper
       .GetText(templates.locators._resultsHeader, "text")

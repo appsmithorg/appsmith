@@ -52,7 +52,7 @@ export class Templates {
     });
   }
 
-  refreshTemplatesPage(
+  RefreshTemplatesPage(
     withDummyData: boolean,
     templateFixture = "Templates/AllowPageImportTemplates.json",
   ) {
