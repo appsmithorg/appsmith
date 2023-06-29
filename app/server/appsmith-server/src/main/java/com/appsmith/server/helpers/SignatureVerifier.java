@@ -27,8 +27,11 @@ public class SignatureVerifier {
 
     private static final String EQUAL = "=";
 
-    @Getter
-    private static AsymmetricKeyParameter publicKeyParameters = null;
+    private static final AsymmetricKeyParameter publicKeyParameters;
+
+    static {
+        publicKeyParameters = OpenSSHPublicKeyUtil.parsePublicKey(Base64.getDecoder().decode(PUBLIC_VERIFICATION_KEY));
+    }
 
     /**
      * Method to verify the API signature from CS.
@@ -45,7 +48,7 @@ public class SignatureVerifier {
             return false;
         }
         try {
-            if (getParsedPublicKeyParam() == null) {
+            if (publicKeyParameters == null) {
                 return false;
             }
             return isSignatureValid(signature, date);
@@ -85,12 +88,5 @@ public class SignatureVerifier {
             return dateHeader.equals(date) && Instant.parse(date).isAfter(Instant.now().minus(24, ChronoUnit.HOURS));
         }
         return false;
-    }
-
-    private static AsymmetricKeyParameter getParsedPublicKeyParam() {
-        if (publicKeyParameters == null && !StringUtils.isNullOrEmpty(PUBLIC_VERIFICATION_KEY)) {
-            publicKeyParameters = OpenSSHPublicKeyUtil.parsePublicKey(Base64.getDecoder().decode(PUBLIC_VERIFICATION_KEY));
-        }
-        return publicKeyParameters;
     }
 }
