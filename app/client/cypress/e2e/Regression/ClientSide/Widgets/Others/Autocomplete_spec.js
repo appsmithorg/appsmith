@@ -91,10 +91,10 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
+          .eq(CURRENT_REPO === REPO.EE ? 1 : 0)
           .should("have.text", "New binding");
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
+          .eq(CURRENT_REPO === REPO.EE ? 2 : 1)
           .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
@@ -131,10 +131,10 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
+          .eq(CURRENT_REPO === REPO.EE ? 1 : 0)
           .should("have.text", "New binding");
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
+          .eq(CURRENT_REPO === REPO.EE ? 2 : 1)
           .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
