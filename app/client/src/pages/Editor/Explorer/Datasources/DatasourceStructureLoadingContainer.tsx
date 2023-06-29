@@ -5,19 +5,27 @@ import styled from "styled-components";
 
 const LoadingContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-start;
   align-items: center;
 
   & > p {
-    margin-top: 0.5rem;
+    margin-left: 0.5rem;
   }
+`;
+
+const SpinnerWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const DatasourceStructureLoadingContainer = () => {
   return (
     <LoadingContainer>
-      <Spinner size={"sm"} />
+      <SpinnerWrapper>
+        <Spinner size={"sm"} />
+      </SpinnerWrapper>
       <Text kind="body-s" renderAs="p">
         {createMessage(LOADING_SCHEMA)}
       </Text>

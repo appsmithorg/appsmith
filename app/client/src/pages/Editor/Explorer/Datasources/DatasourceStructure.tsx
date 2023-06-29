@@ -82,6 +82,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
         side="right"
       >
         <QueryTemplates
+          context={props.context}
           datasourceId={props.datasourceId}
           onSelect={() => setActive(false)}
           templates={dbStructure.templates}
