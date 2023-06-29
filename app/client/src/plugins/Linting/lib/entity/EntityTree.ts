@@ -32,7 +32,7 @@ export abstract class EntityTree {
   computeDifferences(newTree: EntityTree) {
     const differences: Diff<unknown>[] = [];
     if (!newTree) return differences;
-    const entityNames = Object.keys(this.unEvalTree);
+    const entityNames = Object.keys(this.getRawTree());
     const newEntityNames = Object.keys(newTree.getRawTree());
     const allEntityNames = union(entityNames, newEntityNames);
     for (const entityName of allEntityNames) {
@@ -108,7 +108,6 @@ export class LintEntityTree extends EntityTree {
     const classLoader = new LintEntityClassLoader();
     for (const [name, entity] of entities) {
       const config = configTree[name];
-      if (!config) continue;
       this.tree.set(name, EntityFactory.getEntity(entity, config, classLoader));
     }
   }

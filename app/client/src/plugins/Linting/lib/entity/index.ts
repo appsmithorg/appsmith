@@ -179,10 +179,6 @@ export class JSEntity implements IEntity {
     return ENTITY_TYPE.JSACTION;
   }
   getRawEntity() {
-    const parsedBody = this.entityParser.parse(this.entity).parsedEntity;
-    for (const [propertyName, propertyValue] of Object.entries(parsedBody)) {
-      this.entity[propertyName] = propertyValue;
-    }
     return this.entity;
   }
   getConfig() {

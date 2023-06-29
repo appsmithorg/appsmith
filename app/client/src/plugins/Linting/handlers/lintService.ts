@@ -22,6 +22,8 @@ import {
   LintEntityTree,
   type EntityTree,
 } from "plugins/Linting/lib/entity/EntityTree";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class LintService {
   cachedEntityTree: EntityTree | null;
@@ -44,7 +46,7 @@ class LintService {
       unevalTree: unEvalTree,
     } = payload;
 
-    const entityTree = new LintEntityTree(unEvalTree, configTree);
+    const entityTree = this.preprocessTree(unEvalTree, configTree);
 
     const { asyncJSFunctionsInDataFields, pathsToLint } =
       isEmpty(this.cachedEntityTree) || forceLinting
@@ -308,6 +310,24 @@ class LintService {
       entityTree,
       asyncJSFunctionsInDataFields,
     };
+  }
+  preprocessTree(unEvalTree: DataTree, configTree: ConfigTree) {
+    const entityTree = new LintEntityTree(unEvalTree, configTree);
+
+    // Parse js actions
+    for (const entity of Object.values(entityTree.getEntities())) {
+      if (!isJSEntity(entity)) continue;
+      const { parsedEntity } = entity.entityParser.parse(entity.getRawEntity());
+      for (const [propertyName, propertyValue] of Object.entries(
+        parsedEntity,
+      )) {
+        entity.getRawEntity()[propertyName] = propertyValue;
+        entity.getConfig().reactivePaths[propertyName] =
+          EvaluationSubstitutionType.TEMPLATE;
+      }
+    }
+
+    return entityTree;
   }
 }
 
