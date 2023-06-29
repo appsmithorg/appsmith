@@ -103,7 +103,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         display: flex;
         align-items: start;
         flex-direction: column;
-        gap: 8px;
+        gap: 4px;
         justify-content: space-between;
         flex: 1;
         padding: 6px;
@@ -116,7 +116,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       .command {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
       }
     }
 
