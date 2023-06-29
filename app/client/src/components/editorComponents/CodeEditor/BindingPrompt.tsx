@@ -45,7 +45,7 @@ function BindingPrompt(props: {
     >
       {props.isAIEnabled ? (
         <>
-          Generate javascript expressions using <b>/ai</b> command
+          Use <b>/ai</b> to generate JS expressions
         </>
       ) : props.promptMessage ? (
         props.promptMessage

@@ -93,6 +93,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         .add-datasource-icon {
           background: var(--ads-v2-color-bg);
         }
+        .command-desc {
+          display: flex;
+        }
       }
       .command-container {
         display: flex;
@@ -103,6 +106,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         flex: 1;
         padding: 6px;
         .command-desc {
+          display: none;
           font-size: 12px;
           color: #6A7585;
         }
