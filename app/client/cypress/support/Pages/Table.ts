@@ -580,12 +580,7 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public EditTableCell(
-    rowIndex: number,
-    colIndex: number,
-    newValue: "" | number | string,
-    toSaveNewValue = true,
-  ) {
+  public ClickOnEditIcon(rowIndex: number, colIndex: number) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
@@ -597,6 +592,15 @@ export class Table {
         " " +
         this._editCellEditorInput,
     );
+  }
+
+  public EditTableCell(
+    rowIndex: number,
+    colIndex: number,
+    newValue: "" | number | string,
+    toSaveNewValue = true,
+  ) {
+    this.ClickOnEditIcon(rowIndex, colIndex);
     this.UpdateTableCell(
       rowIndex,
       colIndex,
