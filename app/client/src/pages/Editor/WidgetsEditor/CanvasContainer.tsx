@@ -35,7 +35,7 @@ import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import type { AppState } from "@appsmith/reducers";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
-import OverlayCanvasContainer from "./OverlayCanvas";
+import FloatingWidgetNameComponent from "./FloatingWidgetNameComponent";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -236,7 +236,8 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
-      <OverlayCanvasContainer canvasWidth={canvasWidth} />
+      {/* <OverlayCanvasContainer canvasWidth={canvasWidth} /> */}
+      <FloatingWidgetNameComponent canvasWidth={canvasWidth} />
     </>
   );
 }
