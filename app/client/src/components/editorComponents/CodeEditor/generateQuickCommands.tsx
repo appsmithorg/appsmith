@@ -259,6 +259,7 @@ export const generateQuickCommands = (
       shortcut: Shortcuts.ASK_AI,
       triggerCompletionsPostPick: true,
       description: "Generate code using AI",
+      isBeta: true,
     });
     actionCommands.unshift(askGPT);
   }
