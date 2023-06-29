@@ -309,9 +309,10 @@ describe("2. privateWidgets", () => {
 describe("3. makeParentsDependOnChildren", () => {
   it("1. makes parent properties depend on child properties", () => {
     let depMap: DependencyMap = {
-      Widget1: [],
-      "Widget1.defaultText": [],
+      Widget1: ["randomeNodeExpectedToBeDeleted"],
+      "Widget1.defaultText": ["Widget1.defaultText.bcd"],
       "Widget1.defaultText.abc": [],
+      ThisWillBeDelete: ["Widget1.defaultText.abc"],
     };
     const allkeys: Record<string, true> = {
       Widget1: true,

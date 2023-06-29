@@ -437,28 +437,47 @@ export const makeParentsDependOnChildren = (
 ): DependencyMap => {
   //return depMap;
   // Make all parents depend on child
-  Object.keys(depMap).forEach((key) => {
-    depMap = makeParentsDependOnChild(depMap, key, allkeys);
-    depMap[key].forEach((path) => {
-      depMap = makeParentsDependOnChild(depMap, path, allkeys);
-    });
-  });
+
+  const allNodes = Object.keys(depMap);
+
+  const visitedNodeCollection: Record<string, true> = {};
+  for (const nodeKey of allNodes) {
+    if (visitedNodeCollection[nodeKey]) continue;
+    if (!allkeys[nodeKey]) {
+      logWarn(
+        `makeParentsDependOnChild - ${nodeKey} is not present in dataTree.`,
+        "This might result in a cyclic dependency.",
+      );
+      delete depMap[nodeKey];
+      continue;
+    }
+    depMap = makeParentsDependOnChild(depMap, nodeKey);
+
+    const childNodes = depMap[nodeKey] || [];
+    for (const childNodeKey of childNodes) {
+      if (visitedNodeCollection[nodeKey]) continue;
+      if (!allkeys[childNodeKey]) {
+        logWarn(
+          `makeParentsDependOnChild - ${childNodeKey} is not present in dataTree.`,
+          "This might result in a cyclic dependency.",
+        );
+        depMap[nodeKey] = childNodes.filter((node) => node !== childNodeKey);
+        continue;
+      }
+      depMap = makeParentsDependOnChild(depMap, childNodeKey);
+    }
+  }
+
   return depMap;
 };
 
 export const makeParentsDependOnChild = (
   depMap: DependencyMap,
   child: string,
-  allkeys: Record<string, true>,
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-  if (!allkeys[curKey]) {
-    logWarn(
-      `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
-      "This might result in a cyclic dependency.",
-    );
-  }
+
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
