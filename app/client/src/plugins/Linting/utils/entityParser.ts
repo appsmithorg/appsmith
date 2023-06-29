@@ -81,11 +81,13 @@ export class JSLintEntityParser implements EntityParser {
           isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
           position,
           value: rawContent,
+          type,
         } as JSFunctionProperty;
       } else if (type !== "literal") {
         parsedJSEntityConfig[propertyName] = {
           position: position,
           value: rawContent,
+          type,
         } as JSVarProperty;
       }
     }
