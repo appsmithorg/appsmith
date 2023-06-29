@@ -44,7 +44,7 @@ describe("Mongo WidgetQueryGenerator", () => {
     expect(expr).toEqual([
       {
         type: "select",
-        name: "Find_query",
+        name: "Find_someTable",
         dynamicBindingPathList: [
           {
             key: "formData.find.skip.data",
@@ -114,7 +114,7 @@ describe("Mongo WidgetQueryGenerator", () => {
 
     expect(expr).toEqual([
       {
-        name: "Update_query",
+        name: "Update_someTable",
         type: "update",
         dynamicBindingPathList: [
           {
@@ -170,7 +170,7 @@ describe("Mongo WidgetQueryGenerator", () => {
     );
     expect(expr).toEqual([
       {
-        name: "Insert_query",
+        name: "Insert_someTable",
         type: "create",
         dynamicBindingPathList: [
           {
