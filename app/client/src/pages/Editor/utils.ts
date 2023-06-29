@@ -5,10 +5,10 @@ import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
 import type {
   WidgetCardsGroupedByTags,
-  WidgetCategories,
+  WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
 import WidgetFactory from "utils/WidgetFactory";
 import {
@@ -304,10 +304,10 @@ export function useHref<T extends URLBuilderParams>(
 }
 
 export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
-  const tagsOrder = Object.values(WIDGET_CATEGORIES);
+  const tagsOrder = Object.values(WIDGET_TAGS);
   const groupedCards: WidgetCardsGroupedByTags = {} as WidgetCardsGroupedByTags;
 
-  tagsOrder.forEach((category: WidgetCategories) => {
+  tagsOrder.forEach((category: WidgetTags) => {
     groupedCards[category] = [];
   });
 

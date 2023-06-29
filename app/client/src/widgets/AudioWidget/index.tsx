@@ -4,13 +4,13 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Audio",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.MULTIMEDIA],
+  tags: [WIDGET_TAGS.MULTIMEDIA],
   needsMeta: true,
   searchTags: ["mp3", "sound", "wave", "player"],
   defaults: {

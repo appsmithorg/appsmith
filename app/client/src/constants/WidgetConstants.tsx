@@ -226,7 +226,7 @@ export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
-export const WIDGET_CATEGORIES = {
+export const WIDGET_TAGS = {
   ESSENTIAL_WIDGETS: "Essential Widgets",
   BUTTONS: "Buttons",
   INPUT: "Input",
@@ -241,10 +241,6 @@ export const WIDGET_CATEGORIES = {
   EXTERNAL_INPUT: "External input",
 } as const;
 
-export type WidgetCategories =
-  (typeof WIDGET_CATEGORIES)[keyof typeof WIDGET_CATEGORIES];
+export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
 
-export type WidgetCardsGroupedByTags = Record<
-  WidgetCategories,
-  WidgetCardProps[]
->;
+export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;

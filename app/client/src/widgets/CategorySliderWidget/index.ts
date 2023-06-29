@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -11,7 +11,7 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["range"],
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.SLIDERS],
+  tags: [WIDGET_TAGS.SLIDERS],
   defaults: {
     options: [
       { label: "xs", value: "xs" },

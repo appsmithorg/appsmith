@@ -8,7 +8,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { ButtonGroupWidgetProps } from "./widget";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -17,7 +17,7 @@ export const CONFIG = {
   needsMeta: false, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   searchTags: ["click", "submit"],
-  tags: [WIDGET_CATEGORIES.BUTTONS],
+  tags: [WIDGET_TAGS.BUTTONS],
   defaults: {
     rows: 4,
     columns: 24,

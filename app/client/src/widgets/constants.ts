@@ -1,7 +1,7 @@
 import { IconNames } from "@blueprintjs/icons";
 import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type { WidgetCategories } from "constants/WidgetConstants";
+import type { WidgetTags } from "constants/WidgetConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
@@ -62,7 +62,7 @@ export interface WidgetConfiguration {
   features?: WidgetFeatures;
   canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
-  tags?: WidgetCategories[];
+  tags?: WidgetTags[];
   needsHeightForContent?: boolean;
   properties: {
     config?: PropertyPaneConfig[];

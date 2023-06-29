@@ -3,7 +3,7 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   GridDefaults,
-  WIDGET_CATEGORIES,
+  WIDGET_TAGS,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import {
@@ -19,7 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Container",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.LAYOUT],
+  tags: [WIDGET_TAGS.LAYOUT],
   isCanvas: true,
   features: {
     dynamicHeight: {

@@ -5,13 +5,13 @@ import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Chart",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.COLLECTIONS_AND_ORGANIZATIONS],
+  tags: [WIDGET_TAGS.COLLECTIONS_AND_ORGANIZATIONS],
   needsMeta: true,
   searchTags: ["graph", "visuals", "visualisations"],
   defaults: {

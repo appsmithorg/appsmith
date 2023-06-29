@@ -3,7 +3,7 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   GridDefaults,
-  WIDGET_CATEGORIES,
+  WIDGET_TAGS,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -15,7 +15,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Tabs",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.LAYOUT],
+  tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   isCanvas: true,
   // TODO(abhinav): Default config like these are not serializable

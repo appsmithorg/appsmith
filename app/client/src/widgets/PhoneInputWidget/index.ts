@@ -6,7 +6,7 @@ import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultISDCode } from "./component/ISDCodeDropdown";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -19,7 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Phone Input",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.INPUT],
+  tags: [WIDGET_TAGS.INPUT],
   needsMeta: true,
   searchTags: ["call"],
   defaults: {

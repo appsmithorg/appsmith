@@ -2,7 +2,7 @@ import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { RateWidgetProps } from "./widget";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -14,7 +14,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Rating",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.CONTENT],
+  tags: [WIDGET_TAGS.CONTENT],
   needsMeta: true,
   searchTags: ["stars"],
   defaults: {

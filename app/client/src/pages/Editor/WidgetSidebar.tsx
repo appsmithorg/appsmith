@@ -14,7 +14,7 @@ import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   WidgetCardsGroupedByTags,
-  WidgetCategories,
+  WidgetTags,
 } from "constants/WidgetConstants";
 import { groupWidgetCardsByTags } from "./utils";
 
@@ -99,7 +99,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         <div>
           {Object.keys(filteredCards).map((category) => {
             const cardsForThisCategory: WidgetCardProps[] =
-              filteredCards[category as WidgetCategories];
+              filteredCards[category as WidgetTags];
 
             if (!cardsForThisCategory?.length) {
               return null;

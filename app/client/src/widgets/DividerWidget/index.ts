@@ -3,13 +3,13 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Divider",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.LAYOUT],
+  tags: [WIDGET_TAGS.LAYOUT],
   searchTags: ["line"],
   defaults: {
     rows: 4,

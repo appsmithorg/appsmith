@@ -3,13 +3,13 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Video",
   iconSVG: IconSVG,
-  tags: [WIDGET_CATEGORIES.MULTIMEDIA],
+  tags: [WIDGET_TAGS.MULTIMEDIA],
   needsMeta: true,
   searchTags: ["youtube"],
   defaults: {

@@ -10,15 +10,15 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Table",
   iconSVG: IconSVG,
   tags: [
-    WIDGET_CATEGORIES.ESSENTIAL_WIDGETS,
-    WIDGET_CATEGORIES.COLLECTIONS_AND_ORGANIZATIONS,
+    WIDGET_TAGS.ESSENTIAL_WIDGETS,
+    WIDGET_TAGS.COLLECTIONS_AND_ORGANIZATIONS,
   ],
   needsMeta: true,
   needsHeightForContent: true,
