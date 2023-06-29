@@ -78,7 +78,7 @@ export class LightModeTheme implements ColorModeTheme {
       fgOnAccent: this.fgOnAccent.toString(),
       fgPositive: this.fgPositive.toString(),
       fgOnPositive: this.fgOnPositive.toString(),
-      fgNegative: this.fgNegative.toString(),
+      fgNegative: this.fgNegative.to("sRGB").toString(),
       fgOnNegative: this.fgOnNegative.toString(),
       fgNeutral: this.fgNeutral.toString(),
       fgOnNeutral: this.fgOnNeutral.toString(),
