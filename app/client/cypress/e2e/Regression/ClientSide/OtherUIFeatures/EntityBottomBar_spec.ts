@@ -90,7 +90,7 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Verify if bottom bar opens on clicking debugger icon in query page.
-      _.dataSources.CreateQueryFromActiveTab(dbName, false);
+      _.dataSources.CreateQueryFromActiveTab(dbName, true);
       _.debuggerHelper.ClickDebuggerIcon();
       _.debuggerHelper.AssertOpen(PageType.Query);
       //Verify if bottom bar is closed on clicking close icon in query page.

@@ -914,8 +914,11 @@ public class ImportExportApplicationServiceTests {
                             // published version does not have pageId
                             assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
                         }
+
                         if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
                             collectionIdInAction.add(actionDTO.getCollectionId());
+                            assertThat(actionDTO.getDefaultResources().getCollectionId())
+                                    .isEqualTo(actionDTO.getCollectionId());
                         }
                     });
 
