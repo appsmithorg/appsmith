@@ -51,6 +51,11 @@ export function* updateTenantConfigSaga(
     const { appVersion } = getAppsmithConfigs();
     const generalSettings = getAllGeneralSettingIds();
     const settings = action.payload.tenantConfiguration;
+    const hasSingleSessionUserSetting = settings.hasOwnProperty(
+      "singleSessionPerUserEnabled",
+    );
+    const hasShowRolesAndGroupsSetting =
+      settings.hasOwnProperty("showRolesAndGroups");
     const response: ApiResponse = yield call(
       TenantApi.updateTenantConfig,
       action.payload,
@@ -60,13 +65,16 @@ export function* updateTenantConfigSaga(
     if (isValidResponse) {
       const payload = response.data as any;
 
-      if (Object.keys(settings).some((e) => generalSettings.includes(e))) {
+      if (
+        Object.keys(settings).some((e) => generalSettings.includes(e)) &&
+        (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting)
+      ) {
         AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
           version: appVersion.id,
-          ...(settings.hasOwnProperty("singleSessionPerUserEnabled")
+          ...(hasSingleSessionUserSetting
             ? { session_limit_enabled: settings["singleSessionPerUserEnabled"] }
             : {}),
-          ...(settings.hasOwnProperty("showRolesAndGroups")
+          ...(hasShowRolesAndGroupsSetting
             ? {
                 programmatic_access_control_enabled:
                   settings["showRolesAndGroups"],
