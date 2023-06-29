@@ -17,7 +17,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       margin-top: ${(props) => props.theme.spaces[3]}px;
       padding: 0px 0px;
       font-family: monospace;
-      max-height: 20em;
+      max-height: 25em;
       overflow-y: auto;
       background: var(--ads-v2-color-bg);
       box-shadow: var(--ads-v2-shadow-popovers);
