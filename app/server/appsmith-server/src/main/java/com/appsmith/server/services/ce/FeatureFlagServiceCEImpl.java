@@ -68,6 +68,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
+        this.userFeatureFlagsCache = new ConcurrentHashMap<>();
         this.userIdentifierService = userIdentifierService;
     }
 
