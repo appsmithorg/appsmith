@@ -7,7 +7,7 @@ import {
 describe("Test Sidebar Collapse", function () {
   it("1. Sidebar collapse button should be there", () => {
     // First make sure that nav orientation is set to side
-    agHelper.GetNClick(appSettings.locators._applicationName);
+    agHelper.GetNClick(appSettings.locators._appSettings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
