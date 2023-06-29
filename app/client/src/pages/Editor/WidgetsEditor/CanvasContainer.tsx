@@ -102,6 +102,7 @@ function CanvasContainer(props: CanvasContainerProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const { isPreviewMode, shouldShowSnapShotBanner } = props;
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -204,6 +205,7 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
         navigationHeight={navigationHeight}
+        ref={containerRef}
         style={
           {
             "--main-canvas-height": shouldHaveTopMargin
@@ -231,7 +233,10 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
-      <OverlayCanvasContainer canvasWidth={canvasWidth} />
+      <OverlayCanvasContainer
+        canvasWidth={canvasWidth}
+        containerRef={containerRef}
+      />
     </>
   );
 }

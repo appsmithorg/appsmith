@@ -4,6 +4,7 @@ import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgets
 import { getWidgetPositions } from "selectors/entitiesSelector";
 import { getSelectedWidgetDsl } from "selectors/ui";
 import styled from "styled-components";
+import { debounce } from "lodash";
 
 const OverlayCanvas = styled.canvas`
   position: absolute;
@@ -22,7 +23,10 @@ const HEIGHT = Math.floor(LINE_HEIGHT + VERTICAL_PADDING);
 const FILL_COLOR = "rgb(239, 117, 65)";
 const TEXT_COLOR = "rgb(255, 255, 255)";
 
-const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
+const OverlayCanvasContainer = (props: {
+  canvasWidth: number;
+  containerRef: any;
+}) => {
   const selectedWidgets: FlattenedWidgetProps[] = useSelector(
     getSelectedWidgetDsl(),
   );
@@ -37,6 +41,9 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     top: 0,
     left: 0,
   });
+
+  const scrollTop = useRef<number>(0);
+  const isScrolling = useRef(0);
 
   useEffect(() => {
     if (canvasRef?.current) {
@@ -56,22 +63,53 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       // canvas.height = canvas.height * PIXEL_RATIO;
       // console.log("####", { PIXEL_RATIO });
       // context.scale(PIXEL_RATIO, PIXEL_RATIO);
-
-      window.onmousemove = function (e) {
-        if (isMouseOver(e)) {
-          canvas.style.pointerEvents = "auto";
-          canvas.style.cursor = "pointer";
-        } else {
-          canvas.style.pointerEvents = "none";
-          canvas.style.cursor = "default";
-        }
-      };
     }
 
     return () => {
       resetCanvas();
     };
-  }, [canvasRef?.current]);
+  }, []);
+
+  useEffect(() => {
+    if (!props.containerRef?.current || !canvasRef?.current) return;
+    const container: HTMLDivElement = props.containerRef
+      ?.current as HTMLDivElement;
+
+    const canvas: HTMLCanvasElement = canvasRef?.current as HTMLCanvasElement;
+    const handleMouseMove = debounce((e: any) => {
+      if (!canvas) return;
+      if (isMouseOver(e)) {
+        if (canvas.style.pointerEvents === "none") {
+          canvas.style.pointerEvents = "auto";
+          canvas.style.cursor = "pointer";
+        }
+      } else if (canvas.style.pointerEvents !== "none") {
+        canvas.style.pointerEvents = "none";
+        canvas.style.cursor = "default";
+      }
+    }, 50);
+    const handleScroll = () => {
+      if (!props.containerRef?.current) return;
+      const currentScrollTop: number = props.containerRef?.current?.scrollTop;
+      if (!isScrolling.current) {
+        console.log("#### isScrolling", { isScrolling: isScrolling.current });
+        resetCanvas();
+      }
+      clearTimeout(isScrolling.current);
+      isScrolling.current = setTimeout(() => {
+        console.log("#### scroll stopped", { scrollTop: currentScrollTop });
+        scrollTop.current = currentScrollTop;
+        drawWidgetNameComponent();
+        isScrolling.current = 0;
+      }, 100);
+    };
+    container.addEventListener("scroll", handleScroll);
+    container.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [props.containerRef?.current]);
 
   const isMouseOver = (e: any) => {
     const x = e.clientX - canvasPositions.current.left;
@@ -87,12 +125,13 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   };
 
   useEffect(() => {
+    console.log("!!!! widget positions", { widgetPositions });
     if (!selectedWidgets.length || !Object.keys(widgetPositions)?.length) {
       resetCanvas();
       return;
     }
     drawWidgetNameComponent();
-  }, [selectedWidgets]);
+  }, [selectedWidgets, widgetPositions]);
 
   const drawRoundRect = (
     context: CanvasRenderingContext2D,
@@ -158,7 +197,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
 
     const left: number =
       widgetPosition.left + widgetPosition.width - componentWidth - 1;
-    const top: number = widgetPosition.top + 11;
+    const top: number = widgetPosition.top + 11 - scrollTop.current;
     console.log("####", {
       left,
       top,
@@ -166,6 +205,8 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       textWidth,
       HEIGHT,
       FONT_SIZE,
+      widgetTop: widgetPosition.top,
+      scrollTop: scrollTop.current,
     });
 
     // Draw component background
