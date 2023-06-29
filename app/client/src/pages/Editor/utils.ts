@@ -3,7 +3,12 @@ import _, { debounce } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
-import type { WidgetType } from "constants/WidgetConstants";
+import type {
+  WidgetCardsGroupedByTags,
+  WidgetCategories,
+  WidgetType,
+} from "constants/WidgetConstants";
+import { WIDGET_CATEGORIES } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
 import WidgetFactory from "utils/WidgetFactory";
 import {
@@ -13,6 +18,7 @@ import {
 import type { URLBuilderParams } from "RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import type { WidgetCardProps } from "widgets/BaseWidget";
 
 export const draggableElement = (
   id: string,
@@ -296,3 +302,24 @@ export function useHref<T extends URLBuilderParams>(
 
   return href;
 }
+
+export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
+  const tagsOrder = Object.values(WIDGET_CATEGORIES);
+  const groupedCards: WidgetCardsGroupedByTags = {} as WidgetCardsGroupedByTags;
+
+  tagsOrder.forEach((category: WidgetCategories) => {
+    groupedCards[category] = [];
+  });
+
+  widgetCards.forEach((item) => {
+    if (item.tags) {
+      item.tags.forEach((tag) => {
+        if (groupedCards[tag]) {
+          groupedCards[tag].push(item);
+        }
+      });
+    }
+  });
+
+  return groupedCards;
+};

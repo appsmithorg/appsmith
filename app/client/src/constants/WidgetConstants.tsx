@@ -1,6 +1,7 @@
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
+import type { WidgetCardProps } from "widgets/BaseWidget";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -243,17 +244,7 @@ export const WIDGET_CATEGORIES = {
 export type WidgetCategories =
   (typeof WIDGET_CATEGORIES)[keyof typeof WIDGET_CATEGORIES];
 
-// export const WidgetCategories = [
-//   "Essential Widgets",
-//   "Buttons",
-//   "Input",
-//   "Select",
-//   "Toggles",
-//   "Forms",
-//   "Multimedia",
-//   "Collections & organizations",
-//   "Layout",
-//   "Sliders",
-//   "Content",
-//   "External input",
-// ];
+export type WidgetCardsGroupedByTags = Record<
+  WidgetCategories,
+  WidgetCardProps[]
+>;

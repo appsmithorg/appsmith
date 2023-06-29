@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { SearchInput } from "design-system";
-
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce } from "lodash";
 import {
@@ -13,10 +12,17 @@ import {
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type {
+  WidgetCardsGroupedByTags,
+  WidgetCategories,
+} from "constants/WidgetConstants";
+import { groupWidgetCardsByTags } from "./utils";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
-  const [filteredCards, setFilteredCards] = useState(cards);
+  const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
+  const [filteredCards, setFilteredCards] =
+    useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const fuse = useMemo(() => {
@@ -24,10 +30,14 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
       keys: [
         {
           name: "displayName",
-          weight: 0.9,
+          weight: 0.8,
         },
         {
           name: "searchTags",
+          weight: 0.1,
+        },
+        {
+          name: "tags",
           weight: 0.1,
         },
       ],
@@ -49,9 +59,9 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
-      setFilteredCards(searchResult as WidgetCardProps[]);
+      setFilteredCards(groupWidgetCardsByTags(searchResult));
     } else {
-      setFilteredCards(cards);
+      setFilteredCards(groupedCards);
     }
   };
 
@@ -85,11 +95,30 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         <p className="px-3 py-3 text-sm leading-relaxed t--widget-sidebar">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>
-        <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
-          {/*  */}
-          {filteredCards.map((card) => (
-            <WidgetCard details={card} key={card.key} />
-          ))}
+
+        <div>
+          {Object.keys(filteredCards).map((category) => {
+            const cardsForThisCategory: WidgetCardProps[] =
+              filteredCards[category as WidgetCategories];
+
+            if (!cardsForThisCategory?.length) {
+              return null;
+            }
+
+            return (
+              <div className="pb-3" key={category}>
+                <p className="pl-3 pb-3 text-sm leading-relaxed font-medium">
+                  {category}
+                </p>
+
+                <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
+                  {cardsForThisCategory.map((card) => (
+                    <WidgetCard details={card} key={card.key} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
