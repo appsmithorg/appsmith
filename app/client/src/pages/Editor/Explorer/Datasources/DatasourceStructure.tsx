@@ -98,7 +98,9 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
     <Entity
       action={() => canCreateDatasourceActions && setActive(!active)}
       active={active}
-      className={`datasourceStructure`}
+      className={`datasourceStructure${
+        props.context !== DatasourceStructureContext.EXPLORER && "-query-editor"
+      }`}
       contextMenu={templateMenu}
       entityId={"DatasourceStructure"}
       icon={datasourceTableIcon}

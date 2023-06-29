@@ -40,4 +40,11 @@ describe("Datasource form related tests", function () {
     dataSources.DeleteQuery("Query1");
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
+
+  // keeping this here till we can establish A/B testing on cypress
+  // it("3. Verify if schema exist in query editor", () => {
+  //   dataSources.CreateMockDB("Users");
+  //   dataSources.CreateQueryAfterDSSaved();
+  //   dataSources.VerifyTableSchemaOnQueryEditor("public.users");
+  // });
 });

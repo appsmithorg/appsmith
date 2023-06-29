@@ -120,6 +120,7 @@ const Container = (props: Props) => {
           {props.context !== DatasourceStructureContext.EXPLORER && (
             <DatasourceStructureSearchContainer>
               <Input
+                className="datasourceStructure-search"
                 onChange={(value) => handleOnChange(value)}
                 placeholder={createMessage(
                   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
