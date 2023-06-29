@@ -80,6 +80,7 @@ jobs:
           DIFF=$(curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT }}" \
                       -H "Accept: application/vnd.github.diff" \
                       "https://api.github.com/repos/${{ github.repository }}/pull/24928")
+                      
           DIFF_OUTPUT=$(echo "$DIFF" | grep -E '^(\+|-).*app/client/cypress/e2e')
           echo "$DIFF_OUTPUT"
         
