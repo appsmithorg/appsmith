@@ -92,9 +92,12 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
       data-state={dataState}
       ref={domRef}
     >
-      <input {...mergeProps(inputProps, focusProps)} ref={inputRef} />
+      <input
+        {...mergeProps(inputProps, visuallyHiddenProps, focusProps)}
+        ref={inputRef}
+      />
       <span aria-hidden="true" data-icon="" role="presentation">
-        {icon && (isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon)}
+        {isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon}
       </span>
       {children}
     </label>
