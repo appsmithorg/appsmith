@@ -57,7 +57,10 @@ export const Radio = forwardRef((props: RadioProps, ref: RadioRef) => {
       data-state={state.selectedValue === props.value ? "selected" : undefined}
       ref={domRef}
     >
-      <input {...mergeProps(inputProps, focusProps)} ref={inputRef} />
+      <input
+        {...mergeProps(inputProps, visuallyHiddenProps, focusProps)}
+        ref={inputRef}
+      />
       <span aria-hidden="true" data-icon="" role="presentation" />
       {children}
     </label>
