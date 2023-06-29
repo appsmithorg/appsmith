@@ -78,7 +78,7 @@ jobs:
         run: |
           echo "Fetching PR Diff..."
           DIFF=$(curl -sSL -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT }}" \
-                      -H "Accept: application/vnd.github.diff"
+                      -H "Accept: application/vnd.github.diff" \
                       "https://api.github.com/repos/${{ github.repository }}/pull/24928")
           DIFF_OUTPUT=$(echo "$DIFF" | grep -E '^(\+|-).*path/to/your/directory/')
           echo "$DIFF_OUTPUT"
