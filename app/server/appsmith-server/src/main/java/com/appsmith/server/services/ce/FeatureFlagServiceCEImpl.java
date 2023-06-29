@@ -6,6 +6,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.featureflags.FeatureFlagIdentities;
 import com.appsmith.server.featureflags.FeatureFlagTrait;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -25,6 +27,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +49,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final CloudServicesConfig cloudServicesConfig;
 
-    private final Map<String, Map<String, Boolean>> featureFlagCache;
+    private Map<String, CachedFlags> userFeatureFlagsCache;
+
+    @Value("${appsmith.feature-flag.cache.in.minutes}")
+    private long featureFlagCacheTime;
 
     private final UserIdentifierService userIdentifierService;
 
@@ -61,7 +68,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
-        this.featureFlagCache = new ConcurrentHashMap<>();
         this.userIdentifierService = userIdentifierService;
     }
 
@@ -73,9 +79,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         }
         String userIdentifier = userIdentifierService.getUserIdentifier(user);
 
-        if (this.featureFlagCache.containsKey(userIdentifier) &&
-                this.featureFlagCache.get(userIdentifier).containsKey(featureName)) {
-            return Mono.just(this.featureFlagCache.get(userIdentifier).get(featureName));
+        if (this.userFeatureFlagsCache.containsKey(userIdentifier) &&
+                this.userFeatureFlagsCache.get(userIdentifier).getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < featureFlagCacheTime &&
+                this.userFeatureFlagsCache.get(userIdentifier).getFlags().containsKey(featureName)){
+            return Mono.just(this.userFeatureFlagsCache.get(userIdentifier).getFlags().get(featureName));
         } else {
             return this.forceAllRemoteFeatureFlagsForUser(user)
                     .flatMap(featureMap -> Mono.justOrEmpty(featureMap.get(featureName)))
@@ -127,8 +134,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return userMono
                 .flatMap(user -> {
                     String userIdentifier = userIdentifierService.getUserIdentifier(user);
-                    if (this.featureFlagCache.containsKey(userIdentifier)) {
-                        return Mono.just(this.featureFlagCache.get(userIdentifier));
+
+                    if(this.userFeatureFlagsCache.containsKey(userIdentifier)
+                            && this.userFeatureFlagsCache.get(userIdentifier).getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < featureFlagCacheTime){
+                        return Mono.just(this.userFeatureFlagsCache.get(userIdentifier).getFlags());
                     } else {
                         return this.forceAllRemoteFeatureFlagsForUser(user);
                     }
@@ -150,35 +159,14 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                     Set.of(userIdentifier)));
                 })
                 .map(newValue -> {
-                    this.featureFlagCache.putAll(newValue);
+                    CachedFlags cachedFlags = new CachedFlags();
+                    cachedFlags.setRefreshedAt(Instant.now());
+                    cachedFlags.setFlags(newValue.get(userIdentifier));
+                    this.userFeatureFlagsCache.put(userIdentifier, cachedFlags);
                     return newValue.get(userIdentifier);
                 });
     }
-
-    @Override
-    public Mono<Void> refreshFeatureFlagsForAllUsers() {
-        if (this.featureFlagCache.isEmpty()) {
-            return Mono.empty();
-        }
-
-        Mono<String> instanceIdMono = configService.getInstanceId();
-        // TODO: Convert to current tenant when the feature is enabled
-        Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
-
-        return Mono.zip(instanceIdMono, defaultTenantIdMono)
-                .flatMap(tuple -> {
-                    return this.getRemoteFeatureFlagsByIdentity(
-                            new FeatureFlagIdentities(
-                                    tuple.getT1(),
-                                    tuple.getT2(),
-                                    this.featureFlagCache.keySet()));
-                })
-                .map(newCache -> {
-                    this.featureFlagCache.putAll(newCache);
-                    return newCache;
-                })
-                .then();
-    }
+    
 
     private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(FeatureFlagIdentities identity) {
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())

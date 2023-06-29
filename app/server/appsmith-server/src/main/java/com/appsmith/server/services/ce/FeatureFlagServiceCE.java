@@ -38,7 +38,5 @@ public interface FeatureFlagServiceCE {
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
 
-    Mono<Void> refreshFeatureFlagsForAllUsers();
-
     Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits);
 }

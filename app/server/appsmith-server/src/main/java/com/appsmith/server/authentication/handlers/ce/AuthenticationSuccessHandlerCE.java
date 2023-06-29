@@ -217,6 +217,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", emailTrait));
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "is_telemetry_on", "true"));
                     return featureFlagService.remoteSetUserTraits(featureFlagTraits);
                 });
     }
