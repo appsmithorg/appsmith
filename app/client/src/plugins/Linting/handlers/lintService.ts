@@ -26,8 +26,6 @@ import {
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isJSFunctionProperty } from "@shared/ast";
-import type { JSFunctionProperty } from "@shared/ast";
-import type { JSActionEntity } from "entities/DataTree/types";
 
 class LintService {
   cachedEntityTree: EntityTree | null;
@@ -317,21 +315,21 @@ class LintService {
     for (const entity of Object.values(entityTree.getEntities())) {
       if (!isJSEntity(entity)) continue;
       const { actionId, body, ENTITY_TYPE } = entity.getRawEntity();
-      const newEntity: JSActionEntity = { body, actionId, ENTITY_TYPE };
+      const newEntity = { body, actionId, ENTITY_TYPE };
       const { parsedEntity, parsedEntityConfig } = entity.entityParser.parse(
         entity.getRawEntity(),
       );
       for (const [propertyName, propertyValue] of Object.entries(
         parsedEntity,
       )) {
+        //@ts-expect-error: Implicit any
         newEntity[propertyName] = propertyValue;
         entity.getConfig().reactivePaths[propertyName] =
           EvaluationSubstitutionType.TEMPLATE;
         if (
           parsedEntityConfig[propertyName] &&
-          isJSFunctionProperty(
-            parsedEntityConfig[propertyName] as JSFunctionProperty,
-          )
+          //@ts-expect-error: unknown
+          isJSFunctionProperty(parsedEntityConfig[propertyName])
         ) {
           set(newEntity, [`${propertyName}.data`], {});
         }
