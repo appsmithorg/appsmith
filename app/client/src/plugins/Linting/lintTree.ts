@@ -75,7 +75,7 @@ export function getLintErrorsFromTree({
       // An empty state shows that there is a parse error in the jsObject or the object is empty, so we lint the entire body
       // instead of an individual properties
       if (isEmpty(jsObjectState)) {
-        lintedJSPaths.add(jsObjectBodyPath);
+        lintedJSPaths.add(`${jsObjectName}.body`);
         const jsObjectBodyLintErrors = lintJSObjectBody(
           jsObjectName,
           globalData.getGlobalData(true),
