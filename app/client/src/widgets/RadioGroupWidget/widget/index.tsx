@@ -583,10 +583,10 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           path: "isDisabled",
           type: "boolean",
         },
-        setData: {
-          path: "options",
-          type: "array",
-        },
+        // setData: {
+        //   path: "options",
+        //   type: "array",
+        // },
       },
     };
   }

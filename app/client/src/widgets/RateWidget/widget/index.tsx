@@ -335,10 +335,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           path: "isDisabled",
           type: "boolean",
         },
-        setValue: {
-          path: "defaultRate",
-          type: "number",
-        },
+        // setValue: {
+        //   path: "defaultRate",
+        //   type: "number",
+        // },
       },
     };
   }
