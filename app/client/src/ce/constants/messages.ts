@@ -384,10 +384,8 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "LocalStorage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  `Search widgets, queries, documentation`;
-export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
+  `Search widgets, queries or create new`;
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
-export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
   "Create a new query, API or JS Object";
 export const HELPBAR_PLACEHOLDER = () => "Search";
@@ -698,15 +696,6 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 
-export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
-
-export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
-
-export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
-export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
-export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
-export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
-
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";
 
@@ -741,7 +730,7 @@ export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
-export const DOCUMENTATION_TOOLTIP = () => "Open docs in omnibar";
+export const DOCUMENTATION_TOOLTIP = () => "Open docs in new tab";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
 export const LATEST_DP_SUBTITLE = () => "last deployed";
@@ -925,12 +914,6 @@ export const ERROR_GIT_AUTH_FAIL = () =>
 export const ERROR_GIT_INVALID_REMOTE = () =>
   "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
-
-// JS Snippets
-export const SNIPPET_DESCRIPTION = () =>
-  `Search and insert code snippets to perform complex actions quickly.`;
-export const DOC_DESCRIPTION = () =>
-  `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>

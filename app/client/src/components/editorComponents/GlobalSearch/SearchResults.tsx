@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import type { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
 import { getTypographyByKey } from "design-system-old";
@@ -13,7 +12,6 @@ import {
   getItemTitle,
   SEARCH_ITEM_TYPES,
   comboHelpText,
-  isSnippet,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -29,7 +27,7 @@ import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import { Icon, Text } from "design-system";
+import { Text } from "design-system";
 
 const overflowCSS = css`
   overflow: hidden;
@@ -111,30 +109,12 @@ const ItemTitle = styled.div`
   }
 `;
 
-const StyledDocumentIcon = styled(Icon)`
-  display: flex;
-`;
-
 const TextWrapper = styled.div`
   flex: 1;
   display: flex;
   justify-content: space-between;
   font-size: 14px;
 `;
-
-function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
-  return (
-    <>
-      <StyledDocumentIcon name="file-text-fill" />
-      <ItemTitle>
-        <span>
-          <AlgoliaHighlight attribute="title" hit={props.item} />
-        </span>
-        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
-      </ItemTitle>
-    </>
-  );
-}
 
 const WidgetIconWrapper = styled.span<{ isActiveItem: boolean }>`
   display: flex;
@@ -361,22 +341,6 @@ function CategoryItem({
   );
 }
 
-const FlexWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-function SnippetItem({ item: { body } }: any) {
-  return (
-    <FlexWrapper>
-      <Icon className="snippet-icon" name="snippet" size="md" />
-      <ItemTitle>
-        <span>{body.shortTitle || body.title}</span>
-      </ItemTitle>
-    </FlexWrapper>
-  );
-}
-
 const ActionOperation = styled.div<{ isActive: boolean }>`
   display: flex;
   align-items: center;
@@ -420,7 +384,6 @@ function ActionOperationItem({ isActiveItem, item }: any) {
 }
 
 const SearchItemByType = {
-  [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
   [SEARCH_ITEM_TYPES.action]: ActionItem,
   [SEARCH_ITEM_TYPES.datasource]: DatasourceItem,
@@ -429,7 +392,6 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
   [SEARCH_ITEM_TYPES.jsAction]: JSCollectionItem,
   [SEARCH_ITEM_TYPES.category]: CategoryItem,
-  [SEARCH_ITEM_TYPES.snippet]: SnippetItem,
   [SEARCH_ITEM_TYPES.actionOperation]: ActionOperationItem,
 };
 
@@ -459,7 +421,7 @@ function SearchItemComponent(props: ItemProps) {
 
   return (
     <SearchItemContainer
-      className="t--docHit"
+      className="t--searchHit"
       isActiveItem={isActiveItem}
       itemType={itemType}
       onClick={(e: React.MouseEvent) => {
@@ -486,7 +448,7 @@ const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
   .container {
     height: 100%;
     width: 100%;
-    padding-bottom: ${(props) => (isSnippet(props.category) ? "50px" : "0")};
+    padding-bottom: 0;
   }
 `;
 
