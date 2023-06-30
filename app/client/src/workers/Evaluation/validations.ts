@@ -16,11 +16,12 @@ import _, {
 
 import moment from "moment";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
-import evaluate from "./evaluate";
+import evaluateSync from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
 import { countOccurrences, findDuplicateIndex } from "./helpers";
+import { dataTreeEvaluator } from "./handlers/evalTree";
 
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -1091,13 +1092,19 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(
-          config.params.fnString,
-          {},
-          false,
-          undefined,
-          [value, props, globalThis._, globalThis.moment, propertyPath, config],
-        );
+        const fnBody = `const fn = ${config.params?.fnString};
+        return fn(value, props, _, moment, propertyPath, config);`;
+
+        const result = new Function(
+          "value",
+          "props",
+          "_",
+          "moment",
+          "propertyPath",
+          "config",
+          fnBody,
+        )(value, props, globalThis._, globalThis.moment, propertyPath, config);
+
         return result;
       } catch (e) {
         log.error("Validation function error: ", { e });
