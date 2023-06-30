@@ -186,8 +186,6 @@ public class ApplicationServiceCETest {
     @Autowired
     PluginRepository pluginRepository;
     @Autowired
-    PolicySolution policySolution;
-    @Autowired
     ImportExportApplicationService importExportApplicationService;
     @Autowired
     ThemeService themeService;
