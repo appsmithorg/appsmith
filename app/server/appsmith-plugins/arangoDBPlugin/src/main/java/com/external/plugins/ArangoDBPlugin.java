@@ -26,7 +26,6 @@ import com.arangodb.model.CollectionsReadOptions;
 import com.external.plugins.exceptions.ArangoDBErrorMessages;
 import com.external.plugins.exceptions.ArangoDBPluginError;
 import com.external.utils.ArangoDBErrorUtils;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -51,6 +50,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
+import static com.external.plugins.exceptions.ArangoDBErrorMessages.CONNECTION_INVALID_ERROR_MSG;
 import static com.external.plugins.exceptions.ArangoDBErrorMessages.DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
 import static com.external.utils.SSLUtils.isCaCertificateAvailable;
 import static com.external.utils.SSLUtils.setSSLContext;
@@ -84,7 +84,7 @@ public class ArangoDBPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
 
             if (!isConnectionValid(db)) {
-                return Mono.error(new StaleConnectionException());
+                return Mono.error(new StaleConnectionException(CONNECTION_INVALID_ERROR_MSG));
             }
 
             String query = actionConfiguration.getBody();
