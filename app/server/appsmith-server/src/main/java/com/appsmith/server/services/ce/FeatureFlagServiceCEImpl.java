@@ -70,22 +70,25 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         this.featureFlagValidationContextConfig = featureFlagValidationContextConfig;
     }
 
-    private Mono<Boolean> checkAll(String featureName, User user) {
-        Boolean check = check(featureName, user);
+    private Mono<Boolean> checkAll(String featureName, Object context) {
+        Boolean check = check(featureName, context);
 
         if (Boolean.TRUE.equals(check)) {
             return Mono.just(check);
         }
-        String userIdentifier = userIdentifierService.getUserIdentifier(user);
 
-        if (this.featureFlagCache.containsKey(userIdentifier) &&
-                this.featureFlagCache.get(userIdentifier).containsKey(featureName)) {
-            return Mono.just(this.featureFlagCache.get(userIdentifier).get(featureName));
-        } else {
-            return this.forceAllRemoteFeatureFlagsForUser(user)
-                    .flatMap(featureMap -> Mono.justOrEmpty(featureMap.get(featureName)))
-                    .switchIfEmpty(Mono.just(false));
-        }
+        // checking further against the current user instead of assuming the context is user object
+
+        return featureFlagValidationContextConfig.currentUserValidationContextProvider.getFeatureFlagValidationContext().map(user -> {
+            String userIdentifier = userIdentifierService.getUserIdentifier(user);
+            if (this.featureFlagCache.containsKey(userIdentifier) &&
+                    this.featureFlagCache.get(userIdentifier).containsKey(featureName)) {
+                return this.featureFlagCache.get(userIdentifier).get(featureName);
+            } else {
+                return this.forceAllRemoteFeatureFlagsForUser(user)
+                        .flatMap(featureMap -> Mono.just(featureMap.getOrDefault(featureName, false)));
+            }
+        }).hasElement();
     }
 
     @Override
@@ -103,9 +106,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .getOrDefault(featureEnum, featureFlagValidationContextConfig.currentUserValidationContextProvider)
                 .getFeatureFlagValidationContext();
         Mono<Object> validationContextMono = (Mono<Object>) validationContext;
-        return validationContextMono.flatMap(validationContextObj -> {
-            return check(featureEnum, validationContextObj);
-        });
+        return validationContextMono.flatMap(validationContextObj -> check(featureEnum, validationContextObj));
     }
 
     @Override

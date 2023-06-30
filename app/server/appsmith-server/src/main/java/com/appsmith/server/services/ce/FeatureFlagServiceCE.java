@@ -1,12 +1,10 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.featureflags.FeatureFlagTrait;
-import reactor.core.publisher.Mono;
-
 import java.util.List;
 import java.util.Map;
+import reactor.core.publisher.Mono;
 
 public interface FeatureFlagServiceCE {
 
@@ -29,7 +27,7 @@ public interface FeatureFlagServiceCE {
      */
     Mono<Boolean> check(FeatureFlagEnum featureEnum);
 
-    Boolean check(String featureName, User user);
+    Boolean check(String featureName, Object context);
 
     /**
      * Fetch all the flags and their values for the current logged in user
