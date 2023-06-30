@@ -1,9 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class OracleErrorMessages {
-    private OracleErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class OracleErrorMessages extends BasePluginErrorMessages {
     public static final String MISSING_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your Oracle query failed to execute.";
@@ -33,8 +35,6 @@ public class OracleErrorMessages {
     public static final String DS_MISSING_HOSTNAME_ERROR_MSG = "Missing hostname.";
 
     public static final String DS_INVALID_HOSTNAME_ERROR_MSG = "Host value cannot contain `/` or `:` characters. Found `%s`.";
-
-    public static final String DS_MISSING_CONNECTION_MODE_ERROR_MSG = "Missing connection mode.";
 
     public static final String DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG = "Missing authentication details.";
 
