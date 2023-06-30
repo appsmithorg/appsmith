@@ -29,7 +29,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -91,7 +91,7 @@ public class DatasourceServiceTest {
     WorkspaceRepository workspaceRepository;
 
     @Autowired
-    PolicyUtils policyUtils;
+    PolicySolution policySolution;
 
     @Autowired
     ApplicationPageService applicationPageService;

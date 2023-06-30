@@ -6,7 +6,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NetworkUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -45,7 +44,7 @@ public class UserSignupTest {
     private ConfigService configService;
 
     @MockBean
-    private PolicyUtils policyUtils;
+    private PolicySolution policySolution;
 
     @MockBean
     private AnalyticsService analyticsService;
