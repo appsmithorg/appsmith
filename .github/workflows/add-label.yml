@@ -17,7 +17,7 @@ jobs:
         uses: umani/changed-files@v4.0.0
         with:
           repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          pattern: 'app/client/cypress/e2e/.*'
+          pattern: "app/client/cypress/.*"
 
       - name: Check if files changed count is greater than 0
         id: check_files_changed
@@ -38,14 +38,12 @@ jobs:
         if: ${{ env.PR_MERGED == 'true' && steps.check_files_changed.outputs.files_changed_count > 0 }}
         uses: actions/github-script@v6
         with:
-         github-token: ${{ secrets.GITHUB_TOKEN }}
-         script: |
-          const issue = context.issue;
-          const labelToAdd = 'cypress-flaky-fix';
-
-          github.issues.addLabels({
-          owner: issue.owner,
-          repo: issue.repo,
-          issue_number: issue.number,
-          labels: [labelToAdd]
-          });
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.issue;
+            github.rest.issues.addLabels({
+            owner: issue.owner,
+            repo: issue.repo,
+            issue_number: issue.number,
+            labels: ["cypress-flaky-fix"]
+            });
