@@ -26,6 +26,7 @@ import {
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isJSFunctionProperty } from "@shared/ast";
+import { entityFns } from "workers/Evaluation/fns";
 
 class LintService {
   cachedEntityTree: EntityTree | null;
@@ -112,7 +113,11 @@ class LintService {
       .filter(
         (fn) =>
           fn.isMarkedAsync ||
-          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields),
+          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields) ||
+          this.dependencyMap.isRelated(
+            fn.name,
+            getAllEntityActions(entityTree),
+          ),
       )
       .map((fn) => fn.name);
 
@@ -252,7 +257,11 @@ class LintService {
       .filter(
         (fn) =>
           fn.isMarkedAsync ||
-          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields),
+          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields) ||
+          this.dependencyMap.isRelated(
+            fn.name,
+            getAllEntityActions(entityTree),
+          ),
       )
       .map((fn) => fn.name);
 
@@ -356,6 +365,21 @@ function filterDataPaths(paths: string[], entityTree: EntityTree) {
     dataPaths.push(path);
   }
   return dataPaths;
+}
+function getAllEntityActions(entityTree: EntityTree) {
+  const allEntityActions = new Set<string>();
+  for (const [entityName, entity] of Object.entries(entityTree.getRawTree())) {
+    for (const entityFnDescription of entityFns) {
+      if (entityFnDescription.qualifier(entity)) {
+        const fullPath = `${
+          entityFnDescription.path ||
+          `${entityName}.${entityFnDescription.name}`
+        }`;
+        allEntityActions.add(fullPath);
+      }
+    }
+  }
+  return [...allEntityActions];
 }
 
 export const lintService = new LintService();
