@@ -22,7 +22,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -92,7 +92,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
-                                  PolicyUtils policyUtils,
+                                  PolicySolution policySolution,
                                   ConfigService configService,
                                   SessionUserService sessionUserService,
                                   ResponseUtils responseUtils,
@@ -109,7 +109,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   UserService userService,
                                   UserGroupRepository userGroupRepository) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policySolution,
                 configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
                 userRepository, datasourcePermission, applicationPermission);
         this.permissionGroupService = permissionGroupService;

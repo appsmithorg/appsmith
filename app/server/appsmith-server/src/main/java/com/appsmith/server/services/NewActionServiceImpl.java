@@ -18,7 +18,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -68,7 +68,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
-                                PolicyUtils policyUtils,
+                                PolicySolution policySolution,
                                 ConfigService configService,
                                 ResponseUtils responseUtils,
                                 PermissionGroupService permissionGroupService,
@@ -81,7 +81,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, pluginExecutorHelper, marketplaceService,
-                policyGenerator, newPageService, applicationService, policyUtils,
+                policyGenerator, newPageService, applicationService, policySolution,
                 configService, responseUtils, permissionGroupService, datasourcePermission,
                 applicationPermission, pagePermission, actionPermission, observationRegistry);
 

@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -25,7 +25,6 @@ import com.appsmith.server.solutions.PagePermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -45,10 +44,9 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
-@Component
 @AllArgsConstructor
 @Slf4j
-public class PolicyUtils {
+public class PolicySolutionCEImpl implements PolicySolutionCE {
 
     private final PolicyGenerator policyGenerator;
     private final ApplicationRepository applicationRepository;
@@ -61,7 +59,7 @@ public class PolicyUtils {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
 
-
+    @Override
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
@@ -97,6 +95,7 @@ public class PolicyUtils {
         return obj;
     }
 
+    @Override
     public <T extends BaseDomain> T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
@@ -134,6 +133,7 @@ public class PolicyUtils {
         return generatePolicyFromPermission(permissions, user.getUsername());
     }
 
+    @Override
     public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
         return permissions.stream()
                 .map(perm -> {
@@ -149,6 +149,7 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
+    @Override
     public Map<String, Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId) {
         Set<Permission> permissions = permissionGroup.getPermissions();
         return permissions.stream()
@@ -167,6 +168,7 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity(), (policy1, policy2) -> policy1));
     }
 
+    @Override
     public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {
 
         Policy policyWithCurrentPermission = Policy.builder().permission(permission.getValue())
@@ -235,6 +237,7 @@ public class PolicyUtils {
                 .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
 
+    @Override
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(Set<String> ids,
                                                                                                Map<String, Policy> datasourcePolicyMap,
                                                                                                boolean addPolicyToObject) {
@@ -275,6 +278,7 @@ public class PolicyUtils {
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
+    @Override
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
 
         // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures that all the published
@@ -297,6 +301,7 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
+    @Override
     public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if (StringUtils.hasLength(application.getEditModeThemeId())) {
@@ -334,6 +339,7 @@ public class PolicyUtils {
      * @param addPolicyToObject
      * @return
      */
+    @Override
     public Flux<NewAction> updateWithPagePermissionsToAllItsActions(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
 
         return newActionRepository
@@ -350,6 +356,7 @@ public class PolicyUtils {
                 .flatMapMany(newActionRepository::saveAll);
     }
 
+    @Override
     public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
 
         return actionCollectionRepository
@@ -366,6 +373,7 @@ public class PolicyUtils {
                 .flatMapMany(actionCollectionRepository::saveAll);
     }
 
+    @Override
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
                                                                            Class<? extends BaseDomain> sourceEntity,
                                                                            Class<? extends BaseDomain> destinationEntity) {
@@ -387,28 +395,6 @@ public class PolicyUtils {
         }
 
         return Collections.emptySet();
-    }
-
-    public static boolean isPermissionPresentInPolicies(String permission, Set<Policy> policies, Set<String> userPermissionGroupIds) {
-
-        Optional<Policy> interestingPolicyOptional = policies.stream()
-                .filter(policy -> policy.getPermission().equals(permission))
-                .findFirst();
-        if (interestingPolicyOptional.isEmpty()) {
-            return FALSE;
-        }
-
-        Policy interestingPolicy = interestingPolicyOptional.get();
-        Set<String> permissionGroupsIds = interestingPolicy.getPermissionGroups();
-        if (permissionGroupsIds == null || permissionGroupsIds.isEmpty()) {
-            return FALSE;
-        }
-
-        return userPermissionGroupIds.stream()
-                .filter(permissionGroupsIds::contains)
-                .findFirst()
-                .map(permissionGroup -> TRUE)
-                .orElse(FALSE);
     }
 
 }
