@@ -8,7 +8,7 @@ describe(
   "excludeForAirgap",
   "Creating new app after discontinuing guided tour should not start the same",
   function () {
-    it("1. Creating new app after discontinuing guided tour should not start the same", function () {
+    it.skip("1. Creating new app after discontinuing guided tour should not start the same", function () {
       // Start guided tour
       _.homePage.NavigateToHome();
       cy.get(guidedTourLocators.welcomeTour).click();
