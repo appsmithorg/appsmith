@@ -15,6 +15,24 @@ const AlertContainer = styled.div`
   z-index: 10;
 `;
 
+const AnimationContainer = styled.div`
+  animation-duration: 0.75s;
+  animation-delay: 0.5s;
+  animation-name: animate-slide;
+  animation-timing-function: cubic-bezier(0.26, 0.53, 0.74, 1.48);
+  animation-fill-mode: backwards;
+
+  @keyframes animate-slide {
+    0% {
+      opacity: 0;
+      transform: translate(0,50px);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(0,0);
+    }
+`;
+
 const ProductAlertBanner = () => {
   const { config, message }: ProductAlertState | undefined = useSelector(
     (state) => state.ui.users.productAlert,
@@ -58,27 +76,29 @@ const ProductAlertBanner = () => {
 
   return (
     <AlertContainer>
-      <Callout
-        isClosable={message.remindLaterDays > 0}
-        kind={"warning"}
-        links={links}
-        onClose={() => {
-          if (message.remindLaterDays) {
-            setMessageConfig(message.messageId, {
-              dismissed: false,
-              snoozeTill: moment()
-                .add(message.remindLaterDays, "days")
-                .toDate(),
-            });
-          }
+      <AnimationContainer>
+        <Callout
+          isClosable={message.remindLaterDays > 0}
+          kind={"warning"}
+          links={links}
+          onClose={() => {
+            if (message.remindLaterDays) {
+              setMessageConfig(message.messageId, {
+                dismissed: false,
+                snoozeTill: moment()
+                  .add(message.remindLaterDays, "days")
+                  .toDate(),
+              });
+            }
 
-          setDismissed(true);
-        }}
-      >
-        <Text kind={"heading-s"}>{message.title}</Text>
-        <br />
-        <span>{message.message}</span>
-      </Callout>
+            setDismissed(true);
+          }}
+        >
+          <Text kind={"heading-s"}>{message.title}</Text>
+          <br />
+          <span>{message.message}</span>
+        </Callout>
+      </AnimationContainer>
     </AlertContainer>
   );
 };
