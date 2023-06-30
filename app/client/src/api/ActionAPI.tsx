@@ -40,6 +40,9 @@ export interface QueryConfig {
 export type ActionCreateUpdateResponse = ApiResponse & {
   id: string;
   jsonPathKeys: Record<string, string>;
+  datasource: {
+    id?: string;
+  };
 };
 
 export type PaginationField = "PREV" | "NEXT";
@@ -68,6 +71,7 @@ export interface ActionApiResponseReq {
   body: Record<string, unknown> | null;
   httpMethod: HttpMethod | "";
   url: string;
+  requestedAt?: number;
 }
 
 export type ActionExecutionResponse = ApiResponse<{

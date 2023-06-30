@@ -1,7 +1,6 @@
 import type React from "react";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
-import type { EventName } from "utils/AnalyticsUtil";
 import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
 import type { CalloutKind, SelectOptionProps } from "design-system";
 
@@ -84,8 +83,6 @@ export type Setting = ControlType & {
   fieldName?: string;
   dropdownOptions?: Partial<SelectOptionProps>[];
   needsUpgrade?: boolean;
-  upgradeLogEventName?: EventName;
-  upgradeIntercomMessage?: string;
   tooltip?: string;
 };
 

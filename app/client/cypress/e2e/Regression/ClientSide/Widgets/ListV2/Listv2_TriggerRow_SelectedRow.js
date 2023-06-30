@@ -1,5 +1,5 @@
-const dsl = require("../../../../../fixtures/Listv2/ListWithInputForSelectedAndTriggerRow.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
@@ -39,7 +39,9 @@ const data = [
 
 describe("List widget v2; TriggeredRow, SelectedRow", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/ListWithInputForSelectedAndTriggerRow").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Setup necessary data and widgets", () => {
@@ -109,7 +111,6 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
           },
           Input1: {
             text: "",
-            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -142,7 +143,6 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
           },
           Input1: {
             text: "",
-            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -200,7 +200,6 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
           },
           Input1: {
             text: "",
-            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -233,7 +232,6 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
           },
           Input1: {
             text: "",
-            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -311,7 +309,6 @@ describe("List widget v2; TriggeredRow, SelectedRow", () => {
           },
           Input1: {
             text: "",
-            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,

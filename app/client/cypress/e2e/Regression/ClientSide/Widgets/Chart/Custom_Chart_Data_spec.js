@@ -1,9 +1,14 @@
 const dsl = require("../../../../../fixtures/chartCustomDataDsl.json");
-import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality around custom chart data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("chartCustomDataDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. change chart type to custom chart", function () {

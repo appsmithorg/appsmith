@@ -1,11 +1,15 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/audioWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Audio Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("audioWidgetDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Audio Widget play functionality validation", function () {
@@ -64,7 +68,7 @@ describe("Audio Widget Functionality", function () {
     entityExplorer.SelectEntityByName("Text1");
     cy.updateCodeInput(".t--property-control-text", `{{Audio1.playState}}`);
 
-    cy.openPropertyPane("audiowidget");
+    entityExplorer.SelectEntityByName("Audio1");
     cy.get(widgetsPage.autoPlay).click({ force: true });
     // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
     cy.wait(1000);

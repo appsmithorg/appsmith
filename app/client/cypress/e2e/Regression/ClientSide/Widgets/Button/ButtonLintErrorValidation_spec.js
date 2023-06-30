@@ -1,10 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/buttonLintErrorDsl.json");
-import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Linting warning validation with button widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttonLintErrorDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   it("Linting Error validation on mouseover and errorlog tab", function () {
     entityExplorer.SelectEntityByName("Button1", "Widgets");

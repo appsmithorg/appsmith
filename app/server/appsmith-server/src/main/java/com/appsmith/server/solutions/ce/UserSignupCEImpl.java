@@ -53,7 +53,6 @@ import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKE
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
@@ -76,6 +75,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final EnvManager envManager;
     private final CommonConfig commonConfig;
     private final UserUtils userUtils;
+    private final NetworkUtils networkUtils;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -89,7 +89,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                             AnalyticsService analyticsService,
                             EnvManager envManager,
                             CommonConfig commonConfig,
-                            UserUtils userUtils) {
+                            UserUtils userUtils,
+                            NetworkUtils networkUtils) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -100,6 +101,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.envManager = envManager;
         this.commonConfig = commonConfig;
         this.userUtils = userUtils;
+        this.networkUtils = networkUtils;
     }
 
     /**
@@ -130,6 +132,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
                     return pair.getT2();
                 });
+
 
         return Mono
                 .zip(
@@ -275,8 +278,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                     Mono<EnvChangesResponseDTO> applyEnvManagerChangesMono = envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                    APPSMITH_INSTANCE_NAME.name(),
-                                    commonConfig.getInstanceName(),
                                     APPSMITH_ADMIN_EMAILS.name(),
                                     user.getEmail()
                             ))
@@ -376,7 +377,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return pair.getT2();
                 });
 
-        Mono<String> getExternalAddressMono = NetworkUtils.getExternalAddress().defaultIfEmpty("unknown")
+        Mono<String> getExternalAddressMono = networkUtils.getExternalAddress().defaultIfEmpty("unknown")
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken to get external address: {} ms", pair.getT1());

@@ -1,10 +1,12 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 
 describe("checkboxgroupwidget Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("emptyDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Add new widget", () => {

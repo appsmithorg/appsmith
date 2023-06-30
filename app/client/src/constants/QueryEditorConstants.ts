@@ -10,6 +10,9 @@ export const SQL_DATASOURCES: Array<string> = [
   PluginName.MS_SQL,
   PluginName.MY_SQL,
   PluginName.ORACLE,
+  PluginName.SNOWFLAKE,
+  PluginName.ARANGODB,
+  PluginName.REDSHIFT,
 ];
 
 export const PLUGIN_PACKAGE_DBS = [

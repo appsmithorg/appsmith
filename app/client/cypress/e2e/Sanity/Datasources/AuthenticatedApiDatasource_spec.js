@@ -3,7 +3,7 @@ const datasourceFormData = require("../../../fixtures/datasources.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
 const testdata = require("../../../fixtures/testdata.json");
 
-import * as _ from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("Authenticated API Datasource", function () {
   const URL = datasourceFormData["authenticatedApiUrl"];
@@ -25,8 +25,8 @@ describe("Authenticated API Datasource", function () {
     cy.get(datasourceEditor.url).type("/users");
     cy.get(".t--save-datasource").click({ force: true });
     cy.contains(URL + "/users");
-    _.agHelper.WaitUntilAllToastsDisappear();
-    _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+    agHelper.WaitUntilAllToastsDisappear();
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
   });
 
   it("3. Bug: 14181 -Make sure the datasource view mode page does not contain labels with no value.", function () {
@@ -37,8 +37,8 @@ describe("Authenticated API Datasource", function () {
     cy.saveDatasource();
     cy.contains(headers).should("not.exist");
     cy.contains(queryParams).should("not.exist");
-    _.agHelper.WaitUntilAllToastsDisappear();
-    _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+    agHelper.WaitUntilAllToastsDisappear();
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
   });
 
   it("4. Bug: 18051 - Save and Authorise should return to datasource page in view mode and not new datasource page", () => {
@@ -47,13 +47,13 @@ describe("Authenticated API Datasource", function () {
     cy.generateUUID().then((uuid) => {
       cy.renameDatasource(uuid);
       cy.fillAuthenticatedAPIForm();
-      _.dataSources.AddOAuth2AuthorizationCodeDetails(
+      dataSources.AddOAuth2AuthorizationCodeDetails(
         testdata.accessTokenUrl,
         testdata.clientID,
         testdata.clientSecret,
         testdata.authorizationURL,
       );
-      _.dataSources.AuthAPISaveAndAuthorize();
+      dataSources.AuthAPISaveAndAuthorize();
       cy.xpath('//input[@name="email"]').type("Test@email.com");
       cy.xpath('//input[@name="email"]').type("Test");
       cy.xpath("//input[@name='password']").type("Test@123");
@@ -61,7 +61,7 @@ describe("Authenticated API Datasource", function () {
       cy.wait(2000);
       cy.reload();
       cy.get(".t--edit-datasource").should("be.visible");
-      _.dataSources.DeleteDatasouceFromActiveTab(uuid);
+      dataSources.DeleteDatasouceFromActiveTab(uuid);
     });
   });
 });

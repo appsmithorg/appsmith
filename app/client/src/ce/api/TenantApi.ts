@@ -27,10 +27,7 @@ export class TenantApi extends Api {
   static updateTenantConfig(
     request: UpdateTenantConfigRequest,
   ): AxiosPromise<UpdateTenantConfigResponse> {
-    return Api.put(
-      `${TenantApi.tenantsUrl}/updateDefaultTenantConfiguration`,
-      request.tenantConfiguration,
-    );
+    return Api.put(`${TenantApi.tenantsUrl}`, request.tenantConfiguration);
   }
 }
 

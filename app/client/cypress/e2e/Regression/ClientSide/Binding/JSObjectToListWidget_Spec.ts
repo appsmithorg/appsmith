@@ -1,14 +1,10 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-let dataSet: any, valueToTest: any, jsName: any;
+let valueToTest: any, jsName: any;
 
 describe("Validate JSObj binding to Table widget", () => {
   before(() => {
     cy.fixture("listwidgetdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
-    });
-
-    cy.fixture("example").then(function (data: any) {
-      dataSet = data;
     });
   });
 

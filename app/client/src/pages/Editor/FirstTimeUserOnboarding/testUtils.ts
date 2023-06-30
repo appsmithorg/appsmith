@@ -38,6 +38,7 @@ export const initialState: any = {
       firstTimeUserOnboardingComplete: false,
       showFirstTimeUserOnboardingModal: true,
       firstTimeUserOnboardingApplicationIds: ["1"],
+      stepState: [],
     },
     theme: {
       theme: {

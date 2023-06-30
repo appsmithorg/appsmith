@@ -34,6 +34,9 @@ export enum PluginName {
   GOOGLE_SHEETS = "Google Sheets",
   FIRESTORE = "Firestore",
   ORACLE = "Oracle",
+  SNOWFLAKE = "Snowflake",
+  ARANGODB = "ArangoDB",
+  REDSHIFT = "Redshift",
 }
 
 export enum PaginationType {

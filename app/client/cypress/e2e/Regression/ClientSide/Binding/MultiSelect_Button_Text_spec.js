@@ -1,10 +1,10 @@
 /// <reference types="Cypress" />
 
-const dsl = require("../../../../fixtures/defaultMetadataDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 import {
   agHelper,
   entityExplorer,
+  deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   WIDGET,
@@ -38,7 +38,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       agHelper.SaveLocalStorageCache();
     });
     before(() => {
-      cy.addDsl(dsl);
+      cy.fixture("defaultMetadataDsl").then((val) => {
+        agHelper.AddDsl(val);
+      });
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, function () {
@@ -78,7 +80,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     });
 
     it("3. Publish the app and validate reset action", function () {
-      cy.PublishtheApp();
+      deployMode.DeployApp();
       cy.get(".rc-select-selection-overflow").click({ force: true });
       cy.get(".rc-select-item-option:contains('Blue')").click({ force: true });
       cy.wait(1000);

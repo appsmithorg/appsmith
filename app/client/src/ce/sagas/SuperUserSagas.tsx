@@ -25,6 +25,10 @@ import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  RESTART_POLL_INTERVAL,
+  RESTART_POLL_TIMEOUT,
+} from "@appsmith/constants/tenantConstants";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -120,9 +124,6 @@ export function* SaveAdminSettingsSaga(
     });
   }
 }
-
-const RESTART_POLL_TIMEOUT = 2 * 60 * 1000;
-const RESTART_POLL_INTERVAL = 2000;
 
 export function* RestartServerPoll() {
   yield call(UserApi.restartServer);
