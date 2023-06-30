@@ -8,7 +8,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const { cloudHosting } = getAppsmithConfigs();
-export const APPSMITH_AI = "AI";
+export const APPSMITH_AI = "Appsmith AI";
 
 export function isAIEnabled(ff: FeatureFlags, mode: TEditorModes) {
   let featureFlagValue = ff.ask_ai;

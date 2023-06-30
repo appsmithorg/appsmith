@@ -57,10 +57,9 @@ const ResultContainer = styled.div`
 `;
 
 export const UserPromptWrapper = styled.div`
-  font-size: 12px;
+  font-size: 14px;
   color: var(--ads-v2-color-fg);
   padding: 8px;
-  margin-bottom: 2px;
   font-style: normal;
   display: flex;
   align-items: center;
@@ -88,14 +87,16 @@ export function GPTPrompt(props: TGPTPromptProps) {
 export function UserPrompt(props: { prompt: TUserPrompt }) {
   const { content } = props.prompt;
   return (
-    <UserPromptWrapper className="bg-gray-100">{content}</UserPromptWrapper>
+    <UserPromptWrapper className="bg-gray-100 mb-[10px]">
+      {content}
+    </UserPromptWrapper>
   );
 }
 
 export function ErrorPrompt(props: { prompt: TErrorPrompt }) {
   const { content } = props.prompt;
   return (
-    <UserPromptWrapper className="!bg-red-100 !text-red-600">
+    <UserPromptWrapper className="!bg-red-100 !text-red-600 mb-[10px]">
       {content}
     </UserPromptWrapper>
   );

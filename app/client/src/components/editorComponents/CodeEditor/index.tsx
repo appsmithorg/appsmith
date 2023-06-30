@@ -440,7 +440,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("postPick", this.handleSlashCommandSelection);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
-        editor.on("trigger-ai", () => this.setState({ showAIWindow: true }));
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
