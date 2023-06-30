@@ -27,7 +27,6 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           UserService userService,
                           AnalyticsService analyticsService,
                           UserRepository userRepository,
-                          PolicySolution policySolution,
                           EmailSender emailSender,
                           CommonConfig commonConfig,
                           EmailConfig emailConfig,
@@ -40,8 +39,8 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           TenantService tenantService,
                           ObjectMapper objectMapper) {
 
-        super(sessionUserService, userService, analyticsService, userRepository, policySolution, emailSender, commonConfig,
-                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+        super(sessionUserService, userService, analyticsService, userRepository, emailSender, commonConfig, emailConfig,
+                javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService, userUtils,
+                tenantService, objectMapper);
     }
 }
