@@ -23,6 +23,7 @@ import {
   PAYMENT_FAILED_UPDATE,
   PAYMENT_FAILED,
   CONTINUE_USING_FEATURES_ENTERPRISE,
+  NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE,
 } from "@appsmith/constants/messages";
 import { Callout, Link, Text } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -180,17 +181,23 @@ export function PageBannerMessage(): any {
                   data-testid="t--non-admin-trial-expiry-warning"
                   renderAs="p"
                 >
-                  {createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
+                  {isEnterpriseLicense
+                    ? createMessage(
+                        NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE,
+                      )
+                    : createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
                 </StyledText>
               )
             )}
-            <StyledText
-              color={color}
-              data-testid="t--already-upgraded"
-              renderAs="p"
-            >
-              {createMessage(ALREADY_UPGRADED)}
-            </StyledText>
+            {isAdmin && (
+              <StyledText
+                color={color}
+                data-testid="t--already-upgraded"
+                renderAs="p"
+              >
+                {createMessage(ALREADY_UPGRADED)}
+              </StyledText>
+            )}
           </FlexContentWrapper>
         </FlexWrapper>
       </StyledBanner>

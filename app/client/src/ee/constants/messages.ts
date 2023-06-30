@@ -139,7 +139,9 @@ export const CONTINUE_USING_FEATURES = () =>
 export const CONTINUE_USING_FEATURES_ENTERPRISE = () =>
   `to continue using Appsmith Enterprise Edition. `;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
-  `Please contact your administrator to upgrade and continue using Appsmith Business. `;
+  `Please contact your administrator to upgrade and continue using Appsmith Business Edition. `;
+export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE = () =>
+  `Please contact your administrator to upgrade and continue using Appsmith Enterprise Edition. `;
 export const TOTAL_USERS_MESSAGE = () => `Total users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
