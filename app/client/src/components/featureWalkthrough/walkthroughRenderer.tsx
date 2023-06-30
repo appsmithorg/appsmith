@@ -41,10 +41,17 @@ const InstructionsWrapper = styled.div`
   flex-direction: column;
   width: 296px;
   pointer-events: auto;
+  border-radius: var(--ads-radius-1);
+`;
+
+const ImageWrapper = styled.div`
+  border-radius: var(--ads-radius-1);
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  padding: var(--ads-v2-spaces-7);
   img {
-    margin-top: 8px;
-    display: flex;
-    align-self: center;
     max-height: 220px;
   }
 `;
@@ -208,7 +215,11 @@ const InstructionsComponent = ({
         {details.title}
       </Text>
       <Text>{details.description}</Text>
-      {details.imageURL && <img src={details.imageURL} />}
+      {details.imageURL && (
+        <ImageWrapper>
+          <img src={details.imageURL} />
+        </ImageWrapper>
+      )}
     </InstructionsWrapper>
   );
 };
