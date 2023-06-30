@@ -39,6 +39,10 @@ import { updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
 import { resetSnipingMode } from "actions/propertyPaneActions";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -109,6 +113,8 @@ function* resetEditorSaga() {
   // previously
   yield put(setPreviewModeAction(false));
   yield put(resetSnipingMode());
+  yield put(setExplorerActiveAction(true));
+  yield put(setExplorerPinnedAction(true));
   yield put(resetEditorSuccess());
 }
 
