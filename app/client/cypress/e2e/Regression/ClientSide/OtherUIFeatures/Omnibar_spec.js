@@ -61,8 +61,14 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
 
-    agHelper.GetNClick(omnibar.globalSearch, 0, true);
-    agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
+    agHelper.GetNClick(omnibar.globalSearch, 0, true, 2000);
+    agHelper.GetNClickByContains(
+      omnibar.categoryTitle,
+      "Create new",
+      0,
+      false,
+      2000,
+    ); //for next screen to open
     agHelper.AssertElementVisible(omnibar.blankAPI);
     agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     assertHelper.AssertNetworkStatus("@createNewApi", 201);

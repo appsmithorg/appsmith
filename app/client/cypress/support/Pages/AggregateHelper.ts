@@ -719,13 +719,14 @@ export class AggregateHelper extends ReusableHelper {
     containsText: string,
     index = 0,
     force = true,
+    waitTimeInterval = 500,
   ) {
     return cy
       .get(selector)
       .contains(containsText)
       .eq(index)
       .click({ force: force })
-      .wait(500);
+      .wait(waitTimeInterval);
   }
 
   public CheckUncheck(selector: string, check = true) {
