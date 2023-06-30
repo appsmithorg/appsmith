@@ -59,14 +59,25 @@ export function defaultValueValidation(
   }
 
   const { inputType } = props;
+
+  if (
+    _.isBoolean(value) ||
+    _.isNil(value) ||
+    _.isUndefined(value) ||
+    (_.isNumber(value) && inputType !== "NUMBER")
+  ) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [STRING_ERROR_MESSAGE],
+    };
+  }
+
   let parsed;
   switch (inputType) {
     case "NUMBER":
-      if (_.isNil(value)) {
-        parsed = null;
-      } else {
-        parsed = Number(value);
-      }
+      parsed = Number(value);
+
       let isValid, messages;
 
       if (_.isString(value) && value.trim() === "") {

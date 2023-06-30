@@ -72,12 +72,20 @@ export function defaultValueValidation(
     };
   }
 
+  if (_.isBoolean(value) || _.isUndefined(value) || _.isNull(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [NUMBER_ERROR_MESSAGE],
+    };
+  }
+
   let parsed: any = Number(value);
   let isValid, messages;
 
   if (_.isString(value) && value.trim() === "") {
     /*
-     *  When value is emtpy string
+     *  When value is empty string
      */
     isValid = true;
     messages = [EMPTY_ERROR_MESSAGE];
