@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -93,12 +94,10 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   AnalyticsService analyticsService,
                                   PolicySolution policySolution,
                                   ConfigService configService,
-                                  SessionUserService sessionUserService,
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
-                                  TenantService tenantService,
+                                  NewActionRepository newActionRepository,
                                   AssetService assetService,
-                                  UserRepository userRepository,
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission,
                                   PermissionGroupRepository permissionGroupRepository,
@@ -109,8 +108,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   UserGroupRepository userGroupRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policySolution,
-                configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
-                userRepository, datasourcePermission, applicationPermission);
+                configService, responseUtils, permissionGroupService, newActionRepository, assetService,
+                 datasourcePermission, applicationPermission);
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
@@ -621,7 +620,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     private boolean isDefaultBranchApplication(Application application) {
         return Objects.isNull(application.getGitApplicationMetadata())
                 || application.getGitApplicationMetadata().getDefaultApplicationId().equals(application.getId());
-
     }
 
     /**
