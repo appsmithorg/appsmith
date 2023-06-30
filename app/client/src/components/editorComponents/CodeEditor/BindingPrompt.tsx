@@ -28,6 +28,7 @@ function BindingPrompt(props: {
   isOpen: boolean;
   editorTheme?: EditorTheme;
   showLightningMenu?: boolean;
+  isAIEnabled?: boolean;
 }): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
   const customMessage = !!props.promptMessage;
@@ -42,7 +43,11 @@ function BindingPrompt(props: {
       ref={promptRef}
       visible={props.isOpen}
     >
-      {props.promptMessage ? (
+      {props.isAIEnabled ? (
+        <>
+          Use <b>/ai</b> to generate JS expressions
+        </>
+      ) : props.promptMessage ? (
         props.promptMessage
       ) : (
         <>
