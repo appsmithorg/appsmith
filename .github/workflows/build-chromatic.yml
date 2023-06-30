@@ -1,6 +1,11 @@
 name: 'Build Storybook Preview and Publish to Chromatic'
 
 on:
+  push:
+    branches:
+      - release
+    paths:
+      - 'app/client/packages/design-system/**'
   pull_request:
     paths:
       - 'app/client/packages/design-system/**'
