@@ -57,7 +57,7 @@ const truncateStyles = css`
 export const StyledText = styled.div.withConfig({
   shouldForwardProp,
 })<TextProps>`
-  color: ${({ color }) => color};
+  color: red;
   font-weight: ${({ fontWeight }) => fontWeight};
   text-decoration: ${({ textDecoration }) => textDecoration};
   font-style: ${({ fontStyle }) => fontStyle};
