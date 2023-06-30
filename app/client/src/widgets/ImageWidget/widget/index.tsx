@@ -36,7 +36,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           type: "boolean",
         },
         setImage: {
-          path: "defaultImage",
+          path: "image",
           type: "string",
         },
       },
