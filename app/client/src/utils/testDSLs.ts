@@ -1,3 +1,6 @@
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+
 export const originalDSLForDSLMigrations = {
   widgetName: "MainContainer",
   backgroundColor: "none",
@@ -106,7 +109,7 @@ export const originalDSLForDSLMigrations = {
               boxShadow: "none",
               widgetName: "IconButton8",
               buttonColor: "#fff",
-              displayName: "Icon Button",
+              displayName: "Icon button",
               iconSVG:
                 "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
               searchTags: ["click", "submit"],
@@ -313,8 +316,9 @@ export const originalDSLForDSLMigrations = {
                           key: "image",
                         },
                       ],
-                      defaultImage:
-                        "https://assets.appsmith.com/widgets/default.png",
+                      defaultImage: getAssetUrl(
+                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                      ),
                       key: "52v1r95ynr",
                       image: "{{lst_user.selectedItem.image}}",
                       isDeprecated: false,
@@ -387,7 +391,7 @@ export const originalDSLForDSLMigrations = {
                           boxShadow: "NONE",
                           widgetName: "IconButton2",
                           buttonColor: "#2E3D49",
-                          displayName: "Icon Button",
+                          displayName: "Icon button",
                           iconSVG: "/static/media/icon.1a0c634a.svg",
                           topRow: 5,
                           bottomRow: 9,
@@ -485,8 +489,7 @@ export const originalDSLForDSLMigrations = {
                           shouldTruncate: false,
                           borderWidth: "",
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{List1.listData.map((currentItem) => JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end))}}",
+                          text: "{{List1.listData.map((currentItem) => JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end))}}",
                           key: "s3ajdid629",
                           labelTextSize: "0.875rem",
                           rightColumn: 64,
@@ -570,8 +573,7 @@ export const originalDSLForDSLMigrations = {
                           leftColumn: 0,
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{List1.listData.map((currentItem) => JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end))}}",
+                          text: "{{List1.listData.map((currentItem) => JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end))}}",
                           key: "s3ajdid629",
                           labelTextSize: "0.875rem",
                           rightColumn: 33,
@@ -634,7 +636,7 @@ export const originalDSLForDSLMigrations = {
                               key: "borderRadius",
                             },
                           ],
-                          displayName: "Icon Button",
+                          displayName: "Icon button",
                           iconSVG: "/static/media/icon.1a0c634a.svg",
                           topRow: 5,
                           bottomRow: 10,
@@ -724,8 +726,7 @@ export const originalDSLForDSLMigrations = {
                           leftColumn: 0,
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{List1.listData.map((currentItem) => 'Task: ' + currentItem.task)}}",
+                          text: "{{List1.listData.map((currentItem) => 'Task: ' + currentItem.task)}}",
                           key: "s3ajdid629",
                           labelTextSize: "0.875rem",
                           rightColumn: 22,
@@ -1184,7 +1185,7 @@ export const originalDSLForDSLMigrations = {
                                           key: "borderRadius",
                                         },
                                       ],
-                                      displayName: "Icon Button",
+                                      displayName: "Icon button",
                                       iconSVG:
                                         "/static/media/icon.1a0c634a.svg",
                                       topRow: 4,
@@ -1282,8 +1283,7 @@ export const originalDSLForDSLMigrations = {
                                       leftColumn: 0,
                                       shouldTruncate: false,
                                       truncateButtonColor: "#FFC13D",
-                                      text:
-                                        "{{JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end)}}",
+                                      text: "{{JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end)}}",
                                       key: "s3ajdid629",
                                       labelTextSize: "0.875rem",
                                       rightColumn: 33,
@@ -1366,8 +1366,7 @@ export const originalDSLForDSLMigrations = {
                                       shouldTruncate: false,
                                       borderWidth: "",
                                       truncateButtonColor: "#FFC13D",
-                                      text:
-                                        "{{JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end)}}",
+                                      text: "{{JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end)}}",
                                       key: "s3ajdid629",
                                       labelTextSize: "0.875rem",
                                       rightColumn: 64,
@@ -1629,8 +1628,9 @@ export const originalDSLForDSLMigrations = {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage:
-                            "https://assets.appsmith.com/widgets/default.png",
+                          defaultImage: getAssetUrl(
+                            `${ASSETS_CDN_URL}/widgets/default.png`,
+                          ),
                           key: "6zvrwxg59v",
                           image:
                             "{{lst_user.listData.map((currentItem) => currentItem.image)}}",
@@ -1720,8 +1720,7 @@ export const originalDSLForDSLMigrations = {
                           leftColumn: 18,
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{lst_user.listData.map((currentItem) => currentItem.name)}}",
+                          text: "{{lst_user.listData.map((currentItem) => currentItem.name)}}",
                           key: "u6pcautxph",
                           isDeprecated: false,
                           rightColumn: 51,
@@ -1806,8 +1805,7 @@ export const originalDSLForDSLMigrations = {
                           ],
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{lst_user.listData.map((currentItem) => currentItem.email)}}",
+                          text: "{{lst_user.listData.map((currentItem) => currentItem.email)}}",
                           key: "u6pcautxph",
                           isDeprecated: false,
                           rightColumn: 63,
@@ -1872,7 +1870,7 @@ export const originalDSLForDSLMigrations = {
                               key: "buttonColor",
                             },
                           ],
-                          displayName: "Icon Button",
+                          displayName: "Icon button",
                           iconSVG:
                             "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                           searchTags: ["click", "submit"],
@@ -2194,8 +2192,9 @@ export const originalDSLForDSLMigrations = {
                                         },
                                       ],
                                       leftColumn: 0,
-                                      defaultImage:
-                                        "https://assets.appsmith.com/widgets/default.png",
+                                      defaultImage: getAssetUrl(
+                                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                                      ),
                                       key: "6zvrwxg59v",
                                       image: "{{currentItem.image}}",
                                       isDeprecated: false,
@@ -2445,7 +2444,7 @@ export const originalDSLForDSLMigrations = {
                                           key: "buttonColor",
                                         },
                                       ],
-                                      displayName: "Icon Button",
+                                      displayName: "Icon button",
                                       iconSVG:
                                         "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                                       searchTags: ["click", "submit"],
@@ -3239,8 +3238,7 @@ export const originalDSLForDSLMigrations = {
                       ],
                       shouldTruncate: false,
                       truncateButtonColor: "#FFC13D",
-                      text:
-                        "{{'task' in appsmith.store && appsmith.store.task?.length>0 ? `TASK ${appsmith.store.task}` : 'select a bar segment to view log entries for each Task'}}",
+                      text: "{{'task' in appsmith.store && appsmith.store.task?.length>0 ? `TASK ${appsmith.store.task}` : 'select a bar segment to view log entries for each Task'}}",
                       key: "oqp9xeolbr",
                       isDeprecated: false,
                       rightColumn: 57,
@@ -3268,7 +3266,7 @@ export const originalDSLForDSLMigrations = {
                           key: "onClick",
                         },
                       ],
-                      displayName: "Icon Button",
+                      displayName: "Icon button",
                       iconSVG:
                         "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                       searchTags: ["click", "submit"],
@@ -3395,8 +3393,7 @@ export const originalDSLForDSLMigrations = {
               ],
               shouldTruncate: false,
               truncateButtonColor: "#FFC13D",
-              text:
-                "Last Updated: {{appsmith.store?.updated_at || moment().format('LLL')}}",
+              text: "Last Updated: {{appsmith.store?.updated_at || moment().format('LLL')}}",
               key: "sm2eopm278",
               labelTextSize: "0.875rem",
               rightColumn: 52,
@@ -3426,7 +3423,7 @@ export const originalDSLForDSLMigrations = {
                   key: "borderRadius",
                 },
               ],
-              displayName: "Icon Button",
+              displayName: "Icon button",
               iconSVG: "/static/media/icon.1a0c634a.svg",
               topRow: 0,
               bottomRow: 5,
@@ -3537,7 +3534,7 @@ export const originalDSLForDSLMigrations = {
               widgetName: "IconButton6",
               onClick: "{{closeModal('Modal1')}}",
               buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-              displayName: "Icon Button",
+              displayName: "Icon button",
               iconSVG: "/static/media/icon.1a0c634a.svg",
               topRow: 1,
               bottomRow: 6,

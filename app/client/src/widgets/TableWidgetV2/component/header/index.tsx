@@ -1,6 +1,8 @@
 import React from "react";
-import Actions, { ActionsPropsType } from "./actions";
-import { Banner, BannerPropType } from "./banner";
+import type { ActionsPropsType } from "./actions";
+import Actions from "./actions";
+import type { BannerPropType } from "./banner";
+import { Banner } from "./banner";
 
 function TableHeader(props: ActionsPropsType & BannerPropType) {
   const {

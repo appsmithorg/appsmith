@@ -1,5 +1,5 @@
-import { Intent as BlueprintIntent } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
+import type { Intent as BlueprintIntent } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
 
 export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {

@@ -1,11 +1,13 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { REQUEST_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/URLUtils";
 import {
   apiFailureResponseInterceptor,
   apiRequestInterceptor,
   apiSuccessResponseInterceptor,
-} from "api/ApiUtils";
+  blockedApiRoutesForAirgapInterceptor,
+} from "@appsmith/api/ApiUtils";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -19,7 +21,14 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
-axiosInstance.interceptors.request.use(apiRequestInterceptor);
+const requestInterceptors = [
+  blockedApiRoutesForAirgapInterceptor,
+  apiRequestInterceptor,
+];
+requestInterceptors.forEach((interceptor) => {
+  axiosInstance.interceptors.request.use(interceptor as any);
+});
+
 axiosInstance.interceptors.response.use(
   apiSuccessResponseInterceptor,
   apiFailureResponseInterceptor,

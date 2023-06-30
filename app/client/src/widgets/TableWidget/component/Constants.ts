@@ -1,8 +1,8 @@
 import { isString } from "lodash";
 import moment from "moment";
-import { IconName } from "@blueprintjs/icons";
-import { Alignment } from "@blueprintjs/core";
-import {
+import type { IconName } from "@blueprintjs/icons";
+import type { Alignment } from "@blueprintjs/core";
+import type {
   ButtonBorderRadius,
   ButtonStyleType,
   ButtonVariant,

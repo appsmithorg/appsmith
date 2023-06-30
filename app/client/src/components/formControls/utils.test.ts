@@ -1,20 +1,21 @@
 import {
-  isHidden,
-  getConfigInitialValues,
-  caculateIsHidden,
-  evaluateCondtionWithType,
   actionPathFromName,
-  getViewType,
-  ViewTypes,
-  switchViewType,
-  extractConditionalOutput,
+  caculateIsHidden,
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
+  evaluateCondtionWithType,
+  extractConditionalOutput,
+  getConfigInitialValues,
+  getViewType,
+  isHidden,
+  switchViewType,
   updateEvaluatedSectionConfig,
+  ViewTypes,
 } from "./utils";
-import { HiddenType } from "./BaseControl";
+import type { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
@@ -234,7 +235,7 @@ describe("getConfigInitialValues test", () => {
             sectionName: "Connection",
             children: [
               {
-                label: "Host Address (for overriding endpoint only)",
+                label: "Host address (for overriding endpoint only)",
                 configProperty: "datasourceConfiguration.endpoints[*].host",
                 controlType: "KEYVALUE_ARRAY",
                 initialValue: ["jsonplaceholder.typicode.com"],
@@ -289,13 +290,13 @@ describe("caculateIsHidden test", () => {
       path: "name",
       comparison: "EQUALS",
       value: "Name",
-      flagValue: "APP_TEMPLATE",
+      flagValue: FEATURE_FLAG.TEST_FLAG,
     };
     const hiddenFalsy: HiddenType = {
       path: "name",
       comparison: "EQUALS",
       value: "Different Name",
-      flagValue: "APP_TEMPLATE",
+      flagValue: FEATURE_FLAG.TEST_FLAG,
     };
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();
@@ -814,10 +815,10 @@ describe("UQI form render methods", () => {
       {
         input: {
           controlType: "SECTION",
-          label: "Select Bucket to Query",
+          label: "Select bucket to query",
           children: [
             {
-              label: "Bucket Name",
+              label: "Bucket name",
               configProperty: "actionConfiguration.formData.bucket.data",
               controlType: "QUERY_DYNAMIC_INPUT_TEXT",
               evaluationSubstitutionType: "TEMPLATE",
@@ -830,10 +831,10 @@ describe("UQI form render methods", () => {
       },
       {
         input: {
-          label: "Select Bucket to Query",
+          label: "Select bucket to query",
           children: [
             {
-              label: "Bucket Name",
+              label: "Bucket name",
               configProperty: "actionConfiguration.formData.bucket.data",
               controlType: "QUERY_DYNAMIC_INPUT_TEXT",
               evaluationSubstitutionType: "TEMPLATE",

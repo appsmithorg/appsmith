@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { FocusEntityInfo } from "navigation/FocusEntity";
+import type { FocusEntityInfo } from "navigation/FocusEntity";
 
 export type FocusState = {
   entityInfo: FocusEntityInfo;

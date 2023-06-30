@@ -1,21 +1,20 @@
-import React from "react";
-import {
+import type {
   ChangeSelectedAppThemeAction,
   DeleteAppThemeAction,
   FetchAppThemesAction,
   FetchSelectedAppThemeAction,
   SaveAppThemeAction,
-  updateisBetaCardShownAction,
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import { updateisBetaCardShownAction } from "actions/appThemingActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import {
   CHANGE_APP_THEME,
   createMessage,
@@ -24,22 +23,19 @@ import {
   SET_DEFAULT_SELECTED_THEME,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { undoAction, updateReplayEntity } from "actions/pageActions";
+import { updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import store from "store";
-import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import type { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
-import {
-  batchUpdateMultipleWidgetProperties,
-  UpdateWidgetPropertyPayload,
-} from "actions/controlActions";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
-import { ApiResponse } from "api/ApiResponses";
-import { AppTheme } from "entities/AppTheming";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { ApiResponse } from "api/ApiResponses";
+import type { AppTheme } from "entities/AppTheming";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getCurrentApplicationId,
   selectApplicationVersion,
@@ -48,8 +44,8 @@ import { find } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { getAllPageIds } from "./selectors";
-import { SagaIterator } from "@redux-saga/types";
-import { AxiosPromise } from "axios";
+import type { SagaIterator } from "@redux-saga/types";
+import type { AxiosPromise } from "axios";
 
 /**
  * init app theming
@@ -203,12 +199,8 @@ export function* changeSelectedTheme(
     });
 
     // shows toast
-    Toaster.show({
-      text: createMessage(CHANGE_APP_THEME, theme.displayName),
-      variant: Variant.success,
-      actionElement: (
-        <span onClick={() => store.dispatch(undoAction())}>Undo</span>
-      ),
+    toast.show(createMessage(CHANGE_APP_THEME, theme.displayName), {
+      kind: "success",
     });
 
     if (shouldReplay) {
@@ -248,9 +240,8 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
     });
 
     // shows toast
-    Toaster.show({
-      text: createMessage(SAVE_APP_THEME, name),
-      variant: Variant.success,
+    toast.show(createMessage(SAVE_APP_THEME, name), {
+      kind: "success",
     });
   } catch (error) {
     yield put({
@@ -277,9 +268,8 @@ export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
     });
 
     // shows toast
-    Toaster.show({
-      text: createMessage(DELETE_APP_THEME, name),
-      variant: Variant.success,
+    toast.show(createMessage(DELETE_APP_THEME, name), {
+      kind: "success",
     });
   } catch (error) {
     yield put({
@@ -307,9 +297,8 @@ function* resetTheme() {
     const canvasWidgets: CanvasWidgetsReduxState = yield select(
       getCanvasWidgets,
     );
-    const propertiesToUpdate: UpdateWidgetPropertyPayload[] = getPropertiesToUpdateForReset(
-      canvasWidgets,
-    );
+    const propertiesToUpdate: UpdateWidgetPropertyPayload[] =
+      getPropertiesToUpdateForReset(canvasWidgets);
 
     if (propertiesToUpdate.length) {
       yield put(batchUpdateMultipleWidgetProperties(propertiesToUpdate));
@@ -339,9 +328,8 @@ function* setDefaultSelectedThemeOnError() {
         payload: theme,
       });
       // shows toast
-      Toaster.show({
-        text: createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName),
-        variant: Variant.warning,
+      toast.show(createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName), {
+        kind: "warning",
       });
     }
   } catch (error) {

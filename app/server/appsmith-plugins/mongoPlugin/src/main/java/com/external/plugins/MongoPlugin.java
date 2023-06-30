@@ -116,6 +116,7 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.SUCCESS;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.exceptions.MongoPluginErrorMessages.MONGO_CLIENT_NULL_ERROR_MSG;
 import static com.external.plugins.utils.DatasourceUtils.KEY_PASSWORD;
 import static com.external.plugins.utils.DatasourceUtils.KEY_URI_DEFAULT_DBNAME;
 import static com.external.plugins.utils.DatasourceUtils.KEY_USERNAME;
@@ -309,7 +310,7 @@ public class MongoPlugin extends BasePlugin {
 
             if (mongoClient == null) {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
-                throw new StaleConnectionException();
+                throw new StaleConnectionException(MONGO_CLIENT_NULL_ERROR_MSG);
             }
             Mono<Document> mongoOutputMono;
             ActionExecutionResult result = new ActionExecutionResult();
@@ -353,13 +354,13 @@ public class MongoPlugin extends BasePlugin {
                      */
                     .onErrorMap(
                             IllegalStateException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
                     .onErrorMap(
                             MongoSocketWriteException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     .flatMap(mongoOutput -> {
                         try {
@@ -790,7 +791,7 @@ public class MongoPlugin extends BasePlugin {
                     }
 
                     if (!StringUtils.hasLength(authentication.getDatabaseName())) {
-                        invalids.add(MongoPluginErrorMessages.DS_MISSING_DEFAULT_DATABASE_NAME_ERROR_MSG);
+                        invalids.add(MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME);
                     }
 
                 }
@@ -816,11 +817,6 @@ public class MongoPlugin extends BasePlugin {
                     MongoPluginErrorMessages.DS_TIMEOUT_ERROR_MSG
             );
 
-            final String defaultDatabaseName;
-            if (datasourceConfiguration.getConnection() != null) {
-                defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
-            } else defaultDatabaseName = null;
-
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
                         final Publisher<String> result = mongoClient.listDatabaseNames();
@@ -828,9 +824,36 @@ public class MongoPlugin extends BasePlugin {
                         return documentMono.doFinally(ignored -> mongoClient.close()).then(documentMono);
                     })
                     .flatMap(names -> {
+
+                        final String defaultDatabaseName;
+                        if (datasourceConfiguration.getConnection() != null) {
+                            defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+                        } else {
+                            defaultDatabaseName = null;
+                        }
+
+                        final String authDatabaseName;
+                        if (datasourceConfiguration.getAuthentication() != null &&
+                                !isBlank(((DBAuth)datasourceConfiguration.getAuthentication()).getDatabaseName())) {
+                            authDatabaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
+                        } else {
+                            return Mono.just(new DatasourceTestResult(
+                                    MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME));
+                        }
+
+                        final Optional<String> authDB = names.stream()
+                                .filter(name -> name.equals(authDatabaseName))
+                                .findFirst();
+
+                        if(authDB.isEmpty()) {
+                            return Mono.just(new DatasourceTestResult(
+                                    MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME));
+                        }
+
                         if (defaultDatabaseName == null || defaultDatabaseName.isBlank()) {
                             return Mono.just(new DatasourceTestResult());
                         }
+
                         final Optional<String> defaultDB = names.stream()
                                 .filter(name -> name.equals(defaultDatabaseName))
                                 .findFirst();
@@ -894,13 +917,13 @@ public class MongoPlugin extends BasePlugin {
                      */
                     .onErrorMap(
                             IllegalStateException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
                     .onErrorMap(
                             MongoSocketWriteException.class,
-                            error -> new StaleConnectionException()
+                            error -> new StaleConnectionException(error.getMessage())
                     )
                     .onErrorMap(
                             MongoCommandException.class,

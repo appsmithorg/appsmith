@@ -1,9 +1,10 @@
-import React from "react";
+import React, { memo } from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
+import type { BaseCellComponentProps } from "../Constants";
+import { TABLE_SIZES } from "../Constants";
 import { Button } from "./Button";
-import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
 
 const StyledButton = styled(Button)<{ compactMode: string }>`
@@ -17,7 +18,7 @@ export interface RenderActionProps extends BaseCellComponentProps {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
-export function ButtonCell(props: RenderActionProps) {
+function ButtonCellComponent(props: RenderActionProps) {
   const {
     allowCellWrapping,
     cellBackground,
@@ -83,3 +84,4 @@ export function ButtonCell(props: RenderActionProps) {
     </CellWrapper>
   );
 }
+export const ButtonCell = memo(ButtonCellComponent);

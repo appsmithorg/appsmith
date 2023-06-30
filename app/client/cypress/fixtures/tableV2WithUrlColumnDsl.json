@@ -177,6 +177,9 @@
                     },
                     {
                         "key": "primaryColumns.EditActions1.isDiscardDisabled"
+                    },
+                    {
+                      "key": "tableData"
                     }
                 ],
                 "displayName": "Table",

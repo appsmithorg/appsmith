@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { hideByColumnType } from "../../propertyUtils";
 
 export default {
@@ -20,15 +21,15 @@ export default {
       controlType: "ICON_TABS",
       options: [
         {
-          icon: "LEFT_ALIGN",
+          startIcon: "align-left",
           value: "LEFT",
         },
         {
-          icon: "CENTER_ALIGN",
+          startIcon: "align-center",
           value: "CENTER",
         },
         {
-          icon: "RIGHT_ALIGN",
+          startIcon: "align-right",
           value: "RIGHT",
         },
       ],
@@ -60,20 +61,20 @@ export default {
     },
     {
       propertyName: "verticalAlignment",
-      label: "Vertical Alignment",
+      label: "Vertical alignment",
       helpText: "Sets the vertical alignment of the content in the column",
       controlType: "ICON_TABS",
       options: [
         {
-          icon: "VERTICAL_TOP",
+          startIcon: "vertical-align-top",
           value: "TOP",
         },
         {
-          icon: "VERTICAL_CENTER",
+          startIcon: "vertical-align-middle",
           value: "CENTER",
         },
         {
-          icon: "VERTICAL_BOTTOM",
+          startIcon: "vertical-align-bottom",
           value: "BOTTOM",
         },
       ],

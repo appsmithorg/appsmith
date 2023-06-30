@@ -1,17 +1,15 @@
-import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "design-system-old";
 import styled from "styled-components";
 import { TemplateLayout } from "./index";
 
 const LargeTemplate = styled(TemplateLayout)`
-  border: 1px solid ${Colors.GEYSER_LIGHT};
+  border: 1px solid var(--ads-v2-color-border);
   display: flex;
   flex: 1;
   flex-direction: column;
   cursor: pointer;
   &:hover {
-    box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
-      0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+    border-color: var(--ads-v2-color-border-emphasis);
   }
 
   && {

@@ -1,4 +1,4 @@
-import { Property } from "entities/Action";
+import type { Property } from "entities/Action";
 
 export enum AuthType {
   NONE = "dbAuth",
@@ -57,6 +57,8 @@ export interface ApiDatasourceForm {
   authType: AuthType;
   authentication?: Authentication;
   connection?: Connection;
+  userPermissions?: string[];
+  name?: string;
 }
 
 export interface Oauth2Common {

@@ -1433,7 +1433,7 @@
 					"name": "DEFAULT_REST_DATASOURCE",
 					"pluginId": "restapi-plugin",
 					"datasourceConfiguration": {
-						"url": "https://mock-api.appsmith.com"
+						"url": "http://host.docker.internal:5001/v1/mock-api"
 					},
 					"invalids": [
 
@@ -1448,7 +1448,7 @@
 				"actionConfiguration": {
 					"timeoutInMillisecond": 10000,
 					"paginationType": "NONE",
-					"path": "/echo/post",
+					"path": "/echo",
 					"headers": [
 						{
 							"key": "content-type",
@@ -1502,7 +1502,7 @@
 					"name": "DEFAULT_REST_DATASOURCE",
 					"pluginId": "restapi-plugin",
 					"datasourceConfiguration": {
-						"url": "https://mock-api.appsmith.com"
+						"url": "http://host.docker.internal:5001/v1/mock-api"
 					},
 					"invalids": [
 
@@ -1517,7 +1517,7 @@
 				"actionConfiguration": {
 					"timeoutInMillisecond": 10000,
 					"paginationType": "NONE",
-					"path": "/echo/post",
+					"path": "/echo",
 					"headers": [
 						{
 							"key": "content-type",

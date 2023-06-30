@@ -15,11 +15,11 @@ const requiredParams = {
 
 const options = [
   {
-    icon: "BOLD_FONT",
+    startIcon: "text-bold",
     value: "BOLD",
   },
   {
-    icon: "ITALICS_FONT",
+    startIcon: "text-italic",
     value: "ITALIC",
   },
 ];

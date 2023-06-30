@@ -13,8 +13,8 @@ import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
@@ -74,7 +74,6 @@ import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_HOST;
@@ -99,7 +98,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final UserService userService;
     private final AnalyticsService analyticsService;
     private final UserRepository userRepository;
-    private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
 
     private final CommonConfig commonConfig;
@@ -135,7 +133,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             UserService userService,
                             AnalyticsService analyticsService,
                             UserRepository userRepository,
-                            PolicyUtils policyUtils,
                             EmailSender emailSender,
                             CommonConfig commonConfig,
                             EmailConfig emailConfig,
@@ -152,7 +149,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userService = userService;
         this.analyticsService = analyticsService;
         this.userRepository = userRepository;
-        this.policyUtils = policyUtils;
         this.emailSender = emailSender;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
@@ -346,8 +342,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
-        return verifyCurrentUserIsSuper().
-                flatMap(user -> validateChanges(user, changes).thenReturn(user))
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
                     // Write the changes to the env file.
                     final String originalContent;
@@ -389,10 +385,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     // Try and update any at runtime, that can be.
                     final Map<String, String> changesCopy = new HashMap<>(changes);
-
-                    if (changesCopy.containsKey(APPSMITH_INSTANCE_NAME.name())) {
-                        commonConfig.setInstanceName(changesCopy.remove(APPSMITH_INSTANCE_NAME.name()));
-                    }
 
                     if (changesCopy.containsKey(APPSMITH_SIGNUP_DISABLED.name())) {
                         commonConfig.setSignupDisabled(changesCopy.remove(APPSMITH_SIGNUP_DISABLED.name()));
@@ -462,7 +454,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(entry -> {
                     final String key = entry.getKey();
                     final List<Part> parts = entry.getValue();
-                    final boolean isFile = parts.size() > 0 && parts.get(0) instanceof FilePart;
+                    final boolean isFile = !CollectionUtils.isNullOrEmpty(parts) && parts.get(0) instanceof FilePart;
 
                     if (isFile) {
                         return handleFileUpload(key, parts);
@@ -628,11 +620,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     // set the default values to response
                     Map<String, String> envKeyValueMap = parseToMap(originalContent);
 
-                    if (!envKeyValueMap.containsKey(APPSMITH_INSTANCE_NAME.name())) {
-                        // no APPSMITH_INSTANCE_NAME set in env file, set the default value
-                        envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
-                    }
-
                     return Mono.justOrEmpty(envKeyValueMap);
                 });
     }
@@ -697,7 +684,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     Properties props = mailSender.getJavaMailProperties();
                     props.put("mail.transport.protocol", "smtp");
-                    props.put("mail.smtp.starttls.enable", "true");
+
+                    props.put("mail.smtp.starttls.enable", requestDTO.getStarttlsEnabled().toString());
+
                     props.put("mail.smtp.timeout", 7000); // 7 seconds
 
                     if (StringUtils.hasLength(requestDTO.getUsername())) {

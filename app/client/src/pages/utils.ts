@@ -1,5 +1,5 @@
 import { getSearchQuery } from "utils/helpers";
-import { Location } from "history";
+import type { Location } from "history";
 
 export const getIsBranchUpdated = (
   prevLocation: Location<unknown>,
@@ -12,4 +12,18 @@ export const getIsBranchUpdated = (
   const branch2 = getSearchQuery(search2, "branch");
 
   return branch1 !== branch2;
+};
+
+export const addClassToDocumentRoot = (className: string) => {
+  const element: HTMLElement | null = document.querySelector("#root");
+  if (!!element) {
+    element.classList.add(className);
+  }
+};
+
+export const removeClassFromDocumentRoot = (className: string) => {
+  const element: HTMLElement | null = document.querySelector("#root");
+  if (!!element) {
+    element.classList.remove(className);
+  }
 };

@@ -1,10 +1,9 @@
 package com.appsmith.server.dtos;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import jakarta.validation.constraints.NotNull;
 
 @Getter
 @Setter

@@ -8,11 +8,13 @@ import {
   fork,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
-import {
+import type {
   ReduxAction,
+  ReduxActionWithMeta,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  ReduxActionWithMeta,
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { getDynamicTriggers, getFormData } from "selectors/formSelectors";
@@ -34,27 +36,19 @@ import {
   getPlugin,
   getEditorConfig,
   getSettingConfig,
-  getActions,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
 } from "selectors/entitiesSelector";
-import {
-  Action,
-  ApiActionConfig,
-  isGraphqlPlugin,
-  PluginType,
-  QueryAction,
-} from "entities/Action";
+import type { Action, QueryAction } from "entities/Action";
+import { PluginType } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { Toaster, Variant } from "design-system-old";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import omit from "lodash/omit";
 import {
   createMessage,
@@ -67,29 +61,26 @@ import {
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { EventLocation } from "utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
 } from "RouteBuilder";
-import {
-  GenerateCRUDEnabledPluginMap,
-  Plugin,
-  UIComponentTypes,
-} from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
-import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
-import { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
 import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
+import { toast } from "design-system";
+import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
+import { createDefaultActionPayload } from "./ActionSagas";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -258,6 +249,15 @@ function* formValueChangeSaga(
       return;
     }
 
+    // get datasource configuration based on datasource id
+    // pass it to run form evaluations method
+    // This is required for google sheets, as we need to modify query
+    // state based on datasource config
+    const datasource: Datasource | undefined = yield select(
+      getDatasource,
+      values.datasource.id,
+    );
+
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
     const postEvalActions =
@@ -270,6 +270,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
+              datasource?.datasourceConfiguration,
             ),
           ]
         : [];
@@ -314,15 +315,10 @@ function* formValueChangeSaga(
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
-  const {
-    actionConfiguration,
-    id,
-    pluginId,
-    pluginType,
-  } = actionPayload.payload;
+  const { actionConfiguration, id, pluginId, pluginType } =
+    actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
   if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
-  yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
   const pluginTemplates: Record<string, unknown> = yield select(
     getPluginTemplates,
   );
@@ -368,9 +364,8 @@ function* handleDatasourceCreatedSaga(
   const isGeneratePageInitiator = getIsGeneratePageInitiator(
     queryParams.isGeneratePageMode,
   );
-  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
-    getGenerateCRUDEnabledPluginMap,
-  );
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
+    yield select(getGenerateCRUDEnabledPluginMap);
 
   // isGeneratePageInitiator ensures that datasource is being created from generate page with data
   // then we check if the current plugin is supported for generate page with data functionality
@@ -419,9 +414,8 @@ function* handleNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, ""), {
+      kind: "error",
     });
 
     Sentry.captureException(
@@ -460,50 +454,15 @@ function* createNewQueryForDatasourceSaga(
     from: EventLocation;
   }>,
 ) {
-  const { datasourceId, pageId } = action.payload;
+  const { datasourceId } = action.payload;
   if (!datasourceId) return;
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
-  const actions: ActionDataState = yield select(getActions);
 
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  const pluginType: PluginType = plugin?.type;
-  const isGraphql: boolean = isGraphqlPlugin(plugin);
-
-  // If the datasource is Graphql then get Graphql default config else Api config
-  const DEFAULT_CONFIG = isGraphql
-    ? DEFAULT_GRAPHQL_ACTION_CONFIG
-    : DEFAULT_API_ACTION_CONFIG;
-
-  const DEFAULT_HEADERS = isGraphql
-    ? DEFAULT_GRAPHQL_ACTION_CONFIG.headers
-    : DEFAULT_API_ACTION_CONFIG.headers;
-
-  /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
-  const defaultApiActionConfig: ApiActionConfig = {
-    ...DEFAULT_CONFIG,
-    headers: DEFAULT_HEADERS,
-  };
-
-  const newActionName =
-    pluginType === PluginType.DB
-      ? createNewQueryName(actions, pageId || "")
-      : createNewApiName(actions, pageId || "");
-
-  const createActionPayload = {
-    name: newActionName,
-    pageId,
-    pluginId: datasource?.pluginId,
-    datasource: {
-      id: datasourceId,
-    },
-    eventData: {
-      actionType: pluginType === PluginType.DB ? "Query" : "API",
-      from: action.payload.from,
-      dataSource: datasource.name,
-    },
-    actionConfiguration:
-      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
-  };
+  const createActionPayload: Partial<Action> = yield call(
+    createDefaultActionPayload,
+    action.payload.pageId,
+    action.payload.datasourceId,
+    action.payload.from,
+  );
 
   yield put(createActionRequest(createActionPayload));
 }

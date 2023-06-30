@@ -1,10 +1,12 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
+import type { IButtonProps } from "@blueprintjs/core";
+import { Button, ButtonGroup } from "@blueprintjs/core";
 
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlIcons } from "icons/ControlIcons";
-import { ThemeProp } from "widgets/constants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ThemeProp } from "widgets/constants";
+import { Icon } from "design-system";
 
 export enum ButtonBorderRadiusTypes {
   SHARP = "SHARP",
@@ -42,9 +44,7 @@ export interface ButtonBorderRadiusOptionsControlProps extends ControlProps {
   onChange: (borderRaidus: ButtonBorderRadius) => void;
 }
 
-class ButtonBorderRadiusOptionsControl extends BaseControl<
-  ButtonBorderRadiusOptionsControlProps
-> {
+class ButtonBorderRadiusOptionsControl extends BaseControl<ButtonBorderRadiusOptionsControlProps> {
   constructor(props: ButtonBorderRadiusOptionsControlProps) {
     super(props);
   }
@@ -60,15 +60,13 @@ class ButtonBorderRadiusOptionsControl extends BaseControl<
       <StyledButtonGroup fill>
         <StyledButton
           active={propertyValue === ButtonBorderRadiusTypes.SHARP || undefined}
-          icon={<ControlIcons.BORDER_RADIUS_SHARP color="#979797" width={15} />}
+          icon={<Icon name="border-radius-sharp" size="md" />}
           large
           onClick={() => this.toggleOption(ButtonBorderRadiusTypes.SHARP)}
         />
         <StyledButton
           active={propertyValue === ButtonBorderRadiusTypes.ROUNDED}
-          icon={
-            <ControlIcons.BORDER_RADIUS_ROUNDED color="#979797" width={15} />
-          }
+          icon={<Icon name="border-radius-rounded" size="md" />}
           large
           onClick={() => this.toggleOption(ButtonBorderRadiusTypes.ROUNDED)}
         />

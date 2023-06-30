@@ -1,5 +1,4 @@
 import React from "react";
-import { Slide } from "react-toastify";
 
 import {
   createMessage,
@@ -7,8 +6,8 @@ import {
 } from "@appsmith/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
+import { Toast } from "design-system";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { StyledToastContainer } from "design-system-old";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
@@ -23,14 +22,12 @@ import {
   MockApplication,
   mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
-  mockGetChildWidgets,
   mockGetWidgetEvalValues,
   MockPageDSL,
   useMockDsl,
 } from "test/testCommon";
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
-import { generateReactKey } from "utils/generators";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import MainContainer from "../MainContainer";
 import GlobalHotKeys from "./GlobalHotKeys";
@@ -38,6 +35,7 @@ import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import * as widgetActions from "actions/widgetActions";
 import * as uiSelectors from "selectors/ui";
+import { NavigationMethod } from "../../../utils/history";
 
 jest.mock("constants/routes", () => {
   return {
@@ -53,11 +51,6 @@ describe("Canvas Hot Keys", () => {
 
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
-  const spyGetChildWidgets = jest.spyOn(utilities, "getChildWidgets");
-  const spyCreateCanvasWidget = jest.spyOn(
-    widgetRenderUtils,
-    "createCanvasWidget",
-  );
 
   function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
@@ -66,7 +59,7 @@ describe("Canvas Hot Keys", () => {
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
-    const mockGenerator = function*() {
+    const mockGenerator = function* () {
       yield all([]);
     };
 
@@ -146,14 +139,13 @@ describe("Canvas Hot Keys", () => {
           fireEvent.click(canvasWidgets[0].firstChild);
         }
       });
-      const tabsWidgetName: any = component.container.querySelector(
-        `span.t--widget-name`,
-      );
+      const tabsWidgetName: any =
+        component.container.querySelector(`span.t--widget-name`);
       fireEvent.click(tabsWidgetName);
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,
         ["tabsWidgetId"],
-        undefined,
+        NavigationMethod.CanvasClick,
         undefined,
       );
       spyWidgetSelection.mockClear();
@@ -163,6 +155,8 @@ describe("Canvas Hot Keys", () => {
       fireEvent.click(artBoard);
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.Empty,
+        [],
+        NavigationMethod.CanvasClick,
       );
       spyWidgetSelection.mockClear();
 
@@ -223,226 +217,6 @@ describe("Canvas Hot Keys", () => {
       });
 
       expect(spyPaste).toHaveBeenCalled();
-    });
-    it.skip("Cmd + A - select all widgets inside last selected container", async () => {
-      const containerId = generateReactKey();
-      const canvasId = generateReactKey();
-      const children: any = buildChildren([
-        { type: "CHECKBOX_WIDGET", parentId: canvasId },
-        { type: "SWITCH_WIDGET", parentId: canvasId },
-        { type: "BUTTON_WIDGET", parentId: canvasId },
-      ]);
-      const canvasWidget = buildChildren([
-        {
-          type: "CANVAS_WIDGET",
-          parentId: containerId,
-          children,
-          widgetId: canvasId,
-        },
-      ]);
-      const containerChildren: any = buildChildren([
-        {
-          type: "CONTAINER_WIDGET",
-          children: canvasWidget,
-          widgetId: containerId,
-          parentId: "0",
-        },
-        { type: "CHART_WIDGET", parentId: "0" },
-      ]);
-      const dsl: any = widgetCanvasFactory.build({
-        children: containerChildren,
-      });
-      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
-      mockGetIsFetchingPage.mockImplementation(() => false);
-      const spyWidgetSelection = jest.spyOn(
-        widgetSelectionsActions,
-        "selectWidgetInitAction",
-      );
-
-      const component = render(
-        <MemoryRouter
-          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
-        >
-          <MockApplication>
-            <GlobalHotKeys
-              getMousePosition={() => {
-                return { x: 0, y: 0 };
-              }}
-            >
-              <UpdatedEditor dsl={dsl} />
-            </GlobalHotKeys>
-          </MockApplication>
-        </MemoryRouter>,
-        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
-      );
-      const canvasWidgets = component.queryAllByTestId("test-widget");
-      expect(canvasWidgets.length).toBe(5);
-      if (canvasWidgets[0].firstChild) {
-        fireEvent.mouseOver(canvasWidgets[0].firstChild);
-        fireEvent.click(canvasWidgets[0].firstChild);
-      }
-      expect(spyWidgetSelection).toHaveBeenCalledWith(
-        SelectionRequestType.One,
-        ["tabsWidgetId"],
-        undefined,
-      );
-      spyWidgetSelection.mockClear();
-
-      dispatchTestKeyboardEventWithCode(
-        component.container,
-        "keydown",
-        "A",
-        65,
-        false,
-        true,
-      );
-
-      expect(spyWidgetSelection).toHaveBeenCalledWith(
-        SelectionRequestType.One,
-        ["tabsWidgetId"],
-        undefined,
-        undefined,
-      );
-      spyWidgetSelection.mockClear();
-    });
-    it.skip("Cmd + A - select all widgets inside a form", async () => {
-      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
-      const children: any = buildChildren([
-        { type: "FORM_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
-      ]);
-      const dsl: any = widgetCanvasFactory.build({
-        children,
-      });
-
-      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
-      mockGetIsFetchingPage.mockImplementation(() => false);
-
-      const component = render(
-        <MemoryRouter
-          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
-        >
-          <MockApplication>
-            <GlobalHotKeys
-              getMousePosition={() => {
-                return { x: 0, y: 0 };
-              }}
-            >
-              <UpdatedEditor dsl={dsl} />
-            </GlobalHotKeys>
-          </MockApplication>
-        </MemoryRouter>,
-        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
-      );
-      const propPane = component.queryByTestId("t--propertypane");
-      expect(propPane).toBeNull();
-      const canvasWidgets = component.queryAllByTestId("test-widget");
-      expect(canvasWidgets.length).toBe(4);
-      if (canvasWidgets[0].firstChild) {
-        fireEvent.mouseOver(canvasWidgets[0].firstChild);
-        fireEvent.click(canvasWidgets[0].firstChild);
-      }
-
-      dispatchTestKeyboardEventWithCode(
-        component.container,
-        "keydown",
-        "A",
-        65,
-        false,
-        true,
-      );
-      const selectedWidgets = component.queryAllByTestId("t--selected");
-      expect(selectedWidgets.length).toBe(3);
-    });
-    it.skip("Cmd + A - select all widgets inside a list", async () => {
-      const listId = generateReactKey();
-      const containerId = generateReactKey();
-      const canvasId = generateReactKey();
-      const listCanvasId = generateReactKey();
-      const children: any = buildChildren([
-        { type: "CHECKBOX_WIDGET", parentId: canvasId },
-        { type: "SWITCH_WIDGET", parentId: canvasId },
-        { type: "BUTTON_WIDGET", parentId: canvasId },
-      ]);
-      const canvasWidget = buildChildren([
-        {
-          type: "CANVAS_WIDGET",
-          parentId: containerId,
-          children,
-          widgetId: canvasId,
-          bottomRow: 20,
-        },
-      ]);
-      const containerChildren: any = buildChildren([
-        {
-          type: "CONTAINER_WIDGET",
-          children: canvasWidget,
-          widgetId: containerId,
-          parentId: listCanvasId,
-          dropDisabled: true,
-          bottomRow: 4,
-        },
-      ]);
-      const listCanvasChildren: any = buildChildren([
-        {
-          type: "CANVAS_WIDGET",
-          children: containerChildren,
-          widgetId: listCanvasId,
-          dropDisabled: true,
-          parentId: listId,
-          bottomRow: 20,
-        },
-      ]);
-      const listChildren: any = buildChildren([
-        {
-          type: "LIST_WIDGET",
-          children: listCanvasChildren,
-          widgetId: listId,
-          parentId: "0",
-        },
-      ]);
-      const dsl: any = widgetCanvasFactory.build({
-        children: listChildren,
-      });
-      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
-      mockGetIsFetchingPage.mockImplementation(() => false);
-      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
-      spyCreateCanvasWidget.mockImplementation(mockCreateCanvasWidget);
-
-      const component = render(
-        <MemoryRouter
-          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
-        >
-          <MockApplication>
-            <GlobalHotKeys
-              getMousePosition={() => {
-                return { x: 0, y: 0 };
-              }}
-            >
-              <UpdatedEditor dsl={dsl} />
-            </GlobalHotKeys>
-          </MockApplication>
-        </MemoryRouter>,
-        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
-      );
-      const propPane = component.queryByTestId("t--propertypane");
-      expect(propPane).toBeNull();
-      const canvasWidgets = component.queryAllByTestId("test-widget");
-
-      if (canvasWidgets[0].firstChild) {
-        fireEvent.mouseOver(canvasWidgets[0].firstChild);
-        fireEvent.click(canvasWidgets[0].firstChild);
-      }
-
-      dispatchTestKeyboardEventWithCode(
-        component.container,
-        "keydown",
-        "A",
-        65,
-        false,
-        true,
-      );
-      const selectedWidgets = component.queryAllByTestId("t--selected");
-      expect(selectedWidgets.length).toBe(3);
     });
   });
 
@@ -730,14 +504,7 @@ describe("cmd + s hotkey", () => {
   it("Should render toast message", async () => {
     const component = render(
       <>
-        <StyledToastContainer
-          autoClose={5000}
-          closeButton={false}
-          draggable={false}
-          hideProgressBar
-          pauseOnHover={false}
-          transition={Slide}
-        />
+        <Toast />
         <GlobalHotKeys
           getMousePosition={() => {
             return { x: 0, y: 0 };

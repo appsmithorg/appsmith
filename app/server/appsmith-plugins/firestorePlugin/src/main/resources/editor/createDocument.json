@@ -25,7 +25,6 @@
       "configProperty": "actionConfiguration.formData.timestampValuePath.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
       "initialValue": "",
       "placeholderText": "[ \"checkinLog.timestampKey\" ]"
     }

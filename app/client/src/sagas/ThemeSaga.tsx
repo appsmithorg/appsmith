@@ -1,10 +1,9 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { select, takeLatest } from "redux-saga/effects";
 import localStorage from "utils/localStorage";
-import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import type { ThemeMode } from "selectors/themeSelectors";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { trimTrailingSlash } from "utils/helpers";
 
 export type BackgroundTheme = {

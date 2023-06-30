@@ -1,12 +1,13 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
-import { PageDefaultMeta } from "api/ApplicationApi";
+import type { GitConfig, MergeStatus } from "entities/GitSync";
+import { GitSyncModalTab } from "entities/GitSync";
+import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -33,6 +34,9 @@ const initialState: GitSyncReducerState = {
     id: "",
     name: "",
   },
+
+  isSwitchingBranch: false,
+  switchingToBranch: null,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -51,6 +55,7 @@ const gitSyncReducer = createReducer(initialState, {
       activeGitSyncModalTab,
       connectError: null,
       commitAndPushError: null,
+      discardError: null,
       pullError: null,
       mergeError: null,
       pullFailed: false, // reset conflicts when the modal is opened
@@ -72,6 +77,7 @@ const gitSyncReducer = createReducer(initialState, {
     commitAndPushError: null,
     pullError: null,
     mergeError: null,
+    discardError: null,
   }),
   [ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR]: (
     state: GitSyncReducerState,
@@ -122,6 +128,7 @@ const gitSyncReducer = createReducer(initialState, {
     commitAndPushError: null,
     pullError: null,
     mergeError: null,
+    discardError: null,
   }),
   [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT]: (
     state: GitSyncReducerState,
@@ -132,6 +139,7 @@ const gitSyncReducer = createReducer(initialState, {
     commitAndPushError: null,
     pullError: null,
     mergeError: null,
+    discardError: null,
   }),
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -168,6 +176,7 @@ const gitSyncReducer = createReducer(initialState, {
     commitAndPushError: null,
     pullError: null,
     mergeError: null,
+    discardError: null,
   }),
   [ReduxActionTypes.FETCH_BRANCHES_SUCCESS]: (
     state: GitSyncReducerState,
@@ -192,6 +201,7 @@ const gitSyncReducer = createReducer(initialState, {
     commitAndPushError: null,
     pullError: null,
     mergeError: null,
+    discardError: null,
   }),
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT]: (
     state: GitSyncReducerState,
@@ -202,6 +212,7 @@ const gitSyncReducer = createReducer(initialState, {
     commitAndPushError: null,
     pullError: null,
     mergeError: null,
+    discardError: null,
   }),
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -275,6 +286,7 @@ const gitSyncReducer = createReducer(initialState, {
     mergeStatus: null,
     pullError: null,
     mergeError: null,
+    discardError: null,
   }),
   [ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS]: (
     state: GitSyncReducerState,
@@ -491,6 +503,40 @@ const gitSyncReducer = createReducer(initialState, {
     isDiscarding: false,
     discard: action.payload,
   }),
+  [ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    isDiscarding: false,
+    discardError: action.payload,
+  }),
+  [ReduxActionTypes.CLEAR_DISCARD_ERROR_STATE]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    discardError: null,
+  }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_INIT]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    switchingToBranch: action.payload,
+    isSwitchingBranch: true,
+  }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    switchingToBranch: null,
+    isSwitchingBranch: false,
+  }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_ERROR]: (state: GitSyncReducerState) => ({
+    ...state,
+    switchingToBranch: null,
+    isSwitchingBranch: false,
+  }),
 });
 
 export type GitStatusData = {
@@ -612,6 +658,10 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   isDiscarding?: boolean;
   discard?: GitDiscardResponse;
+  discardError?: GitErrorType;
+
+  isSwitchingBranch: boolean;
+  switchingToBranch: string | null;
 };
 
 export default gitSyncReducer;

@@ -1,6 +1,6 @@
 export * from "ce/configs/index";
-import { EvaluationVersion } from "api/ApplicationApi";
-import { INJECTED_CONFIGS } from "ce/configs/index";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+import type { INJECTED_CONFIGS } from "ce/configs/index";
 
 declare global {
   interface Window {

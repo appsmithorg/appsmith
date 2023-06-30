@@ -25,4 +25,7 @@ public class FieldName {
     public static final String WHERE = "where";
     public static final String PROJECTION = "projection";
     public static final String SORT_BY = "sortBy";
+    public static final String EMAIL_ADDRESS = "emailAddress";
+    public static final String GOOGLE_API_BASE_URL = "https://www.googleapis.com";
+
 }

@@ -1,6 +1,11 @@
 package com.external.constants;
 
-public class ErrorMessages {
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class ErrorMessages extends BasePluginErrorMessages {
 
     public static final String EMPTY_ROW_OBJECT_MESSAGE = "Row object(s) cannot be empty.";
 
@@ -26,7 +31,7 @@ public class ErrorMessages {
 
     public static final String MISSING_SPREADSHEET_NAME_ERROR_MSG = "Missing required field 'Spreadsheet Name'";
 
-    public static final String MISSING_CELL_RANGE_ERROR_MSG = "Missing required field 'Cell Range'";
+    public static final String MISSING_CELL_RANGE_ERROR_MSG = "Missing required field 'Cell range'";
 
     public static final String MISSING_SHEET_ID_ERROR_MSG = "Missing required field 'Sheet Id'";
 
@@ -44,7 +49,7 @@ public class ErrorMessages {
 
     public static final String RESPONSE_DATA_MAPPING_FAILED_ERROR_MSG = "Could not map response to existing data. Appsmith server has either received an empty response or an unexpected response.";
 
-    public static final String UNKNOWN_SHEET_NAME_ERROR_MSG = "Invalid Sheet Name";
+    public static final String UNKNOWN_SHEET_NAME_ERROR_MSG = "Invalid sheet name";
 
     public static final String PARSING_FAILED_EXPECTED_A_ROW_OBJECT_ERROR_MSG = "Unable to parse request body. Expected a row object.";
 

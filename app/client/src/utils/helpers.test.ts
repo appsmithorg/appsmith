@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "./autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
   flattenObject,
   getLocale,
@@ -260,8 +260,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
               type: ValidationTypes.FUNCTION,
               params: {
                 expected: {
-                  type:
-                    'Array<{ "label": "string", "value": "string" | number}>',
+                  type: 'Array<{ "label": "string", "value": "string" | number}>',
                   example: '[{"label": "abc", "value": "abc" | 1}]',
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
@@ -276,7 +275,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default selected value",
             // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -336,7 +335,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             // defaultValue: true,
@@ -355,8 +354,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a user changes the selected option",
+            helpText: "when a user changes the selected option",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",
@@ -431,8 +429,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
               type: ValidationTypes.FUNCTION,
               params: {
                 expected: {
-                  type:
-                    'Array<{ "label": "string", "value": "string" | number}>',
+                  type: 'Array<{ "label": "string", "value": "string" | number}>',
                   example: '[{"label": "abc", "value": "abc" | 1}]',
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
@@ -447,7 +444,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default selected value",
             // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -507,7 +504,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             // defaultValue: true,
@@ -526,8 +523,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a user changes the selected option",
+            helpText: "when a user changes the selected option",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",
@@ -584,6 +580,7 @@ describe("isNameValid()", () => {
       "clearTimeout",
       "parseInt",
       "eval",
+      "performance",
     ];
     // Some window object methods and properties names should be valid entity names since evaluation is done
     // in the worker thread, and some of the window methods and properties are not available there.

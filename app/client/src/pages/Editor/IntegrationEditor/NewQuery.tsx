@@ -28,12 +28,8 @@ type QueryHomeScreenProps = {
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
-    const {
-      history,
-      location,
-      pageId,
-      showUnsupportedPluginDialog,
-    } = this.props;
+    const { history, location, pageId, showUnsupportedPluginDialog } =
+      this.props;
 
     return (
       <QueryHomePage>

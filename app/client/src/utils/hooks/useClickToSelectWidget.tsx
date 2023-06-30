@@ -1,10 +1,12 @@
-import { AppState } from "@appsmith/reducers";
 import equal from "fast-deep-equal/es6";
-import React, { ReactNode, useCallback } from "react";
+import type { ReactNode } from "react";
+import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
+  isCurrentWidgetFocused,
+  isResizingOrDragging,
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
@@ -12,6 +14,7 @@ import styled from "styled-components";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { useWidgetSelection } from "./useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { NavigationMethod } from "../history";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -29,21 +32,12 @@ export function ClickContentToOpenPropPane({
 
   const clickToSelectWidget = useClickToSelectWidget(widgetId);
 
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
-
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-  const isResizingOrDragging = !!isResizing || !!isDragging;
+  const isWidgetFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const resizingOrDragging = useSelector(isResizingOrDragging);
   const handleMouseOver = (e: any) => {
     focusWidget &&
-      !isResizingOrDragging &&
-      focusedWidget !== widgetId &&
+      !resizingOrDragging &&
+      !isWidgetFocused &&
       focusWidget(widgetId);
     e.stopPropagation();
   };
@@ -83,9 +77,13 @@ export const useClickToSelectWidget = (widgetId: string) => {
         }
 
         if (parentWidgetToOpen) {
-          selectWidget(type, [parentWidgetToOpen.widgetId]);
+          selectWidget(
+            type,
+            [parentWidgetToOpen.widgetId],
+            NavigationMethod.CanvasClick,
+          );
         } else {
-          selectWidget(type, [widgetId]);
+          selectWidget(type, [widgetId], NavigationMethod.CanvasClick);
           focusWidget(widgetId);
         }
 

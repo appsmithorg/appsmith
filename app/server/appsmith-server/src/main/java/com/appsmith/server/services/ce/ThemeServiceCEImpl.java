@@ -278,8 +278,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     if (savedThemeTuple.getT2()) { // new theme created, update the application
                         if (applicationMode == ApplicationMode.EDIT) {
                             return applicationRepository.setAppTheme(
-                                    application.getId(), theme.getId(), null, applicationPermission.getEditPermission()
-                            ).then(analyticsService.sendUpdateEvent(theme))
+                                            application.getId(), theme.getId(), null, applicationPermission.getEditPermission()
+                                    ).then(analyticsService.sendUpdateEvent(theme))
                                     .then(analyticsService.sendUpdateEvent(application))
                                     .thenReturn(theme);
                         } else {

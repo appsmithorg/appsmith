@@ -317,10 +317,10 @@ public class DynamoPlugin extends BasePlugin {
 
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication == null) {
-                invalids.add("Missing AWS Access Key ID and Secret Access Key.");
+                invalids.add("Missing AWS access key ID and Secret Access Key.");
             } else {
                 if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing AWS Access Key ID.");
+                    invalids.add("Missing AWS access key ID.");
                 }
 
                 if (StringUtils.isEmpty(authentication.getPassword())) {

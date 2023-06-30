@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -82,7 +83,7 @@ export default {
     {
       propertyName: "allowCellWrapping",
       dependencies: ["primaryColumns", "columnType"],
-      label: "Cell Wrapping",
+      label: "Cell wrapping",
       helpText: "Allows content of the cell to be wrapped",
       defaultValue: false,
       controlType: "SWITCH",
@@ -144,22 +145,22 @@ export default {
         "Choose column that needs to be frozen left or right of the table",
       controlType: "ICON_TABS",
       defaultValue: StickyType.NONE,
-      label: "Column Freeze",
+      label: "Column freeze",
       fullWidth: true,
       isBindProperty: true,
       isTriggerProperty: false,
       dependencies: ["primaryColumns", "columnOrder"],
       options: [
         {
-          icon: "VERTICAL_LEFT",
+          startIcon: "contract-left-line",
           value: StickyType.LEFT,
         },
         {
-          icon: "COLUMN_UNFREEZE",
+          startIcon: "column-freeze",
           value: StickyType.NONE,
         },
         {
-          icon: "VERTICAL_RIGHT",
+          startIcon: "contract-right-line",
           value: StickyType.RIGHT,
         },
       ],
@@ -173,7 +174,7 @@ export const GeneralStyle = {
   children: [
     {
       propertyName: "buttonVariant",
-      label: "Button Variant",
+      label: "Button variant",
       controlType: "ICON_TABS",
       fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -220,7 +221,7 @@ export const GeneralStyle = {
     },
     {
       propertyName: "menuVariant",
-      label: "Button Variant",
+      label: "Button variant",
       controlType: "ICON_TABS",
       fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",

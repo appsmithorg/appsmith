@@ -1,14 +1,16 @@
 import * as React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import SliderComponent, {
-  SliderComponentProps,
-} from "../../NumberSliderWidget/component/Slider";
-import { Stylesheet } from "entities/AppTheming";
+import type { SliderComponentProps } from "../../NumberSliderWidget/component/Slider";
+import SliderComponent from "../../NumberSliderWidget/component/Slider";
+import type { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export type SliderOption = {
   label: string;
@@ -47,6 +49,16 @@ class CategorySliderWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Category slider widget is used to capture user feedback from a range of categories",
+      "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      value: "string",
+    };
   }
 
   componentDidUpdate(prevProps: CategorySliderWidgetProps) {

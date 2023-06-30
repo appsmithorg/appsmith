@@ -1,18 +1,17 @@
-import { Property } from "entities/Action";
-import { Datasource } from "entities/Datasource";
-import {
+import type { Property } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import type {
   ApiDatasourceForm,
   Authentication,
   AuthorizationCode,
-  AuthType,
   ClientCredentials,
-  GrantType,
   Oauth2Common,
   Basic,
   ApiKey,
   BearerToken,
-  SSLType,
+  SSL,
 } from "entities/Datasource/RestAPIForm";
+import { AuthType, GrantType, SSLType } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
 export const datasourceToFormValues = (
@@ -22,18 +21,19 @@ export const datasourceToFormValues = (
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
     AuthType.NONE,
-  );
+  ) as AuthType;
   const connection = _.get(datasource, "datasourceConfiguration.connection", {
     ssl: {
       authType: SSLType.DEFAULT,
-    },
+    } as SSL,
   });
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
     _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
     "Y";
   const sessionSignatureKey = isSendSessionEnabled
-    ? _.get(datasource, "datasourceConfiguration.properties[1].value")
+    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      _.get(datasource, "datasourceConfiguration.properties[1].value")!
     : "";
   return {
     datasourceId: datasource.id,

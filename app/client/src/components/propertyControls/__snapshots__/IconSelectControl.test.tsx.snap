@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowDown}' should navigate the icon selection downwards 1`] = `
+DOMTokenList {
+  "0": "bp3-fill",
+  "1": "bp3-icon-(none)",
+  "2": "bp3-text-overflow-ellipsis",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowDown}' should navigate the icon selection downwards 2`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-add-row-bottom",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowLeft}' should navigate the icon selection towards left 1`] = `
+DOMTokenList {
+  "0": "bp3-fill",
+  "1": "bp3-icon-(none)",
+  "2": "bp3-text-overflow-ellipsis",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowLeft}' should navigate the icon selection towards left 2`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-add-column-right",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowLeft}' should navigate the icon selection towards left 3`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-add-column-left",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowRight}' should navigate the icon selection towards right 1`] = `
+DOMTokenList {
+  "0": "bp3-fill",
+  "1": "bp3-icon-(none)",
+  "2": "bp3-text-overflow-ellipsis",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowRight}' should navigate the icon selection towards right 2`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-add",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowUp}' should navigate the icon selection upwards 1`] = `
+DOMTokenList {
+  "0": "bp3-fill",
+  "1": "bp3-icon-(none)",
+  "2": "bp3-text-overflow-ellipsis",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowUp}' should navigate the icon selection upwards 2`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-align-right",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{ArrowUp}' should navigate the icon selection upwards 3`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-airplane",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{Enter}' or ' ' should select the icon 1`] = `
+DOMTokenList {
+  "0": "bp3-fill",
+  "1": "bp3-icon-(none)",
+  "2": "bp3-text-overflow-ellipsis",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{Enter}' or ' ' should select the icon 2`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-add-row-top",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{Enter}' or ' ' should select the icon 3`] = `
+Array [
+  "iconName",
+  "add-row-top",
+  true,
+]
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{Enter}' or ' ' should select the icon 4`] = `
+DOMTokenList {
+  "0": "bp3-icon",
+  "1": "bp3-icon-add-row-top",
+}
+`;
+
+exports[`<IconSelectControl /> - Keyboard navigation Pressing '{Enter}' or ' ' should select the icon 5`] = `
+Array [
+  "iconName",
+  "add-to-artifact",
+  true,
+]
+`;

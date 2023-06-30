@@ -1,10 +1,11 @@
-import React, { CSSProperties, ReactNode, Ref, useMemo } from "react";
-import { BaseStyle } from "widgets/BaseWidget";
+import type { CSSProperties, ReactNode, Ref } from "react";
+import React, { useMemo } from "react";
+import type { BaseStyle } from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   CSSUnits,
   PositionTypes,
-  WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -12,7 +13,6 @@ import styled from "styled-components";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { useSelector } from "react-redux";
-import { snipingModeSelector } from "selectors/editorSelectors";
 import {
   getIsReflowEffectedSelector,
   getReflowSelector,
@@ -86,14 +86,13 @@ export function PositionedContainer(
   const y = style.yPosition + (style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
-  const isSnipingMode = useSelector(snipingModeSelector);
   // memoized className
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
       ` ${POSITIONED_WIDGET} ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()}`
+      )} t--widget-${props.widgetName?.toLowerCase()}`
     );
   }, [props.widgetType, props.widgetId, props.widgetName]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
@@ -159,10 +158,6 @@ export function PositionedContainer(
   }, [style, isReflowEffected, onHoverZIndex, zIndex, reflowedPosition]);
 
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
-  const stopEventPropagation = (e: any) => {
-    !isSnipingMode && e.stopPropagation();
-  };
-
   return (
     <PositionedWidget
       className={containerClassName}
@@ -172,8 +167,6 @@ export function PositionedContainer(
       disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
-      // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
-      onClick={stopEventPropagation}
       onClickCapture={clickToSelectWidget}
       ref={ref}
       //Before you remove: This is used by property pane to reference the element

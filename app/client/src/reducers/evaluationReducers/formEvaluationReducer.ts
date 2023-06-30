@@ -1,10 +1,8 @@
 import { createReducer } from "utils/ReducerUtils";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { FetchPageRequest } from "api/PageApi";
-import { FormConfigType } from "components/formControls/BaseControl";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { FetchPageRequest } from "api/PageApi";
+import type { FormConfigType } from "components/formControls/BaseControl";
 
 // Type for the object that will store the dynamic values for each component
 export type DynamicValues = {

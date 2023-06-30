@@ -1,7 +1,7 @@
 const homePage = require("../../../locators/Textwidget.json");
 
-describe("Test Ideas to test different feature of text widget ", function() {
-  it("Add New Text widget along with BG and text colour ", function() {
+describe("Test Ideas to test different feature of text widget ", function () {
+  it("Add New Text widget along with BG and text colour ", function () {
     // Navigate to application
     // Drag and drop a Text Widget
     // Navigate to Property Pane
@@ -11,7 +11,7 @@ describe("Test Ideas to test different feature of text widget ", function() {
     // Click on Deploy
   });
 
-  it("Enable Scroll feature with text colour ", function() {
+  it("Enable Scroll feature with text colour ", function () {
     // Navigate to application
     // Drag and drop a Text Widget
     // Add a long text in the "Label"
@@ -21,7 +21,7 @@ describe("Test Ideas to test different feature of text widget ", function() {
     // Click on deploy and check if it scrollable and colour selected is visible
   });
 
-  it("Adding text Size to the Text along with BG colour ", function() {
+  it("Adding text Size to the Text along with BG colour ", function () {
     // Navigate to application
     // Drag and drop a Text Widget
     // Navigate to Property pane
@@ -33,7 +33,7 @@ describe("Test Ideas to test different feature of text widget ", function() {
     // Ensure the text size varies accordingly
   });
 
-  it("Adding Bold Font style and Centre Text Alignment  ", function() {
+  it("Adding Bold Font style and Centre Text Alignment  ", function () {
     // Navigate to application
     // Drag and drop a Text Widget
     // Navigate to Property pane
@@ -45,7 +45,7 @@ describe("Test Ideas to test different feature of text widget ", function() {
     // Ensure the changes are visible to user
   });
 
-  it("Adding Italic Font style and Text Alignment to exsisting text widget ", function() {
+  it("Adding Italic Font style and Text Alignment to exsisting text widget ", function () {
     // Navigate to already exsisting Text widget
     // Ensure the text is added
     // Navigate to Property pane
@@ -55,7 +55,7 @@ describe("Test Ideas to test different feature of text widget ", function() {
     // Ensure the changes are visible to user
   });
 
-  it("Expand and Contract text widget Property pane", function() {
+  it("Expand and Contract text widget Property pane", function () {
     // Navigate to already exsisting Text widget
     // Navigate to Property pane
     // Click on collapse option
@@ -64,14 +64,14 @@ describe("Test Ideas to test different feature of text widget ", function() {
     //and ensure it collapses
   });
 
-  it("Copy and paste a text widget", function() {
+  it("Copy and paste a text widget", function () {
     // Navigate to already exsisting Text widget
     // Ensure Clour and font feature exsists
     // Copy and paste the widget
     // Ensure the new widget retrives the feature exsisting from parent widget
   });
 
-  it("Rename and search a text widget", function() {
+  it("Rename and search a text widget", function () {
     // Ensure there are multiple Text widget
     // Navigate to Entity Explorer
     // Search for "Text" keyword
@@ -82,7 +82,7 @@ describe("Test Ideas to test different feature of text widget ", function() {
     // and observe the user is navigated to same text widget and properties of the widget does not change on renaming
   });
 
-  it("Search and delete a text widget", function() {
+  it("Search and delete a text widget", function () {
     // Ensure there are multiple Text widget
     // Navigate to Entity Explorer
     // Search for "Text" keyword
@@ -93,7 +93,7 @@ describe("Test Ideas to test different feature of text widget ", function() {
     // Click on Deploy adn ensure the Widget is delete
   });
 
-  it("Search and delete a text widget", function() {
+  it("Search and delete a text widget", function () {
     // Ensure there are multiple Text widget
     // Navigate to Entity Explorer
     // Search for "Text" keyword

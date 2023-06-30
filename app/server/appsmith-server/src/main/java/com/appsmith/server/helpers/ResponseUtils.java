@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -8,7 +9,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -103,7 +103,7 @@ public class ResponseUtils {
             page.setId(page.getDefaultPageId());
         }
         // need to update the application also if it's present
-        if(applicationPages.getApplication() != null) {
+        if (applicationPages.getApplication() != null) {
             applicationPages.setApplication(updateApplicationWithDefaultResources(applicationPages.getApplication()));
         }
         return applicationPages;
@@ -286,7 +286,7 @@ public class ResponseUtils {
         // Update actions within the collection
         collection.getActions().forEach(this::updateActionDTOWithDefaultResources);
         collection.getArchivedActions().forEach(this::updateActionDTOWithDefaultResources);
-        
+
         return collection;
     }
 

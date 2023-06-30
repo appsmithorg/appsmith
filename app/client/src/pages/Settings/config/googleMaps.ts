@@ -1,6 +1,6 @@
 import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
@@ -25,7 +25,7 @@ export const config: AdminConfigType = {
       category: SettingCategories.GOOGLE_MAPS,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Google Maps API Key",
+      label: "Google Maps API key",
     },
   ],
 };

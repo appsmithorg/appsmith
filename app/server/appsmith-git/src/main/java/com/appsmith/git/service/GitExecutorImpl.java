@@ -23,6 +23,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.RebaseCommand;
+import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
@@ -484,6 +486,8 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setAdded(status.getAdded());
                 response.setRemoved(status.getRemoved());
 
+                Set<String> queriesModified = new HashSet<>();
+                Set<String> jsObjectsModified = new HashSet<>();
                 int modifiedPages = 0;
                 int modifiedQueries = 0;
                 int modifiedJSObjects = 0;
@@ -493,9 +497,23 @@ public class GitExecutorImpl implements GitExecutor {
                     if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
-                        modifiedQueries++;
-                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/")) {
-                        modifiedJSObjects++;
+                        String queryName = x.split(GitDirectories.ACTION_DIRECTORY + "/")[1];
+                        int position = queryName.indexOf("/");
+                        if(position != -1) {
+                            queryName = queryName.substring(0, position);
+                            String pageName = x.split("/")[1];
+                            if (!queriesModified.contains(pageName + queryName)) {
+                                queriesModified.add(pageName + queryName);
+                                modifiedQueries++;
+                            }
+                        }
+                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/") && !x.endsWith(".json")) {
+                        String queryName = x.substring(x.lastIndexOf("/") + 1);
+                        String pageName = x.split("/")[1];
+                        if (!jsObjectsModified.contains(pageName + queryName)) {
+                            jsObjectsModified.add(pageName + queryName);
+                            modifiedJSObjects++;
+                        }
                     } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
                         modifiedDatasources++;
                     } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + "/")) {
@@ -699,7 +717,7 @@ public class GitExecutorImpl implements GitExecutor {
                 config.save();
                 return git.getRepository().getBranch();
             }
-        })
+        }).timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -761,6 +779,30 @@ public class GitExecutorImpl implements GitExecutor {
                         log.error("Error while resetting the commit, {}", e.getMessage());
                     }
                     return Mono.just(false);
-                });
+                })
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
+    }
+
+    public Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName) {
+        return this.checkoutToBranch(repoSuffix, branchName)
+                .flatMap(isCheckedOut -> {
+                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+                        RebaseResult result = git.rebase().setUpstream("origin/" + branchName).call();
+                        if (result.getStatus().isSuccessful()) {
+                            return Mono.just(true);
+                        } else {
+                            log.error("Error while rebasing the branch, {}, {}", result.getStatus().name(), result.getConflicts());
+                            git.rebase().setUpstream("origin/" + branchName).setOperation(RebaseCommand.Operation.ABORT).call();
+                            return Mono.error(new Exception("Error while rebasing the branch, " + result.getStatus().name()));
+
+                        }
+                    } catch (GitAPIException | IOException e) {
+                        log.error("Error while rebasing the branch, {}", e.getMessage());
+                        return Mono.error(e);
+                    }
+                })
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
     }
 }

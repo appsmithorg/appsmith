@@ -12,7 +12,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
@@ -32,7 +32,6 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
@@ -41,7 +40,6 @@ import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
-import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
@@ -60,6 +58,7 @@ import com.appsmith.server.helpers.TextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
+import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -119,7 +118,6 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -184,19 +182,38 @@ public class DatabaseChangelog1 {
      * those indexes on the database behind the mongoTemplate instance.
      */
     public static void ensureIndexes(MongoTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
+        final int dbNameLength = mongoTemplate.getMongoDatabaseFactory().getMongoDatabase().getName().length();
+        for (Index index : indexes) {
+            final String indexName = (String) index.getIndexOptions().get("name");
+            if (indexName == null) {
+                throw new RuntimeException("Index name cannot be null");
+            }
+            // Index name length limitations on DocumentDB, at https://docs.aws.amazon.com/documentdb/latest/developerguide/limits.html.
+            final int indexNameLength = indexName.length();
+            final int collectionNameLength = entityClass.getSimpleName().length();
+            if (
+                dbNameLength + indexNameLength + collectionNameLength + 3 > 127
+                    || indexNameLength + collectionNameLength + 1 > 63
+            ) {
+                throw new RuntimeException("Index name is too long. Please give a shorter name.");
+            }
+        }
+
         IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
             indexOps.ensureIndex(index);
         }
     }
 
-    public static void dropIndexIfExists(MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
+    public static boolean dropIndexIfExists(MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
         } catch (UncategorizedMongoDbException ignored) {
             // The index probably doesn't exist. This happens if the database is created after the @Indexed annotation
             // has been removed.
+            return false;
         }
+        return true;
     }
 
     private ActionDTO copyActionToDTO(Action action) {
@@ -1270,16 +1287,10 @@ public class DatabaseChangelog1 {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_createdAt_compound_index");
 
-        ensureIndexes(mongoTemplate, NewAction.class,
-                makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
-                        .named("applicationId_deleted_unpublishedPageId_compound_index")
-        );
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
     public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
-
-        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
 
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex("applicationId")
@@ -2154,10 +2165,10 @@ public class DatabaseChangelog1 {
 
         Map<String, Long> maxDatasourceCount = new HashMap<>();
         mongoTemplate
-                .find(query(where("name").regex("^Untitled Datasource \\d+$")), Datasource.class)
+                .find(query(where("name").regex("^Untitled datasource \\d+$")), Datasource.class)
                 .forEach(datasource -> {
                     long count = 1;
-                    String datasourceCnt = datasource.getName().substring("Untitled Datasource ".length()).trim();
+                    String datasourceCnt = datasource.getName().substring("Untitled datasource ".length()).trim();
                     if (!datasourceCnt.isEmpty()) {
                         count = Long.parseLong(datasourceCnt);
                     }
@@ -2282,10 +2293,10 @@ public class DatabaseChangelog1 {
 
         Query query = query(new Criteria().andOperator(
                 where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
-                where(fieldName(QDatasource.datasource.structure)).exists(true)
+                where("structure").exists(true)
         ));
 
-        Update update = new Update().set(fieldName(QDatasource.datasource.structure), null);
+        Update update = new Update().set("structure", null);
 
         // Delete all the existing mongo datasource structures by setting the key to null.
         mongoOperations.updateMulti(query, update, Datasource.class);
@@ -2993,10 +3004,6 @@ public class DatabaseChangelog1 {
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
 
-        ensureIndexes(mongoTemplate, Application.class,
-                makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
-                        .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
-        );
     }
 
     @ChangeSet(order = "084", id = "add-js-plugin", author = "")
@@ -3439,11 +3446,10 @@ public class DatabaseChangelog1 {
         // MongoTemplate mongoTemplate = mongoTemplate.getImpl();
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitRepo_gitBranch_compound_index");
 
         ensureIndexes(mongoTemplate, Application.class,
                 makeIndex("organizationId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
-                        .unique().named("organization_application_deleted_gitApplicationMetadata_compound_index")
+                        .unique().named("organization_name_deleted_gitApplicationMetadata")
         );
     }
 
@@ -4768,7 +4774,7 @@ public class DatabaseChangelog1 {
 
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
-                        .named("defaultCollectionId_branchName_deleted_compound_index")
+                        .named("defaultCollectionId_branchName_deleted")
         );
 
         ensureIndexes(mongoTemplate, NewPage.class,
@@ -4778,7 +4784,7 @@ public class DatabaseChangelog1 {
 
         ensureIndexes(mongoTemplate, Application.class,
                 makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
-                        .named("defaultApplicationId_branchName_deleted_compound_index")
+                        .named("defaultApplicationId_branchName_deleted")
         );
     }
 
@@ -4839,7 +4845,7 @@ public class DatabaseChangelog1 {
                         .named("unpublishedCollection_pageId")
         );
 
-        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
                         .named("defaultApplicationId_gitSyncId_compound_index")
@@ -4888,12 +4894,12 @@ public class DatabaseChangelog1 {
 
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                        .named("unpublishedCollectionPageId_deleted_compound_index")
+                        .named("unpublishedCollectionPageId_deleted")
         );
 
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.PAGE_ID, FieldName.DELETED)
-                        .named("publishedCollectionPageId_deleted_compound_index")
+                        .named("publishedCollectionPageId_deleted")
         );
     }
 

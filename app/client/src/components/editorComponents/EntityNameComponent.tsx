@@ -44,7 +44,7 @@ const EditPen = styled.img`
   width: 14px;
   position: absolute;
   right: 7px;
-  : hover {
+  :hover {
     cursor: pointer;
   }
 `;
@@ -118,20 +118,15 @@ class EntityNameComponent extends React.Component<
     this.props.onBlur();
   };
 
-  onPressEnter = (event: any) => {
+  onClickEnter = (event: any) => {
     event.preventDefault();
     event.target.blur();
   };
 
   render() {
     const { focused } = this.state;
-    const {
-      isValid,
-      onChange,
-      placeholder,
-      validationMessage,
-      value,
-    } = this.props;
+    const { isValid, onChange, placeholder, validationMessage, value } =
+      this.props;
 
     return (
       <ErrorTooltip isOpen={!isValid} message={validationMessage || ""}>
@@ -142,7 +137,7 @@ class EntityNameComponent extends React.Component<
             onFocus={this.onFocus}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                this.onPressEnter(e);
+                this.onClickEnter(e);
               }
             }}
             placeholder={placeholder}

@@ -21,7 +21,7 @@ export const htmlToElement = (html: string) => {
  * gitbook plugin tags
  */
 const strip = (text: string) => text.replace(/{% .*?%}/gm, "");
-
+// TODO: YT iframe airgap checks
 const getYtIframe = (videoId: string) => {
   return `<iframe width="100%" height="280" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
 };

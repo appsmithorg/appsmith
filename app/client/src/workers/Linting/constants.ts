@@ -1,5 +1,6 @@
 import { ECMA_VERSION } from "@shared/ast";
-import { LintOptions } from "jshint";
+import type { LintOptions } from "jshint";
+import isEntityFunction from "./utils/isEntityFunction";
 
 export const lintOptions = (globalData: Record<string, boolean>) =>
   ({
@@ -29,6 +30,8 @@ export const lintOptions = (globalData: Record<string, boolean>) =>
   } as LintOptions);
 export const JS_OBJECT_START_STATEMENT = "export default";
 export const INVALID_JSOBJECT_START_STATEMENT = `JSObject must start with '${JS_OBJECT_START_STATEMENT}'`;
+export const INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE =
+  "INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE";
 // https://github.com/jshint/jshint/blob/d3d84ae1695359aef077ddb143f4be98001343b4/src/messages.js#L204
 export const IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE = "W117";
 
@@ -36,12 +39,15 @@ export const IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE = "W117";
 // All messages can be found here => https://github.com/jshint/jshint/blob/2.9.5/src/messages.js
 export const WARNING_LINT_ERRORS = {
   W098: "'{a}' is defined but never used.",
-  W014:
-    "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
+  W014: "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
+  ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD:
+    "Cannot execute async code on functions bound to data fields",
 };
 
-export function asyncActionInSyncFieldLintMessage(actionName: string) {
-  return `Async framework action "${actionName}" cannot be executed in a function that is bound to a sync field.`;
+export function asyncActionInSyncFieldLintMessage(isJsObject = false) {
+  return isJsObject
+    ? `Cannot execute async code on functions bound to data fields`
+    : `Data fields cannot execute async code`;
 }
 
 /** These errors should be overlooked
@@ -55,7 +61,9 @@ export const SUPPORTED_WEB_APIS = {
 };
 export enum CustomLintErrorCode {
   INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",
+  ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD = "ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD",
 }
+
 export const CUSTOM_LINT_ERRORS: Record<
   CustomLintErrorCode,
   (...args: any[]) => string
@@ -63,5 +71,26 @@ export const CUSTOM_LINT_ERRORS: Record<
   [CustomLintErrorCode.INVALID_ENTITY_PROPERTY]: (
     entityName: string,
     propertyName: string,
-  ) => `"${propertyName}" doesn't exist in ${entityName}`,
+    entity: unknown,
+    isJsObject: boolean,
+  ) =>
+    isEntityFunction(entity, propertyName)
+      ? asyncActionInSyncFieldLintMessage(isJsObject)
+      : `"${propertyName}" doesn't exist in ${entityName}`,
+
+  [CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD]: (
+    dataFieldBindings: string[],
+    fullName: string,
+    isMarkedAsync: boolean,
+  ) => {
+    const hasMultipleBindings = dataFieldBindings.length > 1;
+    const bindings = dataFieldBindings.join(" , ");
+    return isMarkedAsync
+      ? `Cannot bind async functions to data fields. Convert this to a sync function or remove references to "${fullName}" on the following data ${
+          hasMultipleBindings ? "fields" : "field"
+        }: ${bindings}`
+      : `Functions bound to data fields cannot execute async code. Remove async statements highlighted below or remove references to "${fullName}" on the following data ${
+          hasMultipleBindings ? "fields" : "field"
+        }: ${bindings}`;
+  },
 };

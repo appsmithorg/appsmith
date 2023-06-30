@@ -1,8 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import { allowedFirstDayOfWeekRange } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export default {
   sectionName: "Date Settings",
@@ -27,8 +28,7 @@ export default {
         params: {
           fnString: allowedFirstDayOfWeekRange.toString(),
           expected: {
-            type:
-              "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+            type: "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
             example: "0",
             autocompleteDataType: AutocompleteDataType.STRING,
           },

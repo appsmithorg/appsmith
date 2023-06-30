@@ -1,5 +1,7 @@
-import { io, Socket, ManagerOptions, SocketOptions } from "socket.io-client";
-import { EventChannel, eventChannel, Task } from "redux-saga";
+import type { Socket, ManagerOptions, SocketOptions } from "socket.io-client";
+import { io } from "socket.io-client";
+import type { EventChannel, Task } from "redux-saga";
+import { eventChannel } from "redux-saga";
 import { fork, take, call, cancel, put } from "redux-saga/effects";
 import {
   ReduxActionTypes,

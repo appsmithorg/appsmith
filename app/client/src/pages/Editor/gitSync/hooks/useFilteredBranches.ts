@@ -1,4 +1,4 @@
-import { Branch } from "entities/GitSync";
+import type { Branch } from "entities/GitSync";
 import { useEffect, useState } from "react";
 
 /**

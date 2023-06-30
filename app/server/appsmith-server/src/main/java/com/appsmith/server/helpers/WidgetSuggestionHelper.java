@@ -30,15 +30,16 @@ public class WidgetSuggestionHelper {
 
     /**
      * Suggest the best widget to the query response. We currently support Select, Table, Text and Chart widgets
+     *
      * @return List of Widgets with binding query
      */
     public static List<WidgetSuggestionDTO> getSuggestedWidgets(Object data) {
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
 
-        if(data instanceof ArrayNode) {
+        if (data instanceof ArrayNode) {
             widgetTypeList = handleArrayNode((ArrayNode) data);
-        } else if(data instanceof JsonNode) {
+        } else if (data instanceof JsonNode) {
             widgetTypeList = handleJsonNode((JsonNode) data);
         } else if (data instanceof List && !((List) data).isEmpty()) {
             widgetTypeList = handleList((List) data);
@@ -143,16 +144,16 @@ public class WidgetSuggestionHelper {
         List<String> fields = new ArrayList<>();
         List<String> numericFields = new ArrayList<>();
         List<String> objectFields = new ArrayList<>();
-        while(jsonFields.hasNext()) {
+        while (jsonFields.hasNext()) {
             Map.Entry<String, JsonNode> jsonField = jsonFields.next();
-            if(JsonNodeType.STRING.equals(jsonField.getValue().getNodeType())) {
+            if (JsonNodeType.STRING.equals(jsonField.getValue().getNodeType())) {
                 fields.add(jsonField.getKey());
             }
-            if(JsonNodeType.NUMBER.equals(jsonField.getValue().getNodeType())) {
+            if (JsonNodeType.NUMBER.equals(jsonField.getValue().getNodeType())) {
                 numericFields.add(jsonField.getKey());
             }
 
-            if(JsonNodeType.ARRAY.equals(jsonField.getValue().getNodeType())) {
+            if (JsonNodeType.ARRAY.equals(jsonField.getValue().getNodeType())) {
                 objectFields.add(jsonField.getKey());
             }
         }
@@ -166,8 +167,7 @@ public class WidgetSuggestionHelper {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         if (length > 1 && !fields.isEmpty()) {
             widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
-        }
-        else {
+        } else {
             widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
             widgetTypeList.add(getWidget(WidgetType.INPUT_WIDGET));
         }
@@ -176,13 +176,13 @@ public class WidgetSuggestionHelper {
 
     private static List<WidgetSuggestionDTO> getWidgetsForTypeArray(List<String> fields, List<String> numericFields) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        if(!fields.isEmpty()) {
-            if(fields.size() < 2) {
+        if (!fields.isEmpty()) {
+            if (fields.size() < 2) {
                 widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
             } else {
                 widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(1)));
             }
-            if(!numericFields.isEmpty()) {
+            if (!numericFields.isEmpty()) {
                 widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, fields.get(0), numericFields.get(0)));
             }
         }
@@ -207,18 +207,18 @@ public class WidgetSuggestionHelper {
                                                                            List<String> numericFields) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         /*
-        * fields - contains all the fields inside the nested data and nested data is considered to only 1 level
-        * numericFields - contains fields of type number
-        * For the CHART widget we need at least one field of type int and one string type field
-        * For the DROP_DOWN at least one String type field
-        * */
-        if(!fields.isEmpty()) {
-            if(fields.size() < 2) {
+         * fields - contains all the fields inside the nested data and nested data is considered to only 1 level
+         * numericFields - contains fields of type number
+         * For the CHART widget we need at least one field of type int and one string type field
+         * For the DROP_DOWN at least one String type field
+         * */
+        if (!fields.isEmpty()) {
+            if (fields.size() < 2) {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
             } else {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
             }
-            if(!numericFields.isEmpty()) {
+            if (!numericFields.isEmpty()) {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
             }
         }
@@ -230,8 +230,8 @@ public class WidgetSuggestionHelper {
     public static WidgetSuggestionDTO getWidget(WidgetType widgetType, Object... args) {
         WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
         widgetSuggestionDTO.setType(widgetType);
-        widgetSuggestionDTO.setBindingQuery(String.format(widgetType.getMessage(),args));
-        return  widgetSuggestionDTO;
+        widgetSuggestionDTO.setBindingQuery(String.format(widgetType.getMessage(), args));
+        return widgetSuggestionDTO;
     }
 
     public static WidgetSuggestionDTO getWidgetNestedData(WidgetType widgetType, String nestedFieldName, Object... args) {
@@ -242,7 +242,7 @@ public class WidgetSuggestionHelper {
             query = query.replace("data", "data." + nestedFieldName);
         }
         widgetSuggestionDTO.setBindingQuery(query);
-        return  widgetSuggestionDTO;
+        return widgetSuggestionDTO;
     }
 
 }

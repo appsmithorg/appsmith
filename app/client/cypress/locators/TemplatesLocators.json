@@ -1,12 +1,11 @@
 {
-    "templatesTab": ".t--templates-tab",
-    "templateForkButton": ".t--fork-template",
-    "dialogForkButton": ".t--fork-template-button",
-    "templateCard": "[data-cy='template-card']",
-    "templateViewForkButton": "[data-cy='template-fork-button']",
-    "startFromTemplateCard": "[data-cy=start-from-template]",
-    "templateDialogBox": "[data-testid='t--dialog-component']",
-    "selectAllPages": "//span[text()='Select all']",
-    "closeButton":"[name='close-x']"
-
+  "templatesTab": ".t--templates-tab",
+  "templateForkButton": ".t--fork-template",
+  "dialogForkButton": ".t--fork-template-button",
+  "templateCard": "[data-testid='template-card']",
+  "templateViewForkButton": "[data-testid='template-fork-button']",
+  "startFromTemplateCard": "[data-testid=start-from-template]",
+  "templateDialogBox": "[data-testid=t--templates-dialog-component]",
+  "selectCheckbox": ".ads-v2-checkbox",
+  "closeButton": "//span[@name='close-x']"
 }

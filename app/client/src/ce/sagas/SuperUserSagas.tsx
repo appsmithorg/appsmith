@@ -1,19 +1,18 @@
-import React from "react";
-import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
-import { Toaster, Variant } from "design-system-old";
+import type { SendTestEmailPayload } from "@appsmith/api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import {
   APPSMITH_DISPLAY_VERSION,
   createMessage,
@@ -23,7 +22,13 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { getCurrentTenant } from "ce/actions/tenantActions";
+import { getCurrentTenant } from "@appsmith/actions/tenantActions";
+import { toast } from "design-system";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  RESTART_POLL_INTERVAL,
+  RESTART_POLL_TIMEOUT,
+} from "@appsmith/constants/tenantConstants";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -74,6 +79,13 @@ export function* SaveAdminSettingsSaga(
   const { needsRestart = true, settings } = action.payload;
 
   try {
+    const { appVersion } = getAppsmithConfigs();
+    const hasDisableTelemetrySetting = settings.hasOwnProperty(
+      "APPSMITH_DISABLE_TELEMETRY",
+    );
+    const hasHideWatermarkSetting = settings.hasOwnProperty(
+      "APPSMITH_HIDE_WATERMARK",
+    );
     const response: ApiResponse = yield call(
       UserApi.saveAdminSettings,
       settings,
@@ -81,10 +93,28 @@ export function* SaveAdminSettingsSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      Toaster.show({
-        text: "Successfully Saved",
-        variant: Variant.success,
+      toast.show("Successfully saved", {
+        kind: "success",
       });
+
+      if (settings["APPSMITH_DISABLE_TELEMETRY"]) {
+        AnalyticsUtil.logEvent("TELEMETRY_DISABLED", {
+          version: appVersion.id,
+        });
+      }
+
+      if (hasDisableTelemetrySetting || hasHideWatermarkSetting) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          version: appVersion.id,
+          ...(hasDisableTelemetrySetting
+            ? { telemetry_disabled: settings["APPSMITH_DISABLE_TELEMETRY"] }
+            : {}),
+          ...(hasHideWatermarkSetting
+            ? { watermark_disabled: settings["APPSMITH_HIDE_WATERMARK"] }
+            : {}),
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
       });
@@ -112,9 +142,6 @@ export function* SaveAdminSettingsSaga(
     });
   }
 }
-
-const RESTART_POLL_TIMEOUT = 2 * 60 * 1000;
-const RESTART_POLL_INTERVAL = 2000;
 
 export function* RestartServerPoll() {
   yield call(UserApi.restartServer);
@@ -149,28 +176,23 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      let actionElement;
       if (response.data) {
-        actionElement = (
-          <>
-            <br />
-            <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
-              {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
-            </span>
-          </>
-        );
       }
-      Toaster.show({
-        actionElement,
-        text: createMessage(
+      toast.show(
+        createMessage(
           response.data
             ? // @ts-expect-error: currentUser can be undefined
               TEST_EMAIL_SUCCESS(currentUser?.email)
             : TEST_EMAIL_FAILURE,
         ),
-        hideProgressBar: true,
-        variant: response.data ? Variant.info : Variant.danger,
-      });
+        {
+          kind: response.data ? "info" : "error",
+          action: {
+            text: createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT),
+            effect: () => window.open(EMAIL_SETUP_DOC, "blank"),
+          },
+        },
+      );
     }
   } catch (e) {}
 }

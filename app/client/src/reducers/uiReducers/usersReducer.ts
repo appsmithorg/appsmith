@@ -1,13 +1,15 @@
 import _ from "lodash";
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-import { DefaultCurrentUserDetails, User } from "constants/userConstants";
-import FeatureFlags from "entities/FeatureFlags";
+import type { User } from "constants/userConstants";
+import { DefaultCurrentUserDetails } from "constants/userConstants";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -20,7 +22,7 @@ const initialState: UsersReduxState = {
   current: undefined,
   currentUser: undefined,
   featureFlag: {
-    data: {},
+    data: DEFAULT_FEATURE_FLAG_VALUE,
     isFetched: false,
   },
 };
@@ -87,6 +89,15 @@ const usersReducer = createReducer(initialState, {
       currentUser: {
         ...state.currentUser,
         ...action.payload,
+      },
+    };
+  },
+  [ReduxActionTypes.UPDATE_USER_INTERCOM_CONSENT]: (state: UsersReduxState) => {
+    return {
+      ...state,
+      currentUser: {
+        ...state.currentUser,
+        isIntercomConsentGiven: true,
       },
     };
   },

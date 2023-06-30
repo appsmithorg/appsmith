@@ -1,7 +1,11 @@
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { GridProps, ReflowedSpace, ReflowedSpaceMap } from "reflow/reflowTypes";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  GridProps,
+  ReflowedSpace,
+  ReflowedSpaceMap,
+} from "reflow/reflowTypes";
 
 export function collisionCheckPostReflow(
   widgets: {

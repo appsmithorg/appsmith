@@ -1,5 +1,5 @@
 import { GracefulWorkerService } from "./WorkerUtil";
-import { channel, runSaga } from "redux-saga";
+import { runSaga } from "redux-saga";
 
 const MessageType = "message";
 interface extraWorkerProperties {
@@ -61,10 +61,8 @@ class MockWorkerClass implements WorkerClass {
         body: { data: message.body.data },
       };
       this.sendEvent({ data: response });
-      // @ts-expect-error: setTimeout return type mismatch
       this.responses.delete(counter);
     }, this.delayMilliSeconds);
-    // @ts-expect-error: setTimeout return type mismatch
     this.responses.add(counter);
   }
 

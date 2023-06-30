@@ -13,7 +13,7 @@ export function* rootSaga(sagasToRun = sagasArr): any {
   const result = yield race({
     running: all(
       sagasToRun.map((saga) =>
-        spawn(function*() {
+        spawn(function* () {
           while (true) {
             try {
               yield call(saga);

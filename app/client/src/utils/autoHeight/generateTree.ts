@@ -1,6 +1,7 @@
 import { areIntersecting } from "utils/boxHelpers";
 import { pushToArray } from "utils/helpers";
-import { MAX_BOX_SIZE, NodeSpace, TreeNode } from "./constants";
+import type { NodeSpace, TreeNode } from "./constants";
+import { MAX_BOX_SIZE } from "./constants";
 import { getNearestAbove } from "./helpers";
 // This function uses the spaces occupied by sibling boxes and provides us with
 // a data structure which defines the relative vertical positioning of the boxes

@@ -1,18 +1,21 @@
 import React from "react";
-import { FormGroup, SettingComponentProps } from "./Common";
+import type { SettingComponentProps } from "./Common";
+import { FormGroup } from "./Common";
 import SelectField from "components/editorComponents/form/fields/SelectField";
+import type { SelectOptionProps } from "design-system";
 
 export default function DropDown(
   props: {
-    dropdownOptions: Array<{ id: string; value: string; label?: string }>;
+    dropdownOptions: Partial<SelectOptionProps>[];
   } & SettingComponentProps,
 ) {
   const { dropdownOptions, setting } = props;
 
   return (
     <FormGroup
-      className={`t--admin-settings-dropdown t--admin-settings-${setting.name ||
-        setting.id}`}
+      className={`t--admin-settings-dropdown t--admin-settings-${
+        setting.name || setting.id
+      }`}
       setting={setting}
     >
       <SelectField

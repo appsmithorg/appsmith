@@ -1,10 +1,8 @@
 package com.external.plugins;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
@@ -43,8 +41,8 @@ import com.appsmith.external.services.FilterDataService;
 import com.external.plugins.constants.AmazonS3Action;
 import com.external.plugins.exceptions.S3ErrorMessages;
 import com.external.plugins.exceptions.S3PluginError;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.external.utils.AmazonS3ErrorUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -68,14 +66,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.LinkedHashMap;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -460,7 +459,7 @@ public class AmazonS3Plugin extends BasePlugin {
                          * - If connection object is null, then assume stale connection.
                          */
                         if (connection == null) {
-                            return Mono.error(new StaleConnectionException());
+                            return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
                         }
 
                         if (actionConfiguration == null) {
@@ -788,7 +787,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         return Mono.just(actionResult);
                     })
-                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException())
+                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException(error.getMessage()))
                     .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -802,7 +801,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         result.setIsExecutionSuccess(false);
                         if (e instanceof StaleConnectionException) {
                             return Mono.error(e);
-                        } else if (! (e instanceof AppsmithPluginException)) {
+                        } else if (!(e instanceof AppsmithPluginException)) {
                             e = new AppsmithPluginException(e, S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED, S3ErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG);
                         }
                         result.setErrorInfo(e, amazonS3ErrorUtils);
@@ -925,16 +924,18 @@ public class AmazonS3Plugin extends BasePlugin {
              * - Ideally, properties must never be null because the fields contained in the properties list have a
              *   default value defined.
              * - Ideally, properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) must never be null/empty, because the
-             *   `S3 Service Provider` dropdown has a default value.
+             *   `S3 service provider` dropdown has a default value.
              */
             if (properties == null
                     || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
                     || StringUtils.isNullOrEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                 invalids.add(S3ErrorMessages.DS_S3_SERVICE_PROVIDER_PROPERTIES_FETCHING_ERROR_MSG);
             }
-
-            final boolean usingAWSS3ServiceProvider =
-                    AWS_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
+            boolean usingAWSS3ServiceProvider = false;
+            if (properties != null && properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) != null) {
+                usingAWSS3ServiceProvider =
+                        AWS_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
+            }
             if (!usingAWSS3ServiceProvider
                     && (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())
                     || datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX) == null
@@ -985,8 +986,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     S3ErrorMessages.LIST_OF_BUCKET_FETCHING_ERROR_MSG,
                                     e.getMessage()
                             );
-                        } catch (IllegalStateException s) {
-                            throw new StaleConnectionException();
+                        } catch (IllegalStateException e) {
+                            throw new StaleConnectionException(e.getMessage());
                         }
 
                         return new DatasourceStructure(tableList);

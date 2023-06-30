@@ -1,5 +1,5 @@
-import { AppIconName } from "design-system-old";
-import { AppColorCode } from "constants/DefaultTheme";
+import type { AppIconName } from "design-system-old";
+import type { AppColorCode } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 export type CreateApplicationFormValues = {

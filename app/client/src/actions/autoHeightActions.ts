@@ -1,9 +1,7 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { TreeNode } from "utils/autoHeight/constants";
+import type { TreeNode } from "utils/autoHeight/constants";
 
 export interface UpdateWidgetAutoHeightPayload {
   widgetId: string;

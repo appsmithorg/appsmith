@@ -1,5 +1,5 @@
-import { DropdownOption } from "design-system-old";
-import { DatasourceTable } from "entities/Datasource";
+import type { DropdownOption } from "design-system-old";
+import type { DatasourceTable } from "entities/Datasource";
 import { PluginPackageName } from "entities/Action";
 
 export type DropdownOptions = Array<DropdownOption>;

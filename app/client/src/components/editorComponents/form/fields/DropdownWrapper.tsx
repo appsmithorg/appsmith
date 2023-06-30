@@ -1,27 +1,27 @@
-import { Dropdown, DropdownOption, RenderOption } from "design-system-old";
+import type { SelectOptionProps } from "design-system";
+import { Text, Option, Select } from "design-system";
 import React, { useEffect, useState } from "react";
-import { DropdownOnSelect } from "./SelectField";
+import type { DropdownOnSelect } from "./SelectField";
 
 type DropdownWrapperProps = {
   allowDeselection?: boolean;
   placeholder: string;
   input?: {
     value?: string;
-    onChange?: (value?: string | DropdownOption[]) => void;
+    onChange?: (value?: string | Partial<SelectOptionProps>[]) => void;
   };
-  options: DropdownOption[];
+  options: Partial<SelectOptionProps>[];
   isMultiSelect?: boolean;
   onOptionSelect?: (
     value?: string,
-    option?: DropdownOption[] | DropdownOption,
+    option?: Partial<SelectOptionProps>[] | Partial<SelectOptionProps>,
   ) => void;
   removeSelectedOption?: DropdownOnSelect;
-  selected?: DropdownOption | DropdownOption[];
+  selected?: Partial<SelectOptionProps> | Partial<SelectOptionProps>[];
   showLabelOnly?: boolean;
-  labelRenderer?: (selected: Partial<DropdownOption>[]) => JSX.Element;
+  labelRenderer?: (selected: Partial<SelectOptionProps>[]) => JSX.Element;
   fillOptions?: boolean;
   disabled?: boolean;
-  renderOption?: RenderOption;
   dropdownMaxHeight?: string;
   enableSearch?: boolean;
 };
@@ -33,9 +33,12 @@ function DropdownWrapper(props: DropdownWrapperProps) {
     },
   ]);
 
-  const onSelectHandler = (value?: string, option?: DropdownOption) => {
+  const onSelectHandler = (value?: any, option?: any) => {
     if (props?.isMultiSelect) {
-      const updatedItems: DropdownOption[] = [...selectedOption, option];
+      const updatedItems: Partial<SelectOptionProps>[] = [
+        ...selectedOption,
+        option,
+      ];
       props.input && props.input.onChange && props.input.onChange(updatedItems);
       props.onOptionSelect && props.onOptionSelect(value, updatedItems);
     } else {
@@ -65,22 +68,23 @@ function DropdownWrapper(props: DropdownWrapperProps) {
   }, [props.input, props.placeholder, props.selected]);
 
   return (
-    <Dropdown
-      allowDeselection={props.allowDeselection}
-      disabled={props.disabled}
-      dropdownMaxHeight={props.dropdownMaxHeight}
-      enableSearch={props.enableSearch}
-      fillOptions={props.fillOptions}
+    <Select
+      defaultValue={props.isMultiSelect ? selectedOption : selectedOption[0]}
+      isDisabled={props.disabled}
       isMultiSelect={props.isMultiSelect}
-      labelRenderer={props.labelRenderer}
+      onDeselect={onRemoveOptions}
       onSelect={onSelectHandler}
-      options={props.options}
       placeholder={props.placeholder}
-      removeSelectedOption={onRemoveOptions}
-      renderOption={props?.renderOption}
-      selected={props.isMultiSelect ? selectedOption : selectedOption[0]}
-      showLabelOnly={props.showLabelOnly}
-    />
+      showSearch={props.enableSearch}
+      value={props.isMultiSelect ? selectedOption : selectedOption[0]}
+    >
+      {props.options.map((option: Partial<SelectOptionProps>) => (
+        <Option key={option.value} value={option.id}>
+          <Text renderAs="p">{option.value}</Text>
+          {option.label && <Text renderAs="p">{option.label}</Text>}
+        </Option>
+      ))}
+    </Select>
   );
 }
 

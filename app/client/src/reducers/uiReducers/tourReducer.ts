@@ -1,9 +1,7 @@
 import { createReducer } from "utils/ReducerUtils";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { TourType } from "entities/Tour";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { TourType } from "entities/Tour";
 
 const initialState: TourReducerState = {
   isTourInProgress: false,

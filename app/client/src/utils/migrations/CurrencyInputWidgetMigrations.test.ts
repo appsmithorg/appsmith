@@ -1,4 +1,4 @@
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import {
   migrateCurrencyInputWidgetDefaultCurrencyCode,
   migrateInputWidgetShowStepArrows,
@@ -2987,7 +2987,7 @@ describe("CurrencyInputWidgetMigrations - ", () => {
     it("should test that its only migrating default country code with dynamic value", () => {
       expect(
         migrateCurrencyInputWidgetDefaultCurrencyCode(
-          (oldDSLWithCurrencyCode as unknown) as DSLWidget,
+          oldDSLWithCurrencyCode as unknown as DSLWidget,
         ),
       ).toEqual(expectedDSLWithDefaultCurrencyCode);
     });
@@ -2995,7 +2995,7 @@ describe("CurrencyInputWidgetMigrations - ", () => {
     it("should test that its only migrating default country code without dynamic value", () => {
       expect(
         migrateCurrencyInputWidgetDefaultCurrencyCode(
-          (oldDSLWithCurrencyCode2 as unknown) as DSLWidget,
+          oldDSLWithCurrencyCode2 as unknown as DSLWidget,
         ),
       ).toEqual(expectedDSLWithDefaultCurrencyCode2);
     });
@@ -3004,7 +3004,7 @@ describe("CurrencyInputWidgetMigrations - ", () => {
   describe("Input Widget for Number-Type and Currency Migration - ", () => {
     it("should test that its only migrating showStepArrows", () => {
       const migratedDsl = migrateInputWidgetShowStepArrows(
-        (oldDSLWithoutShowStepArrows as unknown) as DSLWidget,
+        oldDSLWithoutShowStepArrows as unknown as DSLWidget,
       );
       expect(migratedDsl).toEqual(expectedDSLWithShowStepArrows);
     });

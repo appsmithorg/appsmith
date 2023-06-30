@@ -114,7 +114,7 @@
         "renderMode": "CANVAS",
         "isLoading": false,
         "animateLoading": true,
-        "parentColumnSpace": 17.9375,
+        "parentColumnSpace": 11.9375,
         "leftColumn": 1,
         "buttonVariant": "PRIMARY",
         "key": "qxtmv7r8yb"
@@ -214,7 +214,7 @@
         "renderMode": "CANVAS",
         "isLoading": false,
         "animateLoading": true,
-        "parentColumnSpace": 17.9375,
+        "parentColumnSpace": 11.9375,
         "leftColumn": 1,
         "buttonVariant": "PRIMARY",
         "key": "qxtmv7r8yb"
@@ -306,7 +306,7 @@
         "type": "BUTTON_GROUP_WIDGET",
         "hideCard": false,
         "animateLoading": true,
-        "parentColumnSpace": 17.9375,
+        "parentColumnSpace": 11.9375,
         "dynamicTriggerPathList": [],
         "leftColumn": 1,
         "dynamicBindingPathList": [],

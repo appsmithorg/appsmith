@@ -2,30 +2,31 @@ import React, { useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import {
+import type {
   ReactTableColumnProps,
   ReactTableFilter,
   Operator,
-  OperatorTypes,
-  DEFAULT_FILTER,
 } from "../../../Constants";
-import { DropdownOption } from ".";
+import { OperatorTypes, DEFAULT_FILTER } from "../../../Constants";
+import type { DropdownOption } from ".";
 import CascadeFields from "./CascadeFields";
 import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "@design-system/widgets-old";
 import Button from "pages/AppViewer/AppViewerButton";
 import { ButtonVariantTypes } from "components/constants";
 
-import AddIcon from "remixicon-react/AddLineIcon";
 import { cloneDeep } from "lodash";
 import {
   ColumnTypes,
   FilterableColumnTypes,
 } from "widgets/TableWidgetV2/constants";
 import { generateReactKey } from "utils/generators";
+import { importRemixIcon } from "design-system-old";
+
+const AddIcon = importRemixIcon(() => import("remixicon-react/AddLineIcon"));
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;
@@ -114,17 +115,25 @@ interface TableFilterProps {
   borderRadius: string;
 }
 
+const defaultFilters = [{ ...DEFAULT_FILTER }];
+const getTableFilters = (filters: ReactTableFilter[] | undefined) => {
+  if (!filters || filters.length === 0) {
+    return defaultFilters;
+  }
+  return filters;
+};
+
 function TableFilterPaneContent(props: TableFilterProps) {
   const [filters, updateFilters] = React.useState(
-    new Array<ReactTableFilter>(),
+    getTableFilters(props.filters),
   );
 
   useEffect(() => {
-    const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
-    if (filters.length === 0) {
-      filters.push({ ...DEFAULT_FILTER });
+    const updatedFiltersState = getTableFilters(props.filters);
+    //if props has been updated update the filters state
+    if (updatedFiltersState !== filters) {
+      updateFilters(updatedFiltersState);
     }
-    updateFilters(filters);
   }, [props.filters]);
 
   const addFilter = () => {
@@ -151,8 +160,8 @@ function TableFilterPaneContent(props: TableFilterProps) {
   };
 
   const clearFilters = useCallback(() => {
-    props.applyFilter([{ ...DEFAULT_FILTER }]);
-  }, []);
+    props.applyFilter(defaultFilters);
+  }, [props]);
 
   const columns: DropdownOption[] = props.columns
     .map((column: ReactTableColumnProps) => {

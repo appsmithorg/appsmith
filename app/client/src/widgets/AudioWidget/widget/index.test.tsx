@@ -1,4 +1,4 @@
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import AudioWidget from ".";
 
 const urlTests = [
@@ -19,9 +19,10 @@ const urlTests = [
 ];
 
 describe("urlRegexValidation", () => {
-  const dataSectionProperties: PropertyPaneControlConfig[] = AudioWidget.getPropertyPaneContentConfig().filter(
-    (x) => x.sectionName === "Data",
-  )[0].children;
+  const dataSectionProperties: PropertyPaneControlConfig[] =
+    AudioWidget.getPropertyPaneContentConfig().filter(
+      (x) => x.sectionName === "Data",
+    )[0].children;
   const urlPropertyControl = dataSectionProperties.filter(
     (x) => x.propertyName === "url",
   )[0];

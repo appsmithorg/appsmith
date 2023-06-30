@@ -42,6 +42,12 @@ export const initialState: any = {
     },
   },
   ui: {
+    editor: {
+      isPreviewMode: false,
+    },
+    appSettingsPane: {
+      isOpen: false,
+    },
     appTheming: {
       selectedTheme: {
         properties: {
@@ -143,7 +149,11 @@ describe("App viewer fork button", () => {
     render(
       <Provider store={getStore()}>
         <ThemeProvider theme={lightTheme}>
-          <PrimaryCTA />
+          <PrimaryCTA
+            navColorStyle="solid"
+            primaryColor="red"
+            url={"/app/test-3/page1-63cccd44463c535b9fbc297c/edit"}
+          />
         </ThemeProvider>
       </Provider>,
     );
@@ -155,7 +165,11 @@ describe("App viewer fork button", () => {
     render(
       <Provider store={getStore("SET_CURRENT_USER_DETAILS")}>
         <ThemeProvider theme={lightTheme}>
-          <PrimaryCTA />
+          <PrimaryCTA
+            navColorStyle="solid"
+            primaryColor="red"
+            url={"/app/test-3/page1-63cccd44463c535b9fbc297c/edit"}
+          />
         </ThemeProvider>
       </Provider>,
     );

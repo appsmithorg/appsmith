@@ -71,12 +71,7 @@
                 "widgetName": "Updatename",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 8,
                 "bottomRow": 16,
                 "parentRowSpace": 10,
@@ -131,12 +126,7 @@
                 "widgetName": "Updatepaybyquarter",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 18,
                 "bottomRow": 26,
                 "parentRowSpace": 10,
@@ -191,12 +181,7 @@
                 "widgetName": "Updateschedule",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 29,
                 "bottomRow": 37,
                 "parentRowSpace": 10,
@@ -251,7 +236,7 @@
                 "widgetName": "IconButton1Copy",
                 "onClick": "{{closeModal('UpdateModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 1,
                 "bottomRow": 5,
@@ -341,10 +326,7 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 40,
                 "bottomRow": 44,
                 "parentRowSpace": 10,
@@ -840,12 +822,7 @@
                 "widgetName": "Insertschedule",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 25,
                 "bottomRow": 33,
                 "parentRowSpace": 10,
@@ -898,12 +875,7 @@
                 "widgetName": "Insertpaybyquarter",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 16,
                 "bottomRow": 24,
                 "parentRowSpace": 10,
@@ -956,7 +928,7 @@
                 "widgetName": "IconButton1",
                 "onClick": "{{closeModal('InsertModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 1,
                 "bottomRow": 5,
@@ -1031,12 +1003,7 @@
                 "widgetName": "Insertname",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 7,
                 "bottomRow": 15,
                 "parentRowSpace": 10,
@@ -1099,10 +1066,7 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 36,
                 "bottomRow": 40,
                 "parentRowSpace": 10,
@@ -1178,7 +1142,7 @@
         "widgetName": "IconButton2",
         "onClick": "{{deleteAllRecords.run(() => selectRecords.run(), () => {})}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-        "displayName": "Icon Button",
+        "displayName": "Icon button",
         "iconSVG": "/static/media/icon.1a0c634a.svg",
         "topRow": 2,
         "bottomRow": 6,

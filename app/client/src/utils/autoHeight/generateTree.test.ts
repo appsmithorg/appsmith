@@ -1,4 +1,4 @@
-import { NodeSpace, TreeNode } from "./constants";
+import type { NodeSpace, TreeNode } from "./constants";
 import { generateTree } from "./generateTree";
 
 describe("Generate Auto Height Layout tree", () => {

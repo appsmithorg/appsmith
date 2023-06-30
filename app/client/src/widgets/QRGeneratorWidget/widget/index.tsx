@@ -1,19 +1,21 @@
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 
-import { TextSize } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import { Color } from "constants/Colors";
+import type { Color } from "constants/Colors";
 import { pick } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { ContainerStyle } from "widgets/ContainerWidget/component";
-import TextComponent, { TextAlign } from "../component";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { ContainerStyle } from "widgets/ContainerWidget/component";
+import type { TextAlign } from "../component";
+import TextComponent from "../component";
 import { OverflowTypes } from "../constants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
@@ -71,7 +73,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -83,7 +85,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "disableLink",
             helpText: "Controls parsing text as Link",
-            label: "Disable Link",
+            label: "Disable link",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -97,7 +99,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "backgroundColor",
-            label: "Cell Background Color",
+            label: "Cell background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -116,7 +118,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "textColor",
-            label: "Text Color",
+            label: "Text color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -130,7 +132,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "truncateButtonColor",
-            label: "Truncate Button Color",
+            label: "Truncate button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -150,7 +152,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Color",
+            label: "Border color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -160,7 +162,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText:
               "Enter value for border width which can also use as margin",
             propertyName: "borderWidth",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -169,7 +171,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "fontSize",
-            label: "Text Size",
+            label: "Text size",
             controlType: "DROP_DOWN",
             defaultValue: "1rem",
             options: [
@@ -213,7 +215,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "fontFamily",
-            label: "Font Family",
+            label: "Font family",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -271,11 +273,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -286,19 +288,19 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "textAlign",
-            label: "Text Align",
+            label: "Text align",
             controlType: "ICON_TABS",
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: "LEFT",
               },
               {
-                icon: "CENTER_ALIGN",
+                startIcon: "align-center",
                 value: "CENTER",
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: "RIGHT",
               },
             ],
@@ -366,7 +368,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -378,7 +380,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "disableLink",
             helpText: "Controls parsing text as Link",
-            label: "Disable Link",
+            label: "Disable link",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -387,7 +389,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -398,7 +399,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "fontFamily",
-            label: "Font Family",
+            label: "Font family",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -452,7 +453,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "fontSize",
-            label: "Font Size",
+            label: "Font size",
             controlType: "DROP_DOWN",
             defaultValue: "1rem",
             options: [
@@ -501,7 +502,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "textColor",
-            label: "Text Color",
+            label: "Text color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -515,7 +516,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "backgroundColor",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -536,7 +537,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Color",
+            label: "Border color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -544,7 +545,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "truncateButtonColor",
-            label: "Truncate Button Color",
+            label: "Truncate button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -563,7 +564,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Text Formatting",
+        sectionName: "Text formatting",
         children: [
           {
             propertyName: "textAlign",
@@ -571,15 +572,15 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "ICON_TABS",
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: "LEFT",
               },
               {
-                icon: "CENTER_ALIGN",
+                startIcon: "align-center",
                 value: "CENTER",
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: "RIGHT",
               },
             ],
@@ -595,11 +596,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -611,13 +612,13 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             helpText:
               "Enter value for border width which can also use as margin",
             propertyName: "borderWidth",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,

@@ -1,10 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import {
-  HiddenFnParams,
-  getSchemaItem,
-  getAutocompleteProperties,
-} from "../helper";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { dateFormatOptions } from "widgets/constants";
 
@@ -14,7 +11,7 @@ const PROPERTIES = {
       {
         helpText: "Sets the format of the selected date",
         propertyName: "dateFormat",
-        label: "Date Format",
+        label: "Date format",
         controlType: "DROP_DOWN",
         isJSConvertible: true,
         customJSControl: "JSON_FORM_COMPUTE_VALUE",
@@ -122,7 +119,7 @@ const PROPERTIES = {
         propertyName: "convertToISO",
         label: "Convert to ISO format",
         helpText:
-          "Enabling this always converts the value in ISO form in the formData irrespective of the 'Date Format' selected",
+          "Enabling this always converts the value in ISO form in the formData irrespective of the 'Date format' selected",
         controlType: "SWITCH",
         isJSConvertible: false,
         isBindProperty: true,
@@ -166,7 +163,7 @@ const PROPERTIES = {
       {
         propertyName: "onDateSelected",
         label: "onDateSelected",
-        helpText: "Triggers an action when a date is selected in the calendar",
+        helpText: "when a date is selected in the calendar",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

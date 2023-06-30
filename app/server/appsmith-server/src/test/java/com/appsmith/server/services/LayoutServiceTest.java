@@ -1191,9 +1191,9 @@ public class LayoutServiceTest {
                             "dynamicGet", "some dynamic {{aGetAction.data}}"
                     ));
                     JSONArray dynamicBindingsPathList = new JSONArray();
-                    dynamicBindingsPathList.addAll(List.of(
+                    dynamicBindingsPathList.add(
                             new JSONObject(Map.of("key", "dynamicGet_IncorrectKey"))
-                    ));
+                    );
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
@@ -1213,7 +1213,7 @@ public class LayoutServiceTest {
                         Assertions.fail("Incorrect initialization of expected DSL");
                     }
                     assertThat(throwable.getMessage()).isEqualTo(
-                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), oldParent,  "dynamicGet_IncorrectKey", "New element is null")
+                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), oldParent, "dynamicGet_IncorrectKey", "New element is null")
                     );
                     return true;
                 })
@@ -1271,9 +1271,9 @@ public class LayoutServiceTest {
                             "dynamicGet", "a\"{{aGetAction\"/'\"'}}\"\""
                     ));
                     JSONArray dynamicBindingsPathList = new JSONArray();
-                    dynamicBindingsPathList.addAll(List.of(
+                    dynamicBindingsPathList.add(
                             new JSONObject(Map.of("key", "dynamicGet"))
-                    ));
+                    );
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);

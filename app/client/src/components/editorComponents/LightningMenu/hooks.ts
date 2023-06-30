@@ -1,7 +1,8 @@
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import { WidgetProps } from "widgets/BaseWidget";
-import { Action, PluginType } from "entities/Action";
+import type { AppState } from "@appsmith/reducers";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
 
 export const useWidgets = () => {
   return useSelector((state: AppState) => {

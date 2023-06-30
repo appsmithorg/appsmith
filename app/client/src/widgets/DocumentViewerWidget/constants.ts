@@ -9,6 +9,7 @@ export const SUPPORTED_EXTENSIONS = [
   "ppt",
   "pptx",
   "xlsx",
+  "xls",
 ];
 
 export const Renderers = {
@@ -18,6 +19,6 @@ export const Renderers = {
   ERROR: "ERROR",
 };
 
-export type Renderer = typeof Renderers[keyof typeof Renderers];
+export type Renderer = (typeof Renderers)[keyof typeof Renderers];
 
 export type ViewerType = "google" | "office" | "mammoth" | "pdf" | "url";

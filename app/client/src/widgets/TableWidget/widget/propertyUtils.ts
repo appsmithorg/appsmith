@@ -1,6 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
-import { ColumnProperties } from "../component/Constants";
-import { TableWidgetProps } from "../constants";
+import type { ColumnProperties } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
 import {
@@ -212,7 +212,7 @@ export const updateColumnStyles = (
   return;
 };
 
-// Select default Icon Name if column type is Icon Button
+// Select default Icon Name if column type is Icon button
 export function updateIconNameHook(
   props: TableWidgetProps,
   propertyPath: string,

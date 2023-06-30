@@ -7,6 +7,7 @@ import com.appsmith.server.repositories.GroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -18,7 +19,6 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.util.Set;
 import java.util.stream.Collectors;
 

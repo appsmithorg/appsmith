@@ -11,7 +11,6 @@ import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_PATH,
   BUILDER_CHECKLIST_PATH,
-  BUILDER_CUSTOM_PATH,
   CURL_IMPORT_PAGE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   INTEGRATION_EDITOR_PATH,
@@ -21,7 +20,6 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -29,9 +27,6 @@ import * as Sentry from "@sentry/react";
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
-import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
-import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -51,8 +46,6 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 function EditorsRouter() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  const isMultiPane = useSelector(isMultiPaneActive);
-  const paneCount = useSelector(getPaneCount);
 
   useEffect(() => {
     return () => {
@@ -63,20 +56,9 @@ function EditorsRouter() {
     };
   });
 
-  const showPropertyPane = isMultiPane
-    ? paneCount === PaneLayoutOptions.TWO_PANE
-    : false;
-
   return (
     <Wrapper isVisible>
       <Switch key={path}>
-        {showPropertyPane && (
-          <SentryRoute
-            component={PropertyPaneContainer}
-            exact
-            path={BUILDER_CUSTOM_PATH}
-          />
-        )}
         <SentryRoute
           component={IntegrationEditor}
           exact

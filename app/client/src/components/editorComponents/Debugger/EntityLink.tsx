@@ -1,10 +1,11 @@
 import { PluginType } from "entities/Action";
-import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -19,6 +20,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history, { NavigationMethod } from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
+import type LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { Link } from "design-system";
+import type { Plugin } from "api/PluginApi";
 
 function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -28,19 +32,24 @@ function ActionLink(props: EntityLinkProps) {
     if (action) {
       const { id, pageId, pluginType } = action;
       const actionConfig = getActionConfig(pluginType);
-      const url = applicationId && actionConfig?.getURL(pageId, id, pluginType);
+      const url =
+        applicationId &&
+        actionConfig?.getURL(pageId, id, pluginType, props.plugin);
       if (!url) return;
       history.push(url);
       const actionType = action.pluginType === PluginType.API ? "API" : "QUERY";
 
       AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+        errorType: props.errorType,
+        errorSubType: props.errorSubType,
+        appsmithErrorCode: props.appsmithErrorCode,
         entityType: actionType,
       });
     }
   }, [action]);
 
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -61,13 +70,16 @@ function JSCollectionLink(props: EntityLinkProps) {
       if (url) {
         history.push(url);
         AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+          errorType: props.errorType,
+          errorSubType: props.errorSubType,
+          appsmithErrorCode: props.appsmithErrorCode,
           entityType: "JSACTION",
         });
       }
     }
   }, []);
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -93,12 +105,15 @@ function WidgetLink(props: EntityLinkProps) {
       props.id === selectedWidgetId,
     );
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+      errorType: props.errorType,
+      errorSubType: props.errorSubType,
+      appsmithErrorCode: props.appsmithErrorCode,
       entityType: "WIDGET",
     });
   }, [navigateToWidget]);
 
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -123,13 +138,16 @@ function DatasourceLink(props: EntityLinkProps) {
         }),
       );
       AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+        errorType: props.errorType,
+        errorSubType: props.errorSubType,
+        appsmithErrorCode: props.appsmithErrorCode,
         entityType: "DATASOURCE",
       });
     }
   };
 
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -138,14 +156,14 @@ function DatasourceLink(props: EntityLinkProps) {
   );
 }
 
-function Link(props: {
+function DebuggerEntityLink(props: {
   name: string;
   onClick: any;
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;
 }) {
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
+    e.preventDefault();
     props.onClick();
   };
 
@@ -153,18 +171,22 @@ function Link(props: {
     case DebuggerLinkUI.ENTITY_TYPE:
       return (
         <span className="debugger-entity">
-          [<span onClick={onClick}>{props.name}</span>]
+          [
+          <Link kind="secondary" onClick={onClick} to="">
+            {props.name}
+          </Link>
+          ]
         </span>
       );
     case DebuggerLinkUI.ENTITY_NAME:
-      const link = props.name;
       return (
-        <span
+        <Link
           className="debugger-entity-link t--debugger-log-entity-link"
           onClick={onClick}
+          to=""
         >
-          {link}
-        </span>
+          {props.name}
+        </Link>
       );
     default:
       return null;
@@ -185,6 +207,10 @@ function EntityLink(props: EntityLinkProps) {
 
 type EntityLinkProps = {
   uiComponent: DebuggerLinkUI;
+  plugin?: Plugin;
+  errorType?: LOG_TYPE;
+  errorSubType?: string;
+  appsmithErrorCode?: string;
 } & SourceEntity;
 
 export enum DebuggerLinkUI {

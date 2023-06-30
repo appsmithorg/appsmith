@@ -1,10 +1,9 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.User;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
-
-import jakarta.validation.constraints.NotEmpty;
 
 @Getter
 @Setter

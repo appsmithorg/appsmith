@@ -1,4 +1,5 @@
-import { Action, PluginType } from "entities/Action/index";
+import type { Action } from "entities/Action/index";
+import { PluginType } from "entities/Action/index";
 import { getBindingAndReactivePathsOfAction } from "entities/Action/actionProperties";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
@@ -77,8 +78,10 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    const response = getBindingAndReactivePathsOfAction(basicAction, config)
-      .reactivePaths;
+    const response = getBindingAndReactivePathsOfAction(
+      basicAction,
+      config,
+    ).reactivePaths;
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -142,9 +145,11 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    // @ts-expect-error: Types are not available
-    const response = getBindingAndReactivePathsOfAction(basicAction, config)
-      .reactivePaths;
+    const response = getBindingAndReactivePathsOfAction(
+      // @ts-expect-error: Types are not available
+      basicAction,
+      config,
+    ).reactivePaths;
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -198,9 +203,11 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    // @ts-expect-error: Types are not available
-    const response = getBindingAndReactivePathsOfAction(basicAction, config)
-      .reactivePaths;
+    const response = getBindingAndReactivePathsOfAction(
+      // @ts-expect-error: Types are not available
+      basicAction,
+      config,
+    ).reactivePaths;
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -257,8 +264,10 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    const response = getBindingAndReactivePathsOfAction(basicAction, config)
-      .reactivePaths;
+    const response = getBindingAndReactivePathsOfAction(
+      basicAction,
+      config,
+    ).reactivePaths;
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -269,8 +278,10 @@ describe("getReactivePathsOfAction", () => {
 
     basicAction.actionConfiguration.template.setting = true;
 
-    const response2 = getBindingAndReactivePathsOfAction(basicAction, config)
-      .reactivePaths;
+    const response2 = getBindingAndReactivePathsOfAction(
+      basicAction,
+      config,
+    ).reactivePaths;
     expect(response2).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -329,8 +340,10 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    const response = getBindingAndReactivePathsOfAction(basicAction, config)
-      .bindingPaths;
+    const response = getBindingAndReactivePathsOfAction(
+      basicAction,
+      config,
+    ).bindingPaths;
     expect(response).toStrictEqual({
       "config.body": EvaluationSubstitutionType.TEMPLATE,
       "config.body2": EvaluationSubstitutionType.TEMPLATE,

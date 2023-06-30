@@ -15,7 +15,7 @@ public class CustomJSLibApplicationDTO {
 
     @Override
     public boolean equals(Object o) {
-        if (! (o instanceof CustomJSLibApplicationDTO)) {
+        if (!(o instanceof CustomJSLibApplicationDTO)) {
             return false;
         }
 

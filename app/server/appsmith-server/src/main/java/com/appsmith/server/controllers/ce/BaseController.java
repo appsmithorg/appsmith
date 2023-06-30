@@ -1,9 +1,12 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CrudService;
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
 
     protected final S service;
 
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<T>> create(@Valid @RequestBody T resource,
@@ -46,9 +49,11 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
      * If not, atleast remove it for :
      * 1. Page
      * 2. Datasources
+     *
      * @param params
      * @return
      */
+    @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params,
                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -61,14 +66,16 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/{id}")
     public Mono<ResponseDTO<T>> getByIdAndBranchName(@PathVariable ID id,
-                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get resource from base controller for id: {}", id);
         return service.findByIdAndBranchName(id, branchName)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/{id}")
     public Mono<ResponseDTO<T>> update(@PathVariable ID id,
                                        @RequestBody T resource,
@@ -78,6 +85,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<T>> delete(@PathVariable ID id,
                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

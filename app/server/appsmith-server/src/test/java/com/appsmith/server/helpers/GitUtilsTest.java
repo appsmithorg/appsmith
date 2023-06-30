@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GitUtilsTest {
 
-
     @Test
     public void convertSshUrlToBrowserSupportedUrl() {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.test.net:user/test/tests/testRepo.git"))

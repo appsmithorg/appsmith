@@ -57,7 +57,7 @@ public class SegmentConfig {
         final Analytics analytics = Analytics.builder(analyticsWriteKey).log(logProcessorWithErrorHandler).build();
         logProcessorWithErrorHandler.onError(logData -> {
             final Throwable error = logData.getError();
-             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error").userId("segmentError")
+            analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error").userId("segmentError")
                     .properties(Map.of(
                             "message", logData.getMessage(),
                             "error", error == null ? "" : error.getMessage(),

@@ -1,5 +1,5 @@
 import React from "react";
-import { TooltipComponent as Tooltip } from "design-system-old";
+import { Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { Text, TextType } from "design-system-old";
 import { BranchListItemContainer } from "./BranchListItemContainer";
@@ -17,12 +17,21 @@ export function RemoteBranchListItem({ branch, className, onClick }: any) {
       selected={false}
     >
       <Tooltip
-        boundary="window"
         content={branch}
-        disabled={!isEllipsisActive(textRef.current)}
-        position="top"
+        isDisabled={!isEllipsisActive(document.getElementById(branch))}
+        placement="top"
       >
-        <Text ref={textRef} type={TextType.P1}>
+        <Text
+          id={branch}
+          ref={textRef}
+          style={{
+            width: "100%",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+          type={TextType.P1}
+        >
           {branch}
         </Text>
       </Tooltip>

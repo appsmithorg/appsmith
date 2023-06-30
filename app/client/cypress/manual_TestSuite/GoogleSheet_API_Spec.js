@@ -2,28 +2,28 @@ const queryLocators = require("../../../locators/QueryEditor.json");
 const queryEditor = require("../../../locators/QueryEditor.json");
 let datasourceName;
 
-describe("Test Ideas for GooglSheet API", function() {
-  it("Add a Datasource", function() {
+describe("Test Ideas for GooglSheet API", function () {
+  it("Add a Datasource", function () {
     //Add the datasource to Email Id
     //Ensure different Email Id can be associate to different Email Id
-    //Ensure Datasource has two action "Read Only" and "Read"
+    //Ensure Datasource has two action "Read only" and "Read"
     //Ensure user can Save the Datasource
     //Click on "Add API"
   });
 
-  it("List API", function() {
+  it("List API", function () {
     //Select the Method "List Sheet"
     //Ensure response : URL and Name of the sheet
     //Ensure "Add Widget" is displayed to user
     //Ensure click on Add widget the data gets populated on the widget
   });
 
-  it("Fetch a Sheet", function() {
+  it("Fetch a Sheet", function () {
     //Select the Method "Fetch Sheet"
     //Ensure response :id,name,createdTime,modifiedTime,permissions
   });
 
-  it("Create New Sheet", function() {
+  it("Create new Sheet", function () {
     //Ensure the response is appropriate
     //Ensure to select the method
     //Ensure to select a new name to the spreadsheet
@@ -33,11 +33,11 @@ describe("Test Ideas for GooglSheet API", function() {
     //Send the response body with defined value and ensure the data is added
   });
 
-  it("Insert a sheet or Update a sheet", function() {
+  it("Insert a sheet or Update a sheet", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
     //Ensure add the sheet name in which it needs to be inserted
-    //Ensure add the Table Heading Row Index
+    //Ensure add the Table heading row index
     //Ensure to add appropriate raw object
     //Ensure to submit one row empty each time and account the error
     //Ensure to make changes in the raw object to throw error
@@ -47,10 +47,10 @@ describe("Test Ideas for GooglSheet API", function() {
     //Ensure to update the "headername"
   });
 
-  it("Bulk Insert or Bulk Update", function() {
+  it("Bulk Insert or Bulk Update", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
-    //Ensure add the Table Heading Row Index
+    //Ensure add the Table heading row index
     //Ensure to add appropriate raw object
     //Add inappropriate data in each field to get appropriate error
     //Add few inappropritae row name and value and check for partial insertion
@@ -59,17 +59,17 @@ describe("Test Ideas for GooglSheet API", function() {
     //Add doc URL different and name of sheet that doesnt exsit in the doc and ensure the error is displayed
   });
 
-  it("Delete a Row", function() {
+  it("Delete a Row", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
     //Ensure to add the sheet name
-    //Ensure add the Table Heading Row Index
+    //Ensure add the Table heading row index
     //Ensure to add the valid index
     //Enter index as 0 and check if the table header is not deleted
     //Enter index as on and check the first data value gets deleted
   });
 
-  it("Delete a Sheet", function() {
+  it("Delete a Sheet", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
     //Ensure to add the sheet name
@@ -77,7 +77,7 @@ describe("Test Ideas for GooglSheet API", function() {
     //Choose Entity has Entire spreadsheet and try to deleted the sheet
   });
 
-  it("Fetch Sheet Rows", function() {
+  it("Fetch Sheet Rows", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
     //Ensure to add the sheet name

@@ -2,14 +2,14 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { TabView } from "./index";
-import { TabViewProps } from "../../types";
+import type { TabViewProps } from "../../types";
 
 describe("Tab View component", () => {
   const props: TabViewProps = {
     label: "Type",
     activeObj: {
       id: "page-name",
-      text: "Page Name",
+      text: "Page name",
       action: () => {
         return 1;
       },
@@ -17,7 +17,7 @@ describe("Tab View component", () => {
     switches: [
       {
         id: "page-name",
-        text: "Page Name",
+        text: "Page name",
         action: () => {
           return 1;
         },
@@ -25,9 +25,8 @@ describe("Tab View component", () => {
       {
         id: "url",
         text: "URL",
-        action: () => {
-          console.log("URL");
-        },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        action: () => {},
       },
     ],
     value: "{{navigateTo('Page1', {}, 'SAME_WINDOW'}}",

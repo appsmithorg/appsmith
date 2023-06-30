@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import type { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget from "./BaseWidget";
 
 const SkeletonWrapper = styled.div`
   height: 100%;
@@ -36,6 +37,7 @@ export const CONFIG = {
     default: SkeletonWidget.getDefaultPropertiesMap(),
     meta: SkeletonWidget.getMetaPropertiesMap(),
     config: SkeletonWidget.getPropertyPaneConfig(),
+    autocompleteDefinitions: SkeletonWidget.getAutocompleteDefinitions(),
   },
 };
 

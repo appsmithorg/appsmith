@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
+import type { AppState } from "@appsmith/reducers";
+import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -23,16 +22,15 @@ import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPane
 import { showDebugger } from "actions/debuggerActions";
 
 import { runActionViaShortcut } from "actions/pluginActionActions";
+import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
 import {
   filterCategories,
   SEARCH_CATEGORY_ID,
-  SearchCategory,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster, Variant } from "design-system-old";
 
-import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import type { APP_MODE } from "entities/App";
 
 import {
   createMessage,
@@ -47,6 +45,8 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toast } from "design-system";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -123,9 +123,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Search entities"
           onKeyDown={(e: any) => {
-            const widgetSearchInput = document.getElementById(
-              WIDGETS_SEARCH_ID,
-            );
+            const widgetSearchInput =
+              document.getElementById(WIDGETS_SEARCH_ID);
             if (widgetSearchInput) {
               widgetSearchInput.focus();
               e.preventDefault();
@@ -144,7 +143,7 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + plus"
           global
-          label="Create New"
+          label="Create new"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
           }
@@ -199,7 +198,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + c"
           global
           group="Canvas"
-          label="Copy Widget"
+          label="Copy widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
@@ -223,7 +222,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="backspace"
           global
           group="Canvas"
-          label="Delete Widget"
+          label="Delete widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
@@ -234,7 +233,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="del"
           global
           group="Canvas"
-          label="Delete Widget"
+          label="Delete widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.deleteSelectedWidget();
@@ -337,9 +336,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Save progress"
           onKeyDown={() => {
-            Toaster.show({
-              text: createMessage(SAVE_HOTKEY_TOASTER_MESSAGE),
-              variant: Variant.info,
+            toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
+              kind: "info",
             });
           }}
           preventDefault
@@ -382,7 +380,7 @@ class GlobalHotKeys extends React.Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
-  isDebuggerOpen: state.ui.debugger.isOpen,
+  isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),

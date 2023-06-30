@@ -362,8 +362,7 @@ export const mockJsActions = [
       },
     ],
     archivedActions: [],
-    body:
-      "export default {sad\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+    body: "export default {sad\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
     variables: [
       {
         name: "myVar1",

@@ -5,7 +5,7 @@
       "id": 1,
       "children": [
         {
-          "label": "Method Key",
+          "label": "Method key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
@@ -116,24 +116,24 @@
           "initialValue": "SHEET",
           "options": [
             {
-              "label": "Single Sheet",
+              "label": "Single sheet",
               "value": "SHEET"
             },
             {
-              "label": "Entire Spreadsheet",
+              "label": "Entire spreadsheet",
               "value": "SPREADSHEET"
             }
           ]
         },
         {
-          "label": "Sheet Name Key",
+          "label": "Sheet name key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "sheetName"
         },
         {
-          "label": "Sheet Name",
+          "label": "Sheet name",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
@@ -172,14 +172,14 @@
           "initialValue": "Sheet1"
         },
         {
-          "label": "Table Header Index Key",
+          "label": "Table header index key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "tableHeaderIndex"
         },
         {
-          "label": "Table Heading Row Index",
+          "label": "Table heading row index",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
@@ -197,14 +197,14 @@
           "initialValue": "1"
         },
         {
-          "label": "Query Format Key",
+          "label": "Query format key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "queryFormat"
         },
         {
-          "label": "Query Format",
+          "label": "Query format",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
           "controlType": "DROP_DOWN",
           "hidden": {
@@ -225,14 +225,14 @@
           ]
         },
         {
-          "label": "Range Key",
+          "label": "Range key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "range"
         },
         {
-          "label": "Cell Range",
+          "label": "Cell range",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
@@ -264,14 +264,14 @@
           "placeholderText": "A2:B"
         },
         {
-          "label": "Row Offset Key",
+          "label": "Row offset key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "rowOffset"
         },
         {
-          "label": "Row Offset",
+          "label": "Row offset",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
@@ -303,7 +303,7 @@
           "placeholderText": "0"
         },
         {
-          "label": "Row Index Key",
+          "label": "Row index key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
@@ -322,14 +322,14 @@
           "placeholderText": "0"
         },
         {
-          "label": "Row Limit Key",
+          "label": "Row limit key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "rowLimit"
         },
         {
-          "label": "Row Limit",
+          "label": "Row limit",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
@@ -361,14 +361,14 @@
           "placeholderText": "10"
         },
         {
-          "label": "Where Key",
+          "label": "Where key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "where"
         },
         {
-          "label": "Where Conditions",
+          "label": "Where conditions",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
           "controlType": "ARRAY_FIELD",
           "hidden": {
@@ -379,7 +379,7 @@
           "initialValue": [],
           "schema": [
             {
-              "label": "Column Name",
+              "label": "Column name",
               "key": "path",
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "placeholderText": "name"
@@ -437,14 +437,14 @@
           ]
         },
         {
-          "label": "Row Object Key",
+          "label": "Row object key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "rowObject"
         },
         {
-          "label": "Row Object",
+          "label": "Row object",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -466,7 +466,7 @@
           "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
         },
         {
-          "label": "Row Object",
+          "label": "Row object",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -488,14 +488,14 @@
           "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
         },
         {
-          "label": "Row Objects Key",
+          "label": "Row objects key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "rowObjects"
         },
         {
-          "label": "Row Objects",
+          "label": "Row objects",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -517,7 +517,7 @@
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
         },
         {
-          "label": "Row Objects",
+          "label": "Row objects",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -539,7 +539,7 @@
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
         },
         {
-          "label": "Smart JSON Substitution Key",
+          "label": "Smart JSON substitution key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].key",
           "hidden": true,
           "controlType": "INPUT_TEXT",

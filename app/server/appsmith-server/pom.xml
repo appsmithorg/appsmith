@@ -16,7 +16,7 @@
     <description>This is the API server for the Appsmith project</description>
 
     <properties>
-        <ff4j.version>1.9</ff4j.version>
+        <ff4j.version>2.0.0</ff4j.version>
         <org.modelmapper.version>2.4.4</org.modelmapper.version>
         <jmh.version>1.35</jmh.version>
     </properties>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>19.0</version>
+            <version>20.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -326,8 +326,8 @@
 
         <dependency>
             <groupId>io.sentry</groupId>
-            <artifactId>sentry-spring-boot-starter</artifactId>
-            <version>3.1.2</version>
+            <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+            <version>6.23.0</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -359,11 +359,6 @@
         <dependency>
             <groupId>org.ff4j</groupId>
             <artifactId>ff4j-core</artifactId>
-            <version>${ff4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ff4j</groupId>
-            <artifactId>ff4j-config-yaml</artifactId>
             <version>${ff4j.version}</version>
         </dependency>
         <dependency>

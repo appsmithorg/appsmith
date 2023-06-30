@@ -6,6 +6,8 @@ import reactor.core.publisher.Mono;
 public interface HealthCheckServiceCE {
 
     Mono<String> getHealth();
+
     Mono<Health> getRedisHealth();
+
     Mono<Health> getMongoHealth();
 }

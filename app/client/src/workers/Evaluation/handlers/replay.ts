@@ -1,10 +1,11 @@
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
-import { EvalWorkerSyncRequest } from "../types";
+import type { EvalWorkerSyncRequest } from "../types";
 import { CANVAS, replayMap } from "./evalTree";
 
 export function undo(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { entityId } = data;
+  if (!replayMap) return;
   if (!replayMap[entityId || CANVAS]) return;
   const replayResult = replayMap[entityId || CANVAS].replay("UNDO");
   replayMap[entityId || CANVAS].clearLogs();
@@ -14,6 +15,7 @@ export function undo(request: EvalWorkerSyncRequest) {
 export function redo(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { entityId } = data;
+  if (!replayMap) return;
   if (!replayMap[entityId ?? CANVAS]) return;
   const replayResult = replayMap[entityId ?? CANVAS].replay("REDO");
   replayMap[entityId ?? CANVAS].clearLogs();
@@ -23,6 +25,7 @@ export function redo(request: EvalWorkerSyncRequest) {
 export function updateReplayObject(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { entity, entityId, entityType } = data;
+  if (!replayMap) return false;
   const replayObject = replayMap[entityId];
   if (replayObject) {
     replayObject.update(entity);

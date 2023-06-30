@@ -1,6 +1,11 @@
-import { Action, PluginType } from "entities/Action";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
 import equal from "fast-deep-equal/es6";
-import { getPropertyPath } from "./DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+  getPropertyPath,
+} from "./DynamicBindingUtils";
 import {
   EVAL_VALUE_PATH,
   getDynamicBindingsChangesSaga,
@@ -195,5 +200,86 @@ describe("getNestedEvalPath", () => {
     const expectedPopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.primaryColumns.state`;
     expect(actualPopulatedNestedPath).toEqual(expectedPopulatedNestedPath);
     expect(actualUnpopulatedNestedPath).toEqual(expectedUnpopulatedNestedPath);
+  });
+});
+
+describe("getDynamicBindings and combineDynamicBindings  function", () => {
+  const testCases = [
+    {
+      js: "(function(){return true;})()",
+      jsSnippets: ["(function(){return true;})()"],
+      propertyValue: "{{(function(){return true;})()}}",
+      stringSegments: ["{{(function(){return true;})()}}"],
+    },
+    {
+      js: '"Hello " + (Customer.Name) + ", the status for your order id " + (orderId) + " is " + (status)',
+      jsSnippets: ["", "Customer.Name", "", "orderId", "", "status"],
+      propertyValue:
+        "Hello {{Customer.Name}}, the status for your order id {{orderId}} is {{status}}",
+      stringSegments: [
+        "Hello ",
+        "{{Customer.Name}}",
+        ", the status for your order id ",
+        "{{orderId}}",
+        " is ",
+        "{{status}}",
+      ],
+    },
+    {
+      js: "(data.map(datum => {return {id: datum}}))",
+      jsSnippets: ["data.map(datum => {return {id: datum}})"],
+      propertyValue: "{{data.map(datum => {return {id: datum}})}}",
+      stringSegments: ["{{data.map(datum => {return {id: datum}})}}"],
+    },
+    {
+      js: '"{{}}"',
+      jsSnippets: [""],
+      propertyValue: "{{}}",
+      stringSegments: ["{{}}"],
+    },
+    {
+      js: "(Query1.data.splice(1).map((data, ind) => ({...data, ind })))",
+      jsSnippets: [
+        "Query1.data.splice(1).map((data, ind) => ({...data, ind }))",
+      ],
+      propertyValue:
+        "{{Query1.data.splice(1).map((data, ind) => ({...data, ind }))}}",
+      stringSegments: [
+        "{{Query1.data.splice(1).map((data, ind) => ({...data, ind }))}}",
+      ],
+    },
+    {
+      js: "(JSObject1.myFun1())",
+      jsSnippets: ["JSObject1.myFun1()"],
+      propertyValue: "{{JSObject1.myFun1()}}",
+      stringSegments: ["{{JSObject1.myFun1()}}"],
+    },
+    {
+      js: "showAlert(currentItem.name + 'Name', '');\nshowAlert(Button1.text, '');",
+      jsSnippets: [
+        "showAlert(currentItem.name + 'Name', '');\nshowAlert(Button1.text, '');",
+      ],
+      propertyValue:
+        "{{showAlert(currentItem.name + 'Name', '');\nshowAlert(Button1.text, '');}}",
+      stringSegments: [
+        "{{showAlert(currentItem.name + 'Name', '');\nshowAlert(Button1.text, '');}}",
+      ],
+    },
+    {
+      js: '"code " + ( currentItem.nol || "Blue;")',
+      jsSnippets: ["", ' currentItem.nol || "Blue;"'],
+      propertyValue: 'code {{ currentItem.nol || "Blue;"}}',
+      stringSegments: ["code ", '{{ currentItem.nol || "Blue;"}}'],
+    },
+  ];
+
+  it("Returns expected js string", () => {
+    testCases.forEach(({ js, jsSnippets, propertyValue, stringSegments }) => {
+      expect(getDynamicBindings(propertyValue)).toStrictEqual({
+        jsSnippets,
+        stringSegments,
+      });
+      expect(combineDynamicBindings(jsSnippets, stringSegments)).toEqual(js);
+    });
   });
 });

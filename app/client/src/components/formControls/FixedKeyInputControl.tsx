@@ -1,36 +1,31 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { InputType } from "components/constants";
-import { ControlType } from "constants/PropertyControlConstants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { InputType } from "components/constants";
+import type { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  width: 35vw;
+  width: 545px;
 `;
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   render() {
-    const {
-      configProperty,
-      dataType,
-      disabled,
-      fixedKey,
-      placeholderText,
-    } = this.props;
+    const { configProperty, dataType, disabled, fixedKey, placeholderText } =
+      this.props;
 
     return (
       <Wrapper>
         <TextField
-          disabled={disabled}
           format={(value) => {
             // Get the value property
             if (value) {
               return value.value;
             }
-
             return "";
           }}
+          isDisabled={disabled}
           name={configProperty}
           parse={(value) => {
             // Store the value in this field as {key: fixedKey, value: <user-input>}
@@ -40,7 +35,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
             };
           }}
           placeholder={placeholderText}
-          showError
+          size="md"
           type={this.getType(dataType)}
         />
       </Wrapper>

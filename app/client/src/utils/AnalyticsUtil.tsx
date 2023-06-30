@@ -3,7 +3,8 @@ import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
 declare global {
@@ -29,7 +30,8 @@ export type EventLocation =
   | "KEYBOARD_SHORTCUT"
   | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
   | "JS_OBJECT_MAIN_RUN_BUTTON"
-  | "JS_OBJECT_RESPONSE_RUN_BUTTON";
+  | "JS_OBJECT_RESPONSE_RUN_BUTTON"
+  | "ONE_CLICK_BINDING";
 
 export type EventName =
   | "APP_CRASH"
@@ -56,6 +58,7 @@ export type EventName =
   | "SIDEBAR_NAVIGATION"
   | "PUBLISH_APP"
   | "PREVIEW_APP"
+  | "APP_VIEWED_WITH_NAVBAR"
   | "EDITOR_OPEN"
   | "CREATE_ACTION"
   | "SAVE_SAAS"
@@ -114,6 +117,7 @@ export type EventName =
   | "PROPERTY_PANE_CLOSE_CLICK"
   | "APPLICATIONS_PAGE_LOAD"
   | "EXECUTE_ACTION"
+  | "FILE_UPLOAD_COMPLETE"
   | "WELCOME_TOUR_CLICK"
   | "GUIDED_TOUR_RATING"
   | "GUIDED_TOUR_REACHED_STEP"
@@ -132,13 +136,15 @@ export type EventName =
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
   | "INTERCOM_CLICK"
-  | "BINDING_SUCCESS"
+  | "ENTITY_BINDING_SUCCESS"
   | "APP_MENU_OPTION_CLICK"
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
   | "DEBUGGER_NEW_ERROR_MESSAGE"
   | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
+  | "DEBUGGER_LOG_ITEM_EXPAND"
+  | "DEBUGGER_HELP_CLICK"
   | "DEBUGGER_CONTEXT_MENU_CLICK"
   | "ADD_MOCK_DATASOURCE_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
@@ -181,13 +187,14 @@ export type EventName =
   | "SNIPPET_COPIED"
   | "SNIPPET_LOOKUP"
   | "SIGNPOSTING_SKIP"
-  | "SIGNPOSTING_CREATE_DATASOURCE_CLICK"
-  | "SIGNPOSTING_CREATE_QUERY_CLICK"
-  | "SIGNPOSTING_ADD_WIDGET_CLICK"
-  | "SIGNPOSTING_CONNECT_WIDGET_CLICK"
-  | "SIGNPOSTING_PUBLISH_CLICK"
-  | "SIGNPOSTING_BUILD_APP_CLICK"
+  | "SIGNPOSTING_MODAL_CREATE_DATASOURCE_CLICK"
+  | "SIGNPOSTING_MODAL_CREATE_QUERY_CLICK"
+  | "SIGNPOSTING_MODAL_ADD_WIDGET_CLICK"
+  | "SIGNPOSTING_MODAL_CONNECT_WIDGET_CLICK"
+  | "SIGNPOSTING_MODAL_PUBLISH_CLICK"
   | "SIGNPOSTING_WELCOME_TOUR_CLICK"
+  | "SIGNPOSTING_MODAL_CLOSE_CLICK"
+  | "SIGNPOSTING_INFO_CLICK"
   | "GS_BRANCH_MORE_MENU_OPEN"
   | "GIT_DISCARD_WARNING"
   | "GIT_DISCARD_CANCEL"
@@ -285,7 +292,57 @@ export type EventName =
   | "PEEK_OVERLAY_OPENED"
   | "PEEK_OVERLAY_COLLAPSE_EXPAND_CLICK"
   | "PEEK_OVERLAY_VALUE_COPIED"
-  | LIBRARY_EVENTS;
+  | LIBRARY_EVENTS
+  | "APP_SETTINGS_BUTTON_CLICK"
+  | "APP_SETTINGS_SECTION_CLICK"
+  | APP_NAVIGATION_EVENT_NAMES
+  | ACTION_SELECTOR_EVENT_NAMES
+  | "PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT"
+  | "OPEN_DOCS"
+  | "RESTORE_SNAPSHOT"
+  | "CONVERSION_FAILURE"
+  | "CONVERT_AUTO_TO_FIXED"
+  | "CONVERT_FIXED_TO_AUTO"
+  | "DATASOURCE_AUTHORIZE_CLICK"
+  | "NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE"
+  | "EDIT_DATASOURCE_CLICK"
+  | "DISCARD_DATASOURCE_CHANGES"
+  | "TEST_DATA_SOURCE_FAILED"
+  | "DATASOURCE_SCHEMA_FETCH"
+  | "DATASOURCE_SCHEMA_FETCH_SUCCESS"
+  | "DATASOURCE_SCHEMA_FETCH_FAILURE"
+  | "EDIT_ACTION_CLICK"
+  | "QUERY_TEMPLATE_SELECTED"
+  | "RUN_API_FAILURE"
+  | "RUN_QUERY_FAILURE"
+  | "RUN_SAAS_API_FAILURE"
+  | "EXECUTE_ACTION_SUCCESS"
+  | "EXECUTE_ACTION_FAILURE"
+  | "GOOGLE_SHEET_FILE_PICKER_INITIATED"
+  | "GOOGLE_SHEET_FILE_PICKER_FILES_LISTED"
+  | "GOOGLE_SHEET_FILE_PICKER_CANCEL"
+  | "GOOGLE_SHEET_FILE_PICKER_PICKED"
+  | "TELEMETRY_DISABLED"
+  | "GENERAL_SETTINGS_UPDATE"
+  | "HELP_MENU_WELCOME_TOUR_CLICK"
+  | "DISPLAY_TELEMETRY_CALLOUT"
+  | "VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT"
+  | "LEARN_MORE_TELEMETRY_CALLOUT"
+  | AI_EVENTS
+  | ONE_CLICK_BINDING_EVENT_NAMES
+  | "JS_VARIABLE_CREATED"
+  | "JS_VARIABLE_MUTATED"
+  | "EXPLORER_WIDGET_CLICK"
+  | "WIDGET_SEARCH"
+  | "MAKE_APPLICATION_PUBLIC";
+
+export type AI_EVENTS =
+  | "AI_QUERY_SENT"
+  | "AI_RESPONSE_GENERATED"
+  | "AI_RESPONSE_COPIED"
+  | "AI_RESPONSE_EXECUTION_FAILED"
+  | "AI_RESPONSE_FEEDBACK"
+  | "AI_RESPONSE_EXECUTION_INIT";
 
 export type LIBRARY_EVENTS =
   | "INSTALL_LIBRARY"
@@ -310,6 +367,30 @@ export type GAC_EVENT_NAMES =
   | "GAC_INVITE_USER_CLICK"
   | "GAC_ADD_USER_CLICK";
 
+export type APP_NAVIGATION_EVENT_NAMES =
+  | "APP_NAVIGATION_SHOW_NAV"
+  | "APP_NAVIGATION_ORIENTATION"
+  | "APP_NAVIGATION_VARIANT"
+  | "APP_NAVIGATION_BACKGROUND_COLOR"
+  | "APP_NAVIGATION_SHOW_SIGN_IN";
+
+export type ACTION_SELECTOR_EVENT_NAMES =
+  | "ACTION_ADDED"
+  | "ACTION_DELETED"
+  | "ACTION_MODIFIED";
+
+export type ONE_CLICK_BINDING_EVENT_NAMES =
+  | "BIND_EXISTING_QUERY_TO_WIDGET"
+  | "GENERATE_QUERY_FOR_WIDGET"
+  | "BIND_OTHER_ACTIONS"
+  | "GENERATE_QUERY_SELECT_DATA_TABLE"
+  | "GENERATE_QUERY_SET_COLUMN"
+  | "GENERATE_QUERY_CONNECT_DATA_CLICK"
+  | "QUERY_GENERATION_BINDING_SUCCESS"
+  | "1_CLICK_BINDING_SUCCESS"
+  | "WIDGET_CONNECT_DATA_CLICK"
+  | "GENERATE_QUERY_SELECT_SHEET_GSHEET";
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -325,14 +406,10 @@ class AnalyticsUtil {
   static cachedUserId: string;
   static user?: User = undefined;
   static blockTrackEvent: boolean | undefined;
+  static instanceId?: string = "";
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
-  }
-
-  static initializeSegmentWithoutTracking(key: string) {
-    AnalyticsUtil.blockTrackEvent = true;
-    return AnalyticsUtil.initializeSegment(key);
   }
 
   static initializeSegment(key: string) {
@@ -362,8 +439,8 @@ class AnalyticsUtil {
               "off",
               "on",
             ];
-            analytics.factory = function(t: any) {
-              return function() {
+            analytics.factory = function (t: any) {
+              return function () {
                 const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
                 e.unshift(t);
                 analytics.push(e);
@@ -375,7 +452,7 @@ class AnalyticsUtil {
             const e = analytics.methods[t];
             analytics[e] = analytics.factory(e);
           }
-          analytics.load = function(t: any, e: any) {
+          analytics.load = function (t: any, e: any) {
             const n = document.createElement("script");
             n.type = "text/javascript";
             n.async = !0;
@@ -423,6 +500,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
+    const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
@@ -450,6 +528,7 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
+    finalEventData = { ...finalEventData, instanceId };
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
@@ -496,7 +575,7 @@ class AnalyticsUtil {
     }
 
     if (sentry.enabled) {
-      Sentry.configureScope(function(scope) {
+      Sentry.configureScope(function (scope) {
         scope.setUser({
           id: userId,
           username: userData.username,
@@ -518,6 +597,10 @@ class AnalyticsUtil {
     }
 
     AnalyticsUtil.blockTrackEvent = false;
+  }
+
+  static initInstanceId(instanceId: string) {
+    AnalyticsUtil.instanceId = instanceId;
   }
 
   static getAnonymousId() {

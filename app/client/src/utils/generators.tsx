@@ -1,4 +1,4 @@
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
 import { getBaseWidgetClassName } from "../constants/componentClassNameConstants";
 

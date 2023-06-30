@@ -1,9 +1,7 @@
 import { render } from "test/testUtils";
 import React from "react";
-import {
-  Setting,
-  SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import Toggle from "./Toggle";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";
@@ -51,8 +49,8 @@ describe("Toggle", () => {
   it("is rendered", () => {
     renderComponent();
     const inputEl = document.querySelector("input");
-    expect(inputEl?.value).toBeDefined();
-    expect(inputEl?.value).toEqual("true"); // value = ![setting.id]
+    expect(inputEl?.checked).toBeDefined();
+    expect(inputEl?.checked).toEqual(true); // value = ![setting.id]
     expect(inputEl?.hasAttribute("checked"));
   });
 
@@ -60,6 +58,6 @@ describe("Toggle", () => {
     renderComponent();
     const inputEl = document.querySelector("input");
     inputEl?.click();
-    expect(inputEl?.value).toEqual("false");
+    expect(inputEl?.checked).toEqual(false);
   });
 });

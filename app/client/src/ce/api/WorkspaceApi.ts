@@ -1,7 +1,7 @@
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "api/ApiResponses";
-import {
+import type { ApiResponse } from "api/ApiResponses";
+import type {
   WorkspaceRole,
   Workspace,
 } from "@appsmith/constants/workspaceConstants";

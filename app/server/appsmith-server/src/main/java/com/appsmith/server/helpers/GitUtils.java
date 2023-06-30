@@ -38,6 +38,7 @@ public class GitUtils {
      * Sample repo urls :
      * git@example.com:username/reponame.git
      * ssh://git@example.org/<workspace_ID>/<repo_name>.git
+     *
      * @param remoteUrl ssh url of repo
      * @return repo name extracted from repo url
      */
@@ -90,7 +91,7 @@ public class GitUtils {
      * @return git hosting provider
      */
     public static String getGitProviderName(String sshUrl) {
-        if(StringUtils.isEmptyOrNull(sshUrl)) {
+        if (StringUtils.isEmptyOrNull(sshUrl)) {
             return "";
         }
         return sshUrl.split("\\.")[0]

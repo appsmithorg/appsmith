@@ -1,30 +1,26 @@
-import { DocSearchItem } from "./utils";
+import type { DocSearchItem } from "./utils";
 
 export const defaultDocsConfig = [
   {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/tutorials/building-a-store-catalog-manager/README.md",
+    link: "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/tutorials/building-a-store-catalog-manager/README.md",
     title: "Tutorial",
     path: "master/tutorial-1",
     kind: "document",
   },
   {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/core-concepts/connecting-to-data-sources/README.md",
+    link: "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/core-concepts/connecting-to-data-sources/README.md",
     title: "Connecting to Data Sources",
     path: "master/core-concepts/connecting-to-data-sources",
     kind: "document",
   },
   {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/core-concepts/displaying-data-read/README.md",
+    link: "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/core-concepts/displaying-data-read/README.md",
     title: "Displaying Data (Read)",
     path: "master/core-concepts/displaying-data-read",
     kind: "document",
   },
   {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/core-concepts/writing-code/README.md",
+    link: "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/core-concepts/writing-code/README.md",
     title: "Writing Code",
     path: "master/core-concepts/writing-code",
     kind: "document",

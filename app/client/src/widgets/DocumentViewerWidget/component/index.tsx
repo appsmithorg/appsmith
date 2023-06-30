@@ -2,12 +2,8 @@ import React, { Suspense, lazy } from "react";
 import styled from "styled-components";
 import { DocumentViewer } from "react-documents";
 import { includes, replace, split, get } from "lodash";
-import {
-  SUPPORTED_EXTENSIONS,
-  Renderers,
-  Renderer,
-  ViewerType,
-} from "../constants";
+import type { Renderer, ViewerType } from "../constants";
+import { SUPPORTED_EXTENSIONS, Renderers } from "../constants";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "components/utils/Skeleton";
 
@@ -80,6 +76,9 @@ const getFileExtensionFromBase64 = (docUrl: string) => {
     case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
       extension = "xlsx";
       break;
+    case "vnd.ms-excel":
+      extension = "xls";
+      break;
     case "plain":
       extension = "txt";
       break;
@@ -129,7 +128,7 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
       if (blob) {
         if (extension === "docx") {
           renderer = Renderers.DOCX_VIEWER;
-        } else if (extension === "xlsx") {
+        } else if (extension === "xlsx" || extension == "xls") {
           renderer = Renderers.XLSX_VIEWER;
         }
       } else {

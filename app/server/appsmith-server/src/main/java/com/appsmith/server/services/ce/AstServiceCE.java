@@ -19,7 +19,7 @@ public interface AstServiceCE {
      * to let the user know that their on page load actions have not been updated.
      *
      * @param bindingValues : List of mustache binding value strings to be analyzed
-     * @param evalVersion  : The evaluated value version of the current app to be used while AST parsing
+     * @param evalVersion   : The evaluated value version of the current app to be used while AST parsing
      * @return A mono of list of strings that represent all valid global references in the binding string
      */
     Flux<Tuple2<String, Set<String>>> getPossibleReferencesFromDynamicBinding(List<String> bindingValues, int evalVersion);

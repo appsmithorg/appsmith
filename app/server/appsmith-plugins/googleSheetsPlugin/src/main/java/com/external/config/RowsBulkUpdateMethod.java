@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -165,7 +166,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
                     // This is the object with the original values in the referred row
                     final JsonNode jsonNode = rowsGetMethod
-                            .transformExecutionResponse(jsonNodeBody, methodConfig);
+                            .transformExecutionResponse(jsonNodeBody, methodConfig, null);
 
                     if (jsonNode == null || jsonNode.isEmpty()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
@@ -247,7 +248,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,

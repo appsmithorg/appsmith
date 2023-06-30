@@ -1,30 +1,26 @@
 import React from "react";
+import type { CommonComponentProps } from "design-system-old";
+import { getInitials } from "utils/AppsmithUtils";
 import {
-  Classes,
-  CommonComponentProps,
   Menu,
-  MenuDivider,
   MenuItem,
+  MenuContent,
+  MenuSeparator,
+  MenuTrigger,
   Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
+  Avatar,
+} from "design-system";
 import styled from "styled-components";
-import {
-  Classes as BlueprintClasses,
-  PopperModifiers,
-  Position,
-} from "@blueprintjs/core";
+import type { PopperModifiers } from "@blueprintjs/core";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import ProfileImage from "./ProfileImage";
 import { PROFILE } from "constants/routes";
-import { Colors } from "constants/Colors";
 import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -33,27 +29,11 @@ type TagProps = CommonComponentProps & {
   modifiers?: PopperModifiers;
   photoId?: string;
   hideEditProfileLink?: boolean;
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
 };
 
-const StyledMenuItem = styled(MenuItem)`
-  svg {
-    width: 18px;
-    height: 18px;
-    fill: ${Colors.GRAY};
-
-    path {
-      fill: ${Colors.GRAY};
-    }
-  }
-
-  .cs-text {
-    color: ${Colors.CODE_GRAY};
-    line-height: unset;
-  }
-`;
-
 const UserInformation = styled.div`
-  padding: ${(props) => props.theme.spaces[6]}px;
   display: flex;
   align-items: center;
 
@@ -62,10 +42,6 @@ const UserInformation = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.profileDropdown.userName};
-    }
   }
 
   .user-name {
@@ -73,10 +49,6 @@ const UserInformation = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.profileDropdown.name};
-    }
   }
 
   .user-image {
@@ -96,67 +68,64 @@ const UserNameWrapper = styled.div`
 `;
 
 export default function ProfileDropdown(props: TagProps) {
-  const Profile = (
-    <TooltipComponent
-      content={createMessage(ACCOUNT_TOOLTIP)}
-      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      position="bottom-right"
-    >
-      <ProfileImage
-        className="t--profile-menu-icon"
-        size={34}
-        source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
-        userName={props.name || props.userName}
+  function Profile(label?: string) {
+    return (
+      <Avatar
+        className="t--profile-menu-icon cursor-pointer"
+        firstLetter={getInitials(props.name || props.userName)}
+        image={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
+        label={label || ""}
+        size="md"
       />
-    </TooltipComponent>
-  );
+    );
+  }
 
   return (
-    <Menu
-      className="profile-menu t--profile-menu"
-      modifiers={props.modifiers}
-      position={Position.BOTTOM_RIGHT}
-      target={Profile}
-    >
-      <UserInformation>
-        <div className="user-image">{Profile}</div>
-        <UserNameWrapper>
-          <div className="user-name t--user-name">
-            <Text highlight type={TextType.P1}>
-              {props.name}
-            </Text>
-          </div>
+    <Menu>
+      <MenuTrigger>{Profile(createMessage(ACCOUNT_TOOLTIP))}</MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem className="menuitem-nohover">
+          <UserInformation>
+            <div className="user-image">
+              {Profile(props.name || props.userName)}
+            </div>
+            <UserNameWrapper>
+              <div className="user-name t--user-name">
+                <Text kind="heading-s">{props.name}</Text>
+              </div>
 
-          <div className="user-username">
-            <Text highlight type={TextType.P3}>
-              {props.userName}
-            </Text>
-          </div>
-        </UserNameWrapper>
-      </UserInformation>
-      <MenuDivider />
-      {!props.hideEditProfileLink && (
-        <StyledMenuItem
-          className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
-          icon="edit-underline"
-          onSelect={() => {
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: PROFILE,
-            });
-          }}
-          text="Edit Profile"
-        />
-      )}
-      <StyledMenuItem
-        className="t--logout-icon"
-        icon="logout"
-        onSelect={() =>
-          getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-            type: ReduxActionTypes.LOGOUT_USER_INIT,
-          })
-        }
-        text="Sign Out"
-      />
+              <div className="user-username">
+                <Text kind="body-s">{props.userName}</Text>
+              </div>
+            </UserNameWrapper>
+          </UserInformation>
+        </MenuItem>
+        <MenuSeparator />
+        {!props.hideEditProfileLink && (
+          <MenuItem
+            className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
+            onClick={() => {
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: PROFILE,
+              });
+            }}
+            startIcon="pencil-line"
+          >
+            Edit profile
+          </MenuItem>
+        )}
+        <MenuItem
+          className="t--sign-out"
+          onClick={() =>
+            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+              type: ReduxActionTypes.LOGOUT_USER_INIT,
+            })
+          }
+          startIcon="logout"
+        >
+          Sign out
+        </MenuItem>
+      </MenuContent>
     </Menu>
   );
 }

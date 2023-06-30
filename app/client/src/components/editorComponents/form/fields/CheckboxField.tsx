@@ -1,6 +1,8 @@
-import { Checkbox, CheckboxProps } from "design-system-old";
+import type { CheckboxProps } from "design-system-old";
+import { Checkbox } from "design-system-old";
 import React from "react";
-import { Field, BaseFieldProps } from "redux-form";
+import type { BaseFieldProps } from "redux-form";
+import { Field } from "redux-form";
 
 type RenderComponentProps = CheckboxProps & {
   input?: {
@@ -18,7 +20,7 @@ function RenderComponent(props: RenderComponentProps) {
 
   return (
     <Checkbox
-      cypressSelector={props.input?.name}
+      data-testid={props.input?.name}
       info={props.info}
       isDefaultChecked={props.input?.checked}
       label={props.label}

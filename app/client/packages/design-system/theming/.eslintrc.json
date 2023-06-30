@@ -1,0 +1,11 @@
+{
+  "extends": ["../../../.eslintrc.base.json"],
+  "overrides": [
+    {
+      "files": ["**/*.stories.*"],
+      "rules": {
+        "import/no-anonymous-default-export": "off"
+      }
+    }
+  ]
+}

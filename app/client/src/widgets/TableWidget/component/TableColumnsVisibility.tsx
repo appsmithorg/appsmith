@@ -9,11 +9,15 @@ import {
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { ReactComponent as VisibleIcon } from "assets/icons/control/columns-visibility.svg";
 import Button from "components/editorComponents/Button";
-import { ReactTableColumnProps } from "./Constants";
+import type { ReactTableColumnProps } from "./Constants";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableActionIcon from "./TableActionIcon";
+import { importSvg } from "design-system-old";
+
+const VisibleIcon = importSvg(
+  () => import("assets/icons/control/columns-visibility.svg"),
+);
 
 const DropDownWrapper = styled.div`
   display: flex;

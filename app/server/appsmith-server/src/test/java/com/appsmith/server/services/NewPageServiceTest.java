@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,9 @@ public class NewPageServiceTest {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    ApplicationSnapshotRepository applicationSnapshotRepository;
 
     @Test
     @WithUserDetails("api_user")
@@ -103,6 +107,7 @@ public class NewPageServiceTest {
                     assertThat(applicationPagesDTO.getApplication().getViewMode()).isFalse();
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_" + randomId);
                     assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+                    applicationPagesDTO.getPages().forEach(pageNameIdDTO -> assertThat(pageNameIdDTO.getUserPermissions()).isNotEmpty());
                 })
                 .verifyComplete();
     }
@@ -137,6 +142,7 @@ public class NewPageServiceTest {
                     assertThat(applicationPagesDTO.getApplication().getViewMode()).isTrue();
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_" + randomId);
                     assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+                    applicationPagesDTO.getPages().forEach(pageNameIdDTO -> assertThat(pageNameIdDTO.getUserPermissions()).isNotEmpty());
                 })
                 .verifyComplete();
     }
@@ -167,6 +173,7 @@ public class NewPageServiceTest {
                     assertThat(applicationPagesDTO.getApplication()).isNotNull();
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_" + randomId);
                     assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+                    applicationPagesDTO.getPages().forEach(pageNameIdDTO -> assertThat(pageNameIdDTO.getUserPermissions()).isNotEmpty());
                 })
                 .verifyComplete();
     }
@@ -200,7 +207,7 @@ public class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void findApplicationPage_CheckPageIcon_IsValid(){
+    public void findApplicationPage_CheckPageIcon_IsValid() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + randomId);
@@ -218,7 +225,7 @@ public class NewPageServiceTest {
                     return applicationPageService.createPage(pageDTO);
                 })
                 .flatMap(pageDTO ->
-                                applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false)
+                        applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false)
                 );
 
         StepVerifier.create(applicationPageDTOMono).assertNext(applicationPageDTO -> {

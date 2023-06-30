@@ -1,7 +1,7 @@
 import { Layers } from "constants/Layers";
 
 import { useMemo } from "react";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 

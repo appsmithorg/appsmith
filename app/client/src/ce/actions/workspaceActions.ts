@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   SaveWorkspaceLogo,
   SaveWorkspaceRequest,
 } from "@appsmith/api/WorkspaceApi";
@@ -14,6 +14,12 @@ export const fetchWorkspace = (
       workspaceId,
       skipValidation,
     },
+  };
+};
+
+export const resetCurrentWorkspace = () => {
+  return {
+    type: ReduxActionTypes.RESET_CURRENT_WORKSPACE,
   };
 };
 

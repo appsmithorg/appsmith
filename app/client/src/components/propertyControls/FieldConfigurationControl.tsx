@@ -1,22 +1,22 @@
 import React from "react";
 import log from "loglevel";
-import styled from "styled-components";
 import { klona } from "klona";
 import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
 import SchemaParser, {
   getKeysFromSchema,
 } from "widgets/JSONFormWidget/schemaParser";
-import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
-import { Category, Size } from "design-system-old";
-import { BaseItemProps } from "./DraggableListComponent";
+import type { Schema } from "widgets/JSONFormWidget/constants";
+import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
+import { Button } from "design-system";
+import type { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
-import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 type DroppableItem = BaseItemProps & {
@@ -27,22 +27,6 @@ type DroppableItem = BaseItemProps & {
 type State = {
   focusedIndex: number | null;
 };
-
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const AddFieldButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin-top: 12px;
-    margin-bottom: 8px;
-  }
-`;
 
 const DEFAULT_FIELD_NAME = "customField";
 
@@ -118,10 +102,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     if (this.isArrayItem()) return;
 
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
-    const {
-      childStylesheet,
-      widgetName,
-    } = widgetProperties as JSONFormWidgetProps;
+    const { childStylesheet, widgetName } =
+      widgetProperties as JSONFormWidgetProps;
     const schema: Schema = propertyValue;
     const existingKeys = getKeysFromSchema(schema, ["identifier", "accessor"]);
     const schemaItems = Object.values(schema);
@@ -199,16 +181,15 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     const schemaItems = Object.values(schema);
 
     const addNewFieldButton = (
-      <AddFieldButton
-        category={Category.secondary}
-        className="t--add-column-btn"
-        icon="plus"
+      <Button
+        className="self-end t--add-column-btn"
+        kind="tertiary"
         onClick={this.addNewField}
-        size={Size.medium}
-        tag="button"
-        text="Add a new field"
-        type="button"
-      />
+        size="sm"
+        startIcon="plus"
+      >
+        Add new field
+      </Button>
     );
 
     if (isEmpty(schema)) {
@@ -261,7 +242,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     }
 
     return (
-      <TabsWrapper>
+      <div className="flex flex-col w-full gap-1">
         <DraggableListControl
           deleteOption={this.onDeleteOption}
           focusedIndex={this.state.focusedIndex}
@@ -286,7 +267,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
           updateOption={this.updateOption}
         />
         {!this.isArrayItem() && addNewFieldButton}
-      </TabsWrapper>
+      </div>
     );
   }
 

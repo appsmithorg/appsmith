@@ -1,13 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
-import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
   CHANGES_FROM_APPSMITH,
   createMessage,
@@ -16,6 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
+import { Icon, Text } from "design-system";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -31,16 +31,9 @@ const DummyChange = styled.div`
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.spaces[9]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: var(--ads-v2-spaces-3);
   display: flex;
-
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
-
-  .${Classes.TEXT} {
-    padding-top: ${(props) => props.theme.spaces[1] - 2}px;
-  }
+  gap: 6px;
 `;
 
 const Changes = styled.div`
@@ -56,6 +49,8 @@ export enum Kind {
   PAGE = "PAGE",
   QUERY = "QUERY",
   JS_LIB = "JS_LIB",
+  THEME = "THEME",
+  SETTINGS = "SETTINGS",
 }
 
 type GitStatusProps = {
@@ -78,6 +73,16 @@ const STATUS_MAP: GitStatusMap = {
     message: behindCommitMessage(status),
     iconName: "git-commit",
     hasValue: (status?.behindCount || 0) > 0,
+  }),
+  [Kind.SETTINGS]: (status: GitStatusData) => ({
+    message: `Application settings modified`,
+    iconName: "settings-2-line",
+    hasValue: (status?.modified || []).includes("application.json"),
+  }),
+  [Kind.THEME]: (status: GitStatusData) => ({
+    message: `Theme modified`,
+    iconName: "sip-line",
+    hasValue: (status?.modified || []).includes("theme.json"),
   }),
   [Kind.DATA_SOURCE]: (status: GitStatusData) => ({
     message: `${status?.modifiedDatasources || 0} ${
@@ -137,12 +142,16 @@ function aheadCommitMessage(status: GitStatusData) {
 }
 
 export function Change(props: Partial<GitStatusProps>) {
-  const { iconName, message } = props;
+  const { iconName = "git-commit", message } = props;
 
   return (
     <Wrapper>
-      <Icon name={iconName} size={IconSize.XXL} />
-      <Text type={TextType.P3}>{message}</Text>
+      {iconName && (
+        <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+      )}
+      <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
+        {message}
+      </Text>
     </Wrapper>
   );
 }
@@ -171,6 +180,8 @@ export function gitChangeListData(
   status: GitStatusData = defaultStatus,
 ): JSX.Element[] {
   const changeKind = [
+    Kind.SETTINGS,
+    Kind.THEME,
     Kind.PAGE,
     Kind.QUERY,
     Kind.JS_OBJECT,
@@ -204,7 +215,7 @@ export default function GitChangesList() {
   }
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
-  ) : (
+  ) : changes.length ? (
     <Changes data-testid={"t--git-change-statuses"}>{changes}</Changes>
-  );
+  ) : null;
 }

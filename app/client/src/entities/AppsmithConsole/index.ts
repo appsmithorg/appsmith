@@ -1,8 +1,8 @@
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import LOG_TYPE from "./logtype";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { PluginType } from "entities/Action";
-import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type LOG_TYPE from "./logtype";
+import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import type { PluginType } from "entities/Action";
+import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -107,6 +107,7 @@ export interface LogActionPayload {
   analytics?: Record<string, any>;
   // plugin error details if any (only for plugin errors).
   pluginErrorDetails?: any;
+  meta?: Record<string, any>;
 }
 
 export interface Message {
@@ -125,6 +126,8 @@ export interface Log extends LogActionPayload {
   category: LOG_CATEGORY;
   // "when" did this event happen
   timestamp: string;
+  // expanded state of the log.
+  isExpanded: boolean;
 }
 
 /**

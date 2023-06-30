@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexController extends IndexControllerCE {
 
     public IndexController(SessionUserService service,
-                           ReactiveRedisTemplate<String,
-                           String> reactiveTemplate,
+                           ReactiveRedisTemplate<String, String> reactiveTemplate,
                            ChannelTopic topic) {
 
         super(service, reactiveTemplate, topic);

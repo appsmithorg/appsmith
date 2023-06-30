@@ -1,9 +1,33 @@
+import "tinymce/tinymce";
+import "tinymce/icons/default";
+import "tinymce/plugins/paste";
+import "tinymce/plugins/link";
+import "tinymce/plugins/image";
+import "tinymce/plugins/table";
+import "tinymce/plugins/code";
+import "tinymce/plugins/help";
+import "tinymce/plugins/insertdatetime";
+import "tinymce/plugins/media";
+import "tinymce/plugins/advlist";
+import "tinymce/plugins/autolink";
+import "tinymce/plugins/lists";
+import "tinymce/plugins/charmap";
+import "tinymce/plugins/preview";
+import "tinymce/plugins/anchor";
+import "tinymce/plugins/searchreplace";
+import "tinymce/plugins/visualblocks";
+import "tinymce/plugins/fullscreen";
+import "tinymce/plugins/emoticons";
+import "tinymce/plugins/emoticons/js/emojis";
+import "tinymce/plugins/print";
+import "tinymce/themes/silver";
+import "tinymce/skins/ui/oxide/skin.min.css";
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
-import { LabelPosition } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { TextSize } from "constants/WidgetConstants";
+import type { LabelPosition } from "components/constants";
+import type { Alignment } from "@blueprintjs/core";
+import type { TextSize } from "constants/WidgetConstants";
 
 // @ts-expect-error: loader types not available
 import cssVariables from "!!raw-loader!theme/wds.css";
@@ -273,7 +297,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const initialRender = useRef(true);
 
   const toolbarConfig =
-    "insertfile undo redo | formatselect | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons |help";
+    "insertfile undo redo | formatselect | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons | code | help";
 
   const handleEditorChange = useCallback(
     (newValue: string, editor: any) => {
@@ -350,7 +374,8 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             branding: false,
             resize: false,
             browser_spellcheck: true,
-            content_style: `${cssVariables}
+            content_style: `
+              ${cssVariables}
               ${
                 props.isDisabled
                   ? `* {
@@ -363,14 +388,15 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               "searchreplace visualblocks code fullscreen",
               "insertdatetime media table paste code help",
               "emoticons",
+              "code",
             ],
             contextmenu: "link useBrowserSpellcheck image table",
-            setup: function(editor) {
+            setup: function (editor) {
               editor.ui.registry.addMenuItem("useBrowserSpellcheck", {
                 text: `Use "${
                   isMacOs() ? "Control" : "Ctrl"
                 } + Right click" to access spellchecker`,
-                onAction: function() {
+                onAction: function () {
                   editor.notificationManager.open({
                     text: `To access the spellchecker, hold the ${
                       isMacOs() ? "Control" : "Ctrl"
@@ -382,7 +408,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 },
               });
               editor.ui.registry.addContextMenu("useBrowserSpellcheck", {
-                update: function() {
+                update: function () {
                   return editor.selection.isCollapsed()
                     ? ["useBrowserSpellcheck"]
                     : [];
@@ -392,7 +418,6 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           }}
           key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
           onEditorChange={handleEditorChange}
-          tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
           value={editorValue}
         />

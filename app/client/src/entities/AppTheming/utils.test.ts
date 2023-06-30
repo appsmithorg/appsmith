@@ -116,7 +116,7 @@ describe("AppThemingSaga test", () => {
             borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
             boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
             "primaryColumns.customColumn1.buttonColor":
-              "{{widget1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+              "{{widget1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.colors.primaryColor)))}}",
           },
         },
       },
@@ -219,13 +219,13 @@ describe("AppThemingSaga test", () => {
             "resetButtonStyles.borderRadius":
               "{{appsmith.theme.borderRadius.appBorderRadius}}",
             "schema.__root_schema__.borderRadius":
-              "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              "{{((sourceData, formData, fieldState) => ((appsmith.theme.borderRadius.appBorderRadius)))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
             "schema.__root_schema__.cellBorderRadius":
-              "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              "{{((sourceData, formData, fieldState) => ((appsmith.theme.borderRadius.appBorderRadius)))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
             "schema.__root_schema__.children.name.accentColor":
-              "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              "{{((sourceData, formData, fieldState) => ((appsmith.theme.colors.primaryColor)))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
             "schema.__root_schema__.children.name.borderRadius":
-              "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              "{{((sourceData, formData, fieldState) => ((appsmith.theme.borderRadius.appBorderRadius)))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           },
         },
       },

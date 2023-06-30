@@ -1,17 +1,21 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "widgets/constants";
 import { RenderModes } from "constants/WidgetConstants";
-
-const PageView = styled.div<{ width: number }>`
-  height: 100%;
-  position: relative;
-  width: ${(props) => props.width}px;
-  margin: 0 auto;
-`;
+import { useSelector } from "react-redux";
+import {
+  getCurrentApplication,
+  getAppSidebarPinned,
+  getSidebarWidth,
+  getAppMode,
+} from "@appsmith/selectors/applicationSelectors";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { PageView, PageViewContainer } from "./AppPage.styled";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { APP_MODE } from "entities/App";
+import { useLocation } from "react-router";
 
 type AppPageProps = {
   appName?: string;
@@ -22,6 +26,18 @@ type AppPageProps = {
 };
 
 export function AppPage(props: AppPageProps) {
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
+  const sidebarWidth = useSelector(getSidebarWidth);
+  const isMobile = useIsMobileDevice();
+  const appMode = useSelector(getAppMode);
+  const isPublished = appMode === APP_MODE.PUBLISHED;
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const isEmbed = queryParams.get("embed");
+  const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
+  const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
+
   useDynamicAppLayout();
 
   useEffect(() => {
@@ -34,10 +50,22 @@ export function AppPage(props: AppPageProps) {
   }, [props.pageId, props.pageName]);
 
   return (
-    <PageView className="t--app-viewer-page" width={props.canvasWidth}>
-      {props.widgetsStructure.widgetId &&
-        WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
-    </PageView>
+    <PageViewContainer
+      hasPinnedSidebar={
+        currentApplicationDetails?.applicationDetail?.navigationSetting
+          ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+        isAppSidebarPinned
+      }
+      isPublished={isPublished}
+      sidebarWidth={
+        isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
+      }
+    >
+      <PageView className="t--app-viewer-page" width={props.canvasWidth}>
+        {props.widgetsStructure.widgetId &&
+          WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
+      </PageView>
+    </PageViewContainer>
   );
 }
 

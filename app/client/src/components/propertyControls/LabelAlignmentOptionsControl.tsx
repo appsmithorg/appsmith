@@ -1,34 +1,24 @@
 import React from "react";
-import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
-
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ButtonGroup, ButtonGroupOption } from "design-system-old";
+import type { SegmentedControlOption } from "design-system";
+import { SegmentedControl } from "design-system";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-const ControlContainer = styled.div`
-  & > div:last-child {
-    display: flex;
-    & > div {
-      flex: 1;
-    }
-  }
-`;
-
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue?: Alignment;
-  options: ButtonGroupOption[];
+  options: SegmentedControlOption[];
   defaultValue: Alignment;
+  fullWidth?: boolean;
 }
 
-class LabelAlignmentOptionsControl extends BaseControl<
-  LabelAlignmentOptionsControlProps
-> {
+class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 
   constructor(props: LabelAlignmentOptionsControlProps) {
@@ -69,14 +59,13 @@ class LabelAlignmentOptionsControl extends BaseControl<
   public render() {
     const { options, propertyValue } = this.props;
     return (
-      <ControlContainer>
-        <ButtonGroup
-          options={options}
-          ref={this.componentRef}
-          selectButton={this.handleAlign}
-          values={[propertyValue || Alignment.LEFT]}
-        />
-      </ControlContainer>
+      <SegmentedControl
+        isFullWidth={this.props.fullWidth}
+        onChange={this.handleAlign}
+        options={options}
+        ref={this.componentRef}
+        value={propertyValue || Alignment.LEFT}
+      />
     );
   }
 
