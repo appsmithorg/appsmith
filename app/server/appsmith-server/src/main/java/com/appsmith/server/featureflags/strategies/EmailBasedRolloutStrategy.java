@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 public class EmailBasedRolloutStrategy extends AbstractFlipStrategy {
@@ -46,8 +45,7 @@ public class EmailBasedRolloutStrategy extends AbstractFlipStrategy {
      */
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext) {
-        Mono<User> userMono = (Mono<User>) executionContext.getValue(FieldName.VALIDATION_CONTEXT, true);
-        User user = userMono.block();
+        User user = (User) executionContext.getValue(FieldName.VALIDATION_CONTEXT, true);
         int atIndex = user.getEmail().indexOf("@");
 
         if (atIndex > 0) {
