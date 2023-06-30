@@ -827,7 +827,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public Sleep(timeout = 1000) {
-    cy.wait(timeout);
+    return cy.wait(timeout);
   }
 
   public RefreshPage(
