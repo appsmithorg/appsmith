@@ -11,9 +11,19 @@ describe(
     it("1. Creating new app after discontinuing guided tour should not start the same", function () {
       // Start guided tour
       _.homePage.NavigateToHome();
-      cy.get(guidedTourLocators.welcomeTour).click();
-      _.homePage.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
 
+      // Temporary workaround until https://github.com/appsmithorg/appsmith/issues/24665 is fixed
+      _.agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        _.homePage.CreateNewWorkspace("GuidedtourWorkspace" + uid);
+        _.homePage.CreateAppInWorkspace(
+          "GuidedtourWorkspace" + uid,
+          `GuidedtourApp${uid}`,
+        );
+        _.homePage.NavigateToHome();
+      });
+
+      cy.get(guidedTourLocators.welcomeTour).click();
       cy.get(guidedTourLocators.startBuilding).should("be.visible");
       // Go back to applications page
       cy.get(commonlocators.homeIcon).click({ force: true });
