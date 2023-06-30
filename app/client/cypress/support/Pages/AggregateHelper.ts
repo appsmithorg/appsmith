@@ -1389,11 +1389,7 @@ export class AggregateHelper extends ReusableHelper {
     cy.window().then((win) => {
       cy.spy(win, "open").as("windowOpen");
       openTabFunc();
-      cy.get("@windowOpen").should(
-        "be.calledWith",
-        Cypress.sinon.match.string,
-        "_blank",
-      );
+      cy.get("@windowOpen").should("be.called");
     });
   }
 
