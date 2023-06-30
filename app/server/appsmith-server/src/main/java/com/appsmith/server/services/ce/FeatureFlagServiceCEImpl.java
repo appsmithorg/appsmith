@@ -71,7 +71,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     }
 
 
-    @Cache(cacheName = "feature-flag", key = "{#userIdentifier}")
+    @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
     public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier){
         return this.forceAllRemoteFeatureFlagsForUser(userIdentifier).flatMap(flags -> {
             CachedFlags cachedFlags = new CachedFlags();
@@ -81,7 +81,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         });
     }
 
-    @CacheEvict(cacheName = "feature-flag", key = "{#userIdentifier}")
+    @CacheEvict(cacheName = "featureFlag", key = "{#userIdentifier}")
     public Mono<Void> evictUserCachedFlags(String userIdentifier) {
         return Mono.empty();
     }
@@ -92,9 +92,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         if (Boolean.TRUE.equals(check)) {
             return Mono.just(check);
         }
-        String userIdentifier = userIdentifierService.getUserIdentifier(user);
 
-        return getAllRemoteFeatureFlagsForUser()
+        return getAllFeatureFlagsForUser()
                 .flatMap(featureMap -> Mono.justOrEmpty(featureMap.get(featureName)))
                                 .switchIfEmpty(Mono.just(false));
     }
@@ -138,24 +137,27 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 });
     }
 
+    /**
+     * This function fetches remote flags (i.e. flagsmith flags)
+     * @return
+     */
     private Mono<Map<String, Boolean>> getAllRemoteFeatureFlagsForUser() {
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         return userMono
                 .flatMap(user -> {
                     String userIdentifier = userIdentifierService.getUserIdentifier(user);
+                    // Checks for flags present in cache and if the cache is not expired
                     return fetchUserCachedFlags(userIdentifier)
                             .flatMap(cachedFlags-> {
                         if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTimeMin){
                             return Mono.just(cachedFlags.getFlags());
                         }else {
+                            // empty the cache for the userIdentifier as expired
                             return evictUserCachedFlags(userIdentifier)
                                     .then(fetchUserCachedFlags(userIdentifier))
-                                    .flatMap(cachedFlags1 -> {
-                                        return Mono.just(cachedFlags1.getFlags());
-                                    });
+                                    .flatMap(cachedFlagsUpdated -> Mono.just(cachedFlagsUpdated.getFlags()));
                         }
                     });
-
                 });
     }
 
@@ -164,7 +166,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
         Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
-//        String userIdentifier = userIdentifierService.getUserIdentifier(user);
         return Mono.zip(instanceIdMono, defaultTenantIdMono)
                 .flatMap(tuple2 -> {
                     return this.getRemoteFeatureFlagsByIdentity(
@@ -173,9 +174,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                     tuple2.getT2(),
                                     Set.of(userIdentifier)));
                 })
-                .map(newValue -> {
-                    return newValue.get(userIdentifier);
-                });
+                .map(newValue -> newValue.get(userIdentifier));
     }
     
 
