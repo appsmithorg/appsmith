@@ -12,10 +12,10 @@ jobs:
       # get all the files changes in the cypress/e2e folder
       - name: Get changed files in the cypress/e2e folder
         id: files
-        uses: tj-actions/changed-files@v36
+        uses: umani/changed-files@v4.0.0
         with:
-        base_sha: ${{ github.event.client_payload.pull_request.base.sha }}
-        files: app/client/cypress/e2e
+          repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          pattern: 'app/client/cypress/e2e/.*'
 
       - name: Check if files changed count is greater than 0
         id: check_files_changed
