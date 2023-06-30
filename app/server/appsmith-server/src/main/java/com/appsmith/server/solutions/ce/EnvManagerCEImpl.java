@@ -99,7 +99,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final UserService userService;
     private final AnalyticsService analyticsService;
     private final UserRepository userRepository;
-    private final PolicySolution policySolution;
     private final EmailSender emailSender;
 
     private final CommonConfig commonConfig;
@@ -135,7 +134,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             UserService userService,
                             AnalyticsService analyticsService,
                             UserRepository userRepository,
-                            PolicySolution policySolution,
                             EmailSender emailSender,
                             CommonConfig commonConfig,
                             EmailConfig emailConfig,
@@ -152,7 +150,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userService = userService;
         this.analyticsService = analyticsService;
         this.userRepository = userRepository;
-        this.policySolution = policySolution;
         this.emailSender = emailSender;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
