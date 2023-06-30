@@ -19,21 +19,16 @@ import {
 } from "components/editorComponents/WidgetResizer/resizable/common";
 import type { DimensionUpdateProps } from "components/editorComponents/WidgetResizer/resizable/common";
 import { getWidget, getWidgets } from "sagas/selectors";
-import {
-  getContainerOccupiedSpacesSelectorWhileResizing,
-  getDimensionMap,
-} from "selectors/editorSelectors";
+import { getDimensionMap } from "selectors/editorSelectors";
 import { getLayerIndexOfWidget } from "utils/autoLayout/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import type { LayoutDirection } from "utils/autoLayout/constants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
-import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import { getAutoLayoutCanvasMetaWidth } from "selectors/autoLayoutSelectors";
@@ -67,8 +62,6 @@ export type AutoLayoutResizableProps = {
     canResizeHorizontally: boolean;
     canResizeVertically: boolean;
   };
-  maxHeightInPx: number; // Maximum height in pixels, the child can have.
-  originalPositions: OccupiedSpace;
   onStart: (affectsWidth?: boolean) => void;
   onStop: (props: { width: number; height: number }) => void;
   snapGrid: { x: number; y: number };
@@ -82,8 +75,6 @@ export type AutoLayoutResizableProps = {
   isFlexChild?: boolean;
   isHovered: boolean;
   responsiveBehavior?: ResponsiveBehavior;
-  direction?: LayoutDirection;
-  paddingOffset: number;
   isMobile: boolean;
   showResizeBoundary: boolean;
 };
@@ -96,32 +87,45 @@ export function ReflowResizable(props: AutoLayoutResizableProps) {
 
   return widget ? <AutoLayoutResizable {...props} /> : null;
 }
+const checkForCollision: any = () => {
+  return false;
+};
 
-function AutoLayoutResizable(props: AutoLayoutResizableProps) {
+function AutoLayoutResizable({
+  allowResize,
+  children,
+  className,
+  componentHeight,
+  componentWidth,
+  enableHorizontalResize,
+  enableVerticalResize,
+  getResizedPositions,
+  handles: handlesToRender,
+  hasAutoHeight,
+  hasAutoWidth,
+  isFlexChild,
+  isHovered,
+  isMobile,
+  mainCanvasWidth,
+  onStart,
+  onStop,
+  parentId,
+  responsiveBehavior,
+  showResizeBoundary,
+  snapGrid,
+  widgetId,
+  zWidgetId,
+  zWidgetType,
+}: AutoLayoutResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
-  const occupiedSpacesBySiblingWidgets = useSelector(
-    getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
-  );
-  const checkForCollision = (widgetNewSize: {
-    left: number;
-    top: number;
-    bottom: number;
-    right: number;
-  }) => {
-    return isDropZoneOccupied(
-      widgetNewSize,
-      props.widgetId,
-      occupiedSpacesBySiblingWidgets,
-    );
-  };
   // Performance tracking start
-  const sentryPerfTags = props.zWidgetType
-    ? [{ name: "widget_type", value: props.zWidgetType }]
+  const sentryPerfTags = zWidgetType
+    ? [{ name: "widget_type", value: zWidgetType }]
     : [];
   PerformanceTracker.startTracking(
     PerformanceTransactionName.SHOW_RESIZE_HANDLES,
-    { widgetId: props.zWidgetId },
+    { widgetId: zWidgetId },
     true,
     sentryPerfTags,
   );
@@ -135,7 +139,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
   const [pointerEvents, togglePointerEvents] = useState(true);
   const [newDimensions, set] = useState<DimensionUpdateProps>({
     width: 0,
-    height: props.componentHeight,
+    height: componentHeight,
     x: 0,
     y: 0,
     reset: false,
@@ -146,15 +150,12 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
   const allWidgets = useSelector(getWidgets);
   const { minWidth }: { [key in keyof MinMaxSize]: number | undefined } =
     getWidgetMinMaxDimensionsInPixel(
-      { type: props.zWidgetType },
-      props.mainCanvasWidth || 1,
+      { type: zWidgetType },
+      mainCanvasWidth || 1,
     );
 
   const parentWidth = useSelector((state) =>
-    getAutoLayoutCanvasMetaWidth(
-      state,
-      props.parentId || MAIN_CONTAINER_WIDGET_ID,
-    ),
+    getAutoLayoutCanvasMetaWidth(state, parentId || MAIN_CONTAINER_WIDGET_ID),
   );
   const minWidthPercentage = ((minWidth || 0) * 100) / parentWidth;
 
@@ -166,7 +167,6 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
     topRow: topRowMap,
   } = dimensionMap;
   const { computedAlignment, layer, layerWidthInPixels } = useMemo(() => {
-    const { widgetId } = props;
     const widget = allWidgets[widgetId];
     const layer = (() => {
       if (!widget || !widget?.parentId) return {};
@@ -194,16 +194,14 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         const widget = allWidgets[eachWidget.id];
         if (widget) {
           const widgetWidth =
-            (props.isMobile
-              ? widget.mobileWidth || widget.width
-              : widget.width) || 0;
+            (isMobile ? widget.mobileWidth || widget.width : widget.width) || 0;
           let widgetWithInPixels = widgetWidth * 0.01 * parentWidth;
           const {
             minWidth,
           }: { [key in keyof MinMaxSize]: number | undefined } =
             getWidgetMinMaxDimensionsInPixel(
               { type: widget.type },
-              props.mainCanvasWidth || 1,
+              mainCanvasWidth || 1,
             );
           if (widgetWithInPixels < (minWidth || 0)) {
             widgetWithInPixels = minWidth || 0;
@@ -215,9 +213,9 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       (layer.children.length - 1) * GapBetweenWidgets,
     );
     return { computedAlignment, layer, layerWidthInPixels };
-  }, [props, allWidgets, leftColumnMap]);
-  const widget = allWidgets[props.widgetId];
-  const widgetWidthInPixels = props.componentWidth * 0.01 * parentWidth;
+  }, [allWidgets, leftColumnMap, isMobile, mainCanvasWidth]);
+  const widget = allWidgets[widgetId];
+  const widgetWidthInPixels = componentWidth * 0.01 * parentWidth;
   const fillWidgetsFilter = (each: any) => {
     const currentWidget = allWidgets[each.id];
     return (
@@ -240,7 +238,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
 
   const setNewDimensions = (rect: DimensionUpdateProps) => {
     const { canResizeHorizontally, canResizeVertically } =
-      props.getResizedPositions(resizedPositions);
+      getResizedPositions(resizedPositions);
     const canResize = canResizeHorizontally || canResizeVertically;
     if (canResize) {
       set((prevState) => {
@@ -254,7 +252,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         );
         const isIncreasingWidth = newRect.width > 0;
         const setMaxLimitAsWidth =
-          !props.isMobile && hasReachedMaxWidthLimit && isIncreasingWidth;
+          !isMobile && hasReachedMaxWidthLimit && isIncreasingWidth;
         minWidthPercentage;
         const hasReachedMimWidthLimit =
           widgetWidthInPixels + rect.width <= (minWidth || 0);
@@ -307,13 +305,13 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       return {
         ...prevDimensions,
         width: 0,
-        height: props.componentHeight,
+        height: componentHeight,
         x: 0,
         y: 0,
         reset: true,
       };
     });
-  }, [props.componentHeight, props.componentWidth, isResizing]);
+  }, [componentHeight, componentWidth, isResizing]);
 
   const handles = [];
   const resizedPositions = {
@@ -323,7 +321,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
     bottom: widget[bottomRowMap],
     id: widget?.widgetId,
   };
-  if (widget[leftColumnMap] !== 0 && props.handles.left) {
+  if (widget[leftColumnMap] !== 0 && handlesToRender.left) {
     handles.push({
       dragCallback: (x: number) => {
         let dimensionUpdates = {
@@ -333,7 +331,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           direction: ReflowDirection.LEFT,
           X: x,
           height: newDimensions.height,
-          width: props.componentWidth,
+          width: componentWidth,
           x: x,
         };
         if (widgetAlignment === "start") {
@@ -359,7 +357,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         }
         setNewDimensions(dimensionUpdates);
       },
-      component: props.handles.left,
+      component: handlesToRender.left,
       handleDirection: ReflowDirection.LEFT,
     });
   }
@@ -369,7 +367,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       widget[leftColumnMap] !== 0 &&
       widget[rightColumnMap] === GridDefaults.DEFAULT_GRID_COLUMNS
     ) &&
-    props.handles.right
+    handlesToRender.right
   ) {
     handles.push({
       dragCallback: (x: number) => {
@@ -380,7 +378,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           direction: ReflowDirection.RIGHT,
           X: x,
           height: newDimensions.height,
-          width: props.componentWidth,
+          width: componentWidth,
           x: x,
         };
         if (widgetAlignment === "start") {
@@ -406,17 +404,17 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         }
         setNewDimensions(dimensionUpdates);
       },
-      component: props.handles.right,
+      component: handlesToRender.right,
       handleDirection: ReflowDirection.RIGHT,
     });
   }
 
-  if (props.handles.bottom) {
+  if (handlesToRender.bottom) {
     handles.push({
       dragCallback: (x: number, y: number) => {
         setNewDimensions({
           width: newDimensions.width,
-          height: props.componentHeight + y,
+          height: componentHeight + y,
           x: newDimensions.x,
           y: newDimensions.y,
           direction: ReflowDirection.BOTTOM,
@@ -425,20 +423,20 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           reflectPosition: true,
         });
       },
-      component: props.handles.bottom,
+      component: handlesToRender.bottom,
       handleDirection: ReflowDirection.BOTTOM,
     });
   }
 
-  if (props.handles.bottomRight) {
+  if (handlesToRender.bottomRight) {
     handles.push({
       dragCallback: (x: number, y: number) => {
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
           y: newDimensions.y,
-          width: props.componentWidth + x,
-          height: props.componentHeight + y,
+          width: componentWidth + x,
+          height: componentHeight + y,
           x: newDimensions.x,
           direction: ReflowDirection.BOTTOMRIGHT,
           X: x,
@@ -468,21 +466,21 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         }
         setNewDimensions(dimensionUpdates);
       },
-      component: props.handles.bottomRight,
+      component: handlesToRender.bottomRight,
       handleDirection: ReflowDirection.BOTTOMRIGHT,
       affectsWidth: true,
     });
   }
 
-  if (props.handles.bottomLeft) {
+  if (handlesToRender.bottomLeft) {
     handles.push({
       dragCallback: (x: number, y: number) => {
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
           x: x,
-          width: props.componentWidth - x,
-          height: props.componentHeight + y,
+          width: componentWidth - x,
+          height: componentHeight + y,
           y: newDimensions.y,
           direction: ReflowDirection.BOTTOMLEFT,
           X: x,
@@ -512,7 +510,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         }
         setNewDimensions(dimensionUpdates);
       },
-      component: props.handles.bottomLeft,
+      component: handlesToRender.bottomLeft,
       handleDirection: ReflowDirection.BOTTOMLEFT,
       affectsWidth: true,
     });
@@ -522,11 +520,11 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
     togglePointerEvents(true);
     const widthChange = (newDimensions.width * 100) / parentWidth;
     const newlyComputedWidth = Math.min(
-      Math.max(props.componentWidth + widthChange, minWidthPercentage),
+      Math.max(componentWidth + widthChange, minWidthPercentage),
       100,
     );
     //ToDo: Ashok need to add check to update widgets only when needed
-    props.onStop({
+    onStop({
       width: newlyComputedWidth,
       height: newDimensions.height,
     });
@@ -535,8 +533,8 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
 
   const renderHandles = handles.map((handle, index) => {
     const disableDot = !isHandleResizeAllowed(
-      props.enableHorizontalResize,
-      props.enableVerticalResize,
+      enableHorizontalResize,
+      enableVerticalResize,
       handle.handleDirection,
     );
 
@@ -553,8 +551,8 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       disableResizing = isResizingDisabled(
         disableResizeHandles,
         handle.handleDirection,
-        props.isFlexChild,
-        props.responsiveBehavior,
+        isFlexChild,
+        responsiveBehavior,
       );
     }
 
@@ -562,9 +560,9 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       <ResizableHandle
         {...handle}
         allowResize={
-          props.allowResize &&
+          allowResize &&
           !(
-            props.responsiveBehavior === ResponsiveBehavior.Fill &&
+            responsiveBehavior === ResponsiveBehavior.Fill &&
             handle?.affectsWidth
           ) &&
           !disableResizing
@@ -572,60 +570,58 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         checkForCollision={checkForCollision}
         direction={handle.handleDirection}
         disableDot={disableDot || disableResizing}
-        isHovered={props.isHovered}
+        isHovered={isHovered}
         key={index}
         onStart={() => {
           togglePointerEvents(false);
-          props.onStart();
+          onStart();
           setResizing(true);
         }}
         onStop={onResizeStop}
         scrollParent={resizableRef.current}
-        snapGrid={props.snapGrid}
+        snapGrid={snapGrid}
       />
     );
   });
 
   const resizeWrapperStyle: CSSProperties = getWrapperStyle(
     false,
-    props.showResizeBoundary,
-    !isResizing && props.allowResize,
-    props.isHovered,
+    showResizeBoundary,
+    !isResizing && allowResize,
+    isHovered,
   );
 
   const wrapperClassName = useMemo(() => {
-    return `${props.className} resize-wrapper ${
-      props.showResizeBoundary ? "show-boundary" : ""
+    return `${className} resize-wrapper ${
+      showResizeBoundary ? "show-boundary" : ""
     } ${pointerEvents ? "" : "pointer-event-none"}`;
-  }, [props.className, pointerEvents, props.showResizeBoundary]);
+  }, [className, pointerEvents, showResizeBoundary]);
   const computedParentWidth = getWidgetCssWidth(
-    props.hasAutoWidth,
-    props.responsiveBehavior,
-    props.componentWidth,
+    hasAutoWidth,
+    responsiveBehavior,
+    componentWidth,
     parentWidth,
   );
   return (
     <ResizeWrapper
       className={wrapperClassName}
-      id={`resize-${props.widgetId}`}
+      id={`resize-${widgetId}`}
       ref={resizableRef}
       style={{
         ...resizeWrapperStyle,
         ...{
           width:
-            props.hasAutoWidth || !isResizing
+            hasAutoWidth || !isResizing
               ? "100%"
               : isResizing &&
                 `calc(${computedParentWidth} + ${newDimensions.width}px)`,
           height:
-            props.hasAutoHeight || !isResizing
-              ? "100%"
-              : `${newDimensions.height}px`,
+            hasAutoHeight || !isResizing ? "100%" : `${newDimensions.height}px`,
         },
       }}
     >
-      {props.children}
-      {props.enableHorizontalResize && renderHandles}
+      {children}
+      {enableHorizontalResize && renderHandles}
     </ResizeWrapper>
   );
 }

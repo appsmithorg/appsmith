@@ -1,7 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,10 +27,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetOperations } from "widgets/BaseWidget";
-import {
-  isAutoHeightEnabledForWidget,
-  isAutoHeightEnabledForWidgetWithLimits,
-} from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { UIElementSize } from "./ResizableUtils";
 import {
   BottomHandleStyles,
@@ -202,14 +198,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     !isPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen;
 
-  const originalPositions = {
-    id: props.widgetId,
-    left: props.leftColumn,
-    top: props.topRow,
-    bottom: props.bottomRow,
-    right: props.rightColumn,
-  };
-
   const snapGrid = {
     x: 1,
     y: 1,
@@ -218,17 +206,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
-
-  // What is the max resizable height for this widget, in pixels?
-  let maxHeightInPx =
-    WidgetHeightLimits.MAX_HEIGHT_IN_ROWS *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT; // Maximum possible height
-  // If the widget has auto height with limits, we need to respect the set limits.
-  if (isAutoHeightEnabledForWidgetWithLimits(props)) {
-    maxHeightInPx =
-      (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
-      GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  }
 
   const allowResize: boolean =
     !isMultiSelected || (isAutoLayout && !props.isFlexChild);
@@ -246,7 +223,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       allowResize={allowResize}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      direction={props.direction}
       enableHorizontalResize={isEnabled}
       enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
@@ -263,11 +239,8 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       isHovered={isHovered}
       isMobile={props.isMobile || false}
       mainCanvasWidth={props.mainCanvasWidth || 1}
-      maxHeightInPx={maxHeightInPx}
       onStart={handleResizeStart}
       onStop={updateSize}
-      originalPositions={originalPositions}
-      paddingOffset={props.paddingOffset}
       parentId={props.parentId}
       responsiveBehavior={props.responsiveBehavior}
       showResizeBoundary={showResizeBoundary}
