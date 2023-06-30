@@ -451,7 +451,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     }
 
-    private List<Mono<Void>> updatePoliciesForIndependentDomains(Application application,
+    protected List<Mono<Void>> updatePoliciesForIndependentDomains(Application application,
                                                                  String permissionGroupId,
                                                                  Boolean addViewAccess) {
 
