@@ -30,12 +30,4 @@ class SignatureVerifierTest {
         Assertions.assertFalse(SignatureVerifier.isSignatureValid(headers));
     }
 
-    @Test
-    public void validatePublicKeyParam_validPublicKey_validParamGenerated() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(DATE, Instant.now().toString());
-        headers.set(CLOUD_SERVICES_SIGNATURE, String.format("%s.%s", UUID.randomUUID(), UUID.randomUUID()));
-        Assertions.assertFalse(SignatureVerifier.isSignatureValid(headers));
-        Assertions.assertNotNull(SignatureVerifier.getPublicKeyParameters());
-    }
 }

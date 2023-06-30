@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
