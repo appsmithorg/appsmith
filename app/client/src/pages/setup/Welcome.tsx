@@ -18,7 +18,8 @@ const LandingPageWrapper = styled.div`
   justify-content: center;
   align-items: flex-start;
   margin: 0 auto;
-  overflow-y: auto;
+  overflow: auto;
+  min-width: 800px;
 `;
 
 const LandingPageContent = styled.div`

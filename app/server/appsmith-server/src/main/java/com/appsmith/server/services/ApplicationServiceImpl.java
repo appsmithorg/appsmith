@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -25,20 +26,17 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
-                                  PolicyUtils policyUtils,
+                                  PolicySolution policySolution,
                                   ConfigService configService,
-                                  SessionUserService sessionUserService,
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
-                                  TenantService tenantService,
+                                  NewActionRepository newActionRepository,
                                   AssetService assetService,
-                                  UserRepository userRepository,
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
-                userRepository, datasourcePermission, applicationPermission);
-
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policySolution,
+                configService, responseUtils, permissionGroupService, newActionRepository, assetService,
+                 datasourcePermission, applicationPermission);
     }
 }

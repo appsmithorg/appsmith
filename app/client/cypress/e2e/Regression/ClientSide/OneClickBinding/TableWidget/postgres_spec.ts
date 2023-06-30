@@ -25,7 +25,7 @@ describe("Table widget one click binding feature", () => {
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
-        `New from ${dsName}`,
+        `${dsName}`,
         dsName,
         "public.users",
         "name",

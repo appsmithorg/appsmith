@@ -49,7 +49,11 @@ function TemplateViewHeader({ templateId }: Props) {
   };
   return (
     <HeaderWrapper>
-      <Link onClick={goBack} startIcon="arrow-left-line">
+      <Link
+        data-testid="t--template-view-goback"
+        onClick={goBack}
+        startIcon="arrow-left-line"
+      >
         {createMessage(GO_BACK)}
       </Link>
       <Title kind="heading-l" renderAs="h1">
