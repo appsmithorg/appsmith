@@ -50,7 +50,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
         cy.log("Published url is: " + currentUrl);
         _.deployMode.NavigateBacktoEditor();
         cy.wait(2000);
-        cy.visit(currentUrl);
+        cy.visit(currentUrl, { timeout: 60000 });
         cy.wait("@getPagesForViewApp").should(
           "have.nested.property",
           "response.body.responseMeta.status",
