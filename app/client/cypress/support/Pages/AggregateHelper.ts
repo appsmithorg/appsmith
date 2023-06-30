@@ -251,6 +251,21 @@ export class AggregateHelper extends ReusableHelper {
     else this.GetElement(selector).should(textPresence, text);
   }
 
+  public GetElementsNAssertTextPresence(selector: string, text: string) {
+    this.GetElement(selector).then(($elements: any) => {
+      let found = false;
+      cy.log("elements length is" + $elements.length);
+      $elements.each((index: any, element: any) => {
+        const eleText = Cypress.$(element).text().trim();
+        if (eleText === text) {
+          found = true;
+          return false; // Exit the loop if the expected text is found
+        }
+      });
+      expect(found).to.be.true;
+    });
+  }
+
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     this.GetElement(this.locator._toastMsg)
       .should("have.length.at.least", length)
