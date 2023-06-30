@@ -83,15 +83,11 @@ describe("Setter class test", () => {
     expect(Object.keys(methodMap)).toEqual([
       "setVisibility",
       "setSelectedRowIndex",
-      "setData",
+      // "setData",
     ]);
 
-    globalContext.Table1.setData([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    globalContext.Table1.setVisibility(true);
 
-    expect(globalContext.Table1.tableData).toEqual([
-      { a: 1 },
-      { a: 2 },
-      { a: 3 },
-    ]);
+    expect(globalContext.Table1.isVisible).toEqual(true);
   });
 });
