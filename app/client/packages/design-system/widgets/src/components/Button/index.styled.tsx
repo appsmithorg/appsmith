@@ -25,7 +25,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   }
 
   &[data-variant="primary"] {
-    background-color: var(--color-bg-accent);
+    background-color: red;
     color: var(--color-fg-on-accent);
     border-color: transparent;
 
