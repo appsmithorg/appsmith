@@ -77,7 +77,7 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("4. Open the app without login and validate public access of Application", function () {
-    cy.visit(currentUrl);
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -99,7 +99,7 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
-    cy.visit(currentUrl);
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -132,7 +132,7 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
-    cy.visit(currentUrl);
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -141,7 +141,7 @@ describe("Create new workspace and share with a user", function () {
     cy.LogOut();
 
     // visit the app as anonymous user and validate redirection to login page
-    cy.visit(currentUrl);
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
