@@ -72,7 +72,9 @@ class Setters {
       );
       if (!isValid) {
         const message = messages && messages[0] ? messages[0].message : "";
-        const error = new Error(message);
+        const error = new Error(
+          `${entityName + "." + setterMethodName}: ${message}`,
+        );
         error.name = entityName + "." + setterMethodName + " failed";
         throw error;
       }
