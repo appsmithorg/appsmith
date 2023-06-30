@@ -316,6 +316,34 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
         }
         if (controlConfig.children) {
           const basePropertyPath = controlConfig.propertyName;
+          // update path configs for children
+          if (isUndefined(basePropertyPath)) {
+            controlConfig.children.forEach((childConfig: any) => {
+              const path = childConfig.propertyName;
+              const {
+                configBindingPaths,
+                configReactivePaths,
+                configTriggerPaths,
+                configValidationPaths,
+              } = checkPathsInConfig(childConfig, path);
+              bindingPaths = {
+                ...bindingPaths,
+                ...configBindingPaths,
+              };
+
+              reactivePaths = {
+                ...reactivePaths,
+                ...configReactivePaths,
+              };
+              triggerPaths = {
+                ...triggerPaths,
+                ...configTriggerPaths,
+              };
+              validationPaths = {
+                ...configValidationPaths,
+              };
+            });
+          }
           const widgetPropertyValue = get(widget, basePropertyPath, []);
           // Property in object structure
           if (
