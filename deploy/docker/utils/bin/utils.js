@@ -72,7 +72,7 @@ async function listLocalBackupFiles() {
     .readdir(Constants.BACKUP_PATH)
     .then((filenames) => {
       for (let filename of filenames) {
-        if (filename.match(/^appsmith-backup-.*\.tar\.gz$/)) {
+        if (filename.match(/^appsmith-backup-.*\.tar\.gz$/) || filename.match(/^appsmith-backup-.*\.tar\.gz.enc$/)) {
           backupFiles.push(filename);
         }
       }
