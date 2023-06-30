@@ -7,7 +7,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -30,13 +29,13 @@ import java.util.Set;
  *  <li> We should provide the user's permission groups.</li>
  * </ol>
  *
- *<p>
+ * <p>
  * For example, let's assume we want to ensure that import flow will check whether user has permission to add a new page before creating a new page.
  * To achieve this, we've to set permissionRequiredToCreatePage to true and provide the user's permission groups using the builder methods.
  * The import flow will call the canCreatePage method with the application object as parameter.
  * As we've set the permissionRequiredToCreatePage to true, canCreatePage method will ensure that the provided
  * policies in the provided application will have a permission group from userPermissionGroups.
- *</p>
+ * </p>
  */
 @AllArgsConstructor
 @Getter
@@ -83,54 +82,55 @@ public class ImportApplicationPermissionProvider {
     /**
      * Helper method to check whether the provided permission is present in the provided baseDomain's policies.
      * If yes, it checks whether the matched policy has a permission group from the currentUserPermissionGroups.
+     *
      * @param permission AclPermission
      * @param baseDomain BaseDomain where the permission is being checked
      * @return True if there is a match, false otherwise
      */
     private boolean hasPermission(AclPermission permission, BaseDomain baseDomain) {
-        if(permission == null) {
+        if (permission == null) {
             return true;
         }
-        return PolicyUtils.isPermissionPresentInPolicies(permission.getValue(), baseDomain.getPolicies(), currentUserPermissionGroups);
+        return PolicyUtil.isPermissionPresentInPolicies(permission.getValue(), baseDomain.getPolicies(), currentUserPermissionGroups);
     }
 
     public boolean hasEditPermission(NewPage page) {
-        if(!permissionRequiredToEditPage) {
+        if (!permissionRequiredToEditPage) {
             return true;
         }
         return hasPermission(pagePermission.getEditPermission(), page);
     }
 
     public boolean hasEditPermission(NewAction action) {
-        if(!permissionRequiredToEditAction) {
+        if (!permissionRequiredToEditAction) {
             return true;
         }
         return hasPermission(actionPermission.getEditPermission(), action);
     }
 
     public boolean hasEditPermission(Datasource datasource) {
-        if(!permissionRequiredToEditDatasource) {
+        if (!permissionRequiredToEditDatasource) {
             return true;
         }
         return hasPermission(datasourcePermission.getEditPermission(), datasource);
     }
 
     public boolean canCreatePage(Application application) {
-        if(!permissionRequiredToCreatePage) {
+        if (!permissionRequiredToCreatePage) {
             return true;
         }
         return hasPermission(applicationPermission.getPageCreatePermission(), application);
     }
 
     public boolean canCreateAction(NewPage page) {
-        if(!permissionRequiredToCreateAction) {
+        if (!permissionRequiredToCreateAction) {
             return true;
         }
         return hasPermission(pagePermission.getActionCreatePermission(), page);
     }
 
     public boolean canCreateDatasource(Workspace workspace) {
-        if(!permissionRequiredToCreateDatasource) {
+        if (!permissionRequiredToCreateDatasource) {
             return true;
         }
         return hasPermission(workspacePermission.getDatasourceCreatePermission(), workspace);
