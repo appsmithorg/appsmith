@@ -11,7 +11,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   gap: 30px;
   padding: var(--spacing-2) var(--spacing-4);
   min-height: calc(var(--sizing-root-unit) * 8);
-  border-radius: var(--border-radius-1);
+  border-radius: 100%;
   user-select: none;
 
   // TODO: remove this when we use only flex layout
