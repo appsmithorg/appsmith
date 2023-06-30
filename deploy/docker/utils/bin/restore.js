@@ -85,6 +85,9 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName) {
 
   await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
     '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt);
+  
+    await fsPromises.appendFile(dockerEnvFile, '\APPSMITH_MONGODB_URI=' + process.env.process.env.APPSMITH_ENCRYPTION_PASSWORD +
+    '\APPSMITH_MONGODB_USER=' + process.env.process.env.APPSMITH_MONGODB_USER + '\APPSMITH_MONGODB_PASSWORD=' + process.env.process.env.APPSMITH_MONGODB_PASSWORD ) ;
 
   console.log('Restoring docker environment file completed');
 }
@@ -138,6 +141,7 @@ async function run() {
     if (backupFileName == null) {
       process.exit(errorCode);
     } else {
+      
       const backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
