@@ -106,18 +106,16 @@ class LintService {
         pathsToLint.push(path);
       }
     }
-
+    const asyncEntityActions = AppsmithFunctionsWithFields.concat(
+      getAllEntityActions(entityTree),
+    );
     const asyncFns = entities
       .filter(isJSEntity)
       .flatMap((e) => e.getFns())
       .filter(
         (fn) =>
           fn.isMarkedAsync ||
-          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields) ||
-          this.dependencyMap.isRelated(
-            fn.name,
-            getAllEntityActions(entityTree),
-          ),
+          this.dependencyMap.isRelated(fn.name, asyncEntityActions),
       )
       .map((fn) => fn.name);
 
@@ -250,6 +248,9 @@ class LintService {
     }
 
     // generate async functions only after dependencyMap update is complete
+    const asyncEntityActions = AppsmithFunctionsWithFields.concat(
+      getAllEntityActions(entityTree),
+    );
     const asyncFns = entityTree
       .getEntities()
       .filter(isJSEntity)
@@ -257,11 +258,7 @@ class LintService {
       .filter(
         (fn) =>
           fn.isMarkedAsync ||
-          this.dependencyMap.isRelated(fn.name, AppsmithFunctionsWithFields) ||
-          this.dependencyMap.isRelated(
-            fn.name,
-            getAllEntityActions(entityTree),
-          ),
+          this.dependencyMap.isRelated(fn.name, asyncEntityActions),
       )
       .map((fn) => fn.name);
 
