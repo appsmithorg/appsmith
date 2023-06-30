@@ -234,6 +234,7 @@ export class DataSources {
   private _datasourceTableSchemaInQueryEditor =
     ".datasourceStructure-query-editor";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
+  private _datasourceStructureSearchInput = ".datasourceStructure-search input";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1142,6 +1143,22 @@ export class DataSources {
       .GetElement(this._datasourceColumnSchemaInQueryEditor)
       .eq(index)
       .contains(schema);
+  }
+
+  public FilterAndVerifyDatasourceSchemaBySearch(
+    search: string,
+    verifySearch = false,
+    filterBy: "table" | "column" = "column",
+  ) {
+    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+
+    if (verifySearch) {
+      if (filterBy === "column") {
+        this.VerifyColumnSchemaOnQueryEditor(search);
+      } else {
+        this.VerifyTableSchemaOnQueryEditor(search);
+      }
+    }
   }
 
   public SaveDSFromDialog(save = true) {

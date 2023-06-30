@@ -270,7 +270,7 @@ function ActionSidebar({
 
   // A/B feature flag for datsource structure.
   const isEnabledForDSSchema = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema),
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
   );
 
   const datasourceStructure = useSelector((state) =>

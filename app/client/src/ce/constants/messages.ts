@@ -695,15 +695,6 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
-export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
-
-export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
-
-export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
-export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
-export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
-export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
-
 // Datasource structure
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";

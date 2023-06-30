@@ -41,10 +41,20 @@ describe("Datasource form related tests", function () {
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
 
-  // keeping this here till we can establish A/B testing on cypress
-  // it("3. Verify if schema exist in query editor", () => {
-  //   dataSources.CreateMockDB("Users");
-  //   dataSources.CreateQueryAfterDSSaved();
-  //   dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-  // });
+  it("3. Verify if schema (table and column) exist in query editor and searching works", () => {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    agHelper.RefreshPage();
+    dataSources.CreateMockDB("Users");
+    dataSources.CreateQueryAfterDSSaved();
+    dataSources.VerifyTableSchemaOnQueryEditor("public.users");
+    ee.ExpandCollapseEntity("public.users");
+    dataSources.VerifyColumnSchemaOnQueryEditor("id");
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch(
+      "gender",
+      true,
+      "column",
+    );
+  });
 });
