@@ -4,6 +4,7 @@ import {
   agHelper,
   entityExplorer,
   assertHelper,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
@@ -17,7 +18,7 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
-    cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
+    cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
     agHelper.AssertNewTabOpened(() => {
       cy.xpath('//span[text()="Learn more"]').click();
     });
