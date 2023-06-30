@@ -67,13 +67,8 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     public Mono<ApplicationSnapshot> getWithoutDataByApplicationId(String applicationId, String branchName) {
         // get application first to check the permission and get child aka branched application ID
         return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
-                )
                 .flatMap(applicationSnapshotRepository::findWithoutData)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
-                );
+                .defaultIfEmpty(new ApplicationSnapshot());
     }
 
     @Override

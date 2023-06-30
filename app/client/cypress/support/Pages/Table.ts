@@ -26,7 +26,8 @@ type columnTypeValues =
   | "Date"
   | "Button"
   | "Menu button"
-  | "Icon button";
+  | "Icon button"
+  | "Select";
 
 export class Table {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -142,6 +143,7 @@ export class Table {
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
   _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
+  _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
@@ -150,6 +152,11 @@ export class Table {
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
   _updateMode = (mode: "Single" | "Multi") =>
     "//span[text()='" + mode + " Row']/ancestor::div";
+  _hideMenu = ".hide-menu";
+  _tableColumnHeaderMenuTrigger = (columnName: string) =>
+    `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
+  _columnHeaderMenu = ".bp3-menu";
+  _selectMenuItem = ".menu-item-text";
 
   public WaitUntilTableLoad(
     rowIndex = 0,
@@ -403,7 +410,7 @@ export class Table {
     cy.get(this._searchText).eq(index).type(searchTxt);
   }
 
-  public resetSearch() {
+  public ResetSearch() {
     this.agHelper.GetNClick(this._searchBoxCross);
   }
 
@@ -411,7 +418,7 @@ export class Table {
     cellDataAfterSearchRemoved: string,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    this.resetSearch();
+    this.ResetSearch();
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftSearchRemoved: any) => {
         expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
@@ -562,7 +569,10 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public EnableEditableOfColumn(columnName: string, tableVersion: "v1" | "v2") {
+  public EnableEditableOfColumn(
+    columnName: string,
+    tableVersion: "v1" | "v2" = "v2",
+  ) {
     const colSettings =
       tableVersion == "v1"
         ? this._columnSettings(columnName, "Editable")
@@ -573,26 +583,41 @@ export class Table {
   public EditTableCell(
     rowIndex: number,
     colIndex: number,
-    newValue = "",
+    newValue: "" | number | string,
     toSaveNewValue = true,
   ) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
-    ); //not working consistenly
+      0,
+      true,
+    );
     this.agHelper.AssertElementVisible(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
     );
-    if (newValue) {
-      this.agHelper.UpdateInputValue(
-        this._tableRow(rowIndex, colIndex, "v2") +
-          " " +
-          this._editCellEditorInput,
-        newValue,
-      );
-    }
+    this.UpdateTableCell(
+      rowIndex,
+      colIndex,
+      newValue.toString(),
+      toSaveNewValue,
+    );
+    this.agHelper.Sleep();
+  }
+
+  public UpdateTableCell(
+    rowIndex: number,
+    colIndex: number,
+    newValue: "" | number | string,
+    toSaveNewValue = false,
+  ) {
+    this.agHelper.UpdateInputValue(
+      this._tableRow(rowIndex, colIndex, "v2") +
+        " " +
+        this._editCellEditorInput,
+      newValue.toString(),
+    );
     toSaveNewValue &&
       this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
   }
@@ -648,5 +673,18 @@ export class Table {
   public AddSampleTableData() {
     this.propPane.EnterJSContext("Table data", JSON.stringify(sampleTableData));
     this.ChangeColumnType("action", "Button", "v2");
+  }
+
+  public SortColumn(columnName: string, direction: string) {
+    this.agHelper.GetNClick(
+      this._tableColumnHeaderMenuTrigger(columnName),
+      0,
+      true,
+    );
+    this.agHelper.GetNClickByContains(
+      this._columnHeaderMenu,
+      `Sort column ${direction}`,
+    );
+    this.agHelper.Sleep(500);
   }
 }
