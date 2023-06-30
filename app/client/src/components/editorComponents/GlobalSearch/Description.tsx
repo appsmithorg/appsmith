@@ -1,17 +1,10 @@
-import React, { useEffect, lazy, Suspense } from "react";
+import React from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
-import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
+import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "design-system-old";
 import type { SearchItem } from "./utils";
-import parseDocumentationContent from "./parseDocumentationContent";
-import { retryPromise } from "utils/AppsmithUtils";
-import Skeleton from "components/utils/Skeleton";
-
-const SnippetDescription = lazy(() =>
-  retryPromise(() => import("./SnippetsDescription")),
-);
 
 type Props = {
   activeItem: SearchItem;
@@ -89,8 +82,6 @@ const Container = styled.div`
     position: relative;
     font-size: var(--button-font-size);
     cursor: pointer;
-    border: none;
-    background-color: transparent;
     color: var(--button-color-fg);
     text-decoration: none;
     height: var(--button-height);
@@ -104,7 +95,6 @@ const Container = styled.div`
     gap: var(--button-gap);
     background-color: var(--button-color-bg);
     border: 1px solid var(--ads-v2-color-border);
-    box-sizing: border-box;
     padding: var(--button-padding);
     text-transform: capitalize;
     &:hover {
@@ -149,84 +139,6 @@ const Container = styled.div`
   }
 `;
 
-const StyledDocumentationDescription = styled.div`
-  h1 {
-    margin: 0.5rem 0;
-    display: flex;
-    justify-content: space-between;
-  }
-  h2 {
-    margin: 0.5rem 0 0.25rem;
-  }
-  h3 {
-    margin: 0.5rem 0 0.25rem;
-  }
-  img,
-  pre {
-    margin: 0.25rem 0;
-  }
-  td {
-    strong {
-      font-weight: 600;
-    }
-  }
-`;
-
-function DocumentationDescription({
-  item,
-  query,
-}: {
-  item: SearchItem;
-  query: string;
-}) {
-  const {
-    _highlightResult: {
-      document: { value: rawDocument },
-      title: { value: rawTitle },
-    },
-  } = item;
-  const content = parseDocumentationContent({
-    rawDocument: rawDocument,
-    rawTitle: rawTitle,
-    path: item.path,
-    query,
-  });
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    scrollToMatchedValue();
-  }, [content]);
-
-  const scrollToMatchedValue = () => {
-    const root = containerRef.current;
-    if (!root) return;
-    const list = root.getElementsByTagName(algoliaHighlightTag);
-    if (list.length) {
-      const bestMatch = Array.from(list).reduce((accumulator, currentValue) => {
-        if (
-          currentValue.textContent &&
-          accumulator.textContent &&
-          currentValue.textContent.length > accumulator.textContent.length
-        )
-          return currentValue;
-        return accumulator;
-      }, list[0]);
-
-      bestMatch.scrollIntoView();
-    } else {
-      setTimeout(() => {
-        root.firstElementChild?.scrollIntoView();
-      }, 0);
-    }
-  };
-
-  return content ? (
-    <StyledDocumentationDescription
-      dangerouslySetInnerHTML={{ __html: content }}
-      ref={containerRef}
-    />
-  ) : null;
-}
-
 const StyledHitEnterMessageContainer = styled.div`
   background: ${(props) =>
     props.theme.colors.globalSearch.navigateUsingEnterSection};
@@ -263,16 +175,7 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
   );
 }
 
-function LazySnippetDescription(props: any) {
-  return (
-    <Suspense fallback={<Skeleton />}>
-      <SnippetDescription {...props} />
-    </Suspense>
-  );
-}
-
 const descriptionByType = {
-  [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.jsAction]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.widget]: HitEnterMessage,
@@ -282,7 +185,6 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
   [SEARCH_ITEM_TYPES.category]: () => null,
   [SEARCH_ITEM_TYPES.actionOperation]: () => null,
-  [SEARCH_ITEM_TYPES.snippet]: LazySnippetDescription,
 };
 
 function Description(props: Props) {
