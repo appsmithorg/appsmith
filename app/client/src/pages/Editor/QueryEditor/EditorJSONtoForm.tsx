@@ -10,7 +10,6 @@ import {
 } from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import type { Action, QueryAction, SaaSAction } from "entities/Action";
-import { SlashCommand } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -77,7 +76,6 @@ import type {
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
@@ -102,7 +100,6 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -127,7 +124,6 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import SearchSnippets from "pages/common/SearchSnippets";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
@@ -899,22 +895,6 @@ export function EditorJSONtoForm(props: Props) {
               isDeletePermitted={isDeletePermitted}
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
-            />
-            <SearchSnippets
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
-              onClick={() => {
-                dispatch(
-                  executeCommandAction({
-                    actionType: SlashCommand.NEW_SNIPPET,
-                    args: {
-                      entityId: currentActionConfig?.id,
-                      entityType: ENTITY_TYPE.ACTION,
-                    },
-                  }),
-                );
-              }}
             />
             <DropdownSelect>
               <DropdownField

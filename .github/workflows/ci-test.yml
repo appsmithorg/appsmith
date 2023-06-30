@@ -484,9 +484,9 @@ jobs:
         if: always()
         run: |
           if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo "cypress_url=${{ steps.cypress_test.outputs.resultsUrl }}" >> ~/cypress_url
+            echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
           elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo "cypress_url=${{ steps.cypress_test_failedtest.outputs.resultsUrl }}" >> ~/cypress_url
+            echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
           fi
 
       # Force store previous run result to cache
