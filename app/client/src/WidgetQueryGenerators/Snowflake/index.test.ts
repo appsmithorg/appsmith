@@ -167,7 +167,7 @@ OFFSET
           },
         ],
         payload: {
-          body: "UPDATE someTable SET id= '{{update_form.fieldState'.id}}', name= '{{update_form.fieldState'.name}}' WHERE id= '{{data_table.selectedRow.id}}';",
+          body: "UPDATE someTable SET name= '{{update_form.fieldState'.name}}' WHERE id= '{{data_table.selectedRow.id}}';",
           pluginSpecifiedTemplates: [{ value: false }],
         },
       },
@@ -227,7 +227,7 @@ OFFSET
           },
         ],
         payload: {
-          body: "INSERT INTO someTable (id,name) VALUES ('{{update_form.fieldState.id}}','{{update_form.fieldState.name}}')",
+          body: "INSERT INTO someTable (name) VALUES ('{{update_form.fieldState.name}}')",
           pluginSpecifiedTemplates: [{ value: false }],
         },
       },
