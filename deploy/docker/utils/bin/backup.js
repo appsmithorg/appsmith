@@ -6,12 +6,14 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
+const readlineSync = require('readline-sync');
 
 const command_args = process.argv.slice(3);
 
 async function run() {
   const timestamp = getTimeStampInISO();
   let errorCode = 0;
+  let backupRootPath, ArchivePath;
   try {
     const check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
     shell.exec(check_supervisord_status_cmd, function (code) {
@@ -21,7 +23,7 @@ async function run() {
       }
     });
 
-    utils.stop(['backend', 'rts']);
+    // utils.stop(['backend', 'rts']);
 
     console.log('Available free space at /appsmith-stacks');
     const availSpaceInBytes = getAvailableBackupSpaceInBytes();
@@ -29,7 +31,7 @@ async function run() {
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
-    const backupRootPath = await generateBackupRootPath();
+    backupRootPath = await generateBackupRootPath();
     const backupContentsPath = getBackupContentsPath(backupRootPath, timestamp);
 
     await fsPromises.mkdir(backupContentsPath);
@@ -41,11 +43,26 @@ async function run() {
     await createManifestFile(backupContentsPath);
     await exportDockerEnvFile(backupContentsPath);
 
-    const archivePath = await createFinalArchive(backupRootPath, timestamp);
+    archivePath = await createFinalArchive(backupRootPath, timestamp);
+    // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
+    if (!command_args.includes('--non-interactive')){
+      const encryptionPassword = getEncryptionPasswordFromUser();
+      if (encryptionPassword == -1){
+        logger.backup_info('Backup process aborted because a valid enctyption password could not be obtained from the user');
+      }
+      else {
+        const encryptedArchivePath = await encryptBackupArchive(archivePath,encryptionPassword);
+        logger.backup_info('Finished creating an encrypted a backup archive at ' + encryptedArchivePath);
+      }
+    }
+    else{
+      logger.backup_info('Finished creating a backup archive at ' + archivePath);
+      console.log('********************************************************* IMPORTANT!!! *************************************************************');
+      console.log('*** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file **')
+      console.log('*** These values are not included in the backup export.                                                                           **');
+      console.log('************************************************************************************************************************************');
+    }
 
-    await fsPromises.rm(backupRootPath, { recursive: true, force: true });
-
-    logger.backup_info('Finished taking a backup at' + archivePath);
     await postBackupCleanup();
 
   } catch (err) {
@@ -61,9 +78,43 @@ async function run() {
       }
     }
   } finally {
-    utils.start(['backend', 'rts']);
+    // utils.start(['backend', 'rts']);
+    await fsPromises.rm(backupRootPath, { recursive: true, force: true });
+    if (!command_args.includes('--non-interactive')) {    
+       await fsPromises.rm(archivePath, { recursive: true, force: true });
+    }
     process.exit(errorCode);
   }
+}
+async function encryptBackupArchive(archivePath, encryptionPassword){
+  const encryptedArchivePath = archivePath + '.enc';
+  await utils.execCommand(['openssl', 'enc', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', archivePath, '-out', encryptedArchivePath, '-k', encryptionPassword ])
+  return encryptedArchivePath;
+}
+function getEncryptionPasswordFromUser(){
+  var encryptionPwd1;
+  var encryptionPwd2;
+  var valid_count=0
+  do{
+    if(valid_count>0){
+      console.log("The passwords do not match, please try again.")
+    }
+    encryptionPwd1 = readlineSync.question('Enter a password to encrypt the backup archive: ', {
+      hideEchoBack: true
+    });
+    encryptionPwd2 = readlineSync.question('Enter the above password again: ', {
+      hideEchoBack: true
+    });
+    valid_count+=1;
+  }while(encryptionPwd1!=encryptionPwd2 && valid_count<3)
+  if (encryptionPwd1==encryptionPwd2)
+  {
+    return encryptionPwd1;
+  }
+  else {
+    return -1;
+  }
+
 }
 
 async function exportDatabase(destFolder) {
@@ -91,12 +142,12 @@ async function createManifestFile(path) {
 async function exportDockerEnvFile(destFolder) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
-  const cleaned_content = removeEncryptionEnvData(content)
+  let cleaned_content = removeMongoDBcredentails(content)
+
+  if (!command_args.includes('--non-interactive')) cleaned_content = removeEncryptionEnvData(content);
+
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! Important !!!!!!!!!!!!!!!!!!!!!!!!!!');
-  console.log('!!! Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 }
 
 async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
@@ -155,6 +206,16 @@ function removeEncryptionEnvData(content) {
   return output_lines.join('\n')
 }
 
+function removeMongoDBcredentails(content) {
+  const output_lines = []
+  content.split(/\r?\n/).forEach(line => {
+    if (!line.startsWith("APPSMITH_MONGODB")) {
+      output_lines.push(line)
+    }
+  });
+  return output_lines.join('\n')
+}
+
 function getBackupArchiveLimit(backupArchivesLimit) {
   if (!backupArchivesLimit)
     backupArchivesLimit = 4;
@@ -197,5 +258,8 @@ module.exports = {
   executeCopyCMD,
   removeEncryptionEnvData,
   getBackupArchiveLimit,
-  removeOldBackups
+  removeOldBackups,
+  removeMongoDBcredentails,
+  getEncryptionPasswordFromUser,
+  encryptBackupArchive
 };
