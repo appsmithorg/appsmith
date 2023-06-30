@@ -14,7 +14,7 @@ describe(
     it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
       dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
-        dataSources.CreateQueryFromActiveTab(mockDBName, false);
+        dataSources.CreateQueryFromActiveTab(mockDBName, true);
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "", "movies");
@@ -42,7 +42,7 @@ describe(
     it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
-        dataSources.CreateQueryFromActiveTab(mockDBName, false);
+        dataSources.CreateQueryFromActiveTab(mockDBName, true);
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         dataSources.RunQueryNVerifyResponseViews(10);
         dataSources.NavigateToActiveTab();

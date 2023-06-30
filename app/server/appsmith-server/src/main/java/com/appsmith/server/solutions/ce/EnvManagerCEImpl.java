@@ -15,7 +15,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
@@ -99,7 +98,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final UserService userService;
     private final AnalyticsService analyticsService;
     private final UserRepository userRepository;
-    private final PolicySolution policySolution;
     private final EmailSender emailSender;
 
     private final CommonConfig commonConfig;
@@ -135,7 +133,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             UserService userService,
                             AnalyticsService analyticsService,
                             UserRepository userRepository,
-                            PolicySolution policySolution,
                             EmailSender emailSender,
                             CommonConfig commonConfig,
                             EmailConfig emailConfig,
@@ -152,7 +149,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userService = userService;
         this.analyticsService = analyticsService;
         this.userRepository = userRepository;
-        this.policySolution = policySolution;
         this.emailSender = emailSender;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;

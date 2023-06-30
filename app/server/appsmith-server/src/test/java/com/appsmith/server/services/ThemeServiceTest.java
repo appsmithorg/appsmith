@@ -13,7 +13,6 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
@@ -47,9 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class ThemeServiceTest {
-
-    @Autowired
-    PolicySolution policySolution;
 
     @Autowired
     ApplicationRepository applicationRepository;
