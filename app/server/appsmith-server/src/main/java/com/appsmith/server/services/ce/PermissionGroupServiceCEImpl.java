@@ -12,7 +12,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -50,7 +50,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
     private final UserRepository userRepository;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
 
     private final ConfigRepository configRepository;
     private final PermissionGroupPermission permissionGroupPermission;
@@ -66,7 +66,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         SessionUserService sessionUserService,
                                         TenantService tenantService,
                                         UserRepository userRepository,
-                                        PolicyUtils policyUtils,
+                                        PolicySolution policySolution,
                                         ConfigRepository configRepository,
                                         PermissionGroupPermission permissionGroupPermission) {
 
@@ -74,7 +74,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.configRepository = configRepository;
         this.permissionGroupPermission = permissionGroupPermission;
     }
@@ -88,8 +88,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     // so user can unassign himself from permission group
                     permissions.add(new Permission(pg.getId(), UNASSIGN_PERMISSION_GROUPS));
                     pg.setPermissions(permissions);
-                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
-                    policyUtils.addPoliciesToExistingObject(policyMap, pg);
+                    Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
+                    policySolution.addPoliciesToExistingObject(policyMap, pg);
                     return pg;
                 })
                 .flatMap(pg -> repository.save(pg));

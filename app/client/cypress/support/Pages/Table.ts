@@ -26,7 +26,8 @@ type columnTypeValues =
   | "Date"
   | "Button"
   | "Menu button"
-  | "Icon button";
+  | "Icon button"
+  | "Select";
 
 export class Table {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -142,6 +143,7 @@ export class Table {
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
   _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
+  _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
@@ -154,6 +156,7 @@ export class Table {
   _tableColumnHeaderMenuTrigger = (columnName: string) =>
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
+  _selectMenuItem = ".menu-item-text";
 
   public WaitUntilTableLoad(
     rowIndex = 0,
