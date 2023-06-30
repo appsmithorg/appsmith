@@ -77,18 +77,21 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
             return Mono.just(check);
         }
 
-        // checking further against the current user instead of assuming the context is user object
+        if(context instanceof User) {
+            User user = (User) context;
+            String userIdentifier = userIdentifierService.getUserIdentifier((User) context);
 
-        return featureFlagValidationContextConfig.currentUserValidationContextProvider.getFeatureFlagValidationContext().map(user -> {
-            String userIdentifier = userIdentifierService.getUserIdentifier(user);
             if (this.featureFlagCache.containsKey(userIdentifier) &&
                     this.featureFlagCache.get(userIdentifier).containsKey(featureName)) {
-                return this.featureFlagCache.get(userIdentifier).get(featureName);
+                return Mono.just(this.featureFlagCache.get(userIdentifier).get(featureName));
             } else {
-                return this.forceAllRemoteFeatureFlagsForUser(user)
-                        .flatMap(featureMap -> Mono.just(featureMap.getOrDefault(featureName, false)));
+                return this.forceAllRemoteFeatureFlagsForUser((User) context)
+                        .flatMap(featureMap -> Mono.justOrEmpty(featureMap.get(featureName)))
+                        .switchIfEmpty(Mono.just(false));
             }
-        }).hasElement();
+        } else {
+            return Mono.just(false);
+        }
     }
 
     @Override
