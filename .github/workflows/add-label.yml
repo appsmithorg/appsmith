@@ -23,10 +23,10 @@ jobs:
         id: check_files_changed
         run: |
           filesChangedCount=$(echo "${{ steps.files.outputs.files_changed }}" | wc -l)
-           if [[ $filesChangedCount -gt 0 ]]; then
+          if [[ "$filesChangedCount" -gt 0 ]]; then
             echo "::set-output name=files_changed_count::$filesChangedCount"
            else
-            echo "No files changed in the specified folder."
+            echo "No files changed in the specified folder"
             exit 1
            fi
 
