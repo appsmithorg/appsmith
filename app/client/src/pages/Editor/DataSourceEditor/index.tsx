@@ -87,7 +87,7 @@ interface ReduxStateProps {
   canManageDatasource: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   datasourceId: string;
-  datasourceStructure: DatasourceStructure | undefined;
+  datasourceStructure?: DatasourceStructure;
   formData: Datasource | ApiDatasourceForm;
   formName: string;
   isSaving: boolean;
@@ -767,7 +767,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
-  // A/B feature flag for datsource structure.
   const datasourceStructure =
     state.entities.datasources.structure[datasourceId];
   const isDatasourceStructureLoading = getIsFetchingDatasourceStructure(

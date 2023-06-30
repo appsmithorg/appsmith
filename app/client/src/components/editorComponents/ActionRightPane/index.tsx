@@ -162,7 +162,7 @@ type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
   label: string;
-  customLabelComponent?: JSX.Element | undefined;
+  customLabelComponent?: JSX.Element;
 };
 
 export function Collapsible({
