@@ -41,6 +41,12 @@ const InstructionsWrapper = styled.div`
   flex-direction: column;
   width: 296px;
   pointer-events: auto;
+  img {
+    margin-top: 8px;
+    display: flex;
+    align-self: center;
+    max-height: 220px;
+  }
 `;
 
 type RefRectParams = {
