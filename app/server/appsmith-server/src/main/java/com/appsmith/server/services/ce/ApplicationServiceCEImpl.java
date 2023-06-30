@@ -2,14 +2,12 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
@@ -17,7 +15,6 @@ import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
@@ -28,21 +25,19 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PolicySolution;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -76,16 +71,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     private final PolicySolution policySolution;
     private final ConfigService configService;
-    private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
-
     private final PermissionGroupService permissionGroupService;
-
-    private final TenantService tenantService;
-
+    private final NewActionRepository newActionRepository;
     private final AssetService assetService;
 
-    private final UserRepository userRepository;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final static Integer MAX_RETRIES = 5;
@@ -99,24 +89,20 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     AnalyticsService analyticsService,
                                     PolicySolution policySolution,
                                     ConfigService configService,
-                                    SessionUserService sessionUserService,
                                     ResponseUtils responseUtils,
                                     PermissionGroupService permissionGroupService,
-                                    TenantService tenantService,
+                                    NewActionRepository newActionRepository,
                                     AssetService assetService,
-                                    UserRepository userRepository,
                                     DatasourcePermission datasourcePermission,
                                     ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policySolution = policySolution;
         this.configService = configService;
-        this.sessionUserService = sessionUserService;
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
-        this.tenantService = tenantService;
+        this.newActionRepository = newActionRepository;
         this.assetService = assetService;
-        this.userRepository = userRepository;
         this.datasourcePermission = datasourcePermission;
         this.applicationPermission = applicationPermission;
     }
@@ -437,37 +423,40 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, String permissionGroupId,
+    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application,
+                                                                            String permissionGroupId,
                                                                             Boolean addViewAccess) {
 
         Map<String, Policy> applicationPolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> pagePolicyMap = policySolution
-                .generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
-        Map<String, Policy> actionPolicyMap = policySolution
-                .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
+
+        Flux<Mono<Void>> updateInheritedDomainsFlux = updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
+        Flux<Mono<Void>> updateIndependentDomainsFlux = updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
+
+        return updateInheritedDomainsFlux
+                .thenMany(updateIndependentDomainsFlux)
+                .then()
+                .thenReturn(application)
+                .flatMap(app -> {
+                    Application updatedApplication;
+                    if (addViewAccess) {
+                        updatedApplication = policySolution.addPoliciesToExistingObject(applicationPolicyMap, application);
+                    } else {
+                        updatedApplication = policySolution.removePoliciesFromExistingObject(applicationPolicyMap, application);
+                    }
+                    return repository.save(updatedApplication);
+                });
+
+    }
+
+    private Flux<Mono<Void>> updatePoliciesForIndependentDomains(Application application,
+                                                                 String permissionGroupId,
+                                                                 Boolean addViewAccess) {
+
         Map<String, Policy> datasourcePolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(datasourcePermission.getExecutePermission(), permissionGroupId);
-        Map<String, Policy> themePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
-                applicationPolicyMap, Application.class, Theme.class
-        );
 
-        final Flux<NewPage> updatedPagesFlux = policySolution
-                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess);
-        // Use the same policy map as actions for action collections since action collections have the same kind of permissions
-        final Flux<ActionCollection> updatedActionCollectionsFlux = policySolution
-                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess);
-        Flux<Theme> updatedThemesFlux = policySolution.updateThemePolicies(application, themePolicyMap, addViewAccess);
-        final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
-                .collectList()
-                .thenMany(updatedActionCollectionsFlux)
-                .collectList()
-                .then(Mono.justOrEmpty(application.getId()))
-                .thenMany(updatedThemesFlux)
-                .collectList()
-                .flatMapMany(applicationId -> policySolution.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess));
-
-        return updatedActionsFlux
+        Mono<Void> updatedDatasourcesMono = newActionRepository.findByApplicationId(application.getId())
                 .collectList()
                 .flatMap(actions -> {
                     Set<String> datasourceIds = new HashSet<>();
@@ -490,24 +479,49 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // Update the datasource policies without permission since the applications and datasources are at
                     // the same level in the hierarchy. A user may have permission to change view on application, but may
                     // not have explicit permissions on the datasource.
-                    Mono<List<Datasource>> updatedDatasourcesMono =
+                    Mono<Void> updatedDatasourcesMono1 =
                             policySolution.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(datasourceIds,
                                             datasourcePolicyMap, addViewAccess)
-                                    .collectList();
+                                    .then();
 
-                    return updatedDatasourcesMono;
-                })
-                .thenReturn(application)
-                .flatMap(app -> {
-                    Application updatedApplication;
-                    if (addViewAccess) {
-                        updatedApplication = policySolution.addPoliciesToExistingObject(applicationPolicyMap, application);
-                    } else {
-                        updatedApplication = policySolution.removePoliciesFromExistingObject(applicationPolicyMap, application);
-                    }
-                    return repository.save(updatedApplication);
+                    return updatedDatasourcesMono1;
                 });
 
+        return Flux.just(
+                updatedDatasourcesMono
+        );
+    }
+
+    protected Flux<Mono<Void>> updatePoliciesForInheritingDomains(Application application,
+                                                                  Map<String, Policy> applicationPolicyMap,
+                                                                  Boolean addViewAccess) {
+        Map<String, Policy> pagePolicyMap = policySolution
+                .generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
+        Map<String, Policy> actionPolicyMap = policySolution
+                .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
+        Map<String, Policy> themePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Theme.class
+        );
+
+        final Mono<Void> updatedPagesMono = policySolution
+                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess)
+                .then();
+        final Mono<Void> updatedActionsMono = policySolution
+                .updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess)
+                .then();
+        // Use the same policy map as actions for action collections since action collections have the same kind of permissions
+        final Mono<Void> updatedActionCollectionsMono = policySolution
+                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess)
+                .then();
+        final Mono<Void> updatedThemesMono = policySolution.updateThemePolicies(application, themePolicyMap, addViewAccess)
+                .then();
+
+        return Flux.just(
+                updatedPagesMono,
+                updatedActionsMono,
+                updatedActionCollectionsMono,
+                updatedThemesMono
+        );
     }
 
     public Mono<Application> setTransientFields(Application application) {
