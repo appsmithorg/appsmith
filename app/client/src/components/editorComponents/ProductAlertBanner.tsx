@@ -6,6 +6,11 @@ import type { ProductAlertState } from "reducers/uiReducers/usersReducer";
 import { setMessageConfig } from "@appsmith/sagas/userSagas";
 import type { CalloutLinkProps } from "design-system/build/Callout/Callout.types";
 import moment from "moment/moment";
+import {
+  createMessage,
+  I_UNDERSTAND,
+  LEARN_MORE,
+} from "@appsmith/constants/messages";
 
 const AlertContainer = styled.div`
   position: absolute;
@@ -56,14 +61,14 @@ const ProductAlertBanner = () => {
 
   if (message.learnMoreLink) {
     links.push({
-      children: "Learn More",
+      children: createMessage(LEARN_MORE),
       to: message.learnMoreLink,
     });
   }
 
   if (message.canDismiss) {
     links.push({
-      children: "Dismiss",
+      children: createMessage(I_UNDERSTAND),
       onClick: () => {
         setMessageConfig(message.messageId, {
           dismissed: true,
@@ -78,7 +83,7 @@ const ProductAlertBanner = () => {
     <AlertContainer>
       <AnimationContainer>
         <Callout
-          isClosable={message.remindLaterDays > 0}
+          isClosable={message.remindLaterDays > 0 || message.canDismiss}
           kind={"warning"}
           links={links}
           onClose={() => {
@@ -89,8 +94,12 @@ const ProductAlertBanner = () => {
                   .add(message.remindLaterDays, "days")
                   .toDate(),
               });
+            } else if (message.canDismiss) {
+              setMessageConfig(message.messageId, {
+                dismissed: true,
+                snoozeTill: new Date(),
+              });
             }
-
             setDismissed(true);
           }}
         >
