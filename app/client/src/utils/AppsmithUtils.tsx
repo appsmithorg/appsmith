@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/react";
 import type { Property } from "api/ActionAPI";
 import type { AppIconName } from "design-system-old";
 import { AppIconCollection } from "design-system-old";
-import _ from "lodash";
+import _, { isPlainObject } from "lodash";
 import * as log from "loglevel";
 import { osName } from "react-device-detect";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -456,4 +456,32 @@ export function areArraysEqual(arr1: string[], arr2: string[]) {
   if ([...arr1].sort().join(",") === [...arr2].sort().join(",")) return true;
 
   return false;
+}
+
+export enum DataType {
+  OBJECT = "OBJECT",
+  NUMBER = "NUMBER",
+  ARRAY = "ARRAY",
+  BOOLEAN = "BOOLEAN",
+  STRING = "STRING",
+  NULL = "NULL",
+  UNDEFINED = "UNDEFINED",
+}
+
+export function getDatatype(value: unknown) {
+  if (typeof value === "string") {
+    return DataType.STRING;
+  } else if (typeof value === "number") {
+    return DataType.NUMBER;
+  } else if (typeof value === "boolean") {
+    return DataType.BOOLEAN;
+  } else if (isPlainObject(value)) {
+    return DataType.OBJECT;
+  } else if (Array.isArray(value)) {
+    return DataType.ARRAY;
+  } else if (value === null) {
+    return DataType.NULL;
+  } else if (value === undefined) {
+    return DataType.UNDEFINED;
+  }
 }

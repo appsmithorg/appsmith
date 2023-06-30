@@ -26,7 +26,8 @@ type columnTypeValues =
   | "Date"
   | "Button"
   | "Menu button"
-  | "Icon button";
+  | "Icon button"
+  | "Select";
 
 export class Table {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -142,6 +143,7 @@ export class Table {
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
   _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
+  _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
@@ -150,6 +152,11 @@ export class Table {
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
   _updateMode = (mode: "Single" | "Multi") =>
     "//span[text()='" + mode + " Row']/ancestor::div";
+  _hideMenu = ".hide-menu";
+  _tableColumnHeaderMenuTrigger = (columnName: string) =>
+    `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
+  _columnHeaderMenu = ".bp3-menu";
+  _selectMenuItem = ".menu-item-text";
 
   public WaitUntilTableLoad(
     rowIndex = 0,
@@ -666,5 +673,18 @@ export class Table {
   public AddSampleTableData() {
     this.propPane.EnterJSContext("Table data", JSON.stringify(sampleTableData));
     this.ChangeColumnType("action", "Button", "v2");
+  }
+
+  public SortColumn(columnName: string, direction: string) {
+    this.agHelper.GetNClick(
+      this._tableColumnHeaderMenuTrigger(columnName),
+      0,
+      true,
+    );
+    this.agHelper.GetNClickByContains(
+      this._columnHeaderMenu,
+      `Sort column ${direction}`,
+    );
+    this.agHelper.Sleep(500);
   }
 }

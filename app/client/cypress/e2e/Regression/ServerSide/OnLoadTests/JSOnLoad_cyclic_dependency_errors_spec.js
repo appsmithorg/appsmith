@@ -39,7 +39,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     () => {
       //Step1 : Create Mock Users DB
       dataSources.CreateMockDB("Users").then((dbName) => {
-        dataSources.CreateQueryFromActiveTab(dbName, false);
+        dataSources.CreateQueryFromActiveTab(dbName, true);
         dataSources.ToggleUsePreparedStatement(false);
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       });

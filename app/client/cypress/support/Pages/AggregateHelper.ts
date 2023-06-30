@@ -128,7 +128,7 @@ export class AggregateHelper extends ReusableHelper {
           this.RefreshPage(reloadWithoutCache);
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-          this.Sleep(); //settling time for dsl
+          this.Sleep(2000); //settling time for dsl
           this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
           this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
         });
@@ -239,7 +239,11 @@ export class AggregateHelper extends ReusableHelper {
   public GetNAssertElementText(
     selector: string,
     text: string,
-    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
+    textPresence:
+      | "have.text"
+      | "not.have.text"
+      | "contain.text"
+      | "not.contain.text" = "have.text",
     index = 0,
   ) {
     if (index >= 0)
@@ -819,17 +823,17 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public GetElementLength(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.its("length");
+    return this.GetElement(selector).its("length");
   }
 
   public Sleep(timeout = 1000) {
     cy.wait(timeout);
   }
 
-  public RefreshPage(reloadWithoutCache = true, networkCall = "getWorkspace") {
+  public RefreshPage(
+    reloadWithoutCache = true,
+    networkCallAlias = "getWorkspace",
+  ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
     // cy.window()
@@ -840,7 +844,7 @@ export class AggregateHelper extends ReusableHelper {
       this.assertHelper.AssertDocumentReady();
     });
     this.Sleep(2000);
-    this.assertHelper.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
+    this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({

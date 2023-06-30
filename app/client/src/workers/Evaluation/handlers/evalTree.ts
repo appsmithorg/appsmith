@@ -27,6 +27,7 @@ import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToD
 import type { LintTreeSagaRequestData } from "workers/Linting/types";
 import { WorkerMessenger } from "../fns/utils/Messenger";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -261,6 +262,8 @@ export default function (request: EvalWorkerSyncRequest) {
     unEvalUpdates = [];
   }
 
+  const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
+
   const evalTreeResponse: EvalTreeResponseData = {
     dataTree,
     dependencies,
@@ -276,6 +279,7 @@ export default function (request: EvalWorkerSyncRequest) {
     pathsToClearErrorsFor,
     isNewWidgetAdded,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
+    jsVarsCreatedEvent,
   };
 
   return evalTreeResponse;
