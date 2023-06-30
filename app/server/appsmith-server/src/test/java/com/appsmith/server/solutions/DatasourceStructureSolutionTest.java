@@ -4,6 +4,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
@@ -31,12 +32,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static com.appsmith.external.models.DatasourceStructure.TableType.TABLE;
@@ -342,4 +345,90 @@ public class DatasourceStructureSolutionTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyDatasourceStorageStructureEntriesWithTwoEnvironmentId() {
+        doReturn(Mono.just(generateDatasourceStructureObject()))
+                .when(datasourceContextService).retryOnce(any(), any());
+
+        // creating an entry with environmentId as randomId and then
+        datasourceStructureService.
+                saveStructure(datasourceId, "randomId", generateDatasourceStructureObject())
+                .block();
+
+        datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId).block();
+
+        Mono<DatasourceStorageStructure> datasourceStorageStructureMono =
+                datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, defaultEnvironmentId);
+
+        StepVerifier
+                .create(datasourceStorageStructureMono)
+                .assertNext(datasourceStorageStructure -> {
+                    assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
+                    assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
+                })
+                .verifyComplete();
+
+        Mono<DatasourceStorageStructure> datasourceStorageStructureMonoWithRandomEnvironmentId =
+                datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, "randomId");
+
+        StepVerifier
+                .create(datasourceStorageStructureMonoWithRandomEnvironmentId)
+                .assertNext(datasourceStorageStructure -> {
+                    assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
+                    assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo("randomId");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyDuplicateKeyErrorOnSave() {
+        doReturn(Mono.just(generateDatasourceStructureObject()))
+                .when(datasourceContextService).retryOnce(any(), any());
+
+        datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId).block();
+
+        DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
+        datasourceStorageStructure.setDatasourceId(datasourceId);
+        datasourceStorageStructure.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorageStructure.setStructure(new DatasourceStructure());
+
+        Mono<DatasourceStorageStructure>  datasourceStorageStructureMono =
+                datasourceStructureService.save(datasourceStorageStructure);
+
+        StepVerifier
+                .create(datasourceStorageStructureMono)
+                .verifyErrorSatisfies(error ->  {
+                    assertThat(error).isInstanceOf(DuplicateKeyException.class);
+                });
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyEmptyDatasourceStructureObjectIfDatasourceIsInvalid() {
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setDatasourceId(datasourceId);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorage.setInvalids(new HashSet<>());
+        datasourceStorage.getInvalids().add("random invalid");
+
+        doReturn(Mono.just(datasourceStorage))
+                .when(datasourceStorageService).findByDatasourceAndEnvironmentId(any(), any());
+
+        Mono<DatasourceStructure> datasourceStructureMono =
+                datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId);
+
+        StepVerifier
+                .create(datasourceStructureMono)
+                .assertNext(datasourceStructure -> {
+                    assertThat(datasourceStructure.getTables()).isNull();
+                    assertThat(datasourceStructure.getError()).isNull();
+                })
+                .verifyComplete();
+
+    }
+
 }

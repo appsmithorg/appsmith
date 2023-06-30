@@ -8,7 +8,8 @@ import {
 
 import type { User } from "constants/userConstants";
 import { DefaultCurrentUserDetails } from "constants/userConstants";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -21,8 +22,14 @@ const initialState: UsersReduxState = {
   current: undefined,
   currentUser: undefined,
   featureFlag: {
-    data: {},
+    data: DEFAULT_FEATURE_FLAG_VALUE,
     isFetched: false,
+  },
+  productAlert: {
+    config: {
+      dismissed: false,
+      snoozeTill: new Date(),
+    },
   },
 };
 
@@ -185,6 +192,13 @@ const usersReducer = createReducer(initialState, {
       isFetched: true,
     },
   }),
+  [ReduxActionTypes.FETCH_PRODUCT_ALERT_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<ProductAlert>,
+  ) => ({
+    ...state,
+    productAlert: action.payload,
+  }),
 });
 
 export interface PropertyPanePositionConfig {
@@ -194,6 +208,26 @@ export interface PropertyPanePositionConfig {
     top: number;
   };
 }
+
+export interface ProductAlert {
+  messageId: string;
+  title: string;
+  message: string;
+  canDismiss: boolean;
+  remindLaterDays: number;
+  learnMoreLink?: string;
+}
+
+export interface ProductAlertConfig {
+  dismissed: boolean;
+  snoozeTill: Date;
+}
+
+export interface ProductAlertState {
+  message?: ProductAlert;
+  config: ProductAlertConfig;
+}
+
 export interface UsersReduxState {
   current?: User;
   list: User[];
@@ -209,6 +243,7 @@ export interface UsersReduxState {
     isFetched: boolean;
     data: FeatureFlags;
   };
+  productAlert: ProductAlertState;
 }
 
 export default usersReducer;

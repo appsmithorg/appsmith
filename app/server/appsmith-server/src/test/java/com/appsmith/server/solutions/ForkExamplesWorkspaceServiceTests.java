@@ -1282,11 +1282,11 @@ public class ForkExamplesWorkspaceServiceTests {
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
                     DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
-                    assertThat(storage1.getDatasourceConfiguration().getAuthentication()).isNull();
+                    assertThat(storage1.getDatasourceConfiguration()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
                     DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
-                    assertThat(storage2.getDatasourceConfiguration().getAuthentication()).isNull();
+                    assertThat(storage2.getDatasourceConfiguration()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { kebabCase } from "lodash";
 
 import {
   MenuItem,
@@ -94,13 +95,16 @@ export function NavigationMenuItem({
   switch (menuItemData.type) {
     case MenuTypes.MENU:
       return (
-        <MenuItem onClick={(e) => handleClick(e, menuItemData)}>
+        <MenuItem
+          data-testid={`t--application-edit-menu-${kebabCase(text)}`}
+          onClick={(e) => handleClick(e, menuItemData)}
+        >
           {menuItemData.text}
         </MenuItem>
       );
     case MenuTypes.PARENT:
       return (
-        <MenuSub>
+        <MenuSub data-testid={`t--application-edit-menu-${kebabCase(text)}`}>
           <MenuSubTrigger>{menuItemData.text}</MenuSubTrigger>
           <MenuSubContent width="214px">
             {menuItemData?.children?.map((subitem, idx) => (
@@ -122,6 +126,7 @@ export function NavigationMenuItem({
       return (
         <ReconfirmMenuItem
           className="error-menuitem"
+          data-testid={`t--application-edit-menu-${kebabCase(text)}`}
           onClick={(e) => handleReconfirmClick(e, menuItemData)}
         >
           {confirm.text}

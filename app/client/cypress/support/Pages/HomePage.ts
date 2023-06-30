@@ -234,7 +234,6 @@ export class HomePage {
     if (skipSignposting) {
       this.agHelper.AssertElementVisible(this.entityExplorer._entityExplorer);
       this.onboarding.closeIntroModal();
-      this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
@@ -254,6 +253,7 @@ export class HomePage {
 
   //Maps to AppSetupForRename in command.js
   public RenameApplication(appName: string) {
+    this.onboarding.closeIntroModal();
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
         cy.get(this._applicationName).click();
@@ -512,6 +512,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
     this.agHelper.ClickButton("Fork");
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   public DeleteApplication(appliName: string) {

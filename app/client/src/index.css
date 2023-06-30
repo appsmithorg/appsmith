@@ -10,7 +10,7 @@
 @import "assets/fonts/google/index.css";
 
 :root {
-  /* TODO: This needs to be fixed! This oveerride is to mainatain branding changes. */
+  /* TODO: This needs to be fixed! This override is to maintain branding changes. */
   --ads-color-background-secondary: var(--ads-v2-color-bg-subtle);
 }
 
