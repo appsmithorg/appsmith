@@ -241,8 +241,8 @@ public class FileUtilsImpl implements FileInterface {
                     Set<Map.Entry<String, Object>> pageEntries = applicationGitReference.getPages().entrySet();
 
                     Set<String> validPages = new HashSet<>();
-                    Map<String, String> validWidgetToParentMap = new HashMap<>();
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
+                        Map<String, String> validWidgetToParentMap = new HashMap<>();
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
@@ -262,7 +262,7 @@ public class FileUtilsImpl implements FileInterface {
                                     childPath = childPath.replace(widgetName, CommonConstants.EMPTY_STRING);
                                 }
                                 Path path = Paths.get(String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
-                                validWidgetToParentMap.put(widgetName,  path.toFile().getName());
+                                validWidgetToParentMap.put(widgetName,  path.toFile().toString());
                                 saveWidgets(
                                         jsonObject,
                                         widgetName,
@@ -962,7 +962,8 @@ public class FileUtilsImpl implements FileInterface {
                 } else {
                     deleteFile(file.toPath());
                 }
-            } else if(!file.getParentFile().getName().equals(validWidgetToParentMap.get(name)) && !name.equals(validWidgetToParentMap.get(name))) {
+            } else if(!file.getParentFile().getPath().toString().equals(validWidgetToParentMap.get(name))
+                    && !file.getPath().toString().equals(validWidgetToParentMap.get(name))) {
                 if (file.isDirectory()) {
                     deleteDirectory(file.toPath());
                 } else {
