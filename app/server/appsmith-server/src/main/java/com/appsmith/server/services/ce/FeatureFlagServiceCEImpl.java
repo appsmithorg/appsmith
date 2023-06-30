@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -49,8 +48,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final CloudServicesConfig cloudServicesConfig;
 
-    @Value("${appsmith.feature-flag.cache.in.minutes}")
-    private long featureFlagCacheTime;
+    private long featureFlagCacheTimeMin = 120;
 
     private final UserIdentifierService userIdentifierService;
 
@@ -97,7 +95,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return fetchUserCachedFlags(userIdentifier)
                 .flatMap(object ->{
                     CachedFlags cachedFlags = (CachedFlags) object;
-                    if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTime
+                    if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTimeMin
                         && cachedFlags.getFlags().containsKey(featureName)
                     ){
                         return Mono.just(cachedFlags.getFlags().get(featureName));
@@ -161,7 +159,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     return fetchUserCachedFlags(userIdentifier)
                             .flatMap(object-> {
                         CachedFlags cachedFlags = (CachedFlags) object;
-                        if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTime){
+                        if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTimeMin){
                             return Mono.just(cachedFlags.getFlags());
                         }else {
                             return this.forceAllRemoteFeatureFlagsForUser(user);
@@ -191,11 +189,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     cachedFlags.setRefreshedAt(Instant.now());
                     cachedFlags.setFlags(newValue.get(userIdentifier));
 
-                    return Mono.just(newValue.get(userIdentifier))
-                            .zipWith(setUserCachedFlags(userIdentifier, (Object) cachedFlags));
-                })
-                .map(pair->{
-                    return pair.getT1();
+                    return Mono.just(setUserCachedFlags(userIdentifier, (Object) cachedFlags))
+                            .thenReturn(newValue.get(userIdentifier));
                 });
     }
     
