@@ -20,6 +20,7 @@ describe("Dynamic Height Width validation", function () {
         // Select the Text Widget and capture its initial height
         entityExplorer.SelectEntityByName("Button1", "Container1");
         agHelper.PressDelete();
+        agHelper.WaitUntilAllToastsDisappear();
         agHelper
           .GetWidgetCSSHeight(
             locators._widgetInDeployed(draggableWidgets.CONTAINER),
@@ -28,6 +29,7 @@ describe("Dynamic Height Width validation", function () {
             expect(initialContainerHeight).to.not.equal(updatedContainerHeight);
             expect(updatedContainerHeight).to.equal("100px");
             agHelper.TypeText(locators._body, `{${modifierKey}}z`, 0, true);
+            agHelper.Sleep(2000);
             agHelper
               .GetWidgetCSSHeight(
                 locators._widgetInDeployed(draggableWidgets.CONTAINER),

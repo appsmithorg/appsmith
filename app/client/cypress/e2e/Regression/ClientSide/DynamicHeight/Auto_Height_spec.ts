@@ -55,7 +55,7 @@ describe("Dynamic Height Width validation", function () {
       });
     agHelper
       .GetWidgetCSSFrAttribute(
-        `${locators._propertyControl} ${locators._fontSelect}`,
+        `${locators._propertyControl}${locators._fontSelect}`,
         "font-family",
       )
       .then((dropdownFont) => {

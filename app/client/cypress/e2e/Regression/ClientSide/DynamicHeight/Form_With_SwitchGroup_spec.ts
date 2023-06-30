@@ -66,7 +66,7 @@ describe("Dynamic Height Width validation", function () {
           });
       });
     agHelper.GetNClick(
-      `${locators._widgetInDeployed(draggableWidgets.SWITCHGROUP)}${
+      `${locators._widgetInDeployed(draggableWidgets.SWITCHGROUP)} ${
         pageSettings.locators._setHomePageToggle
       }`,
     );
