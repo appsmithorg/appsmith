@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.git.constants.CommonConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +34,7 @@ public class DSLTransformHelperTest {
         JSONObject jsonObject = new JSONObject();
         JSONArray children = new JSONArray();
         children.put(new JSONObject());
-        jsonObject.put("children", children);
+        jsonObject.put(CommonConstants.CHILDREN, children);
 
         boolean result = DSLTransformerHelper.hasChildren(jsonObject);
 
@@ -49,15 +50,13 @@ public class DSLTransformHelperTest {
         Assertions.assertFalse(result);
     }
 
-    /*@Test
+    @Test
     public void testIsCanvasWidget_WithCanvasWidget() {
         JSONObject widgetObject = new JSONObject();
-        widgetObject.put("widgetType", "CANVAS_WIDGET_1");
-
+        widgetObject.put(CommonConstants.WIDGET_TYPE, "CANVAS_WIDGET_1");
         boolean result = DSLTransformerHelper.isCanvasWidget(widgetObject);
-
         Assertions.assertTrue(result);
-    }*/
+    }
 
     @Test
     public void testIsCanvasWidget_WithNonCanvasWidget() {
@@ -139,31 +138,6 @@ public class DSLTransformHelperTest {
         Assertions.assertEquals(mainContainer, result);
     }
 
-    /*@Test
-    public void testGetNestedDSL_WithSingleWidget() {
-        JSONObject mainContainer = new JSONObject();
-        JSONArray children = new JSONArray();
-        mainContainer.put("children", children);
-
-        JSONObject widgetObject = new JSONObject();
-        widgetObject.put("type", "CANVAS_WIDGET");
-        widgetObject.put("id", "widget1");
-        jsonMap.put("widget1.json", widgetObject);
-
-        List<String> pathList = new ArrayList<>();
-        pathList.add("widget1");
-        pathMapping.put("mainContainer", pathList);
-
-        JSONObject result = DSLTransformerHelper.getNestedDSL(jsonMap, pathMapping, mainContainer);
-
-        Assertions.assertEquals(mainContainer, result);
-        JSONArray updatedChildren = result.getJSONArray("children");
-        //Assertions.assertEquals(1, updatedChildren.length());
-        JSONObject updatedWidget = updatedChildren.getJSONObject(0);
-        JSONArray updatedWidgetChildren = updatedWidget.getJSONArray("children");
-        Assertions.assertEquals(0, updatedWidgetChildren.length());
-    }*/
-
     @Test
     public void testGetChildren_WithNoChildren() {
         JSONObject widgetObject = new JSONObject();
@@ -182,12 +156,12 @@ public class DSLTransformHelperTest {
     @Test
     public void testGetChildren_WithNestedChildren() {
         JSONObject widgetObject = new JSONObject();
-        widgetObject.put("type", "CANVAS_WIDGET");
+        widgetObject.put(CommonConstants.WIDGET_TYPE, "CANVAS_WIDGET");
         widgetObject.put("id", "widget1");
         jsonMap.put("widget1.json", widgetObject);
 
         JSONObject childObject = new JSONObject();
-        childObject.put("type", "BUTTON_WIDGET");
+        childObject.put(CommonConstants.WIDGET_TYPE, "BUTTON_WIDGET");
         childObject.put("id", "widget2");
         jsonMap.put("widget2.json", childObject);
 
@@ -198,12 +172,12 @@ public class DSLTransformHelperTest {
         JSONObject result = DSLTransformerHelper.getChildren("widget1", jsonMap, pathMapping);
 
         Assertions.assertEquals(widgetObject, result);
-        JSONArray children = result.optJSONArray("children");
+        JSONArray children = result.optJSONArray(CommonConstants.CHILDREN);
         Assertions.assertNotNull(children);
         Assertions.assertEquals(1, children.length());
         JSONObject child = children.getJSONObject(0);
         Assertions.assertEquals(childObject, child);
-        JSONArray childChildren = child.optJSONArray("children");
+        JSONArray childChildren = child.optJSONArray(CommonConstants.CHILDREN);
         Assertions.assertNull(childChildren);
     }
 
@@ -247,59 +221,35 @@ public class DSLTransformHelperTest {
     public void testAppendChildren_WithNoExistingChildren() {
         JSONObject parent = new JSONObject();
         JSONArray childWidgets = new JSONArray()
-                .put(new JSONObject().put("name", "Child1"))
-                .put(new JSONObject().put("name", "Child2"));
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
 
         JSONObject result = DSLTransformerHelper.appendChildren(parent, childWidgets);
 
         JSONArray expectedChildren = new JSONArray()
-                .put(new JSONObject().put("name", "Child1"))
-                .put(new JSONObject().put("name", "Child2"));
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
 
-        Assertions.assertEquals(expectedChildren.toString(), result.optJSONArray("children").toString());
-    }
-
-    @Test
-    public void testAppendChildren_WithExistingCanvasWidget() {
-        JSONObject parent = new JSONObject();
-        JSONObject canvasWidget = new JSONObject()
-                .put("widgetType", "CANVAS_WIDGET")
-                .put("children", new JSONArray().put(new JSONObject().put("name", "ExistingChild")));
-        parent.put("children", new JSONArray().put(canvasWidget));
-        JSONArray childWidgets = new JSONArray()
-                .put(new JSONObject().put("name", "Child1"))
-                .put(new JSONObject().put("name", "Child2"));
-
-        JSONObject result = DSLTransformerHelper.appendChildren(parent, childWidgets);
-
-        JSONArray expectedChildren = new JSONArray()
-                .put(new JSONObject()
-                        .put("widgetType", "CANVAS_WIDGET")
-                        .put("children", new JSONArray()
-                                .put(new JSONObject().put("name", "ExistingChild"))
-                                .put(new JSONObject().put("name", "Child1"))
-                                .put(new JSONObject().put("name", "Child2"))));
-
-        //Assertions.assertEquals(expectedChildren.toString(), result.optJSONArray("children").toString());
+        Assertions.assertEquals(expectedChildren.toString(), result.optJSONArray(CommonConstants.CHILDREN).toString());
     }
 
     @Test
     public void testAppendChildren_WithExistingMultipleChildren() {
         JSONObject parent = new JSONObject();
         JSONArray existingChildren = new JSONArray()
-                .put(new JSONObject().put("name", "ExistingChild1"))
-                .put(new JSONObject().put("name", "ExistingChild2"));
-        parent.put("children", existingChildren);
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild1"))
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild2"));
+        parent.put(CommonConstants.CHILDREN, existingChildren);
         JSONArray childWidgets = new JSONArray()
-                .put(new JSONObject().put("name", "Child1"))
-                .put(new JSONObject().put("name", "Child2"));
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
 
         JSONObject result = DSLTransformerHelper.appendChildren(parent, childWidgets);
 
         JSONArray expectedChildren = new JSONArray()
-                .put(new JSONObject().put("name", "Child1"))
-                .put(new JSONObject().put("name", "Child2"));
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
 
-        Assertions.assertEquals(expectedChildren.toString(), result.optJSONArray("children").toString());
+        Assertions.assertEquals(expectedChildren.toString(), result.optJSONArray(CommonConstants.CHILDREN).toString());
     }
 }
