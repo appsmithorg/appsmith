@@ -23,19 +23,19 @@ jobs:
         id: check_files_changed
         run: |
           filesChangedCount=$(echo "${{ steps.files.outputs.files_changed }}" | wc -l)
-          if [[ "$filesChangedCount" -gt 0 ]]; then
-            echo "::set-output name=files_changed_count::$filesChangedCount"
-           else
+          if [[ -z "$filesChangedCount" ]]; then
             echo "No files changed in the specified folder"
             exit 1
-           fi
+          else
+            echo "::set-output name=files_changed_count::$filesChangedCount"            
+          fi
 
       - name: Check if PR is merged
         id: check_pr_merged
         run: echo "PR_MERGED=$(jq --raw-output .pull_request.merged $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
 
       - name: Add label
-        if: ${{ env.PR_MERGED == 'true' && steps.check_files_changed.outputs.files_changed_count > 0 }}
+        if: ${{ env.PR_MERGED == 'true' && steps.check_files_changed.outputs.files_changed_count != '' }}
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
