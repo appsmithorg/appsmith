@@ -434,9 +434,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         List<Mono<Void>> updateInheritedDomainsList = updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
         List<Mono<Void>> updateIndependentDomainsList = updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
 
-        return Mono.zip(updateInheritedDomainsList, monos -> true)
-                .then(Mono.zip(updateIndependentDomainsList, monos -> true))
-                .thenReturn(application)
+        return Flux.fromIterable(updateInheritedDomainsList)
+                .flatMap(voidMono -> voidMono)
+                .thenMany(Flux.fromIterable(updateIndependentDomainsList))
+                .flatMap(voidMono -> voidMono)
+                .then(Mono.just(application))
                 .flatMap(app -> {
                     Application updatedApplication;
                     if (addViewAccess) {
