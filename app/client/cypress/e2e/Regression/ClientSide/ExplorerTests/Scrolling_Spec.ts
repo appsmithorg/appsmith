@@ -19,12 +19,12 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
-        dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
+        dataSources.CreateQueryFromActiveTab($createdMockUsers, true);
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
-          dataSources.CreateQueryFromActiveTab($createdMockMovies, false);
+          dataSources.CreateQueryFromActiveTab($createdMockMovies, true);
 
           agHelper.Sleep();
           entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
