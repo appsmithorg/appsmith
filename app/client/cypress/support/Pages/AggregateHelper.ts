@@ -128,7 +128,7 @@ export class AggregateHelper extends ReusableHelper {
           this.RefreshPage(reloadWithoutCache);
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-          this.Sleep(); //settling time for dsl
+          this.Sleep(2000); //settling time for dsl
           this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
           this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
         });
@@ -844,7 +844,10 @@ export class AggregateHelper extends ReusableHelper {
     cy.wait(timeout);
   }
 
-  public RefreshPage(reloadWithoutCache = true, networkCall = "getWorkspace") {
+  public RefreshPage(
+    reloadWithoutCache = true,
+    networkCallAlias = "getWorkspace",
+  ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
     // cy.window()
@@ -855,7 +858,7 @@ export class AggregateHelper extends ReusableHelper {
       this.assertHelper.AssertDocumentReady();
     });
     this.Sleep(2000);
-    this.assertHelper.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
+    this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
