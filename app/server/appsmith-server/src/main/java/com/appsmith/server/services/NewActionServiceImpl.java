@@ -1,10 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -14,11 +11,8 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -27,6 +21,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.PolicySolution;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +38,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -52,7 +45,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final PermissionGroupRepository permissionGroupRepository;
     private final DatasourceService datasourceService;
     private final PermissionGroupService permissionGroupService;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final NewPageService newPageService;
 
     public NewActionServiceImpl(Scheduler scheduler,
@@ -68,7 +61,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
-                                PolicyUtils policyUtils,
+                                PolicySolution policySolution,
                                 ConfigService configService,
                                 ResponseUtils responseUtils,
                                 PermissionGroupService permissionGroupService,
@@ -81,17 +74,16 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, pluginExecutorHelper, marketplaceService,
-                policyGenerator, newPageService, applicationService, policyUtils,
+                policyGenerator, newPageService, applicationService, policySolution,
                 configService, responseUtils, permissionGroupService, datasourcePermission,
                 applicationPermission, pagePermission, actionPermission, observationRegistry);
 
         this.permissionGroupRepository = permissionGroupRepository;
         this.datasourceService = datasourceService;
         this.permissionGroupService = permissionGroupService;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.newPageService = newPageService;
     }
-
 
 
     /**
@@ -133,6 +125,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      * Once the action has been validated and saved, generate a map of permission to permissionGroupIds for the existing
      * default application roles and give these roles required permissions to access the related datasource, if not already
      * given.
+     *
      * @param newAction
      * @return
      */
@@ -166,6 +159,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      * Updates the policy map for the datasource based on the permissionToPermissionGroupIdMap.
      * If the permissionGroupIds are already given the respective permissions, then we simply return the datasource.
      * Else we update the policy map of the datasource, and then return it.
+     *
      * @param datasourceId
      * @param permissionToPermissionGroupIdMap
      * @return
@@ -192,7 +186,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 .build();
                         datasourcePolicyMap.put(permission, policy);
                     });
-                    Datasource updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    Datasource updatedDatasource = policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
                     return datasourceService.save(updatedDatasource);
                 });
     }
@@ -202,10 +196,11 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      * Generates a Map Mono for datasource permissions to list of default application role ids.
      * Datasource permissions are obtained from only APPLICATION_VIEWER from AppsmithRole based on
      * the default roles which exist for the application.
-     *
+     * <p>
      * Here we are not giving to application developer role, because we are going to introduce another permission on
      * workspace level which will be responsible for giving permission to create actions for all datasource present inside
      * the workspace.
+     *
      * @param applicationId
      * @return
      */

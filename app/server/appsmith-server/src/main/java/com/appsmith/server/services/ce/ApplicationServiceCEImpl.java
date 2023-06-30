@@ -28,7 +28,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -74,7 +74,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationServiceCE {
 
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final ConfigService configService;
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
@@ -97,7 +97,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     ReactiveMongoTemplate reactiveMongoTemplate,
                                     ApplicationRepository repository,
                                     AnalyticsService analyticsService,
-                                    PolicyUtils policyUtils,
+                                    PolicySolution policySolution,
                                     ConfigService configService,
                                     SessionUserService sessionUserService,
                                     ResponseUtils responseUtils,
@@ -109,7 +109,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.configService = configService;
         this.sessionUserService = sessionUserService;
         this.responseUtils = responseUtils;
@@ -440,24 +440,24 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, String permissionGroupId,
                                                                             Boolean addViewAccess) {
 
-        Map<String, Policy> applicationPolicyMap = policyUtils
+        Map<String, Policy> applicationPolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> pagePolicyMap = policyUtils
+        Map<String, Policy> pagePolicyMap = policySolution
                 .generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
-        Map<String, Policy> actionPolicyMap = policyUtils
+        Map<String, Policy> actionPolicyMap = policySolution
                 .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils
+        Map<String, Policy> datasourcePolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(datasourcePermission.getExecutePermission(), permissionGroupId);
-        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+        Map<String, Policy> themePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class
         );
 
-        final Flux<NewPage> updatedPagesFlux = policyUtils
+        final Flux<NewPage> updatedPagesFlux = policySolution
                 .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
-        final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
+        final Flux<ActionCollection> updatedActionCollectionsFlux = policySolution
                 .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess);
-        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, addViewAccess);
+        Flux<Theme> updatedThemesFlux = policySolution.updateThemePolicies(application, themePolicyMap, addViewAccess);
         final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
                 .thenMany(updatedActionCollectionsFlux)
@@ -465,7 +465,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .then(Mono.justOrEmpty(application.getId()))
                 .thenMany(updatedThemesFlux)
                 .collectList()
-                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess));
+                .flatMapMany(applicationId -> policySolution.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess));
 
         return updatedActionsFlux
                 .collectList()
@@ -491,7 +491,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // the same level in the hierarchy. A user may have permission to change view on application, but may
                     // not have explicit permissions on the datasource.
                     Mono<List<Datasource>> updatedDatasourcesMono =
-                            policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(datasourceIds,
+                            policySolution.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(datasourceIds,
                                             datasourcePolicyMap, addViewAccess)
                                     .collectList();
 
@@ -501,9 +501,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(app -> {
                     Application updatedApplication;
                     if (addViewAccess) {
-                        updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
+                        updatedApplication = policySolution.addPoliciesToExistingObject(applicationPolicyMap, application);
                     } else {
-                        updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
+                        updatedApplication = policySolution.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
                     return repository.save(updatedApplication);
                 });

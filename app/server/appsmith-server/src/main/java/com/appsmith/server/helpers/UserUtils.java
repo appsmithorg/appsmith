@@ -12,6 +12,7 @@ import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.PolicySolution;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -28,7 +29,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GR
 public class UserUtils extends UserUtilsCE {
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final PermissionGroupRepository permissionGroupRepository;
     private final TenantRepository tenantRepository;
     private final ConfigRepository configRepository;
@@ -36,13 +37,13 @@ public class UserUtils extends UserUtilsCE {
     public UserUtils(ConfigRepository configRepository,
                      PermissionGroupRepository permissionGroupRepository,
                      CacheableRepositoryHelper cacheableRepositoryHelper,
-                     PolicyUtils policyUtils,
+                     PolicySolution policySolution,
                      TenantRepository tenantRepository,
                      PermissionGroupPermission permissionGroupPermission) {
 
         super(configRepository, permissionGroupRepository, cacheableRepositoryHelper, permissionGroupPermission);
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
         this.tenantRepository = tenantRepository;
         this.configRepository = configRepository;
@@ -73,9 +74,9 @@ public class UserUtils extends UserUtilsCE {
 
                                 addPermissionsToPermissionGroup(superUserPermissionGroup, tenantPermissions);
 
-                                Map<String, Policy> tenantPolicies = policyUtils
+                                Map<String, Policy> tenantPolicies = policySolution
                                         .generatePolicyFromPermissionGroupForObject(superUserPermissionGroup, tenant.getId());
-                                policyUtils.addPoliciesToExistingObject(tenantPolicies, tenant);
+                                policySolution.addPoliciesToExistingObject(tenantPolicies, tenant);
 
                                 return Mono.zip(
                                         tenantRepository.save(tenant),

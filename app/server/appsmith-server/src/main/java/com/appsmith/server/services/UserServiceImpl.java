@@ -7,7 +7,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -15,7 +14,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UserProfileDTO;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -24,6 +22,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -47,9 +46,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
-import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
-import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
@@ -66,7 +62,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final CommonConfig commonConfig;
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserGroupRepository userGroupRepository;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
 
     public UserServiceImpl(Scheduler scheduler,
@@ -81,7 +77,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            PasswordEncoder passwordEncoder,
                            EmailSender emailSender,
                            ApplicationRepository applicationRepository,
-                           PolicyUtils policyUtils,
+                           PolicySolution policySolution,
                            CommonConfig commonConfig,
                            EmailConfig emailConfig,
                            UserChangedHandler userChangedHandler,
@@ -96,7 +92,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService, analyticsService,
                 sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender, applicationRepository,
-                policyUtils, commonConfig, emailConfig, userChangedHandler, encryptionService, userDataService, tenantService,
+                policySolution, commonConfig, emailConfig, userChangedHandler, encryptionService, userDataService, tenantService,
                 permissionGroupService, userUtils);
 
         this.userDataService = userDataService;
@@ -106,7 +102,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         this.commonConfig = commonConfig;
         this.permissionGroupRepository = permissionGroupRepository;
         this.userGroupRepository = userGroupRepository;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.policyGenerator = policyGenerator;
     }
 
@@ -266,7 +262,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     Map<String, Policy> userPoliciesMapWithNewPermissions = policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, User.class)
                             .stream()
                             .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-                    policyUtils.addPoliciesToExistingObject(userPoliciesMapWithNewPermissions, user);
+                    policySolution.addPoliciesToExistingObject(userPoliciesMapWithNewPermissions, user);
                     return user;
                 });
     }

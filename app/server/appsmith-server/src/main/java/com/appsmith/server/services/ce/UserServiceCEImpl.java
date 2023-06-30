@@ -24,7 +24,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -86,7 +86,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
@@ -116,7 +116,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              PasswordEncoder passwordEncoder,
                              EmailSender emailSender,
                              ApplicationRepository applicationRepository,
-                             PolicyUtils policyUtils,
+                             PolicySolution policySolution,
                              CommonConfig commonConfig,
                              EmailConfig emailConfig,
                              UserChangedHandler userChangedHandler,
@@ -132,7 +132,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
         this.applicationRepository = applicationRepository;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
@@ -442,10 +442,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return permissionGroupService.save(userManagementPermissionGroup)
                 .map(savedPermissionGroup -> {
 
-                    Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                    Map<String, Policy> crudUserPolicies = policySolution.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
                             savedUser.getId());
 
-                    User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, savedUser);
+                    User updatedWithPolicies = policySolution.addPoliciesToExistingObject(crudUserPolicies, savedUser);
 
                     return updatedWithPolicies;
                 });

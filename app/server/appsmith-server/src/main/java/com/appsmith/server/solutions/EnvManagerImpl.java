@@ -6,7 +6,6 @@ import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
@@ -51,7 +50,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           UserService userService,
                           AnalyticsService analyticsService,
                           UserRepository userRepository,
-                          PolicyUtils policyUtils,
+                          PolicySolution policySolution,
                           EmailSender emailSender,
                           CommonConfig commonConfig,
                           EmailConfig emailConfig,
@@ -65,9 +64,9 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           ObjectMapper objectMapper,
                           AssetService assetService) {
 
-        super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
-                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+        super(sessionUserService, userService, analyticsService, userRepository, emailSender, commonConfig, emailConfig,
+                javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService, userUtils,
+                tenantService, objectMapper);
         this.assetService = assetService;
     }
 

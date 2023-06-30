@@ -23,8 +23,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.solutions.PolicySolution;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import io.changock.migration.api.annotations.NonLockGuarded;
@@ -68,7 +68,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class DatabaseChangelogEE {
 
     @ChangeSet(order = "001", id = "add-tenant-admin-permissions-instance-admin-ee", author = "")
-    public void addTenantAdminPermissionsToInstanceAdmin(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addTenantAdminPermissionsToInstanceAdmin(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
@@ -97,7 +97,7 @@ public class DatabaseChangelogEE {
                         .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
                         .build()
         );
-        PermissionGroup instanceAdminPG = policyUtils.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
+        PermissionGroup instanceAdminPG = policySolution.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
 
         // Now add admin permissions to the tenant
         Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
@@ -108,13 +108,13 @@ public class DatabaseChangelogEE {
         instanceAdminPG.setPermissions(permissions);
         mongoTemplate.save(instanceAdminPG);
 
-        Map<String, Policy> tenantPolicy = policyUtils.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
-        Tenant updatedTenant = policyUtils.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        Map<String, Policy> tenantPolicy = policySolution.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
+        Tenant updatedTenant = policySolution.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
         mongoTemplate.save(updatedTenant);
     }
 
     @ChangeSet(order = "002", id = "add-index-user-groups", author = "")
-    public void addIndexOnUserGroupCollection(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addIndexOnUserGroupCollection(MongoTemplate mongoTemplate) {
         Index tenantIdIndex = makeIndex("tenantId");
         ensureIndexes(mongoTemplate, UserGroup.class, tenantIdIndex);
     }
@@ -141,7 +141,7 @@ public class DatabaseChangelogEE {
     }
 
     @ChangeSet(order = "004", id = "add-brand-tenant-configuration", author = "")
-    public void addBrandTenantConfiguration(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addBrandTenantConfiguration(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
@@ -341,19 +341,20 @@ public class DatabaseChangelogEE {
     @ChangeSet(order = "012", id = "update-usage-pulse-index", author = "")
     public void updateUsagePulseIndex(MongoTemplate mongoTemplate) {
         ensureIndexes(
-            mongoTemplate,
-            UsagePulse.class,
-            makeIndex(
-                fieldName(QUsagePulse.usagePulse.createdAt),
-                fieldName(QUsagePulse.usagePulse.deleted)
-            )
-            .named("createdAt_deleted_compound_index")
+                mongoTemplate,
+                UsagePulse.class,
+                makeIndex(
+                        fieldName(QUsagePulse.usagePulse.createdAt),
+                        fieldName(QUsagePulse.usagePulse.deleted)
+                )
+                        .named("createdAt_deleted_compound_index")
         );
     }
 
     /**
      * We have modified the usage pulse format to include instanceId and tenantId. This migration removes the stale
      * pulses created before updating the format
+     *
      * @param mongoTemplate
      */
     @ChangeSet(order = "013", id = "remove-stale-usage-pulses", author = "")
@@ -366,7 +367,7 @@ public class DatabaseChangelogEE {
 
         Query invalidUsagePulseQuery = new Query();
         invalidUsagePulseQuery.addCriteria(where(fieldName(QUsagePulse.usagePulse.tenantId)).exists(false))
-            .addCriteria(where(fieldName(QUser.user.deleted)).ne(true));
+                .addCriteria(where(fieldName(QUser.user.deleted)).ne(true));
 
         mongoTemplate.updateMulti(invalidUsagePulseQuery, update, UsagePulse.class);
     }
@@ -374,6 +375,7 @@ public class DatabaseChangelogEE {
     /**
      * Migration to move license key from env to DB under tenant configuration
      * Discussion on why @Value is not supported in Mongock: https://github.com/mongock/mongock/discussions/525
+     *
      * @param mongoTemplate
      */
     @ChangeSet(order = "013", id = "move-license-key-to-db", author = "", runAlways = true)
@@ -388,18 +390,18 @@ public class DatabaseChangelogEE {
 
         String licenseKey = licenseConfig.getLicenseKey();
         if (StringUtils.hasLength(licenseKey)
-            && (tenantConfiguration.getLicense() == null
+                && (tenantConfiguration.getLicense() == null
                 || !StringUtils.hasText(tenantConfiguration.getLicense().getKey()))) {
 
-                log.info("Moving license key to DB");
-                TenantConfiguration.License license = new TenantConfiguration.License();
-                license.setActive(true);
-                license.setStatus(LicenseStatus.ACTIVE);
-                license.setKey(licenseKey);
-                license.setOrigin(LicenseOrigin.ENTERPRISE);
-                tenantConfiguration.setLicense(license);
-                tenant.setTenantConfiguration(tenantConfiguration);
-                mongoTemplate.save(tenant);
+            log.info("Moving license key to DB");
+            TenantConfiguration.License license = new TenantConfiguration.License();
+            license.setActive(true);
+            license.setStatus(LicenseStatus.ACTIVE);
+            license.setKey(licenseKey);
+            license.setOrigin(LicenseOrigin.ENTERPRISE);
+            tenantConfiguration.setLicense(license);
+            tenant.setTenantConfiguration(tenantConfiguration);
+            mongoTemplate.save(tenant);
         }
 
         if (!StringUtils.hasLength(licenseKey)) {
@@ -416,8 +418,8 @@ public class DatabaseChangelogEE {
         TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
 
         if (tenantConfiguration != null
-            && tenantConfiguration.getLicense() != null
-            && !StringUtils.hasText(tenantConfiguration.getLicense().getKey())) {
+                && tenantConfiguration.getLicense() != null
+                && !StringUtils.hasText(tenantConfiguration.getLicense().getKey())) {
 
             tenantConfiguration.setLicense(new TenantConfiguration.License());
             mongoTemplate.save(tenant);

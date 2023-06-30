@@ -13,8 +13,8 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -73,7 +73,7 @@ public class UserWorkspaceServiceTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private PolicyUtils policyUtils;
+    private PolicySolution policySolution;
     @Autowired
     private ApplicationRepository applicationRepository;
     @Autowired
@@ -133,10 +133,10 @@ public class UserWorkspaceServiceTest {
         this.workspace.setUserRoles(roles);
         for (UserRole userRole : roles) {
             Set<AclPermission> rolePermissions = userRole.getRole().getPermissions();
-            Map<String, Policy> workspacePolicyMap = policyUtils.generatePolicyFromPermission(
+            Map<String, Policy> workspacePolicyMap = policySolution.generatePolicyFromPermission(
                     rolePermissions, userRole.getUsername()
             );
-            this.workspace = policyUtils.addPoliciesToExistingObject(workspacePolicyMap, workspace);
+            this.workspace = policySolution.addPoliciesToExistingObject(workspacePolicyMap, workspace);
         }
         this.workspace = workspaceRepository.save(workspace).block();
     }

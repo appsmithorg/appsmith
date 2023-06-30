@@ -1,11 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.services.ce.AnalyticsServiceCEImpl;
@@ -18,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 @Slf4j
 @Service
 public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements AnalyticsService {
@@ -51,6 +50,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
 
     /**
      * To get non resource events list
+     *
      * @return List of AnanlyticsEvents
      */
     @Override
