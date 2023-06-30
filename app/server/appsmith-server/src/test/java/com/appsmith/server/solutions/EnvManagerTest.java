@@ -54,8 +54,6 @@ public class EnvManagerTest {
     @MockBean
     private UserRepository userRepository;
     @MockBean
-    private PolicySolution policySolution;
-    @MockBean
     private EmailSender emailSender;
     @MockBean
     private CommonConfig commonConfig;
@@ -87,7 +85,6 @@ public class EnvManagerTest {
                 userService,
                 analyticsService,
                 userRepository,
-                policySolution,
                 emailSender,
                 commonConfig,
                 emailConfig,
