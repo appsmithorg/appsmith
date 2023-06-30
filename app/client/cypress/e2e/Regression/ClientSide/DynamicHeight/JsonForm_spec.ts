@@ -3,6 +3,7 @@ import {
   locators,
   agHelper,
   propPane,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -12,12 +13,14 @@ describe("Dynamic Height Width validation", function () {
     });
     entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("jsonformwidget"))
+      .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.JSONFORM))
       .then((initialFormheight: number) => {
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         agHelper.Sleep(5000);
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("jsonformwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.JSONFORM),
+          )
           .then((updatedFormheight: number) => {
             expect(initialFormheight).to.not.equal(updatedFormheight);
             agHelper.GetNClick(locators._showColumnButton, 0);
@@ -26,7 +29,9 @@ describe("Dynamic Height Width validation", function () {
             propPane.SelectPropertiesDropDown("height", "Fixed");
             agHelper.Sleep(5000);
             agHelper
-              .GetWidgetCSSHeight(locators._widgetInDeployed("jsonformwidget"))
+              .GetWidgetCSSHeight(
+                locators._widgetInDeployed(draggableWidgets.JSONFORM),
+              )
               .then((reUpdatedFormheight: number) => {
                 expect(updatedFormheight).to.not.equal(reUpdatedFormheight);
                 agHelper.GetNClick(locators._showColumnButton, 2);
@@ -35,7 +40,7 @@ describe("Dynamic Height Width validation", function () {
                 agHelper.Sleep(5000);
                 agHelper
                   .GetWidgetCSSHeight(
-                    locators._widgetInDeployed("jsonformwidget"),
+                    locators._widgetInDeployed(draggableWidgets.JSONFORM),
                   )
                   .then((currentformheight: number) => {
                     expect(reUpdatedFormheight).to.not.equal(currentformheight);

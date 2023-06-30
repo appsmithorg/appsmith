@@ -4,6 +4,7 @@ import {
   agHelper,
   propPane,
   assertHelper,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -24,12 +25,12 @@ describe("Dynamic Height Width validation", function () {
     propPane.MoveToTab("Style");
     agHelper
       .GetWidgetCSSFrAttribute(
-        `${locators._propertyControl}fontsize .rc-select`,
+        `${locators._propertyControl}${locators._fontSelect}`,
         "font-size",
       )
       .then((dropdownFont) => {
         agHelper
-          .GetElement(`${locators._propertyControl}fontsize input`)
+          .GetElement(`${locators._propertyControl}${locators._fontInput}`)
           .last()
           .click({
             force: true,
@@ -54,7 +55,7 @@ describe("Dynamic Height Width validation", function () {
       });
     agHelper
       .GetWidgetCSSFrAttribute(
-        `${locators._propertyControl}fontsize .rc-select`,
+        `${locators._propertyControl} ${locators._fontSelect}`,
         "font-family",
       )
       .then((dropdownFont) => {
@@ -78,26 +79,34 @@ describe("Dynamic Height Width validation", function () {
       });
     propPane.MoveToTab("Content");
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+      .GetWidgetCSSHeight(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+      )
       .then((currentContainerHeight) => {
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("checkboxgroupwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+          )
           .then((currentCheckboxheight) => {
             agHelper.GetNClick(locators._addOptionProperty);
             agHelper.Sleep(200);
-            assertHelper.AssertNetworkStatus("@updateLayout");
+            assertHelper.AssertNetworkStatus("@updateLayout", 200);
             agHelper.Sleep(3000);
             agHelper
               .GetWidgetCSSHeight(
-                locators._widgetInDeployed("checkboxgroupwidget"),
+                locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
               )
               .then((updatedCheckboxheight) => {
-                expect(currentCheckboxheight).to.not.equal(updatedCheckboxheight);
+                expect(currentCheckboxheight).to.not.equal(
+                  updatedCheckboxheight,
+                );
               });
           });
         agHelper.Sleep(2000);
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.CONTAINER),
+          )
           .then((updatedContainerHeight) => {
             expect(currentContainerHeight).to.not.equal(updatedContainerHeight);
           });
@@ -115,13 +124,17 @@ describe("Dynamic Height Width validation", function () {
     agHelper.AssertElementVisible(locators._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+      .GetWidgetCSSHeight(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+      )
       .then((currentHeight: number) => {
         entityExplorer.SelectEntityByName("Container1", "Widgets");
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         agHelper.Sleep(4000);
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.CONTAINER),
+          )
           .then((updatedHeight: number) => {
             expect(currentHeight).to.not.equal(updatedHeight);
           });

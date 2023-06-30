@@ -232,11 +232,8 @@ export class CommonLocators {
   _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
   _labelContains = (value: string) => `label:Contains('${value}')`;
   _showColumnButton = ".t--show-column-btn";
-  _toastBody = ".Toastify__toast-body span";
   _propertyPaneHeightLabel =
     ".t--property-pane-section-general .t--property-control-label:contains('Height')";
-  _listCollapseToggle =
-    ".t--entity-item:contains('List1') .t--entity-collapse-toggle";
   _tabId1 = ".t--tabid-tab1";
   _tabId2 = ".t--tabid-tab2";
   _showTabsProperty = ".t--property-control-showtabs input";
@@ -252,4 +249,11 @@ export class CommonLocators {
   _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
+  _toggle = ".t--widget-propertypane-toggle";
+  _switchGroupControl =
+    ".t--draggable-switchgroupwidget .bp3-control-indicator";
+  _fontSelect = "fontsize .rc-select";
+  _fontInput = "fontsize input";
+  _pagination = ".rc-pagination";
+  _controlOption = ".t--property-control-options";
 }

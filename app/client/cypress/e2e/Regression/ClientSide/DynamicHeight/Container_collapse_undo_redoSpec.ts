@@ -2,6 +2,7 @@ import {
   entityExplorer,
   locators,
   agHelper,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -12,22 +13,25 @@ describe("Dynamic Height Width validation", function () {
     });
     entityExplorer.SelectEntityByName("Container1");
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+      .GetWidgetCSSHeight(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+      )
       .then((initialContainerHeight: number) => {
         // Select the Text Widget and capture its initial height
         entityExplorer.SelectEntityByName("Button1", "Container1");
-        agHelper.Sleep(1000);
         agHelper.PressDelete();
-        agHelper.Sleep(2000);
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.CONTAINER),
+          )
           .then((updatedContainerHeight: number) => {
             expect(initialContainerHeight).to.not.equal(updatedContainerHeight);
             expect(updatedContainerHeight).to.equal("100px");
             agHelper.TypeText(locators._body, `{${modifierKey}}z`, 0, true);
-            agHelper.Sleep(2000);
             agHelper
-              .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+              .GetWidgetCSSHeight(
+                locators._widgetInDeployed(draggableWidgets.CONTAINER),
+              )
               .then((CurrentContainerHeight: number) => {
                 expect(CurrentContainerHeight).to.equal(initialContainerHeight);
               });

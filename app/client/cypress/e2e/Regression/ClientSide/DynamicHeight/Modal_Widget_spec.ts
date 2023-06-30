@@ -4,6 +4,7 @@ import {
   locators,
   propPane,
   assertHelper,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with limits", function () {
@@ -16,7 +17,7 @@ describe("Dynamic Height Width validation with limits", function () {
     entityExplorer.SelectEntityByName("Modal1", "Widgets");
 
     agHelper
-      .GetWidgetCSSFrAttribute(".t--modal-widget", "height")
+      .GetWidgetCSSFrAttribute(locators._modal, "height")
 
       // agHelper.GetWidgetCSSHeight(locators._widgetInDeployed("modal"))
       .then((currentModalHeight: number) => {
@@ -25,12 +26,14 @@ describe("Dynamic Height Width validation with limits", function () {
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         entityExplorer.SelectEntityByName("Text1");
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("textwidget"))
+          .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
           .then((currentTextWidgetHeight: number) => {
             propPane.TypeTextIntoField("text", textMsg, true);
-            assertHelper.AssertNetworkStatus("@updateLayout");
+            assertHelper.AssertNetworkStatus("@updateLayout", 200);
             agHelper
-              .GetWidgetCSSHeight(locators._widgetInDeployed("textwidget"))
+              .GetWidgetCSSHeight(
+                locators._widgetInDeployed(draggableWidgets.TEXT),
+              )
               .then((updatedTextWidgetHeight: number) => {
                 expect(currentTextWidgetHeight).to.not.equal(
                   updatedTextWidgetHeight,
@@ -38,9 +41,8 @@ describe("Dynamic Height Width validation with limits", function () {
               });
             entityExplorer.SelectEntityByName("Modal1");
             propPane.SelectPropertiesDropDown("height", "Auto Height");
-            agHelper.Sleep(3000);
             agHelper
-              .GetWidgetCSSFrAttribute(".t--modal-widget", "height")
+              .GetWidgetCSSFrAttribute(locators._modal, "height")
               // agHelper.GetWidgetCSSHeight(locators._widgetInDeployed("widget"))
               .then((updatedModalHeight: number) => {
                 expect(currentModalHeight).to.not.equal(updatedModalHeight);

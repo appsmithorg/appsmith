@@ -4,6 +4,8 @@ import {
   agHelper,
   deployMode,
   propPane,
+  pageSettings,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for Visibility", function () {
@@ -14,7 +16,6 @@ describe("Dynamic Height Width validation for Visibility", function () {
   });
   it("1. Validating visbility/invisiblity of widget with dynamic height feature", function () {
     //changing the Text Name and verifying
-    agHelper.Sleep(3000);
     entityExplorer.SelectEntityByName("Container1", "Widgets");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     entityExplorer.SelectEntityByName("Input1", "Container1");
@@ -22,48 +23,48 @@ describe("Dynamic Height Width validation for Visibility", function () {
     entityExplorer.SelectEntityByName("Input2", "Container1");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+      .GetWidgetCSSHeight(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+      )
       .then((currentContainerHeight: number) => {
         agHelper.GetNClick(locators._widgetInCanvas("checkboxwidget"));
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.CONTAINER),
+          )
           .then((updatedContainerHeight: number) => {
             expect(currentContainerHeight).to.equal(updatedContainerHeight);
-            agHelper
-              .GetElement(locators._labelContains("On"))
-              .should("not.be.enabled");
+            agHelper.AssertElementEnabledDisabled(
+              locators._labelContains("On"),
+            );
           });
       });
     deployMode.DeployApp();
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+      .GetWidgetCSSHeight(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+      )
       .then((currentContainerHeight: number) => {
-        agHelper.GetNClick(".bp3-control-indicator");
-        agHelper.Sleep(2000);
+        agHelper.GetNClick(pageSettings.locators._setHomePageToggle);
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.CONTAINER),
+          )
           .then((updatedContainerHeight: number) => {
             expect(currentContainerHeight).to.not.equal(updatedContainerHeight);
+            agHelper.AssertElementAbsence(locators._labelContains("On"));
+            agHelper.AssertElementVisible(locators._labelContains("Off"));
+            agHelper.GetNClick(pageSettings.locators._setHomePageToggle);
             agHelper
-              .GetElement(locators._labelContains("On"))
-              .should("not.exist");
-            agHelper
-              .GetElement(locators._labelContains("Off"))
-              .should("be.visible");
-            agHelper.GetNClick(".bp3-control-indicator");
-            agHelper.Sleep(2000);
-            agHelper
-              .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+              .GetWidgetCSSHeight(
+                locators._widgetInDeployed(draggableWidgets.CONTAINER),
+              )
               .then((currentContainerHeight: number) => {
                 expect(currentContainerHeight).to.not.equal(
                   updatedContainerHeight,
                 );
-                agHelper
-                  .GetElement(locators._labelContains("Off"))
-                  .should("not.exist");
-                agHelper
-                  .GetElement(locators._labelContains("On"))
-                  .should("be.visible");
+                agHelper.AssertElementAbsence(locators._labelContains("Off"));
+                agHelper.AssertElementVisible(locators._labelContains("On"));
               });
           });
       });

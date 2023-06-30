@@ -4,6 +4,7 @@ import {
   locators,
   propPane,
   assertHelper,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for multiple container", function () {
@@ -23,40 +24,44 @@ describe("Dynamic Height Width validation for multiple container", function () {
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container3");
     propPane.SelectPropertiesDropDown("height", "Fixed");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
-    agHelper.Sleep(2000);
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"))
+      .GetWidgetCSSHeight(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+      )
       .then((outerContainerHeight: number) => {
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("containerwidget"), 1)
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.CONTAINER),
+            1,
+          )
           .then((middleContainerHeight: number) => {
             agHelper
               .GetWidgetCSSHeight(
-                locators._widgetInDeployed("containerwidget"),
+                locators._widgetInDeployed(draggableWidgets.CONTAINER),
                 2,
               )
               .then((innerContainerHeight: number) => {
                 agHelper
                   .GetWidgetCSSHeight(
-                    locators._widgetInDeployed("checkboxgroupwidget"),
+                    locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
                   )
                   .then((checkboxheight: number) => {
                     agHelper.GetNClick(locators._addOptionProperty);
                     agHelper.GetNClick(locators._addOptionProperty);
-                    assertHelper.AssertNetworkStatus("@updateLayout");
-                    agHelper.Sleep(3000);
+                    assertHelper.AssertNetworkStatus("@updateLayout", 200);
                     agHelper
                       .GetWidgetCSSHeight(
-                        locators._widgetInDeployed("checkboxgroupwidget"),
+                        locators._widgetInDeployed(
+                          draggableWidgets.CHECKBOXGROUP,
+                        ),
                       )
                       .then((newcheckboxheight: number) => {
                         expect(checkboxheight).to.not.equal(newcheckboxheight);
                       });
                   });
-                agHelper.Sleep(2000);
                 agHelper
                   .GetWidgetCSSHeight(
-                    locators._widgetInDeployed("containerwidget"),
+                    locators._widgetInDeployed(draggableWidgets.CONTAINER),
                   )
                   .then((outerContainerUpdatedHeight: number) => {
                     expect(outerContainerHeight).to.not.equal(
@@ -65,7 +70,7 @@ describe("Dynamic Height Width validation for multiple container", function () {
                   });
                 agHelper
                   .GetWidgetCSSHeight(
-                    locators._widgetInDeployed("containerwidget"),
+                    locators._widgetInDeployed(draggableWidgets.CONTAINER),
                     1,
                   )
                   .then((middleContainerUpdatedHeight: number) => {
@@ -75,7 +80,7 @@ describe("Dynamic Height Width validation for multiple container", function () {
                   });
                 agHelper
                   .GetWidgetCSSHeight(
-                    locators._widgetInDeployed("containerwidget"),
+                    locators._widgetInDeployed(draggableWidgets.CONTAINER),
                     2,
                   )
                   .then((innerContainerUpdatedHeight: number) => {

@@ -3,6 +3,8 @@ import {
   locators,
   agHelper,
   propPane,
+  pageSettings,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -12,19 +14,23 @@ describe("Dynamic Height Width validation", function () {
     });
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("formwidget"))
+      .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.FORM))
       .then((formheight) => {
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         entityExplorer.SelectEntityByName("SwitchGroup1", "Form1");
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("switchgroupwidget"))
+          .GetWidgetCSSHeight(
+            locators._widgetInDeployed(draggableWidgets.SWITCHGROUP),
+          )
           .then((CurrentSwitchHeight) => {
             agHelper
-              .GetWidgetCSSHeight(locators._widgetInDeployed("formwidget"))
+              .GetWidgetCSSHeight(
+                locators._widgetInDeployed(draggableWidgets.FORM),
+              )
               .then((CurrentFormHeight) => {
                 agHelper.UpdateCodeInput(
-                  ".t--property-control-options",
+                  locators._controlOption,
                   `[
                       {"label": "Blue","value": "BLUE"},
                       { "label": "Green","value": "GREEN"},
@@ -40,12 +46,12 @@ describe("Dynamic Height Width validation", function () {
                 );
                 agHelper
                   .GetWidgetCSSHeight(
-                    locators._widgetInDeployed("switchgroupwidget"),
+                    locators._widgetInDeployed(draggableWidgets.SWITCHGROUP),
                   )
                   .then((UpdatedSwitchHeight: number) => {
                     agHelper
                       .GetWidgetCSSHeight(
-                        locators._widgetInDeployed("formwidget"),
+                        locators._widgetInDeployed(draggableWidgets.FORM),
                       )
                       .then((UpdatedFormHeight: number) => {
                         expect(CurrentFormHeight).to.not.equal(
@@ -60,16 +66,13 @@ describe("Dynamic Height Width validation", function () {
           });
       });
     agHelper.GetNClick(
-      ".t--draggable-switchgroupwidget .bp3-control-indicator",
+      `${locators._widgetInDeployed(draggableWidgets.SWITCHGROUP)}${
+        pageSettings.locators._setHomePageToggle
+      }`,
     );
-    agHelper.Sleep(3000);
-    agHelper.GetElement(locators._modal).should("have.length", 1);
-    agHelper
-      .GetElement(".t--widget-propertypane-toggle")
-      .last()
-      .click({ force: true });
+    agHelper.AssertElementLength(locators._modal, 1);
+    agHelper.GetNClick(locators._toggle, 1, true);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
-    agHelper.Sleep(3000);
     agHelper.GetNClick(locators._closeModal, 0, true);
   });
 });

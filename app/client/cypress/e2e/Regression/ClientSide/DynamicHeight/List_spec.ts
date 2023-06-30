@@ -2,9 +2,8 @@ import {
   entityExplorer,
   locators,
   agHelper,
-  deployMode,
   propPane,
-  assertHelper,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -15,7 +14,7 @@ describe("Dynamic Height Width validation", function () {
     });
     entityExplorer.SelectEntityByName("List1");
     agHelper
-      .GetWidgetCSSHeight(locators._widgetInDeployed("listwidget"))
+      .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
       .then((currentListHeight: number) => {
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
         entityExplorer.SelectEntityByName("Container1", "List1");
@@ -26,7 +25,7 @@ describe("Dynamic Height Width validation", function () {
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
         propPane.TypeTextIntoField("text", textMsg, true);
         agHelper
-          .GetWidgetCSSHeight(locators._widgetInDeployed("listwidget"))
+          .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
           .then((updatedListHeight: number) => {
             expect(currentListHeight).to.equal(updatedListHeight);
           });

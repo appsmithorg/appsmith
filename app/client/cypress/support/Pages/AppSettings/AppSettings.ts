@@ -51,8 +51,15 @@ export class AppSettings {
         ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-theme",
     },
     _topInline: ".t--app-viewer-navigation-top-inline",
-    _sidebarCollapseButton: ".t--app-viewer-navigation-sidebar-collapse"
-
+    _sidebarCollapseButton: ".t--app-viewer-navigation-sidebar-collapse",
+    _topStackedScrollableContainer:
+      ".t--app-viewer-navigation-top-stacked .hidden-scrollbar",
+    _topInlineMoreButton: ".t--app-viewer-navigation-top-inline-more-button",
+    _topInlineMoreDropdown:
+      ".t--app-viewer-navigation-top-inline-more-dropdown",
+    _topInlineMoreDropdownItem:
+      ".t--app-viewer-navigation-top-inline-more-dropdown-item",
+    _scrollArrows: ".scroll-arrows",
   };
 
   public errorMessageSelector = (fieldId: string) => {
