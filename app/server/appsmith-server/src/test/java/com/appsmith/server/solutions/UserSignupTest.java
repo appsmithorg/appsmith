@@ -8,7 +8,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
@@ -44,13 +43,7 @@ public class UserSignupTest {
     private ConfigService configService;
 
     @MockBean
-    private PolicySolution policySolution;
-
-    @MockBean
     private AnalyticsService analyticsService;
-
-    @MockBean
-    private ApplicationPageService applicationPageService;
 
     @MockBean
     private EnvManager envManager;
