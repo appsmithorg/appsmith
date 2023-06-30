@@ -1,23 +1,12 @@
 import React from "react";
-import { EditorHeader } from "./EditorHeader";
+import EditorHeader from "./EditorHeader";
 import { render, screen } from "test/testUtils";
 import type { AppState } from "@appsmith/reducers";
 
 function renderComponent(initialState?: Partial<AppState>) {
-  render(
-    <EditorHeader
-      inOnboarding={false}
-      isPublishing={false}
-      isSaving={false}
-      pageId={"test"}
-      publishApplication={() => null}
-      sharedUserList={[]}
-      workspaceId={"1"}
-    />,
-    {
-      initialState,
-    },
-  );
+  render(<EditorHeader />, {
+    initialState,
+  });
 }
 
 describe("EditorHeader", () => {

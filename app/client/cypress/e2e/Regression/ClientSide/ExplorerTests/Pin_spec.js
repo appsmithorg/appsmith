@@ -101,6 +101,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       });
       cy.get(locators._canvas).trigger("mousemove", 500, 400);
       agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(false);
     },
   );
 

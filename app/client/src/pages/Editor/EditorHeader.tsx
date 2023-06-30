@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
@@ -19,6 +18,7 @@ import {
   getAllUsers,
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
+import type { ConnectedProps } from "react-redux";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { updateApplication } from "@appsmith/actions/applicationActions";
@@ -29,7 +29,6 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
 import {
   EditInteractionKind,
   SavingState,
@@ -59,7 +58,6 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
@@ -196,23 +194,6 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
-type EditorHeaderProps = {
-  pageSaveError?: boolean;
-  pageName?: string;
-  pageId: string;
-  isPublishing: boolean;
-  publishedTime?: string;
-  workspaceId: string;
-  applicationId?: string;
-  currentApplication?: ApplicationPayload;
-  isSaving: boolean;
-  publishApplication: (appId: string) => void;
-  lastUpdatedTime?: number;
-  inOnboarding: boolean;
-  sharedUserList: WorkspaceUser[];
-  currentUser?: User;
-};
-
 const GlobalSearch = lazy(() => {
   return retryPromise(
     () =>
@@ -224,7 +205,10 @@ const GlobalSearch = lazy(() => {
 
 const theme = getTheme(ThemeMode.LIGHT);
 
-export function EditorHeader(props: EditorHeaderProps) {
+// Seperating redux props types from props being passed to the component from a parent
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export function EditorHeader(props: PropsFromRedux) {
   const {
     applicationId,
     currentApplication,
@@ -586,4 +570,5 @@ EditorHeader.whyDidYouRender = {
   logOnDifferentValues: false,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
+const connector = connect(mapStateToProps, mapDispatchToProps);
+export default connector(EditorHeader);
