@@ -129,11 +129,11 @@ describe("Omnibar functionality test cases", () => {
       });
       cy.url().then(($urlBeforeDiscord) => {
         // clicking on discord link should open discord
-        cy.get(omnibar.discordLink).click();
+        agHelper.GetNClick(omnibar.discordLink, 0, false, 4000);
         cy.get("@discordLink").should("be.called");
         cy.wait(2000);
         //cy.go(-1);
-        cy.visit($urlBeforeDiscord, { timeout: 60000 });
+        cy.visit($urlBeforeDiscord);
         cy.wait(4000); //for page to load
       });
     },
