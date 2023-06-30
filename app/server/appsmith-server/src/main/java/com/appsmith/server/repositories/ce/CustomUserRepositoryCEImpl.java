@@ -6,7 +6,9 @@ import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.querydsl.core.types.dsl.StringPath;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -15,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -79,6 +82,20 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .filter(user -> !user.getEmail().equals(FieldName.ANONYMOUS_USER))
                 .count()
                 .map(count -> count == 0);
+    }
+
+    @Override
+    public Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection) {
+        Sort sortBy = Sort.by(sortDirection, fieldName(sortKey));
+        Criteria emailCriteria = where(fieldName(QUser.user.email)).in(emails);
+        return queryAll(
+                List.of(emailCriteria),
+                Optional.empty(),
+                aclPermission,
+                sortBy,
+                limit,
+                skip
+        );
     }
 
 }
