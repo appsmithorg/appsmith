@@ -6,17 +6,14 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -53,11 +50,11 @@ public class ProductAlertServiceCEImplTest {
     public void getSingleApplicableMessage_selfHostedInstance_success() {
         ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(messageListJSONString, mapper, commonConfig);
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
-        Mono<ProductAlertResponseDTO> productAlertResponseDTOMono = productAlertServiceCE.getSingleApplicableMessage();
+        Mono<java.util.List<ProductAlertResponseDTO>> productAlertResponseDTOMono = productAlertServiceCE.getSingleApplicableMessage();
         StepVerifier
                 .create(productAlertResponseDTOMono)
-                .assertNext(productAlertResponseDTO -> {
-                    assertThat(productAlertResponseDTO.getMessageId()).isEqualTo(messages[0].getMessageId());
+                .assertNext(productAlertResponseDTOs -> {
+                    assertThat(productAlertResponseDTOs.get(0).getMessageId()).isEqualTo(messages[0].getMessageId());
                 })
                 .verifyComplete();
     }
@@ -66,11 +63,11 @@ public class ProductAlertServiceCEImplTest {
     public void getSingleApplicableMessage_cloudInstance_success() {
         ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(messageListJSONString, mapper, commonConfig);
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
-        Mono<ProductAlertResponseDTO> productAlertResponseDTOMono = productAlertServiceCE.getSingleApplicableMessage();
+        Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono = productAlertServiceCE.getSingleApplicableMessage();
         StepVerifier
                 .create(productAlertResponseDTOMono)
-                .assertNext(productAlertResponseDTO -> {
-                    assertThat(productAlertResponseDTO.getMessageId()).isEqualTo(messages[1].getMessageId());
+                .assertNext(productAlertResponseDTOs -> {
+                    assertThat(productAlertResponseDTOs.get(0).getMessageId()).isEqualTo(messages[1].getMessageId());
                 })
                 .verifyComplete();
     }
@@ -83,7 +80,7 @@ public class ProductAlertServiceCEImplTest {
         messages[0].setApplicabilityExpression("invalidExpression");
         messageField.set(productAlertServiceCE, messages);
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
-        Mono<ProductAlertResponseDTO> productAlertResponseDTOMono = productAlertServiceCE.getSingleApplicableMessage();
+        Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono = productAlertServiceCE.getSingleApplicableMessage();
         StepVerifier
                 .create(productAlertResponseDTOMono)
                 .expectError(AppsmithException.class);

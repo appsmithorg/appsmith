@@ -48,11 +48,11 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
         }
     }
 
-    public Mono<ProductAlertResponseDTO> getSingleApplicableMessage() {
+    public Mono<List<ProductAlertResponseDTO>> getSingleApplicableMessage() {
         return Mono.fromCallable(() -> {
             List<ProductAlertResponseDTO> applicableMessages =
                     Arrays.stream(messages).sorted().filter(this::evaluateAlertApplicability).toList();
-            return applicableMessages.get(0);
+            return applicableMessages;
         }).onErrorResume(error -> {
             log.error("exception while getting and filtering product alert messages", error);
             throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, error.getMessage());
