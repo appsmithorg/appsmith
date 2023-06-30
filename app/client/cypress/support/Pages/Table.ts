@@ -522,19 +522,13 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
     networkCall = "viewPage",
   ) {
-    this.deployMode.StubbingWindow();
     cy.url().then(($currentUrl) => {
-      this.agHelper.GetNClick(
+      this.deployMode.StubWindowNAssert(
         this._tableRowColumnData(row, col, tableVersion),
-        0,
-        false,
-        4000,
-      ); //timeout new url to settle loading
-      cy.get("@windowStub").should("be.calledOnce");
-      cy.url().should("eql", expectedURL);
-      this.assertHelper.AssertDocumentReady();
-      cy.visit($currentUrl, { timeout: 60000 });
-      this.assertHelper.AssertNetworkStatus("@" + networkCall);
+        expectedURL,
+        $currentUrl,
+        networkCall,
+      );
       this.WaitUntilTableLoad(0, 0, tableVersion);
     });
   }
