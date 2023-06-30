@@ -25,7 +25,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -55,6 +54,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -431,12 +431,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Policy> applicationPolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
 
-        Flux<Mono<Void>> updateInheritedDomainsFlux = updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
-        Flux<Mono<Void>> updateIndependentDomainsFlux = updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
+        List<Mono<Void>> updateInheritedDomainsList = updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
+        List<Mono<Void>> updateIndependentDomainsList = updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
 
-        return updateInheritedDomainsFlux
-                .thenMany(updateIndependentDomainsFlux)
-                .then()
+        return Mono.zip(updateInheritedDomainsList, monos -> true)
+                .then(Mono.zip(updateIndependentDomainsList, monos -> true))
                 .thenReturn(application)
                 .flatMap(app -> {
                     Application updatedApplication;
@@ -450,9 +449,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     }
 
-    private Flux<Mono<Void>> updatePoliciesForIndependentDomains(Application application,
+    private List<Mono<Void>> updatePoliciesForIndependentDomains(Application application,
                                                                  String permissionGroupId,
                                                                  Boolean addViewAccess) {
+
+        List<Mono<Void>> list = new ArrayList<>();
 
         Map<String, Policy> datasourcePolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(datasourcePermission.getExecutePermission(), permissionGroupId);
@@ -487,15 +488,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     return updatedDatasourcesMono1;
                 });
+        list.add(updatedDatasourcesMono);
 
-        return Flux.just(
-                updatedDatasourcesMono
-        );
+        return list;
     }
 
-    protected Flux<Mono<Void>> updatePoliciesForInheritingDomains(Application application,
+    protected List<Mono<Void>> updatePoliciesForInheritingDomains(Application application,
                                                                   Map<String, Policy> applicationPolicyMap,
                                                                   Boolean addViewAccess) {
+
+        List<Mono<Void>> list = new ArrayList<>();
+
         Map<String, Policy> pagePolicyMap = policySolution
                 .generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policySolution
@@ -507,22 +510,21 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         final Mono<Void> updatedPagesMono = policySolution
                 .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess)
                 .then();
+        list.add(updatedPagesMono);
         final Mono<Void> updatedActionsMono = policySolution
                 .updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess)
                 .then();
+        list.add(updatedActionsMono);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
         final Mono<Void> updatedActionCollectionsMono = policySolution
                 .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess)
                 .then();
+        list.add(updatedActionCollectionsMono);
         final Mono<Void> updatedThemesMono = policySolution.updateThemePolicies(application, themePolicyMap, addViewAccess)
                 .then();
+        list.add(updatedThemesMono);
 
-        return Flux.just(
-                updatedPagesMono,
-                updatedActionsMono,
-                updatedActionCollectionsMono,
-                updatedThemesMono
-        );
+        return list;
     }
 
     public Mono<Application> setTransientFields(Application application) {
