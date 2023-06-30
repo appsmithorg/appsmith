@@ -1,6 +1,7 @@
-import { get, intersection, isEmpty, uniq } from "lodash";
+import { get, intersection, isEmpty, set, uniq } from "lodash";
 import {
   convertPathToString,
+  getAllPaths,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
@@ -24,6 +25,9 @@ import {
 } from "plugins/Linting/lib/entity/EntityTree";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isJSFunctionProperty } from "@shared/ast";
+import type { JSFunctionProperty } from "@shared/ast";
+import type { JSActionEntity } from "entities/DataTree/types";
 
 class LintService {
   cachedEntityTree: EntityTree | null;
@@ -146,6 +150,8 @@ class LintService {
     const { additions, deletions, edits } =
       groupDifferencesByType(entityTreeDiff);
 
+    const allNodes = getAllPaths(entityTree.getRawTree());
+
     const updatedPathsDetails: Record<
       string,
       {
@@ -171,7 +177,7 @@ class LintService {
       const references = extractReferencesFromPath(
         entity,
         pathString,
-        entityTree.getRawTree(),
+        allNodes,
       );
       this.dependencyMap.addDependency(pathString, references);
       pathsToLint.push(pathString);
@@ -197,11 +203,7 @@ class LintService {
       for (const path of Object.keys(allAddedPaths)) {
         const previousDependencies =
           this.dependencyMap.getDirectDependencies(path);
-        const references = extractReferencesFromPath(
-          entity,
-          path,
-          allAddedPaths,
-        );
+        const references = extractReferencesFromPath(entity, path, allNodes);
         if (PathUtils.isDynamicLeaf(entity, path)) {
           this.dependencyMap.addDependency(path, references);
           pathsToLint.push(path);
@@ -311,17 +313,30 @@ class LintService {
   preprocessTree(unEvalTree: DataTree, configTree: ConfigTree) {
     const entityTree = new LintEntityTree(unEvalTree, configTree);
 
-    // Parse js actions
+    // 1. Parse js actions, update raw entity and config
     for (const entity of Object.values(entityTree.getEntities())) {
       if (!isJSEntity(entity)) continue;
-      const { parsedEntity } = entity.entityParser.parse(entity.getRawEntity());
+      const { actionId, body, ENTITY_TYPE } = entity.getRawEntity();
+      const newEntity: JSActionEntity = { body, actionId, ENTITY_TYPE };
+      const { parsedEntity, parsedEntityConfig } = entity.entityParser.parse(
+        entity.getRawEntity(),
+      );
       for (const [propertyName, propertyValue] of Object.entries(
         parsedEntity,
       )) {
-        entity.getRawEntity()[propertyName] = propertyValue;
+        newEntity[propertyName] = propertyValue;
         entity.getConfig().reactivePaths[propertyName] =
           EvaluationSubstitutionType.TEMPLATE;
+        if (
+          parsedEntityConfig[propertyName] &&
+          isJSFunctionProperty(
+            parsedEntityConfig[propertyName] as JSFunctionProperty,
+          )
+        ) {
+          set(newEntity, [`${propertyName}.data`], {});
+        }
       }
+      entity.entity = newEntity;
     }
 
     return entityTree;

@@ -70,6 +70,7 @@ export class PathUtils {
     if (entityName === fullPropertyPath) return false;
 
     const entityConfig = entity.getConfig() as Record<string, unknown>;
+    if (!entityConfig) return false;
     const reactivePaths = entityConfig.reactivePaths as Record<string, unknown>;
 
     if (!isDynamicEntity(entity) || !entityConfig) return false;
