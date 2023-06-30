@@ -1,9 +1,9 @@
+import { nestDSL, flattenDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
@@ -41,20 +41,14 @@ export default function convertDSLtoFixed(
   dsl: DSLWidget,
   destinationLayout: SupportedLayouts,
 ) {
-  const allWidgets =
-    CanvasWidgetsNormalizer.normalize(dsl).entities.canvasWidgets;
+  const allWidgets = flattenDSL(dsl);
 
   const convertedWidgets = convertNormalizedDSLToFixed(
     allWidgets,
     destinationLayout,
   );
 
-  const convertedDSL = CanvasWidgetsNormalizer.denormalize(
-    MAIN_CONTAINER_WIDGET_ID,
-    {
-      canvasWidgets: convertedWidgets,
-    },
-  );
+  const convertedDSL = nestDSL(convertedWidgets);
 
   return convertedDSL;
 }

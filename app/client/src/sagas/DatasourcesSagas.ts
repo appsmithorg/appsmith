@@ -277,13 +277,25 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           return;
         }
 
-        history.push(
-          integrationEditorURL({
+        let url = "";
+        const plugin: Plugin = yield select(getPlugin, response.data.pluginId);
+        if (plugin && plugin.type === PluginType.SAAS) {
+          url = saasEditorDatasourceIdURL({
             pageId,
-            selectedTab: INTEGRATION_TABS.ACTIVE,
-            params: getQueryParams(),
-          }),
-        );
+            pluginPackageName: plugin.packageName,
+            datasourceId: response.data.id,
+            params: {
+              viewMode: true,
+            },
+          });
+        } else {
+          url = datasourcesEditorIdURL({
+            pageId,
+            datasourceId: response.data.id,
+            params: omit(getQueryParams(), "viewMode"),
+          });
+        }
+        history.push(url);
       }
     }
   } catch (error) {
@@ -416,9 +428,9 @@ function* updateDatasourceSaga(
     // We do not want to set isConfigured to true immediately on save
     // instead we want to wait for authorisation as well as file selection to be complete
     if (isGoogleSheetPluginDS(pluginPackageName)) {
-      const scopeString: string = (
-        datasourcePayload?.datasourceConfiguration?.authentication as any
-      )?.scopeString;
+      const scopeString: string =
+        (datasourcePayload?.datasourceConfiguration?.authentication as any)
+          ?.scopeString || "";
       if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
         datasourcePayload.isConfigured = false;
       }

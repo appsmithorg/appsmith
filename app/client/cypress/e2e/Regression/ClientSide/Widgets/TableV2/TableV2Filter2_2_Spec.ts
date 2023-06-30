@@ -1,88 +1,99 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  propPane,
+  deployMode,
+  table,
+  assertHelper,
+  locators,
+  draggableWidgets,
+  agHelper,
+  homePage,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Verify various Table_Filter combinations", function () {
   it("1. Verify Full table data - download csv and download Excel", function () {
-    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
-    _.table.AddSampleTableData();
-    _.propPane.UpdatePropertyFieldValue(
+    entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
+    table.AddSampleTableData();
+    propPane.UpdatePropertyFieldValue(
       "Table data",
       JSON.stringify(this.dataSet.TableInput),
     );
-    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    _.agHelper.PressEscape();
-    _.table.ChangeColumnType("id", "Plain text", "v2");
-    _.table.ChangeColumnType("orderAmount", "Plain text", "v2");
-    _.deployMode.DeployApp();
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    agHelper.PressEscape();
+    table.ChangeColumnType("id", "Plain text", "v2");
+    table.ChangeColumnType("orderAmount", "Plain text", "v2");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
 
-    _.table.DownloadFromTable("Download as CSV");
+    table.DownloadFromTable("Download as CSV");
     //This plugin works only from cypress ^9.2
     //cy.verifyDownload("Table1.csv")
-    _.table.ValidateDownloadNVerify("Table1.csv", "Michael Lawson");
+    table.ValidateDownloadNVerify("Table1.csv", "Michael Lawson");
 
-    _.table.DownloadFromTable("Download as Excel");
-    _.table.ValidateDownloadNVerify("Table1.xlsx", "Michael Lawson");
+    table.DownloadFromTable("Download as Excel");
+    table.ValidateDownloadNVerify("Table1.xlsx", "Michael Lawson");
   });
 
   it("2. Verify Searched data - download csv and download Excel", function () {
-    _.table.SearchTable("7434532");
-    _.table.ReadTableRowColumnData(0, 3, "v2").then((afterSearch) => {
+    table.SearchTable("7434532");
+    table.ReadTableRowColumnData(0, 3, "v2").then((afterSearch) => {
       expect(afterSearch).to.eq("Byron Fields");
     });
 
-    _.table.DownloadFromTable("Download as CSV");
+    table.DownloadFromTable("Download as CSV");
     //This plugin works only from cypress ^9.2
     //cy.verifyDownload("Table1.csv")
-    _.table.ValidateDownloadNVerify("Table1.csv", "byron.fields@reqres.in");
+    table.ValidateDownloadNVerify("Table1.csv", "byron.fields@reqres.in");
 
-    _.table.DownloadFromTable("Download as Excel");
-    _.table.ValidateDownloadNVerify("Table1.xlsx", "Ryan Holmes");
+    table.DownloadFromTable("Download as Excel");
+    table.ValidateDownloadNVerify("Table1.xlsx", "Ryan Holmes");
 
-    _.table.RemoveSearchTextNVerify("2381224", "v2");
+    table.RemoveSearchTextNVerify("2381224", "v2");
 
-    _.table.DownloadFromTable("Download as CSV");
-    _.table.ValidateDownloadNVerify("Table1.csv", "2736212");
+    table.DownloadFromTable("Download as CSV");
+    table.ValidateDownloadNVerify("Table1.csv", "2736212");
 
-    _.table.DownloadFromTable("Download as Excel");
-    _.table.ValidateDownloadNVerify("Table1.xlsx", "Beef steak");
+    table.DownloadFromTable("Download as Excel");
+    table.ValidateDownloadNVerify("Table1.xlsx", "Beef steak");
   });
 
   it("3. Verify Filtered data - download csv and download Excel", function () {
-    _.table.OpenNFilterTable("id", "starts with", "6");
-    _.table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
+    table.OpenNFilterTable("id", "starts with", "6");
+    table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
       expect($cellData).to.eq("Tobias Funke");
     });
-    _.table.CloseFilter();
+    table.CloseFilter();
 
-    _.table.DownloadFromTable("Download as CSV");
+    table.DownloadFromTable("Download as CSV");
     //This plugin works only from cypress ^9.2
     //cy.verifyDownload("Table1.csv")
-    _.table.ValidateDownloadNVerify("Table1.csv", "Beef steak");
+    table.ValidateDownloadNVerify("Table1.csv", "Beef steak");
 
-    _.table.DownloadFromTable("Download as Excel");
-    _.table.ValidateDownloadNVerify("Table1.xlsx", "tobias.funke@reqres.in");
+    table.DownloadFromTable("Download as Excel");
+    table.ValidateDownloadNVerify("Table1.xlsx", "tobias.funke@reqres.in");
 
-    _.agHelper.GetNClick(_.table._filterBtn);
-    _.table.RemoveFilterNVerify("2381224", true, false, 0, "v2");
+    agHelper.GetNClick(table._filterBtn);
+    table.RemoveFilterNVerify("2381224", true, false, 0, "v2");
 
-    _.table.DownloadFromTable("Download as CSV");
-    _.table.ValidateDownloadNVerify("Table1.csv", "Tuna Salad");
+    table.DownloadFromTable("Download as CSV");
+    table.ValidateDownloadNVerify("Table1.csv", "Tuna Salad");
 
-    _.table.DownloadFromTable("Download as Excel");
-    _.table.ValidateDownloadNVerify("Table1.xlsx", "Avocado Panini");
+    table.DownloadFromTable("Download as Excel");
+    table.ValidateDownloadNVerify("Table1.xlsx", "Avocado Panini");
   });
 
   it("4. Import TableFilter application & verify all filters for same FirstName (one word column) + Bug 13334", () => {
-    _.deployMode.NavigateBacktoEditor();
-    _.table.WaitUntilTableLoad(0, 0, "v2");
-    _.homePage.NavigateToHome();
-    _.homePage.ImportApp("Table/TableFilterImportApp.json");
-    _.homePage.AssertImportToast();
-    _.deployMode.DeployApp();
-    _.table.WaitUntilTableLoad(0, 0, "v2");
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad(0, 0, "v2");
+    homePage.NavigateToHome();
+    homePage.ImportApp("Table/TableFilterImportApp.json");
+    homePage.AssertImportToast();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //Contains
-    _.table.OpenNFilterTable("FirstName", "contains", "Della");
-    _.table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
+    table.OpenNFilterTable("FirstName", "contains", "Della");
+    table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
       expect($cellData).to.eq("Alvarado");
     });
 
@@ -96,27 +107,27 @@ describe("Verify various Table_Filter combinations", function () {
     filterOnlyCondition("empty", "0");
     filterOnlyCondition("not empty", "50");
     filterOnlyCondition("starts with", "3", "ge");
-    _.table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
       expect($cellData).to.eq("Chandler");
     });
 
-    _.table.OpenNFilterTable("FullName", "ends with", "ross", "OR", 1);
-    _.agHelper
-      .GetText(_.table._showPageItemsCount)
+    table.OpenNFilterTable("FullName", "ends with", "ross", "OR", 1);
+    agHelper
+      .GetText(table._showPageItemsCount)
       .then(($count) => expect($count).contain("4"));
-    _.table.CloseFilter();
-    _.agHelper
-      .GetText(_.table._filtersCount)
+    table.CloseFilter();
+    agHelper
+      .GetText(table._filtersCount)
       .then(($count) => expect($count).contain("2"));
 
-    _.table.OpenFilter();
-    _.table.RemoveFilterNVerify("1", true, false, 0, "v2");
+    table.OpenFilter();
+    table.RemoveFilterNVerify("1", true, false, 0, "v2");
   });
 
   it("5. Verify all filters for same FullName (two word column) + Bug 13334", () => {
     //Contains
-    _.table.OpenNFilterTable("FullName", "contains", "torres");
-    _.table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
+    table.OpenNFilterTable("FullName", "contains", "torres");
+    table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
       expect($cellData).to.eq("Virgie");
     });
 
@@ -127,58 +138,58 @@ describe("Verify various Table_Filter combinations", function () {
     filterOnlyCondition("empty", "0");
     filterOnlyCondition("not empty", "50");
     filterOnlyCondition("contains", "1", "wolf");
-    _.table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
       expect($cellData).to.eq("Teresa");
     });
 
-    _.table.OpenNFilterTable("FirstName", "starts with", "wa", "OR", 1);
-    _.agHelper.Sleep();
-    _.agHelper
-      .GetText(_.table._showPageItemsCount)
+    table.OpenNFilterTable("FirstName", "starts with", "wa", "OR", 1);
+    agHelper.Sleep();
+    agHelper
+      .GetText(table._showPageItemsCount)
       .then(($count) => expect($count).contain("3"));
 
-    _.table.OpenNFilterTable("LastName", "ends with", "son", "OR", 2);
-    _.agHelper
-      .GetText(_.table._showPageItemsCount)
+    table.OpenNFilterTable("LastName", "ends with", "son", "OR", 2);
+    agHelper
+      .GetText(table._showPageItemsCount)
       .then(($count) => expect($count).contain("0"));
-    _.table.CloseFilter();
-    _.agHelper
-      .GetText(_.table._filtersCount)
+    table.CloseFilter();
+    agHelper
+      .GetText(table._filtersCount)
       .then(($count) => expect($count).contain("3"));
 
-    _.table.OpenFilter();
-    _.table.RemoveFilterNVerify("1", true, false, 0, "v2");
+    table.OpenFilter();
+    table.RemoveFilterNVerify("1", true, false, 0, "v2");
   });
 
   it("6. Verify Table Filter for correct value in filter value input after removing second filter - Bug 12638", function () {
-    _.table.OpenNFilterTable("seq", "greater than", "5");
+    table.OpenNFilterTable("seq", "greater than", "5");
 
-    _.table.OpenNFilterTable("FirstName", "contains", "r", "AND", 1);
+    table.OpenNFilterTable("FirstName", "contains", "r", "AND", 1);
 
-    _.table.OpenNFilterTable("LastName", "contains", "son", "AND", 2);
-    _.agHelper.GetNClick(".t--table-filter-remove-btn", 1);
+    table.OpenNFilterTable("LastName", "contains", "son", "AND", 2);
+    agHelper.GetNClick(".t--table-filter-remove-btn", 1);
     cy.wait(500);
     cy.get(
       ".t--table-filter:nth-child(2) .t--table-filter-value-input input[type=text]",
     ).should("have.value", "son");
-    _.agHelper.GetNClick(".t--clear-all-filter-btn");
-    _.agHelper.GetNClick(".t--close-filter-btn");
+    agHelper.GetNClick(".t--clear-all-filter-btn");
+    agHelper.GetNClick(".t--close-filter-btn");
   });
 
   it("7. Verify Table Filter operator for correct value after removing where clause condition - Bug 12642", function () {
-    _.table.OpenNFilterTable("seq", "greater than", "5");
+    table.OpenNFilterTable("seq", "greater than", "5");
 
-    _.table.OpenNFilterTable("FirstName", "contains", "r", "AND", 1);
+    table.OpenNFilterTable("FirstName", "contains", "r", "AND", 1);
 
-    _.table.OpenNFilterTable("LastName", "contains", "son", "AND", 2);
-    _.agHelper.GetNClick(".t--table-filter-operators-dropdown");
+    table.OpenNFilterTable("LastName", "contains", "son", "AND", 2);
+    agHelper.GetNClick(".t--table-filter-operators-dropdown");
     cy.get(".t--dropdown-option").contains("OR").click();
-    _.agHelper.GetNClick(".t--table-filter-remove-btn", 0);
+    agHelper.GetNClick(".t--table-filter-remove-btn", 0);
     cy.get(".t--table-filter-operators-dropdown div div span").should(
       "contain",
       "OR",
     );
-    _.agHelper.GetNClick(".t--clear-all-filter-btn");
+    agHelper.GetNClick(".t--clear-all-filter-btn");
   });
 
   function filterOnlyCondition(
@@ -186,13 +197,13 @@ describe("Verify various Table_Filter combinations", function () {
     expectedCount: string,
     input: string | "" = "",
   ) {
-    _.agHelper.GetNClick(_.table._filterConditionDropdown);
-    cy.get(_.table._dropdownText).contains(condition).click();
+    agHelper.GetNClick(table._filterConditionDropdown);
+    cy.get(table._dropdownText).contains(condition).click();
     if (input)
-      _.agHelper.GetNClick(_.table._filterInputValue, 0).type(input).wait(500);
-    _.agHelper.ClickButton("APPLY");
-    _.agHelper
-      .GetText(_.table._showPageItemsCount)
+      agHelper.GetNClick(table._filterInputValue, 0).type(input).wait(500);
+    agHelper.ClickButton("APPLY");
+    agHelper
+      .GetText(table._showPageItemsCount)
       .then(($count) => expect($count).contain(expectedCount));
   }
 });

@@ -66,7 +66,7 @@ describe("GSheets WidgetQueryGenerator", () => {
 
     expect(expr).toEqual([
       {
-        name: "Find_query",
+        name: "Find_someSheet",
         payload: {
           formData: {
             command: {
@@ -165,7 +165,7 @@ describe("GSheets WidgetQueryGenerator", () => {
 
     expect(expr).toEqual([
       {
-        name: "Update_query",
+        name: "Update_someSheet",
         payload: {
           formData: {
             command: {
@@ -227,7 +227,7 @@ describe("GSheets WidgetQueryGenerator", () => {
     );
     expect(expr).toEqual([
       {
-        name: "Insert_query",
+        name: "Insert_someSheet",
         payload: {
           formData: {
             command: {
