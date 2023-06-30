@@ -16,7 +16,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
   });
 
   it("1. Containers Should Reflow in smaller viewports", () => {
-    agHelper.GetElement(HomePage.shareApp).click();
+    agHelper.GetNClick(HomePage.shareApp);
     //@ts-expect-error no type access
     cy.enablePublicAccess(true);
     deployMode.DeployApp();
