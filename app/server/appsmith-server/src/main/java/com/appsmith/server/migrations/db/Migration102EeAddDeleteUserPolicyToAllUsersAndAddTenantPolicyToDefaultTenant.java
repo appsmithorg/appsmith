@@ -3,8 +3,8 @@ package com.appsmith.server.migrations.db;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.migrations.utils.AppsmithResources;
+import com.appsmith.server.solutions.PolicySolution;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -25,12 +25,12 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 
 @ChangeUnit(order = "102-EE", id = "migration-add-delete-user-policy-to-all-users-add-tenant-policy-to-default-tenant")
 public class Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefaultTenant {
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final MongoTemplate mongoTemplate;
 
-    public Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefaultTenant(PolicyUtils policyUtils,
+    public Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefaultTenant(PolicySolution policySolution,
                                                                                         MongoTemplate mongoTemplate) {
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -54,7 +54,7 @@ public class Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefa
                         .permissionGroups(Set.of(instanceAdminRoleId))
                         .build()
         );
-        policyUtils.addPoliciesToExistingObject(tenantDeleteAndReadUsersPolicyMap, defaultTenant);
+        policySolution.addPoliciesToExistingObject(tenantDeleteAndReadUsersPolicyMap, defaultTenant);
         mongoTemplate.save(defaultTenant);
 
         Policy deleteUserPolicy = Policy.builder()
@@ -68,9 +68,9 @@ public class Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefa
         Criteria criteriaUsersWhereDeleteUsersPermissionDoesNotExist = new Criteria().andOperator(
                 Criteria.where("policies").exists(Boolean.TRUE),
                 Criteria.where("policies").not().size(0),
-               // Only add the DELETE_USERS permission if it doesn't exist already. For a brand new instance coming up, 
-               // this permission would automatically be added by the migration `addTenantAdminPermissionsToInstanceAdmin`. 
-               // This migration adds this permission to existing instances only.
+                // Only add the DELETE_USERS permission if it doesn't exist already. For a brand new instance coming up,
+                // this permission would automatically be added by the migration `addTenantAdminPermissionsToInstanceAdmin`.
+                // This migration adds this permission to existing instances only.
                 Criteria.where("policies.permission").ne(DELETE_USERS.getValue()),
                 notDeleted()
         );

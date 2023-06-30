@@ -64,9 +64,9 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           ObjectMapper objectMapper,
                           AssetService assetService) {
 
-        super(sessionUserService, userService, analyticsService, userRepository, policySolution, emailSender, commonConfig,
-                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+        super(sessionUserService, userService, analyticsService, userRepository, emailSender, commonConfig, emailConfig,
+                javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService, userUtils,
+                tenantService, objectMapper);
         this.assetService = assetService;
     }
 
