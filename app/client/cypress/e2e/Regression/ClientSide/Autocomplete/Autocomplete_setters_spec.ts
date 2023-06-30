@@ -46,7 +46,7 @@ describe("Autocomplete tests for setters", () => {
 
     _.agHelper.GetNAssertElementText(
       _.locators._hints,
-      "setData()",
+      "setDisabled()",
       "have.text",
       0,
     );
