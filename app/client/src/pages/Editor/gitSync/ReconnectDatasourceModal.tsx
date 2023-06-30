@@ -71,6 +71,7 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
+import type { AppState } from "@appsmith/reducers";
 
 const Section = styled.div`
   display: flex;
@@ -255,7 +256,9 @@ function ReconnectDatasourceModal() {
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);
   const pageIdForImport = useSelector(getPageIdForImport);
-  const environmentsFetched = useSelector(areEnvironmentsFetched);
+  const environmentsFetched = useSelector((state: AppState) =>
+    areEnvironmentsFetched(state, workspaceId),
+  );
   const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const unconfiguredDatasourceIds = unconfiguredDatasources.map(
     (ds: Datasource) => ds.id,

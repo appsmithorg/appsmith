@@ -256,6 +256,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
   }
 
+  getEnvironmentId = () => {
+    if (
+      this.props.isInsideReconnectModal &&
+      this.state.filterParams.id.length === 0 &&
+      !!this.props.datasource
+    ) {
+      return Object.keys(
+        (this.props.datasource as Datasource).datasourceStorages,
+      )[0];
+    }
+    return this.state.filterParams.id;
+  };
+
   componentDidMount() {
     const urlObject = new URL(window.location.href);
     const pluginId = urlObject?.searchParams.get("pluginId");
@@ -514,7 +527,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditorForm
           applicationId={this.props.applicationId}
-          currentEnvironment={this.state.filterParams.id}
+          currentEnvironment={this.getEnvironmentId()}
           datasourceId={datasourceId}
           formConfig={formConfig}
           formData={formData}
@@ -651,7 +664,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
                   <DatasourceAuth
-                    currentEnvironment={this.state.filterParams.id}
+                    currentEnvironment={this.getEnvironmentId()}
                     datasource={datasource as Datasource}
                     datasourceButtonConfiguration={
                       datasourceButtonConfiguration

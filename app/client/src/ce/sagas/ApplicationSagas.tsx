@@ -852,9 +852,13 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
+  let currentEnvironment = getCurrentEnvironment();
+  if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
+    // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
+    currentEnvironment = Object.keys(datasource.datasourceStorages)[0];
+  }
   // Added isEmpty instead of ! condition as ! does not account for
   // datasourceConfiguration being empty
-  const currentEnvironment = getCurrentEnvironment();
   if (
     isEmpty(
       datasource.datasourceStorages[currentEnvironment]
