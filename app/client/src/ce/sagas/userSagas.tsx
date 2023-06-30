@@ -84,8 +84,7 @@ import { createMessage } from "design-system-old/build/constants/messages";
 import type {
   ProductAlert,
   ProductAlertConfig,
-} from "../../reducers/uiReducers/usersReducer";
-import moment from "moment";
+} from "reducers/uiReducers/usersReducer";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -603,7 +602,7 @@ export const getMessageConfig = (id: string): ProductAlertConfig => {
     return alertConfig[id];
   }
   return {
-    snoozedOn: moment("01/01/1997").toDate(),
+    snoozeTill: new Date(),
     dismissed: false,
   };
 };

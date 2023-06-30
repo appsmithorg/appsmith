@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Callout, Text } from "design-system";
 import type { ProductAlertState } from "reducers/uiReducers/usersReducer";
 import { setMessageConfig } from "@appsmith/sagas/userSagas";
+import type { CalloutLinkProps } from "design-system/build/Callout/Callout.types";
+import moment from "moment/moment";
 
 const AlertContainer = styled.div`
   position: absolute;
@@ -17,20 +19,27 @@ const ProductAlertBanner = () => {
   const { config, message }: ProductAlertState | undefined = useSelector(
     (state) => state.ui.users.productAlert,
   );
+  const [dismissed, setDismissed] = useState(false);
 
   if (!message) return null;
-  if (config && config.dismissed) return null;
 
-  // check if still snoozed
+  // If dismissed, it will not be shown
+  if ((config && config.dismissed) || dismissed) return null;
 
-  const links = [];
+  // If still snoozed, it will not be shown
+  if (config && config.snoozeTill) {
+    const stillSnoozed = moment().isBefore(moment(config.snoozeTill));
+    if (stillSnoozed) {
+      return null;
+    }
+  }
+
+  const links: CalloutLinkProps[] = [];
 
   if (message.learnMoreLink) {
     links.push({
       children: "Learn More",
-      onClick: () => {
-        window.open(message.learnMoreLink, "_blank");
-      },
+      to: message.learnMoreLink,
     });
   }
 
@@ -40,8 +49,9 @@ const ProductAlertBanner = () => {
       onClick: () => {
         setMessageConfig(message.messageId, {
           dismissed: true,
-          snoozedOn: new Date(),
+          snoozeTill: new Date(),
         });
+        setDismissed(true);
       },
     });
   }
@@ -53,10 +63,16 @@ const ProductAlertBanner = () => {
         kind={"warning"}
         links={links}
         onClose={() => {
-          setMessageConfig(message.messageId, {
-            dismissed: false,
-            snoozedOn: new Date(),
-          });
+          if (message.remindLaterDays) {
+            setMessageConfig(message.messageId, {
+              dismissed: false,
+              snoozeTill: moment()
+                .add(message.remindLaterDays, "days")
+                .toDate(),
+            });
+          }
+
+          setDismissed(true);
         }}
       >
         <Text kind={"heading-s"}>{message.title}</Text>

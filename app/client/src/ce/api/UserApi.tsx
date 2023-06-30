@@ -83,7 +83,7 @@ export interface CreateSuperUserRequest {
 
 export class UserApi extends Api {
   static usersURL = "v1/users";
-  static productAlertURL = "v1/product-alert";
+  static productAlertURL = "v1/product-alert/alert";
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
   static verifyResetPasswordTokenURL = `${UserApi.usersURL}/verifyPasswordResetToken`;
   static resetPasswordURL = `${UserApi.usersURL}/resetPassword`;

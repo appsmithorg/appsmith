@@ -26,17 +26,9 @@ const initialState: UsersReduxState = {
     isFetched: false,
   },
   productAlert: {
-    message: {
-      messageId: "1",
-      title: "Test Message",
-      message:
-        "Appsmith now supports only MongoDB versions 5.x or higher. For self-managed MongoDB, upgrade to v5.x or higher. If you don’t have self-managed MongoDB, just upgrade your Appsmith version to the latest.",
-      canDismiss: true,
-      remindLaterDays: 1,
-    },
     config: {
       dismissed: false,
-      snoozedOn: new Date(),
+      snoozeTill: new Date(),
     },
   },
 };
@@ -228,7 +220,7 @@ export interface ProductAlert {
 
 export interface ProductAlertConfig {
   dismissed: boolean;
-  snoozedOn: Date;
+  snoozeTill: Date;
 }
 
 export interface ProductAlertState {
