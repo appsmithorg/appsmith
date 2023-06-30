@@ -787,6 +787,16 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+  public AssertCSS(
+    selector: string,
+    cssName: string,
+    cssValue: string,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.css", cssName, cssValue);
+  }
 
   public ToggleSwitch(
     switchName: string,
