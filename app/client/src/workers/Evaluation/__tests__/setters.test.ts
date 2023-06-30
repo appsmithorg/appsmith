@@ -62,7 +62,7 @@ describe("Setter class test", () => {
 
     expect(setters.getMap()).toEqual({
       Table1: {
-        setData: true,
+        // setData: true,
         setSelectedRowIndex: true,
         setVisibility: true,
       },

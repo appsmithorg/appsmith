@@ -462,10 +462,10 @@ class MultiSelectWidget extends BaseWidget<
           path: "isRequired",
           type: "boolean",
         },
-        setSelectedOptions: {
-          path: "defaultOptionValue",
-          type: "array",
-        },
+        // setSelectedOptions: {
+        //   path: "defaultOptionValue",
+        //   type: "array",
+        // },
       },
     };
   }

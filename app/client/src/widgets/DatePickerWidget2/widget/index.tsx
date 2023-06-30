@@ -73,10 +73,10 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           path: "isRequired",
           type: "boolean",
         },
-        setValue: {
-          path: "defaultDate",
-          type: "string",
-        },
+        // setValue: {
+        //   path: "defaultDate",
+        //   type: "string",
+        // },
       },
     };
   }

@@ -70,10 +70,10 @@ class NumberSliderWidget extends BaseWidget<
           path: "isDisabled",
           type: "boolean",
         },
-        setValue: {
-          path: "defaultValue",
-          type: "number",
-        },
+        // setValue: {
+        //   path: "defaultValue",
+        //   type: "number",
+        // },
       },
     };
   }
