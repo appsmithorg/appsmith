@@ -105,7 +105,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   RoleConfigurationSolution roleConfigurationSolution,
                                   PolicyGenerator policyGenerator,
                                   UserService userService,
-                                  UserGroupRepository userGroupRepository) {
+                                  UserGroupRepository userGroupRepository,
+                                  SessionUserService sessionUserService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policySolution,
                 configService, responseUtils, permissionGroupService, newActionRepository, assetService,
