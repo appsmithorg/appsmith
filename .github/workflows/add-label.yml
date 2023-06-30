@@ -3,6 +3,8 @@ on:
   pull_request:
     types:
       - closed
+    branches:
+      - release
 
 jobs:
   add_label:
@@ -36,8 +38,8 @@ jobs:
         if: ${{ env.PR_MERGED == 'true' && steps.check_files_changed.outputs.files_changed_count > 0 }}
         uses: actions/github-script@v6
         with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
+         github-token: ${{ secrets.GITHUB_TOKEN }}
+         script: |
           const issue = context.issue;
           const labelToAdd = 'cypress-flaky-fix';
 
