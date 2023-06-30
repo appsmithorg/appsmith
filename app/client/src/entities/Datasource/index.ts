@@ -105,6 +105,11 @@ export interface EmbeddedRestDatasource extends BaseDatasource {
   isValid: boolean;
 }
 
+export enum DatasourceConnectionMode {
+  READ_ONLY = "READ_ONLY",
+  READ_WRITE = "READ_WRITE",
+}
+
 export interface DatasourceConfiguration {
   url: string;
   authentication?: DatasourceAuthentication;
@@ -112,6 +117,9 @@ export interface DatasourceConfiguration {
   headers?: Property[];
   queryParameters?: Property[];
   databaseName?: string;
+  connection?: {
+    mode: DatasourceConnectionMode;
+  };
 }
 
 export interface Datasource extends BaseDatasource {
