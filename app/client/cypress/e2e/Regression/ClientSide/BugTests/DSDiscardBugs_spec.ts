@@ -82,7 +82,7 @@ describe("datasource unsaved changes popup shows even without changes", function
 
       // Edit datasource, change connection string uri param and click on back button
       _.dataSources.EditDatasource();
-      _.dataSources.FillMongoDatasourceFormWithURI(testString);
+      _.dataSources.FillMongoDatasourceFormWithURI();
 
       // Assert that popup is visible
       _.dataSources.SaveDSFromDialog(false);

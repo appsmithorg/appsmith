@@ -16,7 +16,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       cy.wait(2000);
       // Create sample(mock) user database.
       _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, false);
+        _.dataSources.CreateQueryFromActiveTab(dbName, true);
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
@@ -331,6 +331,8 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
+
+      _.dataSources.NavigateToActiveTab();
 
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       cy.get(`${datasource.datasourceCard}`)

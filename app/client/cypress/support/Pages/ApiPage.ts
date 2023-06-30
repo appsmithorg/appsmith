@@ -121,16 +121,10 @@ export class ApiPage {
   }
 
   AssertRunButtonDisability(disabled = false) {
-    let query = "";
-    if (disabled) {
-      query = "be.disabled";
-    } else {
-      query = "not.be.disabled";
-    }
-    cy.get(this._apiRunBtn).should(query);
+    this.agHelper.AssertElementEnabledDisabled(this._apiRunBtn, 0, disabled);
   }
 
-  EnterURL(url: string, validateEvaluatedValue = false, evaluatedValue = "") {
+  EnterURL(url: string, evaluatedValue = "") {
     this.agHelper.EnterValue(url, {
       propFieldName: this._resourceUrl,
       directInput: true,
@@ -138,7 +132,7 @@ export class ApiPage {
     });
     this.agHelper.AssertAutoSave();
 
-    if (validateEvaluatedValue) {
+    if (evaluatedValue) {
       this.agHelper.VerifyEvaluatedValue(evaluatedValue);
     }
   }
