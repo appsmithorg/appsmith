@@ -91,9 +91,6 @@ public class DatasourceServiceTest {
     WorkspaceRepository workspaceRepository;
 
     @Autowired
-    PolicySolution policySolution;
-
-    @Autowired
     ApplicationPageService applicationPageService;
 
     @Autowired

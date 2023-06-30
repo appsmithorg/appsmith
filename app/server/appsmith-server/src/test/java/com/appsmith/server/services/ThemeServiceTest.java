@@ -49,9 +49,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ThemeServiceTest {
 
     @Autowired
-    PolicySolution policySolution;
-
-    @Autowired
     ApplicationRepository applicationRepository;
 
     @Autowired
