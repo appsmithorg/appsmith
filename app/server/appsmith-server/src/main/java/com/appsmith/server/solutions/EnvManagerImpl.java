@@ -50,7 +50,6 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           UserService userService,
                           AnalyticsService analyticsService,
                           UserRepository userRepository,
-                          PolicySolution policySolution,
                           EmailSender emailSender,
                           CommonConfig commonConfig,
                           EmailConfig emailConfig,
