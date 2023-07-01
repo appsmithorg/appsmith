@@ -77,7 +77,7 @@ function GoogleMapsConfig(): ReactElement<any, any> {
           </Callout>
           <Input
             id="APPSMITH_GOOGLE_MAPS_API_KEY"
-            label="Google Maps API Key"
+            label="Google Maps API key"
             onChange={setMapsKey}
             size="md"
             value={mapsKey}
