@@ -71,6 +71,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     }
 
 
+    @Override
     @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
     public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier){
         return this.forceAllRemoteFeatureFlagsForUser(userIdentifier).flatMap(flags -> {
@@ -81,6 +82,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         });
     }
 
+    @Override
     @CacheEvict(cacheName = "featureFlag", key = "{#userIdentifier}")
     public Mono<Void> evictUserCachedFlags(String userIdentifier) {
         return Mono.empty();
