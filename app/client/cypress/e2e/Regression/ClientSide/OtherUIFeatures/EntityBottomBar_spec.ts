@@ -90,14 +90,14 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Verify if bottom bar opens on clicking debugger icon in query page.
-      _.dataSources.CreateQueryFromActiveTab(dbName, false);
+      _.dataSources.CreateQueryAfterDSSaved();
       _.debuggerHelper.ClickDebuggerIcon();
       _.debuggerHelper.AssertOpen(PageType.Query);
       //Verify if bottom bar is closed on clicking close icon in query page.
       _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Create and run query.
-      _.agHelper.GetNClick(_.dataSources._templateMenu);
+
       _.dataSources.EnterQuery(
         "SELECT * FROM users ORDER BY id LIMIT 10;",
         1000,
@@ -131,7 +131,6 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
     //Create and run query.
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
     _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;", 1000);
     _.dataSources.RunQuery();
     //Verify if bottom bar is open on executing query.

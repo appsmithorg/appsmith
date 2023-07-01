@@ -14,8 +14,10 @@ public interface TenantServiceCE extends CrudService<Tenant, String> {
 
     Mono<Tenant> findById(String tenantId, AclPermission permission);
 
+    Mono<Tenant> getTenantConfiguration();
+
     Mono<Tenant> getDefaultTenant();
 
-    Mono<Tenant> getTenantConfiguration();
+    Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration);
 
 }

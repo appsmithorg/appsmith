@@ -14,11 +14,11 @@ export class LibraryInstaller {
     return `div.library-card.t--${libraryName}`;
   }
 
-  public openInstaller(force = false) {
+  public OpenInstaller(force = false) {
     this._aggregateHelper.GetNClick(this._installer_trigger_locator, 0, force);
   }
 
-  public closeInstaller() {
+  public CloseInstaller() {
     this._aggregateHelper.GetNClick(this._installer_close_locator);
   }
 

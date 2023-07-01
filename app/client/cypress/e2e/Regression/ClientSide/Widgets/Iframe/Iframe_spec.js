@@ -1,8 +1,10 @@
-const dsl = require("../../../../../fixtures/IframeDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Iframe Widget functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("IframeDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   const getIframeBody = () => {

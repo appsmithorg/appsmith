@@ -75,50 +75,80 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
 
+    /*
+     * For now, returning just the instance-id, with an empty tenantConfiguration object in this class. Will enhance
+     * this function once we start saving other pertinent environment variables in the tenant collection.
+     */
+    @Override
+    public Mono<Tenant> getTenantConfiguration() {
+        Mono<Tenant> dbTenantMono = getDefaultTenant();
+        Mono<Tenant> clientTenantMono = configService.getInstanceId()
+                .map(instanceId -> {
+                    final Tenant tenant = new Tenant();
+                    tenant.setInstanceId(instanceId);
+
+                    final TenantConfiguration config = new TenantConfiguration();
+                    tenant.setTenantConfiguration(config);
+
+                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("google");
+                    }
+
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("github");
+                    }
+
+                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
+
+                    return tenant;
+                });
+
+        return Mono.zip(dbTenantMono, clientTenantMono)
+                .map(tuple -> {
+                    Tenant dbTenant = tuple.getT1();
+                    Tenant clientTenant = tuple.getT2();
+                    return getClientPertinentTenant(dbTenant, clientTenant);
+                });
+    }
+
     @Override
     public Mono<Tenant> getDefaultTenant() {
         // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).thenReturn(tenant));
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
+                        .switchIfEmpty(Mono.just(tenant)));
     }
 
     @Override
-    public Mono<Tenant> getTenantConfiguration() {
-        return Mono.zip(
-                        getDefaultTenant(),
-                        configService.getInstanceId()
-                )
-                .map(tuple -> {
-                    final Tenant dbTenant = tuple.getT1();
-                    final String instanceId = tuple.getT2();
+    public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
+        return getDefaultTenantId()
+                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
+    }
 
-                    final Tenant tenantForClient = new Tenant();
-                    tenantForClient.setInstanceId(instanceId);
+    /**
+     * To get the Tenant with values that are pertinent to the client
+     * @param dbTenant Original tenant from the database
+     * @param clientTenant Tenant object that is sent to the client, can be null
+     * @return Tenant
+     */
+    protected Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
+        TenantConfiguration tenantConfiguration;
+        if (clientTenant == null) {
+            clientTenant = new Tenant();
+            tenantConfiguration = new TenantConfiguration();
+        } else {
+            tenantConfiguration = clientTenant.getTenantConfiguration();
+        }
 
-                    final TenantConfiguration configForClient = new TenantConfiguration();
-                    tenantForClient.setTenantConfiguration(configForClient);
+        // Only copy the values that are pertinent to the client
+        tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
+        clientTenant.setTenantConfiguration(tenantConfiguration);
+        clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
-                    // Only copy the values that are pertinent to the client
-                    configForClient.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
-                    tenantForClient.setUserPermissions(dbTenant.getUserPermissions());
-
-                    if (!StringUtils.hasText(configForClient.getGoogleMapsKey())) {
-                        configForClient.setGoogleMapsKey(System.getenv(EnvVariables.APPSMITH_GOOGLE_MAPS_API_KEY.name()));
-                    }
-
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                        configForClient.addThirdPartyAuth("google");
-                    }
-
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                        configForClient.addThirdPartyAuth("github");
-                    }
-
-                    configForClient.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
-
-                    return tenantForClient;
-                });
+        return clientTenant;
     }
 
 }

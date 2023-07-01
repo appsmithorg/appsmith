@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
@@ -7,7 +6,9 @@ describe("Widget error state", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttondsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check widget error state", function () {

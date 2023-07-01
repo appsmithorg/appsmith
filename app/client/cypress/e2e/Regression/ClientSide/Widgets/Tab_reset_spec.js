@@ -1,11 +1,12 @@
 const LayoutPage = require("../../../../locators/Layout.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const dsl = require("../../../../fixtures/tabsWidgetReset.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Tabs widget resetting", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(4000); //for dsl to settle!
+    cy.fixture("tabsWidgetReset").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1.Reset the Tabs widget With the default value.", function () {

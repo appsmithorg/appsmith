@@ -14,14 +14,7 @@ public class TenantConfigurationCE {
 
     private Boolean isFormLoginEnabled;
 
-    public void copyNonSensitiveValues(TenantConfigurationCE source) {
-        if (source == null) {
-            return;
-        }
-
-        googleMapsKey = source.getGoogleMapsKey();
-        isFormLoginEnabled = source.getIsFormLoginEnabled();
-    }
+    private String instanceName;
 
     // We add `JsonInclude` here, so that this field is included in the JSON response, even if it is `null`. Reason is,
     // if this field is not present, then the existing value in client's state doesn't get updated. It's just the way
@@ -36,6 +29,16 @@ public class TenantConfigurationCE {
             thirdPartyAuths = new ArrayList<>();
         }
         thirdPartyAuths.add(auth);
+    }
+
+    public void copyNonSensitiveValues(TenantConfiguration source) {
+        if (source == null) {
+            return;
+        }
+
+        googleMapsKey = source.getGoogleMapsKey();
+        isFormLoginEnabled = source.getIsFormLoginEnabled();
+        instanceName = source.getInstanceName();
     }
 
 }

@@ -34,6 +34,9 @@ export enum PluginName {
   GOOGLE_SHEETS = "Google Sheets",
   FIRESTORE = "Firestore",
   ORACLE = "Oracle",
+  SNOWFLAKE = "Snowflake",
+  ARANGODB = "ArangoDB",
+  REDSHIFT = "Redshift",
 }
 
 export enum PaginationType {
@@ -194,7 +197,6 @@ export type ActionViewMode = {
 export type Action = ApiAction | QueryAction | SaaSAction | RemoteAction;
 
 export enum SlashCommand {
-  NEW_SNIPPET,
   NEW_API,
   NEW_QUERY,
   NEW_INTEGRATION,

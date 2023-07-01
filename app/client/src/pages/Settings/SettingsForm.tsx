@@ -32,7 +32,6 @@ import {
 import {
   isTenantConfig,
   saveAllowed,
-  tenantConfigConnection,
 } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -50,6 +49,7 @@ import {
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
 import { updateTenantConfig } from "@appsmith/actions/tenantActions";
+import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -68,10 +68,6 @@ function getSettingDetail(category: string, subCategory: string) {
 
 function getSettingsConfig(category: string, subCategory?: string) {
   return AdminConfig.get(subCategory ?? category);
-}
-
-function getKeyByValue(object: any, value: string) {
-  return Object.keys(object).find((key) => object[key] === value);
 }
 
 export function SettingsForm(
@@ -111,9 +107,8 @@ export function SettingsForm(
       // only tenant settings
       const config: any = {};
       for (const each in props.settings) {
-        const key = getKeyByValue(tenantConfigConnection, each) || "";
-        if (key) {
-          config[key] = props.settings[each];
+        if (tenantConfigConnection.includes(each)) {
+          config[each] = props.settings[each];
         }
       }
       dispatch(
