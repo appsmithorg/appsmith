@@ -43,7 +43,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final CloudServicesConfig cloudServicesConfig;
 
-    private long featureFlagCacheTimeMin = 120;
+    private final long featureFlagCacheTimeMin = 120;
 
     private final UserIdentifierService userIdentifierService;
 
