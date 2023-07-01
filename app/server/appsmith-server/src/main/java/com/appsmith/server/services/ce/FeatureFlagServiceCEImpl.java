@@ -28,7 +28,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 @Slf4j
@@ -44,7 +43,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final CloudServicesConfig cloudServicesConfig;
 
-    private long featureFlagCacheTimeMin = 1;
+    private long featureFlagCacheTimeMin = 120;
 
     private final UserIdentifierService userIdentifierService;
 
