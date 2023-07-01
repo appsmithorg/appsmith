@@ -58,6 +58,7 @@ import java.util.stream.IntStream;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.CommonFieldName.BODY;
 import static com.appsmith.external.constants.CommonFieldName.PREPARED_STATEMENT;
+import static com.appsmith.external.constants.PluginConstants.PluginName.ORACLE_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -67,7 +68,6 @@ import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInForm
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.utils.OracleDatasourceUtils.JDBC_DRIVER;
 import static com.external.plugins.utils.OracleDatasourceUtils.createConnectionPool;
-import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
 import static com.external.plugins.utils.OracleDatasourceUtils.logHikariCPStatus;
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
 import static com.external.plugins.utils.OracleExecuteUtils.isPLSQL;
@@ -79,6 +79,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class OraclePlugin extends BasePlugin {
+    public static final OracleDatasourceUtils oracleDatasourceUtils = new OracleDatasourceUtils();
 
     public OraclePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -197,7 +198,9 @@ public class OraclePlugin extends BasePlugin {
                         Connection connectionFromPool;
 
                         try {   
-                            connectionFromPool = getConnectionFromConnectionPool(connectionPool);
+                            connectionFromPool =
+                                    oracleDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool,
+                                    ORACLE_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
@@ -205,7 +208,8 @@ public class OraclePlugin extends BasePlugin {
                             // and should then trigger the destruction and recreation of the pool.
                             log.debug("Exception Occurred while getting connection from pool" + e.getMessage());
                             e.printStackTrace(System.out);
-                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                            return Mono.error(e instanceof StaleConnectionException ? e :
+                                    new StaleConnectionException(e.getMessage()));
                         }
 
                         List<Map<String, Object>> rowsList = new ArrayList<>(50);

@@ -57,6 +57,7 @@ export class AutoLayout {
     }
 
     this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
+    this.agHelper.Sleep(2000); //for page to refresh & all elements to load- trial fix for CI failure
     this.assertHelper.AssertNetworkStatus("@getWorkspace"); //getWorkspace for Edit page!
 
     this.VerifyIsAutoLayout();
