@@ -62,8 +62,7 @@ describe(" File Picker Widget", function () {
     });
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "FilePicker_Widget");
-    propPane.UpdatePropertyFieldValue("Text", "");
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       "{{currentView.FilePicker1.isDirty}}_{{currentView.FilePicker1.isValid}}_{{currentView.FilePicker1.files[0]?.name}}",
     );
