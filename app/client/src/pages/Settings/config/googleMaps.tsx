@@ -14,7 +14,6 @@ import {
 } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { saveSettings } from "@appsmith/actions/settingsAction";
 import { HeaderWrapper, SettingsFormWrapper } from "../components";
 import { updateTenantConfig } from "@appsmith/actions/tenantActions";
 
