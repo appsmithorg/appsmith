@@ -522,19 +522,13 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
     networkCall = "viewPage",
   ) {
-    this.deployMode.StubbingWindow();
     cy.url().then(($currentUrl) => {
-      this.agHelper.GetNClick(
+      this.deployMode.StubWindowNAssert(
         this._tableRowColumnData(row, col, tableVersion),
-        0,
-        false,
-        4000,
-      ); //timeout new url to settle loading
-      cy.get("@windowStub").should("be.calledOnce");
-      cy.url().should("eql", expectedURL);
-      this.assertHelper.AssertDocumentReady();
-      cy.visit($currentUrl);
-      this.assertHelper.AssertNetworkStatus("@" + networkCall);
+        expectedURL,
+        $currentUrl,
+        networkCall,
+      );
       this.WaitUntilTableLoad(0, 0, tableVersion);
     });
   }
@@ -580,12 +574,7 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public EditTableCell(
-    rowIndex: number,
-    colIndex: number,
-    newValue: "" | number | string,
-    toSaveNewValue = true,
-  ) {
+  public ClickOnEditIcon(rowIndex: number, colIndex: number) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
@@ -597,6 +586,15 @@ export class Table {
         " " +
         this._editCellEditorInput,
     );
+  }
+
+  public EditTableCell(
+    rowIndex: number,
+    colIndex: number,
+    newValue: "" | number | string,
+    toSaveNewValue = true,
+  ) {
+    this.ClickOnEditIcon(rowIndex, colIndex);
     this.UpdateTableCell(
       rowIndex,
       colIndex,

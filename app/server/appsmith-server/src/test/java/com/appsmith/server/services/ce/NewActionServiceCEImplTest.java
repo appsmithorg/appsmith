@@ -7,7 +7,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -79,7 +79,7 @@ public class NewActionServiceCEImplTest {
     @MockBean
     SessionUserService sessionUserService;
     @MockBean
-    PolicyUtils policyUtils;
+    PolicySolution policySolution;
     @MockBean
     AuthenticationValidator authenticationValidator;
     @MockBean
@@ -116,7 +116,7 @@ public class NewActionServiceCEImplTest {
                 policyGenerator,
                 newPageService,
                 applicationService,
-                policyUtils,
+                policySolution,
                 configService,
                 responseUtils,
                 permissionGroupService,

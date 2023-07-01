@@ -1,10 +1,10 @@
 package com.external.plugins.exceptions;
 
-public class SMTPErrorMessages {
-    private SMTPErrorMessages() {
-        //Prevents instantiation
-    }
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class SMTPErrorMessages {
     public static final String RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG = "Couldn't find a valid recipient address. Please check your action configuration.";
 
     public static final String SENDER_ADDRESS_NOT_FOUND_ERROR_MSG = "Couldn't find a valid sender address. Please check your action configuration.";

@@ -33,8 +33,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       //Step1
       cy.wait(2000);
-      _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, false);
+      _.dataSources.CreateMockDB("Users").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved();
         _.dataSources.ToggleUsePreparedStatement(false);
       });
 

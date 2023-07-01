@@ -228,7 +228,7 @@ Cypress.Commands.add("LogOutUser", () => {
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
-  goToLoginPage && cy.visit("/user/login");
+  goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")
