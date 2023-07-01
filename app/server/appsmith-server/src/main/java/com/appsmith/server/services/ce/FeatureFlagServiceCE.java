@@ -41,7 +41,4 @@ public interface FeatureFlagServiceCE {
 
     Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits);
 
-    Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier);
-
-    Mono<Void> evictUserCachedFlags(String userIdentifier);
 }
