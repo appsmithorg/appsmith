@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -128,7 +129,7 @@ class TenantServiceCETest {
 
         data.add("APPSMITH_GOOGLE_MAPS_API_KEY", TestUtils.makeMockedFieldPart("test-key"));
 
-        final Mono<Void> resultMono = envManager.applyChangesFromMultipartFormData(data);
+        final Mono<EnvChangesResponseDTO> resultMono = envManager.applyChangesFromMultipartFormData(data);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
@@ -145,7 +146,7 @@ class TenantServiceCETest {
 
         data.add("APPSMITH_GOOGLE_MAPS_API_KEY", TestUtils.makeMockedFieldPart("test-key"));
 
-        final Mono<Void> resultMono = envManager.applyChangesFromMultipartFormData(data);
+        final Mono<EnvChangesResponseDTO> resultMono = envManager.applyChangesFromMultipartFormData(data);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
