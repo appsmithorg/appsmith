@@ -16,6 +16,7 @@ import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { saveSettings } from "@appsmith/actions/settingsAction";
 import { HeaderWrapper, SettingsFormWrapper } from "../components";
+import { updateTenantConfig } from "@appsmith/actions/tenantActions";
 
 export const config: AdminConfigType = {
   icon: "map-pin-2-line",
@@ -35,12 +36,12 @@ function GoogleMapsConfig(): ReactElement<any, any> {
 
   function onSave() {
     dispatch(
-      saveSettings(
-        {
-          APPSMITH_GOOGLE_MAPS_API_KEY: mapsKey,
+      updateTenantConfig({
+        tenantConfiguration: {
+          googleMapsKey: mapsKey,
         },
-        false,
-      ),
+        isOnlyTenantSettings: true,
+      }),
     );
   }
 
@@ -76,7 +77,6 @@ function GoogleMapsConfig(): ReactElement<any, any> {
           </Callout>
           <Input
             id="APPSMITH_GOOGLE_MAPS_API_KEY"
-            isValid={mapsKey.trim() !== ""}
             label="Google Maps API Key"
             onChange={setMapsKey}
             size="md"
