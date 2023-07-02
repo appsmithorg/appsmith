@@ -12,6 +12,7 @@ public class UrlCE {
     final public static String LAYOUT_URL = BASE_URL + VERSION + "/layouts";
     final public static String PLUGIN_URL = BASE_URL + VERSION + "/plugins";
     final public static String DATASOURCE_URL = BASE_URL + VERSION + "/datasources";
+    final public static String FEATURE_FLAG_TEST = BASE_URL + VERSION + "/featureflagtest";
     final public static String SAAS_URL = BASE_URL + VERSION + "/saas";
     final public static String ACTION_URL = BASE_URL + VERSION + "/actions";
     final public static String USER_URL = BASE_URL + VERSION + "/users";

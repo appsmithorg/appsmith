@@ -36,6 +36,8 @@ public class MDCFilter implements WebFilter {
     private static final String SESSION = "SESSION";
     public static final String THREAD = "thread";
 
+    public static final String ABFLAG = "abflag";
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         try {
@@ -69,6 +71,8 @@ public class MDCFilter implements WebFilter {
         // This is for the initial thread that started the request,
         // any reactive forking will generate a new thread
         contextMap.put(THREAD, Thread.currentThread().getName());
+
+        contextMap.put(ABFLAG, "onFlag");
 
         // Set the MDC context here for regular non-reactive logs
         MDC.setContextMap(contextMap);

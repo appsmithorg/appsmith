@@ -3,6 +3,12 @@
     <autocreate>false</autocreate>
     <audit>false</audit>
     <features>
+        <feature uid="TEST_FEATURE_1" enable="true"
+                 description="The test feature should only be visible to Appsmith users">
+            <flipstrategy class="com.appsmith.server.featureflags.strategies.AppsmithUserStrategy">
+                <param name="requiredKey" value="requiredValue"/>
+            </flipstrategy>
+        </feature>
         <feature uid="DATASOURCE_ENVIRONMENTS" enable="true"
                  description="Introducing multiple execution environments for datasources">
             <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
