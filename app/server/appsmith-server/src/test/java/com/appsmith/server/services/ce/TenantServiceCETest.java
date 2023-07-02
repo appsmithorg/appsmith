@@ -108,11 +108,10 @@ class TenantServiceCETest {
     @Test
     @WithUserDetails("api_user")
     void setMapsKeyAndGetItBack() {
-        MultiValueMap<String, Part> data = new LinkedMultiValueMap<>();
+        final TenantConfiguration changes = new TenantConfiguration();
+        changes.setGoogleMapsKey("test-key");
 
-        data.add("APPSMITH_GOOGLE_MAPS_API_KEY", TestUtils.makeMockedFieldPart("test-key"));
-
-        final Mono<TenantConfiguration> resultMono = envManager.applyChangesFromMultipartFormData(data)
+        final Mono<TenantConfiguration> resultMono = tenantService.updateDefaultTenantConfiguration(changes)
                 .then(tenantService.getTenantConfiguration())
                 .map(Tenant::getTenantConfiguration);
 
@@ -125,11 +124,10 @@ class TenantServiceCETest {
 
     @Test
     void setMapsKeyWithoutAuthentication() {
-        MultiValueMap<String, Part> data = new LinkedMultiValueMap<>();
+        final TenantConfiguration changes = new TenantConfiguration();
+        changes.setGoogleMapsKey("test-key");
 
-        data.add("APPSMITH_GOOGLE_MAPS_API_KEY", TestUtils.makeMockedFieldPart("test-key"));
-
-        final Mono<EnvChangesResponseDTO> resultMono = envManager.applyChangesFromMultipartFormData(data);
+        final Mono<?> resultMono = tenantService.updateDefaultTenantConfiguration(changes);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
@@ -142,11 +140,10 @@ class TenantServiceCETest {
     @Test
     @WithUserDetails("usertest@usertest.com")
     void setMapsKeyWithoutAuthorization() {
-        MultiValueMap<String, Part> data = new LinkedMultiValueMap<>();
+        final TenantConfiguration changes = new TenantConfiguration();
+        changes.setGoogleMapsKey("test-key");
 
-        data.add("APPSMITH_GOOGLE_MAPS_API_KEY", TestUtils.makeMockedFieldPart("test-key"));
-
-        final Mono<EnvChangesResponseDTO> resultMono = envManager.applyChangesFromMultipartFormData(data);
+        final Mono<?> resultMono = tenantService.updateDefaultTenantConfiguration(changes);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
