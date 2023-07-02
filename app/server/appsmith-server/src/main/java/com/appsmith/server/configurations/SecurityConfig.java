@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -122,7 +123,7 @@ public class SecurityConfig {
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
-    @ConditionalOnProperty(name = "appsmith.internal.auth.enabled")
+    @ConditionalOnExpression(value = "'${appsmith.internal.password}'.length() > 0")
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
         return http
                 .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
