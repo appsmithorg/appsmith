@@ -47,7 +47,7 @@ import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
 import { getCurrentUserLoading } from "selectors/usersSelectors";
 import Setup from "pages/setup";
-import Settings from "@appsmith/pages/AdminSettings";
+import SettingsLoader from "@appsmith/pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
@@ -100,7 +100,7 @@ export function Routes() {
         }
       />
       <SentryRoute
-        component={Settings}
+        component={SettingsLoader}
         exact
         path={ADMIN_SETTINGS_CATEGORY_PATH}
       />
