@@ -203,7 +203,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
-    private Mono<Void> addDefaultUserTraits(User user){
+    private Mono<Void> addDefaultUserTraits(User user) {
         String identifier = userIdentifierService.getUserIdentifier(user);
         List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
         String emailTrait;
@@ -222,7 +222,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 });
     }
 
-    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue){
+    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue) {
         FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
         featureFlagTrait.setIdentifier(identifier);
         featureFlagTrait.setTraitKey(traitKey);

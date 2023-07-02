@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Slf4j
-public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE{
+public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
     private final TenantService tenantService;
 
     private final ConfigService configService;
@@ -37,7 +37,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
 
     @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
     @Override
-    public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier){
+    public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier) {
         return this.forceAllRemoteFeatureFlagsForUser(userIdentifier).flatMap(flags -> {
             CachedFlags cachedFlags = new CachedFlags();
             cachedFlags.setRefreshedAt(Instant.now());
@@ -74,7 +74,8 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .body(BodyInserters.fromValue(identity))
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
-                        return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Boolean>>>>() {
+                        return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Map<String,
+                                Map<String, Boolean>>>>() {
                         });
                     } else {
                         return clientResponse.createError();

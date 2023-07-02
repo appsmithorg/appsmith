@@ -76,7 +76,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
         return getAllFeatureFlagsForUser()
                 .flatMap(featureMap -> Mono.justOrEmpty(featureMap.get(featureName)))
-                                .switchIfEmpty(Mono.just(false));
+                .switchIfEmpty(Mono.just(false));
     }
 
     @Override
@@ -120,6 +120,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     /**
      * This function fetches remote flags (i.e. flagsmith flags)
+     *
      * @return
      */
     private Mono<Map<String, Boolean>> getAllRemoteFeatureFlagsForUser() {
@@ -129,21 +130,21 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     String userIdentifier = userIdentifierService.getUserIdentifier(user);
                     // Checks for flags present in cache and if the cache is not expired
                     return cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier)
-                            .flatMap(cachedFlags-> {
-                        if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTimeMin){
-                            return Mono.just(cachedFlags.getFlags());
-                        }else {
-                            // empty the cache for the userIdentifier as expired
-                            return cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier)
-                                    .then(Mono.defer(()-> cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier)))
-                                    .flatMap(cachedFlagsUpdated -> Mono.just(cachedFlagsUpdated.getFlags()));
-                        }
-                    });
+                            .flatMap(cachedFlags -> {
+                                if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTimeMin) {
+                                    return Mono.just(cachedFlags.getFlags());
+                                } else {
+                                    // empty the cache for the userIdentifier as expired
+                                    return cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier)
+                                            .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier))
+                                            .flatMap(cachedFlagsUpdated -> Mono.just(cachedFlagsUpdated.getFlags()));
+                                }
+                            });
                 });
     }
 
     @Override
-    public Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits){
+    public Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits) {
 
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
                 .post()

@@ -95,11 +95,11 @@ public class FeatureFlagServiceTest {
         String userIdentifier = "testIdentifier";
         Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
-        StepVerifier.create(cachedFlagsMono.then(Mono.defer(()-> hasKeyMono)))
-                        .assertNext(isKeyPresent -> {
-                            assertTrue(isKeyPresent);
-                        })
-                        .verifyComplete();
+        StepVerifier.create(cachedFlagsMono.then(hasKeyMono))
+                .assertNext(isKeyPresent -> {
+                    assertTrue(isKeyPresent);
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -107,7 +107,7 @@ public class FeatureFlagServiceTest {
         String userIdentifier = "testIdentifier";
         Mono<Void> evictCache = cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
-        StepVerifier.create(evictCache.then(Mono.defer(()-> hasKeyMono)))
+        StepVerifier.create(evictCache.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {
                     assertFalse(isKeyPresent);
                 })
