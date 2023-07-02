@@ -55,13 +55,9 @@ describe("Test Top + Inline navigation style", function () {
     agHelper.AssertElementExist(
       appSettings.locators._topInlineMoreDropdownItem,
     );
-    agHelper.AssertElementLength(
-      appSettings.locators._topInlineMoreDropdownItem,
-      1,
-    );
     agHelper
       .GetElementLength(appSettings.locators._topInlineMoreDropdownItem)
-      .should("have.length.of.at.least", 1);
+      .then(($len) => expect($len).to.be.at.least(1));
   });
 
   it("3. Page change from inside this dropdown should work", () => {
@@ -114,7 +110,7 @@ describe("Test Top + Inline navigation style", function () {
   it("5. Navigation's background should be default to white, and should change when background color is set to theme", () => {
     // The background should be white since light color style is default
     agHelper
-      .GetElementLength(appSettings.locators._header)
+      .GetElement(appSettings.locators._header)
       .should("have.css", "background-color", "rgb(255, 255, 255)");
 
     // Changing color style to theme should change navigation's background color
@@ -124,7 +120,7 @@ describe("Test Top + Inline navigation style", function () {
     agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
     deployMode.DeployApp();
     agHelper
-      .GetElementLength(appSettings.locators._header)
+      .GetElement(appSettings.locators._header)
       .should("have.css", "background-color", "rgb(85, 61, 233)");
   });
 

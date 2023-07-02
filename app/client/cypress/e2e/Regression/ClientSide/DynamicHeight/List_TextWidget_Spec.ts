@@ -19,7 +19,7 @@ describe("Dynamic Height Width validation list widget", function () {
     //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget with multitreeselect
     entityExplorer.SelectEntityByName("MultiTreeSelect1", "List1");
     agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
-
+    agHelper.WaitUntilAllToastsDisappear();
     entityExplorer.SelectEntityByName("List1", "Widgets");
     propPane.MoveToTab("Style");
     agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
@@ -65,7 +65,8 @@ describe("Dynamic Height Width validation list widget", function () {
         entityExplorer.SelectEntityByName("Text3Copy");
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
         agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
-        agHelper.GetElement(locators._body).click({ force: true });
+        //agHelper.GetElement(locators._body).click({ force: true });
+        agHelper.GetElement(locators._canvasBody).click({force: true})
         agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
         assertHelper.AssertNetworkStatus("@updateLayout");
         //Widgets when moved out of the list widget have dynamic height in property pane

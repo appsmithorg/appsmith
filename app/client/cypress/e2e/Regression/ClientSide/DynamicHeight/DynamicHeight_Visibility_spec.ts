@@ -22,6 +22,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     entityExplorer.SelectEntityByName("Input2", "Container1");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
+    agHelper.Sleep(2000);
     agHelper
       .GetWidgetCSSHeight(
         locators._widgetInDeployed(draggableWidgets.CONTAINER),
@@ -34,9 +35,10 @@ describe("Dynamic Height Width validation for Visibility", function () {
           )
           .then((updatedContainerHeight: number) => {
             expect(currentContainerHeight).to.equal(updatedContainerHeight);
-            agHelper.AssertElementEnabledDisabled(
-              locators._labelContains("On"),
-            );
+            agHelper.GetElement(locators._labelContains("On")).should("not.be.enabled");
+           // agHelper.AssertElementEnabledDisabled(
+             // locators._labelContains("On"),0,true
+            //);
           });
       });
     deployMode.DeployApp();

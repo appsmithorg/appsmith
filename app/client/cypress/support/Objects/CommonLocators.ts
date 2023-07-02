@@ -256,4 +256,5 @@ export class CommonLocators {
   _fontInput = "fontsize input";
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
+  _canvasBody = "[data-testid='div-selection-0']"
 }
