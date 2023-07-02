@@ -30,6 +30,7 @@ const SettingsButtonWrapper = styled.div`
 `;
 
 type SaveAdminSettingsProps = {
+  isOnlyTenantConfig?: boolean;
   isSaving?: boolean;
   onSave?: () => void;
   onClear?: () => void;
@@ -39,8 +40,15 @@ type SaveAdminSettingsProps = {
 };
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
-  const { isSaving, onClear, onSave, settings, updatedTenantSettings, valid } =
-    props;
+  const {
+    isOnlyTenantConfig = false,
+    isSaving,
+    onClear,
+    onSave,
+    settings,
+    updatedTenantSettings,
+    valid,
+  } = props;
 
   return (
     <SettingsButtonWrapper>
@@ -52,8 +60,9 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         size="md"
       >
         {createMessage(
-          updatedTenantSettings?.length === Object.keys(settings).length &&
-            updatedTenantSettings?.length !== 0
+          isOnlyTenantConfig ||
+            (updatedTenantSettings?.length === Object.keys(settings).length &&
+              updatedTenantSettings?.length !== 0)
             ? SAVE_BUTTON
             : SAVE_AND_RESTART_BUTTON,
         )}
