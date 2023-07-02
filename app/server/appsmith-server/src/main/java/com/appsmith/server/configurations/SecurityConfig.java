@@ -211,11 +211,8 @@ public class SecurityConfig {
     }
 
     private boolean isAuthorizedToAccessInternal(String password) {
-        if (StringUtils.isNotEmpty(INTERNAL_PASSWORD)) {
-            return INTERNAL_PASSWORD.equals(password);
-        } else {
-            return true;
-        }
+        // Either configured password is empty, or it's equal to what we received.
+        return StringUtils.isEmpty(INTERNAL_PASSWORD) || INTERNAL_PASSWORD.equals(password);
     }
 
     /**
