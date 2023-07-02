@@ -35,9 +35,11 @@ describe("Dynamic Height Width validation for Visibility", function () {
           )
           .then((updatedContainerHeight: number) => {
             expect(currentContainerHeight).to.equal(updatedContainerHeight);
-            agHelper.GetElement(locators._labelContains("On")).should("not.be.enabled");
-           // agHelper.AssertElementEnabledDisabled(
-             // locators._labelContains("On"),0,true
+            agHelper
+              .GetElement(locators._labelContains("On"))
+              .should("not.be.enabled");
+            // agHelper.AssertElementEnabledDisabled(
+            // locators._labelContains("On"),0,true
             //);
           });
       });

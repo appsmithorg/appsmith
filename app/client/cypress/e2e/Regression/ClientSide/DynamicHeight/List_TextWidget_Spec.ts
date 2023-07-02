@@ -66,7 +66,7 @@ describe("Dynamic Height Width validation list widget", function () {
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
         agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
         //agHelper.GetElement(locators._body).click({ force: true });
-        agHelper.GetElement(locators._canvasBody).click({force: true})
+        agHelper.GetElement(locators._canvasBody).click({ force: true });
         agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
         assertHelper.AssertNetworkStatus("@updateLayout");
         //Widgets when moved out of the list widget have dynamic height in property pane
