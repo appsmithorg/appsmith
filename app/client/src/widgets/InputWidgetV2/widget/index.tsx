@@ -60,12 +60,7 @@ export function defaultValueValidation(
 
   const { inputType } = props;
 
-  if (
-    _.isBoolean(value) ||
-    _.isNil(value) ||
-    _.isUndefined(value) ||
-    (_.isNumber(value) && inputType !== "NUMBER")
-  ) {
+  if (_.isBoolean(value) || _.isNil(value) || _.isUndefined(value)) {
     return {
       isValid: false,
       parsed: value,
