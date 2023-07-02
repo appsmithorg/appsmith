@@ -44,13 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TenantServiceCETest {
 
     @Autowired
-    CommonConfig commonConfig;
-
-    @Autowired
     TenantService tenantService;
-
-    @Autowired
-    TenantRepository tenantRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -59,23 +53,10 @@ class TenantServiceCETest {
     UserUtils userUtils;
 
     @Autowired
-    EnvManager envManager;
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Autowired
     MongoOperations mongoOperations;
-
-    String originalEnvFileContent;
 
     @BeforeEach
     public void setup() throws IOException {
-        TestUtils.ensureFileExists(commonConfig.getEnvFilePath());
-        if (originalEnvFileContent == null) {
-            originalEnvFileContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
-        }
-
         final Tenant tenant = tenantService.getDefaultTenant().block();
         assert tenant != null;
         mongoOperations.updateFirst(
@@ -89,11 +70,6 @@ class TenantServiceCETest {
         userRepository.findByEmail("api_user")
                 .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
                 .block();
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        Files.writeString(Path.of(commonConfig.getEnvFilePath()), originalEnvFileContent);
     }
 
     @Test

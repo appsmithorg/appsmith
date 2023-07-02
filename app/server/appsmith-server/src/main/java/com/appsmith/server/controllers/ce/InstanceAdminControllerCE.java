@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.solutions.EnvManager;
@@ -46,23 +47,23 @@ public class InstanceAdminControllerCE {
     @Deprecated
     @JsonView(Views.Public.class)
     @PutMapping(value = "/env", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<ResponseDTO<Void>> saveEnvChangesJSON(
+    public Mono<ResponseDTO<EnvChangesResponseDTO>> saveEnvChangesJSON(
             @Valid @RequestBody Map<String, String> changes
     ) {
         log.debug("Applying env updates {}", changes.keySet());
         return envManager.applyChanges(changes)
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+                .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping(value = "/env", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(
+    public Mono<ResponseDTO<EnvChangesResponseDTO>> saveEnvChangesMultipartFormData(
             ServerWebExchange exchange
     ) {
         log.debug("Applying env updates from form data");
         return exchange.getMultipartData()
                 .flatMap(envManager::applyChangesFromMultipartFormData)
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+                .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
     }
 
     @JsonView(Views.Public.class)
