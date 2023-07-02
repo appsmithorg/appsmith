@@ -1,4 +1,4 @@
-import { all, call, put, spawn, take } from "redux-saga/effects";
+import { all, call, put, select, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -35,6 +35,16 @@ export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
 };
+import { getAppMode, getJSActionFromName } from "selectors/entitiesSelector";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getCurrentApplication,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import type { AppState } from "@appsmith/reducers";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -111,10 +121,44 @@ export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
     body: { data: executedFns },
   } = data;
 
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+  const currentApp: ReturnType<typeof getCurrentApplication> = yield select(
+    getCurrentApplication,
+  );
+  const user: ReturnType<typeof getCurrentUser> = yield select(getCurrentUser);
+  const instanceId: ReturnType<typeof getInstanceId> = yield select(
+    getInstanceId,
+  );
+  const { segment } = getAppsmithConfigs();
+  const source = segment.apiKey ? "cloud" : "ce";
+  const pageId: ReturnType<typeof getCurrentPageId> = yield select(
+    getCurrentPageId,
+  );
   for (const executedFn of executedFns) {
+    const { entityName: JSObjectName, propertyPath: functionName } =
+      getEntityNameAndPropertyPath(executedFn);
+    const jsAction: ReturnType<typeof getJSActionFromName> = yield select(
+      (state: AppState) =>
+        getJSActionFromName(state, JSObjectName, functionName),
+    );
+
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: "JS",
-      name: executedFn,
+      name: functionName,
+      JSObjectName,
+      pageId,
+      appId: currentApp?.id,
+      appMode,
+      appName: currentApp?.name,
+      isExampleApp: currentApp?.appIsExample,
+      actionId: jsAction?.id,
+      userData: {
+        userId: user?.username,
+        email: user?.email,
+        appId: currentApp?.id,
+        source,
+      },
+      instanceId,
     });
   }
   yield call(logJSFunctionExecution, data);
