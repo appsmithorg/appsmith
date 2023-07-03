@@ -9,11 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPluginTypeFromDatasourceId } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
   GOOGLE_SHEETS_LEARN_MORE,
   createMessage,
@@ -21,6 +16,7 @@ import {
   DATASOURCE_INTERCOM_TEXT,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { DocsLink, openDoc } from "constants/DocumentationLinks";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
@@ -63,13 +59,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   const handleDocumentationClick: any = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    const query = "Google Sheets";
-    dispatch(setGlobalSearchQuery(query));
-    dispatch(toggleShowGlobalSearchModal());
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-      source: "DATASOURCE_DOCUMENTATION_CLICK",
-      query,
-    });
+    openDoc(DocsLink.CONNECT_G_SHEETS);
   };
 
   const getCallOutLinks = () => {

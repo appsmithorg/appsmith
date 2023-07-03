@@ -6,6 +6,7 @@ export enum DocsLink {
   CONNECT_DATA = "CONNECT_DATA",
   QUERY = "QUERY",
   TROUBLESHOOT_ERROR = "TROUBLESHOOT_ERROR",
+  CONNECT_G_SHEETS = "CONNECT_G_SHEETS",
 }
 
 const LinkData: Record<DocsLink, string> = {
@@ -19,6 +20,8 @@ const LinkData: Record<DocsLink, string> = {
     "https://docs.appsmith.com/core-concepts/data-access-and-binding/capturing-data-write",
   TROUBLESHOOT_ERROR:
     "https://docs.appsmith.com/help-and-support/troubleshooting-guide",
+  CONNECT_G_SHEETS:
+    "https://docs.appsmith.com/connect-data/reference/querying-google-sheets#connect-google-sheets",
 };
 
 export const openDoc = (type: DocsLink, link?: string, subType?: string) => {
