@@ -38,7 +38,11 @@
 //     import { mapArray } from './a';
 //     import _ from 'lodash';
 //     mapArray({ map: _.map });
-if (typeof window !== "undefined") {
+if (
+  typeof window !== "undefined" &&
+  // Jest mocks the `window` object when running worker tests
+  process.env.NODE_ENV !== "test"
+) {
   throw new Error("lodash-wrapper.js must only be used in a worker thread");
 }
 
