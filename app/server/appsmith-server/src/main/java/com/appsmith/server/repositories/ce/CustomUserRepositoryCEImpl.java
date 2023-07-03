@@ -6,7 +6,9 @@ import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.querydsl.core.types.dsl.StringPath;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -14,7 +16,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -76,9 +80,29 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         q.fields().include(fieldName(QUser.user.email));
         q.limit(2);
         return mongoOperations.find(q, User.class)
-                .filter(user -> !user.getEmail().equals(FieldName.ANONYMOUS_USER))
+                .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
                 .count()
                 .map(count -> count == 0);
+    }
+
+    @Override
+    public Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection) {
+        Sort sortBy = Sort.by(sortDirection, fieldName(sortKey));
+        Criteria emailCriteria = where(fieldName(QUser.user.email)).in(emails);
+        return queryAll(
+                List.of(emailCriteria),
+                Optional.empty(),
+                aclPermission,
+                sortBy,
+                limit,
+                skip
+        );
+    }
+
+    protected Set<String> getSystemGeneratedUserEmails() {
+        Set<String> systemGeneratedEmails = new HashSet<>();
+        systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
+        return systemGeneratedEmails;
     }
 
 }
