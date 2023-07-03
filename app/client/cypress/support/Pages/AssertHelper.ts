@@ -82,7 +82,7 @@ export class AssertHelper extends ReusableHelper {
     // });
   }
 
-   public WaitForNetworkCall(aliasName: string, expectedStatus = 200) {
+  public WaitForNetworkCall(aliasName: string, expectedStatus = 200) {
     this.Sleep(); //Wait a bit for call to finish!
     aliasName = aliasName.startsWith("@") ? aliasName : "@" + aliasName;
     return cy.wait(aliasName);
