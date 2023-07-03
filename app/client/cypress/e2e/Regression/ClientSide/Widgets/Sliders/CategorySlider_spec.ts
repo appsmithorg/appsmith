@@ -80,8 +80,7 @@ describe("Category Slider spec", () => {
   });
 
   it("3. Does not crash if an invalid mark option is passed", function () {
-    agHelper.GetNClick(locators._optionsJsToggle);
-    propPane.UpdatePropertyFieldValue("Options", "[[]]");
+    propPane.EnterJSContext("Options", "[[]]");
     assertHelper.AssertContains(
       "Oops, Something went wrong.",
       "not.exist",
