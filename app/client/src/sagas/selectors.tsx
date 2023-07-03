@@ -11,20 +11,11 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getActions, getAppMode, getPlugins } from "selectors/entitiesSelector";
+import { getActions, getPlugins } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import {
-  getCurrentApplication,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { select } from "redux-saga/effects";
-import type { APP_MODE } from "entities/App";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
@@ -237,44 +228,3 @@ export const getWidgetImmediateChildren = createSelector(
     return childrenIds;
   },
 );
-
-export interface UserAndAppDetails {
-  pageId: string;
-  appId: string;
-  appMode: APP_MODE | undefined;
-  appName: string;
-  isExampleApp: boolean;
-  userId: string;
-  email: string;
-  source: string;
-  instanceId: string;
-}
-
-export function* getUserAndAppDetails() {
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-  const currentApp: ReturnType<typeof getCurrentApplication> = yield select(
-    getCurrentApplication,
-  );
-  const user: ReturnType<typeof getCurrentUser> = yield select(getCurrentUser);
-  const instanceId: ReturnType<typeof getInstanceId> = yield select(
-    getInstanceId,
-  );
-  const { segment } = getAppsmithConfigs();
-  const source = segment.apiKey ? "cloud" : "ce";
-  const pageId: ReturnType<typeof getCurrentPageId> = yield select(
-    getCurrentPageId,
-  );
-  const userAndAppDetails: UserAndAppDetails = {
-    pageId,
-    appId: currentApp?.id || "",
-    appMode,
-    appName: currentApp?.name || "",
-    isExampleApp: currentApp?.appIsExample || false,
-    userId: user?.username || "",
-    email: user?.email || "",
-    source,
-    instanceId: instanceId,
-  };
-
-  return userAndAppDetails;
-}

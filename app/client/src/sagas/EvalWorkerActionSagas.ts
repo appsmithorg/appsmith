@@ -1,4 +1,4 @@
-import { all, call, put, select, spawn, take } from "redux-saga/effects";
+import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -30,16 +30,11 @@ import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
 };
-import { getJSActionFromName } from "selectors/entitiesSelector";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { AppState } from "@appsmith/reducers";
-import type { UserAndAppDetails } from "./selectors";
-import { getUserAndAppDetails } from "./selectors";
+import { logJSActionExecution } from "./analyticsSaga";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -122,67 +117,7 @@ export function* handleJSExecutionLog(
   const {
     body: { data: executionData },
   } = data;
-
-  const {
-    appId,
-    appMode,
-    appName,
-    email,
-    instanceId,
-    isExampleApp,
-    pageId,
-    source,
-    userId,
-  }: UserAndAppDetails = yield call(getUserAndAppDetails);
-  for (const { isSuccess, jsFnFullName } of executionData) {
-    const { entityName: JSObjectName, propertyPath: functionName } =
-      getEntityNameAndPropertyPath(jsFnFullName);
-    const jsAction: ReturnType<typeof getJSActionFromName> = yield select(
-      (state: AppState) =>
-        getJSActionFromName(state, JSObjectName, functionName),
-    );
-
-    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-      type: "JS",
-      name: functionName,
-      JSObjectName,
-      pageId,
-      appId,
-      appMode,
-      appName,
-      isExampleApp,
-      actionId: jsAction?.id,
-      userData: {
-        userId,
-        email,
-        appId,
-        source,
-      },
-      instanceId,
-    });
-
-    AnalyticsUtil.logEvent(
-      isSuccess ? "EXECUTE_ACTION_SUCCESS" : "EXECUTE_ACTION_FAILURE",
-      {
-        type: "JS",
-        name: functionName,
-        JSObjectName,
-        pageId,
-        appId,
-        appMode,
-        appName,
-        isExampleApp,
-        actionId: jsAction?.id,
-        userData: {
-          userId,
-          email,
-          appId,
-          source,
-        },
-        instanceId,
-      },
-    );
-  }
+  yield call(logJSActionExecution, executionData);
   yield call(logJSFunctionExecution, data);
 }
 

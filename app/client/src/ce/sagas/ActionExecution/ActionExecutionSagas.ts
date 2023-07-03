@@ -32,9 +32,9 @@ import {
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
-import type { UserAndAppDetails } from "sagas/selectors";
-import { getUserAndAppDetails } from "sagas/selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { UserAndAppDetails } from "sagas/analyticsSaga";
+import { getUserAndAppDetails } from "sagas/analyticsSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
