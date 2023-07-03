@@ -170,11 +170,11 @@ export class JSEntity implements IEntity {
     entityParser: EntityParser,
     diffGenerator: EntityDiffGenerator,
   ) {
+    entityParser.parse(entity, config);
     this.entity = entity;
     this.config = config;
     this.entityParser = entityParser;
     this.diffGenerator = diffGenerator;
-    entityParser.parse(this.entity, this.config);
   }
   getType() {
     return ENTITY_TYPE.JSACTION;

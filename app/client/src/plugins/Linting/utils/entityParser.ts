@@ -102,23 +102,26 @@ export class JSLintEntityParser implements EntityParser {
     };
 
     // update entity and entity config
-    const { actionId, body, ENTITY_TYPE } = entity;
-    const newEntity: TJSActionEntity = { body, actionId, ENTITY_TYPE };
+    const requiredProps = ["actionId", "body", "ENTITY_TYPE"];
+    for (const property of Object.keys(entity)) {
+      if (requiredProps.includes(property)) continue;
+      delete entity[property];
+      delete entityConfig.reactivePaths[property];
+    }
 
     for (const [propertyName, propertyValue] of Object.entries(
       parsedJSEntity,
     )) {
-      newEntity[propertyName] = propertyValue;
+      entity[propertyName] = propertyValue;
       entityConfig.reactivePaths[propertyName] =
         EvaluationSubstitutionType.TEMPLATE;
       const propertyConfig = parsedJSEntityConfig[
         propertyName
       ] as TParsedJSProperty;
       if (propertyConfig && isJSFunctionProperty(propertyConfig)) {
-        newEntity[`${propertyName}.data`] = {};
+        entity[`${propertyName}.data`] = {};
       }
     }
-    entity = newEntity;
     return this.#parsedJSCache;
   }
 
