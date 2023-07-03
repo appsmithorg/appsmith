@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import HomePage from "../../../../locators/HomePage";
 
-describe("Copy paste widget related tests for Auto layout", () => {
+describe("Auto Layout Reflow in smaller devices and public apps", () => {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     agHelper.Sleep(2000);
@@ -27,6 +27,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
       "nowrap",
     );
     cy.viewport("iphone-4");
+    cy.wait(1000);
     agHelper.AssertCSS(
       autoLayout.getAutoLayoutLayerClassName("0", 0),
       "flex-wrap",
@@ -47,6 +48,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
         "nowrap",
       );
       cy.viewport("iphone-4");
+      cy.wait(1000);
       agHelper.AssertCSS(
         autoLayout.getAutoLayoutLayerClassName("0", 0),
         "flex-wrap",
