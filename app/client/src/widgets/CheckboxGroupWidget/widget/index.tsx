@@ -544,10 +544,10 @@ class CheckboxGroupWidget extends BaseWidget<
           path: "isRequired",
           type: "boolean",
         },
-        // setValue: {
-        //   path: "options",
-        //   type: "array",
-        // },
+        setValue: {
+          path: "options",
+          type: "array",
+        },
       },
     };
   }

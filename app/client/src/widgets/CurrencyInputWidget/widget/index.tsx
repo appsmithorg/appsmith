@@ -187,10 +187,10 @@ class CurrencyInputWidget extends BaseInputWidget<
           path: "isRequired",
           type: "boolean",
         },
-        // setValue: {
-        //   path: "defaultText",
-        //   type: "string",
-        // },
+        setValue: {
+          path: "defaultText",
+          type: "string",
+        },
       },
     };
   }

@@ -72,10 +72,10 @@ class CategorySliderWidget extends BaseWidget<
           path: "isDisabled",
           type: "boolean",
         },
-        // setValue: {
-        //   path: "defaultOptionValue",
-        //   type: "number",
-        // },
+        setValue: {
+          path: "defaultOptionValue",
+          type: "number",
+        },
       },
     };
   }

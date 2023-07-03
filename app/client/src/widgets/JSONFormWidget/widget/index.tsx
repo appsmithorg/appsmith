@@ -247,10 +247,10 @@ class JSONFormWidget extends BaseWidget<
           path: "isVisible",
           type: "boolean",
         },
-        // setFormData: {
-        //   path: "sourceData",
-        //   type: "object",
-        // },
+        setFormData: {
+          path: "sourceData",
+          type: "object",
+        },
       },
     };
   }

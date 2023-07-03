@@ -62,7 +62,7 @@ describe("Setter class test", () => {
 
     expect(setters.getMap()).toEqual({
       Table1: {
-        // setData: true,
+        setData: true,
         setSelectedRowIndex: true,
         setVisibility: true,
       },
@@ -83,7 +83,7 @@ describe("Setter class test", () => {
     expect(Object.keys(methodMap)).toEqual([
       "setVisibility",
       "setSelectedRowIndex",
-      // "setData",
+      "setData",
     ]);
 
     globalContext.Table1.setVisibility(true);

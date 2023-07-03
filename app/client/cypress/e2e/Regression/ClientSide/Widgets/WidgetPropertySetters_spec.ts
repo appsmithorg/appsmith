@@ -80,22 +80,22 @@ const setterMethodsToTest = [
     valueBinding: "{{Text1.text}}",
     expectedValue: "Hello World",
   },
-  // {
-  //   name: "setValue",
-  //   property: "text",
-  //   widget: WIDGET.INPUT_V2,
-  //   actionBinding: "{{Input1.setValue('Hello World')}}",
-  //   valueBinding: "{{Input1.text}}",
-  //   expectedValue: "Hello World",
-  // },
-  // {
-  //   name: "setData",
-  //   property: "tableData",
-  //   widget: WIDGET.TABLE,
-  //   actionBinding: "{{Table1.setData([{name: 'test'}])}}",
-  //   valueBinding: "{{JSON.stringify(Table1.tableData)}}",
-  //   expectedValue: '[{"name":"test"}]',
-  // },
+  {
+    name: "setValue",
+    property: "text",
+    widget: WIDGET.INPUT_V2,
+    actionBinding: "{{Input1.setValue('Hello World')}}",
+    valueBinding: "{{Input1.text}}",
+    expectedValue: "Hello World",
+  },
+  {
+    name: "setData",
+    property: "tableData",
+    widget: WIDGET.TABLE,
+    actionBinding: "{{Table1.setData([{name: 'test'}])}}",
+    valueBinding: "{{JSON.stringify(Table1.tableData)}}",
+    expectedValue: '[{"name":"test"}]',
+  },
 ];
 
 Object.values(setterMethodsToTest).forEach(

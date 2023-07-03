@@ -346,10 +346,10 @@ describe("generateDataTreeWidget", () => {
           path: "isRequired",
           type: "boolean",
         },
-        // setValue: {
-        //   path: "defaultText",
-        //   type: "string",
-        // },
+        setValue: {
+          path: "defaultText",
+          type: "string",
+        },
       },
     };
 
@@ -367,10 +367,10 @@ describe("generateDataTreeWidget", () => {
           path: "Input1.isRequired",
           type: "boolean",
         },
-        // setValue: {
-        //   path: "Input1.defaultText",
-        //   type: "string",
-        // },
+        setValue: {
+          path: "Input1.defaultText",
+          type: "string",
+        },
       },
     };
 
@@ -407,10 +407,10 @@ describe("generateDataTreeWidget", () => {
           path: "isVisible",
           type: "boolean",
         },
-        // setData: {
-        //   path: "sourceData",
-        //   type: "object",
-        // },
+        setData: {
+          path: "sourceData",
+          type: "object",
+        },
       },
     };
 
@@ -420,10 +420,10 @@ describe("generateDataTreeWidget", () => {
           path: "Form1.isVisible",
           type: "boolean",
         },
-        // setData: {
-        //   path: "Form1.sourceData",
-        //   type: "object",
-        // },
+        setData: {
+          path: "Form1.sourceData",
+          type: "object",
+        },
       },
     };
 
@@ -545,10 +545,10 @@ describe("generateDataTreeWidget", () => {
           type: "array",
           disabled: "return !options.entity.multiRowSelection",
         },
-        // setData: {
-        //   path: "tableData",
-        //   type: "object",
-        // },
+        setData: {
+          path: "tableData",
+          type: "object",
+        },
       },
       text: {
         __setters: {
@@ -587,10 +587,10 @@ describe("generateDataTreeWidget", () => {
           type: "array",
           disabled: "return !options.entity.multiRowSelection",
         },
-        // setData: {
-        //   path: "Table1.tableData",
-        //   type: "object",
-        // },
+        setData: {
+          path: "Table1.tableData",
+          type: "object",
+        },
         "primaryColumns.action.setIsRequired": {
           path: "Table1.primaryColumns.action.isRequired",
           type: "boolean",

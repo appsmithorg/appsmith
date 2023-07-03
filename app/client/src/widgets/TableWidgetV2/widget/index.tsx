@@ -402,10 +402,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           type: "array",
           disabled: "return !options.entity.multiRowSelection",
         },
-        // setData: {
-        //   path: "tableData",
-        //   type: "object",
-        // },
+        setData: {
+          path: "tableData",
+          type: "object",
+        },
       },
     };
   }
