@@ -226,6 +226,12 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
       case ErrorEffectTypes.SHOW_ALERT: {
         // This is the toast that is rendered when any page load API fails.
         yield call(showToast, message, { kind: "error" });
+
+        if ((window as any).Cypress) {
+          if (message === "" || message === null) {
+            yield call(showToast, message + type, { kind: "error" });
+          }
+        }
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
