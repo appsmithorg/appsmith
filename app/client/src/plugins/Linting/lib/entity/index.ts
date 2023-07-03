@@ -106,7 +106,7 @@ export class ActionEntity implements IEntity {
     return ENTITY_TYPE.ACTION;
   }
   getRawEntity() {
-    return this.entityParser.parse(this.entity).parsedEntity;
+    return this.entityParser.parse(this.entity, this.config).parsedEntity;
   }
   getName() {
     return this.config.name;
@@ -142,7 +142,7 @@ export class WidgetEntity implements IEntity {
     return ENTITY_TYPE.WIDGET;
   }
   getRawEntity() {
-    return this.entityParser.parse(this.entity).parsedEntity;
+    return this.entityParser.parse(this.entity, this.config).parsedEntity;
   }
   getName() {
     return this.entity.widgetName;
@@ -174,6 +174,7 @@ export class JSEntity implements IEntity {
     this.config = config;
     this.entityParser = entityParser;
     this.diffGenerator = diffGenerator;
+    entityParser.parse(this.entity, this.config);
   }
   getType() {
     return ENTITY_TYPE.JSACTION;
@@ -200,6 +201,7 @@ export class JSEntity implements IEntity {
     const jsFunctions = [];
     const { parsedEntity, parsedEntityConfig } = this.entityParser.parse(
       this.entity,
+      this.config,
     );
     for (const propertyName of Object.keys(parsedEntityConfig)) {
       const jsPropertyConfig = parsedEntityConfig[

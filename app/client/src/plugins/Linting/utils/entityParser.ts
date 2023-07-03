@@ -1,5 +1,12 @@
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import type { JSActionEntity as TJSActionEntity } from "entities/DataTree/types";
+import type {
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
+import type {
+  JSActionEntityConfig,
+  JSActionEntity as TJSActionEntity,
+} from "entities/DataTree/types";
+import { EvaluationSubstitutionType } from "entities/DataTree/types";
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
@@ -9,8 +16,14 @@ import { uniq } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 
 export interface EntityParser {
-  parse<T extends DataTreeEntity>(entity: T): ParsedEntity<T>;
-  parse<T extends TJSActionEntity>(entity: T): ParsedEntity<T>;
+  parse<T extends DataTreeEntity, K extends DataTreeEntityConfig>(
+    entity: T,
+    entityConfig: K,
+  ): ParsedEntity<T>;
+  parse<T extends TJSActionEntity, K extends JSActionEntityConfig>(
+    entity: T,
+    entityConfig: K,
+  ): ParsedEntity<T>;
 }
 
 type TParsedJSEntity = Record<string, string> & {
@@ -43,7 +56,7 @@ export class JSLintEntityParser implements EntityParser {
     parsedEntity: {},
     parsedEntityConfig: {},
   };
-  parse<T extends TJSActionEntity>(entity: T) {
+  parse(entity: TJSActionEntity, entityConfig: JSActionEntityConfig) {
     const jsEntityBody = entity.body;
     if (
       this.#parsedJSCache &&
@@ -57,47 +70,55 @@ export class JSLintEntityParser implements EntityParser {
 
     const { parsedObject, success } = this.#parseJSObjectBody(jsEntityBody);
 
-    if (!success) {
-      // Save parsed entity to cache
-      this.#parsedJSCache = {
-        parsedEntity: { body: jsEntityBody },
-        parsedEntityConfig: {},
-      };
-      return this.#parsedJSCache;
-    }
+    const parsedJSEntityConfig: Record<string, unknown> = {};
+    const parsedJSEntity: TParsedJSEntity = { body: jsEntityBody };
 
-    const parsedJSEntity: TParsedJSEntity = {
-      body: jsEntityBody,
-    };
-    const parsedJSEntityConfig: TParsedJSEntityConfig = {};
-
-    for (const [propertyName, parsedPropertyDetails] of Object.entries(
-      parsedObject,
-    )) {
-      const { position, rawContent, type, value } = parsedPropertyDetails;
-      parsedJSEntity[propertyName] = value;
-      if (isJSFunctionProperty(parsedPropertyDetails)) {
-        parsedJSEntityConfig[propertyName] = {
-          isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
-          position,
-          value: rawContent,
-          type,
-        } as JSFunctionProperty;
-      } else if (type !== "literal") {
-        parsedJSEntityConfig[propertyName] = {
-          position: position,
-          value: rawContent,
-          type,
-        } as JSVarProperty;
+    if (success) {
+      for (const [propertyName, parsedPropertyDetails] of Object.entries(
+        parsedObject,
+      )) {
+        const { position, rawContent, type, value } = parsedPropertyDetails;
+        parsedJSEntity[propertyName] = value;
+        if (isJSFunctionProperty(parsedPropertyDetails)) {
+          parsedJSEntityConfig[propertyName] = {
+            isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
+            position,
+            value: rawContent,
+            type,
+          } as JSFunctionProperty;
+        } else if (type !== "literal") {
+          parsedJSEntityConfig[propertyName] = {
+            position: position,
+            value: rawContent,
+            type,
+          } as JSVarProperty;
+        }
       }
     }
-
     // Save parsed entity to cache
     this.#parsedJSCache = {
       parsedEntity: parsedJSEntity,
       parsedEntityConfig: parsedJSEntityConfig,
     };
 
+    // update entity and entity config
+    const { actionId, body, ENTITY_TYPE } = entity;
+    const newEntity: TJSActionEntity = { body, actionId, ENTITY_TYPE };
+
+    for (const [propertyName, propertyValue] of Object.entries(
+      parsedJSEntity,
+    )) {
+      newEntity[propertyName] = propertyValue;
+      entityConfig.reactivePaths[propertyName] =
+        EvaluationSubstitutionType.TEMPLATE;
+      const propertyConfig = parsedJSEntityConfig[
+        propertyName
+      ] as TParsedJSProperty;
+      if (propertyConfig && isJSFunctionProperty(propertyConfig)) {
+        newEntity[`${propertyName}.data`] = {};
+      }
+    }
+    entity = newEntity;
     return this.#parsedJSCache;
   }
 

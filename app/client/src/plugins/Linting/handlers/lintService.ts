@@ -1,4 +1,4 @@
-import { get, intersection, isEmpty, set, uniq } from "lodash";
+import { get, intersection, isEmpty, uniq } from "lodash";
 import {
   convertPathToString,
   getAllPaths,
@@ -23,12 +23,7 @@ import {
   LintEntityTree,
   type EntityTree,
 } from "plugins/Linting/lib/entity/EntityTree";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isJSFunctionProperty } from "@shared/ast";
 import { entityFns } from "workers/Evaluation/fns";
-import type { JSActionEntity } from "entities/DataTree/types";
-import type { TParsedJSProperty } from "@shared/ast";
 
 class LintService {
   cachedEntityTree: EntityTree | null;
@@ -51,7 +46,7 @@ class LintService {
       unevalTree: unEvalTree,
     } = payload;
 
-    const entityTree = this.preprocessTree(unEvalTree, configTree);
+    const entityTree = new LintEntityTree(unEvalTree, configTree);
 
     const { asyncJSFunctionsInDataFields, pathsToLint } =
       isEmpty(this.cachedEntityTree) || forceLinting
@@ -62,8 +57,12 @@ class LintService {
     const jsPropertiesState: TJSPropertiesState = {};
     for (const jsEntity of jsEntities) {
       const rawEntity = jsEntity.getRawEntity();
+      const config = jsEntity.getConfig();
       if (!jsEntity.entityParser) continue;
-      const { parsedEntityConfig } = jsEntity.entityParser.parse(rawEntity);
+      const { parsedEntityConfig } = jsEntity.entityParser.parse(
+        rawEntity,
+        config,
+      );
       jsPropertiesState[jsEntity.getName()] = parsedEntityConfig as Record<
         string,
         TJSpropertyState
@@ -315,35 +314,6 @@ class LintService {
       entityTree,
       asyncJSFunctionsInDataFields,
     };
-  }
-  preprocessTree(unEvalTree: DataTree, configTree: ConfigTree) {
-    const entityTree = new LintEntityTree(unEvalTree, configTree);
-
-    // 1. Parse js actions, update raw entity and config
-    for (const entity of Object.values(entityTree.getEntities())) {
-      if (!isJSEntity(entity)) continue;
-      const { actionId, body, ENTITY_TYPE } = entity.getRawEntity();
-      const newEntity: JSActionEntity = { body, actionId, ENTITY_TYPE };
-      const { parsedEntity, parsedEntityConfig } = entity.entityParser.parse(
-        entity.getRawEntity(),
-      );
-      for (const [propertyName, propertyValue] of Object.entries(
-        parsedEntity,
-      )) {
-        newEntity[propertyName] = propertyValue;
-        entity.getConfig().reactivePaths[propertyName] =
-          EvaluationSubstitutionType.TEMPLATE;
-        const propertyConfig = parsedEntityConfig[
-          propertyName
-        ] as TParsedJSProperty;
-        if (propertyConfig && isJSFunctionProperty(propertyConfig)) {
-          set(newEntity, [`${propertyName}.data`], {});
-        }
-      }
-      entity.entity = newEntity;
-    }
-
-    return entityTree;
   }
 }
 

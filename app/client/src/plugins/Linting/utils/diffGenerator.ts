@@ -43,7 +43,10 @@ export class JSLintDiffGenerator implements EntityDiffGenerator {
       entity.getRawEntity(),
     )) {
       const jsParser = entity.entityParser as typeof jsLintEntityParser;
-      const { parsedEntityConfig } = jsParser.parse(entity.getRawEntity());
+      const { parsedEntityConfig } = jsParser.parse(
+        entity.getRawEntity(),
+        entity.getConfig(),
+      );
       if (!parsedEntityConfig) continue;
       entityForDiff[propertyName] = this.getHashedConfigString(
         propertyValue,
