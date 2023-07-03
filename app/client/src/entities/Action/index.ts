@@ -25,6 +25,7 @@ export enum PluginPackageName {
   ORACLE = "oracle-plugin",
   MY_SQL = "mysql-plugin",
   MS_SQL = "mssql-plugin",
+  SNOWFLAKE = "snowflake-plugin",
 }
 
 // more can be added subsequently.
