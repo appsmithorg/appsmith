@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -35,8 +35,6 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { logger } from "@sentry/utils";
 
 interface Props {
   datasource: Datasource;
@@ -159,8 +157,6 @@ function DatasourceAuth({
   const canManageDatasource = hasManageDatasourcePermission(
     datasourcePermissions,
   );
-
-  const { popFeature, pushFeature } = useContext(WalkthroughContext) || {};
 
   // hooks
   const dispatch = useDispatch();
@@ -300,28 +296,6 @@ function DatasourceAuth({
     });
   };
 
-  useEffect(() => {
-    shouldRender &&
-      pushFeature &&
-      pushFeature({
-        targetId: "t--cancel-button-container",
-        onDismiss: () => {
-          logger.log("Dismiss");
-        },
-        details: {
-          title: "Query data fast",
-          description:
-            "Select a template from a database table to quickly create your first query.",
-          imageURL:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqVdQhW3BWFadiDIMFKyGlRRJlf4HSwmU1gFfYK8b41g&s",
-        },
-        offset: {
-          position: "top",
-          top: -200,
-        },
-      });
-  }, [shouldRender]);
-
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
 
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
@@ -343,11 +317,9 @@ function DatasourceAuth({
       [DatasourceButtonType.CANCEL]: (
         <Button
           className="t--cancel-edit-datasource"
-          id="t--cancel-button-container"
           key={buttonType}
           kind="tertiary"
           onClick={() => {
-            popFeature && popFeature();
             if (createMode) {
               const URL = integrationEditorURL({
                 pageId,
