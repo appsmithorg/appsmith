@@ -11,7 +11,6 @@ describe("PgAdmin Clone App", function () {
 
   before("Add dsl and create datasource", () => {
     agHelper.AddDsl("PgAdmindsl");
-
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;

@@ -9,7 +9,6 @@ import data from "../../../../fixtures/TestDataSet1.json";
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     agHelper.AddDsl("buttonApiDsl");
-
     cy.createAndFillApi(data.userApi, "/mock-api?records=10");
     cy.RunAPI();
   });
