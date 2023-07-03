@@ -271,6 +271,9 @@ public class FileUtilsImpl implements FileInterface {
                             });
                             // Remove deleted widgets from the file system
                             deleteWidgets(pageSpecificDirectory.resolve(CommonConstants.WIDGETS).toFile(), validWidgetToParentMap);
+
+                            // Remove the canvas.json from the file system since the value is stored in the page.json
+                            deleteFile(pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION));
                         }
                         validPages.add(pageName);
                     }
