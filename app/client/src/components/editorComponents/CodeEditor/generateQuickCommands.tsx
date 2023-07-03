@@ -10,7 +10,6 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import type { FieldEntityInformation } from "./EditorConfig";
 import { Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
@@ -139,9 +138,7 @@ export const generateQuickCommands = (
     featureFlags: FeatureFlags;
     enableAIAssistance: boolean;
   },
-  entityInfo: FieldEntityInformation,
 ) => {
-  const { entityId, expectedType = "string", propertyPath } = entityInfo || {};
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
   recentEntities.reverse();
@@ -150,21 +147,6 @@ export const generateQuickCommands = (
     displayText: "New binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
-  });
-  const insertSnippet: CommandsCompletion = generateCreateNewCommand({
-    text: "",
-    displayText: "Insert snippet",
-    shortcut: Shortcuts.FUNCTION,
-    action: () =>
-      executeCommand({
-        actionType: SlashCommand.NEW_SNIPPET,
-        args: {
-          entityType: currentEntityType,
-          expectedType: expectedType,
-          entityId: entityId,
-          propertyPath: propertyPath,
-        },
-      }),
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
@@ -248,7 +230,7 @@ export const generateQuickCommands = (
     recentEntities,
     5,
   );
-  const actionCommands = [newBinding, insertSnippet];
+  const actionCommands = [newBinding];
 
   // Adding this hack in the interest of time.
   // TODO: Refactor slash commands generation for easier code splitting

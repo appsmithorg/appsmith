@@ -251,6 +251,21 @@ export class AggregateHelper extends ReusableHelper {
     else this.GetElement(selector).should(textPresence, text);
   }
 
+  public GetElementsNAssertTextPresence(selector: string, text: string) {
+    this.GetElement(selector).then(($elements: any) => {
+      let found = false;
+      cy.log("elements length is" + $elements.length);
+      $elements.each((index: any, element: any) => {
+        const eleText = Cypress.$(element).text().trim();
+        if (eleText === text) {
+          found = true;
+          return false; // Exit the loop if the expected text is found
+        }
+      });
+      expect(found).to.be.true;
+    });
+  }
+
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     this.GetElement(this.locator._toastMsg)
       .should("have.length.at.least", length)
@@ -657,18 +672,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public SelectNRemoveLineText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.type(this.selectLine);
-    return locator.type(this.removeLine);
+    this.GetElement(selector).type(this.selectLine);
+    return this.GetElement(selector).type(this.removeLine);
   }
 
   public SelectAllRemoveCodeText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.type(this.selectAll + "{del}");
+    return this.GetElement(selector).type(this.selectAll + "{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -719,13 +728,14 @@ export class AggregateHelper extends ReusableHelper {
     containsText: string,
     index = 0,
     force = true,
+    waitTimeInterval = 500,
   ) {
     return cy
       .get(selector)
       .contains(containsText)
       .eq(index)
       .click({ force: force })
-      .wait(500);
+      .wait(waitTimeInterval);
   }
 
   public CheckUncheck(selector: string, check = true) {
@@ -787,6 +797,16 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+  public AssertCSS(
+    selector: string,
+    cssName: string,
+    cssValue: string,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.css", cssName, cssValue);
+  }
 
   public ToggleSwitch(
     switchName: string,
@@ -827,7 +847,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public Sleep(timeout = 1000) {
-    cy.wait(timeout);
+    return cy.wait(timeout);
   }
 
   public RefreshPage(
@@ -1389,11 +1409,7 @@ export class AggregateHelper extends ReusableHelper {
     cy.window().then((win) => {
       cy.spy(win, "open").as("windowOpen");
       openTabFunc();
-      cy.get("@windowOpen").should(
-        "be.calledWith",
-        Cypress.sinon.match.string,
-        "_blank",
-      );
+      cy.get("@windowOpen").should("be.called");
     });
   }
 

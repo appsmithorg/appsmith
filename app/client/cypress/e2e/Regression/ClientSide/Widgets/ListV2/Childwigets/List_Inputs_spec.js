@@ -81,7 +81,10 @@ describe("Input Widgets", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 300);
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Input_Widget");
     cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.Input1.isValid}}`);
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.Input1.isValid}}",
+    );
     cy.get(`${widgetSelector("Input_Widget")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", "true");
@@ -89,7 +92,10 @@ describe("Input Widgets", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 100);
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Currency_Widget");
     cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.CurrencyInput1.isValid}}`);
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.CurrencyInput1.isValid}}",
+    );
     cy.get(
       `${widgetSelector("Currency_Widget")} ${commonlocators.bodyTextStyle}`,
     )
@@ -100,7 +106,10 @@ describe("Input Widgets", function () {
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "PhoneInput_Widget");
     cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.PhoneInput1.isValid}}`);
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.PhoneInput1.isValid}}",
+    );
     cy.get(
       `${widgetSelector("PhoneInput_Widget")} ${commonlocators.bodyTextStyle}`,
     )

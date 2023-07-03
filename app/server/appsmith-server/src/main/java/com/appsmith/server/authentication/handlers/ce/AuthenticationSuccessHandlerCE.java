@@ -203,7 +203,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
-    private Mono<Void> addDefaultUserTraits(User user){
+    private Mono<Void> addDefaultUserTraits(User user) {
         String identifier = userIdentifierService.getUserIdentifier(user);
         List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
         String emailTrait;
@@ -217,11 +217,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", emailTrait));
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
                     featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "is_telemetry_on", String.valueOf(!commonConfig.isTelemetryDisabled())));
                     return featureFlagService.remoteSetUserTraits(featureFlagTraits);
                 });
     }
 
-    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue){
+    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue) {
         FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
         featureFlagTrait.setIdentifier(identifier);
         featureFlagTrait.setTraitKey(traitKey);

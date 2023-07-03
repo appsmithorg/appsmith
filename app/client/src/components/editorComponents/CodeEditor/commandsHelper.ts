@@ -80,7 +80,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             featureFlags,
             enableAIAssistance,
           },
-          entityInfo,
         );
         let currentSelection: CommandsCompletion = {
           origin: "",

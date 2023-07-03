@@ -14,6 +14,7 @@ const DataSourceKVP = {
   Elasticsearch: "Elasticsearch",
   Redis: "Redis",
   Oracle: "Oracle",
+  S3: "S3",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -496,7 +497,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._port, this.hp.mysql_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
-    cy.get(this._username).type(this.hp.mysql_username);
+    this.agHelper.UpdateInputValue(this._username, this.hp.mysql_username);
     cy.get(this._password).type(this.hp.mysql_password);
   }
 
@@ -616,6 +617,17 @@ export class DataSources {
   public FillRedisDSForm() {
     this.agHelper.UpdateInputValue(this._host, this.hp.redis_host);
     this.agHelper.UpdateInputValue(this._port, this.hp.redis_port.toString());
+  }
+
+  public FillS3DSForm() {
+    this.agHelper.UpdateInputValue(
+      this._username,
+      Cypress.env("S3_ACCESS_KEY"),
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      Cypress.env("S3_SECRET_KEY"),
+    );
   }
 
   public TestSaveDatasource(expectedRes = true, isForkModal = false) {
@@ -810,6 +822,7 @@ export class DataSources {
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.EnterQuery(query);
+      this.AssertRunButtonDisability(false);
     }
   }
 
@@ -867,6 +880,7 @@ export class DataSources {
     toValidateResponse = true,
     waitTimeInterval = 500,
   }: Partial<RunQueryParams> = {}) {
+    this.AssertRunButtonDisability(false);
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     this.agHelper.AssertElementAbsence(
       this.locator._cancelActionExecution,
@@ -882,13 +896,7 @@ export class DataSources {
   }
 
   AssertRunButtonDisability(disabled = false) {
-    let query = "";
-    if (disabled) {
-      query = "be.disabled";
-    } else {
-      query = "not.be.disabled";
-    }
-    cy.get(this._runQueryBtn).should(query);
+    this.agHelper.AssertElementEnabledDisabled(this._runQueryBtn, 0, disabled);
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
@@ -974,7 +982,8 @@ export class DataSources {
       | "Firestore"
       | "Elasticsearch"
       | "Redis"
-      | "Oracle",
+      | "Oracle"
+      | "S3",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -1002,6 +1011,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Elasticsearch")
           this.FillElasticSearchDSForm();
         else if (DataSourceKVP[dsType] == "Redis") this.FillRedisDSForm();
+        else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
