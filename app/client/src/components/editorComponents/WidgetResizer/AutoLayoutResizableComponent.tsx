@@ -27,7 +27,6 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetOperations } from "widgets/BaseWidget";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { UIElementSize } from "./ResizableUtils";
 import {
   BottomHandleStyles,
@@ -198,15 +197,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     !isPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen;
 
-  const snapGrid = {
-    x: 1,
-    y: 1,
-  };
-
-  const isVerticalResizeEnabled = useMemo(() => {
-    return !isAutoHeightEnabledForWidget(props) && isEnabled;
-  }, [props, isAutoHeightEnabledForWidget, isEnabled]);
-
   const allowResize: boolean =
     !isMultiSelected || (isAutoLayout && !props.isFlexChild);
 
@@ -217,26 +207,18 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
     (isHovered || isSelected);
-
+  const isFillWidget = props.responsiveBehavior === ResponsiveBehavior.Fill;
   return (
     <AutoLayoutResizer
       allowResize={allowResize}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enableHorizontalResize={isEnabled}
-      enableVerticalResize={isVerticalResizeEnabled}
+      enableResizing={isEnabled}
       getResizedPositions={getResizedPositions}
       handles={handles}
-      hasAutoHeight={
-        props.hasAutoHeight ||
-        props.responsiveBehavior === ResponsiveBehavior.Fill
-      }
-      hasAutoWidth={
-        props.hasAutoWidth ||
-        props.responsiveBehavior === ResponsiveBehavior.Fill
-      }
-      isFillWidget={props.responsiveBehavior === ResponsiveBehavior.Fill}
-      isFlexChild={props.isFlexChild}
+      hasAutoHeight={props.hasAutoHeight || isFillWidget}
+      hasAutoWidth={props.hasAutoWidth}
+      isFillWidget={isFillWidget}
       isHovered={isHovered}
       isMobile={props.isMobile || false}
       mainCanvasWidth={props.mainCanvasWidth || 1}
@@ -245,7 +227,6 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       parentId={props.parentId}
       responsiveBehavior={props.responsiveBehavior}
       showResizeBoundary={showResizeBoundary}
-      snapGrid={snapGrid}
       // Used only for performance tracking, can be removed after optimization.
       widgetId={props.widgetId}
       zWidgetId={props.widgetId}

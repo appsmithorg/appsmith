@@ -1,7 +1,4 @@
-import {
-  isHandleResizeAllowed,
-  isResizingDisabled,
-} from "components/editorComponents/WidgetResizer/ResizableUtils";
+import { isResizingDisabled } from "components/editorComponents/WidgetResizer/ResizableUtils";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
@@ -64,21 +61,23 @@ export type AutoLayoutResizableProps = {
   };
   onStart: (affectsWidth?: boolean) => void;
   onStop: (props: { width: number; height: number }) => void;
-  snapGrid: { x: number; y: number };
-  enableVerticalResize: boolean;
-  enableHorizontalResize: boolean;
+  enableResizing: boolean;
   className?: string;
   parentId?: string;
   widgetId: string;
   zWidgetType?: string;
   zWidgetId?: string;
   isFillWidget?: boolean;
-  isFlexChild?: boolean;
   isHovered: boolean;
   responsiveBehavior?: ResponsiveBehavior;
   isMobile: boolean;
   showResizeBoundary: boolean;
 };
+const AutoLayoutSnapGrid = {
+  x: 1,
+  y: 1,
+};
+
 export function AutoLayoutResizer(props: AutoLayoutResizableProps) {
   // auto-layouts resizable is dependent on the app state of the widget so on delete it crashes the app
   // so adding this check to render auto layout resize only when the widget does have an app state.
@@ -98,13 +97,12 @@ function AutoLayoutResizable({
   className,
   componentHeight,
   componentWidth,
-  enableHorizontalResize,
-  enableVerticalResize,
+  enableResizing,
   getResizedPositions,
   handles: handlesToRender,
   hasAutoHeight,
   hasAutoWidth,
-  isFlexChild,
+  isFillWidget,
   isHovered,
   isMobile,
   mainCanvasWidth,
@@ -113,7 +111,6 @@ function AutoLayoutResizable({
   parentId,
   responsiveBehavior,
   showResizeBoundary,
-  snapGrid,
   widgetId,
   zWidgetId,
   zWidgetType,
@@ -365,6 +362,7 @@ function AutoLayoutResizable({
 
   if (
     !(
+      !isFillWidget &&
       widget[leftColumnMap] !== 0 &&
       widget[rightColumnMap] === GridDefaults.DEFAULT_GRID_COLUMNS
     ) &&
@@ -533,13 +531,7 @@ function AutoLayoutResizable({
   };
 
   const renderHandles = handles.map((handle, index) => {
-    const disableDot = !isHandleResizeAllowed(
-      enableHorizontalResize,
-      enableVerticalResize,
-      handle.handleDirection,
-    );
-
-    let disableResizing = false;
+    let disableResizing = !enableResizing;
 
     if (widget && widget.type) {
       let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
@@ -552,25 +544,16 @@ function AutoLayoutResizable({
       disableResizing = isResizingDisabled(
         disableResizeHandles,
         handle.handleDirection,
-        isFlexChild,
-        responsiveBehavior,
       );
     }
 
     return (
       <ResizableHandle
         {...handle}
-        allowResize={
-          allowResize &&
-          !(
-            responsiveBehavior === ResponsiveBehavior.Fill &&
-            handle?.affectsWidth
-          ) &&
-          !disableResizing
-        }
+        allowResize={allowResize && !handle?.affectsWidth && !disableResizing}
         checkForCollision={checkForCollision}
         direction={handle.handleDirection}
-        disableDot={disableDot || disableResizing}
+        disableDot={disableResizing}
         isHovered={isHovered}
         key={index}
         onStart={() => {
@@ -580,7 +563,7 @@ function AutoLayoutResizable({
         }}
         onStop={onResizeStop}
         scrollParent={resizableRef.current}
-        snapGrid={snapGrid}
+        snapGrid={AutoLayoutSnapGrid}
       />
     );
   });
@@ -622,7 +605,7 @@ function AutoLayoutResizable({
       }}
     >
       {children}
-      {enableHorizontalResize && renderHandles}
+      {enableResizing && renderHandles}
     </ResizeWrapper>
   );
 }
