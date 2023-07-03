@@ -40,6 +40,7 @@ import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
 import { Spinner } from "design-system";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -65,7 +66,16 @@ type EditorProps = {
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
-  shouldComponentUpdate(nextProps: Props) {
+  public state = {
+    registered: false,
+  };
+
+  componentDidMount() {
+    editorInitializer().then(() => {
+      this.setState({ registered: true });
+    });
+  }
+  shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     const isBranchUpdated = getIsBranchUpdated(
       this.props.location,
       nextProps.location,
@@ -82,7 +92,8 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
-      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour
+      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour ||
+      nextState.registered !== this.state.registered
     );
   }
 
@@ -131,7 +142,11 @@ class Editor extends Component<Props> {
   }
 
   public render() {
-    if (!this.props.isEditorInitialized || this.props.loadingGuidedTour) {
+    if (
+      !this.props.isEditorInitialized ||
+      !this.state.registered ||
+      this.props.loadingGuidedTour
+    ) {
       return (
         <CenteredWrapper
           style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}

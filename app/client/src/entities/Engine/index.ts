@@ -17,7 +17,6 @@ import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { editorInitializer } from "../../utils/editor/EditorUtils";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -90,7 +89,6 @@ export default abstract class AppEngine {
     const { branch } = payload;
     yield put(updateBranchLocally(branch || ""));
     yield put(setAppMode(this._mode));
-    yield call(editorInitializer);
     yield put({ type: ReduxActionTypes.START_EVALUATION });
   }
 
