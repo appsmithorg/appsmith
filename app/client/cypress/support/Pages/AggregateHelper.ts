@@ -672,18 +672,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public SelectNRemoveLineText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.type(this.selectLine);
-    return locator.type(this.removeLine);
+    this.GetElement(selector).type(this.selectLine);
+    return this.GetElement(selector).type(this.removeLine);
   }
 
   public SelectAllRemoveCodeText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.type(this.selectAll + "{del}");
+    return this.GetElement(selector).type(this.selectAll + "{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -803,6 +797,16 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+  public AssertCSS(
+    selector: string,
+    cssName: string,
+    cssValue: string,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.css", cssName, cssValue);
+  }
 
   public ToggleSwitch(
     switchName: string,
@@ -843,7 +847,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public Sleep(timeout = 1000) {
-    cy.wait(timeout);
+    return cy.wait(timeout);
   }
 
   public RefreshPage(
