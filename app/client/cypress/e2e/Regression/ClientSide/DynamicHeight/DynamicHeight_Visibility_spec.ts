@@ -50,6 +50,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
       )
       .then((currentContainerHeight: number) => {
         agHelper.GetNClick(pageSettings.locators._setHomePageToggle);
+        agHelper.Sleep(2000);
         agHelper
           .GetWidgetCSSHeight(
             locators._widgetInDeployed(draggableWidgets.CONTAINER),
@@ -59,6 +60,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
             agHelper.AssertElementAbsence(locators._labelContains("On"));
             agHelper.AssertElementVisible(locators._labelContains("Off"));
             agHelper.GetNClick(pageSettings.locators._setHomePageToggle);
+            agHelper.Sleep(2000);
             agHelper
               .GetWidgetCSSHeight(
                 locators._widgetInDeployed(draggableWidgets.CONTAINER),

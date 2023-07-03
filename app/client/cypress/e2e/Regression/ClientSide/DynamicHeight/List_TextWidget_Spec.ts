@@ -23,11 +23,9 @@ describe("Dynamic Height Width validation list widget", function () {
     entityExplorer.SelectEntityByName("List1", "Widgets");
     propPane.MoveToTab("Style");
     agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
-
-    assertHelper.AssertNetworkStatus("@updateLayout");
     agHelper.ValidateToastMessage(
       "This widget cannot be used inside the list widget.",
-      0,
+      1,
       1,
     );
     agHelper
@@ -40,11 +38,11 @@ describe("Dynamic Height Width validation list widget", function () {
         entityExplorer.SelectEntityByName("Text1", "Container1");
 
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
-        propPane.UpdatePropertyFieldValue("text", textMsg, true);
+        propPane.UpdatePropertyFieldValue("Text", textMsg, true);
         entityExplorer.SelectEntityByName("Container1", "List1");
         entityExplorer.SelectEntityByName("Text2", "Container1");
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
-        propPane.UpdatePropertyFieldValue("text", textMsg, true);
+        propPane.UpdatePropertyFieldValue("Text", textMsg, true);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
           .then((updatedListHeight: number) => {

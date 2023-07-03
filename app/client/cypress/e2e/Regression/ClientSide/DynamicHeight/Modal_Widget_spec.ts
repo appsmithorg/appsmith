@@ -28,7 +28,7 @@ describe("Dynamic Height Width validation with limits", function () {
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
           .then((currentTextWidgetHeight: number) => {
-            propPane.UpdatePropertyFieldValue("text", textMsg, true);
+            propPane.UpdatePropertyFieldValue("Text", textMsg, true);
             assertHelper.AssertNetworkStatus("@updateLayout", 200);
             agHelper
               .GetWidgetCSSHeight(
