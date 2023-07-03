@@ -14,10 +14,12 @@ describe("Dynamic Height Width validation with limits", function () {
     propPane.SelectPropertiesDropDown("height", "Auto Height with limits");
     agHelper.HoverElement(locators._autoHeightLimitMin);
     agHelper.AssertContains("Min-Height: 10 rows");
-    agHelper
-      .GetElement(locators._autoHeightLimitMin_div)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(243, 43, 139)");
+    agHelper.AssertCSS(
+      locators._autoHeightLimitMin_div,
+      "background-color",
+      "rgb(243, 43, 139)",
+      0,
+    );
     agHelper.HoverElement(locators._autoHeightLimitMax);
     agHelper.AssertContains("Max-Height: 12 rows");
     propPane.SelectPropertiesDropDown("height", "Fixed");

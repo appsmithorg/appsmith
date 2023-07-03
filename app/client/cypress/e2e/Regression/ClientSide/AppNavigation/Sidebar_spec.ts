@@ -3,7 +3,7 @@ import {
   appSettings,
   deployMode,
   homePage,
-  locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Sidebar navigation style", function () {
@@ -12,17 +12,19 @@ describe("Test Sidebar navigation style", function () {
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
 
-    cy.wait("@importNewApplication").then((interception) => {
-      agHelper.Sleep();
+    assertHelper
+      .WaitForNetworkCall("@importNewApplication", 200)
+      .then((interception) => {
+        agHelper.Sleep();
 
-      const { isPartialImport } = interception.response.body.data;
+        const { isPartialImport } = interception.response.body.data;
 
-      if (isPartialImport) {
-        homePage.AssertNCloseImport();
-      } else {
-        homePage.AssertImportToast();
-      }
-    });
+        if (isPartialImport) {
+          homePage.AssertNCloseImport();
+        } else {
+          homePage.AssertImportToast();
+        }
+      });
   });
 
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {

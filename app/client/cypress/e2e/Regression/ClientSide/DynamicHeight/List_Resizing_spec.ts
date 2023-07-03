@@ -17,7 +17,7 @@ describe("Dynamic Height Width validation", function () {
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST_V2))
       .then((currentListHeight: number) => {
         propPane.MoveToTab("Style");
-        propPane.TypeTextIntoField("itemspacing\\(px\\)", "16", true);
+        propPane.UpdatePropertyFieldValue("itemspacing\\(px\\)", "16", true);
         agHelper
           .GetWidgetCSSHeight(
             locators._widgetInDeployed(draggableWidgets.LIST_V2),

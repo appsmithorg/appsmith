@@ -20,10 +20,10 @@ describe("Dynamic Height Width validation", function () {
         entityExplorer.SelectEntityByName("Container1", "List1");
         entityExplorer.SelectEntityByName("Text1", "Container1");
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
-        propPane.TypeTextIntoField("text", textMsg, true);
+        propPane.UpdatePropertyFieldValue("text", textMsg, true);
         entityExplorer.SelectEntityByName("Text2");
         agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
-        propPane.TypeTextIntoField("text", textMsg, true);
+        propPane.UpdatePropertyFieldValue("text", textMsg, true);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
           .then((updatedListHeight: number) => {

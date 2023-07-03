@@ -17,26 +17,29 @@ describe("Fixed Invisible widgets and auto height containers", () => {
   it("1. Divider should be below Button Widget in edit mode", () => {
     // This test checks for the height of the button widget and the filepicker widget
     // As well as the top value for the widgets below button and filepicker (divider and checkbox respectively)
-    cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
       "height",
       "230px",
+      0,
     );
-    cy.get(locators._widgetInDeployed(draggableWidgets.FILEPICKER)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.FILEPICKER),
       "height",
       "90px",
+      0,
     );
-
-    cy.get(locators._widgetInDeployed(draggableWidgets.DIVIDER)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.DIVIDER),
       "top",
       "246px",
+      0,
     );
-    cy.get(locators._widgetInDeployed(draggableWidgets.CHECKBOX)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.CHECKBOX),
       "top",
       "96px",
+      0,
     );
   });
 
@@ -45,30 +48,34 @@ describe("Fixed Invisible widgets and auto height containers", () => {
     agHelper.AssertElementVisible(locators._previewModeToggle("edit"));
     agHelper.GetNClick(locators._previewModeToggle("edit"));
 
-    cy.get(locators._widgetInDeployed(draggableWidgets.DIVIDER)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.DIVIDER),
       "top",
       "16px",
+      0,
     );
-    cy.get(locators._widgetInDeployed(draggableWidgets.CHECKBOX)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.CHECKBOX),
       "top",
       "6px",
+      0,
     );
   });
 
   it("3. Divider should move up by the height of the button widget in view mode", () => {
     // This tests if the divider and checkbox widget move up by an appropriate amount in view mode.
     deployMode.DeployApp();
-    cy.get(locators._widgetInDeployed(draggableWidgets.DIVIDER)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.DIVIDER),
       "top",
       "16px",
+      0,
     );
-    cy.get(locators._widgetInDeployed(draggableWidgets.CHECKBOX)).should(
-      "have.css",
+    agHelper.AssertCSS(
+      locators._widgetInDeployed(draggableWidgets.CHECKBOX),
       "top",
       "6px",
+      0,
     );
   });
 });
