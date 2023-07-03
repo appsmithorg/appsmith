@@ -26,3 +26,8 @@ export const getEnvironmentIdForHeader = (): string => {
   }
   return activeEnv;
 };
+
+// function to get the default environment
+export const getDefaultEnvId = () => {
+  return DEFAULT_ENV_ID;
+};
