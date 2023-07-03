@@ -289,6 +289,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
+      abTestingFlagValue: featureFlags?.ab_ds_binding_enabled,
     });
 
     dispatch(addSuggestedWidget(payload));
