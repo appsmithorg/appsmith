@@ -12,7 +12,7 @@ spec:
   {{- range .Values.persistence.accessModes }}
     - {{ . | quote }}
   {{- end }}
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: {{ .Values.persistence.ReclaimPolicy }}
   storageClassName: {{ .Values.persistence.storageClass | quote }}
   local:
     path: {{ .Values.persistence.storagePath }} # Path to the directory this PV refers to.

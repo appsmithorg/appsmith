@@ -217,6 +217,7 @@ persistence:
   enabled: true
   ## @param persistence.storageClass PVC Storage Class
   ##
+  ReclaimPolicy: "Retain"
   storageClass: ""
   ## @param persistence.annotations Additional custom annotations for the PVC
   ##
