@@ -157,6 +157,25 @@ export class Table {
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
   _selectMenuItem = ".menu-item-text";
+  _releaseDateCheckbox =
+    "[data-rbd-draggable-id='release_date'] .t--card-checkbox input";
+  _propertyControlEditable =
+    ".t--property-pane-section-general .t--property-control-editable";
+  _dateInputPopover = ".bp3-dateinput-popover";
+  _tableV2Row = ".t--draggable-tablewidgetv2 .tbody";
+  _cellEditor = ".t--inlined-cell-editor";
+  _weekdayRowDayPicker =
+    ".bp3-datepicker .DayPicker .DayPicker-Months .DayPicker-WeekdaysRow";
+  _propertyControlShowShortcuts =
+    ".t--property-pane-section-datesettings .t--property-control-showshortcuts";
+  _propertyControlRequired =
+    ".t--property-pane-section-validation .t--property-control-required";
+  _popoverContent =
+    ".bp3-transition-container .bp3-popover .bp3-popover-content";
+  _allowAddRowCheckbox =
+    ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]";
+  _datePicker = ".bp3-datepicker";
+  _dayPickerWeek = ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week";
 
   public WaitUntilTableLoad(
     rowIndex = 0,

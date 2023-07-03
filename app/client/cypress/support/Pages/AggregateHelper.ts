@@ -619,6 +619,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetClosestNClick(
+    selector: string,
+    closestSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .closest(closestSelector)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
+
   public GetHoverNClick(
     selector: string,
     index = 0,
@@ -1352,10 +1366,6 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  GetWidgetCSSHeight(widgetSelector: string) {
-    return this.GetElement(widgetSelector).invoke("css", "height");
-  }
-
   GetWidgetByName(widgetName: string) {
     return this.GetElement(this.locator._widgetByName(widgetName));
   }
@@ -1421,6 +1431,16 @@ export class AggregateHelper extends ReusableHelper {
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
 
+  public AssertValue(
+    selector: string,
+    value: string,
+    haveValue = true,
+    index = 0,
+  ) {
+    if (haveValue)
+      return this.GetElement(selector).eq(index).should("have.value", value);
+    return this.GetElement(selector).eq(index).should("not.have.value", value);
+  }
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
