@@ -41,7 +41,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -185,8 +184,6 @@ public class ApplicationServiceCETest {
     CustomJSLibService customJSLibService;
     @Autowired
     PluginRepository pluginRepository;
-    @Autowired
-    PolicyUtils policyUtils;
     @Autowired
     ImportExportApplicationService importExportApplicationService;
     @Autowired
