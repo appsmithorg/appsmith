@@ -191,28 +191,22 @@ describe("FirstTimeUserOnboarding", function () {
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
-    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
-    cy.get(OnboardingLocator.textWidgetName).should("be.visible").wait(800);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
     cy.reload();
-    cy.wait("@getPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    agHelper.RefreshPage(true, "getPage");
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.introModal);
-    cy.get(OnboardingLocator.textWidgetName).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.textWidgetName);
   });
 
   it("4. onboarding flow - new apps created should start with signposting", function () {
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
-
     homePage.NavigateToHome();
     homePage.CreateNewApplication(false);
-
+    agHelper.AssertElementExist(locators._dropHere);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
   });
 
   it("5. onboarding flow - once signposting is completed new apps won't start with signposting", function () {
