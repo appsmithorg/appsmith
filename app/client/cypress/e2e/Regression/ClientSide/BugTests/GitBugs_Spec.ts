@@ -105,11 +105,15 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
     });
   });
-  // skipping this test for now, will update test logic and create new PR for it
-  // TODO Parthvi
-  it.skip("5. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+
+  it("5. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
-    _.entityExplorer.DragDropWidgetNVerify("modalwidget", 50, 50);
+    _.agHelper.GetNClick(_.locators._appEditMenuBtn);
+    // cy.wait(_.locators._appEditMenu);
+    _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+    _.agHelper.GetNClick(_.locators._appThemeSettings);
+    _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
+    _.agHelper.GetNClick(_.locators._appThemeCard, 1);
     _.gitSync.CommitAndPush();
     _.gitSync.SwitchGitBranch(tempBranch);
     _.gitSync.CommitAndPush();
