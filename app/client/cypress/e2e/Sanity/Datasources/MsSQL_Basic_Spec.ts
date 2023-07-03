@@ -82,7 +82,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
     }).as("featureFlags");
-    cy.reload();
+    agHelper.RefreshPage();
   });
 
   it("1. Validate simple queries - Show all existing tables, Describe table & verify query responses", () => {

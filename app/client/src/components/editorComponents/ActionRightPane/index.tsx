@@ -281,7 +281,6 @@ function ActionSidebar({
         hasResponse &&
         Object.keys(widgets).length > 1 && (
           <Collapsible label="Connect widget">
-            {/*<div className="description">Go to canvas and select widgets</div>*/}
             <SnipingWrapper>
               <Button
                 className={"t--select-in-canvas"}

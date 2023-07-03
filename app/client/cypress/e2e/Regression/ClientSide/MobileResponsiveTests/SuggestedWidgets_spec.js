@@ -11,7 +11,7 @@ describe("Check Suggested Widgets Feature in auto-layout", function () {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
     }).as("featureFlags");
-    cy.reload();
+    agHelper.RefreshPage();
   });
 
   it("1. Suggested widget", () => {
