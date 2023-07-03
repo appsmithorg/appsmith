@@ -8,8 +8,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -24,11 +22,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_CLOSED_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_POOL_NULL_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.MssqlPlugin.MssqlPluginExecutor.scheduler;
+import static com.external.plugins.MssqlPlugin.mssqlDatasourceUtils;
 
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MssqlDatasourceUtils {
 
     public static final String PRIMARY_KEY_INDICATOR = "PRIMARY KEY";
@@ -94,13 +97,15 @@ public class MssqlDatasourceUtils {
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool = getConnectionFromConnectionPool(connection);
+                        connectionFromPool = mssqlDatasourceUtils.getConnectionFromHikariConnectionPool(connection,
+                                MSSQL_PLUGIN_NAME);
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue
                         // initializing the connection pool which can also be translated in our world to
                         // StaleConnectionException and should then trigger the destruction and recreation of the pool.
-                        return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        return Mono.error(e instanceof StaleConnectionException ? e :
+                                new StaleConnectionException(e.getMessage()));
                     }
 
                     logHikariCPStatus("Before getting Mssql DB schema", connection);
@@ -137,21 +142,9 @@ public class MssqlDatasourceUtils {
      * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
      * In case a connection is not available in the pool, SQL Exception is thrown
      *
-     * @param hikariDSConnectionPool
+     * @param connectionPool
      * @return SQL Connection
      */
-    public static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool) throws SQLException {
-
-        if (hikariDSConnectionPool == null || hikariDSConnectionPool.isClosed() || !hikariDSConnectionPool.isRunning()) {
-            log.debug("Encountered stale connection pool in SQL Server plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        Connection sqlDataSourceConnection = hikariDSConnectionPool.getConnection();
-
-        return sqlDataSourceConnection;
-    }
-
     public static void logHikariCPStatus(String logPrefix, HikariDataSource connectionPool) {
         HikariPoolMXBean poolProxy = connectionPool.getHikariPoolMXBean();
         int idleConnections = poolProxy.getIdleConnections();
@@ -304,5 +297,37 @@ public class MssqlDatasourceUtils {
     private static String getSampleOneColumnUpdateString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
         return MessageFormat.format("{0}={1}", columnNameToSampleColumnDataMap.keySet().stream().findFirst().orElse(
                 "id"), columnNameToSampleColumnDataMap.values().stream().findFirst().orElse("'uid'"));
+    }
+
+    public void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName) throws StaleConnectionException {
+        if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
+            String printMessage = MessageFormat.format(Thread.currentThread().getName() +
+                    ": Encountered stale connection pool in {0} plugin. Reporting back.", pluginName);
+            System.out.println(printMessage);
+
+            if (connectionPool == null) {
+                throw new StaleConnectionException(CONNECTION_POOL_NULL_ERROR_MSG);
+            }
+            else if (connectionPool.isClosed()) {
+                throw new StaleConnectionException(CONNECTION_POOL_CLOSED_ERROR_MSG);
+            }
+            else if (!connectionPool.isRunning()) {
+                throw new StaleConnectionException(CONNECTION_POOL_NOT_RUNNING_ERROR_MSG);
+            }
+            else {
+                /**
+                 * Ideally, code flow is never expected to reach here. However, this section has been added to catch
+                 * those cases wherein a developer updates the parent if condition but does not update the nested
+                 * if else conditions.
+                 */
+                throw new StaleConnectionException(UNKNOWN_CONNECTION_ERROR_MSG);
+            }
+        }
+    }
+
+    public Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool,
+                                                                    String pluginName) throws SQLException {
+        checkHikariCPConnectionPoolValidity(connectionPool, pluginName);
+        return connectionPool.getConnection();
     }
 }
