@@ -33,7 +33,7 @@ export const sourceDataValidationFn = (
     };
   }
 
-  if (_.isNumber(value) || _.isBoolean(value) || _.isString(value)) {
+  if (_.isNumber(value) || _.isBoolean(value)) {
     return {
       isValid: false,
       parsed: {},
