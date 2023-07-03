@@ -8,7 +8,7 @@ import {
 } from "../../support/Objects/ObjectsCore";
 
 describe.skip("Authorized GSheet - in Edit & view mode", function () {
-  it("Create DS, Add DS & setting theme", () => {
+  it("Open already created GSheet in View mode, navigate back to Edit mode, Validate dropdown values", () => {
     homePage.NavigateToHome();
     homePage.FilterApplication("GSheet");
     agHelper.GetElement(homePage._applicationCard).trigger("mouseover");
