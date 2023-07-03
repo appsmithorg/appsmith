@@ -14,9 +14,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("1. Add a widget to default page and verify the properties", function () {
-    cy.fixture("displayWidgetDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("displayWidgetDsl");
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.ExpandCollapseEntity("Container4");
     entityExplorer.SelectEntityByName("Text1");

@@ -10,9 +10,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     agHelper.Sleep(2000);
-    cy.fixture("autoLayoutReflow").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("autoLayoutReflow");
   });
 
   it("1. Containers Should Reflow in smaller viewports", () => {

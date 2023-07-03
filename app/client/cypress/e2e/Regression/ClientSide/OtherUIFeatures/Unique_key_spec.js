@@ -12,9 +12,7 @@ describe("Unique react keys", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("basicDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("basicDsl");
   });
 
   it("1. Should not create duplicate versions of widget on drop from explorer", function () {

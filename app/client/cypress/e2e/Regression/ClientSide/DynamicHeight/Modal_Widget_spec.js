@@ -8,9 +8,7 @@ describe("Dynamic Height Width validation with limits", function () {
   it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt height Dynamic panel validation for text widget Dynamic panel validation for text widget Dynamic panel validation for text widget";
-    cy.fixture("DynamicHeightModalDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("DynamicHeightModalDsl");
     entityExplorer.SelectEntityByName("Modal1", "Widgets");
     cy.get(".t--modal-widget")
       .invoke("css", "height")
