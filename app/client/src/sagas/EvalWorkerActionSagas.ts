@@ -35,6 +35,7 @@ export type UpdateDataTreeMessageData = {
   unevalTree: UnEvalTree;
 };
 import { logJSActionExecution } from "./analyticsSaga";
+import { uniq } from "lodash";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -117,8 +118,11 @@ export function* handleJSExecutionLog(
   const {
     body: { data: executionData },
   } = data;
+  const executedFns = uniq(
+    executionData.map((execData) => execData.jsFnFullName),
+  );
   yield call(logJSActionExecution, executionData);
-  yield call(logJSFunctionExecution, data);
+  yield call(logJSFunctionExecution, executedFns);
 }
 
 export function* handleEvalWorkerMessage(message: TMessage<any>) {

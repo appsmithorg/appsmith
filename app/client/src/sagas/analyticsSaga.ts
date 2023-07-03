@@ -7,13 +7,12 @@ import {
   getCurrentApplication,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getAppMode } from "workers/Evaluation/JSObject/utils";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getJSActionFromName } from "selectors/entitiesSelector";
+import { getAppMode, getJSActionFromName } from "selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 
 export interface UserAndAppDetails {
