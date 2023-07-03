@@ -758,7 +758,6 @@ export default class DataTreeEvaluator {
       this.evalTree,
       evaluationOrder,
       {
-        skipRevalidation: false,
         isFirstTree: false,
         unevalUpdates,
         metaWidgets: metaWidgetIds,
@@ -891,13 +890,11 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     sortedDependencies: Array<string>,
     options: {
-      skipRevalidation: boolean;
       isFirstTree: boolean;
       unevalUpdates: DataTreeDiff[];
 
       metaWidgets: string[];
     } = {
-      skipRevalidation: true,
       isFirstTree: true,
       unevalUpdates: [],
       metaWidgets: [],
@@ -911,8 +908,7 @@ export default class DataTreeEvaluator {
     const tree = klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
-    const { isFirstTree, metaWidgets, skipRevalidation, unevalUpdates } =
-      options;
+    const { isFirstTree, metaWidgets, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -1011,14 +1007,13 @@ export default class DataTreeEvaluator {
                 isNewWidget,
               });
 
-              if (!skipRevalidation) {
-                this.reValidateWidgetDependentProperty({
-                  fullPropertyPath,
-                  widget: entity,
-                  currentTree,
-                  configTree: oldConfigTree,
-                });
-              }
+              this.reValidateWidgetDependentProperty({
+                fullPropertyPath,
+                widget: entity,
+                currentTree,
+                configTree: oldConfigTree,
+              });
+
               staleMetaIds = staleMetaIds.concat(
                 getStaleMetaStateIds({
                   entity,
