@@ -23,9 +23,7 @@ describe("<DropdownWidget />", () => {
       },
       users: {
         featureFlag: {
-          data: {
-            AUTO_LAYOUT: false,
-          },
+          data: {},
         },
       },
       propertyPane: {
