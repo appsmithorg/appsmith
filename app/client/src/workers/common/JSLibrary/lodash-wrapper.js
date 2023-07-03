@@ -53,7 +53,7 @@ if (
 //   import _ from 'lodash';
 //   const something = _;
 // When it encounters code like above, it will replace _ with `undefined`,
-// which will break the app.
+// which will break the app (https://github.com/lodash/babel-plugin-lodash/issues/235).
 //
 // Given that we *need* to use the full lodash in ./resetJSLibraries.js,
 // we use this workaround where we’re importing Lodash using CommonJS require().
