@@ -24,9 +24,7 @@ describe("Table Widget and Navigate to functionality validation", function () {
 
   it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
-    cy.fixture("displayWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("displayWidgetDsl");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
     //Table Widget Functionality with multiple page

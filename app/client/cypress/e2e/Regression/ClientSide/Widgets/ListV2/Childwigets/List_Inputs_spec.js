@@ -14,9 +14,7 @@ const items = JSON.parse(dsl.dsl.children[0].listData);
 
 describe("Input Widgets", function () {
   before(() => {
-    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
 
   beforeEach(() => {

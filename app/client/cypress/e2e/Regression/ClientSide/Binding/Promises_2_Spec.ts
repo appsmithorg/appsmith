@@ -19,9 +19,7 @@ describe("Validate basic Promises", () => {
 
   it("1. Verify storeValue via .then via direct Promises", () => {
     const date = new Date().toDateString();
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._spanButton("Submit"));
-    });
+    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -34,9 +32,8 @@ describe("Validate basic Promises", () => {
   });
 
   it("2. Verify resolve & chaining via direct Promises", () => {
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._spanButton("Submit"));
-    });
+    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
+
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -57,9 +54,8 @@ describe("Validate basic Promises", () => {
   });
 
   it("3. Verify Promises.any via direct JSObjects", () => {
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._spanButton("Submit"));
-    });
+    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
+
     jsEditor.CreateJSObject(
       `export default {
       func2: async () => {
