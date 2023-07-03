@@ -19,5 +19,8 @@ public class Url extends UrlCE {
     final public static String USAGE_REPORT_URL = BASE_URL + VERSION + "/usage/report";
     final public static String API_KEY_URL = BASE_URL + VERSION + "/api-key";
 
+    // Provision Urls
+    final public static String PROVISION_URL = BASE_URL + VERSION + "/provision";
+    final public static String PROVISION_USER_URL = PROVISION_URL + "/users";
 
 }
