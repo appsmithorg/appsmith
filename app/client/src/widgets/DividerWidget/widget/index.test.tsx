@@ -15,9 +15,7 @@ describe("<DividerWidget />", () => {
       },
       users: {
         featureFlag: {
-          data: {
-            AUTO_LAYOUT: false,
-          },
+          data: {},
         },
       },
       widgetDragResize: {

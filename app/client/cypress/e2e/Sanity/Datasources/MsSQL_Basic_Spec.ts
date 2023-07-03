@@ -132,15 +132,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     });
   });
 
-  after("Verify Deletion of the datasource", () => {
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
-    dataSources.StopNDeleteContainer(containerName);
-  });
+  // after("Verify Deletion of the datasource", () => {
+  //   entityExplorer.SelectEntityByName(dsName, "Datasources");
+  //   entityExplorer.ActionContextMenuByEntityName({
+  //     entityNameinLeftSidebar: dsName,
+  //     action: "Delete",
+  //     entityType: entityItems.Datasource,
+  //   });
+  //   dataSources.StopNDeleteContainer(containerName);
+  // });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
     dataSources.EnterQuery(query);

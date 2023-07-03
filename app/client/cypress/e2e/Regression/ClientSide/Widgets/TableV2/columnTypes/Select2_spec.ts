@@ -21,10 +21,8 @@ describe("Table widget v2: select column type test", function () {
      * 5. Check that in the table drop down you get No results found while editing and adding a row
      */
     propPane.TogglePropertyState("Allow adding a row", "On");
-
     table.ChangeColumnType("step", "Select", "v2");
-    const colSettings = table._columnSettingsV2("step", "Edit");
-    agHelper.GetNClick(colSettings);
+    table.EditColumn("step", "v2");
     propPane.TogglePropertyState("Editable", "On");
 
     //4
@@ -56,8 +54,7 @@ describe("Table widget v2: select column type test", function () {
      */
     propPane.NavigateBackToPropertyPane();
 
-    const colSettings = table._columnSettingsV2("step", "Edit");
-    agHelper.GetNClick(colSettings);
+    table.EditColumn("step", "v2");
 
     propPane.UpdatePropertyFieldValue("Options", "{{[null, null]}}");
 

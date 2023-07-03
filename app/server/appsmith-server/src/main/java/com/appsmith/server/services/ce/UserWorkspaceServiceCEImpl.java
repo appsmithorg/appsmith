@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -49,7 +49,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final UserDataRepository userDataRepository;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final EmailSender emailSender;
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
@@ -62,7 +62,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                       WorkspaceRepository workspaceRepository,
                                       UserRepository userRepository,
                                       UserDataRepository userDataRepository,
-                                      PolicyUtils policyUtils,
+                                      PolicySolution policySolution,
                                       EmailSender emailSender,
                                       UserDataService userDataService,
                                       PermissionGroupService permissionGroupService,
@@ -73,7 +73,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.emailSender = emailSender;
         this.userDataService = userDataService;
         this.permissionGroupService = permissionGroupService;
