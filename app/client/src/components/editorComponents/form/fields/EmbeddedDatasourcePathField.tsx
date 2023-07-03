@@ -7,8 +7,7 @@ import type { EditorProps } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
-import get from "lodash/get";
-import merge from "lodash/merge";
+import { get, merge } from "lodash";
 import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
 import { DEFAULT_DATASOURCE } from "entities/Datasource";
 import type CodeMirror from "codemirror";
@@ -56,13 +55,19 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import {
+  getCurrentEnvironment,
+  isEnvironmentValid,
+} from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { isString } from "lodash";
 
 type ReduxStateProps = {
   workspaceId: string;
-  datasource: Datasource | EmbeddedRestDatasource;
+  currentEnvironment: string;
+  datasource: EmbeddedRestDatasource;
   datasourceList: Datasource[];
+  datasourceObject?: Datasource;
   applicationId?: string;
   dataTree: DataTree;
   actionName: string;
@@ -71,7 +76,7 @@ type ReduxStateProps = {
 };
 
 type ReduxDispatchProps = {
-  updateDatasource: (datasource: Datasource | EmbeddedRestDatasource) => void;
+  updateDatasource: (datasource: EmbeddedRestDatasource) => void;
 };
 
 type Props = EditorProps &
@@ -180,7 +185,10 @@ const StyledTooltip = styled.span<{ width?: number }>`
 `;
 
 //Avoiding styled components since ReactDOM.render cannot directly work with it
-function CustomHint(props: { datasource: Datasource }) {
+function CustomHint(props: {
+  currentEnvironment: string;
+  datasource: Datasource;
+}) {
   return (
     <div style={hintContainerStyles}>
       <div style={mainContainerStyles}>
@@ -190,7 +198,10 @@ function CustomHint(props: { datasource: Datasource }) {
         </span>
       </div>
       <span style={datasourceInfoStyles}>
-        {get(props.datasource, "datasourceConfiguration.url")}
+        {get(
+          props.datasource,
+          `datasourceStorages.${props.currentEnvironment}.datasourceConfiguration.url`,
+        )}
       </span>
     </div>
   );
@@ -245,6 +256,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
+      // We are not using datasourceStorages here since EmbeddedDatasources will not have environments
       const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {
@@ -330,7 +342,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   };
 
   handleDatasourceHint = (): HintHelper => {
-    const { datasourceList } = this.props;
+    const { currentEnvironment, datasourceList } = this.props;
     return () => {
       return {
         showHint: (editor: CodeMirror.Editor) => {
@@ -346,19 +358,24 @@ class EmbeddedDatasourcePathComponent extends React.Component<
               hint: () => {
                 const list = datasourceList
                   .filter((datasource: Datasource) =>
-                    (datasource.datasourceConfiguration?.url || "").includes(
-                      parsed.datasourceUrl,
-                    ),
+                    (
+                      datasource.datasourceStorages[currentEnvironment]
+                        ?.datasourceConfiguration?.url || ""
+                    ).includes(parsed.datasourceUrl),
                   )
                   .map((datasource: Datasource) => ({
-                    text: datasource.datasourceConfiguration?.url,
+                    text: datasource.datasourceStorages[currentEnvironment]
+                      ?.datasourceConfiguration?.url,
                     data: datasource,
-                    className: !datasource.isValid
+                    className: !isEnvironmentValid(datasource)
                       ? "datasource-hint custom invalid"
                       : "datasource-hint custom",
                     render: (element: HTMLElement, self: any, data: any) => {
                       ReactDOM.render(
-                        <CustomHint datasource={data.data} />,
+                        <CustomHint
+                          currentEnvironment={currentEnvironment}
+                          datasource={data.data}
+                        />,
                         element,
                       );
                     },
@@ -374,7 +391,15 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                   hints,
                   "pick",
                   (selected: { text: string; data: Datasource }) => {
-                    this.props.updateDatasource(selected.data);
+                    this.props.updateDatasource({
+                      ...selected.data.datasourceStorages[currentEnvironment],
+                      id: selected.data.id,
+                      invalids: selected.data.invalids || [],
+                      messages: selected.data.messages || [],
+                      pluginId: selected.data.pluginId,
+                      name: selected.data.name,
+                      workspaceId: selected.data.workspaceId,
+                    });
                   },
                 );
                 return hints;
@@ -399,8 +424,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       let evaluatedPath = "path" in entity.config ? entity.config.path : "";
 
       if (evaluatedPath) {
-        if (isString(evaluatedPath) && evaluatedPath.indexOf("?") > -1) {
-          evaluatedPath = extractApiUrlPath(evaluatedPath);
+        if (isString(evaluatedPath)) {
+          if (evaluatedPath.indexOf("?") > -1) {
+            evaluatedPath = extractApiUrlPath(evaluatedPath);
+          }
         } else {
           evaluatedPath = JSON.stringify(evaluatedPath);
         }
@@ -467,6 +494,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     const {
       codeEditorVisibleOverflow,
       datasource,
+      datasourceObject,
       input: { value },
       userWorkspacePermissions,
     } = this.props;
@@ -484,7 +512,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       userWorkspacePermissions,
     );
 
-    const datasourcePermissions = datasource?.userPermissions || [];
+    const datasourcePermissions = datasourceObject?.userPermissions || [];
 
     const canManageDatasource = hasManageDatasourcePermission(
       datasourcePermissions,
@@ -522,20 +550,26 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           evaluatedValue={this.handleEvaluatedValue()}
           focusElementName={`${this.props.actionName}.url`}
         />
-        {datasource && datasource.name !== DEFAULT_DATASOURCE_NAME && (
-          <StyledTooltip
-            id="custom-tooltip"
-            width={this.state.highlightedElementWidth}
-          >
-            <Text color="var(--ads-v2-color-fg-on-emphasis-max)" kind="body-s">
-              {`Datasource ${datasource?.name}`}
-            </Text>
-          </StyledTooltip>
-        )}
+        {datasourceObject &&
+          datasourceObject.name !== DEFAULT_DATASOURCE_NAME && (
+            <StyledTooltip
+              id="custom-tooltip"
+              width={this.state.highlightedElementWidth}
+            >
+              <Text
+                color="var(--ads-v2-color-fg-on-emphasis-max)"
+                kind="body-s"
+              >
+                {`Datasource ${datasourceObject?.name}`}
+              </Text>
+            </StyledTooltip>
+          )}
         {displayValue && (
           <StoreAsDatasource
             datasourceId={
-              datasource && "id" in datasource ? datasource.id : undefined
+              datasourceObject && "id" in datasourceObject
+                ? datasourceObject.id
+                : undefined
             }
             enable={isEnabled}
             shouldSave={shouldSave}
@@ -553,9 +587,11 @@ const mapStateToProps = (
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction || {};
+  let datasourceFromDataSourceList: Datasource | undefined;
+  const currentEnvironment = getCurrentEnvironment();
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
-    const datasourceFromDataSourceList = getDatasource(
+    datasourceFromDataSourceList = getDatasource(
       state,
       datasourceFromAction.id,
     );
@@ -563,15 +599,17 @@ const mapStateToProps = (
       datasourceMerged = merge(
         {},
         datasourceFromAction,
-        datasourceFromDataSourceList,
+        datasourceFromDataSourceList.datasourceStorages[currentEnvironment],
       );
     }
   }
 
   return {
     workspaceId: state.ui.workspaces.currentWorkspace.id,
+    currentEnvironment,
     datasource: datasourceMerged,
     datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),
+    datasourceObject: datasourceFromDataSourceList,
     applicationId: getCurrentApplicationId(state),
     dataTree: getDataTree(state),
     actionName: ownProps.actionName,

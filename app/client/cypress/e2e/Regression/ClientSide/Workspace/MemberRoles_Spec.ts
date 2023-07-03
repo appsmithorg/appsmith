@@ -14,7 +14,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       _.homePage.CreateNewWorkspace(workspaceId);
       _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       _.homePage.InviteUserToWorkspaceErrorMessage(workspaceId, "abcdef");
-      cy.visit("/applications");
+      cy.visit("/applications", { timeout: 60000 });
       _.homePage.InviteUserToWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
