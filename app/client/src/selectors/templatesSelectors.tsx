@@ -142,14 +142,14 @@ export const templatesDatasourceFiltersSelector = createSelector(
   },
 );
 
-export const templatesFiltersSelector = (state: AppState) =>
+export const allTemplatesFiltersSelector = (state: AppState) =>
   state.ui.templates.allFilters;
 
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
 export const getFilterListSelector = createSelector(
   getTemplatesSelector,
-  templatesFiltersSelector,
+  allTemplatesFiltersSelector,
   (templates, allTemplateFilters) => {
     const FUNCTIONS_FILTER = "functions";
     const filters: Record<string, Filter[]> = {

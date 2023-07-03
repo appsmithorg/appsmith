@@ -461,6 +461,7 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
   });
+  AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_FIRST_TIME_OPEN");
 }
 
 function* setFirstTimeUserOnboardingCompleteSaga(action: ReduxAction<boolean>) {
