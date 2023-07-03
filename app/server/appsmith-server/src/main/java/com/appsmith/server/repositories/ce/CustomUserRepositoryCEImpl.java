@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -79,7 +80,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         q.fields().include(fieldName(QUser.user.email));
         q.limit(2);
         return mongoOperations.find(q, User.class)
-                .filter(user -> !user.getEmail().equals(FieldName.ANONYMOUS_USER))
+                .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
                 .count()
                 .map(count -> count == 0);
     }
@@ -96,6 +97,12 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 limit,
                 skip
         );
+    }
+
+    protected Set<String> getSystemGeneratedUserEmails() {
+        Set<String> systemGeneratedEmails = new HashSet<>();
+        systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
+        return systemGeneratedEmails;
     }
 
 }
