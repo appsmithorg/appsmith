@@ -535,11 +535,11 @@ function* evaluationChangeListenerSaga(): any {
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
-  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: {
     type: ReduxActionType;
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
+  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true, false);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
