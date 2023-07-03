@@ -672,18 +672,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public SelectNRemoveLineText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.type(this.selectLine);
-    return locator.type(this.removeLine);
+    this.GetElement(selector).type(this.selectLine);
+    return this.GetElement(selector).type(this.removeLine);
   }
 
   public SelectAllRemoveCodeText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.type(this.selectAll + "{del}");
+    return this.GetElement(selector).type(this.selectAll + "{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
