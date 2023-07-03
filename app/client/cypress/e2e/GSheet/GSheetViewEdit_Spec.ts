@@ -7,7 +7,7 @@ import {
   table,
 } from "../../support/Objects/ObjectsCore";
 
-describe.skip("Array Datatype tests", function () {
+describe.skip("Authorized GSheet - in Edit & view mode", function () {
   it("Create DS, Add DS & setting theme", () => {
     homePage.NavigateToHome();
     homePage.FilterApplication("GSheet");
