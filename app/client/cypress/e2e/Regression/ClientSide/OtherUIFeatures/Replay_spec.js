@@ -3,14 +3,18 @@ const widgetLocators = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+const {
+  agHelper,
+  entityExplorer,
+  propPane,
+} = require("../../../../support/Objects/ObjectsCore");
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
     cy.fixture("replay").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -126,21 +130,23 @@ describe("Undo/Redo functionality", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
 
     cy.wait(100);
-    cy.get(widgetsPage.inputTextControl).type("1");
+    propPane.UpdatePropertyFieldValue("Text", "Label");
 
     cy.closePropertyPane();
 
     cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(100);
     cy.get(widgetsPage.propertypaneText).should("exist");
-    cy.get(widgetsPage.inputTextControl).contains("Label");
+    cy.get(widgetsPage.inputTextControl).contains(
+      "Hello {{appsmith.user.name || appsmith.user.email}}",
+    );
 
     cy.closePropertyPane();
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.wait(100);
     cy.get(widgetsPage.propertypaneText).should("exist");
-    cy.get(widgetsPage.inputTextControl).contains("Label1");
+    cy.get(widgetsPage.inputTextControl).contains("Label");
     cy.deleteWidget(widgetsPage.textWidget);
   });
 
@@ -171,15 +177,19 @@ describe("Undo/Redo functionality", function () {
     cy.wait(500);
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
-
     cy.get("body").click({ force: true }).type(`{${modifierKey}}z`);
+    entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.MoveToTab("Style");
     cy.get(widgetsPage.textColor)
       .first()
       .invoke("attr", "value")
       .should("contain", "#231F20");
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-
+    entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.MoveToTab("Style");
     cy.get(widgetsPage.textColor)
       .first()
       .invoke("attr", "value")
@@ -197,12 +207,16 @@ describe("Undo/Redo functionality", function () {
     cy.wait(200);
 
     cy.get("body").type(`{${modifierKey}}z`);
+    entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.SelectEntityByName("RadioGroup1");
     cy.get(widgetsPage.RadioInput)
       .first()
       .invoke("attr", "value")
       .should("contain", "Yes");
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
+    entityExplorer.NavigateToSwitcher("Explorer");
+    entityExplorer.SelectEntityByName("RadioGroup1");
     cy.get(widgetsPage.RadioInput)
       .first()
       .invoke("attr", "value")
