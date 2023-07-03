@@ -84,9 +84,7 @@ function removeCustomField() {
 
 describe("JSON Form Hidden fields", () => {
   before(() => {
-    cy.fixture("jsonFormDslWithSchema").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("jsonFormDslWithSchema");
     entityExplorer.SelectEntityByName("Text1");
     propPane.UpdatePropertyFieldValue(
       "Text",

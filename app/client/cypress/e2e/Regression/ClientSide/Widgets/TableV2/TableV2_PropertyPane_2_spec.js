@@ -107,9 +107,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("4. It provides currentRow and currentIndex properties in min validation field", function () {
-    cy.fixture("tableV2NewDslWithPagination").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDslWithPagination");
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");
