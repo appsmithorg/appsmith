@@ -57,7 +57,7 @@ describe("Fork application with multiple datasources", function () {
     agHelper.GetNClick(dataSources._saveDs);
 
     cy.ReconnectDatasource("S3");
-    cy.fillAmazonS3DatasourceForm();
+    dataSources.FillS3DSForm();
     agHelper.GetNClick(dataSources._saveDs);
     // assert if the datasources are connected as expeced
     agHelper.AssertContains(
