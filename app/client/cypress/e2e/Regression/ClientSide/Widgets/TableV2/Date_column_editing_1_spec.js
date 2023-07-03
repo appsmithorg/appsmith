@@ -21,8 +21,7 @@ describe("Table widget date column inline editing functionality", () => {
 
   it("2. should check that date cell edit mode can be turned on", () => {
     cy.openPropertyPane("tablewidgetv2");
-    //cy.editColumn("release_date");
-    table.EditColumn("release_date", "v2");
+    cy.editColumn("release_date");
     cy.get(
       ".t--property-pane-section-general .t--property-control-editable",
     ).should("exist");
