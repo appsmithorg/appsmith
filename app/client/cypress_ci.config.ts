@@ -17,7 +17,7 @@ export default defineConfig({
   },
   chromeWebSecurity: false,
   viewportHeight: 1100,
-  viewportWidth: 1300,
+  viewportWidth: 1400,
   scrollBehavior: "center",
   retries: {
     runMode: 1,
