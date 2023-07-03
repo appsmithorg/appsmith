@@ -38,8 +38,8 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     "1. Create Users Sample DB Query & Simulate cyclic depedency",
     () => {
       //Step1 : Create Mock Users DB
-      dataSources.CreateMockDB("Users").then((dbName) => {
-        dataSources.CreateQueryFromActiveTab(dbName, true);
+      dataSources.CreateMockDB("Users").then(() => {
+        dataSources.CreateQueryAfterDSSaved();
         dataSources.ToggleUsePreparedStatement(false);
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       });
