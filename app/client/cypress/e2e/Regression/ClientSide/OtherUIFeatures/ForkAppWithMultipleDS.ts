@@ -3,18 +3,13 @@ import {
   dataSources,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
+import reconnectDSLocator from "../../../../locators/ReconnectLocators.js";
+import formControls from "../../../../locators/FormControl.json";
 
-const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
-const formControls = require("../../../../locators/FormControl.json");
+let workspaceId: string;
 
-let workspaceId: string, datasourceName: string;
-
-describe("Bug Id: 24708 - Fork application with multiple datasources", function () {
+describe("Fork application with multiple datasources", function () {
   before(() => {
-    cy.fixture("mongoAppdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
-
     // Create Mongo DS and respective query
     dataSources.CreateDataSource("Mongo");
     dataSources.CreateQueryAfterDSSaved("", "GetProduct");
@@ -25,20 +20,12 @@ describe("Bug Id: 24708 - Fork application with multiple datasources", function 
     dataSources.CreateDataSource("MySql");
     dataSources.CreateQueryAfterDSSaved("select * from customers limit 10");
     // Create S3 DS
-    cy.NavigateToDatasourceEditor();
-    agHelper.GetNClick(datasourceLocators.AmazonS3);
-    cy.generateUUID().then((uid) => {
-      datasourceName = `S3 DS ${uid}`;
-      cy.renameDatasource(datasourceName);
-      cy.wrap(datasourceName).as("dSName");
-      cy.fillAmazonS3DatasourceForm();
-      cy.testSaveDatasource();
-    });
+    dataSources.CreateDataSource("S3");
   });
 
-  it("1. Add datasource - Mongo, Postgres, fork and test the forked application", function () {
+  it("1. Bug Id: 24708  - fork and test the forked application", function () {
     // Create S3 Query
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.NavigateToActiveDSQueryPane("S3");
     dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
     cy.typeValueNValidate(
       "assets-test.appsmith.com",
@@ -76,7 +63,7 @@ describe("Bug Id: 24708 - Fork application with multiple datasources", function 
     agHelper.AssertContains(
       "Your application is ready to use.",
       "exist",
-      '[kind="heading-m"]',
+      reconnectDSLocator.SuccessMsg,
     );
     homePage.AssertNCloseImport();
   });
