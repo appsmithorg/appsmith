@@ -213,7 +213,7 @@ function DatasourceDropdown() {
                     <DropdownOption
                       label={
                         <span>
-                          New from {option.data.isSample ? "sample " : ""}
+                          {option.data.isSample ? "sample " : ""}
                           <Bold>{option.label?.replace("sample ", "")}</Bold>
                         </span>
                       }
