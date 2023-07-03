@@ -16,6 +16,7 @@ export type PostProcessorArg = {
   executionMetaData: ReturnType<typeof ExecutionMetaData.getExecutionMetaData>;
   jsFnFullName: string;
   executionResponse: unknown;
+  isSuccess: boolean;
 };
 
 export type PostProcessor = (args: PostProcessorArg) => void;
@@ -34,10 +35,17 @@ function saveExecutionData({
   });
 }
 
-function logJSExecution({ executionMetaData, jsFnFullName }: PostProcessorArg) {
+function logJSExecution({
+  executionMetaData,
+  isSuccess,
+  jsFnFullName,
+}: PostProcessorArg) {
   switch (executionMetaData.triggerMeta.triggerKind) {
     case TriggerKind.EVENT_EXECUTION: {
-      TriggerEmitter.emit(BatchKey.process_batched_fn_invoke_log, jsFnFullName);
+      TriggerEmitter.emit(BatchKey.process_batched_fn_invoke_log, {
+        jsFnFullName,
+        isSuccess,
+      });
       break;
     }
     default: {
@@ -66,6 +74,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
               executionMetaData,
               jsFnFullName: name,
               executionResponse: res,
+              isSuccess: true,
             }),
           );
           return res;
@@ -76,6 +85,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
               executionMetaData,
               jsFnFullName: name,
               executionResponse: undefined,
+              isSuccess: true,
             }),
           );
           throw e;
@@ -86,6 +96,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
             executionMetaData,
             jsFnFullName: name,
             executionResponse: result,
+            isSuccess: true,
           }),
         );
       }
@@ -96,6 +107,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
           executionMetaData,
           jsFnFullName: name,
           executionResponse: undefined,
+          isSuccess: false,
         });
       });
       throw e;

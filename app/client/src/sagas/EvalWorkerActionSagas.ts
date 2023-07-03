@@ -35,16 +35,11 @@ export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
 };
-import { getAppMode, getJSActionFromName } from "selectors/entitiesSelector";
+import { getJSActionFromName } from "selectors/entitiesSelector";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
-  getCurrentApplication,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import type { UserAndAppDetails } from "./selectors";
+import { getUserAndAppDetails } from "./selectors";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -116,27 +111,32 @@ export function* processTriggerHandler(message: any) {
   if (messageType === MessageType.REQUEST)
     yield call(evalWorker.respond, message.messageId, result);
 }
-export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
+export function* handleJSExecutionLog(
+  data: TMessage<{
+    data: {
+      jsFnFullName: string;
+      isSuccess: boolean;
+    }[];
+  }>,
+) {
   const {
-    body: { data: executedFns },
+    body: { data: executionData },
   } = data;
 
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-  const currentApp: ReturnType<typeof getCurrentApplication> = yield select(
-    getCurrentApplication,
-  );
-  const user: ReturnType<typeof getCurrentUser> = yield select(getCurrentUser);
-  const instanceId: ReturnType<typeof getInstanceId> = yield select(
-    getInstanceId,
-  );
-  const { segment } = getAppsmithConfigs();
-  const source = segment.apiKey ? "cloud" : "ce";
-  const pageId: ReturnType<typeof getCurrentPageId> = yield select(
-    getCurrentPageId,
-  );
-  for (const executedFn of executedFns) {
+  const {
+    appId,
+    appMode,
+    appName,
+    email,
+    instanceId,
+    isExampleApp,
+    pageId,
+    source,
+    userId,
+  }: UserAndAppDetails = yield call(getUserAndAppDetails);
+  for (const { isSuccess, jsFnFullName } of executionData) {
     const { entityName: JSObjectName, propertyPath: functionName } =
-      getEntityNameAndPropertyPath(executedFn);
+      getEntityNameAndPropertyPath(jsFnFullName);
     const jsAction: ReturnType<typeof getJSActionFromName> = yield select(
       (state: AppState) =>
         getJSActionFromName(state, JSObjectName, functionName),
@@ -147,19 +147,41 @@ export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
       name: functionName,
       JSObjectName,
       pageId,
-      appId: currentApp?.id,
+      appId,
       appMode,
-      appName: currentApp?.name,
-      isExampleApp: currentApp?.appIsExample,
+      appName,
+      isExampleApp,
       actionId: jsAction?.id,
       userData: {
-        userId: user?.username,
-        email: user?.email,
-        appId: currentApp?.id,
+        userId,
+        email,
+        appId,
         source,
       },
       instanceId,
     });
+
+    AnalyticsUtil.logEvent(
+      isSuccess ? "EXECUTE_ACTION_SUCCESS" : "EXECUTE_ACTION_FAILURE",
+      {
+        type: "JS",
+        name: functionName,
+        JSObjectName,
+        pageId,
+        appId,
+        appMode,
+        appName,
+        isExampleApp,
+        actionId: jsAction?.id,
+        userData: {
+          userId,
+          email,
+          appId,
+          source,
+        },
+        instanceId,
+      },
+    );
   }
   yield call(logJSFunctionExecution, data);
 }

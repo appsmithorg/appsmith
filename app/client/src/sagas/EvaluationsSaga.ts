@@ -22,7 +22,12 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getMetaWidgets, getWidgets } from "sagas/selectors";
+import type { UserAndAppDetails } from "sagas/selectors";
+import {
+  getMetaWidgets,
+  getUserAndAppDetails,
+  getWidgets,
+} from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import WidgetFactory from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
@@ -60,7 +65,7 @@ import {
 import type { JSAction } from "entities/JSCollection";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isEmpty } from "lodash";
+import { get, isArray, isEmpty } from "lodash";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import {
@@ -99,6 +104,7 @@ import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -302,6 +308,48 @@ export function* evaluateActionBindings(
   return values;
 }
 
+function* postDynamicTriggerExecutionLog(
+  dynamicTrigger: string,
+  errors: unknown,
+  triggerMeta: TriggerMeta,
+) {
+  if (triggerMeta.triggerKind !== TriggerKind.EVENT_EXECUTION) return;
+  const isUnsuccessfulExecution = isArray(errors) && errors.length > 0;
+  const {
+    appId,
+    appMode,
+    appName,
+    email,
+    instanceId,
+    isExampleApp,
+    pageId,
+    source,
+    userId,
+  }: UserAndAppDetails = yield call(getUserAndAppDetails);
+
+  AnalyticsUtil.logEvent(
+    isUnsuccessfulExecution
+      ? "EXECUTE_ACTION_FAILURE"
+      : "EXECUTE_ACTION_SUCCESS",
+    {
+      type: "JS_EXPRESSION",
+      unevalValue: dynamicTrigger,
+      pageId,
+      appId,
+      appMode,
+      appName,
+      isExampleApp,
+      userData: {
+        userId,
+        email,
+        appId,
+        source,
+      },
+      instanceId,
+    },
+  );
+}
+
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -312,7 +360,6 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
-  // const unEvalTree = unEvalAndConfigTree.unEvalTree;
   log.debug({ execute: dynamicTrigger });
   const response: { errors: EvaluationError[]; result: unknown } = yield call(
     evalWorker.request,
@@ -328,6 +375,12 @@ export function* evaluateAndExecuteDynamicTrigger(
   );
   const { errors = [] } = response as any;
   yield call(dynamicTriggerErrorHandler, errors);
+  yield call(
+    postDynamicTriggerExecutionLog,
+    dynamicTrigger,
+    errors,
+    triggerMeta,
+  );
   return response;
 }
 
