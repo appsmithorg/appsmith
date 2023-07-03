@@ -19,11 +19,11 @@ import type {
 } from "plugins/Linting/types";
 import type { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { LintUtils } from "plugins/Linting/LintUtils";
+import { Linter } from "plugins/Linting/Linter";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-export const lintWorker = new LintUtils({ useWorker: true });
+export const lintWorker = new Linter({ useWorker: true });
 
 function* updateLintGlobals(
   action: ReduxAction<{ add?: boolean; libs: TJSLibrary[] }>,

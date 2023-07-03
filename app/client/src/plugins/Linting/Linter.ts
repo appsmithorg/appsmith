@@ -2,7 +2,7 @@ import type { ILinter } from "./linters";
 import { BaseLinter, WorkerLinter } from "./linters";
 import type { LintTreeRequestPayload, updateJSLibraryProps } from "./types";
 
-export class LintUtils {
+export class Linter {
   linter: ILinter;
   constructor(options: { useWorker: boolean }) {
     this.linter = options.useWorker ? new WorkerLinter() : new BaseLinter();
