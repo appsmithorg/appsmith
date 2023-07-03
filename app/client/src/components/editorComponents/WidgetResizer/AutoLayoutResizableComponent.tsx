@@ -4,7 +4,7 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { get, omit } from "lodash";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ReflowResizable as AutoLayoutResizable } from "components/editorComponents/WidgetResizer/resizable/autolayoutresize";
+import { AutoLayoutResizer } from "components/editorComponents/WidgetResizer/resizable/autolayoutresize";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -219,7 +219,7 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     (isHovered || isSelected);
 
   return (
-    <AutoLayoutResizable
+    <AutoLayoutResizer
       allowResize={allowResize}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
@@ -235,6 +235,7 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
         props.hasAutoWidth ||
         props.responsiveBehavior === ResponsiveBehavior.Fill
       }
+      isFillWidget={props.responsiveBehavior === ResponsiveBehavior.Fill}
       isFlexChild={props.isFlexChild}
       isHovered={isHovered}
       isMobile={props.isMobile || false}
@@ -257,7 +258,7 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
       >
         {props.children}
       </VisibilityContainer>
-    </AutoLayoutResizable>
+    </AutoLayoutResizer>
   );
 });
 export default AutoLayoutResizableComponent;

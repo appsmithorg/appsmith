@@ -72,13 +72,14 @@ export type AutoLayoutResizableProps = {
   widgetId: string;
   zWidgetType?: string;
   zWidgetId?: string;
+  isFillWidget?: boolean;
   isFlexChild?: boolean;
   isHovered: boolean;
   responsiveBehavior?: ResponsiveBehavior;
   isMobile: boolean;
   showResizeBoundary: boolean;
 };
-export function ReflowResizable(props: AutoLayoutResizableProps) {
+export function AutoLayoutResizer(props: AutoLayoutResizableProps) {
   // auto-layouts resizable is dependent on the app state of the widget so on delete it crashes the app
   // so adding this check to render auto layout resize only when the widget does have an app state.
   const widget = useSelector((state: AppState) =>
@@ -626,4 +627,4 @@ function AutoLayoutResizable({
   );
 }
 
-export default ReflowResizable;
+export default AutoLayoutResizer;
