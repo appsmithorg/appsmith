@@ -14,6 +14,8 @@ export type OffsetType = {
   // Indicator top and left offsets
   indicatorTop?: number;
   indicatorLeft?: number;
+  // container offset for highlight
+  highlightPad?: number;
 };
 
 export type FeatureDetails = {

@@ -1,4 +1,4 @@
-import { Text } from "design-system";
+import { Icon, Text } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -49,10 +49,23 @@ const ImageWrapper = styled.div`
   background: #f1f5f9;
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-top: 8px;
   padding: var(--ads-v2-spaces-7);
   img {
     max-height: 220px;
+  }
+`;
+
+const InstructionsHeaderWrapper = styled.div`
+  display: flex;
+  p {
+    flex-grow: 1;
+  }
+  span {
+    align-self: flex-start;
+    margin-top: 5px;
+    cursor: pointer;
   }
 `;
 
@@ -114,22 +127,32 @@ const WalkthroughRenderer = ({
     if (highlightArea) {
       const boundingRect = highlightArea.getBoundingClientRect();
       const bodyRect = document.body.getBoundingClientRect();
+      const offsetHighlightPad =
+        typeof offset?.highlightPad === "number"
+          ? offset?.highlightPad
+          : PADDING_HIGHLIGHT;
       setBoundingRect({
         bw: bodyRect.width,
         bh: bodyRect.height,
-        tw: boundingRect.width + 2 * PADDING_HIGHLIGHT,
-        th: boundingRect.height + 2 * PADDING_HIGHLIGHT,
-        tx: boundingRect.x - PADDING_HIGHLIGHT,
-        ty: boundingRect.y - PADDING_HIGHLIGHT,
+        tw: boundingRect.width + 2 * offsetHighlightPad,
+        th: boundingRect.height + 2 * offsetHighlightPad,
+        tx: boundingRect.x - offsetHighlightPad,
+        ty: boundingRect.y - offsetHighlightPad,
       });
     }
   };
 
   useEffect(() => {
     updateBoundingRect();
+    const highlightArea = document.querySelector(`#${targetId}`);
     window.addEventListener("resize", updateBoundingRect);
+    const resizeObserver = new ResizeObserver(updateBoundingRect);
+    if (highlightArea) {
+      resizeObserver.observe(highlightArea);
+    }
     return () => {
       window.removeEventListener("resize", updateBoundingRect);
+      if (highlightArea) resizeObserver.unobserve(highlightArea);
     };
   }, []);
 
@@ -174,7 +197,6 @@ const WalkthroughRenderer = ({
           </clipPath>
         </defs>
         <rect
-          onClick={onDismissWalkthrough}
           style={{
             clipPath: 'url("#' + CLIPID + '")',
             fill: "currentcolor",
@@ -187,6 +209,7 @@ const WalkthroughRenderer = ({
       <InstructionsComponent
         details={details}
         offset={offset}
+        onClose={onDismissWalkthrough}
         targetId={targetId}
       />
     </WalkthroughWrapper>
@@ -196,11 +219,13 @@ const WalkthroughRenderer = ({
 const InstructionsComponent = ({
   details,
   offset,
+  onClose,
   targetId,
 }: {
   details?: FeatureDetails;
   offset?: OffsetType;
   targetId: string;
+  onClose: () => void;
 }) => {
   if (!details) return null;
 
@@ -211,9 +236,12 @@ const InstructionsComponent = ({
 
   return (
     <InstructionsWrapper style={{ ...positionAttr }}>
-      <Text kind="heading-s" renderAs="p">
-        {details.title}
-      </Text>
+      <InstructionsHeaderWrapper>
+        <Text kind="heading-s" renderAs="p">
+          {details.title}
+        </Text>
+        <Icon name="close" onClick={onClose} size="md" />
+      </InstructionsHeaderWrapper>
       <Text>{details.description}</Text>
       {details.imageURL && (
         <ImageWrapper>
