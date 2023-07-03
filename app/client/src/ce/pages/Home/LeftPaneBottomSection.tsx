@@ -37,14 +37,15 @@ export const Wrapper = styled.div`
 
 export const MenuWrapper = styled.div`
   margin-top: 4px;
+  margin-bottom: 8px;
 `;
 
 export const LeftPaneVersionData = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  color: var(--ads-v2-color-fg-emphasis);
-  font-size: 8px;
+  color: var(--ads-v2-color-fg-muted);
+  font-size: 12px;
   margin-top: ${(props) => props.theme.spaces[3]}px;
   // reduce border width from 1px from width
   width: calc(${(props) => props.theme.homePage.sidebar}px - 1px);
@@ -132,7 +133,7 @@ function LeftPaneBottomSection() {
               cloudHosting,
             )}
           </span>
-          {howMuchTimeBefore !== "" && (
+          {howMuchTimeBefore === "" && (
             <span>Released {howMuchTimeBefore} ago</span>
           )}
         </LeftPaneVersionData>
