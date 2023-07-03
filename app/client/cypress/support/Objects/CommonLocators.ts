@@ -1,5 +1,6 @@
 export class CommonLocators {
   _body = "body";
+  _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
@@ -28,6 +29,20 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
+  _propertyControlTextArea = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._codeMirrorTextArea;
+  _propertyControlInput = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._inputField;
+  _propertyInputField = (uiName: string) =>
+    `${this._propertyControlTextArea(uiName)}, ${this._propertyControlInput(
+      uiName,
+    )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";

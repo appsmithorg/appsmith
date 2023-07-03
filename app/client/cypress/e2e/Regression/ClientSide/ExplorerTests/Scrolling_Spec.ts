@@ -19,12 +19,12 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
-        dataSources.CreateQueryFromActiveTab($createdMockUsers, true);
+        dataSources.CreateQueryAfterDSSaved();
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
-          dataSources.CreateQueryFromActiveTab($createdMockMovies, true);
+          dataSources.CreateQueryAfterDSSaved();
 
           agHelper.Sleep();
           entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
@@ -54,13 +54,13 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       cy.get("@dsName").then(($createdMockUsers: any) => {
         mockDBNameUsers = $createdMockUsers;
         dataSources.NavigateToActiveTab();
-        dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
+        dataSources.CreateQueryAfterDSSaved();
 
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
           dataSources.NavigateToActiveTab();
           mockDBNameMovies = $createdMockMovies;
-          dataSources.CreateQueryFromActiveTab($createdMockMovies, false);
+          dataSources.CreateQueryAfterDSSaved();
 
           agHelper.Sleep();
           entityExplorer.ExpandCollapseEntity(mockDBNameUsers);

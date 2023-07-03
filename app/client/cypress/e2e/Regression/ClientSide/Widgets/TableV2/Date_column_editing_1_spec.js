@@ -1,10 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
     cy.fixture("Table/DateCellEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
@@ -156,24 +160,10 @@ describe("Table widget date column inline editing functionality", () => {
 
   it("7. should check property pane Required toggle functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("release_date");
-    cy.get(
-      ".t--property-pane-section-validation .t--property-control-required",
-    ).should("exist");
-    cy.get(
-      ".t--property-pane-section-validation .t--property-control-required input[type=checkbox]",
-    ).click();
-    cy.get(
-      `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
-    ).realHover();
-    cy.get(`.t--editable-cell-icon`).first().click({
-      force: true,
-    });
+    propPane.TogglePropertyState("Required", "On");
+    table.ClickOnEditIcon(0, 2);
     cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
-    cy.get(
-      `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
-    ).realHover();
-    cy.get(`.t--editable-cell-icon`).first().click({ force: true });
+    table.ClickOnEditIcon(0, 2);
     cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
     cy.get(
       ".bp3-transition-container .bp3-popover .bp3-popover-content",
