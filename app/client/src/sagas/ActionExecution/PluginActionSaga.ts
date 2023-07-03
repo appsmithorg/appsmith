@@ -1,6 +1,7 @@
 import {
   all,
   call,
+  fork,
   put,
   select,
   take,
@@ -42,6 +43,7 @@ import {
   isActionSaving,
   getJSCollection,
   getDatasource,
+  getDatasourcesUsedInApplicationByActions,
 } from "selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
@@ -150,6 +152,7 @@ import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -715,6 +718,7 @@ function* runActionSaga(
     skipOpeningDebugger: boolean;
   }>,
 ) {
+  yield call(softRefreshActionsSaga);
   const actionId = reduxAction.payload.id;
   const isSaving: boolean = yield select(isActionSaving(actionId));
   const isDirty: boolean = yield select(isActionDirty(actionId));
@@ -1461,6 +1465,25 @@ function* clearTriggerActionResponse() {
   }
 }
 
+function* fetchDatasourceStructureOnSoftRefresh() {
+  try {
+    // get datasources of all actions used in the the application
+    const datasourcesUsedInApplication: Datasource[] = yield select(
+      getDatasourcesUsedInApplicationByActions,
+    );
+    // eslint-disable-next-line
+    for (const datasource of datasourcesUsedInApplication) {
+      // it is very unlikely for this to happen, but it does not hurt to check.
+      // const doesDatasourceStructureAlreadyExist: DatasourceStructure =
+      //   yield select(getDatasourceStructureById, datasource.id);
+      // if (doesDatasourceStructureAlreadyExist) {
+      //   continue;
+      // }
+      yield put(fetchDatasourceStructure(datasource.id, true));
+    }
+  } catch (error) {}
+}
+
 // Function to soft refresh the all the actions on the page.
 function* softRefreshActionsSaga() {
   //get current pageId
@@ -1483,6 +1506,10 @@ function* softRefreshActionsSaga() {
   yield call(clearTriggerActionResponse);
   //Rerun all the page load actions on the page
   yield call(executePageLoadActionsSaga);
+  try {
+    // we fork to prevent the call from blocking
+    yield fork(fetchDatasourceStructureOnSoftRefresh);
+  } catch (error) {}
 }
 
 export function* watchPluginActionExecutionSagas() {
