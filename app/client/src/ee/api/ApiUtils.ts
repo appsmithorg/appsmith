@@ -34,8 +34,3 @@ export const getDefaultEnvId = () => {
     return default_env_id_from_store;
   return DEFAULT_ENV_ID;
 };
-
-// function to get the default environment
-export const getDefaultEnvId = () => {
-  return DEFAULT_ENV_ID;
-};
