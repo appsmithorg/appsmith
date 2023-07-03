@@ -10,9 +10,7 @@ describe("PgAdmin Clone App", function () {
   let datasourceName, tableName;
 
   before("Add dsl and create datasource", () => {
-    cy.fixture("PgAdmindsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("PgAdmindsl");
 
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

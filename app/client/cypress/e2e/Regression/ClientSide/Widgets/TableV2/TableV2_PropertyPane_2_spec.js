@@ -11,9 +11,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDslWithPagination").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDslWithPagination");
   });
 
   it("1. Test to validate text color and text background", function () {

@@ -7,9 +7,7 @@ if the primary column value isn't updated.
 */
 describe("Table Widget row multi select validation", function () {
   before(() => {
-    cy.fixture("multiSelectedRowUpdationDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("multiSelectedRowUpdationDsl");
   });
 
   it("Test multi select column shows when enableMultirowselection is true", function () {

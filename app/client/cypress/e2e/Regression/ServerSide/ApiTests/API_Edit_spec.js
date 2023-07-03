@@ -9,10 +9,9 @@ import {
 
 describe("API Panel Test Functionality", function () {
   before(() => {
-    cy.fixture("uiBindDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("uiBindDsl");
   });
+
   it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();

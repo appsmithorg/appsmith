@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget and Switch binding Functionality", function () {
   before(() => {
-    cy.fixture("swtchTableDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("swtchTableDsl");
   });
 
   it("Table Widget Data validation with Switch ON", function () {

@@ -14,9 +14,8 @@ let dsName: any, query: string;
 
 describe("MySQL Datatype tests", function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
-    cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/mySQLdsl");
+
     appSettings.OpenPaneAndChangeTheme("Moon");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {

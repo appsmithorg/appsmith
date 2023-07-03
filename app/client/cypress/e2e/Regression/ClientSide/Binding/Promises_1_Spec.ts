@@ -257,9 +257,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
 
   it("8. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
     deployMode.NavigateBacktoEditor();
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("promisesBtnDsl");
     jsEditor.CreateJSObject(`const user = 'You';
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     ee.SelectEntityByName("Button1", "Widgets");

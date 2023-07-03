@@ -13,9 +13,8 @@ describe("Numeric Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, set Theme", () => {
-    cy.fixture("Datatypes/NumericDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/NumericDTdsl");
+
     appSettings.OpenPaneAndChangeTheme("Moon");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

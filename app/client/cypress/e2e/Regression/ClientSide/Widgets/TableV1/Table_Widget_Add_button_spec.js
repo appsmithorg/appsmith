@@ -4,11 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget property pane feature validation", function () {
-  before(() => {
-    cy.fixture("tableNewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
-  });
+  _.agHelper.AddDsl("tableNewDsl");
 
   it("1. Table widget with Add button test and validation", function () {
     cy.openPropertyPane("tablewidget");
