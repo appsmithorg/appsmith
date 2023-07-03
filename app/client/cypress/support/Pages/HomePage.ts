@@ -290,7 +290,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
     this.assertHelper.AssertNetworkStatus("@postLogout");
-    this.agHelper.Sleep(); //for logout to complete!
+    return this.agHelper.Sleep(); //for logout to complete!
   }
 
   public GotoProfileMenu() {

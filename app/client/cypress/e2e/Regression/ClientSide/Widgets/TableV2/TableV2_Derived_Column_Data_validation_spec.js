@@ -19,6 +19,9 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
     apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column
     // Open property pane

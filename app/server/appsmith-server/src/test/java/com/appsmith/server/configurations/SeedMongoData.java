@@ -16,7 +16,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -68,7 +68,7 @@ public class SeedMongoData {
                            ReactiveMongoTemplate mongoTemplate,
                            TenantRepository tenantRepository,
                            PermissionGroupRepository permissionGroupRepository,
-                           PolicyUtils policyUtils) {
+                           PolicySolution policySolution) {
 
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
@@ -204,10 +204,10 @@ public class SeedMongoData {
                     permissionGroupUser.setAssignedToUserIds(Set.of(user.getId()));
                     return permissionGroupRepository.save(permissionGroupUser)
                             .flatMap(savedPermissionGroup -> {
-                                Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                                Map<String, Policy> crudUserPolicies = policySolution.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
                                         user.getId());
 
-                                User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, user);
+                                User updatedWithPolicies = policySolution.addPoliciesToExistingObject(crudUserPolicies, user);
 
                                 return userRepository.save(updatedWithPolicies);
                             });
