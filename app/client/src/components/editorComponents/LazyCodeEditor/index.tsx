@@ -165,7 +165,7 @@ function LazyCodeEditor({
   input,
   placeholder,
   ...otherProps
-}: EditorProps & { fallbackComponentHeight?: string | number | undefined }) {
+}: EditorProps & { fallbackComponentHeight?: string | number }) {
   const [renderTarget, setRenderTarget] = useState<
     "editor" | "editor-focused" | "fallback"
   >("fallback");

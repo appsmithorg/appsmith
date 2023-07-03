@@ -28,7 +28,7 @@ class DynamicTextField extends React.Component<
       height?: string;
       disabled?: boolean;
       evaluatedPopUpLabel?: string;
-      fallbackComponentHeight?: string | number | undefined;
+      fallbackComponentHeight?: string | number;
     }
 > {
   render() {
