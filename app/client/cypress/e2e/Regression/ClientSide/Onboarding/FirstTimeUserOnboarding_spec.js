@@ -186,13 +186,12 @@ describe("FirstTimeUserOnboarding", function () {
   );
 
   it("3. onboarding flow - should check directly opening widget pane", function () {
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
     entityExplorer.NavigateToSwitcher("Widgets");
-    cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
-    cy.get(OnboardingLocator.dropTarget).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.widgetSidebar);
+    agHelper.AssertElementVisible(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
-    cy.reload();
     agHelper.RefreshPage(true, "getPage");
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.introModal);
