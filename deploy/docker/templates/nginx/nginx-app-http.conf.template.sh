@@ -108,6 +108,11 @@ server {
     proxy_set_header Upgrade \$http_upgrade;
   }
 
+  location /scim {
+    proxy_pass http://localhost:8886;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+  }
+
   location /auth {
     proxy_pass http://localhost:8081;
     proxy_set_header Host \$host;
