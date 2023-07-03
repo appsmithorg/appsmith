@@ -1,6 +1,7 @@
 {
   "dropdownChevronLeft": ".t--close-editor",
   "addNewtable": "//span[text()='New Table']",
+  "inputValues":"//div[@class='bp3-input-group']",
   "addTablename": "(//div[@class='bp3-input-group']//input)[2]",
   "addColumn": "//span[text()='Add Column']/parent::button/parent::div",
   "addColumnName": "div[data-testid='input-container']",

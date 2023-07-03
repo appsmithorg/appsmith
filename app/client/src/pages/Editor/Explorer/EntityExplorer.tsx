@@ -22,6 +22,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { importSvg } from "design-system-old";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const NoEntityFoundSvg = importSvg(
   () => import("assets/svg/no_entities_found.svg"),
@@ -72,6 +73,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
   const noResults = false;
   const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
+    AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
     history.push(builderURL({ pageId }));
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {

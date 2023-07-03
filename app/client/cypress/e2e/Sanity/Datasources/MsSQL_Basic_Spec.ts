@@ -7,10 +7,14 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 
-let dsName: any, query: string;
-
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
-  before("Create a new MySQL DS & adding data into it", () => {
+  let dsName: any,
+    query: string,
+    containerName = "mssqldb";
+
+  before("Create MsSql container & adding data into it", () => {
+    dataSources.StartContainerNVerify("MsSql", containerName);
+
     dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -124,14 +128,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     });
   });
 
-  after("Verify Deletion of the datasource", () => {
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
-  });
+  // after("Verify Deletion of the datasource", () => {
+  //   entityExplorer.SelectEntityByName(dsName, "Datasources");
+  //   entityExplorer.ActionContextMenuByEntityName({
+  //     entityNameinLeftSidebar: dsName,
+  //     action: "Delete",
+  //     entityType: entityItems.Datasource,
+  //   });
+  //   dataSources.StopNDeleteContainer(containerName);
+  // });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
     dataSources.EnterQuery(query);

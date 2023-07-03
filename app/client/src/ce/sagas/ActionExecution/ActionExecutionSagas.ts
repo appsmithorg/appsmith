@@ -11,8 +11,6 @@ import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   evaluateActionSelectorFieldSaga,
   evaluateAndExecuteDynamicTrigger,
-  evaluateArgumentSaga,
-  evaluateSnippetSaga,
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
@@ -167,8 +165,6 @@ export function* watchActionExecutionSagas() {
       ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
       setAppVersionOnWorkerSaga,
     ),
-    takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
-    takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),
     takeLatest(
       ReduxActionTypes.EVALUATE_ACTION_SELECTOR_FIELD,
       evaluateActionSelectorFieldSaga,
