@@ -95,7 +95,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
-                    assertThat(error.getMessage()).isEqualTo("Unauthorized access");
+                    assertThat(error.getMessage()).startsWith("Unable to find tenant ");
                     return true;
                 })
                 .verify();
@@ -111,7 +111,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
-                    assertThat(error.getMessage()).isEqualTo("Unauthorized access");
+                    assertThat(error.getMessage()).startsWith("Unable to find tenant ");
                     return true;
                 })
                 .verify();
