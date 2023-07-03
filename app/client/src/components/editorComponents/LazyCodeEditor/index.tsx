@@ -165,7 +165,7 @@ function LazyCodeEditor({
   input,
   placeholder,
   ...otherProps
-}: EditorProps & { fallbackComponentHeight: string | number | undefined }) {
+}: EditorProps & { fallbackComponentHeight?: string | number | undefined }) {
   const [renderTarget, setRenderTarget] = useState<
     "editor" | "editor-focused" | "fallback"
   >("fallback");
@@ -229,7 +229,7 @@ function LazyCodeEditor({
     return (
       <LazyEditorWrapper className="t--lazyCodeEditor-fallback">
         <CodeEditorFallback
-          height={otherProps.fallbackComponentHeight}
+          height={otherProps?.fallbackComponentHeight}
           input={input}
           isReadOnly={otherProps.isReadOnly}
           onInteracted={() => {

@@ -59,7 +59,11 @@ export default function CodeEditorFallback({
   }
 
   return (
-    <ContentWrapper contentKind={contentKind} showLineNumbers={showLineNumbers}>
+    <ContentWrapper
+      contentKind={contentKind}
+      height={height}
+      showLineNumbers={showLineNumbers}
+    >
       {showLoadingProgress && (
         <ProgressContainer>
           <SpinnerContainer>
@@ -71,7 +75,6 @@ export default function CodeEditorFallback({
       <HighlighedCodeContainer
         className="LazyCodeEditor"
         contentKind={contentKind}
-        height={height}
         isReadOnly={isReadOnly}
         onFocus={onInteracted}
         onMouseEnter={onInteracted}

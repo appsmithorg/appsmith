@@ -6,7 +6,6 @@ export const HighlighedCodeContainer = styled("div")<{
   contentKind: ContentKind;
   showLineNumbers?: boolean;
   isReadOnly?: boolean;
-  height?: string | number | undefined;
 }>`
   width: 100%;
   background-color: #fff !important;
@@ -14,7 +13,6 @@ export const HighlighedCodeContainer = styled("div")<{
   line-height: 21px !important;
 
   min-height: inherit;
-  ${(props) => props?.height && `height: ${props.height}`};
   padding: 6px;
 
   pre {
@@ -55,6 +53,7 @@ export const ContentWrapper = styled("div")<{
   contentKind: ContentKind;
   showLineNumbers?: boolean;
   folding?: boolean;
+  height?: string | number;
 }>`
   overflow: hidden;
   width: 100%;
@@ -64,6 +63,8 @@ export const ContentWrapper = styled("div")<{
   border: 1px solid;
   border-color: inherit;
   ${(props) => props.showLineNumbers && "border: none"}
+  border-radius: var(--ads-v2-border-radius);
+  ${(props) => props?.height && `height: ${props.height}`};
 `;
 
 const opacityAnimation = keyframes`
