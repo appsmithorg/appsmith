@@ -252,6 +252,13 @@ function renderWidgetItem(icon: string | undefined, name: string | undefined) {
   );
 }
 
+function renderWidgetImage(image: string | undefined) {
+  if (!!image) {
+    return <img alt="widget-info-image" src={getAssetUrl(image)} />;
+  }
+  return null;
+}
+
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
   const dataTree = useSelector(getDataTree);
@@ -370,12 +377,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                           content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}
                         >
                           <div className="image-wrapper">
-                            {widgetInfo.image && (
-                              <img
-                                alt="widget-info-image"
-                                src={getAssetUrl(widgetInfo.image)}
-                              />
-                            )}
+                            {renderWidgetImage(widgetInfo.image)}
                             {renderWidgetItem(
                               widgetInfo.icon,
                               widget.widgetName,
@@ -431,12 +433,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                 >
                   <Tooltip content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}>
                     <div className="image-wrapper">
-                      {widgetInfo.image && (
-                        <img
-                          alt="widget-info-image"
-                          src={getAssetUrl(widgetInfo.image)}
-                        />
-                      )}
+                      {renderWidgetImage(widgetInfo.image)}
                     </div>
                   </Tooltip>
                 </div>

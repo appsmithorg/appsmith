@@ -8,6 +8,10 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    cy.reload();
   });
 
   it("1. Suggested widget", () => {

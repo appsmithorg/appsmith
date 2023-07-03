@@ -24,5 +24,5 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ask_ai_js: false,
   ask_ai_sql: false,
   APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY: false,
-  ab_ds_binding_enabled: true,
+  ab_ds_binding_enabled: false,
 };
