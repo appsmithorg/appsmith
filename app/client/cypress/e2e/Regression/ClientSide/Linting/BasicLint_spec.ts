@@ -10,6 +10,7 @@ import {
   propPane,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import datasourceFormData from "../../../../fixtures/datasources.json";
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -79,7 +80,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // create Api1
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl);
 
     clickButtonAndAssertLintError(false);
 
@@ -93,7 +94,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // Re-create Api1
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl);
 
     clickButtonAndAssertLintError(false);
   });
@@ -294,7 +295,7 @@ describe("Linting", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl);
 
     createMySQLDatasourceQuery();
     agHelper.RefreshPage(); //Since this seems failing a bit

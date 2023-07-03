@@ -14,6 +14,7 @@ const DataSourceKVP = {
   Elasticsearch: "Elasticsearch",
   Redis: "Redis",
   Oracle: "Oracle",
+  S3: "S3",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -52,19 +53,19 @@ export class DataSources {
   private _collapseContainer = ".t--collapse-section-container";
   private _collapseSettings =
     "[data-testid='t--dropdown-connection.ssl.authType']";
-  public _host = "input[name='datasourceConfiguration.endpoints[0].host']";
-  public _port = "input[name='datasourceConfiguration.endpoints[0].port']";
+  public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   _databaseName =
-    "input[name='datasourceConfiguration.authentication.databaseName']";
+    "input[name$='.datasourceConfiguration.authentication.databaseName']";
   private _username =
-    "input[name='datasourceConfiguration.authentication.username']";
+    "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
     "//div[text()='" + name + "']/parent::div";
   private _sectionState = (name: string) =>
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name = 'datasourceConfiguration.authentication.password']";
+    "input[name$='.datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
@@ -176,7 +177,7 @@ export class DataSources {
   _globalSearchInput = (inputText: string) =>
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
-    "[data-testid='datasourceConfiguration.authentication.scopeString']";
+    "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
@@ -496,7 +497,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._port, this.hp.mysql_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
-    cy.get(this._username).type(this.hp.mysql_username);
+    this.agHelper.UpdateInputValue(this._username, this.hp.mysql_username);
     cy.get(this._password).type(this.hp.mysql_password);
   }
 
@@ -618,9 +619,20 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._port, this.hp.redis_port.toString());
   }
 
-  public TestSaveDatasource(expectedRes = true) {
+  public FillS3DSForm() {
+    this.agHelper.UpdateInputValue(
+      this._username,
+      Cypress.env("S3_ACCESS_KEY"),
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      Cypress.env("S3_SECRET_KEY"),
+    );
+  }
+
+  public TestSaveDatasource(expectedRes = true, isForkModal = false) {
     this.TestDatasource(expectedRes);
-    this.SaveDatasource();
+    this.SaveDatasource(isForkModal);
   }
 
   public TestDatasource(expectedRes = true) {
@@ -631,10 +643,12 @@ export class DataSources {
     }
   }
 
-  public SaveDatasource() {
+  public SaveDatasource(isForkModal = false) {
     this.agHelper.GetNClick(this._saveDs);
     this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
-    this.agHelper.AssertContains("datasource created");
+    if (!isForkModal) {
+      this.agHelper.AssertContains("datasource created");
+    }
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -808,6 +822,7 @@ export class DataSources {
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.EnterQuery(query);
+      this.AssertRunButtonDisability(false);
     }
   }
 
@@ -865,6 +880,7 @@ export class DataSources {
     toValidateResponse = true,
     waitTimeInterval = 500,
   }: Partial<RunQueryParams> = {}) {
+    this.AssertRunButtonDisability(false);
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     this.agHelper.AssertElementAbsence(
       this.locator._cancelActionExecution,
@@ -880,13 +896,7 @@ export class DataSources {
   }
 
   AssertRunButtonDisability(disabled = false) {
-    let query = "";
-    if (disabled) {
-      query = "be.disabled";
-    } else {
-      query = "not.be.disabled";
-    }
-    cy.get(this._runQueryBtn).should(query);
+    this.agHelper.AssertElementEnabledDisabled(this._runQueryBtn, 0, disabled);
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
@@ -972,7 +982,8 @@ export class DataSources {
       | "Firestore"
       | "Elasticsearch"
       | "Redis"
-      | "Oracle",
+      | "Oracle"
+      | "S3",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -1000,6 +1011,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Elasticsearch")
           this.FillElasticSearchDSForm();
         else if (DataSourceKVP[dsType] == "Redis") this.FillRedisDSForm();
+        else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -1192,7 +1204,8 @@ export class DataSources {
     this.agHelper.GetNClick(this._editDatasourceFromActiveTab(dsName));
   }
 
-  public FillMongoDatasourceFormWithURI(uri: string) {
+  public FillMongoDatasourceFormWithURI() {
+    const uri = this.hp.mongo_uri;
     this.ValidateNSelectDropdown(
       "Use mongo connection string URI",
       "No",

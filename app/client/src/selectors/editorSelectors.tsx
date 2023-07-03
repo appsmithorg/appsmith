@@ -32,7 +32,6 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
@@ -60,6 +59,7 @@ import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
@@ -268,18 +268,10 @@ export const getAppPositioningType = (state: AppState) => {
   return AppPositioningTypes.FIXED;
 };
 
-export const isAutoLayoutEnabled = (state: AppState): boolean => {
-  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
-};
-
 export const getCurrentAppPositioningType = createSelector(
-  isAutoLayoutEnabled,
   getAppPositioningType,
-  (
-    autoLayoutEnabled: boolean,
-    appPositionType: AppPositioningTypes,
-  ): AppPositioningTypes => {
-    return autoLayoutEnabled ? appPositionType : AppPositioningTypes.FIXED;
+  (appPositionType: AppPositioningTypes): AppPositioningTypes => {
+    return appPositionType || AppPositioningTypes.FIXED;
   },
 );
 
@@ -523,10 +515,7 @@ export const getCanvasWidgetDsl = createSelector(
           canvasWidget.widgetName,
         );
       });
-
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
-    });
+    return nestDSL(widgets);
   },
 );
 

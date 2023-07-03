@@ -21,6 +21,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import MakeApplicationForkable from "./MakeApplicationForkable";
 import EmbedSnippetTab from "@appsmith/pages/Applications/EmbedSnippetTab";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -68,15 +69,18 @@ function EmbedSettings() {
                 data-testid="t--embed-settings-application-public"
                 isDisabled={isFetchingApplication || isChangingViewAccess}
                 isSelected={application?.isPublic}
-                onChange={() =>
+                onChange={() => {
+                  AnalyticsUtil.logEvent("MAKE_APPLICATION_PUBLIC", {
+                    isPublic: !application?.isPublic,
+                  });
                   application &&
-                  dispatch(
-                    changeAppViewAccessInit(
-                      application?.id,
-                      !application?.isPublic,
-                    ),
-                  )
-                }
+                    dispatch(
+                      changeAppViewAccessInit(
+                        application?.id,
+                        !application?.isPublic,
+                      ),
+                    );
+                }}
               >
                 <StyledPropertyHelpLabel
                   label={createMessage(MAKE_APPLICATION_PUBLIC)}
