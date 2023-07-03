@@ -143,7 +143,7 @@ export default abstract class MSSQL extends BaseQueryGenerator {
       payload: {
         body: `INSERT INTO ${formConfig.tableName} (${columns.map(
           (a) => `${a}`,
-        )}) VALUES (${formConfig.columns
+        )}) VALUES (${columns
           .map((d) => `'{{${create.value}.${d}}}'`)
           .toString()})`,
       },

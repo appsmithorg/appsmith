@@ -227,7 +227,7 @@ OFFSET
           },
         ],
         payload: {
-          body: "INSERT INTO someTable (name) VALUES ('{{update_form.fieldState.id}}','{{update_form.fieldState.name}}')",
+          body: "INSERT INTO someTable (name) VALUES ('{{update_form.fieldState.name}}')",
           pluginSpecifiedTemplates: [{ value: false }],
         },
       },
