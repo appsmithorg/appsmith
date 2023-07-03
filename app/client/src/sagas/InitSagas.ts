@@ -30,6 +30,7 @@ import {
 import {
   getCurrentPageId,
   getIsEditorInitialized,
+  getIsWidgetConfigBuilt,
   selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
@@ -83,6 +84,13 @@ export function* failFastApiCalls(
     return false;
   }
   return true;
+}
+
+export function* waitForWidgetConfigBuild() {
+  const isBuilt: boolean = yield select(getIsWidgetConfigBuilt);
+  if (!isBuilt) {
+    yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
+  }
 }
 
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {

@@ -97,6 +97,7 @@ import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
+import { waitForWidgetConfigBuild } from "./InitSagas";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -539,6 +540,7 @@ function* evaluationChangeListenerSaga(): any {
     type: ReduxActionType;
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
+  yield call(waitForWidgetConfigBuild);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true, false);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(

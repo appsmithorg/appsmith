@@ -80,6 +80,9 @@ const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
 
+export const getIsWidgetConfigBuilt = (state: AppState) =>
+  state.ui.editor.widgetConfigBuilt;
+
 export const getIsEditorLoading = (state: AppState) =>
   state.ui.editor.loadingStates.loading;
 
