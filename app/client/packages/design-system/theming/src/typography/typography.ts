@@ -60,7 +60,7 @@ export const createTypographyStyles = (
     });
 
     return {
-      fontFamily: `-apple-system, BlinkMacSystemFont, "-apple-system Fallback: Segoe UI", "-apple-system Fallback: Roboto"`,
+      fontFamily: `-apple-system, BlinkMacSystemFont, "-apple-system Fallback: Segoe UI", "-apple-system Fallback: Roboto", "-apple-system Fallback: Ubuntu"`,
       ...styles,
     };
   }
@@ -78,7 +78,10 @@ export const createTypographyStyles = (
 };
 
 export const createGlobalFontStack = () => {
-  return createFontStack([appleSystem, BlinkMacSystemFont, segoeUI, roboto], {
-    fontFaceFormat: "styleString",
-  });
+  return createFontStack(
+    [appleSystem, BlinkMacSystemFont, segoeUI, roboto, ubuntu],
+    {
+      fontFaceFormat: "styleString",
+    },
+  );
 };

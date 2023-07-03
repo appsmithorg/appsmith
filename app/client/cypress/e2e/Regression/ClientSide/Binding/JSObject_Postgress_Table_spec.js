@@ -20,11 +20,8 @@ describe("Addwidget from Query and bind with other widgets", function () {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.NavigateToActiveDSQueryPane(datasourceName);
-      cy.get(queryLocators.templateMenu).click();
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM configs LIMIT 10;");
+      // Resetting the default query and rewriting a new one
+      _.dataSources.EnterQuery("SELECT * FROM configs LIMIT 10;");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
       // Mock the response for this test
@@ -53,7 +50,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
         cy.log("Published url is: " + currentUrl);
         _.deployMode.NavigateBacktoEditor();
         cy.wait(2000);
-        cy.visit(currentUrl);
+        cy.visit(currentUrl, { timeout: 60000 });
         cy.wait("@getPagesForViewApp").should(
           "have.nested.property",
           "response.body.responseMeta.status",

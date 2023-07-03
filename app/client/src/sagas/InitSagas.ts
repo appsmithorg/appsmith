@@ -43,6 +43,7 @@ import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
 import { getSearchQuery, updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
+import { resetSnipingMode } from "actions/propertyPaneActions";
 import {
   isEditorPath,
   isViewerPath,
@@ -122,6 +123,7 @@ function* resetEditorSaga() {
   // might end up in preview mode if they were in preview mode
   // previously
   yield put(setPreviewModeAction(false));
+  yield put(resetSnipingMode());
   yield put(resetEditorSuccess());
 }
 

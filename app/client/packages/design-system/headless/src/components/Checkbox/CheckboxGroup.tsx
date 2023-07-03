@@ -7,17 +7,20 @@ import { useCheckboxGroupState } from "@react-stately/checkbox";
 import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 
 import { Field } from "../Field";
+import type { LabelProps } from "../Field";
 import { CheckboxGroupContext } from "./context";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
 export interface CheckboxGroupProps
   extends Omit<SpectrumCheckboxGroupProps, keyof StyleProps> {
   className?: string;
+  /** label width for the width, only used in side position */
+  labelWidth?: LabelProps["labelWidth"];
 }
 
 export const CheckboxGroup = forwardRef(
   (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
-    const { children, className, orientation = "vertical" } = props;
+    const { children, className, isDisabled, orientation = "vertical" } = props;
     const domRef = useDOMRef(ref);
     const state = useCheckboxGroupState(props);
     const { descriptionProps, errorMessageProps, groupProps, labelProps } =
@@ -33,8 +36,18 @@ export const CheckboxGroup = forwardRef(
         ref={domRef}
         wrapperClassName={className}
       >
-        <div {...groupProps} data-field-group="" data-orientation={orientation}>
-          <CheckboxGroupContext.Provider value={state}>
+        <div
+          {...groupProps}
+          data-disabled={props.isDisabled ? "" : undefined}
+          data-field-group=""
+          data-orientation={orientation}
+        >
+          <CheckboxGroupContext.Provider
+            value={{
+              state,
+              isDisabled,
+            }}
+          >
             {children}
           </CheckboxGroupContext.Provider>
         </div>

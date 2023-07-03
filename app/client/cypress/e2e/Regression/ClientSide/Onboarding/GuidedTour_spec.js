@@ -16,8 +16,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);
     });
-    cy.get(onboardingLocators.introModalWelcomeTourBtn).should("be.visible");
-    cy.get(onboardingLocators.introModalWelcomeTourBtn).click();
+    cy.get(onboardingLocators.editorWelcomeTourBtn).should("be.visible");
+    cy.get(onboardingLocators.editorWelcomeTourBtn).click();
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 

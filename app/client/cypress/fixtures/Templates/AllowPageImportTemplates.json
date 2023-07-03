@@ -118,7 +118,7 @@
         "SWITCH_WIDGET",
         "TABS_WIDGET"
       ],
-      "functions": [],
+      "functions": ["Customer Support"],
       "useCases": ["Sales"],
       "datasources": ["mongo-plugin"],
       "pages": [

@@ -15,9 +15,8 @@ describe("List widget v2 - Basic server side data tests", () => {
     if (!Cypress.env("AIRGAPPED")) {
       cy.wait(2000);
       // Create sample(mock) user database.
-      _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenu);
+      _.dataSources.CreateMockDB("Users").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved();
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
@@ -29,10 +28,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($dsName) => {
-        _.dataSources.NavigateToActiveTab();
-        cy.wait(1000);
-        _.dataSources.CreateQueryFromActiveTab($dsName, false);
-        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+        _.dataSources.CreateQueryFromActiveTab($dsName, true);
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
@@ -334,6 +330,8 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
 
+      _.dataSources.NavigateToActiveTab();
+
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       cy.get(`${datasource.datasourceCard}`)
         .filter(":contains('Users')")
@@ -358,19 +356,9 @@ describe("List widget v2 - Basic server side data tests", () => {
       });
 
       //.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({
-        force: true,
-      });
 
-      // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users LIMIT 20;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
+      _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");
+
       cy.WaitAutoSave();
 
       cy.runQuery();
@@ -412,19 +400,8 @@ describe("List widget v2 - Basic server side data tests", () => {
       });
 
       //.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({
-        force: true,
-      });
+      _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");
 
-      // writing query to get the schema
-      cy.get(".CodeMirror textarea")
-        .first()
-        .focus()
-        .type("SELECT * FROM users LIMIT 20;", {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
       cy.WaitAutoSave();
 
       cy.runQuery();

@@ -25,3 +25,6 @@ export const DatasourceEditEntryPoints = {
   DATASOURCE_CARD_EDIT: "DATASOURCE_CARD_EDIT",
   DATASOURCE_FORM_EDIT: "DATASOURCE_FORM_EDIT",
 };
+
+export const DB_QUERY_DEFAULT_TABLE_NAME = "<<your_table_name>>";
+export const DB_QUERY_DEFAULT_TEMPLATE_TYPE = "SELECT";
