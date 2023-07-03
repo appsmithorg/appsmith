@@ -22,17 +22,16 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -110,7 +109,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policySolution,
                 configService, responseUtils, permissionGroupService, newActionRepository, assetService,
-                 datasourcePermission, applicationPermission);
+                datasourcePermission, applicationPermission);
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
@@ -922,5 +921,26 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
 
         return Mono.just(roleDescriptionDTOS);
+    }
+
+    @Override
+    protected List<Mono<Void>> updatePoliciesForIndependentDomains(Application application,
+                                                                   String permissionGroupId,
+                                                                   Boolean addViewAccess) {
+        List<Mono<Void>> monos = super.updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
+
+        Map<String, Policy> environmentPolicyMap = policySolution
+                .generatePolicyFromPermissionWithPermissionGroup(AclPermission.EXECUTE_ENVIRONMENTS, permissionGroupId);
+
+        Mono<Void> environmentMono = policySolution
+                .updateEnvironmentPoliciesByWorkspaceId(
+                        application.getWorkspaceId(),
+                        environmentPolicyMap,
+                        addViewAccess)
+                .then();
+
+        monos.add(environmentMono);
+
+        return monos;
     }
 }

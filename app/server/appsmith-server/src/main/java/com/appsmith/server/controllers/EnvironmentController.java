@@ -43,7 +43,6 @@ public class EnvironmentController extends EnvironmentControllerCE {
                 });
     }
 
-
     @GetMapping("/workspaces/{workspaceId}")
     public Mono<ResponseDTO<List<EnvironmentDTO>>> getEnvironmentByWorkspaceId(@PathVariable String workspaceId) {
         log.debug("Going to fetch environments from environment controller with workspace id {}", workspaceId);

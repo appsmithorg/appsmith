@@ -45,10 +45,10 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
             ProjectProperties projectProperties,
+            NetworkUtils networkUtils,
             TenantService tenantService,
             AirgapInstanceConfig airgapInstanceConfig,
-            UsagePulseService usagePulseService,
-            NetworkUtils networkUtils) {
+            UsagePulseService usagePulseService) {
 
         super(
                 configService,
