@@ -1,57 +1,83 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import reconnectDatasource from "../../../../locators/ReconnectLocators.js";
+import {
+  agHelper,
+  dataSources,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
-const dsl = require("../../../../fixtures/mongoAppdsl.json");
+const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
+const formControls = require("../../../../locators/FormControl.json");
 
-let workspaceId: string, datasource: any;
+let workspaceId: string, datasourceName: string;
 
-describe("Fork application with multiple datasources", function () {
-  function setDataSourceVar(
-    host: string,
-    port: number,
-    databaseName: string,
-  ): void {
-    cy.get(_.dataSources._host).type(host);
-    cy.get(_.dataSources._port).type(port.toString());
-    cy.get(_.dataSources._databaseName).clear().type(databaseName);
-    cy.get(_.dataSources._saveDs).click();
-  }
-
+describe("Bug Id: 24708 - Fork application with multiple datasources", function () {
   before(() => {
-    _.agHelper.AddDsl(dsl);
-    _.dataSources.CreateDataSource("Mongo");
-    _.dataSources.CreateQueryAfterDSSaved("", "GetProduct");
-    _.dataSources.CreateDataSource("Postgres");
-    _.dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
+    cy.fixture("mongoAppdsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
+
+    // Create Mongo DS and respective query
+    dataSources.CreateDataSource("Mongo");
+    dataSources.CreateQueryAfterDSSaved("", "GetProduct");
+    // Create PostgreSQL DS and respective query
+    dataSources.CreateDataSource("Postgres");
+    dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
+    // Create Mysql DS and respective query
+    dataSources.CreateDataSource("MySql");
+    dataSources.CreateQueryAfterDSSaved("select * from customers limit 10");
+    // Create S3 DS
+    cy.NavigateToDatasourceEditor();
+    agHelper.GetNClick(datasourceLocators.AmazonS3);
+    cy.generateUUID().then((uid) => {
+      datasourceName = `S3 DS ${uid}`;
+      cy.renameDatasource(datasourceName);
+      cy.wrap(datasourceName).as("dSName");
+      cy.fillAmazonS3DatasourceForm();
+      cy.testSaveDatasource();
+    });
   });
 
   it("1. Add datasource - Mongo, Postgres, fork and test the forked application", function () {
+    // Create S3 Query
+    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+    cy.typeValueNValidate(
+      "assets-test.appsmith.com",
+      formControls.s3BucketName,
+    );
+    dataSources.RunQuery({ toValidateResponse: false });
+    // Create a new workspace and fork application
     const appname: string = localStorage.getItem("AppName") || "randomApp";
-    _.homePage.NavigateToHome();
-    _.agHelper.GenerateUUID();
+    homePage.NavigateToHome();
+    agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceId = "forkApp" + uid;
-      _.homePage.CreateNewWorkspace(workspaceId);
-      cy.get("body").type("{esc}");
+      homePage.CreateNewWorkspace(workspaceId);
+      agHelper.PressEscape();
       cy.log("------------------" + workspaceId);
-      _.homePage.ForkApplication(appname, workspaceId);
+      homePage.ForkApplication(appname, workspaceId);
     });
+    // In the forked application, reconnect all datasources
+    cy.ReconnectDatasource("MongoDB");
+    dataSources.FillMongoDatasourceFormWithURI();
+    agHelper.GetNClick(dataSources._saveDs);
 
-    setDataSourceVar(
-      _.hostPort.mongo_host,
-      _.hostPort.mongo_port,
-      _.hostPort.mongo_databaseName,
+    cy.ReconnectDatasource("PostgreSQL");
+    dataSources.FillPostgresDSForm();
+    agHelper.GetNClick(dataSources._saveDs);
+
+    cy.ReconnectDatasource("MySQL");
+    dataSources.FillMySqlDSForm();
+    agHelper.GetNClick(dataSources._saveDs);
+
+    cy.ReconnectDatasource("S3");
+    cy.fillAmazonS3DatasourceForm();
+    agHelper.GetNClick(dataSources._saveDs);
+    // assert if the datasources are connected as expeced
+    agHelper.AssertContains(
+      "Your application is ready to use.",
+      "exist",
+      '[kind="heading-m"]',
     );
-    setDataSourceVar(
-      _.hostPort.postgres_host,
-      _.hostPort.postgres_port,
-      _.hostPort.postgres_databaseName,
-    );
-
-    cy.get('[kind="heading-m"]').should(($element) => {
-      expect($element).to.contain("Your application is ready to use.");
-    });
-
-    _.homePage.AssertNCloseImport();
+    homePage.AssertNCloseImport();
   });
 });
