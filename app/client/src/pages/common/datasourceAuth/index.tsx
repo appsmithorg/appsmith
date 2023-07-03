@@ -337,7 +337,6 @@ function DatasourceAuth({
       [DatasourceButtonType.SAVE]: (
         <Button
           className="t--save-datasource"
-          id="t--save-button-container"
           isDisabled={
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }
