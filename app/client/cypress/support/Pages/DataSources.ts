@@ -645,9 +645,11 @@ export class DataSources {
 
   public SaveDatasource(isForkModal = false) {
     this.agHelper.GetNClick(this._saveDs);
-    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
     if (!isForkModal) {
+      this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       this.agHelper.AssertContains("datasource created");
+    } else {
+      this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     }
 
     // cy.wait("@saveDatasource")
@@ -903,6 +905,16 @@ export class DataSources {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return cy.xpath(this._queryTableResponse).eq(index).invoke("text");
+  }
+
+  public AssertQueryTableResponse(
+    index: number,
+    expectedValue: string,
+    timeout = 100,
+  ) {
+    this.ReadQueryTableResponse(index, timeout).then(($cellData: any) => {
+      expect($cellData).to.eq(expectedValue);
+    });
   }
 
   public AssertQueryResponseHeaders(columnHeaders: string[]) {

@@ -130,9 +130,7 @@ describe("MySQL Datatype tests", function () {
     () => {
       entityExplorer.SelectEntityByName("dropTable");
       dataSources.RunQuery();
-      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0"); //Success response for dropped table!
-      });
+      dataSources.AssertQueryTableResponse(0, "0"); //Success response for dropped table!
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
       entityExplorer.ExpandCollapseEntity("Datasources");
       entityExplorer.ExpandCollapseEntity(dsName);
