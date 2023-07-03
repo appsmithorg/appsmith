@@ -53,19 +53,19 @@ export class DataSources {
   private _collapseContainer = ".t--collapse-section-container";
   private _collapseSettings =
     "[data-testid='t--dropdown-connection.ssl.authType']";
-  public _host = "input[name='datasourceConfiguration.endpoints[0].host']";
-  public _port = "input[name='datasourceConfiguration.endpoints[0].port']";
+  public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   _databaseName =
-    "input[name='datasourceConfiguration.authentication.databaseName']";
+    "input[name$='.datasourceConfiguration.authentication.databaseName']";
   private _username =
-    "input[name='datasourceConfiguration.authentication.username']";
+    "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
     "//div[text()='" + name + "']/parent::div";
   private _sectionState = (name: string) =>
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name = 'datasourceConfiguration.authentication.password']";
+    "input[name$='.datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
@@ -177,7 +177,7 @@ export class DataSources {
   _globalSearchInput = (inputText: string) =>
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
-    "[data-testid='datasourceConfiguration.authentication.scopeString']";
+    "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
