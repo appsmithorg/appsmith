@@ -19,9 +19,7 @@ describe("Table Widget and Navigate to functionality validation", function () {
   });
 
   before(() => {
-    cy.fixture("tableWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableWidgetDsl");
   });
 
   it("1. Create MyPage and valdiate if its successfully created", function () {

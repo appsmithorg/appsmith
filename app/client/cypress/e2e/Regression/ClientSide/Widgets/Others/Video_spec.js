@@ -8,9 +8,7 @@ import {
 
 describe("Video Widget Functionality", function () {
   before(() => {
-    cy.fixture("videoWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("videoWidgetDsl");
   });
 
   it("1. Video Widget play functionality validation", function () {
