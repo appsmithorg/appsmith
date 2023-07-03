@@ -44,6 +44,7 @@ import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
+import PropertyPaneContainer from "./PropertyPaneContainer";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -230,6 +231,7 @@ function WidgetsEditor() {
             />
           )}
         </div>
+        <PropertyPaneContainer />
       </div>
     </EditorContextProvider>
   );

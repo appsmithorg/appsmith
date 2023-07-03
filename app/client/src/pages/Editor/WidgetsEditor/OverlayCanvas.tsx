@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -181,6 +182,7 @@ const OverlayCanvasContainer = (props: {
     if (!canvasRef?.current) return;
     // TODO: @Preet - Add capability for multi selected widgets
     const selectedWidget: FlattenedWidgetProps = selectedWidgets[0];
+    if (!selectedWidget) return;
     const text: string = selectedWidget.widgetName;
     const widgetPosition = widgetPositions[selectedWidget.widgetId];
     if (!widgetPosition) return;
