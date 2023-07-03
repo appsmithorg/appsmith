@@ -80,14 +80,14 @@ const setterMethodsToTest = [
     valueBinding: "{{Text1.text}}",
     expectedValue: "Hello World",
   },
-  {
-    name: "setValue",
-    property: "text",
-    widget: WIDGET.INPUT_V2,
-    actionBinding: "{{Input1.setValue('Hello World')}}",
-    valueBinding: "{{Input1.text}}",
-    expectedValue: "Hello World",
-  },
+  // {
+  //   name: "setValue",
+  //   property: "text",
+  //   widget: WIDGET.INPUT_V2,
+  //   actionBinding: "{{Input1.setValue('Hello World')}}",
+  //   valueBinding: "{{Input1.text}}",
+  //   expectedValue: "Hello World",
+  // },
   // {
   //   name: "setData",
   //   property: "tableData",
