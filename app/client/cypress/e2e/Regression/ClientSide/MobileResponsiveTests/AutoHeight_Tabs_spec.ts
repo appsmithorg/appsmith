@@ -17,7 +17,6 @@ let childHeight = 0;
 let containerHeight = 0;
 let inputHeight = 0;
 const tabsMinHeight = 300 - WIDGET_PADDING;
-let dropTargetClass = "";
 describe("validate auto height for tabs widget on auto layout canvas", () => {
   it("1. tabs widget should maintain a minHeight of 30 rows", () => {
     /**
@@ -38,32 +37,29 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
         expect(containerHeight).to.equal(tabsMinHeight);
       });
 
-    agHelper.GetDropTargetId("Tabs1").then((id) => {
-      dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
-      // add an input widget to the tabs widget.
-      entityExplorer.DragDropWidgetNVerify(
-        draggableWidgets.INPUT_V2,
-        100,
-        100,
-        dropTargetClass,
-      );
+    // add an input widget to the tabs widget.
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.INPUT_V2,
+      100,
+      100,
+      "tabswidget",
+    );
 
-      agHelper
-        .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
-        .then((height) => {
-          childHeight += parseInt(height?.split("px")[0]);
-          inputHeight = parseInt(height?.split("px")[0]);
-          expect(containerHeight).to.be.greaterThan(childHeight);
-        });
-      agHelper
-        .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
-        .then((newHeight) => {
-          const updatedHeight = parseInt(newHeight?.split("px")[0]);
-          // Widget maintains a minHeight of 30 rows.
-          expect(updatedHeight).to.equal(containerHeight);
-          containerHeight = updatedHeight;
-        });
-    });
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
+      .then((height) => {
+        childHeight += parseInt(height?.split("px")[0]);
+        inputHeight = parseInt(height?.split("px")[0]);
+        expect(containerHeight).to.be.greaterThan(childHeight);
+      });
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TAB))
+      .then((newHeight) => {
+        const updatedHeight = parseInt(newHeight?.split("px")[0]);
+        // Widget maintains a minHeight of 30 rows.
+        expect(updatedHeight).to.equal(containerHeight);
+        containerHeight = updatedHeight;
+      });
   });
 
   it("2. should update height on adding child widgets", () => {
@@ -72,7 +68,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       draggableWidgets.TABLE,
       300,
       150,
-      dropTargetClass,
+      "tabswidget",
     );
     agHelper.Sleep();
     agHelper
@@ -153,7 +149,7 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       draggableWidgets.INPUT_V2,
       30,
       70,
-      dropTargetClass,
+      "tabswidget",
     );
 
     // Switch to mobile viewport

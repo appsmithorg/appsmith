@@ -19,7 +19,6 @@ let childHeight = 0;
 let containerHeight = 0;
 let inputHeight = 0;
 let iconHeight = 0;
-let dropTargetClass = "";
 describe("validate auto height for modal widget on auto layout canvas", () => {
   it("1. modal widget height should update on adding or deleting child widgets", () => {
     /**
@@ -36,59 +35,55 @@ describe("validate auto height for modal widget on auto layout canvas", () => {
       containerHeight = parseInt(height?.split("px")[0]);
     });
 
-    agHelper.GetModalDropTargetId().then((id) => {
-      cy.log("id", id);
-      dropTargetClass = `.drop-target-${id}`;
-      // add an input widget to the container.
-      entityExplorer.DragDropWidgetNVerify(
-        draggableWidgets.INPUT_V2,
-        250,
-        10,
-        dropTargetClass,
+    // add an input widget to the container.
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.INPUT_V2,
+      250,
+      10,
+      "modalwidget",
+    );
+
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
+      .then((height) => {
+        childHeight += parseInt(height?.split("px")[0]);
+        inputHeight = parseInt(height?.split("px")[0]);
+      });
+    agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
+      const updatedHeight = parseInt(newHeight?.split("px")[0]);
+      expect(updatedHeight).to.be.greaterThan(containerHeight);
+      expect(updatedHeight).to.equal(
+        childHeight + containerHeight + WIDGET_PADDING + ROW_GAP,
       );
+      containerHeight = updatedHeight;
+    });
 
-      agHelper
-        .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
-        .then((height) => {
-          childHeight += parseInt(height?.split("px")[0]);
-          inputHeight = parseInt(height?.split("px")[0]);
-        });
-      agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
-        const updatedHeight = parseInt(newHeight?.split("px")[0]);
-        expect(updatedHeight).to.be.greaterThan(containerHeight);
-        expect(updatedHeight).to.equal(
-          childHeight + containerHeight + WIDGET_PADDING + ROW_GAP,
-        );
-        containerHeight = updatedHeight;
+    // Add a child Table widget to the container.
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.TABLE,
+      100,
+      76,
+      "modalwidget",
+    );
+    agHelper.Sleep();
+    agHelper
+      .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TABLE))
+      .then((height) => {
+        childHeight += parseInt(height?.split("px")[0]);
       });
+    agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
+      const updatedHeight = parseInt(newHeight?.split("px")[0]);
+      expect(updatedHeight).to.be.greaterThan(containerHeight);
+      containerHeight = updatedHeight;
+    });
 
-      // Add a child Table widget to the container.
-      entityExplorer.DragDropWidgetNVerify(
-        draggableWidgets.TABLE,
-        100,
-        76,
-        dropTargetClass,
-      );
-      agHelper.Sleep();
-      agHelper
-        .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TABLE))
-        .then((height) => {
-          childHeight += parseInt(height?.split("px")[0]);
-        });
-      agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
-        const updatedHeight = parseInt(newHeight?.split("px")[0]);
-        expect(updatedHeight).to.be.greaterThan(containerHeight);
-        containerHeight = updatedHeight;
-      });
-
-      // Delete table widget
-      propPane.DeleteWidgetFromPropertyPane("Table1");
-      agHelper.Sleep();
-      agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
-        const updatedHeight = parseInt(newHeight?.split("px")[0]);
-        expect(updatedHeight).to.be.lessThan(containerHeight);
-        containerHeight = updatedHeight;
-      });
+    // Delete table widget
+    propPane.DeleteWidgetFromPropertyPane("Table1");
+    agHelper.Sleep();
+    agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
+      const updatedHeight = parseInt(newHeight?.split("px")[0]);
+      expect(updatedHeight).to.be.lessThan(containerHeight);
+      containerHeight = updatedHeight;
     });
   });
 
@@ -98,7 +93,7 @@ describe("validate auto height for modal widget on auto layout canvas", () => {
       draggableWidgets.INPUT_V2,
       50,
       40,
-      dropTargetClass,
+      "modalwidget",
     );
     agHelper.Sleep();
     agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
