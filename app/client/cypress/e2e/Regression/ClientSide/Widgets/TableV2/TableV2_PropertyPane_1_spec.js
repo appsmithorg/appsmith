@@ -69,9 +69,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
     // Select 1st row
     cy.isSelectRow(2);
-    cy.wait(2000);
     // Verify Row is selected by showing the message
-    cy.get(commonlocators.toastmsg).contains("Row is selected");
+    agHelper.ValidateToastMessage("Row is selected");
     deployMode.NavigateBacktoEditor();
   });
 
@@ -84,9 +83,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
-    cy.wait(2000);
     // Verify the search text is changed
-    cy.get(commonlocators.toastmsg).contains("Search Text Changed");
+    agHelper.ValidateToastMessage("Search Text Changed");
     deployMode.NavigateBacktoEditor();
   });
 
@@ -104,7 +102,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
     // Verify the page is changed
-    cy.get(commonlocators.toastmsg).contains("Page Changed");
+    agHelper.ValidateToastMessage("Page Changed");
     deployMode.NavigateBacktoEditor();
   });
 

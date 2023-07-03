@@ -158,7 +158,7 @@ describe("Shopping cart App", function () {
       .should("have.text", "3");
   });
 
-  it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function () {
+  it("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
     deployMode.NavigateBacktoEditor();
     gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
