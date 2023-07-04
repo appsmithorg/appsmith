@@ -34,7 +34,7 @@ describe("Auto Layout Reflow in small screen devices(Mobiles/Tabs) and public ap
       "wrap",
     );
   });
-  it.skip("2. Auto Layout Reflow should work in public apps as well", () => {
+  it("2. Auto Layout Reflow should work in public apps as well", () => {
     let currentUrl = "";
     cy.url().then((url) => {
       currentUrl = url;
