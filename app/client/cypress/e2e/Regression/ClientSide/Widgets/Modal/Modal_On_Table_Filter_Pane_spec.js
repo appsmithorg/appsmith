@@ -1,5 +1,5 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-const widgets = require("../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+const widgets = require("../../../../../locators/Widgets.json");
 
 describe("Modal Widget Functionality", function () {
   before(() => {
