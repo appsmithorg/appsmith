@@ -71,10 +71,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.LinkedHashMap;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
@@ -459,7 +459,7 @@ public class AmazonS3Plugin extends BasePlugin {
                          * - If connection object is null, then assume stale connection.
                          */
                         if (connection == null) {
-                            return Mono.error(new StaleConnectionException());
+                            return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
                         }
 
                         if (actionConfiguration == null) {
@@ -787,7 +787,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         return Mono.just(actionResult);
                     })
-                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException())
+                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException(error.getMessage()))
                     .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -986,8 +986,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     S3ErrorMessages.LIST_OF_BUCKET_FETCHING_ERROR_MSG,
                                     e.getMessage()
                             );
-                        } catch (IllegalStateException s) {
-                            throw new StaleConnectionException();
+                        } catch (IllegalStateException e) {
+                            throw new StaleConnectionException(e.getMessage());
                         }
 
                         return new DatasourceStructure(tableList);

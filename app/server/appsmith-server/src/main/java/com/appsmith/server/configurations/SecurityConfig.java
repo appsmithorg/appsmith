@@ -12,11 +12,18 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -27,6 +34,7 @@ import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -34,6 +42,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -85,6 +94,9 @@ public class SecurityConfig {
     @Autowired
     private RedirectHelper redirectHelper;
 
+    @Value("${appsmith.internal.password}")
+    private String INTERNAL_PASSWORD;
+
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
@@ -107,6 +119,29 @@ public class SecurityConfig {
     @Bean
     public ForwardedHeaderTransformer forwardedHeaderTransformer() {
         return new ForwardedHeaderTransformer();
+    }
+
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Bean
+    @ConditionalOnExpression(value = "'${appsmith.internal.password}'.length() > 0")
+    public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
+        return http
+                .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
+                .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec.anyExchange().authenticated())
+                .httpBasic(httpBasicSpec -> httpBasicSpec
+                        .authenticationManager(authentication -> {
+                            if (isAuthorizedToAccessInternal(authentication.getCredentials().toString())) {
+                                return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
+                                        authentication.getPrincipal(),
+                                        authentication.getCredentials(),
+                                        authentication.getAuthorities()));
+                            } else {
+                                return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
+                                        authentication.getPrincipal(),
+                                        authentication.getCredentials()));
+                            }
+                        }))
+                .build();
     }
 
     @Bean
@@ -174,6 +209,11 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
+    }
+
+    private boolean isAuthorizedToAccessInternal(String password) {
+        // Either configured password is empty, or it's equal to what we received.
+        return StringUtils.isEmpty(INTERNAL_PASSWORD) || INTERNAL_PASSWORD.equals(password);
     }
 
     /**

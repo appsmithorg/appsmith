@@ -88,6 +88,22 @@ export class DeployMode {
     });
   }
 
+  public StubWindowNAssert(
+    selector: string,
+    expectedUrl: string,
+    visitUrl: string,
+    networkCall: string,
+  ) {
+    this.StubbingWindow();
+    this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
+    cy.get("@windowStub").should("be.calledOnce");
+    cy.url().should("contain", expectedUrl);
+    this.assertHelper.AssertDocumentReady();
+    cy.visit(visitUrl, { timeout: 60000 });
+    this.assertHelper.AssertNetworkStatus("@" + networkCall);
+    this.assertHelper.AssertDocumentReady();
+  }
+
   public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
@@ -98,7 +114,7 @@ export class DeployMode {
     ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
     this.assertHelper.AssertDocumentReady();
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
-    this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementVisible(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
   public NavigateToHomeDirectly() {

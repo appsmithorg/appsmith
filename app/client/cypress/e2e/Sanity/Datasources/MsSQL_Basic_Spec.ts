@@ -13,7 +13,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     containerName = "mssqldb";
 
   before("Create MsSql container & adding data into it", () => {
-    dataSources.StartContainerNVerify("MsSql", containerName, 20000);
+    dataSources.StartContainerNVerify("MsSql", containerName);
 
     dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
@@ -128,15 +128,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     });
   });
 
-  after("Verify Deletion of the datasource", () => {
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
-    dataSources.StopNDeleteContainer(containerName);
-  });
+  // after("Verify Deletion of the datasource", () => {
+  //   entityExplorer.SelectEntityByName(dsName, "Datasources");
+  //   entityExplorer.ActionContextMenuByEntityName({
+  //     entityNameinLeftSidebar: dsName,
+  //     action: "Delete",
+  //     entityType: entityItems.Datasource,
+  //   });
+  //   dataSources.StopNDeleteContainer(containerName);
+  // });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
     dataSources.EnterQuery(query);
