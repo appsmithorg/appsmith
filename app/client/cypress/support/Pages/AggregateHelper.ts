@@ -870,7 +870,7 @@ export class AggregateHelper extends ReusableHelper {
         win.location.href = url;
       });
     });
-
+    this.assertHelper.AssertDocumentReady();
     this.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
