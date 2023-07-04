@@ -59,7 +59,7 @@ export class AssertHelper extends ReusableHelper {
     }
   }
 
-  public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
+  public WaitForNetworkCall(aliasName: string, expectedStatus = 200) {
     // cy.wait(aliasName).then(($apiCall: any) => {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });
@@ -71,7 +71,11 @@ export class AssertHelper extends ReusableHelper {
     // );
     this.Sleep(); //Wait a bit for call to finish!
     aliasName = aliasName.startsWith("@") ? aliasName : "@" + aliasName;
-    cy.wait(aliasName);
+    return cy.wait(aliasName);
+  }
+
+  public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
+    this.WaitForNetworkCall(aliasName);
     cy.get(aliasName)
       .its("response.body.responseMeta.status")
       .should("eq", expectedStatus);

@@ -1,5 +1,6 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.server.constants.ce.LicensePlan;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -33,6 +34,15 @@ public class TenantConfigurationCE {
 
     public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
         this.instanceName = tenantConfiguration.getInstanceName();
+        License license = new License();
+        license.setPlan(LicensePlan.FREE);
+        this.license = license;
+    }
+
+    License license;
+    @Data
+    public static class License {
+        LicensePlan plan;
     }
 
 }
