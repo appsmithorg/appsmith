@@ -21,6 +21,8 @@ import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -36,6 +38,7 @@ export function* bindDataToWidgetSaga(
     ),
   );
   const widgetState: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const selectedWidget = widgetState[action.payload.widgetId];
 
   if (!selectedWidget || !selectedWidget.type) {
@@ -149,6 +152,7 @@ export function* bindDataToWidgetSaga(
     apiId: queryId,
     propertyPath,
     propertyValue,
+    abTestingFlagValue: featureFlags?.ab_ds_binding_enabled,
   });
   if (queryId && isValidProperty) {
     // set the property path to dynamic, i.e. enable JS mode

@@ -79,6 +79,10 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.RunQuery();
     });
     //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    agHelper.RefreshPage();
   });
 
   it("1. Validate simple queries - Show all existing tables, Describe table & verify query responses", () => {

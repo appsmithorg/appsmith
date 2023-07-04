@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Button, Icon, Link } from "design-system";
+import { Button, Icon, Link, Text } from "design-system";
 import { useState } from "react";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
@@ -34,7 +34,7 @@ import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck, selectFeatureFlags } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
@@ -43,6 +43,7 @@ import {
 } from "selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
+
 
 const SideBar = styled.div`
   height: 100%;
@@ -184,7 +185,7 @@ export function Collapsible({
         {!!customLabelComponent ? (
           customLabelComponent
         ) : (
-          <span className="label">{label}</span>
+          <Text className="label" kind="heading-xs">{label}</Text>
         )}
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
@@ -288,6 +289,7 @@ function ActionSidebar({
   }, []);
 
   const hasWidgets = Object.keys(widgets).length > 1;
+  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -338,28 +340,29 @@ function ActionSidebar({
             </DataStructureListWrapper>
           </Collapsible>
         )}
-
-      {hasConnections && (
+      {hasConnections && !featureFlags?.ab_ds_binding_enabled && (
         <Connections
           actionName={actionName}
           entityDependencies={entityDependencies}
         />
       )}
-      {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
-        <Collapsible label="Connect widget">
-          {/*<div className="description">Go to canvas and select widgets</div>*/}
-          <SnipingWrapper>
-            <Button
-              className={"t--select-in-canvas"}
-              kind="secondary"
-              onClick={handleBindData}
-              size="md"
-            >
-              Select widget
-            </Button>
-          </SnipingWrapper>
-        </Collapsible>
-      )}
+      {!featureFlags?.ab_ds_binding_enabled &&
+        canEditPage &&
+        hasResponse &&
+        Object.keys(widgets).length > 1 && (
+          <Collapsible label="Connect widget">
+            <SnipingWrapper>
+              <Button
+                className={"t--select-in-canvas"}
+                kind="secondary"
+                onClick={handleBindData}
+                size="md"
+              >
+                Select widget
+              </Button>
+            </SnipingWrapper>
+          </Collapsible>
+        )}
       {showSuggestedWidgets && (
         <SuggestedWidgets
           actionName={actionName}
