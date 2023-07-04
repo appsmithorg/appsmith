@@ -7,9 +7,7 @@ describe("Number Slider spec", () => {
      * On the canvas we have a Number Slider
      * and a Text widget with binding {{NumberSlider1.value}}
      */
-    cy.fixture("numberSliderWidgetDsl").then((dsl: string) => {
-      _.agHelper.AddDsl(dsl);
-    });
+    _.agHelper.AddDsl("numberSliderWidgetDsl");
   });
 
   it("1. Validates Min. value", () => {

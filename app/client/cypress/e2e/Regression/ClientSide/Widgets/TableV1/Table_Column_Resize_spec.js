@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Functionality with Hidden and Resized Columns", function () {
   before(() => {
-    cy.fixture("tableResizedColumnsDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableResizedColumnsDsl");
   });
 
   it("Table Widget Functionality with Hidden and Resized Columns", function () {

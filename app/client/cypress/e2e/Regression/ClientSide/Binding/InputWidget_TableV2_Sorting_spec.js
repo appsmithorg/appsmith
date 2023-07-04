@@ -7,9 +7,7 @@ import {
 
 describe("Binding the Table and input Widget", function () {
   before(() => {
-    cy.fixture("formInputTableV2Dsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("formInputTableV2Dsl");
   });
 
   it("1. Input widget test with default value from table widget", function () {

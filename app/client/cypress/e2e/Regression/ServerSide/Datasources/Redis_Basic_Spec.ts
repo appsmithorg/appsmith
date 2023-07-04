@@ -29,26 +29,18 @@ describe("Validate Redis DS", () => {
     dataSources.CreateQueryAfterDSSaved();
     dataSources.EnterQuery(hSetReceipe);
     dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
-    dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("4"); //Success response for 4 keys inserted via above HSET!
-    });
+    dataSources.AssertQueryTableResponse(0, "4"); //Success response for 4 keys inserted via above HSET!
 
     //Read only one key from above HSET
     dataSources.EnterQuery(hGetKeys);
     dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
-    dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("Vegetable Stir Fry");
-    });
+    dataSources.AssertQueryTableResponse(0, "Vegetable Stir Fry");
 
     //Read more than one key from above HSET
     dataSources.EnterQuery(hMGet);
     dataSources.RunQueryNVerifyResponseViews(2);
-    dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("easy");
-    });
-    dataSources.ReadQueryTableResponse(1).then(($cellData: any) => {
-      expect($cellData).to.eq("Vegetable Stir Fry");
-    });
+    dataSources.AssertQueryTableResponse(0, "easy");
+    dataSources.AssertQueryTableResponse(1, "Vegetable Stir Fry");
 
     //Update key value in HSET
     dataSources.EnterQuery(hUpdate);
@@ -57,9 +49,7 @@ describe("Validate Redis DS", () => {
     //validate updated key
     dataSources.EnterQuery(getUpdatedKey);
     dataSources.RunQueryNVerifyResponseViews(1);
-    dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("medium");
-    });
+    dataSources.AssertQueryTableResponse(0, "medium");
 
     //Get All keys from HSET
     dataSources.EnterQuery(getAll);
@@ -100,9 +90,7 @@ describe("Validate Redis DS", () => {
     //Verify Deletion is success
     dataSources.EnterQuery(hGetKeys);
     dataSources.RunQueryNVerifyResponseViews(); //5 keys, 5 values
-    dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("null");
-    });
+    dataSources.AssertQueryTableResponse(0, "null");
   });
 
   after("Delete the query & datasource", () => {
