@@ -519,7 +519,7 @@ function getPostEvalActions(
   return postEvalActions;
 }
 
-function* preEvalLintingProcessor(
+function* evalAndLintingHandler(
   isBlockingCall = true,
   action: ReduxAction<unknown>,
   options: Partial<{
@@ -588,7 +588,7 @@ function* evaluationChangeListenerSaga(): any {
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
-  yield preEvalLintingProcessor(false, initAction, {
+  yield call(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,
     forceEvaluation: false,
   });
@@ -601,7 +601,7 @@ function* evaluationChangeListenerSaga(): any {
       evtActionChannel,
     );
 
-    yield preEvalLintingProcessor(true, action, {
+    yield call(evalAndLintingHandler, true, action, {
       shouldReplay: get(action, "payload.shouldReplay"),
       forceEvaluation: shouldForceEval(action),
       requiresLogging: shouldLog(action),
