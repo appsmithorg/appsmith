@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -129,6 +130,7 @@ public class SecurityConfig {
 
     @Autowired
     private ObservationRegistry observationRegistry;
+    
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
 
