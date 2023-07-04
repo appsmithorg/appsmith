@@ -9,7 +9,7 @@ import {
 
 describe("Dynamic Height Width validation with multiple containers and text widget", function () {
   it("1. Validate change with auto height width for widgets", function () {
-    let textMsg: string =
+    let textMsg =
       "Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height";
     cy.fixture("dynamicHeightCanvasResizeDsl").then((val) => {
       agHelper.AddDsl(val);
