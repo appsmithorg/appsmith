@@ -50,9 +50,6 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
-  private _collapseContainer = ".t--collapse-section-container";
-  private _collapseSettings =
-    "[data-testid='t--dropdown-connection.ssl.authType']";
   public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
   public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   _databaseName =
@@ -375,14 +372,6 @@ export class DataSources {
 
   public EditDatasource() {
     this.agHelper.GetNClick(this._editButton);
-  }
-
-  public AssertSectionCollapseState(index: number, collapsed = false) {
-    if (collapsed) {
-      cy.get(this._collapseSettings).should("not.be.visible");
-    } else {
-      cy.get(this._collapseSettings).should("be.visible");
-    }
   }
 
   public NavigateToDSCreateNew() {

@@ -185,7 +185,6 @@ describe("MaintainContext&Focus", function () {
     _.dataSources.AssertDSEditViewMode("View");
     _.entityExplorer.SelectEntityByName("Appsmith", "Datasources");
     _.dataSources.AssertDSEditViewMode("Edit");
-    _.dataSources.AssertSectionCollapseState(0, false);
   });
 
   it("5. Maintain focus of form control inputs", () => {
