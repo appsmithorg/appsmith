@@ -228,6 +228,12 @@ describe("FirstTimeUserOnboarding", function () {
     homePage.CreateNewApplication(false);
 
     agHelper.AssertElementExist(locators._dropHere);
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementAbsence(OnboardingLocator.introModal);
   });
