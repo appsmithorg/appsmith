@@ -311,7 +311,6 @@ describe("Debugger logs", function () {
     );
     _.agHelper.EnterActionValue("Id", "myInterval");
     _.agHelper.Sleep();
-    _.debuggerHelper.ClickDebuggerIcon(0, true, 0);
     _.agHelper.GetNClick(_.jsEditor._logsTab);
     _.debuggerHelper.ClearLogs();
     _.agHelper.ClickButton("Submit");
