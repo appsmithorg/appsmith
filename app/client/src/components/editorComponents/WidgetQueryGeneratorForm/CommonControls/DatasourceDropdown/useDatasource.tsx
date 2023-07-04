@@ -35,6 +35,7 @@ import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getDatatype } from "utils/AppsmithUtils";
 
@@ -140,7 +141,7 @@ export function useDatasource(searchText: string) {
           value: datasource.name,
           data: {
             pluginId: datasource.pluginId,
-            isValid: datasource.isValid,
+            isValid: isEnvironmentValid(datasource),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
           },
