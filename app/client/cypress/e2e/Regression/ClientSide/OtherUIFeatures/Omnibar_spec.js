@@ -18,14 +18,11 @@ describe("Omnibar functionality test cases", () => {
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
-    cy.url().then(($editPageUrl) => {
-      deployMode.StubWindowNAssert(
-        '//span[text()="Learn more"]',
-        "connect-datasource",
-        $editPageUrl,
-        "getWorkspace",
-      );
-    });
+    deployMode.StubWindowNAssert(
+      '//span[text()="Learn more"]',
+      "connect-datasource",
+      "getWorkspace",
+    );
   });
 
   it("2.Verify omnibar is present across all pages and validate its fields", function () {
