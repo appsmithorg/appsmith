@@ -13,9 +13,7 @@ describe("Omnibar functionality test cases", () => {
   const jsObjectName = "Omnibar2";
 
   before(() => {
-    cy.fixture("omnibarDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("omnibarDsl");
   });
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {

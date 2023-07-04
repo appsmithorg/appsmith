@@ -3,9 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Disabled Widgets drag Functionality", function () {
   before(() => {
-    cy.fixture("disabledWidgetsDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("disabledWidgetsDsl");
   });
 
   it("Button widget", function () {

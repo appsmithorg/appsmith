@@ -14,9 +14,7 @@ describe("Category Slider spec", () => {
      * On the canvas we have a Category Slider
      * and a Text widget with binding {{CategorySlider1.value}}
      */
-    cy.fixture("categorySliderWidgetDsl").then((dsl: string) => {
-      agHelper.AddDsl(dsl);
-    });
+    agHelper.AddDsl("categorySliderWidgetDsl");
   });
 
   it("1. Validates Default Value", () => {
@@ -80,8 +78,7 @@ describe("Category Slider spec", () => {
   });
 
   it("3. Does not crash if an invalid mark option is passed", function () {
-    agHelper.GetNClick(locators._optionsJsToggle);
-    propPane.UpdatePropertyFieldValue("Options", "[[]]");
+    propPane.EnterJSContext("Options", "[[]]");
     assertHelper.AssertContains(
       "Oops, Something went wrong.",
       "not.exist",

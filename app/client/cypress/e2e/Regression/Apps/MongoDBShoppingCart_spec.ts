@@ -18,9 +18,7 @@ describe("Shopping cart App", function () {
     cy.get("@guid").then((uid) => {
       homePage.CreateNewWorkspace("MongoDBShop" + uid);
       homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
-      cy.fixture("mongoAppdsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("mongoAppdsl");
     });
     dataSources.CreateDataSource("Mongo");
     cy.get("@saveDatasource").then((httpResponse) => {
@@ -160,7 +158,7 @@ describe("Shopping cart App", function () {
       .should("have.text", "3");
   });
 
-  it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function () {
+  it("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
     deployMode.NavigateBacktoEditor();
     gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {

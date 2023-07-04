@@ -11,9 +11,7 @@ const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 describe("List widget V2 Serverside Pagination", () => {
   before(() => {
-    cy.fixture("Listv2/Listv2JSObjects").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/Listv2JSObjects");
   });
 
   it("1. Next button disabled when there's no data", () => {

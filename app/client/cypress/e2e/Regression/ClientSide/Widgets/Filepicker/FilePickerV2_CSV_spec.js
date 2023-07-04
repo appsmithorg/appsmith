@@ -12,9 +12,7 @@ const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will h
 
 describe("File picker widget v2", () => {
   before(() => {
-    cy.fixture("filePickerTableDSL").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("filePickerTableDSL");
   });
 
   it("1. Parse CSV,XLS,JSON,TSV,Binary,Text and Base64 file data to table Widget", () => {
