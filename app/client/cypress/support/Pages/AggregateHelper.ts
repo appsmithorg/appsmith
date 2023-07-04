@@ -856,7 +856,7 @@ export class AggregateHelper extends ReusableHelper {
     networkCallAlias = "getWorkspace",
   ) {
     this.Sleep(2000);
-    // this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertDocumentReady();
     // // cy.window()
     // //   .then((win) => {
     // //     win.location.reload();
