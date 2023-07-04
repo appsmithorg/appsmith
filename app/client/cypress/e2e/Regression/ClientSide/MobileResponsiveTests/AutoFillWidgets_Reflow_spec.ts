@@ -27,7 +27,7 @@ describe("Auto Layout Reflow in small screen devices(Mobiles/Tabs) and public ap
       "nowrap",
     );
     cy.viewport("iphone-4");
-    cy.wait(1000);
+    cy.wait(2000);
     agHelper.AssertCSS(
       autoLayout.getAutoLayoutLayerClassName("0", 0),
       "flex-wrap",
@@ -48,7 +48,7 @@ describe("Auto Layout Reflow in small screen devices(Mobiles/Tabs) and public ap
         "nowrap",
       );
       cy.viewport("iphone-4");
-      cy.wait(1000);
+      cy.wait(2000);
       agHelper.AssertCSS(
         autoLayout.getAutoLayoutLayerClassName("0", 0),
         "flex-wrap",
