@@ -112,14 +112,11 @@ describe("Omnibar functionality test cases", () => {
       //   cy.wait(4000); //for page to load
       // });
 
-      cy.url().then(($urlBeforeDiscord) => {
-        deployMode.StubWindowNAssert(
-          omnibar.discordLink,
-          "https://discord.com/invite/rBTTVJp",
-          $urlBeforeDiscord,
-          "getWorkspace",
-        );
-      });
+      deployMode.StubWindowNAssert(
+        omnibar.discordLink,
+        "https://discord.com/invite/rBTTVJp",
+        "getWorkspace",
+      );
     },
   );
 
