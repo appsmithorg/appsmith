@@ -40,7 +40,7 @@ export const datasourceToFormValues = (
   // set value of authTypeControl in connection if it is not present
   // authTypeControl is true if authType is SELF_SIGNED_CERTIFICATE else false
   if (!connection.ssl.authTypeControl) {
-    _.set(
+    set(
       connection,
       "ssl.authTypeControl",
       connection.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE,
@@ -96,7 +96,7 @@ export const formValuesToDatasource = (
   const connection = form.connection;
   if (connection) {
     const authTypeControl = connection.ssl.authTypeControl;
-    _.set(
+    set(
       connection,
       "ssl.authType",
       authTypeControl ? SSLType.SELF_SIGNED_CERTIFICATE : SSLType.DEFAULT,
