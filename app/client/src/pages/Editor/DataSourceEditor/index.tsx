@@ -59,10 +59,7 @@ import {
 import { toast } from "design-system";
 import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import {
-  isDatasourceAuthorizedForQueryCreation,
-  isGoogleSheetPluginDS,
-} from "utils/editorContextUtils";
+import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
@@ -79,6 +76,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 
@@ -475,7 +473,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
   }
 
-  renderForm(showFilterComponent: boolean) {
+  renderForm() {
     const {
       datasource,
       datasourceId,
@@ -515,7 +513,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             pageId={pageId}
             pluginName={pluginName}
             pluginPackageName={pluginPackageName}
-            showFilterComponent={showFilterComponent}
+            showFilterComponent={this.state.filterParams.showFilterPane}
           />
           {this.renderSaveDisacardModal()}
         </>
@@ -537,7 +535,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           pageId={pageId}
           pluginType={pluginType}
           setupConfig={this.setupConfig}
-          showFilterComponent={showFilterComponent}
+          showFilterComponent={this.state.filterParams.showFilterPane}
           viewMode={viewMode && !isInsideReconnectModal}
         />
         {this.renderSaveDisacardModal()}
@@ -597,11 +595,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       return <EntityNotFoundPane />;
     }
 
-    const showFilterComponent =
-      !viewMode &&
-      !isInsideReconnectModal &&
-      this.state.filterParams.showFilterPane;
-
     // for saas form
     if (pluginType === "SAAS") {
       // todo check if we can remove the flag here
@@ -655,12 +648,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
+                isInsideReconnectModal={!!isInsideReconnectModal}
                 pluginType={this.props.pluginType}
-                showFilterComponent={showFilterComponent}
                 updateFilter={this.updateFilter}
+                viewMode={viewMode}
               />
               <div className="db-form-content-container">
-                {this.renderForm(showFilterComponent)}
+                {this.renderForm()}
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
                   <DatasourceAuth
@@ -680,7 +674,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}
                     setDatasourceViewMode={setDatasourceViewMode}
-                    showFilterComponent={showFilterComponent}
+                    showFilterComponent={this.state.filterParams.showFilterPane}
                     triggerSave={triggerSave}
                     viewMode={viewMode}
                   />
@@ -758,10 +752,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
 
-  const isPluginAuthorized = isGoogleSheetPluginDS(pluginPackageName)
-    ? plugin &&
-      isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
-    : true;
+  const isPluginAuthorized =
+    pluginPackageName === PluginPackageName.GOOGLE_SHEETS
+      ? plugin &&
+        isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
+      : true;
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
