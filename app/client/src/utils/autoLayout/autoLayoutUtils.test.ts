@@ -188,7 +188,9 @@ describe("test AutoLayoutUtils methods", () => {
     const mainCanvasWidth = 1166;
     const widgets = dataForgetCanvasDimensions;
     const mainContainerPadding = 4 * 2;
+    const containerBorderWidth = 1 * 2;
     const containerPadding = (4 + AUTO_LAYOUT_CONTAINER_PADDING) * 2;
+
     it("should return proper dimension for MainContainer", () => {
       const button0parent = widgets["kv4o6eopdn"]
         .parentId as keyof typeof widgets;
@@ -211,7 +213,10 @@ describe("test AutoLayoutUtils methods", () => {
         false,
       );
       expect(canvasWidth).toEqual(
-        mainCanvasWidth - mainContainerPadding - containerPadding,
+        mainCanvasWidth -
+          mainContainerPadding -
+          containerPadding -
+          containerBorderWidth,
       );
     });
 
@@ -225,7 +230,9 @@ describe("test AutoLayoutUtils methods", () => {
         false,
       );
       expect(canvasWidth).toEqual(
-        (mainCanvasWidth - mainContainerPadding) / 4 - containerPadding,
+        (mainCanvasWidth - mainContainerPadding) / 4 -
+          containerPadding -
+          containerBorderWidth,
       );
     });
 
@@ -239,8 +246,13 @@ describe("test AutoLayoutUtils methods", () => {
         false,
       );
       expect(canvasWidth).toEqual(
-        (mainCanvasWidth - mainContainerPadding - containerPadding) / 4 -
-          containerPadding,
+        (mainCanvasWidth -
+          mainContainerPadding -
+          containerPadding -
+          containerBorderWidth) /
+          4 -
+          containerPadding -
+          containerBorderWidth,
       );
     });
   });

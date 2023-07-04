@@ -766,7 +766,14 @@ export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding
     padding = WIDGET_PADDING * 2;
   }
-  const width = canvasWidth - padding;
+  const borderWidth =
+    LayoutWidget.appPositioningType === AppPositioningTypes.AUTO
+      ? parseInt(
+          LayoutWidget?.borderWidth || LayoutWidget?.parentBorderWidth || "0",
+          10,
+        ) || 0
+      : 0;
+  const width = canvasWidth - padding - borderWidth * 2;
   return {
     snapGrid: {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
