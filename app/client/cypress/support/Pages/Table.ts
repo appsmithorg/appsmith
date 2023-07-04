@@ -176,6 +176,32 @@ export class Table {
     ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]";
   _datePicker = ".bp3-datepicker";
   _dayPickerWeek = ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week";
+  _timePickerHour = ".bp3-timepicker-input-row .bp3-timepicker-hour";
+  _timePickerMinute = ".bp3-timepicker-input-row .bp3-timepicker-minute";
+  _timePickerSecond = ".bp3-timepicker-input-row .bp3-timepicker-second";
+  _timePickerRow = ".bp3-timepicker-input-row";
+  _propertyPanePropertyControl = (propPane: string, propControl: string) =>
+    `.t--property-pane-section-${propPane} .t--property-control-${propControl}`;
+  _tableV2Head = ".t--draggable-tablewidgetv2 .thead";
+  _timeprecisionPopover =
+    ".t--property-control-timeprecision .bp3-popover-target";
+  _tableNthChild =
+    ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) div:nth-child(3)";
+  _inputCheckbox = "input[type=checkbox]";
+  _releaseDateHeader = "[data-header='release_date']";
+  _hiddenHeader = ".hidden-header";
+  _draggableHeader = " .draggable-header";
+  _lastChildDatePicker = "div:last-child .react-datepicker-wrapper";
+  _tableDataNthChild =
+    ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) .td:nth-child(3)";
+  _propertyDateFormat = ".t--property-control-dateformat";
+  _codeMirrorError = ".t--codemirror-has-error";
+  _canvasWidgetType = "[type='CANVAS_WIDGET']";
+  _showArrow = ".rc-select-show-arrow";
+  _codeEditorWrapper = ".t--code-editor-wrapper";
+  _dateRangePicker = ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
+  _dayPickerFirstChild = ".DayPicker-Day:first-child";
+  _divFirstChild = "div:first-child abbr";
 
   public WaitUntilTableLoad(
     rowIndex = 0,

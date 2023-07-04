@@ -4,6 +4,7 @@ import {
   agHelper,
   locators,
   propPane,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget date column inline editing functionality", () => {
@@ -23,19 +24,15 @@ describe("Table widget date column inline editing functionality", () => {
     table.EditColumn("release_date", "v2");
     agHelper.AssertElementExist(table._propertyControlEditable);
     agHelper.GetNClick(
-      table._propertyControlEditable + " input[type=checkbox]",
+      `${table._propertyControlEditable} ${table._inputCheckbox}`,
     );
     agHelper.AssertElementExist(
-      `${locators._widgetInCanvas(
-        "tablewidgetv2 .thead",
-      )} [data-header="release_date"] svg`,
+      `${table._tableV2Head} ${table._releaseDateHeader} svg`,
     );
   });
 
   it("3. should check that user can edit date in table cell", () => {
-    agHelper
-      .GetElement(`${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`)
-      .dblclick();
+    agHelper.GetElement(`${table._tableNthChild}`).dblclick();
     agHelper.AssertElementExist(table._dateInputPopover);
     agHelper.AssertElementExist(table._cellEditor);
     agHelper.GetNClick(
@@ -44,41 +41,39 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.AssertElementAbsence(table._dateInputPopover);
     agHelper.AssertElementAbsence(table._cellEditor);
     agHelper.GetNAssertContains(
-      `${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+      `${table._tableNthChild}`,
       "2021-05-17T00:00:00",
     );
-    agHelper
-      .GetElement(`${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`)
-      .dblclick({
-        force: true,
-      });
+    agHelper.GetElement(`${table._tableNthChild}`).dblclick({
+      force: true,
+    });
     agHelper.AssertElementExist(table._dateInputPopover);
     agHelper.AssertElementExist(table._cellEditor);
-    agHelper.GetNClick(`${locators._widgetInCanvas("textwidget")}`, 0);
+    agHelper.GetNClick(`${locators._widgetInCanvas(draggableWidgets.TEXT)}`, 0);
     agHelper.AssertElementAbsence(table._dateInputPopover);
     agHelper.AssertElementAbsence(table._cellEditor);
     agHelper.GetNAssertContains(
-      `[type='CANVAS_WIDGET'] ${locators._widgetInDeployed(
-        "textwidget",
-      )} ${locators._widgetInCanvas("textwidget")} span`,
+      `${table._canvasWidgetType} ${locators._widgetInDeployed(
+        draggableWidgets.TEXT,
+      )} ${locators._textWidget}`,
       `{"revenue":42600000,"imdb_id":"tt3228774","release_date":"2021-05-17"}`,
     );
     agHelper.GetNAssertContains(
-      `[type='CANVAS_WIDGET'] ${locators._widgetInDeployed(
-        "textwidget",
-      )}+${locators._widgetInDeployed("textwidget")} ${locators._widgetInCanvas(
-        "textwidget",
-      )} span`,
+      `${table._canvasWidgetType} ${locators._widgetInDeployed(
+        draggableWidgets.TEXT,
+      )}+${locators._widgetInDeployed(draggableWidgets.TEXT)} ${
+        locators._textWidget
+      }`,
       `[{"index":0,"updatedFields":{"release_date":"2021-05-17"},"allFields":{"revenue":42600000,"imdb_id":"tt3228774","release_date":"2021-05-17"}}]`,
     );
     agHelper.GetNAssertContains(
-      `[type='CANVAS_WIDGET']  ${locators._widgetInDeployed(
-        "textwidget",
+      `${table._canvasWidgetType}  ${locators._widgetInDeployed(
+        draggableWidgets.TEXT,
       )}+${locators._widgetInDeployed(
-        "textwidget",
-      )}+${locators._widgetInDeployed("textwidget")} ${locators._widgetInCanvas(
-        "textwidget",
-      )} span`,
+        draggableWidgets.TEXT,
+      )}+${locators._widgetInDeployed(draggableWidgets.TEXT)} ${
+        locators._textWidget
+      }`,
       "[0]",
     );
   });
@@ -88,66 +83,51 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
     agHelper.GetNClick(
-      `${locators._propertyControl}displayformat .rc-select-show-arrow`,
+      `${locators._propertyControl}displayformat ${table._showArrow}`,
     );
     agHelper
       .GetElement(locators._dropdownText)
       .children()
       .contains("Do MMM YYYY")
       .click();
-    agHelper.GetNAssertContains(
-      `${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`,
-      "17th May 2021",
-    );
+    agHelper.GetNAssertContains(`${table._tableNthChild}`, "17th May 2021");
 
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
     agHelper.GetNClick(
-      `${locators._propertyControl}displayformat .rc-select-show-arrow`,
+      `${locators._propertyControl}displayformat ${table._showArrow}`,
     );
     agHelper
       .GetElement(locators._dropdownText)
       .children()
       .contains("DD/MM/YYYY")
       .click();
-    agHelper.GetNAssertContains(
-      `${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`,
-      "17/05/2021",
-    );
+    agHelper.GetNAssertContains(`${table._tableNthChild}`, "17/05/2021");
   });
 
   it("5. should check that changing property pane first day of week changes the date picker starting day", () => {
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
-    propPane.UpdatePropertyFieldValue("First Day Of Week","1",true)
-    // agHelper.TypeText(
-    //   `${locators._propertyControl}firstdayofweek .t--code-editor-wrapper`,
-    //   "{backspace}1",
-    //   0,
-    // );
-    agHelper
-      .GetElement(`${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`)
-      .dblclick({
-        force: true,
-      });
+    propPane.UpdatePropertyFieldValue("First Day Of Week", "1", true);
+    agHelper.GetElement(`${table._tableNthChild}`).dblclick({
+      force: true,
+    });
     agHelper.GetNAssertContains(
-      `${table._weekdayRowDayPicker} div:first-child abbr`,
+      `${table._weekdayRowDayPicker} ${table._divFirstChild}`,
       "Mo",
     );
 
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
-    propPane.UpdatePropertyFieldValue("First Day Of Week","5",true)
-    agHelper
-      .GetElement(`${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`)
-      .dblclick({
-        force: true,
-      });
+    propPane.UpdatePropertyFieldValue("First Day Of Week", "5", true);
+    agHelper.GetElement(`${table._tableNthChild}`).dblclick({
+      force: true,
+    });
     agHelper.GetNAssertContains(
-      `${table._weekdayRowDayPicker} div:first-child abbr`,
+      `${table._weekdayRowDayPicker} ${table._divFirstChild}`,
       "Fr",
     );
   });
@@ -158,32 +138,24 @@ describe("Table widget date column inline editing functionality", () => {
     table.EditColumn("release_date", "v2");
     agHelper.AssertElementExist(`${table._propertyControlShowShortcuts}`);
     agHelper.GetNClick(
-      `${table._propertyControlShowShortcuts} input[type=checkbox]`,
+      `${table._propertyControlShowShortcuts} ${table._inputCheckbox}`,
     );
-    agHelper
-      .GetElement(`${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`)
-      .dblclick({
-        force: true,
-      });
-    agHelper.AssertElementAbsence(
-      `${table._dateInputPopover}.bp3-daterangepicker-shortcuts`,
-    );
+    agHelper.GetElement(`${table._tableNthChild}`).dblclick({
+      force: true,
+    });
+    agHelper.AssertElementAbsence(`${table._dateRangePicker}`);
 
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
     agHelper.AssertElementExist(table._propertyControlShowShortcuts);
     agHelper.GetNClick(
-      `${table._propertyControlShowShortcuts} input[type=checkbox]`,
+      `${table._propertyControlShowShortcuts} ${table._inputCheckbox}`,
     );
-    agHelper
-      .GetElement(`${table._tableV2Row} .tr:nth-child(1) div:nth-child(3)`)
-      .dblclick({
-        force: true,
-      });
-    agHelper.AssertElementExist(
-      `${table._dateInputPopover} .bp3-daterangepicker-shortcuts`,
-    );
+    agHelper.GetElement(`${table._tableNthChild}`).dblclick({
+      force: true,
+    });
+    agHelper.AssertElementExist(`${table._dateRangePicker}`);
   });
 
   it("7. should check property pane Required toggle functionality", () => {
@@ -192,18 +164,14 @@ describe("Table widget date column inline editing functionality", () => {
     table.EditColumn("release_date", "v2");
     agHelper.AssertElementExist(table._propertyControlRequired);
     agHelper.GetNClick(
-      `${table._propertyControlRequired} input[type=checkbox]`,
+      `${table._propertyControlRequired} ${table._inputCheckbox}`,
     );
-    agHelper.HoverElement(
-      `${table._tableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
-    );
+    agHelper.HoverElement(`${table._tableDataNthChild}`);
     agHelper.GetNClick(table._editCellIconDiv, 0, true);
     agHelper.GetNClick(
       `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
     );
-    agHelper.HoverElement(
-      `${table._tableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
-    );
+    agHelper.HoverElement(`${table._tableDataNthChild}`);
     agHelper.GetNClick(table._editCellIconDiv, 0, true);
     agHelper.GetNClick(
       `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
@@ -230,13 +198,8 @@ describe("Table widget date column inline editing functionality", () => {
       "border",
       "1px solid rgb(255, 255, 255)",
     );
-    agHelper.AssertValue(
-      `${table._tableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
-      "",
-    );
-    agHelper.GetNClick(
-      `${table._tableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
-    );
+    agHelper.AssertValue(`${table._tableNthChild} ${locators._inputField}`, "");
+    agHelper.GetNClick(`${table._tableNthChild} ${locators._inputField}`);
     agHelper.AssertElementExist(table._datePicker);
     agHelper
       .GetElement(table._cellEditor)
@@ -244,10 +207,10 @@ describe("Table widget date column inline editing functionality", () => {
       .and("not.eq", "none")
       .and("not.eq", "1px solid rgb(255, 255, 255)");
     agHelper.GetNClick(
-      `${table._dayPickerWeek}:nth-child(2) .DayPicker-Day:first-child`,
+      `${table._dayPickerWeek}:nth-child(2) ${table._dayPickerFirstChild}`,
     );
     agHelper.AssertValue(
-      `${table._tableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
+      `${table._tableNthChild} ${locators._inputField}`,
       "",
       false,
     );
