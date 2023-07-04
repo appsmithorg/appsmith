@@ -16,11 +16,11 @@ describe("Dynamic Height Width validation for Tab widget", function () {
   });
 
   function validateHeight() {
-    agHelper.GetNClick(locators._tabId1);
+    agHelper.GetNClick(propPane._tabId1);
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
       .then((currentHeight: number) => {
-        agHelper.GetNClick(locators._tabId2);
+        agHelper.GetNClick(propPane._tabId2);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
           .then((updatedHeight: number) => {
@@ -32,18 +32,18 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     //changing the Text Name and verifying
     entityExplorer.SelectEntityByName("Tabs1");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
-    agHelper.GetNClick(locators._tabId1);
+    agHelper.GetNClick(propPane._tabId1);
     validateHeight();
     deployMode.DeployApp();
     validateHeight();
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(locators._previewModeToggle("edit"));
     agHelper.GetNClick(locators._previewModeToggle("edit"));
-    agHelper.GetNClick(locators._tabId1);
+    agHelper.GetNClick(propPane._tabId1);
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
       .then((currentHeight) => {
-        agHelper.GetNClick(locators._tabId2);
+        agHelper.GetNClick(propPane._tabId2);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
           .then((updatedHeight: number) => {
@@ -55,16 +55,16 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     agHelper.GetNClick(locators._previewModeToggle("preview"));
     entityExplorer.SelectEntityByName("Tabs1");
     propPane.SelectPropertiesDropDown("height", "Fixed");
-    agHelper.GetNClick(locators._tabId1);
+    agHelper.GetNClick(propPane._tabId1);
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
       .then((currentHeight: number) => {
-        agHelper.GetNClick(locators._tabId2);
+        agHelper.GetNClick(propPane._tabId2);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
           .then((updatedHeight: number) => {
             expect(currentHeight).to.equal(updatedHeight);
-            agHelper.GetNClick(locators._showTabsProperty);
+            agHelper.GetNClick(propPane._showTabsProperty);
             assertHelper.AssertNetworkStatus("@updateLayout", 200);
             agHelper
               .GetWidgetCSSHeight(
@@ -72,21 +72,21 @@ describe("Dynamic Height Width validation for Tab widget", function () {
               )
               .then((upheight: number) => {
                 expect(updatedHeight).to.equal(upheight);
-                agHelper.AssertElementAbsence(locators._tabId1);
-                agHelper.AssertElementAbsence(locators._tabId2);
+                agHelper.AssertElementAbsence(propPane._tabId1);
+                agHelper.AssertElementAbsence(propPane._tabId2);
               });
           });
       });
     //it("Tab widget validation of height with reload", function() {
     entityExplorer.SelectEntityByName("Tabs1");
-    agHelper.AssertElementVisible(locators._propertyPaneHeightLabel);
-    agHelper.GetNClick(locators._showTabsProperty);
+    agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
+    agHelper.GetNClick(propPane._showTabsProperty);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
-    agHelper.GetNClick(locators._tabId1);
+    agHelper.GetNClick(propPane._tabId1);
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
       .then((currentHeight: number) => {
-        agHelper.GetNClick(locators._tabId2);
+        agHelper.GetNClick(propPane._tabId2);
         propPane.SelectPropertiesDropDown("height", "Fixed");
         agHelper.RefreshPage();
         entityExplorer.SelectEntityByName("Tabs1");
