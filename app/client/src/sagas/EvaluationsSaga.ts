@@ -588,7 +588,7 @@ function* evaluationChangeListenerSaga(): any {
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
-  yield call(evalAndLintingHandler, false, initAction, {
+  yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,
     forceEvaluation: false,
   });
