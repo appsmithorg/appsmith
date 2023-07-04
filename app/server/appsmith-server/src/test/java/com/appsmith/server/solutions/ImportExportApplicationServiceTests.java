@@ -2182,7 +2182,6 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void discardChange_addNavigationSettingAfterImport_addedNavigationSettingRemoved() {
-
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-navigation-setting.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
@@ -2201,24 +2200,21 @@ public class ImportExportApplicationServiceTests {
                 })
                 .cache();
 
-
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
-                .flatMap(importedApplication ->
-                        applicationJsonMono
-                                .flatMap(applicationJson ->
-                                        {
-                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
-                                            return applicationService.save(importedApplication)
-                                                    .then(importExportApplicationService.importApplicationInWorkspaceFromGit(
-                                                            importedApplication.getWorkspaceId(),
-                                                            applicationJson,
-                                                            importedApplication.getId(),
-                                                            "main")
-                                                    );
-                                        }
-                                )
+                .flatMap(importedApplication -> applicationJsonMono
+                        .flatMap(applicationJson -> {
+                                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                    importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                    return applicationService.save(importedApplication)
+                                            .then(importExportApplicationService.importApplicationInWorkspaceFromGit(
+                                                    importedApplication.getWorkspaceId(),
+                                                    applicationJson,
+                                                    importedApplication.getId(),
+                                                    "main")
+                                            );
+                                }
+                        )
                 );
 
         StepVerifier.create(resultMonoWithDiscardOperation)
@@ -2258,21 +2254,19 @@ public class ImportExportApplicationServiceTests {
 
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
-                .flatMap(importedApplication ->
-                        applicationJsonMono
-                                .flatMap(applicationJson ->
-                                        {
-                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
-                                            return applicationService.save(importedApplication)
-                                                    .then(importExportApplicationService.importApplicationInWorkspaceFromGit(
-                                                            importedApplication.getWorkspaceId(),
-                                                            applicationJson,
-                                                            importedApplication.getId(),
-                                                            "main")
-                                                    );
-                                        }
-                                )
+                .flatMap(importedApplication -> applicationJsonMono
+                        .flatMap(applicationJson -> {
+                                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                    importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                    return applicationService.save(importedApplication)
+                                            .then(importExportApplicationService.importApplicationInWorkspaceFromGit(
+                                                    importedApplication.getWorkspaceId(),
+                                                    applicationJson,
+                                                    importedApplication.getId(),
+                                                    "main")
+                                            );
+                                }
+                        )
                 );
 
         StepVerifier.create(resultMonoWithDiscardOperation)
