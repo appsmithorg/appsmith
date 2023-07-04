@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -167,7 +168,6 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -1875,7 +1875,6 @@ public class AuditLogServiceTest {
     }
 
     // Test case to validate datasource created audit log event and contents
-
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceCreated_success() {
@@ -1890,44 +1889,86 @@ public class AuditLogServiceTest {
                 .assertNext(auditLogs -> {
                     // We are looking for the first event since Audit Logs sort order is DESC
                     assertThat(auditLogs).isNotEmpty();
-                    AuditLog auditLog = auditLogs.get(0);
+                    assertThat(auditLogs).hasSize(2);
 
-                    assertThat(auditLog.getEvent()).isEqualTo("datasource.created");
-                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
-                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
+                    AuditLog auditLog1 = auditLogs.stream().filter(auditLog -> auditLog.getEnvironment() == null).findFirst().get();
+                    AuditLog auditLog2 = auditLogs.stream().filter(auditLog -> auditLog.getEnvironment() != null).findFirst().get();
+
+                    assertThat(auditLog1).isNotNull();
+                    assertThat(auditLog2).isNotNull();
+
+                    // First event assertions
+                    assertThat(auditLog1.getEvent()).isEqualTo("datasource.created");
+                    assertThat(auditLog1.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog1.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
-                    assertThat(auditLog.getResource().getId()).isEqualTo(finalDatasource.getId());
-                    assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
-                    assertThat(auditLog.getResource().getName()).isEqualTo(finalDatasource.getName());
-                    assertThat(auditLog.getResource().getDatasourceType()).isEqualTo(finalDatasource.getPluginName());
+                    assertThat(auditLog1.getResource().getId()).isEqualTo(finalDatasource.getId());
+                    assertThat(auditLog1.getResource().getType()).isEqualTo(resourceType);
+                    assertThat(auditLog1.getResource().getName()).isEqualTo(finalDatasource.getName());
+                    assertThat(auditLog1.getResource().getDatasourceType()).isEqualTo(finalDatasource.getPluginName());
 
                     // Workspace validation
-                    assertThat(auditLog.getWorkspace().getId()).isEqualTo(workspaceId);
-                    assertThat(auditLog.getWorkspace().getName()).isEqualTo(workspaceName);
+                    assertThat(auditLog1.getWorkspace().getId()).isEqualTo(workspaceId);
+                    assertThat(auditLog1.getWorkspace().getName()).isEqualTo(workspaceName);
 
                     // User validation
-                    assertThat(auditLog.getUser().getId()).isNotEmpty();
-                    assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
-                    assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
+                    assertThat(auditLog1.getUser().getId()).isNotEmpty();
+                    assertThat(auditLog1.getUser().getEmail()).isEqualTo("api_user");
+                    assertThat(auditLog1.getUser().getName()).isEqualTo("api_user");
                     //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
 
                     // Metadata validation
                     //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
-                    assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
-                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog1.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog1.getCreatedAt()).isBefore(Instant.now());
 
                     // Misc. fields validation
-                    assertThat(auditLog.getPage()).isNull();
-                    assertThat(auditLog.getAuthentication()).isNull();
-                    assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getInvitedUsers()).isNull();
+                    assertThat(auditLog1.getPage()).isNull();
+                    assertThat(auditLog1.getAuthentication()).isNull();
+                    assertThat(auditLog1.getApplication()).isNull();
+                    assertThat(auditLog1.getInvitedUsers()).isNull();
+
+
+                    // Second event assertions
+                    assertThat(auditLog2.getEvent()).isEqualTo("datasource.created");
+                    assertThat(auditLog2.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog2.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
+
+                    // Resource validation
+                    assertThat(auditLog2.getResource().getId()).isEqualTo(finalDatasource.getId());
+                    assertThat(auditLog2.getResource().getType()).isEqualTo(resourceType);
+                    assertThat(auditLog2.getResource().getName()).isEqualTo(finalDatasource.getName());
+                    assertThat(auditLog2.getResource().getDatasourceType()).isEqualTo(finalDatasource.getPluginName());
+
+                    // Workspace validation
+                    assertThat(auditLog2.getWorkspace().getId()).isEqualTo(workspaceId);
+                    assertThat(auditLog2.getWorkspace().getName()).isEqualTo(workspaceName);
+
+                    // User validation
+                    assertThat(auditLog2.getUser().getId()).isNotEmpty();
+                    assertThat(auditLog2.getUser().getEmail()).isEqualTo("api_user");
+                    assertThat(auditLog2.getUser().getName()).isEqualTo("api_user");
+                    //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
+
+                    // Metadata validation
+                    //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
+                    assertThat(auditLog2.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog2.getCreatedAt()).isBefore(Instant.now());
+
+                    // Misc. fields validation
+                    assertThat(auditLog2.getPage()).isNull();
+                    assertThat(auditLog2.getAuthentication()).isNull();
+                    assertThat(auditLog2.getApplication()).isNull();
+                    assertThat(auditLog2.getInvitedUsers()).isNull();
+
+                    // Environment validation
+                    assertThat(auditLog2.getEnvironment().getName()).isEqualTo(CommonFieldName.PRODUCTION_ENVIRONMENT);
                 })
                 .verifyComplete();
     }
 
     // Test case to validate datasource updated audit log event and contents
-
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceUpdated_success() {
@@ -1945,7 +1986,7 @@ public class AuditLogServiceTest {
                 null,
                 "datasource.updated",
                 resourceType,
-                null,
+                finalDatasource.getId(),
                 null,
                 null,
                 null,
@@ -1957,6 +1998,7 @@ public class AuditLogServiceTest {
                 .assertNext(auditLogs -> {
                     // We are looking for the first event since Audit Logs sort order is DESC
                     assertThat(auditLogs).isNotEmpty();
+                    assertThat(auditLogs).hasSize(1);
                     AuditLog auditLog = auditLogs.get(0);
 
                     assertThat(auditLog.getEvent()).isEqualTo("datasource.updated");
@@ -1989,12 +2031,86 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
+
+                    // Environment validation
+                    assertThat(auditLog.getEnvironment()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    // Test case to validate datasource storage updated audit log event and contents
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_datasourceStorageUpdated_success() {
+        Datasource finalDatasource = createDatasource(workspaceId, "ds storage Update", defaultEnvironmentId);
+
+        DatasourceStorageDTO storageDTO = finalDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+
+        storageDTO.getDatasourceConfiguration().setUrl("New value");
+        Datasource updatedDatasource = datasourceService
+                .updateDatasourceStorage(storageDTO, defaultEnvironmentId, Boolean.FALSE)
+                .block();
+
+        String resourceType = auditLogService.getResourceType(finalDatasource);
+
+        MultiValueMap<String, String> params = getAuditLogRequest(
+                null,
+                "datasource.updated",
+                resourceType,
+                finalDatasource.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        StepVerifier
+                .create(auditLogService.getAuditLogs(params))
+                .assertNext(auditLogs -> {
+                    // We are looking for the first event since Audit Logs sort order is DESC
+                    assertThat(auditLogs).isNotEmpty();
+                    assertThat(auditLogs).hasSize(1);
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("datasource.updated");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
+
+                    // Resource validation
+                    assertThat(auditLog.getResource().getId()).isEqualTo(finalDatasource.getId());
+                    assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
+                    assertThat(auditLog.getResource().getName()).isEqualTo(finalDatasource.getName());
+                    assertThat(auditLog.getResource().getDatasourceType()).isEqualTo(finalDatasource.getPluginName());
+
+                    // Workspace validation
+                    assertThat(auditLog.getWorkspace().getId()).isEqualTo(workspaceId);
+                    assertThat(auditLog.getWorkspace().getName()).isEqualTo(workspaceName);
+
+                    // User validation
+                    assertThat(auditLog.getUser().getId()).isNotEmpty();
+                    assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
+                    assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
+                    //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
+
+                    // Metadata validation
+                    //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
+                    assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    // Misc. fields validation
+                    assertThat(auditLog.getPage()).isNull();
+                    assertThat(auditLog.getAuthentication()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getInvitedUsers()).isNull();
+
+                    // Environment validation
+                    assertThat(auditLog.getEnvironment()).isNotNull();
+                    assertThat(auditLog.getEnvironment().getName()).isEqualTo(CommonFieldName.PRODUCTION_ENVIRONMENT);
                 })
                 .verifyComplete();
     }
 
     // Test case to validate datasource deleted audit log event and contents
-
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceDeleted_success() {
@@ -2012,6 +2128,7 @@ public class AuditLogServiceTest {
                 .assertNext(auditLogs -> {
                     // We are looking for the first event since Audit Logs sort order is DESC
                     assertThat(auditLogs).isNotEmpty();
+                    assertThat(auditLogs).hasSize(1);
                     AuditLog auditLog = auditLogs.get(0);
 
                     assertThat(auditLog.getEvent()).isEqualTo("datasource.deleted");
@@ -2044,6 +2161,9 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
+
+                    // Environment validation
+                    assertThat(auditLog.getEnvironment()).isNull();
                 })
                 .verifyComplete();
     }

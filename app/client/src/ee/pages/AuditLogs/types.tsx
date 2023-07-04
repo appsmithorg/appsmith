@@ -60,6 +60,11 @@ export type PermissionGroupType = {
   unAssignedUserGroups?: string[];
 };
 
+export type EnvironmentType = {
+  id: string;
+  name: string;
+};
+
 /**
  * @property {string} id The id of the log in the database, aka "cursor".
  * @property {string} event is event name in the format <resource>.<action>
@@ -76,6 +81,8 @@ export type PermissionGroupType = {
  * @property {AuthenticationType} authentication contains information about the authentication setting change.
  *   It is a special case for `instance_setting.updated` event.
  * @property {string[]} invitedUsers contains list of users that are invited.
+ * @property {EnvironmentType} environment contains the environment the log was generated for e.g datasource created in environment #envname
+ *
  */
 export type AuditLogType = {
   id: string;
@@ -94,6 +101,7 @@ export type AuditLogType = {
   invitedUsers?: string[];
   userGroup?: UserGroupType;
   permissionGroup?: PermissionGroupType;
+  environment?: EnvironmentType;
 };
 
 /**
@@ -108,6 +116,8 @@ export type AuditLogType = {
  * This is used for queries and other sub-page level events e.g. query.
  * @param {string} userName The name of the user. log.user.name
  * @param {string} userEmail The email of the user. log.user.email
+ * @param {string} environment The current environment the log was generated i.e. log.envionment.name
+ *
  */
 export type DescriptionDataType = {
   action: string;
@@ -117,6 +127,7 @@ export type DescriptionDataType = {
   page: string;
   userName: string;
   userEmail: string;
+  environment: string;
 };
 
 export type DropdownOptionProps = Partial<SelectOptionProps>;

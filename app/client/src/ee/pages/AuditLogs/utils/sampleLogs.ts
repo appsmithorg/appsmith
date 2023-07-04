@@ -414,6 +414,10 @@ export const sampleLogsFromRedux = [
       id: "6310905990dbd1242bbecebb",
       name: "Untitled workspace 2",
     },
+    environment: {
+      id: "649c156244f5b26332b61077",
+      name: "production",
+    },
     user: {
       id: "630855734b5d6a0c34890dd8",
       email: "anubhav@appsmith.com",
@@ -438,6 +442,7 @@ export const sampleLogsFromRedux = [
       id: "6310905990dbd1242bbecebb",
       name: "Untitled workspace 2",
     },
+    environment: {},
     isOpen: false,
   },
   {
