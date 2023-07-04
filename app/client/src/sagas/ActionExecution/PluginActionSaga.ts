@@ -43,7 +43,7 @@ import {
   isActionSaving,
   getJSCollection,
   getDatasource,
-  getDatasourcesUsedInApplicationByActions,
+  getDatasources,
 } from "selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
@@ -1469,16 +1469,10 @@ function* fetchDatasourceStructureOnSoftRefresh() {
   try {
     // get datasources of all actions used in the the application
     const datasourcesUsedInApplication: Datasource[] = yield select(
-      getDatasourcesUsedInApplicationByActions,
+      getDatasources,
     );
-    // eslint-disable-next-line
     for (const datasource of datasourcesUsedInApplication) {
-      // it is very unlikely for this to happen, but it does not hurt to check.
-      // const doesDatasourceStructureAlreadyExist: DatasourceStructure =
-      //   yield select(getDatasourceStructureById, datasource.id);
-      // if (doesDatasourceStructureAlreadyExist) {
-      //   continue;
-      // }
+      //fetch datasource structure for each datasource
       yield put(fetchDatasourceStructure(datasource.id, true));
     }
   } catch (error) {}
