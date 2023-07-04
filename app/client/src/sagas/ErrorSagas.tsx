@@ -250,7 +250,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 
 function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   log.debug(`Error in action ${action.type}`);
-  if (action.payload) log.error(action.payload.error);
+  if (action.payload) log.error(action.payload.error, action);
 }
 
 /**

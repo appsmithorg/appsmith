@@ -8,7 +8,7 @@ import type {
   UpdateUserRequest,
   VerifyTokenRequest,
 } from "@appsmith/api/UserApi";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,

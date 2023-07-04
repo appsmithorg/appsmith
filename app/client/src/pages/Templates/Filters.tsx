@@ -95,7 +95,8 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
       <Checkbox
         // backgroundColor={Colors.GREY_900}
         // className="filter"
-        defaultSelected={selected}
+        isSelected={selected}
+        name={item.label}
         onChange={onClick}
         value={item.label}
       >

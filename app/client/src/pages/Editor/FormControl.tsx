@@ -32,6 +32,8 @@ import {
 } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import type { Datasource } from "entities/Datasource";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -40,8 +42,8 @@ export interface FormControlProps {
 }
 
 function FormControl(props: FormControlProps) {
-  const formValues: Partial<Action> = useSelector((state: AppState) =>
-    getFormValues(props.formName)(state),
+  const formValues: Partial<Action | Datasource> = useSelector(
+    (state: AppState) => getFormValues(props.formName)(state),
   );
   const actionValues = useSelector((state: AppState) =>
     getAction(state, formValues?.id || ""),
@@ -53,7 +55,12 @@ function FormControl(props: FormControlProps) {
   const [convertFormToRaw, setConvertFormToRaw] = useState(false);
 
   const viewType = getViewType(formValues, props.config.configProperty);
-  const hidden = isHidden(formValues, props.config.hidden);
+  let formValueForEvaluatingHiddenObj = formValues;
+  if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
+    formValueForEvaluatingHiddenObj = (formValues as Datasource)
+      .datasourceStorages[getCurrentEnvironment()];
+  }
+  const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
       getConfigErrors(state, {
@@ -62,16 +69,18 @@ function FormControl(props: FormControlProps) {
       }),
     shallowEqual,
   );
+  const dsId =
+    ((formValues as Action)?.datasource as any)?.id ||
+    (formValues as Datasource)?.id;
   const datasourceTableName: string = useSelector((state: AppState) =>
-    getDatasourceFirstTableName(state, (formValues?.datasource as any)?.id),
+    getDatasourceFirstTableName(state, dsId),
   );
   const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
     getPluginTemplates(state),
   );
-  const pluginTemplate = !!formValues?.datasource?.pluginId
-    ? pluginTemplates[formValues?.datasource?.pluginId]
-    : undefined;
+
   const pluginId: string = formValues?.pluginId || "";
+  const pluginTemplate = !!pluginId ? pluginTemplates[pluginId] : undefined;
   const pluginName: string = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
   );
@@ -84,7 +93,9 @@ function FormControl(props: FormControlProps) {
   );
 
   const showTemplate =
-    isNewQuery && formValues?.datasource?.pluginId && isQueryBodyField;
+    isNewQuery &&
+    (formValues as Action)?.datasource?.pluginId &&
+    isQueryBodyField;
 
   const updateQueryParams = () => {
     const params = getQueryParams();
@@ -203,7 +214,7 @@ function FormControl(props: FormControlProps) {
                     props?.config?.configProperty,
                   )
                 }
-                pluginId={formValues?.datasource?.pluginId || ""}
+                pluginId={(formValues as Action)?.datasource?.pluginId || ""}
               />
             ) : viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
