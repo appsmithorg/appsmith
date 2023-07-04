@@ -31,7 +31,6 @@ export interface ColorModeTheme {
     bgNeutralActive: string;
     bgNeutralSubtleHover: string;
     bgNeutralSubtleActive: string;
-
     // fg
     fg: string;
     fgAccent: string;
@@ -47,12 +46,14 @@ export interface ColorModeTheme {
     fgOnAssistive: string;
     // bd
     bdAccent: string;
-    bdNeutral: string;
-    bdPositive: string;
-    bdWarning: string;
-    bdNegative: string;
     bdFocus: string;
-    bdNeutralHover: string;
+    bdNegative: string;
     bdNegativeHover: string;
+    bdNeutral: string;
+    bdNeutralHover: string;
+    bdPositive: string;
+    bdPositiveHover: string;
+    bdWarning: string;
+    bdWarningHover: string;
   };
 }
