@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -101,8 +100,6 @@ public interface ImportExportApplicationServiceCE {
      */
     Mono<Application> restoreSnapshot(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
 
-    // TODO: Remove this temporary call post client side changes
-    Mono<List<DatasourceDTO>> findDatasourceDTOByApplicationId(String applicationId, String workspaceId);
     Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
 
     Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application);

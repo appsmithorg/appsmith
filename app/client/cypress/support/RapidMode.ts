@@ -1,5 +1,5 @@
 /**
- * Sample configuration to be appended to cypress.env.json file
+ * Sample configuration to be appended to app/client/cypress.env.json file
  * Documentation on using it is here : https://github.com/appsmithorg/appsmith/blob/release/contributions/docs/TestAutomation.md
  * 
  * "RAPID_MODE": {

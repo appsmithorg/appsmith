@@ -1,10 +1,15 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/invisibleWidgetdsl.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  deployMode,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for Visibility", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("invisibleWidgetdsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
   });
   it("1. Validating visbility/invisiblity of widget with dynamic height feature", function () {
     //changing the Text Name and verifying
@@ -26,7 +31,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
             cy.get("label:Contains('On')").should("not.be.enabled");
           });
       });
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((theight) => {

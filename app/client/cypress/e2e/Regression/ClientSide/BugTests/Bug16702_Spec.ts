@@ -1,11 +1,4 @@
-import datasourceFormData from "../../../../fixtures/datasources.json";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const locator = ObjectsRegistry.CommonLocators,
-  apiPage = ObjectsRegistry.ApiPage,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  dataSources = ObjectsRegistry.DataSources,
-  jsEditor = ObjectsRegistry.JSEditor;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const GRAPHQL_LIMIT_QUERY = `
   query {
@@ -30,15 +23,15 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       offsetValue: 1,
     }`;
 
-    jsEditor.CreateJSObject(jsObjectBody, {
+    _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
 
-    apiPage.CreateAndFillGraphqlApi(datasourceFormData.graphqlApiUrl);
-    dataSources.UpdateGraphqlQueryAndVariable({
+    _.apiPage.CreateAndFillGraphqlApi(_.hostPort.GraphqlApiUrl_TED);
+    _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });
 
@@ -51,20 +44,20 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       .dblclick()
       .dblclick()
       .type("{{JSObject1.");
-    agHelper.GetNAssertElementText(
-      locator._hints,
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
       "offsetValue",
       "have.text",
       1,
     );
-    agHelper.Sleep();
-    agHelper.TypeText(locator._codeMirrorTextArea, "offsetValue", 1);
-    agHelper.Sleep(2000);
+    _.agHelper.Sleep();
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "offsetValue", 1);
+    _.agHelper.Sleep(2000);
 
     /* Start: Block of code to remove error of detached node of codemirror for cypress reference */
 
-    apiPage.SelectPaneTab("Params");
-    apiPage.SelectPaneTab("Body");
+    _.apiPage.SelectPaneTab("Params");
+    _.apiPage.SelectPaneTab("Body");
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
 
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
@@ -72,13 +65,13 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       //.trigger("mouseover")
       .dblclick()
       .type("{{JSObject1.");
-    agHelper.GetNClickByContains(locator._hints, "limitValue");
-    agHelper.Sleep(2000);
+    _.agHelper.GetNClickByContains(_.locators._hints, "limitValue");
+    _.agHelper.Sleep(2000);
     //Commenting this since - many runs means - API response is 'You are doing too many launches'
-    // apiPage.RunAPI(false, 20, {
+    // _.apiPage.RunAPI(false, 20, {
     //   expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
     //   expectedRes: GRAPHQL_RESPONSE.mission_name,
     // });
-    apiPage.RunAPI();
+    _.apiPage.RunAPI();
   });
 });

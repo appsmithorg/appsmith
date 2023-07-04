@@ -1,10 +1,11 @@
-const dsl = require("../../../../../fixtures/formWidgetWithInputValCheckDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget with Input Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formWidgetWithInputValCheckDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Check if the default value of text input is 0", function () {

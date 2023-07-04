@@ -3,16 +3,13 @@ import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";
 
-import type { DatasourceAuthentication, Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceStorage } from "entities/Datasource";
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
   type?: string;
-  datasourceConfiguration: {
-    url: string;
-    databaseName?: string;
-    authentication?: DatasourceAuthentication;
-  };
+  // key in the map representation of environment id of type string
+  datasourceStorages: Record<string, DatasourceStorage>;
   //Passed for logging purposes.
   appName?: string;
 }
@@ -47,17 +44,38 @@ class DatasourcesApi extends API {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
-  static testDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
-    return API.post(`${DatasourcesApi.url}/test`, datasourceConfig, undefined, {
-      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
-    });
+  // Api to test current environment datasource
+  static testDatasource(
+    datasourceConfig: Partial<DatasourceStorage>,
+    pluginId: string,
+    workspaceId: string,
+  ): Promise<any> {
+    return API.post(
+      `${DatasourcesApi.url}/test`,
+      { ...datasourceConfig, pluginId, workspaceId },
+      undefined,
+      {
+        timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+      },
+    );
   }
 
+  // Api to update datasource name.
   static updateDatasource(
     datasourceConfig: Partial<Datasource>,
     id: string,
   ): Promise<any> {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
+  }
+
+  // Api to update specific datasource storage/environment configuration
+  static updateDatasourceStorage(
+    datasourceConfig: Partial<DatasourceStorage>,
+  ): Promise<any> {
+    return API.put(
+      DatasourcesApi.url + `/datasource-storages`,
+      datasourceConfig,
+    );
   }
 
   static deleteDatasource(id: string): Promise<any> {

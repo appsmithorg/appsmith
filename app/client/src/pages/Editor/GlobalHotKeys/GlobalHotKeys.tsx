@@ -150,27 +150,6 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput
-          combo="mod + j"
-          global
-          label="Lookup code snippets"
-          onKeyDown={(e) => {
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS);
-            AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
-              source: "HOTKEY_COMBO",
-            });
-          }}
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + l"
-          global
-          label="Search documentation"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
-          }
-        />
-        <Hotkey
-          allowInInput
           combo="mod + k"
           global
           label="Show omnibar"
