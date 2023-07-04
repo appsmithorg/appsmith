@@ -17,8 +17,12 @@ import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import FeatureFlagWalkthroughUtils from "utils/FeatureFlagWalkthroughUtils";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  AB_TESTING_EVENT_KEYS,
+  FEATURE_FLAG,
+} from "@appsmith/entities/FeatureFlag";
+import { setFeatureFlagShownStatus } from "utils/storage";
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -41,6 +45,9 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   const currentPageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
+  );
+  const isEnabledForQueryBinding = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
   );
   const plugin: Plugin | undefined = useSelector((state: AppState) =>
     getPlugin(state, !!dataSource?.pluginId ? dataSource.pluginId : ""),
@@ -75,17 +82,18 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             datasourceId: props.datasourceId,
             pluginName: plugin?.name,
             isWalkthroughOpened,
+            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+              FEATURE_FLAG.ab_ds_schema_enabled,
+            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]:
+              isEnabledForQueryBinding,
           },
           ...queryactionConfiguration,
         }),
       );
 
       if (isWalkthroughOpened) {
-        FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
-          FEATURE_FLAG.ab_ds_schema_enabled,
-          true,
-        );
         popFeature && popFeature();
+        setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
       }
 
       history.push(

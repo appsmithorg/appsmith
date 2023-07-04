@@ -29,7 +29,10 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Tooltip } from "design-system";
 // import chartWidgetIcon from "./../../../widgets/ChartWidget/icon.svg";
 import { Text } from "design-system";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  AB_TESTING_EVENT_KEYS,
+  FEATURE_FLAG,
+} from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { useParams } from "react-router";
@@ -42,8 +45,11 @@ import chartWidgetIconSvg from "../../../widgets/ChartWidget/icon.svg";
 import inputWidgetIconSvg from "../../../widgets/InputWidgetV2/icon.svg";
 import textWidgetIconSvg from "../../../widgets/TextWidget/icon.svg";
 import listWidgetIconSvg from "../../../widgets/ListWidget/icon.svg";
-import FeatureFlagWalkthroughUtils from "utils/FeatureFlagWalkthroughUtils";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import {
+  getFeatureFlagShownStatus,
+  setFeatureFlagShownStatus,
+} from "utils/storage";
 
 const BINDING_GUIDE_GIF =
   "https://myawsbucketdip.s3.ap-southeast-1.amazonaws.com/schema.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230630T081156Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAYOEVYR6QX442SDWZ%2F20230630%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Signature=678096bd94148a5711252a9fe90b90826ac88ce146eb07586498f7f109c5a17a";
@@ -290,13 +296,10 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     queryId?: string;
   }>();
 
-  const closeWalkthrough = () => {
+  const closeWalkthrough = async () => {
     if (isWalkthroughOpened) {
-      FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
-        FEATURE_FLAG.ab_ds_binding_enabled,
-        true,
-      );
       popFeature && popFeature();
+      await setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_binding_enabled, true);
     }
   };
 
@@ -318,7 +321,8 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
-      abTestingFlagValue: isEnabledForQueryBinding,
+      [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
+      isWalkthroughOpened,
     });
 
     closeWalkthrough();
@@ -370,21 +374,25 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   );
   const isWidgetsPresentOnCanvas = Object.keys(canvasWidgets).length > 0;
 
-  useEffect(() => {
-    const isFeatureWalkthroughShown =
-      FeatureFlagWalkthroughUtils.getFeatureFlagShownStatus(
-        FEATURE_FLAG.ab_ds_binding_enabled,
-      );
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureFlagShownStatus(
+      FEATURE_FLAG.ab_ds_binding_enabled,
+    );
 
     // Adding walkthrough tutorial
     !isFeatureWalkthroughShown &&
-      isEnabledForQueryBinding &&
       pushFeature &&
       pushFeature({
         targetId: BINDING_SECTION_ID,
-        onDismiss: () => {
-          FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
-            FEATURE_FLAG.ab_ds_schema_enabled,
+        onDismiss: async () => {
+          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
+            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+              FEATURE_FLAG.ab_ds_binding_enabled,
+            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]:
+              isEnabledForQueryBinding,
+          });
+          await setFeatureFlagShownStatus(
+            FEATURE_FLAG.ab_ds_binding_enabled,
             true,
           );
         },
@@ -402,7 +410,16 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
             transform: "none",
           },
         },
+        eventParams: {
+          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+            FEATURE_FLAG.ab_ds_binding_enabled,
+          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
+        },
       });
+  };
+
+  useEffect(() => {
+    if (isEnabledForQueryBinding) checkAndShowWalkthrough();
   }, [isEnabledForQueryBinding]);
 
   return (

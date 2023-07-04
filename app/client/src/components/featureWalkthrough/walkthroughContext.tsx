@@ -36,6 +36,8 @@ export type FeatureParams = {
   details?: FeatureDetails;
   // Offsets for the instruction screen and the indicator
   offset?: OffsetType;
+  // Event params
+  eventParams?: Record<string, any>;
 };
 
 type WalkthroughContextType = {

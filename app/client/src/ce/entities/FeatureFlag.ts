@@ -27,3 +27,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_ds_schema_enabled: false,
   ab_ds_binding_enabled: false,
 };
+
+export const AB_TESTING_EVENT_KEYS = {
+  abTestingFlagLabel: "abTestingFlagLabel",
+  abTestingFlagValue: "abTestingFlagValue",
+};

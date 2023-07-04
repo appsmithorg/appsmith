@@ -9,6 +9,7 @@ import type {
   OffsetType,
 } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;
@@ -119,6 +120,7 @@ const WalkthroughRenderer = ({
   offset,
   onDismiss,
   targetId,
+  eventParams = {},
 }: FeatureParams) => {
   const [boundingRect, setBoundingRect] = useState<RefRectParams | null>(null);
   const { popFeature } = useContext(WalkthroughContext) || {};
@@ -145,6 +147,7 @@ const WalkthroughRenderer = ({
   useEffect(() => {
     updateBoundingRect();
     const highlightArea = document.querySelector(`#${targetId}`);
+    AnalyticsUtil.logEvent("WALKTHROUGH_SHOWN", eventParams);
     window.addEventListener("resize", updateBoundingRect);
     const resizeObserver = new ResizeObserver(updateBoundingRect);
     if (highlightArea) {

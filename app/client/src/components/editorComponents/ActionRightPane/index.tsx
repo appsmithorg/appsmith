@@ -37,7 +37,10 @@ import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/Datasou
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  AB_TESTING_EVENT_KEYS,
+  FEATURE_FLAG,
+} from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
@@ -46,7 +49,10 @@ import {
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import FeatureFlagWalkthroughUtils from "utils/FeatureFlagWalkthroughUtils";
+import {
+  getFeatureFlagShownStatus,
+  setFeatureFlagShownStatus,
+} from "utils/storage";
 
 const SCHEMA_GUIDE_GIF =
   "https://myawsbucketdip.s3.ap-southeast-1.amazonaws.com/schema.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230630T081156Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAYOEVYR6QX442SDWZ%2F20230630%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Signature=678096bd94148a5711252a9fe90b90826ac88ce146eb07586498f7f109c5a17a";
@@ -301,24 +307,23 @@ function ActionSidebar({
     }
   }, []);
 
-  const showSchema =
-    isEnabledForDSSchema &&
-    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm;
-
-  useEffect(() => {
-    const isFeatureWalkthroughShown =
-      FeatureFlagWalkthroughUtils.getFeatureFlagShownStatus(
-        FEATURE_FLAG.ab_ds_schema_enabled,
-      );
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureFlagShownStatus(
+      FEATURE_FLAG.ab_ds_schema_enabled,
+    );
 
     // Adding walkthrough tutorial
     !isFeatureWalkthroughShown &&
-      showSchema &&
       pushFeature &&
       pushFeature({
         targetId: SCHEMA_SECTION_ID,
-        onDismiss: () => {
-          FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
+        onDismiss: async () => {
+          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
+            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+              FEATURE_FLAG.ab_ds_schema_enabled,
+            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
+          });
+          await setFeatureFlagShownStatus(
             FEATURE_FLAG.ab_ds_schema_enabled,
             true,
           );
@@ -337,7 +342,22 @@ function ActionSidebar({
             transform: "none",
           },
         },
+        eventParams: {
+          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+            FEATURE_FLAG.ab_ds_schema_enabled,
+          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
+        },
       });
+  };
+
+  const showSchema =
+    isEnabledForDSSchema &&
+    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm;
+
+  useEffect(() => {
+    if (showSchema) {
+      checkAndShowWalkthrough();
+    }
   }, [showSchema]);
 
   const hasWidgets = Object.keys(widgets).length > 1;

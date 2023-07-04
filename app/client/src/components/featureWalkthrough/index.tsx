@@ -1,4 +1,4 @@
-import React, { lazy, useState } from "react";
+import React, { lazy, useEffect, useState, Suspense } from "react";
 import type { FeatureParams } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
@@ -14,14 +14,22 @@ const WalkthroughRenderer = lazy(() => {
   );
 });
 
+const LoadingFallback = () => null;
+
 export default function Walkthrough({ children }: any) {
+  const [activeWalkthrough, setActiveWalkthrough] =
+    useState<FeatureParams | null>();
   const [feature, setFeature] = useState<FeatureParams[]>([]);
   const pushFeature = (value: FeatureParams) => {
-    if (Array.isArray(value)) {
-      setFeature((e) => [...e, ...value]);
-    } else {
-      setFeature((e) => [...e, value]);
+    const alreadyExists = feature.some((f) => f.targetId === value.targetId);
+    if (!alreadyExists) {
+      if (Array.isArray(value)) {
+        setFeature((e) => [...e, ...value]);
+      } else {
+        setFeature((e) => [...e, value]);
+      }
     }
+    updateActiveWalkthrough();
   };
 
   const popFeature = () => {
@@ -32,13 +40,40 @@ export default function Walkthrough({ children }: any) {
     });
   };
 
+  const updateActiveWalkthrough = () => {
+    if (feature.length > 0) {
+      const highlightArea = document.querySelector(`#${feature[0].targetId}`);
+      if (highlightArea) {
+        setActiveWalkthrough(feature[0]);
+      } else {
+        setActiveWalkthrough(null);
+      }
+    } else {
+      setActiveWalkthrough(null);
+    }
+  };
+
+  useEffect(() => {
+    if (feature.length > -1) updateActiveWalkthrough();
+  }, [feature.length]);
+
   return (
     <WalkthroughContext.Provider
-      value={{ pushFeature, popFeature, feature, isOpened: feature.length > 0 }}
+      value={{
+        pushFeature,
+        popFeature,
+        feature,
+        isOpened: !!activeWalkthrough,
+      }}
     >
       {children}
-      {feature.length > 0 &&
-        createPortal(<WalkthroughRenderer {...feature[0]} />, document.body)}
+      {activeWalkthrough &&
+        createPortal(
+          <Suspense fallback={<LoadingFallback />}>
+            <WalkthroughRenderer {...activeWalkthrough} />
+          </Suspense>,
+          document.body,
+        )}
     </WalkthroughContext.Provider>
   );
 }
