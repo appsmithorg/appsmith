@@ -15,6 +15,12 @@ import {
 } from "../../../../support/Objects/CommonErrorMessages";
 
 describe("API Bugs", function () {
+  before(() => {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    agHelper.RefreshPage();
+  });
   it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
     apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl, "Api1");
     apiPage.RunAPI();

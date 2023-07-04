@@ -123,7 +123,7 @@ const DataSourceNameContainer = styled.div`
 
 const SomeWrapper = styled.div`
   height: 100%;
-  padding: 0 var(--ads-v2-spaces-6);
+  padding: 0 var(--ads-v2-spaces-4);
 `;
 
 const NoEntityFoundWrapper = styled.div`

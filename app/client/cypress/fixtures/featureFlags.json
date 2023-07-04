@@ -6,6 +6,7 @@
   "data": {
     "DATASOURCE_ENVIRONMENTS": false,
     "MULTIPLE_PANES": false,
-    "APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY": false
+    "APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY": false,
+    "ab_ds_binding_enabled": false
   }
 }
