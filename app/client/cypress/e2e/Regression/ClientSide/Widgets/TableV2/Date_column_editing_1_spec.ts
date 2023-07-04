@@ -5,13 +5,12 @@ import {
   locators,
   propPane,
   draggableWidgets,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
-    cy.fixture("Table/DateCellEditingDSL").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Table/DateCellEditingDSL");
   });
 
   it("1. should check that edit check box is enabled for date type column in the columns list", () => {
@@ -22,10 +21,12 @@ describe("Table widget date column inline editing functionality", () => {
   it("2. should check that date cell edit mode can be turned on", () => {
     entityExplorer.SelectEntityByName("Table1");
     table.EditColumn("release_date", "v2");
-    agHelper.AssertElementExist(table._propertyControlEditable);
-    agHelper.GetNClick(
-      `${table._propertyControlEditable} ${table._inputCheckbox}`,
-    );
+    propPane.TogglePropertyState("Editable", "On");
+    assertHelper.AssertNetworkStatus("updateLayout", 200);
+    // agHelper.AssertElementExist(table._propertyControlEditable);
+    // agHelper.GetNClick(
+    //   `${table._propertyControlEditable} ${table._inputCheckbox}`,
+    // );
     agHelper.AssertElementExist(
       `${table._tableV2Head} ${table._releaseDateHeader} svg`,
     );
@@ -136,10 +137,12 @@ describe("Table widget date column inline editing functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
-    agHelper.AssertElementExist(`${table._propertyControlShowShortcuts}`);
-    agHelper.GetNClick(
-      `${table._propertyControlShowShortcuts} ${table._inputCheckbox}`,
-    );
+    propPane.TogglePropertyState("Show Shortcuts", "Off");
+    agHelper.Sleep(2000);
+    // agHelper.AssertElementExist(`${table._propertyControlShowShortcuts}`);
+    // agHelper.GetNClick(
+    //   `${table._propertyControlShowShortcuts} ${table._inputCheckbox}`,
+    // );
     agHelper.GetElement(`${table._tableNthChild}`).dblclick({
       force: true,
     });
@@ -148,10 +151,12 @@ describe("Table widget date column inline editing functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
-    agHelper.AssertElementExist(table._propertyControlShowShortcuts);
-    agHelper.GetNClick(
-      `${table._propertyControlShowShortcuts} ${table._inputCheckbox}`,
-    );
+    propPane.TogglePropertyState("Editable", "Off");
+    agHelper.Sleep(2000);
+    // agHelper.AssertElementExist(table._propertyControlShowShortcuts);
+    // agHelper.GetNClick(
+    //   `${table._propertyControlShowShortcuts} ${table._inputCheckbox}`,
+    // );
     agHelper.GetElement(`${table._tableNthChild}`).dblclick({
       force: true,
     });
@@ -162,10 +167,12 @@ describe("Table widget date column inline editing functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
-    agHelper.AssertElementExist(table._propertyControlRequired);
-    agHelper.GetNClick(
-      `${table._propertyControlRequired} ${table._inputCheckbox}`,
-    );
+    propPane.TogglePropertyState("Required", "On");
+    agHelper.Sleep(2000);
+    // agHelper.AssertElementExist(table._propertyControlRequired);
+    // agHelper.GetNClick(
+    //   `${table._propertyControlRequired} ${table._inputCheckbox}`,
+    // );
     agHelper.HoverElement(`${table._tableDataNthChild}`);
     agHelper.GetNClick(table._editCellIconDiv, 0, true);
     agHelper.GetNClick(

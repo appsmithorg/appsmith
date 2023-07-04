@@ -3,13 +3,13 @@ import {
   entityExplorer,
   agHelper,
   locators,
+  propPane,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
-    cy.fixture("Table/DateCellEditingDSL").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Table/DateCellEditingDSL");
   });
 
   it.skip("1. should check that changing property pane time precision changes the date picker time precision", () => {
@@ -60,26 +60,16 @@ describe("Table widget date column inline editing functionality", () => {
   it("2. should check visible property control functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
     table.EditColumn("release_date", "v2");
-    agHelper.AssertElementExist(
-      table._propertyPanePropertyControl("general", "visible"),
-    );
-    agHelper.GetNClick(
-      `${table._propertyPanePropertyControl("general", "visible")} ${
-        table._inputCheckbox
-      }`,
-    );
+    propPane.TogglePropertyState("Visible", "Off");
+    assertHelper.AssertNetworkStatus("updateLayout", 200);
     agHelper.AssertElementExist(
       `${table._tableV2Head} ${table._releaseDateHeader} ${table._hiddenHeader}`,
     );
-
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(locators._propertypaneBackButton);
     table.EditColumn("release_date", "v2");
-    agHelper.GetNClick(
-      `${table._propertyPanePropertyControl("general", "visible")} ${
-        table._inputCheckbox
-      }`,
-    );
+    propPane.TogglePropertyState("Visible", "On");
+    assertHelper.AssertNetworkStatus("updateLayout", 200);
     agHelper.AssertElementExist(
       `${table._tableV2Head} ${table._releaseDateHeader} ${table._draggableHeader}`,
     );
@@ -140,16 +130,12 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.Sleep(3000);
     table.ChangeColumnType("dateValue", "Date", "v2");
     table.EditColumn("dateValue", "v2");
-    agHelper.GetNClick(`${table._propertyDateFormat}`);
-    agHelper.ContainsNClick("ISO 8601");
+    propPane.SelectPropertiesDropDown("dateformat", "ISO 8601");
     // we should not see an error after selecting the ISO 8061 format
     agHelper.AssertElementAbsence(
       `${table._propertyDateFormat} ${table._codeMirrorError}`,
     );
-    agHelper
-      .GetElement(`${table._propertyDateFormat}`)
-      .find(".t--js-toggle")
-      .click();
+    propPane.ToggleJSMode("dateformat", true);
     //check the selected format value
     agHelper.GetNAssertContains(
       `${table._propertyDateFormat}`,
