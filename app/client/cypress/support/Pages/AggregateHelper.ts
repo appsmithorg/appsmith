@@ -856,14 +856,21 @@ export class AggregateHelper extends ReusableHelper {
     networkCallAlias = "getWorkspace",
   ) {
     this.Sleep(2000);
-    this.assertHelper.AssertDocumentReady();
-    // cy.window()
-    //   .then((win) => {
-    //     win.location.reload();
-    //   })
-    cy.reload(reloadWithoutCache).then(() => {
-      this.assertHelper.AssertDocumentReady();
+    // this.assertHelper.AssertDocumentReady();
+    // // cy.window()
+    // //   .then((win) => {
+    // //     win.location.reload();
+    // //   })
+    // cy.reload(reloadWithoutCache).then(() => {
+    //   this.assertHelper.AssertDocumentReady();
+    // });
+
+    cy.url().then((url) => {
+      cy.window({ timeout: 60000 }).then((win) => {
+        win.location.href = url;
+      });
     });
+
     this.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }

@@ -84,6 +84,7 @@ export class DeployMode {
               ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
               : ""
           }`;
+          // cy.log("updated url is: " + updatedUrl);
         });
     });
   }
