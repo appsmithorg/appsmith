@@ -85,8 +85,7 @@ public class ImportExportUtils {
         importedApplication.setPolicies(null);
         // These properties are not present in the application when it is created, hence the initial commit
         // to git doesn't contain these keys and if we want to discard the changes, the function
-        // copyNestedNonNullProperties
-        // ignore these properties and the changes are not discarded
+        // copyNestedNonNullProperties ignore these properties and the changes are not discarded
         if (importedApplication.getUnpublishedApplicationDetail() == null) {
             existingApplication.setUnpublishedApplicationDetail(null);
         }

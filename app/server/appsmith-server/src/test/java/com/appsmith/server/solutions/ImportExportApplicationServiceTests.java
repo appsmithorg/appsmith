@@ -2172,6 +2172,118 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
     }
 
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Add Navigation Settings to the imported application
+     * 3. User tries to import application from same application json file
+     * 4. Added NavigationSetting will be removed
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_addNavigationSettingAfterImport_addedNavigationSettingRemoved() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-navigation-setting.json");
+        String workspaceId = createTemplateWorkspace().getId();
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-navsettings-added");
+                    return importExportApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson);
+                })
+                .flatMap(application -> {
+                    ApplicationDetail applicationDetail = new ApplicationDetail();
+                    Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
+                    navigationSetting.setOrientation("top");
+                    applicationDetail.setNavigationSetting(navigationSetting);
+                    application.setUnpublishedApplicationDetail(applicationDetail);
+                    application.setPublishedApplicationDetail(applicationDetail);
+                    return applicationService.save(application);
+                })
+                .cache();
+
+
+        // Import the same application again
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                                .flatMap(applicationJson ->
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInWorkspaceFromGit(
+                                                            importedApplication.getWorkspaceId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
+                                )
+                );
+
+        StepVerifier.create(resultMonoWithDiscardOperation)
+                .assertNext(application -> {
+                    assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getUnpublishedApplicationDetail()).isNull();
+                    assertThat(application.getPublishedApplicationDetail()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Testcase for checking the discard changes flow for following events:
+     * 1. Import application in org
+     * 2. Updated App Layout Settings to the imported application
+     * 3. User tries to import application from same application json file
+     * 4. Added App Layout will be removed
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void discardChange_addAppLayoutAfterImport_addedAppLayoutRemoved() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-app-layout.json");
+        String workspaceId = createTemplateWorkspace().getId();
+        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
+                .flatMap(applicationJson -> {
+                    applicationJson.getExportedApplication().setName("discard-change-applayout-added");
+                    return importExportApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson);
+                })
+                .flatMap(application -> {
+                    application.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+                    application.setPublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+                    return applicationService.save(application);
+                })
+                .cache();
+
+
+        // Import the same application again
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication ->
+                        applicationJsonMono
+                                .flatMap(applicationJson ->
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInWorkspaceFromGit(
+                                                            importedApplication.getWorkspaceId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
+                                )
+                );
+
+        StepVerifier.create(resultMonoWithDiscardOperation)
+                .assertNext(application -> {
+                    assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getUnpublishedAppLayout()).isNull();
+                    assertThat(application.getPublishedAppLayout()).isNull();
+                })
+                .verifyComplete();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void applySchemaMigration_jsonFileWithFirstVersion_migratedToLatestVersionSuccess() {
@@ -4018,7 +4130,7 @@ public class ImportExportApplicationServiceTests {
                 }).flatMap(application -> {
                     FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
                     return importExportApplicationService.extractApplicationJson(filePart).flatMap(applicationJson ->
-                        importExportApplicationService.mergeApplicationJsonWithApplication(workspaceId, application.getId(), null, applicationJson, null)
+                            importExportApplicationService.mergeApplicationJsonWithApplication(workspaceId, application.getId(), null, applicationJson, null)
                     );
                 });
 
