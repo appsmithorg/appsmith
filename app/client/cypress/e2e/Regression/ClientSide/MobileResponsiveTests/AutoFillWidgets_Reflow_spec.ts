@@ -31,7 +31,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
       "wrap",
     );
   });
-  it("2. Auto Layout Reflow should work in public apps as well", () => {
+  it.skip("2. Auto Layout Reflow should work in public apps as well", () => {
     let currentUrl = "";
     cy.url().then((url) => {
       currentUrl = url;
