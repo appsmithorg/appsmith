@@ -61,7 +61,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgNegativeActive: this.bgNegativeActive.toString(),
       bgNegativeSubtleHover: this.bgNegativeSubtleHover.toString(),
       bgNegativeSubtleActive: this.bgNegativeSubtleActive.toString(),
-      bgWarning: this.bgWarning.toString(),
+      bgWarning: this.bgWarning.to("sRGB").toString(),
       bgWarningHover: this.bgWarningHover.toString(),
       bgWarningActive: this.bgWarningActive.toString(),
       bgWarningSubtleHover: this.bgWarningSubtleHover.toString(),
@@ -82,7 +82,7 @@ export class LightModeTheme implements ColorModeTheme {
       fgOnNegative: this.fgOnNegative.toString(),
       fgNeutral: this.fgNeutral.toString(),
       fgOnNeutral: this.fgOnNeutral.toString(),
-      fgWarning: this.fgWarning.toString(),
+      fgWarning: this.fgWarning.to("sRGB").toString(),
       fgOnWarning: this.fgOnWarning.toString(),
       fgOnAssistive: this.fgOnAssistive.toString(),
       // bd
@@ -94,7 +94,8 @@ export class LightModeTheme implements ColorModeTheme {
       bdNeutralHover: this.bdNeutralHover.toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
-      bdWarning: this.bdWarning.toString(),
+      bdWarning: this.bdWarning.to("sRGB").toString(),
+      bdWarningHover: this.bdWarning.to("sRGB").toString(),
     };
   };
 
@@ -309,8 +310,21 @@ export class LightModeTheme implements ColorModeTheme {
     return "#d1ffe1";
   }
 
+  // Warning background, yellow
   private get bgWarning() {
-    return "#ffbc4b";
+    const color = new Color("oklch", [0.75, 0.15, 85]);
+
+    // Check for clashes with seed, adjust by hue to make it distinct
+    if (this.seedIsYellow && this.seedColor.oklch.c > 0.09) {
+      if (this.seedColor.oklch.h < 85) {
+        color.oklch.h = 95;
+      }
+      if (this.seedColor.oklch.h >= 85) {
+        color.oklch.h = 70;
+      }
+    }
+
+    return color;
   }
 
   private get bgWarningHover() {
@@ -460,23 +474,32 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Warning foreground is produced from the initially adjusted background color (see above).
   private get fgWarning() {
-    return "#facc15";
+    const color = this.bgWarning.clone();
+
+    // Yellow hue interval in OKLCh is less symmetrical than green, compensation is applied to results of bgNegative
+    color.oklch.l = color.oklch.l - 0.1;
+    color.oklch.c = color.oklch.c + 0.1;
+    color.oklch.h = color.oklch.h - 9;
+
+    return color;
   }
 
   // Negative foreground is produced from the initially adjusted background color (see above). Additional tweaks are applied to make sure it's distinct from fgAccent when seed is red.
   private get fgNegative() {
     const color = this.bgNegative.clone();
 
+    // Red hue interval bgNegativein OKLCh is less symmetrical than green, compensation is applied to results of bgNegative
     color.oklch.l = color.oklch.l + 0.1;
     color.oklch.c = color.oklch.c + 0.1;
     color.oklch.h = color.oklch.h - 10;
 
     if (
-      this.seedIsGreen &&
+      this.seedIsRed &&
       !this.seedIsAchromatic &&
       this.fgAccent.oklch.l > 0.5 &&
-      this.fgAccent.oklch.h < 145
+      this.fgAccent.oklch.h < 27
     ) {
       color.oklch.c = color.oklch.c + 0.05;
       color.oklch.h = color.oklch.h - 10;
@@ -702,7 +725,52 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Warning (yellow) border. Produced out of bgNegative. Additional compensations are applied if seed is within yellow range.
   private get bdWarning() {
-    return "#facc15";
+    const color = this.bgWarning.clone();
+
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.09 &&
+      this.bdAccent.oklch.h < 85 &&
+      this.bdAccent.oklch.h >= 60
+    ) {
+      color.oklch.h = color.oklch.h + 10;
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.09 &&
+      this.bdAccent.oklch.h >= 85 &&
+      this.bdAccent.oklch.h < 110
+    ) {
+      color.oklch.h = color.oklch.h - 10;
+      color.oklch.l = color.oklch.l + 0.05;
+    }
+
+    return color;
+  }
+
+  private get bdWarningHover() {
+    const color = this.bdWarning.clone();
+
+    if (this.bdWarning.oklch.l < 0.06) {
+      color.oklch.l = color.oklch.l + 0.6;
+    }
+
+    if (this.bdWarning.oklch.l >= 0.06 && this.bdWarning.oklch.l < 0.25) {
+      color.oklch.l = color.oklch.l + 0.4;
+    }
+
+    if (this.bdWarning.oklch.l >= 0.25 && this.bdWarning.oklch.l < 0.5) {
+      color.oklch.l = color.oklch.l + 0.25;
+    }
+
+    if (this.bdWarning.oklch.l >= 0.5) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    return color;
   }
 }
