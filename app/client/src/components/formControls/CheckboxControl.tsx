@@ -37,6 +37,7 @@ function renderComponent(props: renderComponentProps) {
     <Checkbox
       data-testid={props?.input?.name}
       isDefaultSelected={props?.input?.checked as boolean}
+      isSelected={props?.input?.checked as boolean}
       {...props}
       name={props?.input?.name}
       onChange={onChangeHandler}
