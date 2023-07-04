@@ -153,7 +153,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration) {
+    public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage) {
 
         if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
@@ -201,7 +201,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
         return Mono.just(datasourceStorage)
                 .map(this::sanitizeDatasourceStorage)
-                .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
+                .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
                 .flatMap(unsavedDatasourceStorage -> {
                     return repository.save(unsavedDatasourceStorage)
                             .map(datasourceStorage1 -> {

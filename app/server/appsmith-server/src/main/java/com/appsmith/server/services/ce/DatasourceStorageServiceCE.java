@@ -32,7 +32,7 @@ public interface DatasourceStorageServiceCE {
                                                     String activeEnvironmentId,
                                                     Boolean IsUserRefreshedUpdate);
 
-    Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration);
+    Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage);
     Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage);
 
     Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage);
