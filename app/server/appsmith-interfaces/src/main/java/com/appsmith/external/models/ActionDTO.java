@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -156,6 +155,11 @@ public class ActionDTO implements Identifiable {
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
+    // This field will be used to store analytics data related to this specific domain object. It's been introduced in order to track
+    // success metrics of modules. Learn more on GitHub issue#24734
+    @JsonView(Views.Public.class)
+    AnalyticsInfo eventData;
+
     @JsonView(Views.Internal.class)
     protected Instant createdAt;
 
@@ -188,6 +192,7 @@ public class ActionDTO implements Identifiable {
     }
 
     public void sanitiseToExportDBObject() {
+        this.setEventData(null);
         this.setDefaultResources(null);
         this.setCacheResponse(null);
         if (this.getDatasource() != null) {

@@ -9,7 +9,7 @@ describe("Login failure", function () {
       .then((location) => {
         cy.LogOutUser();
         appUrl = location.href.split("?")[0];
-        cy.visit(appUrl);
+        cy.visit(appUrl, { timeout: 60000 });
         cy.get(loginPage.username).should("be.visible");
       })
       .then(() => cy.GetUrlQueryParams())

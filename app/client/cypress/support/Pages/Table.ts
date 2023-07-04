@@ -26,7 +26,8 @@ type columnTypeValues =
   | "Date"
   | "Button"
   | "Menu button"
-  | "Icon button";
+  | "Icon button"
+  | "Select";
 
 export class Table {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -143,6 +144,7 @@ export class Table {
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
   _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
+  _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
@@ -155,6 +157,7 @@ export class Table {
   _tableColumnHeaderMenuTrigger = (columnName: string) =>
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
+  _selectMenuItem = ".menu-item-text";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -524,19 +527,13 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
     networkCall = "viewPage",
   ) {
-    this.deployMode.StubbingWindow();
     cy.url().then(($currentUrl) => {
-      this.agHelper.GetNClick(
+      this.deployMode.StubWindowNAssert(
         this._tableRowColumnData(row, col, tableVersion),
-        0,
-        false,
-        4000,
-      ); //timeout new url to settle loading
-      cy.get("@windowStub").should("be.calledOnce");
-      cy.url().should("eql", expectedURL);
-      this.assertHelper.AssertDocumentReady();
-      cy.visit($currentUrl);
-      this.assertHelper.AssertNetworkStatus("@" + networkCall);
+        expectedURL,
+        $currentUrl,
+        networkCall,
+      );
       this.WaitUntilTableLoad(0, 0, tableVersion);
     });
   }
@@ -582,12 +579,7 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public EditTableCell(
-    rowIndex: number,
-    colIndex: number,
-    newValue: "" | number | string,
-    toSaveNewValue = true,
-  ) {
+  public ClickOnEditIcon(rowIndex: number, colIndex: number) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
@@ -599,6 +591,15 @@ export class Table {
         " " +
         this._editCellEditorInput,
     );
+  }
+
+  public EditTableCell(
+    rowIndex: number,
+    colIndex: number,
+    newValue: "" | number | string,
+    toSaveNewValue = true,
+  ) {
+    this.ClickOnEditIcon(rowIndex, colIndex);
     this.UpdateTableCell(
       rowIndex,
       colIndex,
