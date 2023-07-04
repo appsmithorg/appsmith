@@ -215,7 +215,6 @@ export function useDatasource(searchText: string) {
     if (mockDatasources.length) {
       mockDatasourceOptions = mockDatasourceOptions.concat(
         mockDatasources
-
           .filter(({ packageName }) => {
             if (!WidgetQueryGeneratorRegistry.has(packageName)) {
               return false;
@@ -401,11 +400,19 @@ export function useDatasource(searchText: string) {
       !isDatasourceLoading &&
       actualDatasourceOptions.length
     ) {
+      const datasource =
+        actualDatasourceOptions[actualDatasourceOptions.length - 1];
+
+      const plugin = plugins.find((d) => d.id === datasource.data.pluginId);
+
       setIsMockDatasourceSelected(false);
-      updateConfig(
-        "datasource",
-        actualDatasourceOptions[actualDatasourceOptions.length - 1].id,
-      );
+
+      updateConfig({
+        datasource: datasource.id,
+        datasourceConnectionMode: datasource.data.connectionMode,
+        datasourcePluginType: plugin?.type,
+        datasourcePluginName: plugin?.name,
+      });
     }
   }, [isMockDatasourceSelected, isDatasourceLoading, datasourceOptions]);
 
