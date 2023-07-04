@@ -91,7 +91,7 @@ class LintService {
     return lintTreeResponse;
   };
 
-  lintFirstTree = (entityTree: EntityTree) => {
+  private lintFirstTree = (entityTree: EntityTree) => {
     const pathsToLint: Array<string> = [];
     const allNodes: Record<string, true> = entityTree.getAllPaths();
     const asyncJSFunctionsInDataFields: Record<string, string[]> = {};
@@ -138,7 +138,7 @@ class LintService {
     };
   };
 
-  lintUpdatedTree(entityTree: EntityTree) {
+  private lintUpdatedTree(entityTree: EntityTree) {
     const asyncJSFunctionsInDataFields: Record<string, string[]> = {};
     const pathsToLint: string[] = [];
     const NOOP = {
