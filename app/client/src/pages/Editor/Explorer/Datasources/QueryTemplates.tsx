@@ -15,12 +15,19 @@ import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
+import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
   datasourceId: string;
   onSelect: () => void;
+  context: DatasourceStructureContext;
 };
+
+enum QueryTemplatesEvent {
+  EXPLORER_TEMPLATE = "explorer-template",
+  QUERY_EDITOR_TEMPLATE = "query-editor-template",
+}
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
@@ -55,7 +62,10 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           },
           eventData: {
             actionType: "Query",
-            from: "explorer-template",
+            from:
+              props?.context === DatasourceStructureContext.EXPLORER
+                ? QueryTemplatesEvent.EXPLORER_TEMPLATE
+                : QueryTemplatesEvent.QUERY_EDITOR_TEMPLATE,
             dataSource: dataSource?.name,
             datasourceId: props.datasourceId,
             pluginName: plugin?.name,

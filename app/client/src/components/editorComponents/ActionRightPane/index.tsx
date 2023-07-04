@@ -31,8 +31,19 @@ import {
 } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
+import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import { selectFeatureFlagCheck, selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getDatasourceStructureById,
+  getPluginDatasourceComponentFromId,
+  getPluginNameFromId,
+} from "selectors/entitiesSelector";
+import { DatasourceComponentTypes } from "api/PluginApi";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+
 
 const SideBar = styled.div`
   height: 100%;
@@ -144,19 +155,24 @@ const Placeholder = styled.div`
   text-align: center;
 `;
 
+const DataStructureListWrapper = styled.div`
+  overflow-y: scroll;
+`;
+
 type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
   label: string;
+  customLabelComponent?: JSX.Element;
 };
 
 export function Collapsible({
   children,
+  customLabelComponent,
   expand = true,
   label,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(!!expand);
-  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
   useEffect(() => {
     setIsOpen(expand);
@@ -164,19 +180,14 @@ export function Collapsible({
 
   return (
     <CollapsibleWrapper isOpen={isOpen}>
-      {!!featureFlags?.ab_ds_binding_enabled ? (
-        <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-          <Icon name="down-arrow" size="md" />
-          <Text className="label" kind="heading-xs">
-            {label}
-          </Text>
-        </Label>
-      ) : (
-        <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-          <Icon name="down-arrow" size="lg" />
-          <span className="label">{label}</span>
-        </Label>
-      )}
+      <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
+        <Icon name="down-arrow" size="lg" />
+        {!!customLabelComponent ? (
+          customLabelComponent
+        ) : (
+          <Text className="label" kind="heading-xs">{label}</Text>
+        )}
+      </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
         {children}
       </Collapse>
@@ -206,9 +217,12 @@ export function useEntityDependencies(actionName: string) {
 
 function ActionSidebar({
   actionName,
+  context,
+  datasourceId,
   entityDependencies,
   hasConnections,
   hasResponse,
+  pluginId,
   suggestedWidgets,
 }: {
   actionName: string;
@@ -219,6 +233,9 @@ function ActionSidebar({
     directDependencies: string[];
     inverseDependencies: string[];
   } | null;
+  datasourceId: string;
+  pluginId: string;
+  context: DatasourceStructureContext;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
@@ -244,6 +261,33 @@ function ActionSidebar({
     );
   };
 
+  const pluginName = useSelector((state) =>
+    getPluginNameFromId(state, pluginId || ""),
+  );
+
+  const pluginDatasourceForm = useSelector((state) =>
+    getPluginDatasourceComponentFromId(state, pluginId || ""),
+  );
+
+  // A/B feature flag for datsource structure.
+  const isEnabledForDSSchema = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
+  );
+
+  const datasourceStructure = useSelector((state) =>
+    getDatasourceStructureById(state, datasourceId),
+  );
+
+  useEffect(() => {
+    if (
+      datasourceId &&
+      datasourceStructure === undefined &&
+      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      dispatch(fetchDatasourceStructure(datasourceId));
+    }
+  }, []);
+
   const hasWidgets = Object.keys(widgets).length > 1;
   const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
@@ -255,7 +299,13 @@ function ActionSidebar({
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
-  if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
+  if (
+    !hasConnections &&
+    !showSuggestedWidgets &&
+    !showSnipingMode &&
+    // putting this here to make the placeholder only appear for rest APIs.
+    pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
+  ) {
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
@@ -270,6 +320,26 @@ function ActionSidebar({
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
 
+      {isEnabledForDSSchema &&
+        pluginDatasourceForm !==
+          DatasourceComponentTypes.RestAPIDatasourceForm && (
+          <Collapsible
+            customLabelComponent={
+              <DatasourceStructureHeader datasourceId={datasourceId || ""} />
+            }
+            label="Schema"
+          >
+            <DataStructureListWrapper>
+              <DataStructureList
+                context={context}
+                datasourceId={datasourceId || ""}
+                datasourceStructure={datasourceStructure}
+                pluginName={pluginName}
+                step={0}
+              />
+            </DataStructureListWrapper>
+          </Collapsible>
+        )}
       {hasConnections && !featureFlags?.ab_ds_binding_enabled && (
         <Connections
           actionName={actionName}

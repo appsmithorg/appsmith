@@ -8,6 +8,7 @@ import {
   getDatasource,
   getPlugin,
   getDatasourceFormButtonConfig,
+  getIsFetchingDatasourceStructure,
 } from "selectors/entitiesSelector";
 import {
   switchDatasource,
@@ -20,6 +21,7 @@ import {
   resetDefaultKeyValPairFlag,
   initializeDatasourceFormDefaults,
   datasourceDiscardAction,
+  fetchDatasourceStructure,
 } from "actions/datasourceActions";
 import {
   DATASOURCE_DB_FORM,
@@ -27,12 +29,11 @@ import {
 } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
-
 import {
   getCurrentApplicationId,
   getPagePermissions,
@@ -80,13 +81,13 @@ import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransf
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
-
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
   canManageDatasource: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   datasourceId: string;
+  datasourceStructure?: DatasourceStructure;
   formData: Datasource | ApiDatasourceForm;
   formName: string;
   isSaving: boolean;
@@ -115,6 +116,7 @@ interface ReduxStateProps {
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
+  isDatasourceStructureLoading: boolean;
 }
 
 const Form = styled.div`
@@ -180,6 +182,7 @@ export interface DatasourcePaneFunctions {
   resetDefaultKeyValPairFlag: () => void;
   initializeFormWithDefaults: (pluginType: string) => void;
   datasourceDiscardAction: (pluginId: string) => void;
+  fetchDatasourceStructure: (id: string) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -309,6 +312,17 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         }
         toast.show(responseMessage || createMessage(message));
       }
+    }
+
+    // if the datasourceStructure is undefined (meaning it has not been fetched)
+    // then we fetch it.
+    if (
+      this.props.datasourceId &&
+      this.props.datasourceStructure === undefined &&
+      this.props.pluginDatasourceForm !==
+        DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      this.props.fetchDatasourceStructure(this.props.datasourceId);
     }
   }
 
@@ -484,50 +498,48 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     } = this.props;
 
     const shouldViewMode = viewMode && !isInsideReconnectModal;
-    // Check for specific form types first
-    if (
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
-      !shouldViewMode
-    ) {
-      return (
-        <>
-          <RestAPIDatasourceForm
-            applicationId={this.props.applicationId}
-            datasource={datasource}
-            datasourceId={datasourceId}
-            formData={formData}
-            formName={formName}
-            hiddenHeader={isInsideReconnectModal}
-            isFormDirty={isFormDirty}
-            isSaving={isSaving}
-            location={location}
-            pageId={pageId}
-            pluginName={pluginName}
-            pluginPackageName={pluginPackageName}
-            showFilterComponent={showFilterComponent}
-          />
-          {this.renderSaveDisacardModal()}
-        </>
-      );
-    }
 
-    // Default to DB Editor Form
     return (
       <>
-        <DataSourceEditorForm
-          applicationId={this.props.applicationId}
-          datasourceId={datasourceId}
-          formConfig={formConfig}
-          formData={formData}
-          formName={DATASOURCE_DB_FORM}
-          hiddenHeader={isInsideReconnectModal}
-          isSaving={isSaving}
-          pageId={pageId}
-          pluginType={pluginType}
-          setupConfig={this.setupConfig}
-          showFilterComponent={showFilterComponent}
-          viewMode={viewMode && !isInsideReconnectModal}
-        />
+        {
+          // Check for specific form types first
+          pluginDatasourceForm ===
+            DatasourceComponentTypes.RestAPIDatasourceForm &&
+          !shouldViewMode ? (
+            <RestAPIDatasourceForm
+              applicationId={this.props.applicationId}
+              datasource={datasource}
+              datasourceId={datasourceId}
+              formData={formData}
+              formName={formName}
+              hiddenHeader={isInsideReconnectModal}
+              isFormDirty={isFormDirty}
+              isSaving={isSaving}
+              location={location}
+              pageId={pageId}
+              pluginName={pluginName}
+              pluginPackageName={pluginPackageName}
+              showFilterComponent={showFilterComponent}
+              viewMode={shouldViewMode}
+            />
+          ) : (
+            // Default to DB Editor Form
+            <DataSourceEditorForm
+              applicationId={this.props.applicationId}
+              datasourceId={datasourceId}
+              formConfig={formConfig}
+              formData={formData}
+              formName={DATASOURCE_DB_FORM}
+              hiddenHeader={isInsideReconnectModal}
+              isSaving={isSaving}
+              pageId={pageId}
+              pluginType={pluginType}
+              setupConfig={this.setupConfig}
+              showFilterComponent={showFilterComponent}
+              viewMode={shouldViewMode}
+            />
+          )
+        }
         {this.renderSaveDisacardModal()}
       </>
     );
@@ -755,12 +767,20 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
+  const datasourceStructure =
+    state.entities.datasources.structure[datasourceId];
+  const isDatasourceStructureLoading = getIsFetchingDatasourceStructure(
+    state,
+    datasourceId,
+  );
+
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
     canManageDatasource,
     datasourceButtonConfiguration,
     datasourceId,
+    datasourceStructure,
     pluginImage: getPluginImages(state)[pluginId],
     formData,
     formName,
@@ -772,6 +792,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
+    isDatasourceStructureLoading,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode,
     pluginType: plugin?.type ?? "",
@@ -814,6 +835,9 @@ const mapDispatchToProps = (
     dispatch(initializeDatasourceFormDefaults(pluginType)),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
+  fetchDatasourceStructure: (id: string) => {
+    dispatch(fetchDatasourceStructure(id, true));
+  },
 });
 
 export default connect(

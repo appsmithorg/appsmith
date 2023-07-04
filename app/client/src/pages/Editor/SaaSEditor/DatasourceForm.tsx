@@ -435,6 +435,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 e.preventDefault();
               }}
               showFilterComponent={false}
+              viewMode={viewMode}
             >
               {(!viewMode || createFlow || isInsideReconnectModal) && (
                 <>

@@ -126,6 +126,7 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -354,6 +355,7 @@ type QueryFormProps = {
     id,
     value,
   }: UpdateActionPropertyActionPayload) => void;
+  datasourceId: string;
 };
 
 type ReduxProps = {
@@ -1070,14 +1072,16 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
-          <SidebarWrapper
-            show={(hasDependencies || !!output) && !guidedTourEnabled}
-          >
+          {/* making this true because we always want to show the side pane, if this behaviour changes, we can return the old checks */}
+          <SidebarWrapper show={true && !guidedTourEnabled}>
             <ActionRightPane
               actionName={actionName}
+              context={DatasourceStructureContext.QUERY_EDITOR}
+              datasourceId={props.datasourceId}
               entityDependencies={entityDependencies}
               hasConnections={hasDependencies}
               hasResponse={!!output}
+              pluginId={props.pluginId}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
           </SidebarWrapper>
