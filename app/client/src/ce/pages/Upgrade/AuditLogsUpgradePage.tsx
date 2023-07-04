@@ -16,7 +16,6 @@ import {
   SECURITY_AND_COMPLIANCE,
   SECURITY_AND_COMPLIANCE_DETAIL1,
   SECURITY_AND_COMPLIANCE_DETAIL2,
-  UPGRADE_TO_EE_FEATURE,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
@@ -24,7 +23,6 @@ export function AuditLogsUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "AUDIT_LOGS_UPGRADE_ADMIN_SETTINGS",
     logEventData: { source: "AuditLogs" },
-    intercomMessage: createMessage(UPGRADE_TO_EE_FEATURE, "Audit Logs"),
   });
 
   const header: Header = {

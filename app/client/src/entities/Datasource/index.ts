@@ -98,6 +98,7 @@ export const isEmbeddedRestDatasource = (
 };
 
 export interface EmbeddedRestDatasource extends BaseDatasource {
+  id?: string;
   datasourceConfiguration: { url: string };
   invalids: Array<string>;
   messages: Array<string>;
@@ -115,6 +116,7 @@ export interface DatasourceConfiguration {
 
 export interface Datasource extends BaseDatasource {
   id: string;
+  // key in the map representation of environment id of type string
   datasourceStorages: Record<string, DatasourceStorage>;
   success?: boolean;
   isMock?: boolean;

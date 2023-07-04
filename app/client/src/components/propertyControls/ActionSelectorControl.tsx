@@ -113,7 +113,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const plugins = getPlugins(state);
     const pluginGroups: any = keyBy(plugins, "id");
 
-    // this function gets all the Queries/API's/JS objects and attaches it to actionList
+    // this function gets all the Queries/API's/JS Objects and attaches it to actionList
     const fieldOptions = getApiQueriesAndJSActionOptionsWithChildren(
       pageId,
       pluginGroups,

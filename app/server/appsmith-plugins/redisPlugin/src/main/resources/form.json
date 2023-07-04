@@ -9,22 +9,24 @@
           "children": [
             {
               "label": "Host address",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
+              "validationRegex": "^((?![/:]).)*$",
+              "placeholderText": "myapp.abcde.redis.net"
             },
             {
               "label": "Port",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "placeholderText": "6379"
             }
           ]
         },
         {
           "label": "Database number",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "dataType": "NUMBER",
           "placeholderText": "0"
@@ -40,13 +42,13 @@
           "children": [
             {
               "label": "Username",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+              "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Username"
             },
             {
               "label": "Password",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+              "configProperty": "datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",

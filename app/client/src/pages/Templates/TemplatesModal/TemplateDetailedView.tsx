@@ -151,7 +151,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
             <iframe src={previewUrl} />
           </IframeWrapper>
           <TemplateDescriptionWrapper>
-            <TemplateDescription hideForkButton template={currentTemplate} />
+            <TemplateDescription template={currentTemplate} />
           </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
             breakpointCols={breakpointColumns}

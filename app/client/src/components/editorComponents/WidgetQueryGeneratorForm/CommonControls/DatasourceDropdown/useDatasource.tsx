@@ -24,10 +24,9 @@ import {
 import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
-import { Binding, DatasourceImage, ImageWrapper } from "../../styles";
+import { DatasourceImage, ImageWrapper, Placeholder } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptionType } from "../../types";
-import { getCurrentEnvironment } from "@appsmith/sagas/EnvironmentSagas";
 import { invert } from "lodash";
 import { DropdownOption } from "./DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
@@ -36,13 +35,68 @@ import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { isEnvironmentValid } from "@appsmith/utils/Environments";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { getDatatype } from "utils/AppsmithUtils";
 
-export function useDatasource() {
+enum SortingWeights {
+  alphabetical = 1,
+  execution,
+  datatype,
+}
+
+const SORT_INCREAMENT = 1;
+
+function sortQueries(queries: ActionDataState, expectedDatatype: string) {
+  return queries.sort((A, B) => {
+    const score = {
+      A: 0,
+      B: 0,
+    };
+
+    if (A.config.name < B.config.name) {
+      score.A += SORT_INCREAMENT << SortingWeights.alphabetical;
+    } else {
+      score.B += SORT_INCREAMENT << SortingWeights.alphabetical;
+    }
+
+    if (A.data?.request?.requestedAt && B.data?.request?.requestedAt) {
+      if (A.data.request.requestedAt > B.data.request.requestedAt) {
+        score.A += SORT_INCREAMENT << SortingWeights.execution;
+      } else {
+        score.B += SORT_INCREAMENT << SortingWeights.execution;
+      }
+    } else if (A.data?.request?.requestedAt) {
+      score.A += SORT_INCREAMENT << SortingWeights.execution;
+    } else if (B.data?.request?.requestedAt) {
+      score.B += SORT_INCREAMENT << SortingWeights.execution;
+    }
+
+    if (getDatatype(A.data?.body) === expectedDatatype) {
+      score.A += SORT_INCREAMENT << SortingWeights.datatype;
+    }
+
+    if (getDatatype(B.data?.body) === expectedDatatype) {
+      score.B += SORT_INCREAMENT << SortingWeights.datatype;
+    }
+
+    return score.A > score.B ? -1 : 1;
+  });
+}
+
+function filterOption(option: DropdownOptionType, searchText: string) {
+  return (
+    option.label &&
+    option.label.toLowerCase().includes(searchText.toLowerCase())
+  );
+}
+
+export function useDatasource(searchText: string) {
   const {
     addBinding,
-    addSnippet,
     config,
     errorMsg,
+    expectedType,
     isSourceOpen,
     onSourceClose,
     propertyName,
@@ -61,7 +115,6 @@ export function useDatasource() {
   const pluginImages = useSelector(getPluginImages);
 
   const datasources: Datasource[] = useSelector(getDatasources);
-  const currentEnvironment = getCurrentEnvironment();
 
   const isDatasourceLoading = useSelector(getDatasourceLoading);
 
@@ -88,7 +141,7 @@ export function useDatasource() {
           value: datasource.name,
           data: {
             pluginId: datasource.pluginId,
-            isValid: datasource.datasourceStorages[currentEnvironment].isValid,
+            isValid: isEnvironmentValid(datasource),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
           },
@@ -152,6 +205,7 @@ export function useDatasource() {
     if (mockDatasources.length) {
       mockDatasourceOptions = mockDatasourceOptions.concat(
         mockDatasources
+
           .filter(({ packageName }) => {
             if (!WidgetQueryGeneratorRegistry.has(packageName)) {
               return false;
@@ -282,29 +336,13 @@ export function useDatasource() {
           });
         },
       },
-      {
-        id: "Insert binding",
-        label: "Insert binding",
-        value: "Insert binding",
-        icon: <Binding>{"{ }"}</Binding>,
-        onSelect: () => {
-          addBinding("{{}}", true);
-
-          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
-            widgetName: widget.widgetName,
-            widgetType: widget.type,
-            propertyName: propertyName,
-            selectedAction: "Binding",
-          });
-        },
-      },
     ];
-  }, [currentPageId, history, addBinding, addSnippet, propertyName]);
+  }, [currentPageId, history, propertyName]);
 
   const queries = useSelector(getActionsForCurrentPage);
 
   const queryOptions = useMemo(() => {
-    return queries.map((query) => ({
+    return sortQueries(queries, expectedType).map((query) => ({
       id: query.config.id,
       label: query.config.name,
       value: `{{${query.config.name}.data}}`,
@@ -372,8 +410,15 @@ export function useDatasource() {
     }
   }, [isSourceOpen]);
 
+  const [filteredDatasourceOptions, filteredQueryOptions] = useMemo(() => {
+    return [
+      datasourceOptions.filter((d) => filterOption(d, searchText)),
+      queryOptions.filter((d) => filterOption(d, searchText)),
+    ];
+  }, [searchText, datasourceOptions, otherOptions, queryOptions]);
+
   return {
-    datasourceOptions,
+    datasourceOptions: filteredDatasourceOptions,
     otherOptions,
     selected: (() => {
       let source;
@@ -387,18 +432,17 @@ export function useDatasource() {
       }
 
       if (source) {
-        return {
-          key: source.id,
-          label: (
-            <DropdownOption
-              label={source?.label?.replace("sample ", "")}
-              leftIcon={source?.icon}
-            />
-          ),
-        };
+        return (
+          <DropdownOption
+            label={source?.label?.replace("sample ", "")}
+            leftIcon={source?.icon}
+          />
+        );
+      } else {
+        return <Placeholder>Connect data</Placeholder>;
       }
     })(),
-    queryOptions,
+    queryOptions: filteredQueryOptions,
     isSourceOpen,
     onSourceClose,
     error: config.datasource ? "" : errorMsg,

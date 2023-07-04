@@ -71,7 +71,7 @@ describe("List v2 - Data Identifier property", () => {
     cy.wait(250);
 
     // check if all the keys are present
-    cy.get(".rc-select-item-option-content > span")
+    cy.get(".rc-select-item-option-content > div > span")
       .should("have.length", 3)
       .then(($el) => {
         // we get a list of jQuery elements

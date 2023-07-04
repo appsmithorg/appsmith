@@ -133,6 +133,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {!_.isNil(formConfig) && !_.isNil(datasource) ? (
               <DatasourceInformation
                 config={formConfig[0]}
+                currentEnvironment={this.props.currentEnvironment}
                 datasource={datasource}
                 viewMode={viewMode}
               />
@@ -149,7 +150,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
-  //Chandan
   const hintMessages = datasource && datasource.messages;
 
   return {

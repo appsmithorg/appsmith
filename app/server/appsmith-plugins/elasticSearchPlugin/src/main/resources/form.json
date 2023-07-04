@@ -8,16 +8,18 @@
           "children": [
             {
               "label": "Host URL",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid URL, for example, https://example.com",
-              "validationRegex": "^(http|https)://"
+              "validationRegex": "^(http|https)://",
+              "placeholderText": "myapp.abcde.elasticsearch.net"
             },
             {
               "label": "Port",
-              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "placeholderText": "9200"
             }
           ]
         }
@@ -28,13 +30,13 @@
       "children": [
         {
           "label": "Username for Basic Auth",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
+          "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Username"
         },
         {
           "label": "Password for Basic Auth",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
+          "configProperty": "datasourceConfiguration.authentication.password",
           "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Password",
@@ -42,7 +44,7 @@
         },
         {
           "label": "Authorization Header (if username, password are not set)",
-          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.headers[0]",
+          "configProperty": "datasourceConfiguration.headers[0]",
           "controlType": "FIXED_KEY_INPUT",
           "fixedKey": "Authorization",
           "placeholderText": "Authorization Header"

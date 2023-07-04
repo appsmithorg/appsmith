@@ -1,6 +1,6 @@
 import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
 import React from "react";
-import type { ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   constructor(props: OneClickBindingControlProps) {
@@ -15,9 +15,14 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
    * Commenting out as we're not able to switch between the js modes without value being overwritten
    * with default value by platform
    */
-  // static canDisplayValueInUI(config: ControlData, value: string): boolean {
-  //   return /^{{[^.]*\.data}}$/gi.test(value);
-  // }
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    // {{query1.data}}
+    return /^{{[^.]*\.data}}$/gi.test(value);
+  }
+
+  static shouldValidateValueOnDynamicPropertyOff() {
+    return false;
+  }
 
   public onUpdatePropertyValue = (
     value = "",
@@ -37,7 +42,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         this.props.propertyName
       ];
 
-    if (errorObj && errorObj.length && errorObj[0].errorMessage) {
+    if (errorObj?.[0]?.errorMessage) {
       return errorObj[0].errorMessage.message;
     } else {
       return "";
@@ -47,9 +52,8 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   public render() {
     return (
       <WidgetQueryGeneratorForm
-        entityId={this.props.widgetProperties.widgetId}
         errorMsg={this.getErrorMessage()}
-        expectedType={this.props.expected?.autocompleteDataType}
+        expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}

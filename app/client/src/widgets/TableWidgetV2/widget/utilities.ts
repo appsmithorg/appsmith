@@ -1,6 +1,5 @@
 import { Colors } from "constants/Colors";
-import type { RenderMode } from "constants/WidgetConstants";
-import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import type {
@@ -49,9 +48,13 @@ export const getOriginalRowIndex = (
   tableData: TableData,
   selectedRowIndex: number | undefined,
   primaryColumnId: string,
-) => {
+): number => {
   let primaryKey = "";
   let index = -1;
+
+  if (prevTableData && prevTableData.length == 0) {
+    return selectedRowIndex ?? index;
+  }
 
   if (
     !_.isNil(selectedRowIndex) &&
@@ -866,32 +869,6 @@ export const deleteLocalTableColumnOrderByWidgetId = (widgetId: string) => {
     }
   } catch (e) {
     log.debug("Error in reading local data", e);
-  }
-};
-
-export const fetchSticky = (
-  columnId: string,
-  primaryColumns: Record<string, ColumnProperties>,
-  renderMode: RenderMode,
-  widgetId?: string,
-): StickyType | undefined => {
-  if (renderMode === RenderModes.PAGE && widgetId) {
-    const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(widgetId);
-    if (localTableColumnOrder) {
-      const { leftOrder, rightOrder } = localTableColumnOrder;
-      if (leftOrder.indexOf(columnId) > -1) {
-        return StickyType.LEFT;
-      } else if (rightOrder.indexOf(columnId) > -1) {
-        return StickyType.RIGHT;
-      } else {
-        return StickyType.NONE;
-      }
-    } else {
-      return get(primaryColumns, `${columnId}`).sticky;
-    }
-  }
-  if (renderMode === RenderModes.CANVAS) {
-    return get(primaryColumns, `${columnId}`).sticky;
   }
 };
 

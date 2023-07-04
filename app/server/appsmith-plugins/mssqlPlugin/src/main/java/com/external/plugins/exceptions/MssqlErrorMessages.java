@@ -1,10 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class MssqlErrorMessages {
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-    private MssqlErrorMessages() {
-        //Prevents instantiation
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class MssqlErrorMessages extends BasePluginErrorMessages {
     public static final String MISSING_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your query failed to execute. Please check more information in the error details.";

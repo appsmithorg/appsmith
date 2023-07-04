@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { get, isEqual, memoize, set } from "lodash";
+import { get, isEqual, memoize } from "lodash";
 import {
   getPluginImages,
   getDatasource,
@@ -80,6 +80,7 @@ import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransf
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
+import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -192,7 +193,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       requiredFields: {},
       configDetails: {},
       filterParams: {
-        id: "",
+        id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
         showFilterPane: false,
@@ -249,12 +250,24 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
-        ...this.state,
         requiredFields: {},
         configDetails: {},
       });
     }
   }
+
+  getEnvironmentId = () => {
+    if (
+      this.props.isInsideReconnectModal &&
+      this.state.filterParams.id.length === 0 &&
+      !!this.props.datasource
+    ) {
+      return Object.keys(
+        (this.props.datasource as Datasource).datasourceStorages,
+      )[0];
+    }
+    return this.state.filterParams.id;
+  };
 
   componentDidMount() {
     const urlObject = new URL(window.location.href);
@@ -343,7 +356,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
     this.setState({
-      ...this.state,
       configDetails,
       requiredFields,
     });
@@ -440,7 +452,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     showFilterPane: boolean,
   ) => {
     this.setState({
-      ...this.state,
       filterParams: {
         id,
         name,
@@ -516,6 +527,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditorForm
           applicationId={this.props.applicationId}
+          currentEnvironment={this.getEnvironmentId()}
           datasourceId={datasourceId}
           formConfig={formConfig}
           formData={formData}
@@ -613,19 +625,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       );
       return null;
     }
-    //When using saved datasource we should update active env to unused env
-    //This is because use active_env for editing datasource.
-    const defaultDataStorage = get(datasource, "datasourceStorages.unused_env");
-    if (
-      !isNewDatasource &&
-      this.props.pluginDatasourceForm === DatasourceComponentTypes.AutoForm &&
-      defaultDataStorage
-    )
-      set(
-        datasource as Datasource,
-        "datasourceStorages.active_env",
-        defaultDataStorage,
-      );
+
     return (
       <Form
         className="t--json-to-form-wrapper"
@@ -664,6 +664,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
                   <DatasourceAuth
+                    currentEnvironment={this.getEnvironmentId()}
                     datasource={datasource as Datasource}
                     datasourceButtonConfiguration={
                       datasourceButtonConfiguration
@@ -757,7 +758,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
 
-  //Chandan
   const isPluginAuthorized = isGoogleSheetPluginDS(pluginPackageName)
     ? plugin &&
       isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)

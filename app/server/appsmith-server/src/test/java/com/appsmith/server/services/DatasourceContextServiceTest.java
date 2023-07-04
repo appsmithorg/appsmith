@@ -10,7 +10,6 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
@@ -24,6 +23,7 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -33,12 +33,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.HashMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -89,6 +91,26 @@ public class DatasourceContextServiceTest {
     @SpyBean
     DatasourceContextServiceImpl datasourceContextService;
 
+    String defaultEnvironmentId;
+
+    String workspaceId;
+
+
+    @BeforeEach
+    @WithUserDetails(value = "api_user")
+    public void setup() {
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("DatasourceServiceTest");
+
+        if (!StringUtils.hasLength(workspaceId)) {
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        }
+    }
+
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
@@ -102,10 +124,10 @@ public class DatasourceContextServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(spyMockPluginExecutor));
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("id1");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
-        datasourceStorage.setWorkspaceId("workspaceId");
+        datasourceStorage.setWorkspaceId(workspaceId);
 
         DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), null);
 
@@ -119,7 +141,7 @@ public class DatasourceContextServiceTest {
         datasource.setWorkspaceId("workspaceId1");
         datasource.setPluginId("mockPluginId");
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
@@ -280,11 +302,11 @@ public class DatasourceContextServiceTest {
         doReturn(Mono.just("connection_1")).doReturn(Mono.just("connection_2")).when(spyMockPluginExecutor).datasourceCreate(any());
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("id2");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), "envId");
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), defaultEnvironmentId);
 
         Object monitor = new Object();
         DatasourceContext<?> dsContext1 = (DatasourceContext<?>) datasourceContextService
@@ -402,11 +424,12 @@ public class DatasourceContextServiceTest {
         doReturn(Mono.error(new RuntimeException("error"))).when(spyMockPluginExecutor).datasourceCreate(any());
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("error_datasource_1");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), defaultEnvironmentId);
 
         Object monitor = new Object();
 
@@ -440,11 +463,12 @@ public class DatasourceContextServiceTest {
                 .when(spyMockPluginExecutor).datasourceCreate(any());
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("error_datasource_2");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), "envId");
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), defaultEnvironmentId);
 
         Object monitor = new Object();
 
@@ -466,27 +490,18 @@ public class DatasourceContextServiceTest {
 
 
     @Test
-    public void verifyDsMapKeyEquality() {
-        String dsId = new ObjectId().toHexString();
-        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, null);
-        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(dsId, null);
-        assertEquals(keyObj, keyObj1);
+    @WithUserDetails(value = "api_user")
+    public void verifyInitialiseDatasourceContextReturningRightIdentifier() {
+        String sampleDatasourceId = new ObjectId().toHexString();
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setDatasourceId(sampleDatasourceId);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
+
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                datasourceContextService.initializeDatasourceContextIdentifier(datasourceStorage);
+
+        assertThat(datasourceContextIdentifier.getDatasourceId()).isEqualTo(sampleDatasourceId);
+        assertThat(datasourceContextIdentifier.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
     }
 
-    @Test
-    public void verifyDsMapKeyNotEqual() {
-        String dsId = new ObjectId().toHexString();
-        String dsId1 = new ObjectId().toHexString();
-        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, null);
-        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(dsId1, null);
-        assertNotEquals(keyObj, keyObj1);
-    }
-
-    @Test
-    public void verifyDsMapKeyNotEqualWhenBothDatasourceIdNull() {
-        String envId = new ObjectId().toHexString();
-        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(null, envId);
-        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(null, envId);
-        assertNotEquals(keyObj, keyObj1);
-    }
 }

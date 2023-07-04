@@ -1,11 +1,14 @@
 /// <reference types="Cypress" />
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import homePage from "../../../../locators/HomePage";
+import homePageLocators from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const HomePage = ObjectsRegistry.HomePage;
-const agHelper = ObjectsRegistry.AggregateHelper;
+
+import {
+  agHelper,
+  deployMode,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Create new workspace and share with a user", function () {
   let workspaceId;
@@ -14,17 +17,16 @@ describe("Create new workspace and share with a user", function () {
   let newWorkspaceName;
 
   it("1. Create workspace and then share with a user from Application share option within application", function () {
-    HomePage.NavigateToHome();
+    homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceId = "shareApp" + uid;
       appid = "Share" + uid;
-      HomePage.CreateNewWorkspace(workspaceId);
-      HomePage.CreateAppInWorkspace(workspaceId, appid);
+      homePage.CreateNewWorkspace(workspaceId);
+      homePage.CreateAppInWorkspace(workspaceId, appid);
 
-      cy.get("h2").contains("Drag and drop a widget here");
-      cy.get(homePage.shareApp).click({ force: true });
-      HomePage.InviteUserToApplication(
+      agHelper.GetNClick(homePageLocators.shareApp, 0, true);
+      homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
@@ -33,43 +35,49 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("2. login as Invited user and then validate viewer privilage", function () {
-    cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.get(homePage.searchInput).type(appid, { force: true });
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME1"),
+      Cypress.env("TESTPASSWORD1"),
+      "App Viewer",
+    );
+
+    cy.get(homePageLocators.searchInput).type(appid, { force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.appsContainer).contains(workspaceId);
+    cy.get(homePageLocators.appsContainer).contains(workspaceId);
     if (CURRENT_REPO === REPO.CE) {
-      cy.xpath(homePage.ShareBtn).first().should("be.visible");
+      cy.xpath(homePageLocators.ShareBtn).first().should("be.visible");
     }
-    cy.get(homePage.applicationCard).trigger("mouseover");
-    cy.get(homePage.appEditIcon).should("not.exist");
+    cy.get(homePageLocators.applicationCard).trigger("mouseover");
+    cy.get(homePageLocators.appEditIcon).should("not.exist");
     cy.launchApp(appid);
+    cy.wait(2000); //for CI
     cy.LogOut();
+    cy.wait(2000); //for CI
   });
 
   it("3. Enable public access to Application", function () {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("h2").contains("Drag and drop a widget here");
-    cy.get(homePage.shareApp).click();
+    agHelper.GetNClick(homePageLocators.shareApp, 0, true);
     cy.enablePublicAccess(true);
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     currentUrl = cy.url();
     cy.url().then((url) => {
       currentUrl = url;
       cy.log(currentUrl);
     });
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
     cy.LogOut();
   });
 
   it("4. Open the app without login and validate public access of Application", function () {
-    cy.visit(currentUrl);
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -87,8 +95,11 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("5. login as uninvited user and then validate public access of Application", function () {
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
-    cy.visit(currentUrl);
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME2"),
+      Cypress.env("TESTPASSWORD2"),
+    );
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -104,22 +115,24 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("6. login as Owner and disable public access", function () {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("h2").contains("Drag and drop a widget here");
-    cy.get(homePage.shareApp).click();
+    agHelper.GetNClick(homePageLocators.shareApp, 0, true);
     cy.enablePublicAccess(true);
     cy.LogOut();
   });
 
   it("7. login as uninvited user, validate public access disable feature ", function () {
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
-    cy.visit(currentUrl);
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME2"),
+      Cypress.env("TESTPASSWORD2"),
+    );
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -128,7 +141,7 @@ describe("Create new workspace and share with a user", function () {
     cy.LogOut();
 
     // visit the app as anonymous user and validate redirection to login page
-    cy.visit(currentUrl);
+    cy.visit(currentUrl, { timeout: 60000 });
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",

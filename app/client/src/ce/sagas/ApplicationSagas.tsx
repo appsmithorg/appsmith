@@ -102,7 +102,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
-import { identity, merge, pickBy } from "lodash";
+import { identity, isEmpty, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -122,6 +122,7 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -851,11 +852,19 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  if (datasource.datasourceStorages.unused_env) {
-    datasource.datasourceStorages.active_env =
-      datasource.datasourceStorages.unused_env;
+  let currentEnvironment = getCurrentEnvironment();
+  if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
+    // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
+    currentEnvironment = Object.keys(datasource.datasourceStorages)[0];
   }
-  if (!datasource.datasourceStorages.active_env?.datasourceConfiguration) {
+  // Added isEmpty instead of ! condition as ! does not account for
+  // datasourceConfiguration being empty
+  if (
+    isEmpty(
+      datasource.datasourceStorages[currentEnvironment]
+        ?.datasourceConfiguration,
+    )
+  ) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
@@ -865,12 +874,13 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       getConfigInitialValues,
       formConfig,
     );
-    const payload = merge(initialValues, datasource);
-    //Chandan
-    payload.datasourceStorages.active_env.isConfigured = false; // imported datasource as not configured yet
-    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
+    const payload = merge(
+      initialValues,
+      datasource.datasourceStorages[currentEnvironment],
+    );
+    payload.isConfigured = false; // imported datasource as not configured yet
+    const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
       payload,
-      datasource.id,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

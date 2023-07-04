@@ -29,7 +29,7 @@ import { snapShotFlow } from "./useSnapShotForm";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
-//returns props for Auto to Fixed Layout conversion flows based on which the Conversion Form can be rendered
+//returns props for Auto to fixed layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
   dispatch: Dispatch<any>,
 ): {

@@ -25,10 +25,10 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +40,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -77,7 +78,7 @@ public class DatasourceServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
-    @Autowired
+    @SpyBean
     DatasourceStorageService datasourceStorageService;
 
     @Autowired
@@ -88,9 +89,6 @@ public class DatasourceServiceTest {
 
     @Autowired
     WorkspaceRepository workspaceRepository;
-
-    @Autowired
-    PolicyUtils policyUtils;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -248,10 +246,16 @@ public class DatasourceServiceTest {
         storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
+        Mono<Datasource> datasourceMono = pluginMono.flatMap(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasourceService.create(datasource);
+        });
+
         StepVerifier
-                .create(datasourceService.create(datasource))
+                .create(datasourceMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE)))
                 .verify();
     }
 
@@ -416,13 +420,10 @@ public class DatasourceServiceTest {
         sslDetails.setCertificateFile(new UploadedFile("ssl_cert_file_id", ""));
         connection.setSsl(sslDetails);
         datasourceConfiguration.setConnection(connection);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
-        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
-        datasource.setDatasourceStorages(storages);
 
-        datasource.setWorkspaceId(workspaceId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -440,8 +441,7 @@ public class DatasourceServiceTest {
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
 
-                    DatasourceStorageDTO datasourceStorageDTO =
-                            new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
+                    DatasourceStorageDTO datasourceStorageDTO = new DatasourceStorageDTO(datasource1.getId(), defaultEnvironmentId, datasourceConfiguration1);
                     return datasourceService
                             .updateDatasourceStorage(datasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
                 });
@@ -1687,5 +1687,164 @@ public class DatasourceServiceTest {
         datasource.setDatasourceStorages(storages);
         Datasource createdDatasource = datasourceService.create(datasource).block();
         return createdDatasource;
+    }
+
+    private Datasource createDatasourceObject(String name, String workspaceId, String pluginName) {
+        Datasource datasource = new Datasource();
+        datasource.setName(name);
+        datasource.setWorkspaceId(workspaceId);
+
+        Plugin plugin = pluginService.findByPackageName(pluginName).block();
+        datasource.setPluginName(pluginName);
+        datasource.setPluginId(plugin.getId());
+
+        return datasource;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getErrorOnCreatingEmptyDatasource() {
+        Datasource datasource = createDatasourceObject("testDs", workspaceId, "postgres-plugin");
+        Mono<Datasource> datasourceMono = datasourceService.create(datasource);
+
+        StepVerifier.create(datasourceMono)
+                .verifyErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
+                });
+    }
+
+    public DatasourceStorageDTO generateSampleDatasourceStorageDTO() {
+        DatasourceConfiguration datasourceConfiguration =  new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint("https://sample.endpoint", 5432L);
+        DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("password");
+        dbAuth.setUsername("username");
+        dbAuth.setDatabaseName("databaseName");
+
+        datasourceConfiguration.setEndpoints(List.of(endpoint));
+        datasourceConfiguration.setAuthentication(dbAuth);
+        return new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyOnlyOneStorageIsSaved() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = createDatasourceObject("testDs", workspaceId, "postgres-plugin");
+        datasource.getDatasourceStorages().put("randomName", generateSampleDatasourceStorageDTO());
+        datasource.getDatasourceStorages().put("randomName2", generateSampleDatasourceStorageDTO());
+
+        Mono<Datasource> datasourceMono = datasourceService.create(datasource);
+
+        StepVerifier.create(datasourceMono)
+                .assertNext(dbDatasource -> {
+                    assertThat(dbDatasource.getDatasourceStorages().size()).isEqualTo(1);
+                    assertThat(dbDatasource.getDatasourceStorages().get(defaultEnvironmentId)).isNotNull();
+                    DatasourceStorageDTO datasourceStorageDTO = dbDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    assertThat(datasourceStorageDTO.getDatasourceId()).isEqualTo(dbDatasource.getId());
+                    assertThat(datasourceStorageDTO.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyUpdateNameReturnsNullStorages() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = createDatasourceObject("testDs", workspaceId, "postgres-plugin");
+        datasource.getDatasourceStorages().put(defaultEnvironmentId, generateSampleDatasourceStorageDTO());
+        Datasource createdDatasource = datasourceService.create(datasource).block();
+
+        createdDatasource.setName("renamedDs");
+        Mono<Datasource> datasourceMono  = datasourceService.updateDatasource(createdDatasource.getId(), createdDatasource, defaultEnvironmentId, Boolean.FALSE);
+
+        StepVerifier.create(datasourceMono)
+                .assertNext(dbDatasource -> {
+                    assertThat(dbDatasource.getDatasourceStorages()).isNull();
+                    assertThat(dbDatasource.getName()).isEqualTo("renamedDs");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyUpdateDatasourceStorageWithoutDatasourceId() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = createDatasourceObject("testDs", workspaceId, "postgres-plugin");
+        datasource.getDatasourceStorages().put(defaultEnvironmentId, generateSampleDatasourceStorageDTO());
+        Datasource createdDatasource = datasourceService.create(datasource).block();
+
+        // this doesn't have the datasourceId yet
+        DatasourceStorageDTO sampleDatasourceStorageDTO = generateSampleDatasourceStorageDTO();
+        sampleDatasourceStorageDTO.setWorkspaceId(createdDatasource.getWorkspaceId());
+        sampleDatasourceStorageDTO.setPluginId(createdDatasource.getPluginId());
+
+        Mono<Datasource> datasourceMono  = datasourceService.updateDatasourceStorage(sampleDatasourceStorageDTO, defaultEnvironmentId, Boolean.FALSE);
+
+        StepVerifier.create(datasourceMono)
+                .verifyErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
+                });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyTestDatasourceWithSavedDatasourceButNoDatasourceStorageSucceeds() {
+        Datasource datasource = createDatasourceObject("sampleDatasource", workspaceId, "postgres-plugin");
+        DatasourceStorageDTO datasourceStorageDTO = generateSampleDatasourceStorageDTO();
+        datasource.getDatasourceStorages().put(defaultEnvironmentId, datasourceStorageDTO);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        Mockito.doReturn(Mono.just(datasourceStorage)).when(datasourceStorageService).create(Mockito.any());
+        Datasource dbDatasource = datasourceService.create(datasource).block();
+
+        assertThat(dbDatasource.getId()).isNotNull();
+        assertThat(dbDatasource.getDatasourceStorages()).isNotNull();
+        assertThat(dbDatasource.getDatasourceStorages().get(defaultEnvironmentId)).isNotNull();
+        assertThat(dbDatasource.getDatasourceStorages().get(defaultEnvironmentId).getId()).isNull();
+
+        datasourceStorageDTO.setDatasourceId(dbDatasource.getId());
+        datasourceStorageDTO.setWorkspaceId(workspaceId);
+        datasourceStorageDTO.setPluginId(dbDatasource.getPluginId());
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mono<DatasourceTestResult> testResultMono = datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
+
+        StepVerifier.create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyTestDatasourceWithoutSavedDatasource() {
+        Datasource datasource = createDatasourceObject("sampleDatasource", workspaceId, "postgres-plugin");
+        DatasourceStorageDTO datasourceStorageDTO = generateSampleDatasourceStorageDTO();
+
+        datasourceStorageDTO.setWorkspaceId(workspaceId);
+        datasourceStorageDTO.setPluginId(datasource.getPluginId());
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mono<DatasourceTestResult> testResultMono = datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
+
+        StepVerifier.create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
     }
 }

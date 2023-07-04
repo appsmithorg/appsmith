@@ -62,7 +62,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     Set<String> invalids;
 
     /*
@@ -71,7 +71,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
      */
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     Set<String> messages = new HashSet<>();
 
     /*
@@ -113,6 +113,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
     Boolean hasDatasourceStorage;
 
     /**
+     *
      * This method is here so that the JSON version of this class' instances have a `isValid` field, for backwards
      * compatibility. It may be removed, when sure that no API received is relying on this field.
      *

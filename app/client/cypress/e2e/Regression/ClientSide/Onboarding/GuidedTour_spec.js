@@ -1,22 +1,29 @@
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  deployMode,
+  homePage,
+  dataSources,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "Guided Tour", function () {
   it("1. Guided tour should work when started from the editor", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);
     });
-    cy.get(onboardingLocators.introModalWelcomeTourBtn).should("be.visible");
-    cy.get(onboardingLocators.introModalWelcomeTourBtn).click();
+    cy.get(onboardingLocators.editorWelcomeTourBtn).should("be.visible");
+    cy.get(onboardingLocators.editorWelcomeTourBtn).click();
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 
   it("2. Guided Tour", function () {
     // Start guided tour
-    cy.get(commonlocators.homeIcon).click({ force: true });
+    homePage.NavigateToHome();
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");
@@ -27,15 +34,15 @@ describe("excludeForAirgap", "Guided Tour", function () {
         cy.get(guidedTourLocators.banner).should("be.visible");
       }
     });
-    _.dataSources.SetQueryTimeout();
+    dataSources.SetQueryTimeout();
     // Step 1: Run query
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
-    _.entityExplorer.SelectEntityByName("CustomersTable");
+    entityExplorer.SelectEntityByName("CustomersTable");
 
     // Step 3: Add binding to the tableData property
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{getCustomers.data}}");
+    propPane.UpdatePropertyFieldValue("Table data", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
@@ -46,7 +53,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
       if ($body.find(guidedTourLocators.hintButton).length > 0) {
         cy.get(guidedTourLocators.hintButton).click();
         cy.wait(1000); //for NameInput to open
-        _.propPane.UpdatePropertyFieldValue(
+        propPane.UpdatePropertyFieldValue(
           "Default value",
           "{{CustomersTable.selectedRow.name}}",
         );
@@ -56,7 +63,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
           .first()
           .clear({ force: true })
           .click({ force: true }); //Name input
-        _.propPane.UpdatePropertyFieldValue(
+        propPane.UpdatePropertyFieldValue(
           "Default value",
           "{{CustomersTable.selectedRow.name}}",
         );
@@ -68,7 +75,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
       .eq(1)
       .clear({ force: true })
       .click({ force: true }); //Email input
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{CustomersTable.selectedRow.email}}",
     );
@@ -78,7 +85,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
       .eq(2)
       .clear({ force: true })
       .click({ force: true }); //Country input
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{CustomersTable.selectedRow.country}}",
     );
@@ -94,13 +101,13 @@ describe("excludeForAirgap", "Guided Tour", function () {
     // Step 7: Execute a query onClick
     cy.executeDbQuery("updateCustomerInfo", "onClick");
     // Step 8: Execute getCustomers onSuccess
-    _.propPane.SelectActionByTitleAndValue(
+    propPane.SelectActionByTitleAndValue(
       "Execute a query",
       "updateCustomerInfo.run",
     ),
-      cy.get(_.propPane._actionCallbacks).click();
-    cy.get(_.propPane._actionAddCallback("success")).click().wait(500);
-    cy.get(_.locators._dropDownValue("Execute a query"))
+      cy.get(propPane._actionCallbacks).first().click();
+    cy.get(propPane._actionAddCallback("success")).click().wait(500);
+    cy.get(locators._dropDownValue("Execute a query"))
       .click()
       .wait(500)
       .get("ul.bp3-menu")
@@ -108,11 +115,11 @@ describe("excludeForAirgap", "Guided Tour", function () {
       .contains("getCustomers")
       .click({ force: true })
       .wait(500);
-    _.agHelper.GetNClick(_.propPane._actionSelectorPopupClose);
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(guidedTourLocators.rating).should("be.visible");
     cy.get(guidedTourLocators.rating).eq(4).click();
     cy.get(guidedTourLocators.startBuilding).should("be.visible");

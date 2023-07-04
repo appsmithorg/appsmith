@@ -2,6 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
 let tempBranch: any;
+let statusBranch: any;
 
 describe("Git Bugs", function () {
   before(() => {
@@ -22,7 +23,7 @@ describe("Git Bugs", function () {
     cy.get("@postExecute").should("not.exist");
     _.gitSync.CloseGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.assertHelper.AssertNetworkStatus("@postExecute");
   });
 
   it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {
@@ -51,7 +52,7 @@ describe("Git Bugs", function () {
       true,
       true,
     );
-    _.jsEditor.DisableJSContext("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("Page2", "Pages");
     _.entityExplorer.SelectEntityByName("Text1", "Widgets");
@@ -65,11 +66,46 @@ describe("Git Bugs", function () {
     _.agHelper
       .GetText(_.locators._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
-    _.agHelper.ValidateURL("branch=" + repoName); //Validate we are still in Git branch
-    _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
+    _.agHelper.AssertURL("branch=" + tempBranch); //Validate we are still in Git branch
+    _.agHelper.AssertURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
-  it("4. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+  it("4. Bug 24045 : Theme and app settings message in git status", function () {
+    _.gitSync.SwitchGitBranch("master");
+    _.gitSync.CreateGitBranch(`st`, true);
+    cy.get("@gitbranchName").then((branchName) => {
+      statusBranch = branchName;
+      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
+      // cy.wait(_.locators._appEditMenu);
+      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      _.agHelper.GetNClick(_.locators._appThemeSettings);
+      _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
+      _.agHelper.GetNClick(_.locators._appThemeCard, 2);
+      _.agHelper.GetNClick(_.locators._publishButton);
+      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.AssertContains(
+        "Theme modified",
+        "exist",
+        _.locators._gitStatusChanges,
+      );
+      _.agHelper.GetNClick(_.locators._dialogCloseButton);
+      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
+      // cy.wait(_.locators._appEditMenu);
+      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      _.agHelper.GetNClick(_.locators._appNavigationSettings);
+      _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
+      _.agHelper.GetNClick(_.locators._publishButton);
+      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.AssertContains(
+        "Application settings modified",
+        "exist",
+        _.locators._gitStatusChanges,
+      );
+      _.agHelper.GetNClick(_.locators._dialogCloseButton);
+    });
+  });
+
+  it("5. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
     _.entityExplorer.DragDropWidgetNVerify("modalwidget", 50, 50);
     _.gitSync.CommitAndPush();
@@ -84,6 +120,7 @@ describe("Git Bugs", function () {
     _.gitSync.OpenRepositoryAndVerify();
     cy.get("@repoURL").should("be.called");
   });
+
   // it.only("4. Import application json and validate headers", () => {
   //   _.homePage.NavigateToHome();
   //   _.homePage.ImportApp("DeleteGitRepos.json");

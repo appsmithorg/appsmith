@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   ACTION_OPERATION_DESCRIPTION,
   createMessage,
-  DOC_DESCRIPTION,
   NAV_DESCRIPTION,
-  SNIPPET_DESCRIPTION,
 } from "@appsmith/constants/messages";
 import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
-import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -42,15 +39,12 @@ export type RecentEntity = {
 };
 
 export enum SEARCH_CATEGORY_ID {
-  SNIPPETS = "Snippets",
-  DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
   INIT = "INIT",
   ACTION_OPERATION = "Create new",
 }
 
 export enum SEARCH_ITEM_TYPES {
-  document = "document",
   action = "action",
   widget = "widget",
   datasource = "datasource",
@@ -59,24 +53,10 @@ export enum SEARCH_ITEM_TYPES {
   placeholder = "placeholder",
   jsAction = "jsAction",
   category = "category",
-  snippet = "snippet",
   actionOperation = "actionOperation",
 }
 
-export type DocSearchItem = {
-  document?: string;
-  title: string;
-  _highlightResult: {
-    document: { value: string };
-    title: { value: string };
-  };
-  kind: string;
-  path: string;
-};
-
 export const comboHelpText = {
-  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} J</>,
-  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} L</>,
   [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} P</>,
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} K</>,
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
@@ -160,18 +140,6 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     id: SEARCH_CATEGORY_ID.ACTION_OPERATION,
     desc: createMessage(ACTION_OPERATION_DESCRIPTION),
   },
-  [SEARCH_CATEGORY_ID.SNIPPETS]: {
-    title: "Use snippets",
-    kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORY_ID.SNIPPETS,
-    desc: createMessage(SNIPPET_DESCRIPTION),
-  },
-  [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
-    title: "Search documentation",
-    kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORY_ID.DOCUMENTATION,
-    desc: createMessage(DOC_DESCRIPTION),
-  },
   [SEARCH_CATEGORY_ID.INIT]: {
     id: SEARCH_CATEGORY_ID.INIT,
   },
@@ -179,10 +147,6 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
 
 export const isNavigation = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.NAVIGATION;
-export const isDocumentation = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
-export const isSnippet = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
 export const isMenu = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.INIT;
 export const isActionOperation = (category: SearchCategory) =>
@@ -193,14 +157,13 @@ export const getFilterCategoryList = () =>
     return cat.show ? cat.show() : true;
   });
 
-export type SearchItem = DocSearchItem | Datasource | any;
+export type SearchItem = Datasource | any;
 
 // todo better checks here?
 export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   let type: SEARCH_ITEM_TYPES;
   if (item.widgetName) type = SEARCH_ITEM_TYPES.widget;
   else if (
-    item.kind === SEARCH_ITEM_TYPES.document ||
     item.kind === SEARCH_ITEM_TYPES.page ||
     item.kind === SEARCH_ITEM_TYPES.sectionTitle ||
     item.kind === SEARCH_ITEM_TYPES.placeholder ||
@@ -211,7 +174,6 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   else if (item.config?.pluginType === PluginType.JS)
     type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
-  else if (item.body?.snippet) type = SEARCH_ITEM_TYPES.snippet;
   else type = SEARCH_ITEM_TYPES.datasource;
   return type;
 };
@@ -231,10 +193,7 @@ export const getItemTitle = (item: SearchItem): string => {
       return item?.pageName;
     case SEARCH_ITEM_TYPES.sectionTitle:
     case SEARCH_ITEM_TYPES.placeholder:
-    case SEARCH_ITEM_TYPES.document:
       return item?.title;
-    case SEARCH_ITEM_TYPES.snippet:
-      return item.title;
     case SEARCH_ITEM_TYPES.actionOperation:
       return item.title;
     default:
@@ -255,56 +214,6 @@ export const getItemPage = (item: SearchItem): string => {
     default:
       return "";
   }
-};
-
-// Helper function to keep calling
-// github fetch until either number
-// of retries is over or the content
-// is succesfully fetched
-export const fetchDefaultDocs = async (
-  updateIsFetching: (b: boolean) => void,
-  setDefaultDocs: (t: DocSearchItem[]) => void,
-  retries: number,
-  maxRetries: number,
-) => {
-  if (maxRetries <= retries) {
-    updateIsFetching(false);
-    return;
-  }
-  updateIsFetching(true);
-  try {
-    const data = await fetchRawGithubContentList();
-    setDefaultDocs(data);
-    updateIsFetching(false);
-  } catch (e) {
-    updateIsFetching(false);
-    // We don't want to fetch
-    // immediately to avoid
-    // same error again
-    setTimeout(
-      () =>
-        fetchDefaultDocs(
-          updateIsFetching,
-          setDefaultDocs,
-          retries + 1,
-          maxRetries,
-        ),
-      500 * maxRetries,
-    );
-  }
-};
-
-export const useDefaultDocumentationResults = (modalOpen: boolean) => {
-  const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
-  const [isFetching, updateIsFetching] = useState(false);
-  useEffect(() => {
-    if (!isFetching && !defaultDocs.length) {
-      // Keep trying to fetch until a max retries is reached
-      fetchDefaultDocs(updateIsFetching, setDefaultDocs, 0, 2);
-    }
-  }, [modalOpen]);
-
-  return defaultDocs;
 };
 
 export const algoliaHighlightTag = "ais-highlight-0000000000";
@@ -365,7 +274,7 @@ export const actionOperations: ActionOperation[] = [
       createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
   },
   {
-    title: "New JS object",
+    title: "New JS Object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),

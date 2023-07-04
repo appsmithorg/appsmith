@@ -1,3 +1,4 @@
+import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { PluginPackageName } from "entities/Action";
@@ -38,6 +39,7 @@ export const mockPlugins = [
   },
 ];
 
+const defaultEnvId = getDefaultEnvId();
 export const mockDatasources = [
   {
     id: "623ab2519b867130d3ed1c27",
@@ -51,7 +53,7 @@ export const mockDatasources = [
     pluginId: "623a809913b3311bd5e77228",
     workspaceId: "623a80d613b3311bd5e77308",
     datasourceStorages: {
-      unused_env: {
+      [defaultEnvId]: {
         datasourceConfiguration: {
           connection: { mode: "READ_WRITE", ssl: { authType: "DEFAULT" } },
           endpoints: [
@@ -82,7 +84,7 @@ export const mockDatasources = [
     pluginId: "623a809913b3311bd5e77229",
     workspaceId: "623a80d613b3311bd5e77308",
     datasourceStorages: {
-      unused_env: {
+      [defaultEnvId]: {
         datasourceConfiguration: {
           connection: { ssl: { authType: "DEFAULT" } },
           sshProxyEnabled: false,
