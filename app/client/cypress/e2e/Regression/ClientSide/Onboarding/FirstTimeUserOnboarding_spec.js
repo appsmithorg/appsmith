@@ -198,7 +198,7 @@ describe("FirstTimeUserOnboarding", function () {
       0,
       false,
     );
-    agHelper.Sleep(500)
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.introModal);
     agHelper.AssertElementVisible(OnboardingLocator.textWidgetName);
@@ -215,7 +215,7 @@ describe("FirstTimeUserOnboarding", function () {
       0,
       false,
     );
-    agHelper.Sleep(500)
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
   });
