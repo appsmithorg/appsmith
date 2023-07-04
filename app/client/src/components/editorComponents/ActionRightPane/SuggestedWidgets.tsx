@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
@@ -16,6 +16,8 @@ import {
   NO_EXISTING_WIDGETS,
   SUGGESTED_WIDGETS,
   SUGGESTED_WIDGET_TOOLTIP,
+  BINDING_WALKTHROUGH_TITLE,
+  BINDING_WALKTHROUGH_DESC,
 } from "@appsmith/constants/messages";
 import type { SuggestedWidget } from "api/ActionAPI";
 
@@ -27,8 +29,8 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Tooltip } from "design-system";
 // import chartWidgetIcon from "./../../../widgets/ChartWidget/icon.svg";
 import { Text } from "design-system";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { useParams } from "react-router";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -40,6 +42,13 @@ import chartWidgetIconSvg from "../../../widgets/ChartWidget/icon.svg";
 import inputWidgetIconSvg from "../../../widgets/InputWidgetV2/icon.svg";
 import textWidgetIconSvg from "../../../widgets/TextWidget/icon.svg";
 import listWidgetIconSvg from "../../../widgets/ListWidget/icon.svg";
+import FeatureFlagWalkthroughUtils from "utils/FeatureFlagWalkthroughUtils";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+
+const BINDING_GUIDE_GIF =
+  "https://myawsbucketdip.s3.ap-southeast-1.amazonaws.com/schema.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230630T081156Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAYOEVYR6QX442SDWZ%2F20230630%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Signature=678096bd94148a5711252a9fe90b90826ac88ce146eb07586498f7f109c5a17a";
+
+const BINDING_SECTION_ID = "t--api-right-pane-binding";
 
 const WidgetList = styled.div`
   ${getTypographyByKey("p1")}
@@ -264,12 +273,32 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dataTree = useSelector(getDataTree);
   const canvasWidgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
+
+  // A/B feature flag for query binding.
+  const isEnabledForQueryBinding = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
+  );
 
   const params = useParams<{
     pageId: string;
     apiId?: string;
     queryId?: string;
   }>();
+
+  const closeWalkthrough = () => {
+    if (isWalkthroughOpened) {
+      FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
+        FEATURE_FLAG.ab_ds_binding_enabled,
+        true,
+      );
+      popFeature && popFeature();
+    }
+  };
 
   const addWidget = (
     suggestedWidget: SuggestedWidget,
@@ -289,9 +318,10 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
-      abTestingFlagValue: featureFlags?.ab_ds_binding_enabled,
+      abTestingFlagValue: isEnabledForQueryBinding,
     });
 
+    closeWalkthrough();
     dispatch(addSuggestedWidget(payload));
   };
 
@@ -303,6 +333,8 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
         pageId: params.pageId,
       }),
     );
+
+    closeWalkthrough();
     dispatch(
       bindDataToWidget({
         widgetId: widgetId,
@@ -323,7 +355,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       })
     );
   };
-  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
+
   const labelOld = props.hasWidgets
     ? createMessage(ADD_NEW_WIDGET)
     : createMessage(SUGGESTED_WIDGETS);
@@ -338,11 +370,44 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   );
   const isWidgetsPresentOnCanvas = Object.keys(canvasWidgets).length > 0;
 
-  const bindingFlag = featureFlags?.ab_ds_binding_enabled;
+  useEffect(() => {
+    const isFeatureWalkthroughShown =
+      FeatureFlagWalkthroughUtils.getFeatureFlagShownStatus(
+        FEATURE_FLAG.ab_ds_binding_enabled,
+      );
+
+    // Adding walkthrough tutorial
+    !isFeatureWalkthroughShown &&
+      isEnabledForQueryBinding &&
+      pushFeature &&
+      pushFeature({
+        targetId: BINDING_SECTION_ID,
+        onDismiss: () => {
+          FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
+            FEATURE_FLAG.ab_ds_schema_enabled,
+            true,
+          );
+        },
+        details: {
+          title: createMessage(BINDING_WALKTHROUGH_TITLE),
+          description: createMessage(BINDING_WALKTHROUGH_DESC),
+          imageURL: BINDING_GUIDE_GIF,
+        },
+        offset: {
+          position: "left",
+          left: -40,
+          highlightPad: 5,
+          indicatorLeft: -3,
+          style: {
+            transform: "none",
+          },
+        },
+      });
+  }, [isEnabledForQueryBinding]);
 
   return (
-    <div>
-      {!!bindingFlag && (
+    <section id={BINDING_SECTION_ID}>
+      {!!isEnabledForQueryBinding ? (
         <Collapsible label={labelNew}>
           {isTableWidgetPresentOnCanvas() && (
             <SubSection>
@@ -416,8 +481,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
             </WidgetList>
           </SubSection>
         </Collapsible>
-      )}
-      {!bindingFlag && (
+      ) : (
         <Collapsible label={labelOld}>
           <WidgetList>
             {props.suggestedWidgets.map((suggestedWidget) => {
@@ -443,7 +507,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
           </WidgetList>
         </Collapsible>
       )}
-    </div>
+    </section>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
@@ -19,6 +19,8 @@ import {
   BACK_TO_CANVAS,
   createMessage,
   NO_CONNECTIONS,
+  SCHEMA_WALKTHROUGH_DESC,
+  SCHEMA_WALKTHROUGH_TITLE,
 } from "@appsmith/constants/messages";
 import type {
   SuggestedWidget,
@@ -34,7 +36,7 @@ import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlagCheck, selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
@@ -43,14 +45,17 @@ import {
 } from "selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import FeatureFlagWalkthroughUtils from "utils/FeatureFlagWalkthroughUtils";
 
+const SCHEMA_GUIDE_GIF =
+  "https://myawsbucketdip.s3.ap-southeast-1.amazonaws.com/schema.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230630T081156Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAYOEVYR6QX442SDWZ%2F20230630%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Signature=678096bd94148a5711252a9fe90b90826ac88ce146eb07586498f7f109c5a17a";
+
+const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 
 const SideBar = styled.div`
   height: 100%;
   width: 100%;
-  -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-  animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-
   & > div {
     margin-top: ${(props) => props.theme.spaces[11]}px;
   }
@@ -185,7 +190,9 @@ export function Collapsible({
         {!!customLabelComponent ? (
           customLabelComponent
         ) : (
-          <Text className="label" kind="heading-xs">{label}</Text>
+          <Text className="label" kind="heading-xs">
+            {label}
+          </Text>
         )}
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
@@ -241,6 +248,7 @@ function ActionSidebar({
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const { pushFeature } = useContext(WalkthroughContext) || {};
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -269,9 +277,14 @@ function ActionSidebar({
     getPluginDatasourceComponentFromId(state, pluginId || ""),
   );
 
-  // A/B feature flag for datsource structure.
+  // A/B feature flag for datasource structure.
   const isEnabledForDSSchema = useSelector((state) =>
     selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
+  );
+
+  // A/B feature flag for query binding.
+  const isEnabledForQueryBinding = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
   );
 
   const datasourceStructure = useSelector((state) =>
@@ -288,8 +301,46 @@ function ActionSidebar({
     }
   }, []);
 
+  const showSchema =
+    isEnabledForDSSchema &&
+    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm;
+
+  useEffect(() => {
+    const isFeatureWalkthroughShown =
+      FeatureFlagWalkthroughUtils.getFeatureFlagShownStatus(
+        FEATURE_FLAG.ab_ds_schema_enabled,
+      );
+
+    // Adding walkthrough tutorial
+    !isFeatureWalkthroughShown &&
+      showSchema &&
+      pushFeature &&
+      pushFeature({
+        targetId: SCHEMA_SECTION_ID,
+        onDismiss: () => {
+          FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
+            FEATURE_FLAG.ab_ds_schema_enabled,
+            true,
+          );
+        },
+        details: {
+          title: createMessage(SCHEMA_WALKTHROUGH_TITLE),
+          description: createMessage(SCHEMA_WALKTHROUGH_DESC),
+          imageURL: SCHEMA_GUIDE_GIF,
+        },
+        offset: {
+          position: "left",
+          left: -40,
+          highlightPad: 5,
+          indicatorLeft: -3,
+          style: {
+            transform: "none",
+          },
+        },
+      });
+  }, [showSchema]);
+
   const hasWidgets = Object.keys(widgets).length > 1;
-  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -320,9 +371,8 @@ function ActionSidebar({
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
 
-      {isEnabledForDSSchema &&
-        pluginDatasourceForm !==
-          DatasourceComponentTypes.RestAPIDatasourceForm && (
+      {showSchema && (
+        <section id={SCHEMA_SECTION_ID}>
           <Collapsible
             customLabelComponent={
               <DatasourceStructureHeader datasourceId={datasourceId || ""} />
@@ -339,14 +389,15 @@ function ActionSidebar({
               />
             </DataStructureListWrapper>
           </Collapsible>
-        )}
-      {hasConnections && !featureFlags?.ab_ds_binding_enabled && (
+        </section>
+      )}
+      {hasConnections && !isEnabledForQueryBinding && (
         <Connections
           actionName={actionName}
           entityDependencies={entityDependencies}
         />
       )}
-      {!featureFlags?.ab_ds_binding_enabled &&
+      {!isEnabledForQueryBinding &&
         canEditPage &&
         hasResponse &&
         Object.keys(widgets).length > 1 && (

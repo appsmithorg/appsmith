@@ -154,7 +154,7 @@ const WalkthroughRenderer = ({
       window.removeEventListener("resize", updateBoundingRect);
       if (highlightArea) resizeObserver.unobserve(highlightArea);
     };
-  }, []);
+  }, [targetId]);
 
   const onDismissWalkthrough = () => {
     onDismiss && onDismiss();

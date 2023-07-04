@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { AppState } from "@appsmith/reducers";
@@ -16,6 +16,9 @@ import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import FeatureFlagWalkthroughUtils from "utils/FeatureFlagWalkthroughUtils";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -31,6 +34,8 @@ enum QueryTemplatesEvent {
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
@@ -69,10 +74,20 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             dataSource: dataSource?.name,
             datasourceId: props.datasourceId,
             pluginName: plugin?.name,
+            isWalkthroughOpened,
           },
           ...queryactionConfiguration,
         }),
       );
+
+      if (isWalkthroughOpened) {
+        FeatureFlagWalkthroughUtils.setFeatureFlagShownStatus(
+          FEATURE_FLAG.ab_ds_schema_enabled,
+          true,
+        );
+        popFeature && popFeature();
+      }
+
       history.push(
         integrationEditorURL({
           pageId: currentPageId,

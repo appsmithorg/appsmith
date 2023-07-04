@@ -1,3 +1,4 @@
+// Please follow naming convention : https://www.notion.so/appsmith/Using-Feature-Flags-in-Appsmith-d362fe7acc7d4ef0aa12e1f5f9b83b5f?pvs=4#f6d4242e56284e84af25cadef71b7aeb to create feature flags.
 export const FEATURE_FLAG = {
   TEST_FLAG: "TEST_FLAG",
   DATASOURCE_ENVIRONMENTS: "DATASOURCE_ENVIRONMENTS",
