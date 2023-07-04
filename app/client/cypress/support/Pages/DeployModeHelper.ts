@@ -91,7 +91,6 @@ export class DeployMode {
   public StubWindowNAssert(
     selector: string,
     expectedUrl: string,
-    visitUrl: string,
     networkCall: string,
   ) {
     this.StubbingWindow();
@@ -99,7 +98,9 @@ export class DeployMode {
     cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
     this.assertHelper.AssertDocumentReady();
-    cy.visit(visitUrl, { timeout: 60000 });
+    cy.window({ timeout: 60000 }).then((win) => {
+      win.history.back();
+    });
     this.assertHelper.AssertNetworkStatus("@" + networkCall);
     this.assertHelper.AssertDocumentReady();
   }
