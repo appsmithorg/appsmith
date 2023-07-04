@@ -193,6 +193,11 @@ describe("FirstTimeUserOnboarding", function () {
     agHelper.AssertElementVisible(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
     agHelper.RefreshPage(true, "getPage");
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.introModal);
     agHelper.AssertElementVisible(OnboardingLocator.textWidgetName);
@@ -203,7 +208,12 @@ describe("FirstTimeUserOnboarding", function () {
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
     homePage.NavigateToHome();
     homePage.CreateNewApplication(false);
-    agHelper.AssertElementExist(locators._dropHere);
+    agHelper.AssertElementVisible(locators._dropHere);
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
   });
