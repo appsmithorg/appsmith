@@ -304,7 +304,7 @@ const DocumentationButton = styled(Button)`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+  padding: 0 var(--ads-v2-spaces-4) var(--ads-v2-spaces-4);
   overflow: auto;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};

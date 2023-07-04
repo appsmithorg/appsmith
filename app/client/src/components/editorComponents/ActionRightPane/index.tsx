@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Button, Icon, Link } from "design-system";
+import { Button, Icon, Link, Text } from "design-system";
 import { useState } from "react";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
@@ -31,6 +31,8 @@ import {
 } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 const SideBar = styled.div`
   height: 100%;
@@ -154,6 +156,7 @@ export function Collapsible({
   label,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(!!expand);
+  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
   useEffect(() => {
     setIsOpen(expand);
@@ -161,10 +164,19 @@ export function Collapsible({
 
   return (
     <CollapsibleWrapper isOpen={isOpen}>
-      <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon name="down-arrow" size="lg" />
-        <span className="label">{label}</span>
-      </Label>
+      {!!featureFlags?.ab_ds_binding_enabled ? (
+        <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
+          <Icon name="down-arrow" size="md" />
+          <Text className="label" kind="heading-xs">
+            {label}
+          </Text>
+        </Label>
+      ) : (
+        <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
+          <Icon name="down-arrow" size="lg" />
+          <span className="label">{label}</span>
+        </Label>
+      )}
       <Collapse isOpen={isOpen} keepChildrenMounted>
         {children}
       </Collapse>
@@ -233,6 +245,7 @@ function ActionSidebar({
   };
 
   const hasWidgets = Object.keys(widgets).length > 1;
+  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -257,27 +270,29 @@ function ActionSidebar({
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
 
-      {hasConnections && (
+      {hasConnections && !featureFlags?.ab_ds_binding_enabled && (
         <Connections
           actionName={actionName}
           entityDependencies={entityDependencies}
         />
       )}
-      {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
-        <Collapsible label="Connect widget">
-          {/*<div className="description">Go to canvas and select widgets</div>*/}
-          <SnipingWrapper>
-            <Button
-              className={"t--select-in-canvas"}
-              kind="secondary"
-              onClick={handleBindData}
-              size="md"
-            >
-              Select widget
-            </Button>
-          </SnipingWrapper>
-        </Collapsible>
-      )}
+      {!featureFlags?.ab_ds_binding_enabled &&
+        canEditPage &&
+        hasResponse &&
+        Object.keys(widgets).length > 1 && (
+          <Collapsible label="Connect widget">
+            <SnipingWrapper>
+              <Button
+                className={"t--select-in-canvas"}
+                kind="secondary"
+                onClick={handleBindData}
+                size="md"
+              >
+                Select widget
+              </Button>
+            </SnipingWrapper>
+          </Collapsible>
+        )}
       {showSuggestedWidgets && (
         <SuggestedWidgets
           actionName={actionName}
