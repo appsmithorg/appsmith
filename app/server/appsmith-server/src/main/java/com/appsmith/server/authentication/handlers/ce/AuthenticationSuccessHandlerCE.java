@@ -2,24 +2,30 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.featureflags.FeatureFlagTrait;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
@@ -28,21 +34,15 @@ import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.appsmith.server.helpers.RedirectHelper.FIRST_TIME_USER_EXPERIENCE_PARAM;
-import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -59,6 +59,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
     private final WorkspacePermission workspacePermission;
+    private final ConfigService configService;
+    private final FeatureFlagService featureFlagService;
+    private final CommonConfig commonConfig;
+
+    private final UserIdentifierService userIdentifierService;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -156,6 +161,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     if (authentication instanceof OAuth2AuthenticationToken) {
                         modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                     }
+                    /*
+                        Adding default traits to flagsmith for the logged-in user
+                     */
+                    monos.add(addDefaultUserTraits(user));
 
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
@@ -192,6 +201,33 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
+    }
+
+    private Mono<Void> addDefaultUserTraits(User user) {
+        String identifier = userIdentifierService.getUserIdentifier(user);
+        List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
+        String emailTrait;
+        if (!commonConfig.isCloudHosting()) {
+            emailTrait = userIdentifierService.hash(user.getEmail());
+        } else {
+            emailTrait = user.getEmail();
+        }
+        return configService.getInstanceId()
+                .flatMap(instanceId -> {
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", emailTrait));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
+                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "is_telemetry_on", String.valueOf(!commonConfig.isTelemetryDisabled())));
+                    return featureFlagService.remoteSetUserTraits(featureFlagTraits);
+                });
+    }
+
+    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue) {
+        FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
+        featureFlagTrait.setIdentifier(identifier);
+        featureFlagTrait.setTraitKey(traitKey);
+        featureFlagTrait.setTraitValue(traitValue);
+        return featureFlagTrait;
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {

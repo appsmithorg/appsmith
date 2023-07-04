@@ -1,6 +1,7 @@
 import {
   agHelper,
   entityExplorer,
+  propPane,
 } from "../../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../../locators/Widgets.json");
@@ -61,8 +62,8 @@ describe(" File Picker Widget", function () {
     });
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "FilePicker_Widget");
-    cy.testJsontext(
-      "text",
+    propPane.UpdatePropertyFieldValue(
+      "Text",
       "{{currentView.FilePicker1.isDirty}}_{{currentView.FilePicker1.isValid}}_{{currentView.FilePicker1.files[0]?.name}}",
     );
     cy.get(

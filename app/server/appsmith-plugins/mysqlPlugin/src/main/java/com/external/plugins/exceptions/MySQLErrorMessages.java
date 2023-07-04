@@ -1,9 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class MySQLErrorMessages {
-    private MySQLErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class MySQLErrorMessages extends BasePluginErrorMessages {
     public static final String MISSING_PARAMETER_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String IS_KEYWORD_NOT_SUPPORTED_IN_PS_ERROR_MSG = "Appsmith currently does not support the IS keyword with the prepared statement " +
@@ -32,7 +34,6 @@ public class MySQLErrorMessages {
     public static final String DS_MISSING_DATABASE_NAME_ERROR_MSG = "Missing database name.";
     public static final String DS_SSL_CONFIGURATION_FETCHING_FAILED_ERROR_MSG = "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
             "Please reach out to Appsmith customer support to resolve this.";
-
-
-
+    public static final String CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG = "Connection obtained from connection pool" +
+            " is invalid.";
 }
