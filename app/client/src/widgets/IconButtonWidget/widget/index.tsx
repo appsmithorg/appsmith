@@ -235,18 +235,25 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={
-          (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace
+          this.isAutoLayoutMode
+            ? 32
+            : (this.props.bottomRow - this.props.topRow) *
+              this.props.parentRowSpace
         }
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.handleClick}
         renderMode={this.props.renderMode}
         tooltip={tooltip}
         widgetId={widgetId}
         width={
-          (this.props.rightColumn - this.props.leftColumn) *
-          this.props.parentColumnSpace
+          this.isAutoLayoutMode
+            ? 32
+            : (this.props.rightColumn - this.props.leftColumn) *
+              this.props.parentColumnSpace
         }
       />
     );

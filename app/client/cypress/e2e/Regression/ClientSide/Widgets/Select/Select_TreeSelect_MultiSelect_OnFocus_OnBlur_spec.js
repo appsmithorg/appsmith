@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur", function () {
   before(() => {
-    cy.fixture("selectMultiSelectTreeSelectWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("selectMultiSelectTreeSelectWidgetDsl");
   });
 
   it("1. onDropdownOpen and onDropdownClose should be triggered from the select widget", () => {

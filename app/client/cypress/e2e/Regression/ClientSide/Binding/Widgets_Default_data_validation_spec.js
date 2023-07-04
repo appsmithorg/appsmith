@@ -8,9 +8,7 @@ import {
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.fixture("MultipleWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("MultipleWidgetDsl");
   });
 
   it("1. Input widget test with default value from table widget", function () {

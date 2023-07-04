@@ -9,9 +9,7 @@ import {
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableNewDslWithPagination").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableNewDslWithPagination");
   });
 
   // To be done:

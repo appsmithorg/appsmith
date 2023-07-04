@@ -7,9 +7,7 @@ const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Currency widget - ", () => {
   before(() => {
-    cy.fixture("emptyDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("emptyDSL");
   });
 
   it("1. Add new dropdown widget", () => {

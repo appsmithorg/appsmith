@@ -1,13 +1,11 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const dsl = require("../../../../fixtures/basicDsl.json");
-
 let forkedApplicationDsl;
 let parentApplicationDsl: any;
 
 describe("Fork application across workspaces", function () {
   before(() => {
-    _.agHelper.AddDsl(dsl);
+    _.agHelper.AddDsl("basicDsl");
   });
 
   it("1. Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {

@@ -7,9 +7,8 @@ describe("MySQL noise test", function () {
   let datasourceName;
 
   beforeEach(() => {
-    cy.fixture("noiseDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("noiseDsl");
+
     cy.startRoutesForDatasource();
   });
 

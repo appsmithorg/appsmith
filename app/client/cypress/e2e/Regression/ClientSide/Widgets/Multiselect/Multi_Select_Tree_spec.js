@@ -7,9 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelectTree Widget Functionality", function () {
   before(() => {
-    cy.fixture("TreeSelectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("TreeSelectDsl");
   });
 
   it("1. Check isDirty meta property", function () {

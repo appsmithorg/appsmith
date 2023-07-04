@@ -2,9 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   before(() => {
-    cy.fixture("tableV2WidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2WidgetDsl");
   });
 
   it("1. Test_Add users api, execute it and go to sniping mode.", function () {
