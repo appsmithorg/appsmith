@@ -99,3 +99,14 @@ app/client/src/widgets/CanvasWidget.tsx @appsmithorg/ui-builders
 app/client/src/widgets/ContainerWidget/* @appsmithorg/ui-builders
 app/client/src/widgets/MetaHOC.tsx @appsmithorg/ui-builders
 app/client/src/widgets/withWidgetProps.tsx @appsmithorg/ui-builders
+
+# Git Pod
+app/server/appsmith-git/* @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCEImpl.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCE.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCEImpl.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCE.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitCloudServicesUtils.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitDeployKeyGenerator.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitFileUtils.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitUtils.java @AnaghHegde @nayan-rafiq

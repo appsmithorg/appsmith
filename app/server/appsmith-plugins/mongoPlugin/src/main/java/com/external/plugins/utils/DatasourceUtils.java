@@ -31,19 +31,20 @@ public class DatasourceUtils {
      *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
      * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
+    public static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?://)(?:((.+):(.+))?@)?([^/?]+)/?([^?]+)?\\??(" +
+            ".+)?$";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
-    private static final int REGEX_GROUP_USERNAME = 2;
+    private static final int REGEX_GROUP_USERNAME = 3;
 
-    private static final int REGEX_GROUP_PASSWORD = 3;
+    private static final int REGEX_GROUP_PASSWORD = 4;
 
-    private static final int REGEX_HOST_PORT = 4;
+    private static final int REGEX_HOST_PORT = 5;
 
-    private static final int REGEX_GROUP_DBNAME = 5;
+    private static final int REGEX_GROUP_DBNAME = 6;
 
-    private static final int REGEX_GROUP_TAIL = 6;
+    private static final int REGEX_GROUP_TAIL = 7;
 
     public static final String KEY_USERNAME = "username";
 
