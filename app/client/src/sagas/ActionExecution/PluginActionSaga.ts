@@ -1,7 +1,6 @@
 import {
   all,
   call,
-  fork,
   put,
   select,
   take,
@@ -1488,7 +1487,7 @@ function* softRefreshActionsSaga() {
   yield call(executePageLoadActionsSaga);
   try {
     // we fork to prevent the call from blocking
-    yield fork(softRefreshDatasourceStructure);
+    yield put(softRefreshDatasourceStructure());
   } catch (error) {}
 }
 

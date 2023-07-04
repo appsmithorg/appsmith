@@ -1903,5 +1903,9 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       handleFetchDatasourceStructureOnLoad,
     ),
+    takeEvery(
+      ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
+      fetchDatasourceStructureOnSoftRefresh,
+    ),
   ]);
 }
