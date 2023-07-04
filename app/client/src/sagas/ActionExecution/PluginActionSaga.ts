@@ -43,7 +43,6 @@ import {
   isActionSaving,
   getJSCollection,
   getDatasource,
-  getDatasources,
 } from "selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
@@ -152,7 +151,7 @@ import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
-import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { softRefreshDatasourceStructure } from "actions/datasourceActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1465,19 +1464,6 @@ function* clearTriggerActionResponse() {
   }
 }
 
-function* fetchDatasourceStructureOnSoftRefresh() {
-  try {
-    // get datasources of all actions used in the the application
-    const datasourcesUsedInApplication: Datasource[] = yield select(
-      getDatasources,
-    );
-    for (const datasource of datasourcesUsedInApplication) {
-      //fetch datasource structure for each datasource
-      yield put(fetchDatasourceStructure(datasource.id, true));
-    }
-  } catch (error) {}
-}
-
 // Function to soft refresh the all the actions on the page.
 function* softRefreshActionsSaga() {
   //get current pageId
@@ -1502,7 +1488,7 @@ function* softRefreshActionsSaga() {
   yield call(executePageLoadActionsSaga);
   try {
     // we fork to prevent the call from blocking
-    yield fork(fetchDatasourceStructureOnSoftRefresh);
+    yield fork(softRefreshDatasourceStructure);
   } catch (error) {}
 }
 

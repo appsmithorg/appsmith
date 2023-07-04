@@ -201,6 +201,19 @@ function* fetchDatasourceStructureOnLoad() {
   } catch (error) {}
 }
 
+export function* fetchDatasourceStructureOnSoftRefresh() {
+  try {
+    // get datasources of all actions used in the the application
+    const datasourcesUsedInApplication: Datasource[] = yield select(
+      getDatasources,
+    );
+    for (const datasource of datasourcesUsedInApplication) {
+      //fetch datasource structure for each datasource
+      yield put(fetchDatasourceStructure(datasource.id, true));
+    }
+  } catch (error) {}
+}
+
 function* fetchMockDatasourcesSaga() {
   try {
     const response: ApiResponse = yield DatasourcesApi.fetchMockDatasources();
