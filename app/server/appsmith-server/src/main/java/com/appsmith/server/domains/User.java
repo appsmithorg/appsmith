@@ -104,6 +104,9 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private String tenantId;
 
+    @JsonView(Views.Public.class)
+    private Boolean isProvisioned = false;
+
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override
     @JsonView(Views.Public.class)

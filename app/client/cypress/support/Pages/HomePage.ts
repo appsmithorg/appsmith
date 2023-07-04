@@ -96,6 +96,9 @@ export class HomePage {
   private _homeTab = ".t--apps-tab";
   private _workSpaceByName = (wsName: string) =>
     `//div[contains(@class, 't--applications-container')]//span[text()='${wsName}']`;
+  private _forkWorkspaceDropdownOption = "div.rc-select-selector";
+  private _forkWorkspaceSelectOptions = (option: string) =>
+    "div[title='" + option + "']";
   _welcomeTour = ".t--welcome-tour";
   _welcomeTourBuildingButton = ".t--start-building";
   _reconnectDataSourceModal = "[data-testid='reconnect-datasource-modal']";
@@ -287,7 +290,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
     this.assertHelper.AssertNetworkStatus("@postLogout");
-    this.agHelper.Sleep(); //for logout to complete!
+    return this.agHelper.Sleep(); //for logout to complete!
   }
 
   public GotoProfileMenu() {
@@ -507,10 +510,16 @@ export class HomePage {
     cy.get(this.locator._loading).should("not.exist");
   }
 
-  public ForkApplication(appliName: string) {
+  public ForkApplication(appliName: string, forkWorkspaceName = "") {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
+    if (forkWorkspaceName) {
+      this.agHelper.GetNClick(this._forkWorkspaceDropdownOption);
+      this.agHelper.GetNClick(
+        this._forkWorkspaceSelectOptions(forkWorkspaceName),
+      );
+    }
     this.agHelper.ClickButton("Fork");
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }

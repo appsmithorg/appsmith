@@ -80,6 +80,12 @@ export function* SaveAdminSettingsSaga(
 
   try {
     const { appVersion } = getAppsmithConfigs();
+    const hasDisableTelemetrySetting = settings.hasOwnProperty(
+      "APPSMITH_DISABLE_TELEMETRY",
+    );
+    const hasHideWatermarkSetting = settings.hasOwnProperty(
+      "APPSMITH_HIDE_WATERMARK",
+    );
     const response: ApiResponse = yield call(
       UserApi.saveAdminSettings,
       settings,
@@ -94,6 +100,18 @@ export function* SaveAdminSettingsSaga(
       if (settings["APPSMITH_DISABLE_TELEMETRY"]) {
         AnalyticsUtil.logEvent("TELEMETRY_DISABLED", {
           version: appVersion.id,
+        });
+      }
+
+      if (hasDisableTelemetrySetting || hasHideWatermarkSetting) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          version: appVersion.id,
+          ...(hasDisableTelemetrySetting
+            ? { telemetry_disabled: settings["APPSMITH_DISABLE_TELEMETRY"] }
+            : {}),
+          ...(hasHideWatermarkSetting
+            ? { watermark_disabled: settings["APPSMITH_HIDE_WATERMARK"] }
+            : {}),
         });
       }
 

@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -34,6 +35,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -65,11 +67,13 @@ import reactor.test.StepVerifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -114,6 +118,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
+    @Autowired
+    EnvironmentService environmentService;
 
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
@@ -346,25 +353,29 @@ public class ApplicationServiceTest {
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
                 .cache();
 
+        PermissionGroup permissionGroup = permissionGroupService.getPublicPermissionGroup().block();
+
         Mono<PageDTO> pageMono = publicAppMono
                 .flatMap(app -> {
                     String publicPageId = app.getPages().get(0).getId();
                     return newPageService.findPageById(publicPageId, READ_PAGES, false);
                 });
 
-        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
         Mono<Datasource> datasourceMono = publicAppMono
                 .flatMap(app -> datasourceService.findById(testDatasource.getId()));
+
+        Mono<List<Environment>> environmentListMono = publicAppMono
+                .thenMany(environmentService.findByWorkspaceId(workspaceId)).collectList();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono, publicPermissionGroupMono, datasourceMono))
+                .create(Mono.zip(publicAppMono, pageMono, datasourceMono, environmentListMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
-                    PermissionGroup permissionGroup = tuple.getT3();
-                    Datasource datasource = tuple.getT4();
+                    Datasource datasource = tuple.getT3();
+                    List<Environment> environmentList = tuple.getT4();
 
                     String permissionGroupId = permissionGroup.getId();
 
@@ -397,6 +408,22 @@ public class ApplicationServiceTest {
                                     assertThat(policy.getPermissionGroups())
                                             .contains(permissionGroupId)
                             );
+
+                    // Check that environment execute is allowed for public permission group
+                    environmentList.stream()
+                            .forEach(environment -> {
+
+                                Optional<Policy> policyOptional = environment.getPolicies()
+                                        .stream()
+                                        .filter(policy -> policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue()))
+                                        .findFirst();
+
+                                assertThat(policyOptional.isPresent()).isTrue();
+
+                                Policy policy = policyOptional.get();
+
+                                assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId());
+                            });
 
                     // Finally assert that permission group has been assigned to anonymous user.
                     assertThat(permissionGroup.getAssignedToUserIds()).hasSize(1);
@@ -450,15 +477,18 @@ public class ApplicationServiceTest {
         Mono<Datasource> datasourceMono = privateAppMono
                 .flatMap(app -> datasourceService.findById(testDatasource.getId()));
 
-        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
+        Mono<List<Environment>> environmentListMono = privateAppMono
+                .thenMany(environmentService.findByWorkspaceId(workspaceId)).collectList();
+
+        PermissionGroup permissionGroup = permissionGroupService.getPublicPermissionGroup().block();
 
         StepVerifier
-                .create(Mono.zip(privateAppMono, pageMono, datasourceMono, publicPermissionGroupMono))
+                .create(Mono.zip(privateAppMono, pageMono, datasourceMono, environmentListMono))
                 .assertNext(tuple -> {
                     Application app = tuple.getT1();
                     PageDTO page = tuple.getT2();
                     Datasource datasource = tuple.getT3();
-                    PermissionGroup publicPermissionGroup = tuple.getT4();
+                    List<Environment> environmentList = tuple.getT4();
 
                     assertThat(app.getIsPublic()).isFalse();
 
@@ -469,7 +499,7 @@ public class ApplicationServiceTest {
                             .findFirst()
                             .ifPresent(policy ->
                                     assertThat(policy.getPermissionGroups())
-                                            .doesNotContain(publicPermissionGroup.getId())
+                                            .doesNotContain(permissionGroup.getId())
                             );
 
                     // Check that the page view is not allowed for public permission group
@@ -479,19 +509,32 @@ public class ApplicationServiceTest {
                             .findFirst()
                             .ifPresent(policy ->
                                     assertThat(policy.getPermissionGroups())
-                                            .doesNotContain(publicPermissionGroup.getId())
+                                            .doesNotContain(permissionGroup.getId())
                             );
 
                     // Check that the datasource is not executable by permission group
-                    // Check that datasource execute is allowed for public permission group
                     datasource.getPolicies()
                             .stream()
                             .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
                             .findFirst()
                             .ifPresent(policy ->
                                     assertThat(policy.getPermissionGroups())
-                                            .doesNotContain(publicPermissionGroup.getId())
+                                            .doesNotContain(permissionGroup.getId())
                             );
+
+                    // Check that environments are not executable by permission group
+                    environmentList.stream()
+                            .forEach(environment -> {
+
+                                environment.getPolicies()
+                                        .stream()
+                                        .filter(policy -> policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue()))
+                                        .findFirst()
+                                        .ifPresent(policy ->
+                                                assertThat(policy.getPermissionGroups())
+                                                        .doesNotContain(permissionGroup.getId())
+                                        );
+                            });
                 })
                 .verifyComplete();
     }

@@ -84,21 +84,6 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     height: 100%;
   }
 
-  &[data-focused] {
-    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
-  }
-
-  &[aria-disabled] {
-    cursor: default;
-    opacity: var(--opacity-disabled);
-  }
-
-  &[data-loading] {
-    cursor: default;
-    /** adding opacity 1 here because we are lowering opacity for aria-disabled and when loading is true, aria-disabled is also true  */
-    opacity: 1;
-  }
-
   &[data-icon-position="end"] {
     flex-direction: row-reverse;
   }
@@ -110,6 +95,36 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     align-items: center;
     height: calc(var(--sizing-root-unit) * 5);
     width: calc(var(--sizing-root-unit) * 5);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * FOCUSSED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-focused] {
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[aria-disabled] {
+    cursor: default;
+    opacity: var(--opacity-disabled);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * LOADING
+  *-----------------------------------------------------------------------------
+  */
+  &[data-loading] {
+    cursor: default;
+    /** adding opacity 1 here because we are lowering opacity for aria-disabled and when loading is true, aria-disabled is also true  */
+    opacity: 1;
   }
 `;
 

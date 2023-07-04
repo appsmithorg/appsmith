@@ -49,11 +49,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
+import static com.appsmith.server.acl.AclPermission.TENANT_READ_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
@@ -127,13 +131,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     @Override
     public Mono<List<UserForManagementDTO>> getAllUsers() {
         return tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_MANAGE_ALL_USERS))
+                .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_READ_ALL_USERS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMapMany(tenant -> {
-                    return userRepository.getAllUserObjectsWithEmail(tenant.getId());
-                })
-                // Remove the auto generated anonymous user from this list
-                .filter(user -> !user.getEmail().equals(ANONYMOUS_USER))
+                .flatMapMany(tenant -> userRepository.getAllUserObjectsWithEmail(tenant.getId(), Optional.of(READ_USERS)))
                 .flatMap(this::addGroupsAndRolesForUser)
                 .sort(AppsmithComparators.managementUserComparator())
                 .collectList()
@@ -175,9 +175,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     @Override
     public Mono<UserForManagementDTO> getUserById(String userId) {
         return tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_MANAGE_ALL_USERS))
+                .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_READ_ALL_USERS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMap(tenant -> userRepository.findById(userId))
+                .flatMap(tenant -> userRepository.findById(userId, READ_USERS))
                 // Add the name of the user in response.
                 .flatMap(user -> addGroupsAndRolesForUser(user)
                         .flatMap(this::addPhotoIdForUser)
@@ -211,8 +211,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     @Override
     public Mono<Boolean> deleteUser(String userId) {
 
-        return tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_MANAGE_ALL_USERS))
+        return userRepository.findById(userId, DELETE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(tenant -> userRepository.findById(userId))
                 .flatMap(user -> {

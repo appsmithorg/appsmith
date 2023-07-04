@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getRemainingDays,
   isAdminUser,
+  isEnterprise,
 } from "@appsmith/selectors/tenantSelectors";
 import { setBEBanner } from "@appsmith/actions/tenantActions";
 import {
   BE_TRIAL_BANNER_EXPIRY_MESSAGE,
   BE_WELCOME_MESSAGE,
+  BE_WELCOME_MESSAGE_ENTERPRISE,
   createMessage,
   NO_ACTIVE_SUBSCRIPTION,
   UPGRADE_NOW,
@@ -29,6 +31,7 @@ export function BEBanner() {
   const dispatch = useDispatch();
   const isAdmin = useSelector(isAdminUser);
   const isAirgappedInstance = isAirgapped();
+  const isEnterpriseLicense = useSelector(isEnterprise);
 
   const handleClose = () => {
     localStorage.setItem("showLicenseBanner", JSON.stringify(false));
@@ -53,7 +56,10 @@ export function BEBanner() {
               kind="heading-m"
               renderAs="p"
             >
-              🚀 {createMessage(BE_WELCOME_MESSAGE)}
+              🚀{" "}
+              {isEnterpriseLicense
+                ? createMessage(BE_WELCOME_MESSAGE_ENTERPRISE)
+                : createMessage(BE_WELCOME_MESSAGE)}
             </Text>
             <p
               className="sub-text"

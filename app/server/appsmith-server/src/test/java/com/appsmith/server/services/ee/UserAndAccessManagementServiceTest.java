@@ -12,6 +12,9 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
@@ -41,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -492,4 +496,57 @@ public class UserAndAccessManagementServiceTest {
         userAndAccessManagementService.deleteUser(createdUser1.getId()).block();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetUserById_assertUserPermissionsInGroupsAndRoles() {
+        String testName = "testGetAllUsers_UserPermissionsInGroupsAndRoles";
+
+        // user creation
+        User user1 = new User();
+        user1.setEmail(testName);
+        user1.setPassword(testName);
+        User createdUser1 = userService.userCreate(user1, false).block();
+
+        // user group creation
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : addUsersToGroupValid";
+        String description = "Test Group Description : addUsersToGroupValid";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+
+        // invite users to groups
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of(user1.getUsername()));
+        userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block();
+
+        // create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName(testName);
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup)
+                .flatMap(pg -> permissionGroupService.findById(pg.getId(), READ_PERMISSION_GROUPS))
+                .block();
+        String userName = user1.getUsername();
+
+        //update role associations
+        UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
+        updateRoleAssociationDTO.setUsers(Set.of(new UserCompactDTO(null, user1.getUsername(), user1.getName())));
+        updateRoleAssociationDTO.setRolesAdded(Set.of(new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+
+        //assertions
+        StepVerifier.create(userAndAccessManagementService.getUserById(createdUser1.getId()))
+                .assertNext(user -> {
+                    assertThat(user.getGroups()).isNotNull();
+                    assertThat(user.getGroups().size()).isEqualTo(1);
+                    assertThat(user.getGroups().get(0).getUserPermissions().size() > 0).isTrue();
+                    assertThat(user.getRoles().size()).isEqualTo(2);
+                    // check if the user has the permission group
+                    PermissionGroupInfoDTO permissionGroupInfoDTO = user.getRoles().stream().filter(pg -> pg.getId().equals(createdPermissionGroup.getId())).findFirst().get();
+                    assertThat(permissionGroupInfoDTO.getUserPermissions().size() > 0).isTrue();
+                })
+                .verifyComplete();
+    }
 }

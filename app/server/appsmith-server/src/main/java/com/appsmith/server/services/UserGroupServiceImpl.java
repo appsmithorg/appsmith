@@ -484,8 +484,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     @Override
     public Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId) {
-        return repository.findAllByUsersIn(Set.of(userId))
-                .map(userGroup -> new UserGroupCompactDTO(userGroup.getId(), userGroup.getName()));
+        return repository.findAllByUsersIn(Set.of(userId), READ_USER_GROUPS)
+                .map(userGroup -> new UserGroupCompactDTO(userGroup.getId(), userGroup.getName(), userGroup.getUserPermissions()));
     }
 
     private UserGroupCompactDTO generateUserGroupCompactDTO(UserGroup userGroup) {

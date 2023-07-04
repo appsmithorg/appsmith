@@ -88,4 +88,9 @@ public class FieldName extends FieldNameCE {
     // It facilitates identification and troubleshooting of environments that were unable to
     // complete the upgrade process between the CE to EE
     public static final String FAILED_ENVIRONMENT_ID_UPGRADE ="environmentIdUpgradeFailed";
+
+    // Provisioning constants
+    public static final String PROVISIONING_USER = "provisioningUser";
+    public static final String PROVISIONING_ROLE = "provisioningRole";
+    public static final String PROVISIONING_CONFIG = "provisioningConfig";
 }

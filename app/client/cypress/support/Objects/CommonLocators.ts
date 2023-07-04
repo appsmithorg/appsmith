@@ -1,5 +1,6 @@
 export class CommonLocators {
   _body = "body";
+  _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
@@ -28,6 +29,20 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
+  _propertyControlTextArea = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._codeMirrorTextArea;
+  _propertyControlInput = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._inputField;
+  _propertyInputField = (uiName: string) =>
+    `${this._propertyControlTextArea(uiName)}, ${this._propertyControlInput(
+      uiName,
+    )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
@@ -225,4 +240,13 @@ export class CommonLocators {
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
+  _appEditMenu = "[data-testid='t--application-edit-menu']";
+  _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
+  _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appThemeSettings = "#t--theme-settings-header";
+  _appChangeThemeBtn = ".t--change-theme-btn";
+  _appThemeCard = ".t--theme-card";
+  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+  _appNavigationSettings = "#t--navigation-settings-header";
+  _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
 }

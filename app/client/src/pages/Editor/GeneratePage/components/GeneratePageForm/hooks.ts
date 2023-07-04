@@ -7,6 +7,7 @@ import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceAct
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { DropdownOption } from "design-system-old";
 import { useDispatch } from "react-redux";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -31,6 +32,7 @@ export const useDatasourceOptions = ({
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
   );
+  const currentEnvironment = getCurrentEnvironment();
 
   useEffect(() => {
     // On mount of component and on change of datasources, Update the list.
@@ -42,7 +44,7 @@ export const useDatasourceOptions = ({
         FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
       );
     }
-    datasources.forEach(({ id, isValid, name, pluginId }) => {
+    datasources.forEach(({ datasourceStorages, id, name, pluginId }) => {
       const datasourceObject = {
         id,
         label: name,
@@ -50,7 +52,7 @@ export const useDatasourceOptions = ({
         data: {
           pluginId,
           isSupportedForTemplate: !!generateCRUDSupportedPlugin[pluginId],
-          isValid,
+          isValid: datasourceStorages[currentEnvironment]?.isValid,
         },
       };
       if (generateCRUDSupportedPlugin[pluginId])

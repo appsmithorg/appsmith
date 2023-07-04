@@ -9,6 +9,7 @@ import {
   isAdminUser,
   isLicenseValidating,
   isLicensePaymentFailed,
+  isEnterprise,
 } from "@appsmith/selectors/tenantSelectors";
 import {
   CONTINUE_USING_FEATURES,
@@ -21,6 +22,8 @@ import {
   UPDATE,
   PAYMENT_FAILED_UPDATE,
   PAYMENT_FAILED,
+  CONTINUE_USING_FEATURES_ENTERPRISE,
+  NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE,
 } from "@appsmith/constants/messages";
 import { Callout, Link, Text } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -102,6 +105,7 @@ export function PageBannerMessage(): any {
     suffix === Suffix.HOURS ||
     suffix === Suffix.HOUR;
   const isAirgappedInstance = isAirgapped();
+  const isEnterpriseLicense = useSelector(isEnterprise);
 
   const color = lessThanThreeDays
     ? "var(--ads-v2-color-fg-error)"
@@ -156,7 +160,9 @@ export function PageBannerMessage(): any {
                 <p
                   dangerouslySetInnerHTML={{
                     __html: isTrial
-                      ? createMessage(CONTINUE_USING_FEATURES)
+                      ? isEnterpriseLicense
+                        ? createMessage(CONTINUE_USING_FEATURES_ENTERPRISE)
+                        : createMessage(CONTINUE_USING_FEATURES)
                       : createMessage(() =>
                           PAYMENT_FAILED_UPDATE(gracePeriod, suffix),
                         ),
@@ -175,17 +181,23 @@ export function PageBannerMessage(): any {
                   data-testid="t--non-admin-trial-expiry-warning"
                   renderAs="p"
                 >
-                  {createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
+                  {isEnterpriseLicense
+                    ? createMessage(
+                        NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE,
+                      )
+                    : createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
                 </StyledText>
               )
             )}
-            <StyledText
-              color={color}
-              data-testid="t--already-upgraded"
-              renderAs="p"
-            >
-              {createMessage(ALREADY_UPGRADED)}
-            </StyledText>
+            {isAdmin && (
+              <StyledText
+                color={color}
+                data-testid="t--already-upgraded"
+                renderAs="p"
+              >
+                {createMessage(ALREADY_UPGRADED)}
+              </StyledText>
+            )}
           </FlexContentWrapper>
         </FlexWrapper>
       </StyledBanner>

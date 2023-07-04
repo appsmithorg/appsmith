@@ -3,8 +3,7 @@ export class DefaultHostPort {
   mongo_host = "host.docker.internal";
   mongo_port = 28017;
   mongo_databaseName = "mongo_samples";
-  mongo_uri =
-    "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority";
+  mongo_uri = `mongodb://${this.mongo_host}:${this.mongo_port}/${this.mongo_databaseName}`;
 
   postgres_host = "host.docker.internal";
   postgres_port = 5432;

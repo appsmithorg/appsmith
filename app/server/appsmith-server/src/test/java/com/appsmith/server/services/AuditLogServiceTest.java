@@ -1839,15 +1839,19 @@ public class AuditLogServiceTest {
      * To create a datasource for testing
      *
      * @param workspaceId
+     * @param environmentId
      * @return Datasource
      */
 
-    private Datasource createDatasource(String workspaceId, String name) {
+    private Datasource createDatasource(String workspaceId, String name, String environmentId) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
         datasource.setName(name);
         datasource.setWorkspaceId(workspaceId);
+        String pluginId = pluginRepository.findByPackageName("restapi-plugin").block().getId();
+        datasource.setPluginId(pluginId);
+
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
         connection.setMode(Connection.Mode.READ_ONLY);
@@ -1862,14 +1866,9 @@ public class AuditLogServiceTest {
         auth.setUsername("test");
         auth.setPassword("test");
         datasourceConfiguration.setAuthentication(auth);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        String pluginId = pluginRepository.findByPackageName("restapi-plugin").block().getId();
-        datasource.setPluginId(pluginId);
 
-        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         return datasourceService.create(datasource).block();
@@ -1880,7 +1879,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceCreated_success() {
-        Datasource finalDatasource = createDatasource(workspaceId, "ds Create");
+        Datasource finalDatasource = createDatasource(workspaceId, "ds Create", defaultEnvironmentId);
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
 
@@ -1932,11 +1931,11 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceUpdated_success() {
-        Datasource finalDatasource = createDatasource(workspaceId, "ds Update");
+        Datasource finalDatasource = createDatasource(workspaceId, "ds Update", defaultEnvironmentId);
 
         finalDatasource.setName("updatedDatasource");
         Datasource updatedDatasource = datasourceService
-                .updateByEnvironmentId(finalDatasource.getId(), finalDatasource, defaultEnvironmentId)
+                .updateDatasource(finalDatasource.getId(), finalDatasource, defaultEnvironmentId, Boolean.FALSE)
                 .block();
 
 
@@ -1999,7 +1998,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceDeleted_success() {
-        Datasource finalDatasource = createDatasource(workspaceId, "ds Delete");
+        Datasource finalDatasource = createDatasource(workspaceId, "ds Delete", defaultEnvironmentId);
         Datasource deletedDatasource = datasourceService.archiveById(finalDatasource.getId()).block();
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
@@ -2056,6 +2055,7 @@ public class AuditLogServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
 
         Application application = new Application();
         application.setName("AuditLogApplication");
@@ -2063,7 +2063,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Create");
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Create", environmentId);
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");
@@ -2136,6 +2136,7 @@ public class AuditLogServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
 
         Application application = new Application();
         application.setName("AuditLogApplication");
@@ -2143,7 +2144,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Update");
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Update", environmentId);
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");
@@ -2220,6 +2221,7 @@ public class AuditLogServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
 
         Application application = new Application();
         application.setName("AuditLogApplication");
@@ -2227,7 +2229,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Update Multiple");
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Update Multiple", environmentId);
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");
@@ -2271,6 +2273,7 @@ public class AuditLogServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
 
         Application application = new Application();
         application.setName("AuditLogApplication");
@@ -2278,7 +2281,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Delete");
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Delete", environmentId);
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");

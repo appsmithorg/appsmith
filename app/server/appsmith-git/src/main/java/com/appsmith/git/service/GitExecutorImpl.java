@@ -2,6 +2,7 @@ package com.appsmith.git.service;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
+import com.appsmith.external.constants.GitConstants;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -487,36 +488,51 @@ public class GitExecutorImpl implements GitExecutor {
 
                 Set<String> queriesModified = new HashSet<>();
                 Set<String> jsObjectsModified = new HashSet<>();
+                Set<String> pagesModified = new HashSet<>();
                 int modifiedPages = 0;
                 int modifiedQueries = 0;
                 int modifiedJSObjects = 0;
                 int modifiedDatasources = 0;
                 int modifiedJSLibs = 0;
                 for (String x : modifiedAssets) {
-                    if (x.contains(CommonConstants.CANVAS)) {
-                        modifiedPages++;
-                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
-                        String queryName = x.split(GitDirectories.ACTION_DIRECTORY + "/")[1];
-                        int position = queryName.indexOf("/");
+                    // begins with pages and filename and parent name should be same or contains widgets
+                    if (x.contains(CommonConstants.WIDGETS)) {
+                        if (!pagesModified.contains(getPageName(x))) {
+                            pagesModified.add(getPageName(x));
+                            modifiedPages++;
+                        }
+                    } else if (!x.contains(CommonConstants.WIDGETS)
+                            && x.startsWith(GitDirectories.PAGE_DIRECTORY)
+                            && !x.contains(GitDirectories.ACTION_DIRECTORY)
+                            && !x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY)) {
+                        if (!pagesModified.contains(getPageName(x))) {
+                            pagesModified.add(getPageName(x));
+                            modifiedPages++;
+                        }
+                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
+                        String queryName = x.split(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)[1];
+                        int position = queryName.indexOf(CommonConstants.DELIMITER_PATH);
                         if(position != -1) {
                             queryName = queryName.substring(0, position);
-                            String pageName = x.split("/")[1];
+                            String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
                             if (!queriesModified.contains(pageName + queryName)) {
                                 queriesModified.add(pageName + queryName);
                                 modifiedQueries++;
                             }
                         }
-                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/") && !x.endsWith(".json")) {
-                        String queryName = x.substring(x.lastIndexOf("/") + 1);
-                        String pageName = x.split("/")[1];
+                    } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + CommonConstants.DELIMITER_PATH) && !x.endsWith(CommonConstants.JSON_EXTENSION)) {
+                        String queryName = x.substring(x.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1);
+                        String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
                         if (!jsObjectsModified.contains(pageName + queryName)) {
                             jsObjectsModified.add(pageName + queryName);
                             modifiedJSObjects++;
                         }
-                    } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
+                    } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                         modifiedDatasources++;
-                    } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + "/")) {
+                    } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                         modifiedJSLibs++;
+                    } else if (x.equals(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION)) {
+                        response.setMigrationMessage(CommonConstants.FILE_MIGRATION_MESSAGE);
                     }
                 }
                 response.setModified(modifiedAssets);
@@ -555,6 +571,11 @@ public class GitExecutorImpl implements GitExecutor {
         .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .flatMap(response -> response)
         .subscribeOn(scheduler);
+    }
+
+    private String getPageName(String path) {
+        String[] pathArray = path.split(CommonConstants.DELIMITER_PATH);
+        return pathArray[1];
     }
 
     @Override

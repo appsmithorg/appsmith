@@ -87,7 +87,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 200);
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.BUTTON,
-        800,
+        400,
         400,
       );
       //_.entityExplorer.SelectEntityByName(_.draggableWidgets.BUTTONNAME("1"));

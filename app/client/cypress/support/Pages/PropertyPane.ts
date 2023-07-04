@@ -345,15 +345,12 @@ export class PropertyPane {
   }
 
   public RemoveText(endp: string, toVerifySave = true) {
-    cy.get(
-      this.locator._propertyControl +
-        endp.replace(/ +/g, "").toLowerCase() +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
+    this.agHelper
+      .GetElement(this.locator._propertyInputField(endp))
       .first()
       .scrollIntoView()
       .focus()
+      .wait(200)
       .type(this.selectAllJSObjectContentShortcut)
       .type("{backspace}", { force: true });
 
@@ -369,12 +366,8 @@ export class PropertyPane {
     if (removeText) {
       this.RemoveText(endp);
     }
-    cy.get(
-      this.locator._propertyControl +
-        endp.replace(/ +/g, "").toLowerCase() +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
+    this.agHelper
+      .GetElement(this.locator._propertyInputField(endp))
       .first()
       .then((el: any) => {
         cy.get(el).type(value, {
@@ -387,12 +380,8 @@ export class PropertyPane {
   }
 
   public ToggleCommentInTextField(endp: string) {
-    cy.get(
-      this.locator._propertyControl +
-        endp.replace(/ +/g, "").toLowerCase() +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
+    this.agHelper
+      .GetElement(this.locator._propertyInputField(endp))
       .first()
       .then((el: any) => {
         cy.get(el).type(this.agHelper.isMac ? "{meta}/" : "{ctrl}/");

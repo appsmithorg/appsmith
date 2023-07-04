@@ -1,14 +1,12 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.configurations.AirgapInstanceConfig;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @SpringBootTest
-@RequiredArgsConstructor
 class NetworkUtilsTest {
 
     private final AirgapInstanceConfig airgapInstanceConfig = new AirgapInstanceConfig();

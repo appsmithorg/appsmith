@@ -59,7 +59,7 @@ export enum GPTTask {
 
 export const GPT_JS_EXPRESSION = {
   id: GPTTask.JS_EXPRESSION,
-  desc: "Generate JS expression",
+  desc: "Generate Javascript expression",
   title: "Generate JS Code",
 };
 
@@ -95,7 +95,15 @@ function getPotentialEntityNamesFromMessage(
     .split(" ")
     .filter(Boolean)
     .map((word) => word?.toLowerCase());
-  const set = FuzzySet(entityNames);
+  const smallestEntityNameLength = Math.min(
+    ...entityNames.map((e) => e.length),
+  );
+  const set = FuzzySet(
+    entityNames,
+    true,
+    smallestEntityNameLength,
+    smallestEntityNameLength + 1,
+  );
   const exactMatches = new Set<string>();
   const partialMatches: [number, string][] = [];
   for (const word of words) {
@@ -188,9 +196,14 @@ export function useGPTContextGenerator(
   const actions = useSelector(getActionsForCurrentPage);
   const generator = useMemo(
     () =>
-      (prompt: TChatGPTPrompt): [TChatGPTContext, string] => {
-        const defaultContext = [{}, ""] as [TChatGPTContext, string];
+      (prompt: TChatGPTPrompt): [TChatGPTContext, string, boolean] => {
+        const defaultContext = [{}, "", true] as [
+          TChatGPTContext,
+          string,
+          boolean,
+        ];
         try {
+          let wrapWithBinding = true;
           const additionalQueries: string[] = [];
           if (prompt?.role !== "user") return defaultContext;
           const query = prompt.content;
@@ -224,6 +237,9 @@ export function useGPTContextGenerator(
             additionalQueries.push(
               `Return type of the expression should be of type '${triggerContext.type}'`,
             );
+            if (triggerContext.type === "regExp") {
+              wrapWithBinding = false;
+            }
           }
           if (dataTreePath) {
             const { entityName, propertyPath } =
@@ -243,6 +259,7 @@ export function useGPTContextGenerator(
               meta,
             },
             additionalQueries.join(QUERY_SEPARATOR),
+            wrapWithBinding,
           ];
         } catch (e) {
           return defaultContext;

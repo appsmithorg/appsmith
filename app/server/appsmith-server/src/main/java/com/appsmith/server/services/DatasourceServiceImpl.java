@@ -1,5 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -12,14 +15,20 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -84,5 +93,41 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 .tag(observationTag, Boolean.FALSE.toString())
                 .name(observationName)
                 .tap(Micrometer.observation(observationRegistry));
+    }
+
+    @Override
+    protected Flux<DatasourceStorage> organiseDatasourceStorages(@NotNull Datasource savedDatasource) {
+        Map<String, DatasourceStorageDTO> storages = savedDatasource.getDatasourceStorages();
+        int datasourceStorageDTOsAllowed = 2;
+        String storageMessage = "Error: Exceeded maximum allowed datasourceStorage count. Please provide a maximum of " +
+                datasourceStorageDTOsAllowed + " datasourceStorage items.";
+
+        if (storages.size() > datasourceStorageDTOsAllowed) {
+            if (savedDatasource.getMessages() == null) {
+                savedDatasource.setMessages(new HashSet<>());
+            }
+            // Since the datasource has been created we can't error out, we won't be creating any datasourceStorages,
+            // but sending back with the hint message.
+
+            log.debug("Error: Exceeded maximum allowed datasourceStorage count for datasource {} with datasourceId {}",
+                    savedDatasource.getName(), savedDatasource.getId());
+            savedDatasource.getMessages().add(storageMessage);
+            return Flux.empty();
+        }
+
+        Map<String, DatasourceStorage> storagesToBeSaved = new HashMap<>();
+
+        return Flux.fromIterable(storages.values())
+                .flatMap(datasourceStorageDTO ->
+                        this.getTrueEnvironmentId(savedDatasource.getWorkspaceId(), datasourceStorageDTO.getEnvironmentId())
+                                .map(trueEnvironmentId -> {
+                                    datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
+                                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+                                    datasourceStorage.prepareTransientFields(savedDatasource);
+                                    storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
+                                    return datasourceStorage;
+                                })
+                )
+                .thenMany(Flux.fromIterable(storagesToBeSaved.values()));
     }
 }
