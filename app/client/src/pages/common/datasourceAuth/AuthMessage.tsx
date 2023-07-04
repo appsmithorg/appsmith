@@ -55,7 +55,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasource.id),
   );
-  const pluginId: string = props?.datasource?.id || "";
+  const pluginId: string = props?.datasource?.pluginId || "";
   const plugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, pluginId),
   );
