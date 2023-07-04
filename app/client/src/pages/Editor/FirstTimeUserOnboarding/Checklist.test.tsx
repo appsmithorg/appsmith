@@ -102,6 +102,22 @@ describe("Checklist", () => {
     );
   });
 
+  it("disabled items should not be clickable", () => {
+    renderComponent(getStore(0));
+    const wrapper = screen.getAllByTestId("checklist-wrapper");
+    expect(wrapper.length).toBe(1);
+
+    const actionButton = screen.queryAllByTestId("checklist-action");
+    dispatch.mockClear();
+    fireEvent.click(actionButton[0]);
+    expect(dispatch).toHaveBeenCalledTimes(0);
+
+    const connectionButton = screen.queryAllByTestId("checklist-connection");
+    dispatch.mockClear();
+    fireEvent.click(connectionButton[0]);
+    expect(dispatch).toHaveBeenCalledTimes(0);
+  });
+
   it("with `add a datasource` task checked off", () => {
     renderComponent(getStore(1));
     const datasourceButton = screen.queryAllByTestId("checklist-datasource");

@@ -52,7 +52,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -1620,7 +1620,7 @@ public class DatabaseChangelog2 {
         return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
     }
 
-    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongoTemplate mongoTemplate, PolicyUtils policyUtils, Set<PermissionGroup> permissionGroups, Workspace workspace, Map<String, String> userIdForEmail, Set<String> validUserIds) {
+    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongoTemplate mongoTemplate, PolicySolution policySolution, Set<PermissionGroup> permissionGroups, Workspace workspace, Map<String, String> userIdForEmail, Set<String> validUserIds) {
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
                 .findFirst().get();
@@ -1741,8 +1741,8 @@ public class DatabaseChangelog2 {
         // Apply the permissions to the permission groups
         for (PermissionGroup permissionGroup : savedPermissionGroups) {
             for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
-                Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
+                policySolution.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
             }
         }
 
@@ -1762,7 +1762,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "024", id = "add-default-permission-groups", author = "")
-    public void addDefaultPermissionGroups(MongoTemplate mongoTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicyUtils policyUtils, UserRepository userRepository) {
+    public void addDefaultPermissionGroups(MongoTemplate mongoTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicySolution policySolution, UserRepository userRepository) {
 
         // Create a map of emails to userIds
         Map<String, String> userIdForEmail = mongoTemplate.stream(new Query(), User.class)
@@ -1802,12 +1802,12 @@ public class DatabaseChangelog2 {
                         // Set default permission groups
                         workspace.setDefaultPermissionGroups(permissionGroups.stream().map(PermissionGroup::getId).collect(Collectors.toSet()));
                         // Generate permissions and policies for the default permission groups
-                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongoTemplate, policyUtils, permissionGroups, workspace, userIdForEmail, validUserIds);
+                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongoTemplate, policySolution, permissionGroups, workspace, userIdForEmail, validUserIds);
                         // Apply the permissions to the workspace
                         for (PermissionGroup permissionGroup : permissionGroups) {
                             // Apply the permissions to the workspace
-                            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, workspace.getId());
-                            workspace = policyUtils.addPoliciesToExistingObject(policyMap, workspace);
+                            Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(permissionGroup, workspace.getId());
+                            workspace = policySolution.addPoliciesToExistingObject(policyMap, workspace);
                         }
                         // Save the workspace
                         mongoTemplate.save(workspace);
@@ -1917,7 +1917,7 @@ public class DatabaseChangelog2 {
                 });
     }
 
-    private void makeApplicationPublic(PolicyUtils policyUtils, PolicyGenerator policyGenerator, NewPageRepository newPageRepository, Application application, Workspace workspace, MongoTemplate mongoTemplate, User anonymousUser) {
+    private void makeApplicationPublic(PolicySolution policySolution, PolicyGenerator policyGenerator, NewPageRepository newPageRepository, Application application, Workspace workspace, MongoTemplate mongoTemplate, User anonymousUser) {
         PermissionGroup publicPermissionGroup = new PermissionGroup();
         publicPermissionGroup.setName(application.getName() + " Public");
         publicPermissionGroup.setTenantId(workspace.getTenantId());
@@ -1951,9 +1951,9 @@ public class DatabaseChangelog2 {
 
         String permissionGroupId = publicPermissionGroup.getId();
 
-        Map<String, Policy> applicationPolicyMap = policyUtils
+        Map<String, Policy> applicationPolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(AclPermission.READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> datasourcePolicyMap = policyUtils
+        Map<String, Policy> datasourcePolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(AclPermission.EXECUTE_DATASOURCES, permissionGroupId);
 
         Set<String> datasourceIds = new HashSet<>();
@@ -1976,14 +1976,14 @@ public class DatabaseChangelog2 {
                 });
 
         // Update and save application
-        application = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
+        application = policySolution.addPoliciesToExistingObject(applicationPolicyMap, application);
         mongoTemplate.save(application);
         applicationPolicies = application.getPolicies();
 
         // Update datasources
         mongoTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.id)).in(datasourceIds)), Datasource.class)
                 .forEach(datasource -> {
-                    datasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    datasource = policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
                     mongoTemplate.save(datasource);
                 });
 
@@ -2059,7 +2059,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "028", id = "make-applications-public", author = "")
-    public void makeApplicationsPublic(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, NewPageRepository newPageRepository) {
+    public void makeApplicationsPublic(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution, @NonLockGuarded PolicyGenerator policyGenerator, NewPageRepository newPageRepository) {
         User anonymousUser = mongoTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER)), User.class);
 
         // Rollback permission groups created on locked workspaces
@@ -2083,7 +2083,7 @@ public class DatabaseChangelog2 {
                             .first();
 
                     Workspace workspace = mongoTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QBaseDomain.baseDomain.id)).is(application.getWorkspaceId())), Workspace.class);
-                    makeApplicationPublic(policyUtils, policyGenerator, newPageRepository, application, workspace, mongoTemplate, anonymousUser);
+                    makeApplicationPublic(policySolution, policyGenerator, newPageRepository, application, workspace, mongoTemplate, anonymousUser);
                     // Remove makePublic flag from application
                     mongoTemplate.updateFirst(new Query().addCriteria(Criteria.where("_id").is(new ObjectId(application.getId()))),
                             new Update().unset("makePublic"),
@@ -2487,7 +2487,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
-    public void migratePublicAppsSinglePg(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public void migratePublicAppsSinglePg(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         Query anonymousUserPermissionConfig = new Query();
         anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
@@ -2659,7 +2659,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "035", id = "add-tenant-admin-permissions-instance-admin", author = "")
-    public void addTenantAdminPermissionsToInstanceAdmin(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addTenantAdminPermissionsToInstanceAdmin(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
@@ -2683,7 +2683,7 @@ public class DatabaseChangelog2 {
                         .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
                         .build()
         );
-        PermissionGroup instanceAdminPG = policyUtils.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
+        PermissionGroup instanceAdminPG = policySolution.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
 
         // Now add admin permissions to the tenant
         Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
@@ -2694,13 +2694,13 @@ public class DatabaseChangelog2 {
         instanceAdminPG.setPermissions(permissions);
         mongoTemplate.save(instanceAdminPG);
 
-        Map<String, Policy> tenantPolicy = policyUtils.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
-        Tenant updatedTenant = policyUtils.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        Map<String, Policy> tenantPolicy = policySolution.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
+        Tenant updatedTenant = policySolution.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
         mongoTemplate.save(updatedTenant);
     }
 
     @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
-    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
 
         Query query = new Query(Criteria.where("policies.permission").is("read:permissionGroups"));
         Update update = new Update().set("policies.$.permission", "read:permissionGroupMembers");
