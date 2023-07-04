@@ -4,7 +4,6 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  apiPage = ObjectsRegistry.ApiPage,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
@@ -93,9 +92,7 @@ describe("Validate basic Promises", () => {
 
   it("4. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
     deployMode.NavigateBacktoEditor();
-    cy.fixture("promisesBtnDsl").then((dsl: any) => {
-      agHelper.AddDsl(dsl, locator._spanButton("Submit"));
-    });
+    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
