@@ -3,9 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer tests related to widgets and validation", function () {
   before(() => {
-    cy.fixture("displayWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. Widget edit/delete/copy to clipboard validation", function () {

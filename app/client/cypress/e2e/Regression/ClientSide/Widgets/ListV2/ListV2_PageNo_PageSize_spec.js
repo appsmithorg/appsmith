@@ -86,9 +86,7 @@ const listData = [
 
 describe("List widget V2 page number and page size", () => {
   before(() => {
-    cy.fixture("listv2PaginationDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("listv2PaginationDsl");
   });
 
   beforeEach(() => {

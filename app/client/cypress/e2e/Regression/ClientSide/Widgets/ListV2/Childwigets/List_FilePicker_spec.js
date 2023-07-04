@@ -11,10 +11,9 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(" File Picker Widget", function () {
   before(() => {
-    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
+
   it("1. should test allowed values", function () {
     cy.dragAndDropToWidget("filepickerwidgetv2", "listwidgetv2", {
       x: 150,
