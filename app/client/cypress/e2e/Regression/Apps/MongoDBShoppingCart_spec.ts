@@ -131,7 +131,7 @@ describe("Shopping cart App", function () {
     agHelper.UpdateInput(appPage.bookquantity, 2, true);
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
-    agHelper.GetNClick(appPage.bookname)
+    agHelper.GetNClick(appPage.bookname);
     agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
     agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
     agHelper.UpdateInput(appPage.bookprice, 100, true);
