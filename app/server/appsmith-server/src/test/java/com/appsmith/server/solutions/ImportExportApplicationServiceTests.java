@@ -2200,6 +2200,16 @@ public class ImportExportApplicationServiceTests {
                 })
                 .cache();
 
+        StepVerifier.create(resultMonoWithoutDiscardOperation)
+                .assertNext(initialApplication -> {
+                    assertThat(initialApplication.getUnpublishedApplicationDetail()).isNotNull();
+                    assertThat(initialApplication.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(initialApplication.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(initialApplication.getPublishedApplicationDetail()).isNotNull();
+                    assertThat(initialApplication.getPublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(initialApplication.getPublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
+                })
+                .verifyComplete();
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication -> applicationJsonMono
@@ -2250,6 +2260,15 @@ public class ImportExportApplicationServiceTests {
                     return applicationService.save(application);
                 })
                 .cache();
+
+        StepVerifier.create(resultMonoWithoutDiscardOperation)
+                .assertNext(initialApplication -> {
+                    assertThat(initialApplication.getUnpublishedAppLayout()).isNotNull();
+                    assertThat(initialApplication.getUnpublishedAppLayout().getType()).isEqualTo(Application.AppLayout.Type.DESKTOP);
+                    assertThat(initialApplication.getPublishedAppLayout()).isNotNull();
+                    assertThat(initialApplication.getPublishedAppLayout().getType()).isEqualTo(Application.AppLayout.Type.DESKTOP);
+                })
+                .verifyComplete();
 
 
         // Import the same application again
