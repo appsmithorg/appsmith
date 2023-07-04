@@ -323,6 +323,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
+        isLabelInline={this.isAutoLayoutMode}
         isLoading={this.props.isLoading}
         isRequired={this.props.isRequired}
         key={this.props.widgetId}
@@ -331,6 +332,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        minHeight={this.props.minHeight}
         onCheckChange={this.onCheckChange}
         widgetId={this.props.widgetId}
       />
