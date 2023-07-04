@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget Functionality", function () {
   before(() => {
-    cy.fixture("formSelectTreeselectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formSelectTreeselectDsl");
   });
   it("Validate Select and TreeSelect Widget", function () {
     cy.get(widgetsPage.formButtonWidget)

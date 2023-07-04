@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Group Widget Functionality", function () {
   before(() => {
-    cy.fixture("SwitchGroupWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("SwitchGroupWidgetDsl");
   });
   /*
   afterEach(() => {

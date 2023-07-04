@@ -14,9 +14,7 @@ const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDat
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDslWithPagination").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDslWithPagination");
   });
 
   // To be done:

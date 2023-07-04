@@ -12,9 +12,8 @@ describe("Addwidget from Query and bind with other widgets", function () {
   });
 
   it("1. Create a query and populate response by choosing addWidget and validate in Table Widget & Bug 7413", () => {
-    cy.fixture("inputdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("inputdsl");
+
     cy.createPostgresDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
