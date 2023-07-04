@@ -240,20 +240,6 @@ export class CommonLocators {
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
-  _autoHeightLimitMin = "[data-testid='t--auto-height-overlay-handles-min']";
-  _autoHeightLimitMin_div =
-    "[data-testid='t--auto-height-overlay-handles-min'] div";
-  _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
-  _labelContains = (value: string) => `label:Contains('${value}')`;
-  _showColumnButton = ".t--show-column-btn";
-  _propertyPaneHeightLabel =
-    ".t--property-pane-section-general .t--property-control-label:contains('Height')";
-  _tabId1 = ".t--tabid-tab1";
-  _tabId2 = ".t--tabid-tab2";
-  _showTabsProperty = ".t--property-control-showtabs input";
-  _addOptionProperty = ".t--property-control-options-add";
-  _optionContent = ".rc-select-item-option-content";
-  _dropdownOptionSpan = ".t--dropdown-option span";
   _appEditMenu = "[data-testid='t--application-edit-menu']";
   _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
   _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
@@ -263,7 +249,6 @@ export class CommonLocators {
   _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
-  _toggle = ".t--widget-propertypane-toggle";
   _switchGroupControl =
     ".t--draggable-switchgroupwidget .bp3-control-indicator";
   _fontSelect = "fontsize .rc-select";

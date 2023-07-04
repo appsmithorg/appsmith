@@ -46,8 +46,8 @@ describe("Dynamic Height Width validation for multiple container", function () {
                     locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
                   )
                   .then((checkboxheight: number) => {
-                    agHelper.GetNClick(locators._addOptionProperty);
-                    agHelper.GetNClick(locators._addOptionProperty);
+                    agHelper.GetNClick(propPane._addOptionProperty);
+                    agHelper.GetNClick(propPane._addOptionProperty);
                     assertHelper.AssertNetworkStatus("@updateLayout", 200);
                     agHelper
                       .GetWidgetCSSHeight(

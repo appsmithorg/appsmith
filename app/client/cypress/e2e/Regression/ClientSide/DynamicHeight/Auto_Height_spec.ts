@@ -36,14 +36,14 @@ describe("Dynamic Height Width validation", function () {
             force: true,
           });
         agHelper
-          .GetElement(locators._optionContent)
+          .GetElement(propPane._optionContent)
           .should("have.length.greaterThan", 2)
           .its("length")
           .then((n) => {
             for (let i = 0; i < n; i++) {
               agHelper
                 .GetWidgetCSSFrAttribute(
-                  locators._optionContent,
+                  propPane._optionContent,
                   "font-size",
                   i,
                 )
@@ -60,14 +60,14 @@ describe("Dynamic Height Width validation", function () {
       )
       .then((dropdownFont) => {
         agHelper
-          .GetElement(locators._dropdownOptionSpan)
+          .GetElement(propPane._dropdownOptionSpan)
           .should("have.length.greaterThan", 2)
           .its("length")
           .then((n) => {
             for (let i = 0; i < n; i++) {
               agHelper
                 .GetWidgetCSSFrAttribute(
-                  locators._dropdownOptionSpan,
+                  propPane._dropdownOptionSpan,
                   "font-family",
                   i,
                 )
@@ -88,7 +88,7 @@ describe("Dynamic Height Width validation", function () {
             locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
           )
           .then((currentCheckboxheight) => {
-            agHelper.GetNClick(locators._addOptionProperty);
+            agHelper.GetNClick(propPane._addOptionProperty);
             agHelper.Sleep(200);
             assertHelper.AssertNetworkStatus("@updateLayout", 200);
             agHelper.Sleep(3000);
@@ -118,10 +118,10 @@ describe("Dynamic Height Width validation", function () {
       agHelper.AddDsl(val);
     });
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
-    agHelper.AssertElementVisible(locators._propertyPaneHeightLabel);
+    agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     entityExplorer.SelectEntityByName("Input1");
-    agHelper.AssertElementVisible(locators._propertyPaneHeightLabel);
+    agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper
       .GetWidgetCSSHeight(

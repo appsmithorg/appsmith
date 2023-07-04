@@ -20,28 +20,29 @@ describe("Dynamic Height Width validation list widget", function () {
     entityExplorer.SelectEntityByName("MultiTreeSelect1", "List1");
     agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
     agHelper.WaitUntilAllToastsDisappear();
+    agHelper.Sleep(2000);
     entityExplorer.SelectEntityByName("List1", "Widgets");
     propPane.MoveToTab("Style");
     agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
     agHelper.ValidateToastMessage(
       "This widget cannot be used inside the list widget.",
-      1,
+      0,
       1,
     );
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
       .then((currentListHeight: number) => {
         //Widgets within list widget have no dynamic height
-        agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         //Widgets within list widget in existing applications have no dynamic height
         entityExplorer.SelectEntityByName("Container1", "List1");
         entityExplorer.SelectEntityByName("Text1", "Container1");
 
-        agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         propPane.UpdatePropertyFieldValue("Text", textMsg, true);
         entityExplorer.SelectEntityByName("Container1", "List1");
         entityExplorer.SelectEntityByName("Text2", "Container1");
-        agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         propPane.UpdatePropertyFieldValue("Text", textMsg, true);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
@@ -50,7 +51,7 @@ describe("Dynamic Height Width validation list widget", function () {
           });
         entityExplorer.SelectEntityByName("Container1", "List1");
 
-        agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         //Widgets when moved into the list widget have no dynamic height
         entityExplorer.SelectEntityByName("Text3", "Widgets");
         propPane.MoveToTab("Style");
@@ -61,7 +62,7 @@ describe("Dynamic Height Width validation list widget", function () {
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
         entityExplorer.NavigateToSwitcher("Explorer");
         entityExplorer.SelectEntityByName("Text3Copy");
-        agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         agHelper.TypeText(locators._body, `{${modifierKey}}c`, 0, true);
         //agHelper.GetElement(locators._body).click({ force: true });
         agHelper.GetElement(locators._canvasBody).click({ force: true });
@@ -69,7 +70,7 @@ describe("Dynamic Height Width validation list widget", function () {
         assertHelper.AssertNetworkStatus("@updateLayout");
         //Widgets when moved out of the list widget have dynamic height in property pane
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
-        agHelper.AssertElementVisible(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
         agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TEXT));
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
@@ -96,7 +97,7 @@ describe("Dynamic Height Width validation list widget", function () {
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
         //Widgets when copied and pasted into the list widget no longer have dynamic height
         entityExplorer.SelectEntityByName("Text3CopyCopyCopy", "Container1");
-        agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         entityExplorer.SelectEntityByName("Text3CopyCopy");
         agHelper.TypeText(locators._body, `{${modifierKey}}x`, 0, true);
         entityExplorer.SelectEntityByName("List1");
@@ -105,7 +106,7 @@ describe("Dynamic Height Width validation list widget", function () {
         agHelper.TypeText(locators._body, `{${modifierKey}}v`, 0, true);
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
-        agHelper.AssertElementAbsence(locators._propertyPaneHeightLabel);
+        agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
       });
   });
 });

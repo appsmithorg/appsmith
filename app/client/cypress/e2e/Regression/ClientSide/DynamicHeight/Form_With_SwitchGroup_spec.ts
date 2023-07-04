@@ -44,6 +44,7 @@ describe("Dynamic Height Width validation", function () {
                       {"label": "Cream","value": "CREAM"}
                     ]`,
                 );
+                agHelper.Sleep(3000);
                 agHelper
                   .GetWidgetCSSHeight(
                     locators._widgetInDeployed(draggableWidgets.SWITCHGROUP),
@@ -71,7 +72,8 @@ describe("Dynamic Height Width validation", function () {
       }`,
     );
     agHelper.AssertElementLength(locators._modal, 1);
-    agHelper.GetNClick(locators._toggle, 1, true);
+    //propPane.TogglePropertyState("Switch","On");
+    entityExplorer.SelectEntityByName("Modal1");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper.GetNClick(locators._closeModal, 0, true);
   });

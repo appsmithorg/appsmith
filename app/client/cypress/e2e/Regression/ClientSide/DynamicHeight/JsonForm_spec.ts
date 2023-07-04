@@ -23,9 +23,9 @@ describe("Dynamic Height Width validation", function () {
           )
           .then((updatedFormheight: number) => {
             expect(initialFormheight).to.not.equal(updatedFormheight);
-            agHelper.GetNClick(locators._showColumnButton, 0);
-            agHelper.GetNClick(locators._showColumnButton, 1);
-            agHelper.GetNClick(locators._showColumnButton, 2);
+            agHelper.GetNClick(propPane._showColumnButton, 0);
+            agHelper.GetNClick(propPane._showColumnButton, 1);
+            agHelper.GetNClick(propPane._showColumnButton, 2);
             propPane.SelectPropertiesDropDown("height", "Fixed");
             agHelper.Sleep(5000);
             agHelper
@@ -34,8 +34,8 @@ describe("Dynamic Height Width validation", function () {
               )
               .then((reUpdatedFormheight: number) => {
                 expect(updatedFormheight).to.not.equal(reUpdatedFormheight);
-                agHelper.GetNClick(locators._showColumnButton, 2);
-                agHelper.GetNClick(locators._showColumnButton, 1);
+                agHelper.GetNClick(propPane._showColumnButton, 2);
+                agHelper.GetNClick(propPane._showColumnButton, 1);
                 propPane.SelectPropertiesDropDown("height", "Auto Height");
                 agHelper.Sleep(5000);
                 agHelper

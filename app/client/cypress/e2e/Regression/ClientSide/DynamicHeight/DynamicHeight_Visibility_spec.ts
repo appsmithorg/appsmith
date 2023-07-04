@@ -36,7 +36,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
           .then((updatedContainerHeight: number) => {
             expect(currentContainerHeight).to.equal(updatedContainerHeight);
             agHelper
-              .GetElement(locators._labelContains("On"))
+              .GetElement(propPane._labelContains("On"))
               .should("not.be.enabled");
             // agHelper.AssertElementEnabledDisabled(
             // locators._labelContains("On"),0,true
@@ -57,8 +57,8 @@ describe("Dynamic Height Width validation for Visibility", function () {
           )
           .then((updatedContainerHeight: number) => {
             expect(currentContainerHeight).to.not.equal(updatedContainerHeight);
-            agHelper.AssertElementAbsence(locators._labelContains("On"));
-            agHelper.AssertElementVisible(locators._labelContains("Off"));
+            agHelper.AssertElementAbsence(propPane._labelContains("On"));
+            agHelper.AssertElementVisible(propPane._labelContains("Off"));
             agHelper.GetNClick(pageSettings.locators._setHomePageToggle);
             agHelper.Sleep(2000);
             agHelper
@@ -69,8 +69,8 @@ describe("Dynamic Height Width validation for Visibility", function () {
                 expect(currentContainerHeight).to.not.equal(
                   updatedContainerHeight,
                 );
-                agHelper.AssertElementAbsence(locators._labelContains("Off"));
-                agHelper.AssertElementVisible(locators._labelContains("On"));
+                agHelper.AssertElementAbsence(propPane._labelContains("Off"));
+                agHelper.AssertElementVisible(propPane._labelContains("On"));
               });
           });
       });
