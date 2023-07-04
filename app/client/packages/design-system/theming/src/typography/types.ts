@@ -1,7 +1,6 @@
 import type { fontMetrics } from "./typography";
 
-// we use as const here because we need to iterate by values
-// in order to create objects with values for different variants of typography
+// we use "as const" here because we need to iterate by variants of typography
 export const TypographyVariant = {
   footnote: "footnote",
   body: "body",
@@ -11,12 +10,14 @@ export const TypographyVariant = {
   heading: "heading",
 } as const;
 
-export type TypographyType =
-  | "default"
-  | "neutral"
-  | "positive"
-  | "negative"
-  | "warn";
+// we use "as const" here because we need to iterate by types of typography
+export const TypographyType = {
+  default: "default",
+  neutral: "neutral",
+  positive: "positive",
+  negative: "negative",
+  warn: "warn",
+} as const;
 
 export type FontFamily = keyof typeof fontMetrics;
 

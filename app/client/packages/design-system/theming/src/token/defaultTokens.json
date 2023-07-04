@@ -1,6 +1,6 @@
 {
   "seedColor": "#553de9",
-  "fluidConfig": {
+  "fluid": {
     "minVw": 360,
     "maxVw": 1920,
     "rootUnit": {
@@ -39,7 +39,7 @@
     "1": "0px"
   },
   "boxShadow": {
-    "1": "0 0 0 0 rgba(0, 0, 0, 0.2)"
+    "1": "0 2px 2px 0 rgba(0, 0, 0, 0.2)"
   },
   "borderWidth": {
     "1": "1px",

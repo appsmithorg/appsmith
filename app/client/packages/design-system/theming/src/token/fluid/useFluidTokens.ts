@@ -9,10 +9,7 @@ import type { FluidConfig } from "./types";
 
 const RESIZE_DEBOUNCE_TIME = 300;
 
-export const useFluidTokens = (
-  fluidConfig: FluidConfig,
-  rootUnitRatio: number,
-) => {
+export const useFluidTokens = (fluidConfig: FluidConfig, rootUnitRatio = 1) => {
   const [typography, setTypography] = useState(
     getFluidTypography(fluidConfig, rootUnitRatio, window.innerWidth),
   );

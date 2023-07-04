@@ -23,10 +23,10 @@ const StyledThemeProvider = styled(ThemeProvider)`
 
 export const theming = (Story, args) => {
   const [rootUnitRatio, setRootUnitRatio] = useState(1);
-  const { fluidConfig, ...restDefaultTokens } = defaultTokens;
+  const { fluid, ...restDefaultTokens } = defaultTokens;
 
   const { typography, rootUnit, spacing, sizing } = useFluidTokens(
-    fluidConfig,
+    fluid,
     rootUnitRatio,
   );
 

@@ -33,14 +33,14 @@ export const Text = forwardRef(
 
     return (
       <StyledText
+        $isBold={isBold}
+        $isItalic={isItalic}
+        $lineClamp={lineClamp}
+        $textAlign={textAlign}
+        $variant={variant}
         className={classNames(className, getTypographyClassName(variant))}
-        isBold={isBold}
-        isItalic={isItalic}
-        lineClamp={lineClamp}
         ref={ref}
-        textAlign={textAlign}
         type={type}
-        variant={variant}
         {...rest}
       >
         <span>{children}</span>
