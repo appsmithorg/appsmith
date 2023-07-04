@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.constants.ce.LicensePlan;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.services.TenantService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
