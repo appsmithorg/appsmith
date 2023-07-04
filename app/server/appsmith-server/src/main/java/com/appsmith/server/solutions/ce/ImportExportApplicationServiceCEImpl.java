@@ -113,6 +113,7 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;
+import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -623,13 +624,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     @Override
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart, String applicationId) {
         // workspace id must be present and valid
-        if(StringUtils.isEmpty(workspaceId)) {
+        if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         Mono<ApplicationImportDTO> importedApplicationMono = extractApplicationJson(filePart)
                 .flatMap(applicationJson -> {
-                    if(StringUtils.isEmpty(applicationId)){
+                    if (StringUtils.isEmpty(applicationId)) {
                         return importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson);
                     } else {
                         return updateNonGitConnectedAppFromJson(workspaceId, applicationId, applicationJson);
@@ -683,9 +684,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * This function will take the Json filepart and updates/creates the application in workspace depending on presence
      * of applicationId field
      *
-     * @param workspaceId   Workspace to which the application needs to be hydrated
-     * @param applicationJson      Json file which contains the entire application object
-     * @param applicationId Optional field for application ref which needs to be overridden by the incoming JSON file
+     * @param workspaceId     Workspace to which the application needs to be hydrated
+     * @param applicationJson Json file which contains the entire application object
+     * @param applicationId   Optional field for application ref which needs to be overridden by the incoming JSON file
      * @return saved application in DB
      */
     private Mono<Application> updateNonGitConnectedAppFromJson(String workspaceId, String applicationId, ApplicationJson applicationJson) {
@@ -751,7 +752,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     @Override
     public Mono<Application> importNewApplicationInWorkspaceFromJson(String workspaceId, ApplicationJson importedDoc) {
         // workspace id must be present and valid
-        if(StringUtils.isEmpty(workspaceId)) {
+        if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
@@ -770,10 +771,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     /**
      * This function will update an existing application. The application is connected to Git.
-     * @param workspaceId workspace to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
-     * @param applicationId  application which needs to be saved with the updated resources
-     * @param branchName name of the git branch. null if not connected to git.
+     *
+     * @param workspaceId   workspace to which application is going to be stored
+     * @param importedDoc   application resource which contains necessary information to save the application
+     * @param applicationId application which needs to be saved with the updated resources
+     * @param branchName    name of the git branch. null if not connected to git.
      * @return saved application in DB
      */
     @Override
@@ -879,7 +881,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         List<DatasourceStorage> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
-        List<ActionCollection> importedActionCollectionList = CollectionUtils.isEmpty(importedDoc.getActionCollectionList())?
+        List<ActionCollection> importedActionCollectionList = CollectionUtils.isEmpty(importedDoc.getActionCollectionList()) ?
                 new ArrayList<>() : importedDoc.getActionCollectionList();
 
         Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
@@ -980,7 +982,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                     // Since the resource is already present in DB, just update resource
                                     Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasourceStorage.getGitSyncId());
-                                    if(!permissionProvider.hasEditPermission(existingDatasource)) {
+                                    if (!permissionProvider.hasEditPermission(existingDatasource)) {
                                         log.error("Trying to update datasource {} without edit permission", existingDatasource.getName());
                                         return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, existingDatasource.getId()));
                                     }
@@ -1020,7 +1022,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         workspace,
                                         environmentId,
                                         permissionProvider
-                                        );
+                                );
                             });
                 })
                 .collectMap(Datasource::getName, Datasource::getId)
@@ -1054,13 +1056,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                             unpublishedPages.addAll(existingApplication.getPages());
                                                             return Mono.just(existingApplication);
                                                         }
-                                                        importedApplication.setId(existingApplication.getId());
-                                                        // For the existing application we don't need to default value of the flag
-                                                        // The isPublic flag has a default value as false and this would be confusing to user
-                                                        // when it is reset to false during importing where the application already is present in DB
-                                                        importedApplication.setIsPublic(null);
-                                                        importedApplication.setPolicies(null);
-                                                        copyNestedNonNullProperties(importedApplication, existingApplication);
+                                                        setPropertiesToExistingApplication(importedApplication, existingApplication);
                                                         // We are expecting the changes present in DB are committed to git directory
                                                         // so that these won't be lost when we are pulling changes from remote and
                                                         // rehydrate the application. We are now rehydrating the application with/without
@@ -1659,7 +1655,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      *
      * @param existingDatasourceFlux already present datasource in the workspace
      * @param datasourceStorage      which will be checked against existing datasources
-     * @param workspace            workspace where duplicate datasource should be checked
+     * @param workspace              workspace where duplicate datasource should be checked
      * @return already present or brand new datasource depending upon the equality check
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
@@ -1686,7 +1682,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     // check if user has permission to create datasource
-                    if(!permissionProvider.canCreateDatasource(workspace)) {
+                    if (!permissionProvider.canCreateDatasource(workspace)) {
                         log.error("Unauthorized to create datasource: {} in workspace: {}", datasourceStorage.getName(), workspace.getName());
                         return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceStorage.getName()));
                     }
@@ -1972,8 +1968,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     /**
      * To send analytics event for import and export of application
      *
-     * @param application   Application object imported or exported
-     * @param event         AnalyticsEvents event
+     * @param application Application object imported or exported
+     * @param event       AnalyticsEvents event
      * @return The application which is imported or exported
      */
 
