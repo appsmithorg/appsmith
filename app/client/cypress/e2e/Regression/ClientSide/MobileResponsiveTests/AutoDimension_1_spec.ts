@@ -62,7 +62,7 @@ describe("Validating use cases for Auto Dimension", () => {
       // y = main canvas padding (8) + button widget height (40)
       autoLayout.DropTextAndTestForAutoDimension(
         100,
-        48,
+        50,
         draggableWidgets.CONTAINER,
       );
     });

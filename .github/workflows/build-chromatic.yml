@@ -1,0 +1,48 @@
+name: 'Build Storybook Preview and Publish to Chromatic'
+
+on:
+  push:
+    branches:
+      - release
+    paths:
+      - 'app/client/packages/design-system/**'
+  pull_request:
+    paths:
+      - 'app/client/packages/design-system/**'
+
+jobs:
+  chromatic-deployment:
+    runs-on: ubuntu-latest
+   
+    steps:
+      - name: Checkout PR if pull_request event
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout PR if push event
+        if: github.event_name == 'push'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: release
+
+      - name: Use Node.js 16.14.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.14.0"
+
+      - name: Install Dependencies
+        working-directory: ./app/client/packages/storybook
+        run: yarn install --immutable
+        
+      - name: Publish to Chromatic
+        id: chromatic-publish
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: ./app/client/packages/storybook
+          exitOnceUploaded: true

@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
-import { Icon, Text } from "design-system";
+import { Callout, Icon, Text } from "design-system";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -36,9 +36,13 @@ const Wrapper = styled.div`
   gap: 6px;
 `;
 
+const CalloutContainer = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
+`;
+
 const Changes = styled.div`
   margin-top: ${(props) => props.theme.spaces[7]}px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 export enum Kind {
@@ -49,6 +53,8 @@ export enum Kind {
   PAGE = "PAGE",
   QUERY = "QUERY",
   JS_LIB = "JS_LIB",
+  THEME = "THEME",
+  SETTINGS = "SETTINGS",
 }
 
 type GitStatusProps = {
@@ -71,6 +77,16 @@ const STATUS_MAP: GitStatusMap = {
     message: behindCommitMessage(status),
     iconName: "git-commit",
     hasValue: (status?.behindCount || 0) > 0,
+  }),
+  [Kind.SETTINGS]: (status: GitStatusData) => ({
+    message: `Application settings modified`,
+    iconName: "settings-2-line",
+    hasValue: (status?.modified || []).includes("application.json"),
+  }),
+  [Kind.THEME]: (status: GitStatusData) => ({
+    message: `Theme modified`,
+    iconName: "sip-line",
+    hasValue: (status?.modified || []).includes("theme.json"),
   }),
   [Kind.DATA_SOURCE]: (status: GitStatusData) => ({
     message: `${status?.modifiedDatasources || 0} ${
@@ -168,6 +184,8 @@ export function gitChangeListData(
   status: GitStatusData = defaultStatus,
 ): JSX.Element[] {
   const changeKind = [
+    Kind.SETTINGS,
+    Kind.THEME,
     Kind.PAGE,
     Kind.QUERY,
     Kind.JS_OBJECT,
@@ -202,6 +220,13 @@ export default function GitChangesList() {
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
   ) : changes.length ? (
-    <Changes data-testid={"t--git-change-statuses"}>{changes}</Changes>
+    <Changes data-testid={"t--git-change-statuses"}>
+      {changes}
+      {status?.migrationMessage ? (
+        <CalloutContainer>
+          <Callout kind="info">{status.migrationMessage}</Callout>
+        </CalloutContainer>
+      ) : null}
+    </Changes>
   ) : null;
 }

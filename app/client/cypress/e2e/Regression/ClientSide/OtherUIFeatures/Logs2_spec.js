@@ -234,7 +234,7 @@ describe("Debugger logs", function () {
     _.jsEditor.RunJSObj();
     _.agHelper.GetNClick(_.jsEditor._logsTab);
     _.debuggerHelper.DoesConsoleLogExist(`${logString}`);
-    _.debuggerHelper.Assert_Consecutive_Console_Log_Count(5);
+    _.debuggerHelper.AssertConsecutiveConsoleLogCount(5);
   });
 
   it("8. Console log should not mutate the passed object", function () {
@@ -290,5 +290,32 @@ describe("Debugger logs", function () {
     _.debuggerHelper.ClicklogEntityLink(0);
 
     cy.get(".t--js-action-name-edit-field").should("exist");
+  });
+
+  it("10. Bug #24039 - Logs errors from setInterval callback into debugger", () => {
+    _.entityExplorer.NavigateToSwitcher("Widgets");
+    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 400, 600);
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.SelectPlatformFunction("onClick", "Set interval");
+    _.agHelper.EnterActionValue(
+      "Callback function",
+      `{{() => { 
+        try {
+          Test.run();
+        } catch (e) {
+          clearInterval('myInterval');
+          throw e;
+        } 
+      }
+      }}`,
+    );
+    _.agHelper.EnterActionValue("Id", "myInterval");
+    _.agHelper.Sleep();
+    _.agHelper.GetNClick(_.jsEditor._logsTab);
+    _.debuggerHelper.ClearLogs();
+    _.agHelper.ClickButton("Submit");
+    _.debuggerHelper.DoesConsoleLogExist(
+      "Uncaught ReferenceError: Test is not defined",
+    );
   });
 });

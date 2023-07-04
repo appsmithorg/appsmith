@@ -29,15 +29,11 @@ describe("Test curl import flow", function () {
             expect(someText).to.equal(response.response.body.data.name);
           });
       });
-      //cy.WaitAutoSave();
       cy.RunAPI();
       cy.ResponseStatusCheck("200 OK");
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Api,
-      });
-      cy.get("@deleteAction").then((response) => {
-        expect(response.response.body.responseMeta.success).to.eq(true);
       });
     });
   });

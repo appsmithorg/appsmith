@@ -55,7 +55,7 @@ describe("Git sync:", function () {
 
     cy.get(gitSyncLocators.branchSearchInput).should(
       "have.value",
-      "special&branch-name~@#$%^&*()_+={}[]><,.",
+      "special_branch-name_____________________",
     );
 
     cy.wait(200);
@@ -147,7 +147,7 @@ describe("Git sync:", function () {
 
       const urlObject = new URL(url);
       urlObject.searchParams.set(branchQueryKey, childBranchKey);
-      cy.visit(urlObject.toString());
+      cy.visit(urlObject.toString(), { timeout: 60000 });
 
       cy.get(".ads-v2-spinner").should("exist");
       cy.get(".ads-v2-spinner").should("not.exist");
@@ -164,7 +164,7 @@ describe("Git sync:", function () {
       cy.url().then((url) => {
         const urlObject = new URL(url);
         urlObject.searchParams.set(branchQueryKey, parentBranchKey);
-        cy.visit(urlObject.toString());
+        cy.visit(urlObject.toString(), { timeout: 60000 });
 
         cy.wait("@getPagesForViewApp").should(
           "have.nested.property",

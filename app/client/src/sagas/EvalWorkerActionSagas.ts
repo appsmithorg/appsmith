@@ -2,7 +2,10 @@ import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
-import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
+import {
+  evalErrorHandler,
+  logJSVarMutationEvent,
+} from "../sagas/PostEvaluationSagas";
 import type { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
@@ -19,7 +22,10 @@ import {
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
-import type { EvalTreeResponseData } from "workers/Evaluation/types";
+import type {
+  EvalTreeResponseData,
+  JSVarMutatedEvents,
+} from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
 
@@ -175,6 +181,11 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
         unevalTree,
         requiresLogging: false,
       });
+      break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_JS_VAR_MUTATION_EVENTS: {
+      const jsVarMutatedEvents: JSVarMutatedEvents = data;
+      yield call(logJSVarMutationEvent, jsVarMutatedEvents);
     }
   }
 

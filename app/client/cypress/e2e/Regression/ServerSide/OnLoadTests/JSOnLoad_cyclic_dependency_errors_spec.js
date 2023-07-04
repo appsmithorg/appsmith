@@ -38,10 +38,10 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     "1. Create Users Sample DB Query & Simulate cyclic depedency",
     () => {
       //Step1 : Create Mock Users DB
-      dataSources.CreateMockDB("Users").then((dbName) => {
-        dataSources.CreateQueryFromActiveTab(dbName, false);
-        agHelper.GetNClick(dataSources._templateMenuOption("Select"));
+      dataSources.CreateMockDB("Users").then(() => {
+        dataSources.CreateQueryAfterDSSaved();
         dataSources.ToggleUsePreparedStatement(false);
+        dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       });
       entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
@@ -68,7 +68,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
       });
       cy.wait(1000);
       cy.get(datasource.createQuery).click();
-      agHelper.GetNClick(dataSources._templateMenuOption("Select"));
+      dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       dataSources.ToggleUsePreparedStatement(false);
       entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
