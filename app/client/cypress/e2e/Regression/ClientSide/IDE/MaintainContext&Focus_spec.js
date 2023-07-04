@@ -180,7 +180,6 @@ describe("MaintainContext&Focus", function () {
   it("4. Datasource edit mode has to be maintained", () => {
     _.entityExplorer.SelectEntityByName("Appsmith", "Datasources");
     _.dataSources.EditDatasource();
-    _.dataSources.ExpandSection(0);
     _.agHelper.GoBack();
     _.entityExplorer.SelectEntityByName("Github", "Datasources");
     _.dataSources.AssertDSEditViewMode("View");

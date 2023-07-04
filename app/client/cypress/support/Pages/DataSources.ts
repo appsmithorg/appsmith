@@ -377,23 +377,6 @@ export class DataSources {
     this.agHelper.GetNClick(this._editButton);
   }
 
-  public ExpandSection(index: number) {
-    cy.get(this._collapseContainer).eq(index).click();
-    cy.get(this._collapseSettings).should("be.visible");
-  }
-
-  public ExpandSectionByName(sectionName: string) {
-    // Click on collapse section only if it collapsed, if it is expanded we ignore
-    this.agHelper
-      .GetElement(this._sectionState(sectionName))
-      .invoke("attr", "aria-hidden")
-      .then((hidden: any) => {
-        if (hidden == "true") {
-          this.agHelper.GetNClick(this._section(sectionName));
-        }
-      });
-  }
-
   public AssertSectionCollapseState(index: number, collapsed = false) {
     if (collapsed) {
       cy.get(this._collapseSettings).should("not.be.visible");
@@ -441,14 +424,12 @@ export class DataSources {
     );
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
       username == "" ? this.hp.postgres_username : username,
     );
     cy.get(this._password).type(
       password == "" ? this.hp.postgres_username : password,
     );
-    this.ExpandSectionByName("SSL (optional)");
     this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
@@ -466,7 +447,6 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.oracle_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
       username == "" ? this.hp.oracle_username : username,
     );
@@ -481,7 +461,6 @@ export class DataSources {
       : this.hp.mongo_host;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.mongo_port.toString());
-    this.ExpandSectionByName("Authentication");
     cy.get(this._databaseName).clear().type(this.hp.mongo_databaseName);
   }
 
@@ -496,7 +475,6 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.mysql_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.mysql_username);
     cy.get(this._password).type(this.hp.mysql_password);
   }
@@ -509,7 +487,6 @@ export class DataSources {
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
     // ); //Commenting until MsSQL is init loaded into container
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.mssql_username);
     this.agHelper.UpdateInputValue(this._password, this.hp.mssql_password);
   }
@@ -534,7 +511,6 @@ export class DataSources {
     this.agHelper
       .GetText(this._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.arango_username);
     this.agHelper.UpdateInputValue(this._password, this.hp.arango_password);
   }
@@ -581,7 +557,6 @@ export class DataSources {
   public FillElasticSearchDSForm() {
     this.agHelper.UpdateInputValue(this._host, this.hp.elastic_host);
     this.agHelper.UpdateInputValue(this._port, this.hp.elastic_port.toString());
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.elastic_username);
     this.agHelper.UpdateInputValue(this._password, this.hp.elastic_password);
   }
@@ -1113,7 +1088,6 @@ export class DataSources {
 
   //Update with new password in the datasource conf page
   public UpdatePassword(newPassword: string) {
-    this.ExpandSectionByName("Authentication");
     cy.get(this._password).type(newPassword);
   }
 
