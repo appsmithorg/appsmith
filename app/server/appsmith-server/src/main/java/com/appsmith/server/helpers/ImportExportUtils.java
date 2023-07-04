@@ -2,12 +2,15 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.TransactionException;
 
 import java.util.Map;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
 public class ImportExportUtils {
@@ -39,10 +42,10 @@ public class ImportExportUtils {
      * @return
      */
     public static String sanitizeDatasourceInActionDTO(ActionDTO actionDTO,
-                                                 Map<String, String> datasourceMap,
-                                                 Map<String, String> pluginMap,
-                                                 String workspaceId,
-                                                 boolean isExporting) {
+                                                       Map<String, String> datasourceMap,
+                                                       Map<String, String> pluginMap,
+                                                       String workspaceId,
+                                                       boolean isExporting) {
 
         if (actionDTO != null && actionDTO.getDatasource() != null) {
 
@@ -68,5 +71,35 @@ public class ImportExportUtils {
         }
 
         return "";
+    }
+
+    public static void setPropertiesToExistingApplication(Application importedApplication, Application existingApplication) {
+        importedApplication.setId(existingApplication.getId());
+        // For the existing application we don't need to default
+        // value of the flag
+        // The isPublic flag has a default value as false and this
+        // would be confusing to user
+        // when it is reset to false during importing where the
+        // application already is present in DB
+        importedApplication.setIsPublic(null);
+        importedApplication.setPolicies(null);
+        // These properties are not present in the application when it is created, hence the initial commit
+        // to git doesn't contain these keys and if we want to discard the changes, the function
+        // copyNestedNonNullProperties
+        // ignore these properties and the changes are not discarded
+        if (importedApplication.getUnpublishedApplicationDetail() == null) {
+            existingApplication.setUnpublishedApplicationDetail(null);
+        }
+        if (importedApplication.getPublishedApplicationDetail() == null) {
+            existingApplication.setPublishedApplicationDetail(null);
+        }
+        if (importedApplication.getPublishedAppLayout() == null) {
+            existingApplication.setPublishedAppLayout(null);
+        }
+        if (importedApplication.getUnpublishedAppLayout() == null) {
+            existingApplication.setUnpublishedAppLayout(null);
+        }
+
+        copyNestedNonNullProperties(importedApplication, existingApplication);
     }
 }

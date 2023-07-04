@@ -112,6 +112,7 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;
+import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -834,36 +835,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         return errorField;
-    }
-
-    private void setPropertiesToExistingApplication(Application importedApplication, Application existingApplication) {
-        importedApplication.setId(existingApplication.getId());
-        // For the existing application we don't need to default
-        // value of the flag
-        // The isPublic flag has a default value as false and this
-        // would be confusing to user
-        // when it is reset to false during importing where the
-        // application already is present in DB
-        importedApplication.setIsPublic(null);
-        importedApplication.setPolicies(null);
-        // These properties are not present in the application when it is created, hence the initial commit
-        // to git doesn't contain these keys and if we want to discard the changes, the function
-        // copyNestedNonNullProperties
-        // ignore these properties and the changes are not discarded
-        if (importedApplication.getUnpublishedApplicationDetail() == null) {
-            existingApplication.setUnpublishedApplicationDetail(null);
-        }
-        if (importedApplication.getPublishedApplicationDetail() == null) {
-            existingApplication.setPublishedApplicationDetail(null);
-        }
-        if (importedApplication.getPublishedAppLayout() == null) {
-            existingApplication.setPublishedAppLayout(null);
-        }
-        if (importedApplication.getUnpublishedAppLayout() == null) {
-            existingApplication.setUnpublishedAppLayout(null);
-        }
-
-        copyNestedNonNullProperties(importedApplication, existingApplication);
     }
 
     /**
