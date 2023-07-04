@@ -12,7 +12,7 @@ describe("Test Create Api and Bind to Table widget", function () {
       this.dataSet.paginationParam,
     );
     _.agHelper.VerifyEvaluatedValue(
-      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=5",
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
     cy.RunAPI();
   });
