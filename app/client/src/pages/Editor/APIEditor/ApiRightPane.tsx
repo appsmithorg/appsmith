@@ -190,6 +190,7 @@ function ApiRightPane(props: any) {
     props.actionName,
   );
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
+  const currentEnvironmentId = getCurrentEnvironment();
 
   const setSelectedTab = useCallback((selectedIndex: string) => {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));
@@ -278,10 +279,8 @@ function ApiRightPane(props: any) {
                         />
                       </DataSourceNameContainer>
                       <DatasourceURL>
-                        {
-                          d.datasourceStorages[getCurrentEnvironment()]
-                            .datasourceConfiguration?.url
-                        }
+                        {d.datasourceStorages[currentEnvironmentId]
+                          ?.datasourceConfiguration?.url || ""}
                       </DatasourceURL>
                       {dataSourceInfo && (
                         <Text type={TextType.P3} weight={FontWeight.NORMAL}>
