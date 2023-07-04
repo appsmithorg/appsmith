@@ -1,52 +1,54 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Rest Bugs tests", function () {
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   it("1. Bug 5550: Not able to run APIs in parallel", function () {
     cy.fixture("apiParallelDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     cy.get(".ads-v2-spinner").should("not.exist");
 
     //Api 1
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       "https://api.thecatapi.com/v1/images/search",
       "CatImage",
     );
-    _.agHelper.PressEscape();
+    agHelper.PressEscape();
 
     //Api 2
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       "https://dog.ceo/api/breeds/image/random",
       "DogImage",
     );
-    _.agHelper.PressEscape();
+    agHelper.PressEscape();
 
     //Api 3
-    _.apiPage.CreateAndFillApi(
-      "http://numbersapi.com/random/math",
-      "NumberFact",
-    );
-    _.agHelper.PressEscape();
+    apiPage.CreateAndFillApi("http://numbersapi.com/random/math", "NumberFact");
+    agHelper.PressEscape();
 
     //Api 4
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita",
       "CocktailDB",
     );
-    _.agHelper.PressEscape();
+    agHelper.PressEscape();
 
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
-    _.agHelper.ClickButton("Invoke APIs!");
+    entityExplorer.SelectEntityByName("Page1", "Pages");
+    agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
     //Cat Image
@@ -128,13 +130,13 @@ describe("Rest Bugs tests", function () {
 
   it("2. Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
     cy.startErrorRoutes();
-    _.entityExplorer.AddNewPage();
+    entityExplorer.AddNewPage();
     //Api 1
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       "https://api.thecatapi.com/v1/images/search",
       "InternalServerErrorApi",
     );
-    _.apiPage.RunAPI(false);
+    apiPage.RunAPI(false);
     cy.wait("@postExecuteError");
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.get(commonlocators.debuggerLabel)
@@ -146,27 +148,27 @@ describe("Rest Bugs tests", function () {
 
   it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
     cy.fixture("apiTableDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
     cy.wait(5000); //settling time for dsl!
     cy.get(".ads-v2-spinner").should("not.exist");
     //Api 1
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       "https://api.coinbase.com/v2/currencies",
       "Currencies",
     );
-    _.apiPage.RunAPI(false);
+    apiPage.RunAPI(false);
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-    _.entityExplorer.SelectEntityByName("Currencies", "Queries/JS");
-    _.apiPage.EnterURL("https://api.coinbase.com/v2/");
-    _.agHelper.Sleep();
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Currencies", "Queries/JS");
+    apiPage.EnterURL("https://api.coinbase.com/v2/");
+    agHelper.Sleep();
     // cy.get(".t--dataSourceField").then(($el) => {
     //   cy.updateCodeInput($el, "https://api.coinbase.com/v2/");
     // });
-    _.apiPage.RunAPI(false);
-    _.agHelper.AssertElementAbsence(
-      _.locators._specificToast("Cyclic dependency found while evaluating"),
+    apiPage.RunAPI(false);
+    agHelper.AssertElementAbsence(
+      locators._specificToast("Cyclic dependency found while evaluating"),
     );
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
@@ -180,13 +182,13 @@ describe("Rest Bugs tests", function () {
   });
 
   it("Bug 13515: API Response gets garbled if encoded with gzip", function () {
-    _.apiPage.CreateAndFillApi(
+    apiPage.CreateAndFillApi(
       "https://postman-echo.com/gzip",
       "GarbledResponseAPI",
       30000,
     );
-    _.apiPage.RunAPI(false);
-    _.apiPage.SelectPaneTab("Response");
+    apiPage.RunAPI(false);
+    apiPage.SelectPaneTab("Response");
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       const bodyArr = response.body.data.body;

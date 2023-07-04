@@ -1,6 +1,5 @@
 import { createGlobalStyle } from "styled-components";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { getTypographyByKey } from "design-system-old";
 import type { Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
 
@@ -18,7 +17,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       margin-top: ${(props) => props.theme.spaces[3]}px;
       padding: 0px 0px;
       font-family: monospace;
-      max-height: 20em;
+      max-height: 25em;
       overflow-y: auto;
       background: var(--ads-v2-color-bg);
       box-shadow: var(--ads-v2-shadow-popovers);
@@ -48,25 +47,44 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
 
     .CodeMirror-command-header {
-      padding: 0 ${(props) => props.theme.spaces[3]}px;
-      color: var(--ads-v2-color-fg-emphasis-plus);
+      padding: 0 12px;
+      color: var(--ads-v2-color-fg);
       pointer-events: none !important;
       font-family: ${(props) => props.theme.fonts.text};
-      ${getTypographyByKey("p3")}
-      font-weight: 600;
+      font-size:12px;
+      position: relative;
+      height: 30px;
+      marign: 0 4px;
+      &:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 4px;
+        right: 4px;
+        width: calc(100% - 8px);
+        height: 1px;
+        background: var(--ads-v2-color-border);
+      }
     }
 
     .CodeMirror-commands {
+      &:first-child {
+        margin-top: 4px
+      }
+      &:last-child {
+        margin-bottom: 4px
+      }
       color: var(--ads-v2-color-fg);
       position: relative;
-      padding: 0 ${(props) => props.theme.spaces[3]}px !important;
-      height: 25px;
+      padding: 4px !important;
+      height: auto;
       font-family: ${(props) => props.theme.fonts.text};
-      ${getTypographyByKey("p3")}
+      font-size:14px;
+      margin: 0 4px;
+      &:hover {
+        border-radius: var(--ads-v2-border-radius);
+      }
       &.CodeMirror-hint-active {
-        .shortcut {
-          color: var(--ads-v2-color-bg);
-        }
         .magic {
           path {
             fill: black;
@@ -75,36 +93,37 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         .add-datasource-icon {
           background: var(--ads-v2-color-bg);
         }
+        .command-container {
+          .command-desc {
+            display: flex;
+          }
+        }
       }
       .command-container {
         display: flex;
-        align-items: center;
+        align-items: start;
+        flex-direction: column;
+        gap: 4px;
         justify-content: space-between;
-        padding: 5px 0;
         flex: 1;
+        padding: 6px;
+        .command-desc {
+          display: none;
+          font-size: 12px;
+          color: #6A7585;
+        }
       }
       .command {
         display: flex;
         align-items: center;
-        > div {
-          img {
-            height: 14px;
-            width: 14px;
-          }
-        }
-      }
-      .shortcut {
-        font-style: italic;
-        font-size: 10px;
-        color: var(--ads-v2-color-fg);
+        gap: 8px;
       }
     }
 
     .CodeMirror-hint-header {
-      padding-left: 8px;
-      color: var(--ads-v2-color-fg-emphasis);
+      padding: 8px;
+      color: var(--ads-v2-color-fg);
       pointer-events: none !important;
-      font-weight: 600;
     }
 
     .datasource-hint {

@@ -17,7 +17,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
@@ -83,7 +83,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final AssetService assetService;
     private final ApplicationRepository applicationRepository;
     protected final PermissionGroupService permissionGroupService;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final ModelMapper modelMapper;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
@@ -102,7 +102,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   AssetService assetService,
                                   ApplicationRepository applicationRepository,
                                   PermissionGroupService permissionGroupService,
-                                  PolicyUtils policyUtils,
+                                  PolicySolution policySolution,
                                   ModelMapper modelMapper,
                                   WorkspacePermission workspacePermission,
                                   PermissionGroupPermission permissionGroupPermission) {
@@ -114,7 +114,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.assetService = assetService;
         this.applicationRepository = applicationRepository;
         this.permissionGroupService = permissionGroupService;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.modelMapper = modelMapper;
         this.workspacePermission = workspacePermission;
         this.permissionGroupPermission = permissionGroupPermission;
@@ -226,8 +226,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         .collect(Collectors.toSet()));
         // Apply the permissions to the workspace
         for (PermissionGroup permissionGroup : permissionGroups) {
-            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
-            createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
+            Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
+            createdWorkspace = policySolution.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
         return repository.save(createdWorkspace);
     }
@@ -373,8 +373,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     // Apply the permissions to the permission groups
                     for (PermissionGroup permissionGroup : savedPermissionGroups) {
                         for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
-                            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                            policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                            Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
+                            policySolution.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
                         }
                     }
 
