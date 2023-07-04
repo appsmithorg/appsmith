@@ -40,4 +40,21 @@ describe("Datasource form related tests", function () {
     dataSources.DeleteQuery("Query1");
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
+
+  it("3. Verify if schema (table and column) exist in query editor and searching works", () => {
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    agHelper.RefreshPage();
+    dataSources.CreateMockDB("Users");
+    dataSources.CreateQueryAfterDSSaved();
+    dataSources.VerifyTableSchemaOnQueryEditor("public.users");
+    ee.ExpandCollapseEntity("public.users");
+    dataSources.VerifyColumnSchemaOnQueryEditor("id");
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch(
+      "gender",
+      true,
+      "column",
+    );
+  });
 });
