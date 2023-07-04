@@ -71,7 +71,7 @@
   "mongoUriYes": "//div[text()='Yes']",
   "mongoUriInput": "//p[text()='Connection string URI']/following-sibling::div//input",
   "advancedSettings": "[data-testid='section-Advanced Settings'] .t--collapse-section-container",
-  "useSelfSignedCert": ".t--connection\\.ssl\\.authType",
+  "useSelfSignedCert": "[data-testid='connection.ssl.authTypeControl']",
   "useCertInAuth": "[data-testid='authentication.useSelfSignedCert']",
   "certificateDetails": "[data-testid='section-Certificate Details'] .t--collapse-section-container",
   "saveBtn": ".t--save-datasource",
