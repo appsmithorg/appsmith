@@ -14,6 +14,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import { noop } from "utils/AppsmithUtils";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -31,6 +32,7 @@ function NewActionButton(props: NewActionButtonProps) {
   const dispatch = useDispatch();
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
+  const currentEnvironment = getCurrentEnvironment();
 
   const createQueryAction = useCallback(
     (e) => {
@@ -38,8 +40,10 @@ function NewActionButton(props: NewActionButtonProps) {
       if (
         pluginType === PluginType.API &&
         (!datasource ||
-          !datasource.datasourceConfiguration ||
-          !datasource.datasourceConfiguration.url)
+          !datasource.datasourceStorages[currentEnvironment]
+            .datasourceConfiguration ||
+          !datasource.datasourceStorages[currentEnvironment]
+            .datasourceConfiguration.url)
       ) {
         toast.show(ERROR_ADD_API_INVALID_URL(), {
           kind: "error",
