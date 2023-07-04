@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
@@ -9,6 +9,7 @@ import {
   migrateTableWidgetNumericColumnName,
   migrateTableWidgetV2ValidationBinding,
   migrateTableWidgetV2SelectOption,
+  migrateTableWidgetTableDataJsMode,
 } from "./TableWidget";
 
 const input1: DSLWidget = {
@@ -1211,7 +1212,7 @@ describe("Table Widget Property Pane Upgrade", () => {
 
 describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
   it("sanitizes primaryColumns, dynamicBindingPathList, columnOrder", () => {
-    const inputDsl = ({
+    const inputDsl = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1080,
@@ -1349,7 +1350,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
           },
         },
       ],
-    } as unknown) as DSLWidget;
+    } as unknown as DSLWidget;
 
     const outputDsl = {
       widgetName: "MainContainer",
@@ -1491,7 +1492,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
       ],
     };
 
-    const badDsl = ({
+    const badDsl = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1080,
@@ -1576,7 +1577,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
           },
         },
       ],
-    } as unknown) as DSLWidget;
+    } as unknown as DSLWidget;
 
     const fixedDsl = {
       widgetName: "MainContainer",
@@ -2640,7 +2641,7 @@ describe("migrateTableWidgetV2ValidationBinding", () => {
 
   it("should test that binding of isColumnEditableCellValid is getting updated", () => {
     expect(
-      migrateTableWidgetV2ValidationBinding(({
+      migrateTableWidgetV2ValidationBinding({
         children: [
           {
             widgetName: "Table",
@@ -2657,7 +2658,7 @@ describe("migrateTableWidgetV2ValidationBinding", () => {
             },
           },
         ],
-      } as any) as DSLWidget),
+      } as any as DSLWidget),
     ).toEqual({
       children: [
         {
@@ -2682,7 +2683,7 @@ describe("migrateTableWidgetV2ValidationBinding", () => {
 describe("migrateTableWidgetV2SelectOption", () => {
   it("should test that binding of selectOption is getting updated", () => {
     expect(
-      migrateTableWidgetV2SelectOption(({
+      migrateTableWidgetV2SelectOption({
         children: [
           {
             widgetName: "Table",
@@ -2703,7 +2704,7 @@ describe("migrateTableWidgetV2SelectOption", () => {
             },
           },
         ],
-      } as any) as DSLWidget),
+      } as any as DSLWidget),
     ).toEqual({
       children: [
         {
@@ -2724,6 +2725,105 @@ describe("migrateTableWidgetV2SelectOption", () => {
               selectOptions: "{{[{label: 1, value: 2}]}}",
             },
           },
+        },
+      ],
+    });
+  });
+});
+
+describe("migrateTableWidgetTableDataJsMode", () => {
+  it("should test that tableData js mode is enabled", () => {
+    expect(
+      migrateTableWidgetTableDataJsMode({
+        children: [
+          {
+            widgetName: "Table",
+            type: "TABLE_WIDGET_V2",
+            primaryColumns: {
+              step: {
+                columnType: "select",
+                selectOptions: "[{label: 1, value: 2}]",
+              },
+              task: {
+                columnType: "select",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+              status: {
+                columnType: "text",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+            },
+          },
+          {
+            widgetName: "Table1",
+            type: "TABLE_WIDGET_V2",
+            primaryColumns: {
+              step: {
+                columnType: "select",
+                selectOptions: "[{label: 1, value: 2}]",
+              },
+              task: {
+                columnType: "select",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+              status: {
+                columnType: "text",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+            },
+            dynamicPropertyPathList: [{ key: "test" }],
+          },
+          {
+            widgetName: "Text",
+            type: "TEXT_WIDGET",
+            dynamicPropertyPathList: [{ key: "test" }],
+          },
+        ],
+      } as any as DSLWidget),
+    ).toEqual({
+      children: [
+        {
+          widgetName: "Table",
+          type: "TABLE_WIDGET_V2",
+          primaryColumns: {
+            step: {
+              columnType: "select",
+              selectOptions: "[{label: 1, value: 2}]",
+            },
+            task: {
+              columnType: "select",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+            status: {
+              columnType: "text",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+          },
+          dynamicPropertyPathList: [{ key: "tableData" }],
+        },
+        {
+          widgetName: "Table1",
+          type: "TABLE_WIDGET_V2",
+          primaryColumns: {
+            step: {
+              columnType: "select",
+              selectOptions: "[{label: 1, value: 2}]",
+            },
+            task: {
+              columnType: "select",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+            status: {
+              columnType: "text",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+          },
+          dynamicPropertyPathList: [{ key: "test" }, { key: "tableData" }],
+        },
+        {
+          widgetName: "Text",
+          type: "TEXT_WIDGET",
+          dynamicPropertyPathList: [{ key: "test" }],
         },
       ],
     });

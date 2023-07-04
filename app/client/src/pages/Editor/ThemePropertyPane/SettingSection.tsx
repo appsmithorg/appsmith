@@ -2,11 +2,10 @@ import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { AppIcon as Icon, Size } from "design-system-old";
+import { Icon } from "design-system";
 
 const SettingsWrapper = styled.div`
-  color: ${Colors.GRAY_700};
+  color: var(--ads-v2-color-fg);
 
   .bp3-collapse,
   .bp3-collapse-body {
@@ -14,14 +13,11 @@ const SettingsWrapper = styled.div`
   }
 `;
 
-const StyledIcon = styled(Icon)`
-  svg path {
-    fill: ${Colors.GRAY_700};
-  }
-`;
-
-const Title = styled.div`
-  color: ${Colors.GRAY_800};
+const Title = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  line-height: 1.2rem;
+  font-weight: var(--ads-v2-font-weight-bold);
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 interface SettingSectionProps {
@@ -42,11 +38,11 @@ export function SettingSection(props: SettingSectionProps) {
         className={` cursor-pointer flex items-center justify-between capitalize text-sm`}
         onClick={() => setOpen((isOpen) => !isOpen)}
       >
-        <Title className="font-medium">{props.title}</Title>
+        <Title>{props.title}</Title>
         {collapsible && (
-          <StyledIcon
-            name={isOpen ? "arrow-down" : "arrow-right"}
-            size={Size.small}
+          <Icon
+            name={isOpen ? "arrow-down-s-line" : "arrow-right-s-line"}
+            size="sm"
           />
         )}
       </div>

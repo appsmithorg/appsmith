@@ -1,13 +1,11 @@
 import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
-import { RouteComponentProps, withRouter } from "react-router-dom";
-import { Spinner } from "@blueprintjs/core";
-import { BuilderRouteParams } from "constants/routes";
-import { AppState } from "@appsmith/reducers";
+import type { RouteComponentProps } from "react-router-dom";
+import { withRouter } from "react-router-dom";
+import type { BuilderRouteParams } from "constants/routes";
+import type { AppState } from "@appsmith/reducers";
 import MainContainer from "./MainContainer";
-import { DndProvider } from "react-dnd";
-import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -15,34 +13,25 @@ import {
   getIsPublishingApplication,
   getPublishingError,
 } from "selectors/editorSelectors";
-import {
-  initEditor,
-  InitializeEditorPayload,
-  resetEditorRequest,
-} from "actions/initActions";
+import type { InitializeEditorPayload } from "actions/initActions";
+import { initEditor, resetEditorRequest } from "actions/initActions";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import * as Sentry from "@sentry/react";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
-import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
-import {
-  collabStartSharingPointerEvent,
-  collabStopSharingPointerEvent,
-} from "actions/appCollabActions";
 import { loading } from "selectors/onboardingSelectors";
 import GuidedTourModal from "./GuidedTour/DeviationModal";
-import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
 import { getIsBranchUpdated } from "../utils";
@@ -50,8 +39,8 @@ import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
-import MultiPaneContainer from "pages/Editor/MultiPaneContainer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { Spinner } from "design-system";
+import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -70,9 +59,6 @@ type EditorProps = {
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branch: string) => void;
   currentPageId?: string;
-  isPageLevelSocketConnected: boolean;
-  collabStartSharingPointerEvent: (pageId: string) => void;
-  collabStopSharingPointerEvent: (pageId?: string) => void;
   pageLevelSocketRoomId: string;
   isMultiPane: boolean;
 };
@@ -102,12 +88,6 @@ class Editor extends Component<Props> {
         branch,
         mode: APP_MODE.EDIT,
       });
-
-    if (this.props.isPageLevelSocketConnected && pageId) {
-      this.props.collabStartSharingPointerEvent(
-        getPageLevelSocketRoomId(pageId, branch),
-      );
-    }
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
@@ -128,9 +108,7 @@ class Editor extends Component<Props> {
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
       nextProps.loadingGuidedTour !== this.props.loadingGuidedTour ||
-      nextState.registered !== this.state.registered ||
-      (nextProps.isPageLevelSocketConnected &&
-        !this.props.isPageLevelSocketConnected)
+      nextState.registered !== this.state.registered
     );
   }
 
@@ -172,24 +150,10 @@ class Editor extends Component<Props> {
         this.props.fetchPage(pageId);
       }
     }
-
-    if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
-      this.props.collabStartSharingPointerEvent(
-        getPageLevelSocketRoomId(pageId, branch),
-      );
-    }
   }
 
   componentWillUnmount() {
-    const { pageId } = this.props.match.params || {};
-    const {
-      location: { search },
-    } = this.props;
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
     this.props.resetEditorRequest();
-    this.props.collabStopSharingPointerEvent(
-      getPageLevelSocketRoomId(pageId, branch),
-    );
   }
 
   public render() {
@@ -202,42 +166,32 @@ class Editor extends Component<Props> {
         <CenteredWrapper
           style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
         >
-          <Spinner />
+          <Spinner size="lg" />
         </CenteredWrapper>
       );
     }
     return (
       <ThemeProvider theme={theme}>
-        <DndProvider
-          backend={TouchBackend}
-          options={{
-            enableMouseEvents: true,
-          }}
-        >
-          <div>
-            <Helmet>
-              <meta charSet="utf-8" />
-              <title>
-                {`${this.props.currentApplicationName} |`} Editor | Appsmith
-              </title>
-            </Helmet>
-            <GlobalHotKeys>
-              {this.props.isMultiPane ? (
-                <MultiPaneContainer />
-              ) : (
-                <MainContainer />
-              )}
-              <GitSyncModal />
-              <DisconnectGitModal />
-              <GuidedTourModal />
-              <RepoLimitExceededErrorModal />
-              <TemplatesModal />
-              <ImportedApplicationSuccessModal />
-              <ReconnectDatasourceModal />
-            </GlobalHotKeys>
-          </div>
-          <RequestConfirmationModal />
-        </DndProvider>
+        <div>
+          <Helmet>
+            <meta charSet="utf-8" />
+            <title>
+              {`${this.props.currentApplicationName} |`} Editor | Appsmith
+            </title>
+          </Helmet>
+          <GlobalHotKeys>
+            <MainContainer />
+            <GitSyncModal />
+            <DisconnectGitModal />
+            <GuidedTourModal />
+            <RepoLimitExceededErrorModal />
+            <TemplatesModal />
+            <ImportedApplicationSuccessModal />
+            <ReconnectDatasourceModal />
+            <SignpostingOverlay />
+          </GlobalHotKeys>
+        </div>
+        <RequestConfirmationModal />
       </ThemeProvider>
     );
   }
@@ -254,9 +208,7 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
-  isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
   loadingGuidedTour: loading(state),
-  isMultiPane: isMultiPaneActive(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -266,10 +218,6 @@ const mapDispatchToProps = (dispatch: any) => {
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
-    collabStartSharingPointerEvent: (pageId: string) =>
-      dispatch(collabStartSharingPointerEvent(pageId)),
-    collabStopSharingPointerEvent: (pageId?: string) =>
-      dispatch(collabStopSharingPointerEvent(pageId)),
   };
 };
 

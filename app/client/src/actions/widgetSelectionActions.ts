@@ -1,9 +1,7 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { NavigationMethod } from "utils/history";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type { NavigationMethod } from "utils/history";
 
 export type WidgetSelectionRequestPayload = {
   selectionRequestType: SelectionRequestType;
@@ -30,11 +28,19 @@ export const selectWidgetInitAction: WidgetSelectionRequest = (
   payload: { selectionRequestType, payload, pageId, invokedBy },
 });
 
+export type SetSelectedWidgetsPayload = {
+  widgetIds: string[];
+  invokedBy?: NavigationMethod;
+};
+
 // To be used to collect selected widget state from url and set on state
-export const setSelectedWidgets = (widgetIds: string[]) => {
+export const setSelectedWidgets = (
+  widgetIds: string[],
+  invokedBy?: NavigationMethod,
+): ReduxAction<SetSelectedWidgetsPayload> => {
   return {
     type: ReduxActionTypes.SET_SELECTED_WIDGETS,
-    payload: { widgetIds },
+    payload: { widgetIds, invokedBy },
   };
 };
 
@@ -48,6 +54,13 @@ export const setLastSelectedWidget = (widgetId: string) => {
 export const setSelectedWidgetAncestry = (widgetIds: string[]) => {
   return {
     type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTRY,
+    payload: widgetIds,
+  };
+};
+
+export const setEntityExplorerAncestry = (widgetIds: string[]) => {
+  return {
+    type: ReduxActionTypes.SET_ENTITY_EXPLORER_WIDGET_ANCESTRY,
     payload: widgetIds,
   };
 };

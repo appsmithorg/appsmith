@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
+import type { Intent } from "constants/DefaultTheme";
 import {
-  Intent,
   BlueprintButtonIntentsCSS,
   IntentIcons,
   IntentColors,
@@ -111,7 +111,6 @@ export function FormMessage(props: FormMessageProps) {
     props.actions.map((action) => (
       <ActionButton key={action.text} {...action} />
     ));
-  const Icon = IntentIcons[props.intent];
   const iconbgcolor = tinycolor(IntentColors[props.intent])
     .lighten()
     .setAlpha(0.2)
@@ -119,7 +118,7 @@ export function FormMessage(props: FormMessageProps) {
   return (
     <StyledMessage>
       <MessageContainer iconbgcolor={iconbgcolor}>
-        <Icon color={IntentColors[props.intent]} height={20} width={20} />
+        {IntentIcons[props.intent]}
         <p>{props.message}</p>
       </MessageContainer>
       {actions && <ActionsContainer>{actions}</ActionsContainer>}

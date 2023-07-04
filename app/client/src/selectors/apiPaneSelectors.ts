@@ -1,4 +1,4 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 type GetFormData = (
   state: AppState,
@@ -12,12 +12,6 @@ export const getDisplayFormat: GetFormData = (state, apiId) => {
 
 export const getApiPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.apiPane.selectedConfigTabIndex;
-
-export const getApiPaneResponseSelectedTab = (state: AppState) =>
-  state.ui.apiPane.selectedResponseTab;
-
-export const getApiPaneResponsePaneHeight = (state: AppState) =>
-  state.ui.apiPane.responseTabHeight;
 
 export const getApiRightPaneSelectedTab = (state: AppState) =>
   state.ui.apiPane.selectedRightPaneTab;

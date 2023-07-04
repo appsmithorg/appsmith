@@ -1,12 +1,10 @@
 import React from "react";
 
-import { noop } from "lodash";
+import type { noop } from "lodash";
 
-import {
-  NavigationMenuItem,
-  MenuTypes,
-  MenuItemData,
-} from "./NavigationMenuItem";
+import type { MenuItemData } from "./NavigationMenuItem";
+import { MenuContent } from "design-system";
+import { NavigationMenuItem } from "./NavigationMenuItem";
 
 type NavigationMenuProps = {
   menuItems: MenuItemData[] | undefined;
@@ -15,23 +13,10 @@ type NavigationMenuProps = {
 
 export function NavigationMenu(props: NavigationMenuProps) {
   const { menuItems, setIsPopoverOpen } = props;
-
   return (
-    // eslint-disable-next-line
-    <>
+    <MenuContent width="214px">
       {menuItems?.map((item, idx) => {
-        return item.type === MenuTypes.PARENT ? (
-          <NavigationMenuItem
-            key={idx}
-            menuItemData={item}
-            setIsPopoverOpen={setIsPopoverOpen}
-          >
-            <NavigationMenu
-              menuItems={item?.children}
-              setIsPopoverOpen={setIsPopoverOpen}
-            />
-          </NavigationMenuItem>
-        ) : (
+        return (
           <NavigationMenuItem
             key={idx}
             menuItemData={item}
@@ -39,6 +24,6 @@ export function NavigationMenu(props: NavigationMenuProps) {
           />
         );
       })}
-    </>
+    </MenuContent>
   );
 }

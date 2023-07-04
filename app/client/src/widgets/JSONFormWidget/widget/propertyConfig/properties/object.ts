@@ -1,18 +1,15 @@
 import { get } from "lodash";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  ARRAY_ITEM_KEY,
-  FieldType,
-  SchemaItem,
-} from "widgets/JSONFormWidget/constants";
-import { JSONFormWidgetProps } from "../..";
+import type { SchemaItem } from "widgets/JSONFormWidget/constants";
+import { ARRAY_ITEM_KEY, FieldType } from "widgets/JSONFormWidget/constants";
+import type { JSONFormWidgetProps } from "../..";
 import { getStylesheetValue } from "../helper";
 
 const objectStyleProperties = [
   {
     propertyName: "backgroundColor",
-    label: "Background Color",
+    label: "Background color",
     controlType: "COLOR_PICKER",
     helpText: "Changes the background color",
     isJSConvertible: true,
@@ -29,7 +26,7 @@ const objectStyleProperties = [
   },
   {
     propertyName: "borderColor",
-    label: "Border Color",
+    label: "Border color",
     helpText: "Changes the border color of Object",
     controlType: "COLOR_PICKER",
     isJSConvertible: true,
@@ -47,7 +44,7 @@ const objectStyleProperties = [
   {
     propertyName: "borderWidth",
     helpText: "Enter value for border width",
-    label: "Border Width",
+    label: "Border width",
     placeholderText: "Enter value in px",
     controlType: "INPUT_TEXT",
     isBindProperty: true,
@@ -56,7 +53,7 @@ const objectStyleProperties = [
   },
   {
     propertyName: "borderRadius",
-    label: "Border Radius",
+    label: "Border radius",
     helpText: "Rounds the corners of the icon button's outer border edge",
     controlType: "BORDER_RADIUS_OPTIONS",
     customJSControl: "JSON_FORM_COMPUTE_VALUE",
@@ -69,7 +66,7 @@ const objectStyleProperties = [
   },
   {
     propertyName: "boxShadow",
-    label: "Box Shadow",
+    label: "Box shadow",
     helpText: "Enables you to cast a drop shadow from the frame of the widget",
     controlType: "BOX_SHADOW_OPTIONS",
     customJSControl: "JSON_FORM_COMPUTE_VALUE",
@@ -102,7 +99,7 @@ const PROPERTIES = {
         children: [
           {
             propertyName: "cellBackgroundColor",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             helpText: "Changes the background color of the item",
             isJSConvertible: true,
@@ -119,7 +116,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "cellBorderColor",
-            label: "Border Color",
+            label: "Border color",
             helpText: "Changes the border color of the item",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -137,7 +134,7 @@ const PROPERTIES = {
           {
             propertyName: "cellBorderWidth",
             helpText: "Enter value for border width of the item",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -146,7 +143,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "cellBorderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -160,7 +157,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "cellBoxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",

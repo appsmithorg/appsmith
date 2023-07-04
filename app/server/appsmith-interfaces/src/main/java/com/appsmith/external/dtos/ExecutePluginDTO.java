@@ -12,7 +12,7 @@ public class ExecutePluginDTO {
     String pluginVersion;
     String actionTemplateName;
     String datasourceTemplateName;
-    DatasourceDTO datasource;
+    RemoteDatasourceDTO datasource;
     ActionConfiguration actionConfiguration;
     ExecuteActionDTO executeActionDTO;
 }

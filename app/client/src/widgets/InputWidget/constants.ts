@@ -9,4 +9,4 @@ export const InputTypes: { [key: string]: string } = {
   SEARCH: "SEARCH",
 };
 
-export type InputType = typeof InputTypes[keyof typeof InputTypes];
+export type InputType = (typeof InputTypes)[keyof typeof InputTypes];

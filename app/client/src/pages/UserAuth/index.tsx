@@ -9,7 +9,7 @@ import * as Sentry from "@sentry/react";
 import { requiresUnauth } from "./requiresAuthHOC";
 import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { ThemeProvider } from "styled-components";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -23,6 +23,7 @@ export function UserAuth() {
 
   return (
     <ThemeProvider theme={lightTheme}>
+      {/* TODO: (Albin) - chnages this to ads-v2 variable once  branding is sorted out. */}
       <div className="absolute inset-0 flex flex-col overflow-y-auto auth-container bg-[color:var(--ads-color-background-secondary)] p-4 t--auth-container">
         <Switch location={location}>
           <SentryRoute component={Login} exact path={`${path}/login`} />

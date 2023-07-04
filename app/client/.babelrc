@@ -16,6 +16,6 @@
         "sagas": "./src/sagas/",
         "@appsmith": "./src/ee"
       }
-    }]
+    }, "babel-plugin-styled-components"]
   ]
 }

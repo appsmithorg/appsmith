@@ -285,10 +285,6 @@ public class DataUtils {
 
     public Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
                                        boolean encodeParamsToggle, HttpMethod httpMethod) {
-        // We initialize this object to an empty string because body can never be empty
-        // Based on the content-type, this Object may be of type MultiValueMap or String
-        Object requestBodyObj = "";
-
         // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
         // This is irrespective of the content-type header or the HTTP method
         String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
@@ -296,6 +292,21 @@ public class DataUtils {
                 FIELD_API_CONTENT_TYPE
         );
         ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
+
+        if (httpMethod.equals(HttpMethod.GET) && (apiContentType == null || apiContentType == ApiContentType.NONE)) {
+            /**
+             * Setting request body object to null makes the webClient object to ignore the body when sending the API
+             * request. Earlier, we were setting it to an empty string, which worked fine for almost all the use
+             * cases, however it caused error when used to call Figma's GET API call. Figma's server detected that
+             * there is a body attached with the request and would return with a `BAD REQUEST` error.
+             * Ref: https://github.com/appsmithorg/appsmith/issues/14894
+             */
+            return null;
+        }
+
+        // We initialize this object to an empty string because body can never be empty
+        // Based on the content-type, this Object may be of type MultiValueMap or String
+        Object requestBodyObj = "";
 
         if (!httpMethod.equals(HttpMethod.GET)) {
             // Read the body normally as this is a non-GET request

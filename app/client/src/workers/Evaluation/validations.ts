@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import {
-  ValidationTypes,
-  ValidationResponse,
-  Validator,
-} from "constants/WidgetValidation";
+import type { ValidationResponse, Validator } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import _, {
   compact,
   get,
@@ -15,11 +12,10 @@ import _, {
   isString,
   toString,
   uniq,
-  __,
 } from "lodash";
 
 import moment from "moment";
-import { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
@@ -315,14 +311,14 @@ export const validate = (
   props: Record<string, unknown>,
   propertyPath = "",
 ): ValidationResponse => {
-  const _result = VALIDATORS[config.type as ValidationTypes](
-    config,
-    value,
-    props,
-    propertyPath,
-  );
+  const validateFn = VALIDATORS[config.type];
+  const staticValue = {
+    isValid: true,
+    parsed: value,
+  };
+  if (!validateFn) return staticValue;
 
-  return _result;
+  return validateFn(config, value, props, propertyPath) || staticValue;
 };
 
 export const WIDGET_TYPE_VALIDATION_ERROR =
@@ -1096,10 +1092,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         const { result } = evaluate(
           config.params.fnString,
           {},
-          {},
           false,
           undefined,
-          [value, props, _, moment, propertyPath, config],
+          [value, props, globalThis._, globalThis.moment, propertyPath, config],
         );
         return result;
       } catch (e) {
@@ -1125,9 +1120,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         },
       ],
     };
-    const base64Regex = /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
+    const base64Regex =
+      /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
     const base64ImageRegex = /^data:image\/.*;base64/;
-    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    const imageUrlRegex =
+      /(http(s?)?:\/\/(localhost|([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*))/;
     if (
       value === undefined ||
       value === null ||

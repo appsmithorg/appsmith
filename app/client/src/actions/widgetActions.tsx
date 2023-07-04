@@ -1,15 +1,12 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { WidgetProps } from "widgets/BaseWidget";
-import { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { BatchAction } from "actions/batchActions";
+import { batchAction } from "actions/batchActions";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const executeTrigger = (
   payload: ExecuteTriggerPayload,
@@ -54,26 +51,6 @@ export const showModal = (id: string, shouldSelectModal = true) => {
     payload: {
       modalId: id,
       shouldSelectModal,
-    },
-  };
-};
-
-export const closeAllModals = () => {
-  return {
-    type: ReduxActionTypes.CLOSE_MODAL,
-    payload: {},
-  };
-};
-
-export const forceOpenPropertyPane = (id: string) => {
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.OPEN_PROPERTY_PANE,
-  );
-  return {
-    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-    payload: {
-      widgetId: id,
-      force: true,
     },
   };
 };
@@ -146,21 +123,10 @@ export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
 
 /**
  * action to group selected widgets into container
- *
- * @param queryName
  * @returns
  */
 export const groupWidgets = () => {
   return {
     type: ReduxActionTypes.GROUP_WIDGETS_INIT,
-  };
-};
-
-export const updateMultipleWidgetProperties = (
-  widgetsToUpdate: UpdateWidgetsPayload,
-) => {
-  return {
-    type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
-    payload: widgetsToUpdate,
   };
 };

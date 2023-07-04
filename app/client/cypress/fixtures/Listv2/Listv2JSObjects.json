@@ -542,7 +542,7 @@
                     "country",
                     "name"
                 ],
-                "dynamicPropertyPathList": [],
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "displayName": "Table",
                 "bottomRow": 324,
                 "columnWidthMap": {

@@ -1,33 +1,29 @@
 import React, { useCallback, useRef } from "react";
 import { connect } from "react-redux";
-import {
-  change,
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { InjectedFormProps } from "redux-form";
+import { change, formValueSelector, reduxForm } from "redux-form";
 import classNames from "classnames";
 import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
-import { Action } from "entities/Action";
+import type { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import {
   getAction,
   getActionData,
 } from "../../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
-import CommonEditorForm, { CommonFormProps } from "../CommonEditorForm";
+import type { CommonFormProps } from "../CommonEditorForm";
+import CommonEditorForm from "../CommonEditorForm";
 import QueryEditor from "./QueryEditor";
 import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
-import { Colors } from "constants/Colors";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -41,8 +37,8 @@ const BodyWrapper = styled.div`
   overflow: hidden;
   &&&& .CodeMirror {
     height: 100%;
-    border-top: 1px solid var(--appsmith-color-black-250);
-    border-bottom: 1px solid var(--appsmith-color-black-250);
+    border-top: 1px solid var(--ads-v2-color-border);
+    border-bottom: 1px solid var(--ads-v2-color-border);
     border-radius: 0;
     padding: 0;
   }
@@ -57,10 +53,11 @@ const ResizerHandler = styled.div<{ resizing: boolean }>`
   width: 6px;
   height: 100%;
   margin-left: 2px;
-  border-right: 1px solid ${Colors.GREY_200};
-  background: ${(props) => (props.resizing ? Colors.GREY_4 : "transparent")};
+  border-right: 1px solid var(--ads-v2-color-border);
+  background: ${(props) =>
+    props.resizing ? "var(--ads-v2-color-border)" : "transparent"};
   &:hover {
-    background: ${Colors.GREY_4};
+    background: var(--ads-v2-color-border);
     border-color: transparent;
   }
 `;
@@ -94,17 +91,13 @@ function GraphQLEditorForm(props: Props) {
     setVariableEditorWidth(newWidth);
   }, []);
 
-  const {
-    onMouseDown,
-    onMouseUp,
-    onTouchStart,
-    resizing,
-  } = useHorizontalResize(
-    sizeableRef,
-    onVariableEditorWidthChange,
-    undefined,
-    true,
-  );
+  const { onMouseDown, onMouseUp, onTouchStart, resizing } =
+    useHorizontalResize(
+      sizeableRef,
+      onVariableEditorWidthChange,
+      undefined,
+      true,
+    );
 
   return (
     <CommonEditorForm
@@ -134,6 +127,7 @@ function GraphQLEditorForm(props: Props) {
             ref={sizeableRef}
             style={{
               width: `${variableEditorWidth}px`,
+              paddingRight: "2px",
             }}
           >
             <VariableEditor actionName={actionName} theme={theme} />

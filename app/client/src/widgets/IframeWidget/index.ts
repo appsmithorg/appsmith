@@ -1,5 +1,13 @@
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
+
+const DEFAULT_IFRAME_SOURCE = !isAirgappedInstance
+  ? "https://www.example.com"
+  : "";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -8,7 +16,7 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["embed"],
   defaults: {
-    source: "https://www.example.com",
+    source: DEFAULT_IFRAME_SOURCE,
     borderOpacity: 100,
     borderWidth: 1,
     rows: 32,
@@ -16,6 +24,7 @@ export const CONFIG = {
     widgetName: "Iframe",
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -25,6 +34,20 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "300px",
+          };
+        },
+      },
+    ],
   },
 };
 

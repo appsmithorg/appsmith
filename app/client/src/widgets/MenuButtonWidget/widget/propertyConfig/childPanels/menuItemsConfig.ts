@@ -27,7 +27,7 @@ export default {
           validation: { type: ValidationTypes.TEXT },
         },
         {
-          helpText: "Triggers an action when the menu item is clicked",
+          helpText: "when the menu item is clicked",
           propertyName: "onClick",
           label: "onClick",
           controlType: "ACTION_SELECTOR",
@@ -81,13 +81,15 @@ export default {
           label: "Position",
           helpText: "Sets the icon alignment of a menu item",
           controlType: "ICON_TABS",
+          defaultValue: "left",
+          fullWidth: false,
           options: [
             {
-              icon: "VERTICAL_LEFT",
+              startIcon: "skip-left-line",
               value: "left",
             },
             {
-              icon: "VERTICAL_RIGHT",
+              startIcon: "skip-right-line",
               value: "right",
             },
           ],

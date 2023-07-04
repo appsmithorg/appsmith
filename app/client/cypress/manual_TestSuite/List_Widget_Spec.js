@@ -1,7 +1,7 @@
 const dsl = require("../../../fixtures/ListWidgetDsl.json");
 
-describe("List Widget test ideas ", function() {
-  it("List widget background colour and deploy ", function() {
+describe("List Widget test ideas ", function () {
+  it("List widget background colour and deploy ", function () {
     // Drag and drop a List widget
     // Open Property pane
     // Scroll down to Styles
@@ -11,7 +11,7 @@ describe("List Widget test ideas ", function() {
     // Click on Deploy and ensure it is deployed appropriately
   });
 
-  it("Adding large item Spacing for item card", function() {
+  it("Adding large item Spacing for item card", function () {
     // Drag and drop a List widget
     // Open Property pane
     // Scroll down to Styles
@@ -19,7 +19,7 @@ describe("List Widget test ideas ", function() {
     // Ensure the cards get spaced appropriately
   });
 
-  it("Binding an API data to list widget ", function() {
+  it("Binding an API data to list widget ", function () {
     //Add an API
     // Drag and drop a List widget
     // Open list Property pane
@@ -28,7 +28,7 @@ describe("List Widget test ideas ", function() {
     // Bind the input widgte to the list widget
   });
 
-  it("Copy Paste and Delete the List Widget ", function() {
+  it("Copy Paste and Delete the List Widget ", function () {
     // Drag and drop a List widget
     // Click on the property pane
     // Click on Copy the widget
@@ -36,7 +36,7 @@ describe("List Widget test ideas ", function() {
     // Click on the delete option of the Parent widget
   });
 
-  it("Renaming the widget from Property pane and Entity explorer ", function() {
+  it("Renaming the widget from Property pane and Entity explorer ", function () {
     // Drag and drop a List widget
     // Click on the property pane
     // Click name of the widget
@@ -48,7 +48,7 @@ describe("List Widget test ideas ", function() {
     // Ensure the name of the widget is possible from both the place
   });
 
-  it("Verify the Pagination functionlaity within List Widget", function() {
+  it("Verify the Pagination functionlaity within List Widget", function () {
     // Drag and Drop list Widget
     // Click on page 2
     // Ensure list widget will be redirected to page 2
@@ -62,7 +62,7 @@ describe("List Widget test ideas ", function() {
     // Ensure the tool tip message is appropriate
   });
 
-  it("Add new item in the list widget array object", function() {
+  it("Add new item in the list widget array object", function () {
     //Drag and drop list widget
     //Click to open an property pane
     //Expand Genearl section
@@ -72,7 +72,7 @@ describe("List Widget test ideas ", function() {
     //Check for the new page is added upon adding new items
   });
 
-  it("Adding apt widget into the List widget", function() {
+  it("Adding apt widget into the List widget", function () {
     //Drag and Drop List widget
     //Expand the section 1 size in the list widget
     //Ensure by exapdning section inside list widget the page size gets increased
@@ -84,7 +84,7 @@ describe("List Widget test ideas ", function() {
     // Ensure text widget can be place inside the list widget
   });
 
-  it("Adding unapt widget to identify the error message", function() {
+  it("Adding unapt widget to identify the error message", function () {
     //Drag and Drop List widget
     //Expand the section 1 size in the list widget
     //Drag and Drop widgets ie: Chart ,Date Picker radio button etc

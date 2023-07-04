@@ -1,18 +1,18 @@
-import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster } from "design-system-old";
+import type { WidgetAddChild } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -27,7 +27,7 @@ import {
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
@@ -37,10 +37,18 @@ import {
 } from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { toast } from "design-system";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -65,20 +73,16 @@ function* getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, newWidgetId, topRow, type } = params;
-  let {
-    columns,
-    parentColumnSpace,
-    parentRowSpace,
-    props,
-    rows,
-    widgetName,
-  } = params;
+  let { columns, parentColumnSpace, parentRowSpace, props, rows, widgetName } =
+    params;
   let minHeight = undefined;
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -108,11 +112,9 @@ function* getChildWidgetProps(
   }
 
   const isAutoLayout = isStack(widgets, parent);
-  if (
-    isAutoLayout &&
-    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill
-  )
-    columns = 64;
+  const isFillWidget =
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+  if (isAutoLayout && isFillWidget) columns = 64;
 
   const widgetProps = {
     ...restDefaultConfig,
@@ -124,6 +126,17 @@ function* getChildWidgetProps(
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
   };
+
+  const { minWidth } = getWidgetMinMaxDimensionsInPixel(
+    widgetProps,
+    mainCanvasWidth,
+  );
+
+  // If the width of new widget is less than min width, set the width to min width
+  if (minWidth && columns * parentColumnSpace < minWidth) {
+    columns = minWidth / parentColumnSpace;
+  }
+
   const widget = generateWidgetProps(
     parent,
     type,
@@ -136,6 +149,24 @@ function* getChildWidgetProps(
     restDefaultConfig.version,
   );
 
+  let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(type);
+  if (isFunction(disableResizeHandles)) {
+    disableResizeHandles = disableResizeHandles(widget);
+  }
+
+  if (isAutoLayout) {
+    // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage
+    if (!isFillWidget && !disableResizeHandles?.horizontal) {
+      if (isMobile) {
+        widget.mobileWidthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      } else {
+        widget.widthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      }
+    }
+  }
+
   widget.widgetId = newWidgetId;
   /**
    * un-evaluated childStylesheet used by widgets; so they are to be excluded
@@ -146,6 +177,16 @@ function* getChildWidgetProps(
     themeDefaultConfig,
     "childStylesheet",
   );
+
+  /**
+   * TODO: Balaji Soundararajan @sbalaji1192
+   * We are not getting all the paths with dynamic value here. Therefore we
+   * are not adding them to the dynamic binding path list. This creates an issue
+   * when adding a new widget that has a property with dynamic value resulting
+   * in an unevaluated value.
+   * Furthermore, even if use all the widget paths instead of the updates paths
+   * in the getPropertiesToUpdate function, we have to omit the blueprint paths.
+   */
   const { dynamicBindingPathList } = yield call(
     getPropertiesToUpdate,
     widget,
@@ -320,7 +361,7 @@ export function* getUpdateDslAfterCreatingChild(
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
-    Toaster.clear();
+    toast.dismiss();
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { newWidgetId, type, widgetId } = addChildAction.payload;
 
@@ -425,9 +466,10 @@ function* addNewTabChildSaga(
     label: newTabLabel,
     widgetId: newTabWidgetId,
   });
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     getUpdateDslAfterCreatingChild,
-    newTabProps,
+    isAutoLayout ? { ...newTabProps, topRow: 0 } : newTabProps,
   );
   updatedWidgets[widgetId]["tabsObj"] = tabs;
   yield put(updateAndSaveLayout(updatedWidgets));

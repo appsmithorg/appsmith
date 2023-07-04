@@ -2,19 +2,21 @@ import { klona } from "klona";
 import { get, set } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";
-import {
-  FieldType,
+import type {
   SchemaItem,
-  ARRAY_ITEM_KEY,
   Schema,
   HookResponse,
   FieldThemeStylesheet,
-  ROOT_SCHEMA_KEY,
 } from "../../constants";
+import { FieldType, ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
-import { JSONFormWidgetProps } from "..";
+import type { JSONFormWidgetProps } from "..";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
+import type {
+  ButtonStyles,
+  ChildStylesheet,
+  Stylesheet,
+} from "entities/AppTheming";
 import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
@@ -35,7 +37,17 @@ export const fieldTypeUpdateHook = (
     widgetName,
     fieldThemeStylesheets: childStylesheet,
   });
+  const isInputOrEmailSelected = [
+    FieldType.EMAIL_INPUT,
+    FieldType.PASSWORD_INPUT,
+  ].includes(fieldType);
 
+  const schemaItemWithAutoFillState = isInputOrEmailSelected
+    ? {
+        ...newSchemaItem,
+        shouldAllowAutofill: true,
+      }
+    : newSchemaItem;
   /**
    * TODO(Ashit): Not suppose to update the whole schema but just
    * the path within the schema. This is just a hack to make sure
@@ -43,7 +55,7 @@ export const fieldTypeUpdateHook = (
    * the updateProperty function is fixed.
    */
   const updatedSchema = { schema: klona(schema) };
-  set(updatedSchema, schemaItemPath, newSchemaItem);
+  set(updatedSchema, schemaItemPath, schemaItemWithAutoFillState);
 
   return [{ propertyPath: "schema", propertyValue: updatedSchema.schema }];
 };

@@ -1,10 +1,13 @@
-import API, { HttpMethod } from "api/Api";
-import { ApiResponse } from "./ApiResponses";
+import type { HttpMethod } from "api/Api";
+import API from "api/Api";
+import type { ApiResponse } from "./ApiResponses";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
-import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import { Action, ActionViewMode } from "entities/Action";
-import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
-import { WidgetType } from "constants/WidgetConstants";
+import type { AxiosPromise, CancelTokenSource } from "axios";
+import axios from "axios";
+import type { Action, ActionViewMode } from "entities/Action";
+import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { omit } from "lodash";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -38,6 +41,9 @@ export interface QueryConfig {
 export type ActionCreateUpdateResponse = ApiResponse & {
   id: string;
   jsonPathKeys: Record<string, string>;
+  datasource: {
+    id?: string;
+  };
 };
 
 export type PaginationField = "PREV" | "NEXT";
@@ -47,7 +53,14 @@ export interface ExecuteActionRequest extends APIRequest {
   params?: Property[];
   paginationField?: PaginationField;
   viewMode: boolean;
-  paramProperties: Record<string, string | Record<string, string[]>>;
+  paramProperties: Record<
+    string,
+    | string
+    | Record<string, Array<string>>
+    | Record<string, string>
+    | Record<string, Record<string, Array<string>>>
+  >;
+  analyticsProperties?: Record<string, boolean>;
 }
 
 export type ExecuteActionResponse = ApiResponse & {
@@ -59,6 +72,7 @@ export interface ActionApiResponseReq {
   body: Record<string, unknown> | null;
   httpMethod: HttpMethod | "";
   url: string;
+  requestedAt?: number;
 }
 
 export type ActionExecutionResponse = ApiResponse<{
@@ -168,9 +182,11 @@ class ActionAPI extends API {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
     ActionAPI.apiUpdateCancelTokenSource = axios.CancelToken.source();
-    const action = Object.assign({}, apiConfig);
+    let action = Object.assign({}, apiConfig);
     // While this line is not required, name can not be changed from this endpoint
     delete action.name;
+    // Removing datasource storages from the action object since embedded datasources don't have storages
+    action = omit(action, ["datasource.datasourceStorages"]);
     return API.put(`${ActionAPI.url}/${action.id}`, action, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });
@@ -194,6 +210,7 @@ class ActionAPI extends API {
       headers: {
         accept: "application/json",
         "Content-Type": "multipart/form-data",
+        Expect: "100-continue",
       },
       cancelToken: ActionAPI.abortActionExecutionTokenSource.token,
     });

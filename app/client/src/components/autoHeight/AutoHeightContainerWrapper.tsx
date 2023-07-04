@@ -1,8 +1,9 @@
 import { GridDefaults } from "constants/WidgetConstants";
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,

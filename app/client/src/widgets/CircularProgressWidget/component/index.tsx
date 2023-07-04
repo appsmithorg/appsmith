@@ -86,7 +86,7 @@ function CircularProgressComponent({
 
   return (
     <SvgContainer
-      data-test-id="CircularProgressbar"
+      data-testid="CircularProgressbar"
       viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
     >
       <Circle

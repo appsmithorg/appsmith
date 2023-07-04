@@ -1,4 +1,5 @@
-import { RefObject, useEffect, useRef } from "react";
+import type { RefObject } from "react";
+import { useEffect, useRef } from "react";
 import { getNearestParentCanvas } from "utils/generators";
 import { getScrollByPixels } from "utils/helpers";
 
@@ -47,7 +48,6 @@ export const useCanvasDragToScroll = (
               behavior: "smooth",
             });
           }
-          // @ts-expect-error: setTimeout return type mismatch
           scrollTimeOut.push(setTimeout(scrollFn, 100 * Math.max(0.4, speed)));
         }
       };

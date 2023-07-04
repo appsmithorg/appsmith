@@ -1,16 +1,17 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
   hideByColumnType,
   removeBoxShadowColorProp,
 } from "../../propertyUtils";
 
 export default {
-  sectionName: "Border and Shadow",
+  sectionName: "Border and shadow",
   children: [
     {
       propertyName: "borderRadius",
-      label: "Border Radius",
+      label: "Border radius",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       helpText: "Rounds the corners of the icon button's outer border edge",
@@ -34,7 +35,7 @@ export default {
     },
     {
       propertyName: "boxShadow",
-      label: "Box Shadow",
+      label: "Box shadow",
       helpText:
         "Enables you to cast a drop shadow from the frame of the widget",
       controlType: "BOX_SHADOW_OPTIONS",

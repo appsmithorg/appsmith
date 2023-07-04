@@ -1,8 +1,8 @@
 import React from "react";
-import { ControlProps } from "components/formControls/BaseControl";
+import type { ControlProps } from "components/formControls/BaseControl";
 import FormControl from "./FormControl";
 import log from "loglevel";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 
 interface ActionSettingsProps {
@@ -27,18 +27,6 @@ const ActionSettingsWrapper = styled.div`
     flex-shrink: 0;
     align-items: center;
     margin-left: 24px;
-  }
-  &&& .bp3-control.bp3-switch .bp3-control-indicator {
-    width: 46px;
-    height: 24px;
-    position: relative;
-  }
-  &&& .bp3-control.bp3-switch .bp3-control-indicator::before {
-    width: 20px;
-    height: 20px;
-  }
-  &&& .bp3-control.bp3-switch input:checked ~ .bp3-control-indicator::before {
-    left: calc(100% - 24px);
   }
 `;
 

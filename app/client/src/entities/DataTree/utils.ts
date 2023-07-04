@@ -1,8 +1,8 @@
-import {
+import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
-  OverridingPropertyType,
 } from "./types";
+import { OverridingPropertyType } from "./types";
 
 type SetOverridingPropertyParams = {
   key: string;
@@ -27,15 +27,13 @@ export const setOverridingProperty = ({
   }
   switch (type) {
     case OverridingPropertyType.DEFAULT:
-      propertyOverrideDependency[propertyName][
-        OverridingPropertyType.DEFAULT
-      ] = overridingPropertyKey;
+      propertyOverrideDependency[propertyName][OverridingPropertyType.DEFAULT] =
+        overridingPropertyKey;
       break;
 
     case OverridingPropertyType.META:
-      propertyOverrideDependency[propertyName][
-        OverridingPropertyType.META
-      ] = overridingPropertyKey;
+      propertyOverrideDependency[propertyName][OverridingPropertyType.META] =
+        overridingPropertyKey;
 
       break;
     default:

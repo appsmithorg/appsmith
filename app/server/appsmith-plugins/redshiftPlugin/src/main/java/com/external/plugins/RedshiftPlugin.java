@@ -15,6 +15,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.external.plugins.exceptions.RedshiftPluginError;
+import com.external.utils.RedshiftDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.NonNull;
@@ -47,15 +48,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.PluginConstants.PluginName.REDSHIFT_PLUGIN_NAME;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
-import static com.external.utils.RedshiftDatasourceUtils.getConnectionFromConnectionPool;
 
 @Slf4j
 public class RedshiftPlugin extends BasePlugin {
     public static final String JDBC_DRIVER = "com.amazon.redshift.jdbc.Driver";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+    public static RedshiftDatasourceUtils redshiftDatasourceUtils = new RedshiftDatasourceUtils();
 
     public RedshiftPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -212,7 +215,7 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromConnectionPool(connectionPool);
+                            connection = redshiftDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool, REDSHIFT_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 
@@ -230,13 +233,13 @@ public class RedshiftPlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(new StaleConnectionException());
+                            return Mono.error(new StaleConnectionException(e.getMessage()));
                         }
 
 
                         /**
-                         * Keeping this print statement post call to getConnectionFromConnectionPool because it checks for
-                         * stale connection pool.
+                         * Keeping this print statement post call to getConnectionFromHikariConnectionPool because it
+                         * checks for stale connection pool.
                          */
                         printConnectionPoolStatus(connectionPool, false);
 
@@ -359,7 +362,7 @@ public class RedshiftPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RedshiftErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
             }
 
             return Mono
@@ -395,7 +398,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             if (datasourceConfiguration.getConnection() != null
                     && datasourceConfiguration.getConnection().getMode() == null) {
-                invalids.add("Missing Connection Mode.");
+                invalids.add("Missing connection mode.");
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {
@@ -569,7 +572,8 @@ public class RedshiftPlugin extends BasePlugin {
             return Mono.fromSupplier(() -> {
                         Connection connection = null;
                         try {
-                            connection = getConnectionFromConnectionPool(connectionPool);
+                            connection = redshiftDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool
+                                    , REDSHIFT_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
                             e.printStackTrace();
 
@@ -587,7 +591,7 @@ public class RedshiftPlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(new StaleConnectionException());
+                            return Mono.error(new StaleConnectionException(e.getMessage()));
                         }
 
                         /**

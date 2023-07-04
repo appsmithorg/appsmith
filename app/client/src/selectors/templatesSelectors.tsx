@@ -1,11 +1,10 @@
-import { FilterKeys, Template } from "api/TemplatesApi";
+import type { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getWorkspaceCreateApplication } from "./applicationSelectors";
-import { getWidgetCards } from "./editorSelectors";
+import { getWorkspaceCreateApplication } from "@appsmith/selectors/applicationSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
-import { Filter } from "pages/Templates/Filters";
+import type { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "datasources", "widgets"],
@@ -143,20 +142,18 @@ export const templatesDatasourceFiltersSelector = createSelector(
   },
 );
 
-export const templatesFiltersSelector = (state: AppState) =>
+export const allTemplatesFiltersSelector = (state: AppState) =>
   state.ui.templates.allFilters;
 
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
 export const getFilterListSelector = createSelector(
-  getWidgetCards,
-  templatesDatasourceFiltersSelector,
   getTemplatesSelector,
-  templatesFiltersSelector,
-  (widgetConfigs, allDatasources, templates, allTemplateFilters) => {
+  allTemplatesFiltersSelector,
+  (templates, allTemplateFilters) => {
+    const FUNCTIONS_FILTER = "functions";
     const filters: Record<string, Filter[]> = {
-      datasources: [],
-      functions: [],
+      [FUNCTIONS_FILTER]: [],
     };
 
     const allFunctions = allTemplateFilters.functions.map((item) => {
@@ -191,11 +188,9 @@ export const getFilterListSelector = createSelector(
       });
     };
 
-    templates.map((template) => {
-      filterFilters("datasources", allDatasources, template);
-      filterFilters("functions", allFunctions, template);
+    templates.forEach((template) => {
+      filterFilters(FUNCTIONS_FILTER, allFunctions, template);
     });
-
     return filters;
   },
 );

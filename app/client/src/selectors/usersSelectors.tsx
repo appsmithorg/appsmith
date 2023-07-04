@@ -1,6 +1,6 @@
-import { AppState } from "@appsmith/reducers";
-import { User } from "constants/userConstants";
-import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
+import type { AppState } from "@appsmith/reducers";
+import type { User } from "constants/userConstants";
+import type { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 
 export const getCurrentUser = (state: AppState): User | undefined =>
   state.ui?.users?.currentUser;
@@ -14,6 +14,3 @@ export const getProppanePreference = (
 ): PropertyPanePositionConfig | undefined => state.ui.users.propPanePreferences;
 export const getFeatureFlagsFetched = (state: AppState) =>
   state.ui.users.featureFlag.isFetched;
-
-export const selectFeatureFlags = (state: AppState) =>
-  state.ui.users.featureFlag.data;

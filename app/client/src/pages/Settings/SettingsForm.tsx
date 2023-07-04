@@ -1,13 +1,15 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import { connect, useDispatch } from "react-redux";
-import { RouteComponentProps, useParams, withRouter } from "react-router";
-import { AppState } from "@appsmith/reducers";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import { connect, useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { useParams, withRouter } from "react-router";
+import type { AppState } from "@appsmith/reducers";
+import type { InjectedFormProps } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form";
 import {
   getSettings,
   getSettingsSavingState,
@@ -18,10 +20,8 @@ import RestartBanner from "./RestartBanner";
 import SaveAdminSettings from "./SaveSettings";
 import { DisconnectService } from "./DisconnectService";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import {
-  SettingTypes,
-  Setting,
-} from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,
@@ -29,9 +29,8 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import {
-  connectedMethods,
+  isTenantConfig,
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -42,9 +41,15 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
-  MaxWidthWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
+import { toast } from "design-system";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
+import { updateTenantConfig } from "@appsmith/actions/tenantActions";
+import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -80,14 +85,59 @@ export function SettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+  const socialLoginList = useSelector(getThirdPartyAuths);
+
+  const updatedTenantSettings = useMemo(
+    () => Object.keys(props.settings).filter((s) => isTenantConfig(s)),
+    [props.settings],
+  );
+
+  const saveChangedSettings = () => {
+    const settingsKeyLength = Object.keys(props.settings).length;
+    const isOnlyEnvSettings =
+      updatedTenantSettings.length === 0 && settingsKeyLength !== 0;
+    const isEnvAndTenantSettings =
+      updatedTenantSettings.length !== 0 &&
+      updatedTenantSettings.length !== settingsKeyLength;
+    if (isOnlyEnvSettings) {
+      // only env settings
+      dispatch(saveSettings(props.settings));
+    } else {
+      // only tenant settings
+      const config: any = {};
+      for (const each in props.settings) {
+        if (tenantConfigConnection.includes(each)) {
+          config[each] = props.settings[each];
+        }
+      }
+      dispatch(
+        updateTenantConfig({
+          tenantConfiguration: config,
+          isOnlyTenantSettings: !isEnvAndTenantSettings,
+        }),
+      );
+      // both env and tenant settings
+      if (isEnvAndTenantSettings) {
+        const filteredSettings = Object.keys(props.settings)
+          .filter((key) => !isTenantConfig(key))
+          .reduce((obj, key) => {
+            return Object.assign(obj, {
+              [key]: props.settings[key],
+            });
+          }, {});
+        dispatch(saveSettings(filteredSettings));
+      }
+    }
+  };
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
-      if (saveAllowed(props.settings)) {
+      if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
-        dispatch(saveSettings(props.settings));
+        saveChangedSettings();
       } else {
         saveBlocked();
       }
@@ -95,9 +145,8 @@ export function SettingsForm(
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
         error: createMessage(MANDATORY_FIELDS_ERROR),
       });
-      Toaster.show({
-        text: createMessage(MANDATORY_FIELDS_ERROR),
-        variant: Variant.danger,
+      toast.show(createMessage(MANDATORY_FIELDS_ERROR), {
+        kind: "error",
       });
     }
   };
@@ -133,7 +182,11 @@ export function SettingsForm(
     }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
-      if (setting && setting.controlType == SettingTypes.TOGGLE) {
+      if (
+        setting &&
+        (setting.controlType == SettingTypes.TOGGLE ||
+          setting.controlType == SettingTypes.CHECKBOX)
+      ) {
         const settingsStr = props.settingsConfig[settingName].toString();
         if (settingName.toLowerCase().includes("enable")) {
           props.settingsConfig[settingName] =
@@ -159,17 +212,25 @@ export function SettingsForm(
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
       error: createMessage(DISCONNECT_AUTH_ERROR),
     });
-    Toaster.show({
-      text: createMessage(DISCONNECT_AUTH_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(DISCONNECT_AUTH_ERROR), {
+      kind: "error",
     });
   };
 
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
-    if (connectedMethods.length >= 2) {
+    const connectedMethodsCount =
+      socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+    if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
-        if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
+        if (
+          !setting.isHidden &&
+          [
+            SettingTypes.LINK,
+            SettingTypes.ACCORDION,
+            SettingTypes.UNEDITABLEFIELD,
+          ].indexOf(setting.controlType) === -1
+        ) {
           updatedSettings[setting.id] = "";
         }
       });
@@ -186,38 +247,49 @@ export function SettingsForm(
     <Wrapper>
       {subCategory && <BackButton />}
       <SettingsFormWrapper>
-        <MaxWidthWrapper>
-          <HeaderWrapper>
-            <SettingsHeader>{pageTitle}</SettingsHeader>
-            {details?.subText && (
-              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
-            )}
-          </HeaderWrapper>
-          <Group
-            category={category}
-            settings={settingsDetails}
-            subCategory={subCategory}
+        <HeaderWrapper>
+          <SettingsHeader
+            color="var(--ads-v2-color-fg-emphasis-plus)"
+            kind="heading-l"
+            renderAs="h1"
+          >
+            {pageTitle}
+          </SettingsHeader>
+          {details?.subText && (
+            <SettingsSubHeader
+              color="var(--ads-v2-color-fg-emphasis)"
+              kind="body-m"
+              renderAs="h2"
+            >
+              {details.subText}
+            </SettingsSubHeader>
+          )}
+        </HeaderWrapper>
+        <Group
+          category={category}
+          settings={settingsDetails}
+          subCategory={subCategory}
+        />
+        {isSavable && (
+          <SaveAdminSettings
+            isSaving={props.isSaving}
+            onClear={onClear}
+            onSave={onSave}
+            settings={props.settings}
+            updatedTenantSettings={updatedTenantSettings}
+            valid={props.valid}
           />
-          {isSavable && (
-            <SaveAdminSettings
-              isSaving={props.isSaving}
-              onClear={onClear}
-              onSave={onSave}
-              settings={props.settings}
-              valid={props.valid}
-            />
-          )}
-          {details?.isConnected && (
-            <DisconnectService
-              disconnect={() => disconnect(settingsDetails)}
-              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-              warning={`${pageTitle} ${createMessage(
-                DISCONNECT_SERVICE_WARNING,
-              )}`}
-            />
-          )}
-          <BottomSpace />
-        </MaxWidthWrapper>
+        )}
+        {details?.isConnected && (
+          <DisconnectService
+            disconnect={() => disconnect(settingsDetails)}
+            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+            warning={`${pageTitle} ${createMessage(
+              DISCONNECT_SERVICE_WARNING,
+            )}`}
+          />
+        )}
+        <BottomSpace />
       </SettingsFormWrapper>
       {props.showReleaseNotes && (
         <ProductUpdatesModal hideTrigger isOpen onClose={onReleaseNotesClose} />
@@ -250,8 +322,12 @@ export default withRouter(
     };
     _.forEach(AdminConfig.settingsMap, (setting, name) => {
       const fieldValue = selector(state, name);
+      const doNotUpdate =
+        setting.controlType === SettingTypes.CHECKBOX &&
+        !settingsConfig[name] &&
+        !fieldValue;
 
-      if (fieldValue !== settingsConfig[name]) {
+      if (fieldValue !== settingsConfig[name] && !doNotUpdate) {
         newProps.settings[name] = fieldValue;
       }
     });

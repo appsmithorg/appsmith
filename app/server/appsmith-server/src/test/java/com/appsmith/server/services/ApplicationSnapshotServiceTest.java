@@ -18,6 +18,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -218,11 +219,82 @@ public class ApplicationSnapshotServiceTest {
                 .flatMap(applicationPagesDTO -> pagesAfterSnapshot.zipWith(Mono.just(applicationPagesDTO)));
 
         StepVerifier.create(tuple2Mono)
-            .assertNext(objects -> {
-                ApplicationPagesDTO beforePages = objects.getT2();
-                ApplicationPagesDTO afterPages = objects.getT1();
-                assertThat(beforePages.getPages().size()).isEqualTo(afterPages.getPages().size());
-            })
-            .verifyComplete();
+                .assertNext(objects -> {
+                    ApplicationPagesDTO beforePages = objects.getT2();
+                    ApplicationPagesDTO afterPages = objects.getT1();
+                    assertThat(beforePages.getPages().size()).isEqualTo(afterPages.getPages().size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void restoreSnapshot_WhenSuccessfullyRestored_SnapshotDeleted() {
+        String uniqueString = UUID.randomUUID().toString();
+
+        // create a new workspace
+        Workspace workspace = new Workspace();
+        workspace.setName("Test workspace " + uniqueString);
+
+        Flux<ApplicationSnapshot> snapshotFlux = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("App before snapshot");
+                    return applicationPageService.createApplication(testApplication, workspace.getId());
+                }).flatMap(application -> { // create a snapshot
+                    return applicationSnapshotService.createApplicationSnapshot(application.getId(), null)
+                            .thenReturn(application);
+                })
+                .flatMapMany(application ->
+                        applicationSnapshotService.restoreSnapshot(application.getId(), null)
+                                .thenMany(applicationSnapshotRepository.findByApplicationId(application.getId()))
+                );
+
+        StepVerifier.create(snapshotFlux)
+                .verifyComplete();
+    }
+
+    @Test
+    public void deleteSnapshot_WhenSnapshotExists_Deleted() {
+        String testAppId = "app-" + UUID.randomUUID();
+        ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
+        snapshot1.setChunkOrder(1);
+        snapshot1.setApplicationId(testAppId);
+
+        ApplicationSnapshot snapshot2 = new ApplicationSnapshot();
+        snapshot2.setApplicationId(testAppId);
+        snapshot2.setChunkOrder(2);
+
+        Flux<ApplicationSnapshot> snapshotFlux = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
+                .then(applicationSnapshotService.deleteSnapshot(testAppId, null))
+                .thenMany(applicationSnapshotRepository.findByApplicationId(testAppId));
+
+        StepVerifier.create(snapshotFlux)
+                .verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void getWithoutDataByApplicationId_WhenSnanshotNotFound_ReturnsEmptySnapshot() {
+        String uniqueString = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("Test workspace " + uniqueString);
+
+        Mono<ApplicationSnapshot> applicationSnapshotMono = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("Test app for snapshot");
+                    testApplication.setWorkspaceId(createdWorkspace.getId());
+                    return applicationPageService.createApplication(testApplication);
+                })
+                .flatMap(application1 -> {
+                    return applicationSnapshotService.getWithoutDataByApplicationId(application1.getId(), null);
+                });
+
+        StepVerifier.create(applicationSnapshotMono)
+                .assertNext(applicationSnapshot -> {
+                    assertThat(applicationSnapshot.getId()).isNull();
+                })
+                .verifyComplete();
     }
 }

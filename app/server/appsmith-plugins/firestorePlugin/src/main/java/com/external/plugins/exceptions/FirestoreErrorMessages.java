@@ -1,10 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class FirestoreErrorMessages {
-    private FirestoreErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class FirestoreErrorMessages extends BasePluginErrorMessages {
     public static final String MANDATORY_PARAM_COMMAND_MISSING_ERROR_MSG = "Mandatory parameter 'Command' is missing. Did you forget to select one of the commands" +
             " from the Command dropdown ?";
 
@@ -58,15 +59,16 @@ public class FirestoreErrorMessages {
 
     public static final String WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG = "Unable to parse condition value as a JSON list.";
 
+    public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID = "Unable to connect to the Firestore project. No project found for the given ProjectID.";
+
     /*
      ************************************************************************************************************************************************
                                         Error messages related to validation of datasource.
      ************************************************************************************************************************************************
      */
 
-    public static final String DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG = "Validation failed for field 'Service Account Credentials'. Please check the " +
-            "value provided in the 'Service Account Credentials' field.";
-
+    public static final String DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG = "Validation failed for field 'Service account credentials'. Please check the " +
+            "value provided in the 'Service account credentials' field.";
     public static final String DS_MISSING_PROJECT_ID_AND_CLIENTJSON_ERROR_MSG = "Missing ProjectID and ClientJSON in datasource.";
 
     public static final String DS_MISSING_PROJECT_ID_ERROR_MSG = "Missing ProjectID in datasource.";
@@ -74,4 +76,13 @@ public class FirestoreErrorMessages {
     public static final String DS_MISSING_CLIENTJSON_ERROR_MSG = "Missing ClientJSON in datasource.";
 
     public static final String DS_MISSING_FIRESTORE_URL_ERROR_MSG = "Missing Firestore URL.";
+
+    /*
+     ************************************************************************************************************************************************
+                                        Warning messages related to datasource.
+     ************************************************************************************************************************************************
+     */
+    public static final String META_DATA_ACCESS_MISSING_MESSAGE = "Hi, it seems that the credentials provided here " +
+            "don't have the permission to gather metadata information. Please reach out to your database admin " +
+            "to understand more. ";
 }

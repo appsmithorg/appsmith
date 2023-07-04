@@ -1,11 +1,9 @@
 import { pickBy, sum } from "lodash";
-import React, { CSSProperties } from "react";
-import { Cell, Row } from "react-table";
-import {
-  MULTISELECT_CHECKBOX_WIDTH,
-  ReactTableColumnProps,
-  StickyType,
-} from "../Constants";
+import type { CSSProperties } from "react";
+import React from "react";
+import type { Cell, Row } from "react-table";
+import type { ReactTableColumnProps } from "../Constants";
+import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 

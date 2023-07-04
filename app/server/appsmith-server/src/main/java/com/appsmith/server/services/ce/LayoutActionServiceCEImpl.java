@@ -652,18 +652,18 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                        .findAllOnLoadActions(pageId, evaluatedVersion, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
-                        .onErrorResume(AppsmithException.class, error -> {
-                            log.info(error.getMessage());
-                            validOnPageLoadActions.set(FALSE);
-                            layout.setLayoutOnLoadActionErrors(List.of(
-                                    new ErrorDTO(error.getAppErrorCode(),
-                                            error.getErrorType(),
-                                            layoutOnLoadActionErrorToastMessage,
-                                            error.getMessage(),
-                                            error.getTitle())));
-                            return Mono.just(new ArrayList<>());
-                        });
+                .findAllOnLoadActions(pageId, evaluatedVersion, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
+                .onErrorResume(AppsmithException.class, error -> {
+                    log.info(error.getMessage());
+                    validOnPageLoadActions.set(FALSE);
+                    layout.setLayoutOnLoadActionErrors(List.of(
+                            new ErrorDTO(error.getAppErrorCode(),
+                                    error.getErrorType(),
+                                    layoutOnLoadActionErrorToastMessage,
+                                    error.getMessage(),
+                                    error.getTitle())));
+                    return Mono.just(new ArrayList<>());
+                });
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;

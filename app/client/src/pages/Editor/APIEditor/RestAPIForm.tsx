@@ -1,30 +1,27 @@
 import React from "react";
 import { connect } from "react-redux";
-import {
-  change,
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { InjectedFormProps } from "redux-form";
+import { change, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
-import { Action } from "entities/Action";
+import type { Action } from "entities/Action";
 import PostBodyData from "./PostBodyData";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes, Text, TextType } from "design-system-old";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 import get from "lodash/get";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import {
   getAction,
   getActionData,
   getActionResponses,
 } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
-import CommonEditorForm, { CommonFormProps } from "./CommonEditorForm";
+import type { CommonFormProps } from "./CommonEditorForm";
+import CommonEditorForm from "./CommonEditorForm";
 import Pagination from "./Pagination";
 
 const NoBodyMessage = styled.div`

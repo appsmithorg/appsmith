@@ -5,6 +5,7 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
@@ -29,6 +30,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -94,7 +96,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
     }
 
     @Override
-    public Mono<Datasource> createMockDataSet(MockDataSource mockDataSource) {
+    public Mono<Datasource> createMockDataSet(MockDataSource mockDataSource, String environmentId) {
 
         Mono<MockDataDTO> mockDataSet;
         if (cacheExpiryTime == null || !Instant.now().isBefore(cacheExpiryTime)) {
@@ -119,10 +121,18 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             datasource.setWorkspaceId(mockDataSource.getWorkspaceId());
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName());
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
-            datasource.setIsConfigured(true);
-            return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
-                    .then(createSuffixedDatasource(datasource));
+
+            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+
+            return datasourceService.getTrueEnvironmentId(mockDataSource.getWorkspaceId(), environmentId)
+                    .flatMap(trueEnvironmentId -> {
+                        storages.put(trueEnvironmentId,
+                                new DatasourceStorageDTO(null, trueEnvironmentId, datasourceConfiguration));
+                        datasource.setDatasourceStorages(storages);
+
+                        return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
+                                .then(createSuffixedDatasource(datasource, trueEnvironmentId));
+                    });
         });
 
     }
@@ -142,11 +152,11 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         }
 
         MockDataCredentials credentials = credentialsList.get();
-        property.setKey("Use Mongo Connection String URI");
+        property.setKey("Use mongo connection string URI");
         property.setValue("Yes");
         listProperty.add(property);
         property = new Property();
-        property.setKey("Connection String URI");
+        property.setKey("Connection string URI");
         property.setValue(credentials.getHost());
         listProperty.add(property);
         sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
@@ -198,34 +208,35 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         return datasourceConfiguration;
     }
 
-    private Mono<Datasource> createSuffixedDatasource(Datasource datasource) {
-        return createSuffixedDatasource(datasource, datasource.getName(), 0);
+    private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String environmentId) {
+        return createSuffixedDatasource(datasource, datasource.getName(), environmentId, 0);
     }
 
     /**
      * Tries to create the given datasource with the name, over and over again with an incremented suffix, but **only**
      * if the error is because of a name clash.
      *
-     * @param datasource Datasource to try create.
+     * @param datasource Datasource to try to create.
      * @param name       Name of the datasource, to which numbered suffixes will be appended.
      * @param suffix     Suffix used for appending, recursion artifact. Usually set to 0.
      * @return A Mono that yields the created datasource.
      */
-    private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
+    private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, String environmentId, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
         String password = null;
-        if (datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
-            password = ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).getPassword();
+        DatasourceStorageDTO datasourceStorageDTO = datasource.getDatasourceStorages().get(environmentId);
+        if (datasourceStorageDTO.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
+            password = ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).getPassword();
         }
         final String finalPassword = password;
         return datasourceService.create(datasource)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
                             && error.getMessage().contains("workspace_datasource_deleted_compound_index")
-                            && datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
-                        ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).setPassword(finalPassword);
-                        return createSuffixedDatasource(datasource, name, 1 + suffix);
+                            && datasourceStorageDTO.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
+                        ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).setPassword(finalPassword);
+                        return createSuffixedDatasource(datasource, name, environmentId, 1 + suffix);
                     }
                     throw error;
                 });

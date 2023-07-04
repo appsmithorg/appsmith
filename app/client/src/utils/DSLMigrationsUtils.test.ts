@@ -1,14 +1,16 @@
 import { transformDSL } from "./DSLMigrations";
 import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { OverflowTypes } from "widgets/TextWidget/constants";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 describe("correctly migrate dsl", () => {
   it("transformDSL for private widget", () => {
     const currentVersion = 49; // before adding privateWidgets to all List widgets
     const nextVersion = LATEST_PAGE_VERSION; // It runs Two Migrations, Always Update as migration increases
+
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",
       bottomRow: 740,
@@ -125,7 +127,7 @@ describe("correctly migrate dsl", () => {
           template: {
             Image1: {
               isVisible: true,
-              defaultImage: "https://assets.appsmith.com/widgets/default.png",
+              defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
               imageShape: "RECTANGLE",
               maxZoomLevel: 1,
               enableRotation: false,
@@ -231,17 +233,17 @@ describe("correctly migrate dsl", () => {
             {
               id: "001",
               name: "Blue",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "002",
               name: "Green",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "003",
               name: "Red",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
           ],
           isCanvas: true,
@@ -340,8 +342,7 @@ describe("correctly migrate dsl", () => {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage:
-                            "https://assets.appsmith.com/widgets/default.png",
+                          defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
                           key: "9cn4ooadxj",
                           image: "{{currentItem.img}}",
                           rightColumn: 16,
@@ -728,7 +729,7 @@ describe("correctly migrate dsl", () => {
           template: {
             Image1: {
               isVisible: true,
-              defaultImage: "https://assets.appsmith.com/widgets/default.png",
+              defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
               imageShape: "RECTANGLE",
               maxZoomLevel: 1,
               enableRotation: false,
@@ -833,17 +834,17 @@ describe("correctly migrate dsl", () => {
             {
               id: "001",
               name: "Blue",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "002",
               name: "Green",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "003",
               name: "Red",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
           ],
           isCanvas: true,
@@ -953,8 +954,7 @@ describe("correctly migrate dsl", () => {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage:
-                            "https://assets.appsmith.com/widgets/default.png",
+                          defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
                           key: "9cn4ooadxj",
                           labelTextSize: "0.875rem",
                           image: "{{currentItem.img}}",
@@ -1355,7 +1355,7 @@ describe("correctly migrate dsl", () => {
           template: {
             Image1: {
               isVisible: true,
-              defaultImage: "https://assets.appsmith.com/widgets/default.png",
+              defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
               imageShape: "RECTANGLE",
               maxZoomLevel: 1,
               enableRotation: false,
@@ -1461,17 +1461,17 @@ describe("correctly migrate dsl", () => {
             {
               id: "001",
               name: "Blue",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "002",
               name: "Green",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "003",
               name: "Red",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
           ],
           isCanvas: true,
@@ -1570,8 +1570,7 @@ describe("correctly migrate dsl", () => {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage:
-                            "https://assets.appsmith.com/widgets/default.png",
+                          defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
                           key: "9cn4ooadxj",
                           image: "{{currentItem.img}}",
                           rightColumn: 16,
@@ -1958,7 +1957,7 @@ describe("correctly migrate dsl", () => {
           template: {
             Image1: {
               isVisible: true,
-              defaultImage: "https://assets.appsmith.com/widgets/default.png",
+              defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
               imageShape: "RECTANGLE",
               maxZoomLevel: 1,
               enableRotation: false,
@@ -2063,17 +2062,17 @@ describe("correctly migrate dsl", () => {
             {
               id: "001",
               name: "Blue",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "002",
               name: "Green",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
             {
               id: "003",
               name: "Red",
-              img: "https://assets.appsmith.com/widgets/default.png",
+              img: `${ASSETS_CDN_URL}/widgets/default.png`,
             },
           ],
           isCanvas: true,
@@ -2183,8 +2182,7 @@ describe("correctly migrate dsl", () => {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage:
-                            "https://assets.appsmith.com/widgets/default.png",
+                          defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
                           key: "9cn4ooadxj",
                           labelTextSize: "0.875rem",
                           image: "{{currentItem.img}}",
@@ -3097,5 +3095,126 @@ describe("correctly migrate dsl", () => {
 
     const actualNextDSL = migrateRadioGroupAlignmentProperty(currentDSL);
     expect(actualNextDSL).toEqual(expectedNextDSL);
+  });
+
+  it("correctly migrates currentIndex/currentRow properties for validations in table view", () => {
+    const currentVersion = 78;
+    const currentDSL: ContainerWidgetProps<WidgetProps> = {
+      bottomRow: 740,
+      containerStyle: "none",
+      detachFromLayout: true,
+      dynamicBindingPathList: [],
+      dynamicTriggerPathList: [],
+      leftColumn: 0,
+      minHeight: 640,
+      parentColumnSpace: 1,
+      parentRowSpace: 1,
+      rightColumn: 912,
+      snapColumns: 64,
+      snapRows: 125,
+      topRow: 0,
+      type: "CANVAS_WIDGET",
+      version: currentVersion,
+      widgetId: "0",
+      widgetName: "MainContainer",
+      renderMode: "CANVAS",
+      isLoading: false,
+      children: [
+        {
+          widgetName: "Table1",
+          type: "TABLE_WIDGET_V2",
+          widgetId: "123",
+
+          renderMode: "CANVAS",
+          version: 1,
+          parentColumnSpace: 15.0623,
+          leftColumn: 1,
+          rightColumn: 1,
+          topRow: 1,
+          bottomRow: 1,
+          parentRowSpace: 10,
+          isLoading: false,
+
+          primaryColumns: {
+            column1: {
+              validation: {
+                min: "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table1.isAddRowInProgress\n    )\n  }}\n ",
+                max: 1,
+                regex:
+                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table1.isAddRowInProgress\n    )\n  }}\n ",
+                errorMessage: true,
+                isColumnEditableCellRequired:
+                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? true : false\n    ))\n    (\n      Table1.isAddRowInProgress\n    )\n  }}\n  ",
+                randomValidation: "hello",
+                isColumnEditableCellValid: `
+                {{
+                  (
+                    (editedValue, currentRow, currentIndex, isNewRow) => (
+                isNewRow ? true : false
+                    ))
+                    (
+                      (Table1.isAddRowInProgress ? Table1.newRow.orderAmount : Table1.columnEditableCellValue.orderAmount) || "",
+                      Table1.isAddRowInProgress ? Table1.newRow : (Table1.processedTableData[Table1.editableCell.index] ||
+                        Object.keys(Table1.processedTableData[0])
+                          .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
+                          .reduce((prev, curr) => {
+                            prev[curr] = "";
+                            return prev;
+                          }, {})),
+                      Table1.isAddRowInProgress ? -1 : Table1.editableCell.index,
+                      Table1.isAddRowInProgress
+                    )
+                  }}
+                `,
+              },
+            },
+          },
+        },
+      ],
+    };
+    const nextDSL = transformDSL(currentDSL);
+
+    const validations = (nextDSL.children || [])[0].primaryColumns.column1
+      .validation;
+
+    for (const validationName in validations) {
+      const validation = validations[validationName];
+      if (
+        validationName == "min" ||
+        validationName == "regex" ||
+        validationName == "isColumnEditableCellRequired"
+      ) {
+        expect(
+          validation.indexOf("(isNewRow, currentIndex, currentRow)"),
+        ).toBeGreaterThan(-1);
+        expect(
+          validation.indexOf(
+            `.filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)`,
+          ),
+        ).toBeGreaterThan(-1);
+      }
+
+      if (validationName == "errorMessage") {
+        expect(validation).toEqual(true);
+      }
+
+      if (validationName == "max") {
+        expect(validation).toEqual(1);
+      }
+
+      if (validationName == "isColumnEditableCellValid") {
+        expect(
+          validation.indexOf(
+            "(editedValue, currentRow, currentIndex, isNewRow)",
+          ),
+        ).toBeGreaterThan(-1);
+
+        expect(
+          validation.indexOf(
+            `.filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)`,
+          ),
+        ).toBeGreaterThan(-1);
+      }
+    }
   });
 });

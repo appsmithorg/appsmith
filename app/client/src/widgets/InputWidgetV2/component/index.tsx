@@ -1,8 +1,7 @@
 import React from "react";
-import BaseInputComponent, {
-  BaseInputComponentProps,
-} from "widgets/BaseInputWidget/component";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
+import BaseInputComponent from "widgets/BaseInputWidget/component";
+import type { InputTypes } from "widgets/BaseInputWidget/constants";
 
 const getInputHTMLType = (inputType: InputTypes) => {
   switch (inputType) {
@@ -42,6 +41,7 @@ class InputComponent extends React.Component<InputComponentProps> {
       <BaseInputComponent
         accentColor={this.props.accentColor}
         allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}
+        autoComplete={this.props.autoComplete}
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
@@ -95,6 +95,7 @@ export interface InputComponentProps extends BaseInputComponentProps {
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
+  autoComplete?: string;
 }
 
 export default InputComponent;

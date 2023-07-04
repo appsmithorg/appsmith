@@ -1,8 +1,8 @@
 import { createReducer } from "utils/ReducerUtils";
-import { JSAction, JSCollection } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";

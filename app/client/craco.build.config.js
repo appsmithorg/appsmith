@@ -5,9 +5,10 @@ const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
+const path = require("path");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
-
+const isAirgap = process.env.REACT_APP_AIRGAP_ENABLED;
 const plugins = [];
 
 plugins.push(
@@ -16,6 +17,24 @@ plugins.push(
     mode: "development",
     swDest: "./pageService.js",
     maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
+    exclude: [
+      // Don’t cache source maps and PWA manifests.
+      // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
+      // so we need to specify them explicitly if we’re extending this array.)
+      /\.map$/,
+      /^manifest.*\.js$/,
+      // Don’t cache the root html file
+      /index\.html/,
+      // Don’t cache LICENSE.txt files emitted by CRA
+      // when a chunk includes some license comments
+      /LICENSE\.txt/,
+      // Don’t cache static icons as there are hundreds of them, and caching them all
+      // one by one (as the service worker does it) keeps the network busy for a long time
+      // and delays the service worker installation
+      /\/*\.svg$/,
+    ],
+    // Don’t cache-bust JS and CSS chunks
+    dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
   }),
 );
 
@@ -66,7 +85,9 @@ plugins.push(
 
 module.exports = merge(common, {
   webpack: {
-    plugins: plugins,
+    configure: {
+      plugins,
+    },
   },
   jest: {
     configure: {
@@ -76,4 +97,18 @@ module.exports = merge(common, {
       },
     },
   },
+  plugins: [
+    // Enable Airgap builds
+    {
+      plugin: {
+        overrideWebpackConfig: ({ context: { env, paths }, webpackConfig }) => {
+          if (env.REACT_APP_AIRGAP_ENABLED === "true" || isAirgap === "true") {
+            paths.appBuild = webpackConfig.output.path =
+              path.resolve("build_airgap");
+          }
+          return webpackConfig;
+        },
+      },
+    },
+  ],
 });

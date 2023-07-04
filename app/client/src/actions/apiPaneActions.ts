@@ -1,9 +1,7 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { EventLocation } from "utils/AnalyticsUtil";
-import { SlashCommandPayload } from "entities/Action";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { EventLocation } from "utils/AnalyticsUtil";
+import type { SlashCommandPayload } from "entities/Action";
 
 export const changeApi = (
   id: string,
@@ -103,23 +101,9 @@ export const setApiPaneConfigSelectedTabIndex: (
   payload: { selectedTabIndex: payload },
 });
 
-export const setApiPaneResponseSelectedTab: (
+export const setApiRightPaneSelectedTab: (
   payload: string,
 ) => ReduxAction<{ selectedTab: string }> = (payload: string) => ({
-  type: ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB,
-  payload: { selectedTab: payload },
-});
-
-export const setApiPaneResponsePaneHeight: (
-  payload: number,
-) => ReduxAction<{ height: number }> = (payload: number) => ({
-  type: ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT,
-  payload: { height: payload },
-});
-
-export const setApiRightPaneSelectedTab: (
-  payload: number,
-) => ReduxAction<{ selectedTab: number }> = (payload: number) => ({
   type: ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB,
   payload: { selectedTab: payload },
 });

@@ -1,11 +1,13 @@
-import {
+import type {
   ReduxAction,
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
   ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { PluginFormPayload } from "api/PluginApi";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import type { PluginFormPayload } from "api/PluginApi";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 export const fetchPlugins = (payload?: {
   workspaceId?: string;

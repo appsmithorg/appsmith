@@ -1,9 +1,7 @@
 import { ButtonPlacementTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  CodeScannerWidgetProps,
-  ScannerLayout,
-} from "widgets/CodeScannerWidget/constants";
+import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
+import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
 import { updateStyles } from "../propertyUtils";
 
 export default [
@@ -12,7 +10,7 @@ export default [
     children: [
       {
         propertyName: "iconName",
-        label: "Select Icon",
+        label: "Select icon",
         helpText: "Sets the icon to be used for the button",
         controlType: "ICON_SELECT",
         isBindProperty: false,
@@ -30,14 +28,15 @@ export default [
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
-        fullWidth: true,
+        defaultValue: "left",
+        fullWidth: false,
         options: [
           {
-            icon: "VERTICAL_LEFT",
+            startIcon: "skip-left-line",
             value: "left",
           },
           {
-            icon: "VERTICAL_RIGHT",
+            startIcon: "skip-right-line",
             value: "right",
           },
         ],
@@ -100,7 +99,7 @@ export default [
       {
         propertyName: "buttonColor",
         helpText: "Sets the background color of the button",
-        label: "Button Color",
+        label: "Button color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -118,11 +117,11 @@ export default [
     ],
   },
   {
-    sectionName: "Border and Shadow",
+    sectionName: "Border and shadow",
     children: [
       {
         propertyName: "borderRadius",
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
@@ -132,7 +131,7 @@ export default [
       },
       {
         propertyName: "boxShadow",
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",

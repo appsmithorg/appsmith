@@ -1,5 +1,3 @@
-import { createEvaluationContext } from "../../evaluate";
-import { dataTreeEvaluator } from "../../handlers/evalTree";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
 
 const _internalSetInterval = self.setInterval;
@@ -31,17 +29,8 @@ export function setInterval(
   }
   const _internalIntervalId = _internalSetInterval(
     (...args: any[]) => {
-      const evalContext = createEvaluationContext({
-        dataTree: dataTreeEvaluator?.evalTree || {},
-        resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
-        isTriggerBased: true,
-      });
       self["$isDataField"] = false;
-      Object.assign(self, evalContext);
-      ExecutionMetaData.setExecutionMetaData(
-        metaData.triggerMeta,
-        metaData.eventType,
-      );
+      ExecutionMetaData.setExecutionMetaData(metaData);
       typeof callback === "function" && callback(...args);
     },
     delay,

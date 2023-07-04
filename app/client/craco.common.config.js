@@ -1,6 +1,7 @@
 const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
   devServer: {
@@ -13,9 +14,15 @@ module.exports = {
       },
     },
   },
+  babel: {
+    plugins: ["babel-plugin-lodash"],
+  },
   webpack: {
     configure: {
       resolve: {
+        alias: {
+          "lodash-es": "lodash",
+        },
         fallback: {
           assert: false,
           stream: false,
@@ -33,6 +40,49 @@ module.exports = {
           },
         ],
       },
+      optimization: {
+        splitChunks: {
+          cacheGroups: {
+            icons: {
+              // This determines which modules are considered icons
+              test: (module) => {
+                const modulePath = module.resource;
+                if (!modulePath) return false;
+
+                return (
+                  modulePath.match(/node_modules[\\\/]remixicon-react[\\\/]/) ||
+                  modulePath.endsWith(".svg.js") ||
+                  modulePath.endsWith(".svg")
+                );
+              },
+              // This determines which chunk to put the icon into.
+              //
+              // Why have three separate cache groups for three different kinds of
+              // icons? Purely as an optimization: not every page needs all icons,
+              // so we can avoid loading unused icons sometimes.
+              name: (module) => {
+                if (
+                  module.resource?.match(
+                    /node_modules[\\\/]remixicon-react[\\\/]/,
+                  )
+                ) {
+                  return "remix-icons";
+                }
+
+                if (module.resource?.includes("blueprint")) {
+                  return "blueprint-icons";
+                }
+
+                return "svg-icons";
+              },
+              // This specifies that only icons from import()ed chunks should be moved
+              chunks: "async",
+              // This makes webpack ignore the minimum chunk size requirement
+              enforce: true,
+            },
+          },
+        },
+      },
       ignoreWarnings: [
         function ignoreSourcemapsloaderWarnings(warning) {
           return (
@@ -42,6 +92,16 @@ module.exports = {
             warning.details.includes("source-map-loader")
           );
         },
+      ],
+      plugins: [
+        // Replace BlueprintJS’s icon component with our own implementation
+        // that code-splits icons away
+        new webpack.NormalModuleReplacementPlugin(
+          /@blueprintjs\/core\/lib\/\w+\/components\/icon\/icon\.\w+/,
+          require.resolve(
+            "./src/components/designSystems/blueprintjs/icon/index.js",
+          ),
+        ),
       ],
     },
   },
@@ -70,6 +130,20 @@ module.exports = {
         plugins: [],
         theme: "twilight",
         css: false,
+      },
+    },
+    {
+      // Prioritize the local src directory over node_modules.
+      // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
+      // e.g., when `<dirname>` is `entities`: https://github.com/appsmithorg/appsmith/pull/20964#discussion_r1124782356
+      plugin: {
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          webpackConfig.resolve.modules = [
+            path.resolve(__dirname, "src"),
+            ...webpackConfig.resolve.modules,
+          ];
+          return webpackConfig;
+        },
       },
     },
   ],

@@ -1,5 +1,5 @@
-import { ValidationResponse } from "constants/WidgetValidation";
-import { CategorySliderWidgetProps, SliderOption } from "./widget";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import type { CategorySliderWidgetProps, SliderOption } from "./widget";
 
 export function optionsCustomValidation(
   options: unknown,
@@ -12,7 +12,7 @@ export function optionsCustomValidation(
     if (options.length < 2) {
       return {
         isValid: false,
-        parsed: options,
+        parsed: [],
         messages: [
           {
             name: "ValidationError",

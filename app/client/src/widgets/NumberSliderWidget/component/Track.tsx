@@ -2,7 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 import { Marks } from "./Marks";
-import { sizeMap, SliderSizes } from "../utils";
+import type { SliderSizes } from "../utils";
+import { sizeMap } from "../utils";
 
 interface TrackProps {
   marksBg: {

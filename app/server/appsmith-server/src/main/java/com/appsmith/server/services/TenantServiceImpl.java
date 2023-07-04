@@ -2,12 +2,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
+import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {

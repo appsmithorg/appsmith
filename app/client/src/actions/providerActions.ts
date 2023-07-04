@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-import {
+import type {
   AddApiToPageRequest,
   FetchProviderWithCategoryRequest,
   SearchApiOrProviderRequest,

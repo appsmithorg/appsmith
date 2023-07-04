@@ -1,10 +1,8 @@
-import { AppTheme } from "entities/AppTheming";
-import { AppThemingMode } from "selectors/appThemingSelectors";
+import type { AppTheme } from "entities/AppTheming";
+import type { AppThemingMode } from "selectors/appThemingSelectors";
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export type AppThemingState = {
   isSaving: boolean;

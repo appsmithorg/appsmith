@@ -1,5 +1,5 @@
-import { APIResponseError } from "api/ApiResponses";
-import { ActionConfig, Property } from "entities/Action";
+import type { APIResponseError } from "api/ApiResponses";
+import type { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
 
 export enum AuthType {
@@ -11,7 +11,23 @@ export enum AuthenticationStatus {
   NONE = "NONE",
   IN_PROGRESS = "IN_PROGRESS",
   SUCCESS = "SUCCESS",
+  FAILURE = "FAILURE",
+  FAILURE_ACCESS_DENIED = "FAILURE_ACCESS_DENIED",
+  FAILURE_FILE_NOT_SELECTED = "FAILURE_FILE_NOT_SELECTED",
+  IN_PROGRESS_PERMISSIONS_GRANTED = "IN_PROGRESS_PERMISSIONS_GRANTED",
 }
+
+export enum FilePickerActionStatus {
+  CANCEL = "cancel",
+  PICKED = "picked",
+  LOADED = "loaded",
+}
+
+export enum ActionType {
+  AUTHORIZE = "authorize",
+  DOCUMENTATION = "documentation",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -34,6 +50,7 @@ export interface DatasourceColumns {
 export interface DatasourceKeys {
   name: string;
   type: string;
+  columnNames: string[];
 }
 
 export interface DatasourceStructure {
@@ -60,11 +77,11 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
+  type?: string;
   workspaceId: string;
-  isValid: boolean;
-  isConfigured?: boolean;
   userPermissions?: string[];
   isDeleting?: boolean;
+  isMock?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
@@ -81,9 +98,11 @@ export const isEmbeddedRestDatasource = (
 };
 
 export interface EmbeddedRestDatasource extends BaseDatasource {
+  id?: string;
   datasourceConfiguration: { url: string };
   invalids: Array<string>;
   messages: Array<string>;
+  isValid: boolean;
 }
 
 export interface DatasourceConfiguration {
@@ -97,11 +116,27 @@ export interface DatasourceConfiguration {
 
 export interface Datasource extends BaseDatasource {
   id: string;
-  datasourceConfiguration: DatasourceConfiguration;
-  invalids?: string[];
-  structure?: DatasourceStructure;
-  messages?: string[];
+  // key in the map representation of environment id of type string
+  datasourceStorages: Record<string, DatasourceStorage>;
   success?: boolean;
+  isMock?: boolean;
+  invalids?: string[];
+  messages?: string[];
+}
+
+export interface DatasourceStorage {
+  datasourceId: string;
+  environmentId: string;
+  datasourceConfiguration: DatasourceConfiguration;
+  isValid: boolean;
+  structure?: DatasourceStructure;
+  isConfigured?: boolean;
+}
+
+export interface TokenResponse {
+  datasource: Datasource;
+  token: string;
+  projectID: string;
 }
 
 export interface MockDatasource {

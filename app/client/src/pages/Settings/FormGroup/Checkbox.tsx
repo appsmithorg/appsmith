@@ -1,18 +1,14 @@
 import React, { memo } from "react";
-import {
-  Field,
-  getFormValues,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field, getFormValues } from "redux-form";
 import styled from "styled-components";
-import { FormGroup, SettingComponentProps } from "./Common";
-import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Button, Category, Checkbox } from "design-system-old";
+import type { SettingComponentProps } from "./Common";
+import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { Checkbox, Tag, Text } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
-import { EventName } from "utils/AnalyticsUtil";
+import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
+import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -22,12 +18,6 @@ const CheckboxWrapper = styled.div`
   gap: 16px;
 `;
 
-const UpgradeButton = styled(Button)`
-  height: 30px;
-  width: 94px;
-  padding: 8px 16px;
-`;
-
 type CheckboxProps = {
   label?: string;
   id?: string;
@@ -35,8 +25,6 @@ type CheckboxProps = {
   needsUpgrade?: boolean;
   text: string;
   labelSuffix?: React.ReactElement;
-  upgradeLogEventName?: EventName;
-  upgradeIntercomMessage?: string;
   isPropertyDisabled?: boolean;
 };
 
@@ -49,10 +37,6 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
   ) {
     const { isPropertyDisabled, labelSuffix } = props;
     const val = componentProps.input.value;
-    const { onUpgrade } = useOnUpgrade({
-      logEventName: props.upgradeLogEventName,
-      intercomMessage: props.upgradeIntercomMessage,
-    });
 
     function onCheckbox(value?: boolean) {
       const CheckboxValue = isPropertyDisabled ? !value : value;
@@ -66,20 +50,15 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
     return (
       <CheckboxWrapper>
         <Checkbox
-          cypressSelector={props.id}
-          disabled={props.isDisabled}
-          isDefaultChecked={isPropertyDisabled ? !val : val}
-          label={props.text}
-          onCheckChange={onCheckbox}
-        />
+          data-testid={props.id}
+          defaultSelected={isPropertyDisabled ? !val : val}
+          isDisabled={props.isDisabled}
+          onChange={onCheckbox}
+          value={props.id}
+        >
+          {props.text}
+        </Checkbox>
         <div>{labelSuffix}</div>
-        {props.needsUpgrade && (
-          <UpgradeButton
-            category={Category.secondary}
-            onClick={onUpgrade}
-            text="UPGRADE"
-          />
-        )}
       </CheckboxWrapper>
     );
   };
@@ -92,26 +71,38 @@ const StyledFieldCheckboxGroup = styled.div`
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
 export function CheckboxComponent({ setting }: SettingComponentProps) {
-  const settings = useSelector(formValuesSelector);
+  const settings: Record<string, any> = useSelector(formValuesSelector);
 
   return (
     <StyledFieldCheckboxGroup>
-      <FormGroup setting={setting}>
-        <Field
-          component={FieldCheckboxWithCheckboxText({
-            label: setting.label,
-            text: setting.text || "",
-            id: setting.id,
-            isDisabled: setting.isDisabled && setting.isDisabled(settings),
-            needsUpgrade: setting.needsUpgrade,
-            labelSuffix: setting.textSuffix,
-            upgradeLogEventName: setting.upgradeLogEventName,
-            upgradeIntercomMessage: setting.upgradeIntercomMessage,
-            isPropertyDisabled: !setting.name?.toLowerCase().includes("enable"),
-          })}
-          name={setting.name}
-        />
-      </FormGroup>
+      <div className="flex gap-1 items-center">
+        <Text
+          className="admin-settings-form-group-label pt-2 pb-2"
+          color="var(--ads-v2-color-fg)"
+          data-testid="admin-settings-form-group-label"
+          kind="heading-xs"
+          renderAs="p"
+        >
+          {setting.label}
+        </Text>
+        {setting.needsUpgrade && (
+          <Tag isClosable={false}>{createMessage(BUSINESS_TAG)}</Tag>
+        )}
+      </div>
+      <Field
+        component={FieldCheckboxWithCheckboxText({
+          label: setting.label,
+          text: setting.text || "",
+          id: setting.id,
+          isDisabled: setting.isDisabled && setting.isDisabled(settings),
+          needsUpgrade: setting.needsUpgrade,
+          labelSuffix: setting.textSuffix,
+          isPropertyDisabled: isTenantConfig(setting.id)
+            ? false
+            : !setting.name?.toLowerCase().includes("enable"),
+        })}
+        name={setting.name}
+      />
     </StyledFieldCheckboxGroup>
   );
 }

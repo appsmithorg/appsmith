@@ -1,6 +1,7 @@
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { noop } from "lodash";
-import DropDownControl, { DropDownControlProps } from "./DropDownControl";
+import type { DropDownControlProps } from "./DropDownControl";
+import DropDownControl from "./DropDownControl";
 
 const requiredParams: DropDownControlProps = {
   evaluatedValue: undefined,

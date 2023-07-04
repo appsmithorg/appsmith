@@ -13,12 +13,14 @@ import {
 import { SAAS_EDITOR_DATASOURCE_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { getQueryParamsFromString } from "utils/getQueryParamsObject";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export enum FocusEntity {
   PAGE = "PAGE",
   API = "API",
   CANVAS = "CANVAS",
   DATASOURCE = "DATASOURCE",
+  DEBUGGER = "DEBUGGER",
   QUERY = "QUERY",
   JS_OBJECT = "JS_OBJECT",
   PROPERTY_PANE = "PROPERTY_PANE",
@@ -141,7 +143,10 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       pageId: match.params.pageId,
     };
   }
-  if (match.params.datasourceId) {
+  if (
+    match.params.datasourceId &&
+    match.params.datasourceId !== TEMP_DATASOURCE_ID
+  ) {
     return {
       entity: FocusEntity.DATASOURCE,
       id: match.params.datasourceId,

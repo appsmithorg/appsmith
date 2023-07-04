@@ -6,6 +6,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolution {
 
     public CreateDBTablePageSolutionImpl(DatasourceService datasourceService,
+                                         DatasourceStorageService datasourceStorageService,
                                          NewPageService newPageService,
                                          LayoutActionService layoutActionService,
                                          ApplicationPageService applicationPageService,
@@ -30,10 +32,11 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                                          PluginExecutorHelper pluginExecutorHelper,
                                          DatasourcePermission datasourcePermission,
                                          ApplicationPermission applicationPermission,
-                                         PagePermission pagePermission) {
-
-        super(datasourceService, newPageService, layoutActionService, applicationPageService, applicationService,
-                pluginService, analyticsService, sessionUserService, responseUtils, pluginExecutorHelper,
-                datasourcePermission, applicationPermission, pagePermission);
+                                         PagePermission pagePermission,
+                                         DatasourceStructureSolution datasourceStructureSolution) {
+        super(datasourceService, datasourceStorageService, newPageService, layoutActionService,
+                applicationPageService, applicationService, pluginService, analyticsService,
+                sessionUserService, responseUtils, pluginExecutorHelper, datasourcePermission,
+                applicationPermission, pagePermission, datasourceStructureSolution);
     }
 }

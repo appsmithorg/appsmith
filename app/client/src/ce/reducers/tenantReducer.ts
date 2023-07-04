@@ -1,5 +1,5 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -59,6 +59,24 @@ export const handlers = {
     instanceId: action.payload.instanceId,
   }),
   [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
+    state: TenantReduxState<any>,
+  ) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (
+    state: TenantReduxState<any>,
+    action: ReduxAction<TenantReduxState<any>>,
+  ) => ({
+    ...state,
+    ...action.payload,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      ...action.payload.tenantConfiguration,
+    },
+    isLoading: false,
+  }),
+  [ReduxActionErrorTypes.UPDATE_TENANT_CONFIG_ERROR]: (
     state: TenantReduxState<any>,
   ) => ({
     ...state,

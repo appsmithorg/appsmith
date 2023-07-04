@@ -8,5 +8,5 @@ import reactor.core.publisher.Mono;
 public interface MockDataServiceCE {
     Mono<MockDataDTO> getMockDataSet();
 
-    Mono<Datasource> createMockDataSet(MockDataSource mockDataSource);
+    Mono<Datasource> createMockDataSet(MockDataSource mockDataSource, String environmentId);
 }

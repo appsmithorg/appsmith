@@ -3,10 +3,10 @@ import { JSEditor } from "../Pages/JSEditor";
 import { EntityExplorer } from "../Pages/EntityExplorer";
 import { CommonLocators } from "./CommonLocators";
 import { ApiPage } from "../Pages/ApiPage";
+import { AdminSettings } from "../Pages/AdminSettings";
 import { HomePage } from "../Pages/HomePage";
 import { DataSources } from "../Pages/DataSources";
 import { Table } from "../Pages/Table";
-import { TableV2 } from "../Pages/TableV2";
 import { PropertyPane } from "../Pages/PropertyPane";
 import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
@@ -21,6 +21,11 @@ import { PageSettings } from "../Pages/AppSettings/PageSettings";
 import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
 import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
+import { Onboarding } from "../Pages/Onboarding";
+import { AutoLayout } from "../Pages/AutoLayout";
+import { DefaultHostPort } from "./Hostport";
+import { AssertHelper } from "../Pages/AssertHelper";
+import { ReusableHelper } from "./ReusableHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -29,6 +34,22 @@ export class ObjectsRegistry {
       ObjectsRegistry.aggregateHelper__ = new AggregateHelper();
     }
     return ObjectsRegistry.aggregateHelper__;
+  }
+
+  private static assertHelper__: AssertHelper;
+  static get AssertHelper(): AssertHelper {
+    if (ObjectsRegistry.assertHelper__ === undefined) {
+      ObjectsRegistry.assertHelper__ = new AssertHelper();
+    }
+    return ObjectsRegistry.assertHelper__;
+  }
+
+  private static reusableHelper__: ReusableHelper;
+  static get ReusableHelper(): ReusableHelper {
+    if (ObjectsRegistry.reusableHelper__ === undefined) {
+      ObjectsRegistry.reusableHelper__ = new ReusableHelper();
+    }
+    return ObjectsRegistry.reusableHelper__;
   }
 
   private static jsEditor__: JSEditor;
@@ -63,6 +84,14 @@ export class ObjectsRegistry {
     return ObjectsRegistry.apiPage__;
   }
 
+  private static adminSettings__: AdminSettings;
+  static get AdminSettings(): AdminSettings {
+    if (ObjectsRegistry.adminSettings__ === undefined) {
+      ObjectsRegistry.adminSettings__ = new AdminSettings();
+    }
+    return ObjectsRegistry.adminSettings__;
+  }
+
   private static homePage__: HomePage;
   static get HomePage(): HomePage {
     if (ObjectsRegistry.homePage__ === undefined) {
@@ -85,14 +114,6 @@ export class ObjectsRegistry {
       ObjectsRegistry.table__ = new Table();
     }
     return ObjectsRegistry.table__;
-  }
-
-  private static tableV2__: TableV2;
-  static get TableV2(): TableV2 {
-    if (ObjectsRegistry.tableV2__ === undefined) {
-      ObjectsRegistry.tableV2__ = new TableV2();
-    }
-    return ObjectsRegistry.tableV2__;
   }
 
   private static propertyPane__: PropertyPane;
@@ -205,6 +226,30 @@ export class ObjectsRegistry {
       ObjectsRegistry.templates__ = new Templates();
     }
     return ObjectsRegistry.templates__;
+  }
+
+  private static onboarding__: Onboarding;
+  static get Onboarding(): Onboarding {
+    if (ObjectsRegistry.onboarding__ === undefined) {
+      ObjectsRegistry.onboarding__ = new Onboarding();
+    }
+    return ObjectsRegistry.onboarding__;
+  }
+
+  private static autoLayout__: AutoLayout;
+  static get AutoLayout(): AutoLayout {
+    if (ObjectsRegistry.autoLayout__ === undefined) {
+      ObjectsRegistry.autoLayout__ = new AutoLayout();
+    }
+    return ObjectsRegistry.autoLayout__;
+  }
+
+  private static defaultHostPort__: DefaultHostPort;
+  static get DefaultHostPort(): DefaultHostPort {
+    if (ObjectsRegistry.defaultHostPort__ === undefined) {
+      ObjectsRegistry.defaultHostPort__ = new DefaultHostPort();
+    }
+    return ObjectsRegistry.defaultHostPort__;
   }
 }
 

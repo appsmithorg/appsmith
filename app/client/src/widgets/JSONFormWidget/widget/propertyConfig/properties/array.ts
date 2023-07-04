@@ -1,9 +1,11 @@
 import { get } from "lodash";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { FieldType, SchemaItem } from "widgets/JSONFormWidget/constants";
-import { JSONFormWidgetProps } from "../..";
-import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
+import type { SchemaItem } from "widgets/JSONFormWidget/constants";
+import { FieldType } from "widgets/JSONFormWidget/constants";
+import type { JSONFormWidgetProps } from "../..";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getStylesheetValue } from "../helper";
 
 const PROPERTIES = {
   style: {
@@ -13,7 +15,7 @@ const PROPERTIES = {
         children: [
           {
             propertyName: "backgroundColor",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             helpText: "Changes the background color",
             isJSConvertible: true,
@@ -31,7 +33,7 @@ const PROPERTIES = {
           {
             propertyName: "borderWidth",
             helpText: "Enter value for border width",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -40,7 +42,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "borderColor",
-            label: "Border Color",
+            label: "Border color",
             helpText: "Changes the border color of Object",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -57,7 +59,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -71,7 +73,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -96,7 +98,7 @@ const PROPERTIES = {
         children: [
           {
             propertyName: "cellBackgroundColor",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             helpText: "Changes the background color of the item",
             isJSConvertible: true,
@@ -114,7 +116,7 @@ const PROPERTIES = {
           {
             propertyName: "cellBorderWidth",
             helpText: "Enter value for border width of the item",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -123,7 +125,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "cellBorderColor",
-            label: "Border Color",
+            label: "Border color",
             helpText: "Changes the border color of the item",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -140,7 +142,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "cellBorderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -154,7 +156,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "cellBoxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -182,7 +184,7 @@ const PROPERTIES = {
         helpText:
           "Sets the default value of the field. The array is updated when the default value changes",
         propertyName: "defaultValue",
-        label: "Default Value",
+        label: "Default value",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "[]",
         isBindProperty: true,

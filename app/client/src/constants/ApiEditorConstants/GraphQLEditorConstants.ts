@@ -1,4 +1,4 @@
-import { ApiActionConfig } from "entities/Action";
+import type { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
 import {
   CONTENT_TYPE_HEADER_KEY,
@@ -60,7 +60,7 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
       value: true,
     },
     {
-      // Query Variables
+      // Query variables
       value: "",
     },
     {

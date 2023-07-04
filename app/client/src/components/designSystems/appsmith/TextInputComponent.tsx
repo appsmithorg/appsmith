@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import {
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import type {
   IconName,
   IInputGroupProps,
   IIntentProps,
-  InputGroup,
   MaybeElement,
 } from "@blueprintjs/core";
-import { ComponentProps } from "widgets/BaseComponent";
+import { InputGroup } from "@blueprintjs/core";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 
@@ -122,14 +122,8 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
     }
   };
   render() {
-    const {
-      className,
-      input,
-      meta,
-      refHandler,
-      showError,
-      ...rest
-    } = this.props;
+    const { className, input, meta, refHandler, showError, ...rest } =
+      this.props;
     const hasError = !!(
       showError &&
       meta &&

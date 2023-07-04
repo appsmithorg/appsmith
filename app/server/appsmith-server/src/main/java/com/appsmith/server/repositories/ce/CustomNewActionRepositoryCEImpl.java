@@ -1,26 +1,36 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.QActionConfiguration;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
+import com.mongodb.client.result.InsertManyResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -29,7 +39,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         implements CustomNewActionRepositoryCE {
 
     public CustomNewActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
-                                         MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+                                           MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -304,5 +314,158 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria defaultActionIdCriteria = where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
         Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return queryOne(List.of(defaultActionIdCriteria, branchCriteria), permission);
+    }
+
+    @Override
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(String applicationId, Boolean viewMode,
+                                                                      AclPermission aclPermission) {
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria applicationCriterion = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        criteria.add(applicationCriterion);
+
+        Criteria nonJsTypeCriteria = where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        criteria.add(nonJsTypeCriteria);
+
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+            criteria.add(deletedCriterion);
+        }
+
+        return queryAll(criteria, aclPermission);
+    }
+
+    @Override
+    public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds,
+                                                                          Boolean viewMode, AclPermission aclPermission,
+                                                                          Sort sort) {
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        Criteria nonJsTypeCriteria = where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        criteriaList.add(nonJsTypeCriteria);
+
+        // Fetch published actions
+        if (Boolean.TRUE.equals(viewMode)) {
+
+            if (name != null) {
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.name)).is(name);
+                criteriaList.add(nameCriteria);
+            }
+
+            if (pageIds != null && !pageIds.isEmpty()) {
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId)).in(pageIds);
+                criteriaList.add(pageCriteria);
+            }
+
+        }
+        // Fetch unpublished actions
+        else {
+
+            if (name != null) {
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
+                criteriaList.add(nameCriteria);
+            }
+
+            if (pageIds != null && !pageIds.isEmpty()) {
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+                criteriaList.add(pageCriteria);
+            }
+
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+            criteriaList.add(deletedCriteria);
+        }
+
+        return queryAll(criteriaList, aclPermission, sort);
+    }
+
+    /**
+     * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note
+     * the following points:
+     * 1. All of them will be written to database in a single DB operation.
+     * 2. The list of new actions returned are same as the ones passed in the method.
+     * 3. If you pass an action without ID, the ID will be generated by the database but the returned action
+     * will not have the ID.
+     * 4. All the auto generated fields e.g. createdAt, updatedAt should be set by the caller.
+     * They'll not be generated in the bulk write.
+     * 5. No constraint validation will be performed on the new actions.
+     * @param newActions List of actions that'll be saved in bulk
+     * @return List of actions that were passed in the method
+     */
+    @Override
+    public Mono<List<InsertManyResult>> bulkInsert(List<NewAction> newActions) {
+        if(CollectionUtils.isEmpty(newActions)) {
+            return Mono.just(Collections.emptyList());
+        }
+        // convert the list of new actions to a list of DBObjects
+        List<Document> dbObjects = newActions.stream().map(newAction -> {
+            Document document = new Document();
+            mongoOperations.getConverter().write(newAction, document);
+            return document;
+        }).collect(Collectors.toList());
+
+        return mongoOperations.getCollection(mongoOperations.getCollectionName(NewAction.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
+                .collectList();
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions) {
+        if(CollectionUtils.isEmpty(newActions)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        // convert the list of new actions to a list of DBObjects
+        List<WriteModel<Document>> dbObjects = newActions.stream().map(newAction -> {
+            assert newAction.getId() != null;
+            Document document = new Document();
+            mongoOperations.getConverter().write(newAction, document);
+            document.remove("_id");
+            return (WriteModel<Document>) new UpdateOneModel<Document>(
+                    new Document("_id", new ObjectId(newAction.getId())), new Document("$set", document)
+            );
+        }).collect(Collectors.toList());
+
+        return mongoOperations.getCollection(mongoOperations.getCollectionName(NewAction.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
+                .collectList();
+    }
+
+    @Override
+    public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        return queryAll(List.of(defaultAppIdCriteria), permission);
     }
 }

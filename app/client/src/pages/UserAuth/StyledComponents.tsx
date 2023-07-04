@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
-import { getTypographyByKey } from "design-system-old";
+import { FormGroup, getTypographyByKey } from "design-system-old";
 
 export const AuthContainer = styled.section`
   position: absolute;
@@ -98,6 +98,10 @@ export const AuthCardBody = styled.div`
 export const SpacedForm = styled(Form)``;
 
 export const SpacedSubmitForm = styled.form`
+  && .bp3-label {
+    color: var(--ads-v2-color-fg);
+    margin-bottom: var(--ads-v2-spaces-2);
+  }
   & a {
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
@@ -145,5 +149,12 @@ export const BlackAuthCardNavLink = styled(AuthCardNavLink)`
   &:hover {
     color: #000;
     border-bottom: 1px solid #000;
+  }
+`;
+
+export const StyledFormGroup = styled(FormGroup)`
+  && .bp3-label {
+    color: var(--ads-v2-color-fg);
+    margin-bottom: var(--ads-v2-spaces-2);
   }
 `;

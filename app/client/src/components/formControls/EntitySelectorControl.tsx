@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import { ControlProps, FormConfigType } from "./BaseControl";
+import type { ControlProps, FormConfigType } from "./BaseControl";
 import { allowedControlTypes } from "components/formControls/utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Colors } from "constants/Colors";
@@ -12,7 +12,7 @@ const dropDownFieldConfig: Partial<FormConfigType> = {
   fetchOptionsConditionally: true,
   options: [],
   customStyles: {
-    width: "280px",
+    width: "270px",
   },
 };
 
@@ -20,15 +20,15 @@ const inputFieldConfig: Partial<FormConfigType> = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   customStyles: {
-    width: "280px",
+    width: "270px",
   },
 };
 
 // main container for the entity selector component
 const EntitySelectorContainer = styled.div`
   display: grid;
-  grid-gap: 16px;
-  grid-template-columns: repeat(auto-fill, 280px);
+  grid-gap: 5px;
+  grid-template-columns: repeat(auto-fill, 270px);
 `;
 
 const EntitySelectorWrapper = styled.div<{

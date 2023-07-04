@@ -42,7 +42,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public Mono<UpdateResult> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds) {
         Update update = new Update().pull(fieldName(QUserData.userData.recentlyUsedWorkspaceIds), workspaceId);
-        if(!CollectionUtils.isEmpty(applicationIds)) {
+        if (!CollectionUtils.isEmpty(applicationIds)) {
             update = update.pullAll(fieldName(QUserData.userData.recentlyUsedAppIds), applicationIds.toArray());
         }
         return mongoOperations.updateFirst(
@@ -53,6 +53,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     /**
      * Fetches a list of UserData objects from DB where userId matches with the provided a list of userId.
      * The returned UserData objects will have only the userId and photoAssetId fields.
+     *
      * @param userId List of userId as a list
      * @return Flux of UserData with only the photoAssetId and userId fields
      */

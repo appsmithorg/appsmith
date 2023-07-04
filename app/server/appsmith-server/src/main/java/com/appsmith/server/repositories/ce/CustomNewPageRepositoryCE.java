@@ -31,4 +31,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
 
     Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
+
+    Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
+
+    Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 }

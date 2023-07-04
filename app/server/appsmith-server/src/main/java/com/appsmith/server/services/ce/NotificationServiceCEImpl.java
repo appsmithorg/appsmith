@@ -76,7 +76,7 @@ public class NotificationServiceCEImpl
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         // get page size from query params, default is 10 if param not present
         int pageSize = 10;
-        if(params.containsKey("pageSize")) {
+        if (params.containsKey("pageSize")) {
             String param = params.get("pageSize").get(0);
             pageSize = NumberUtils.parseInteger(param, 1, 10);
         }
@@ -85,7 +85,7 @@ public class NotificationServiceCEImpl
         // get the beforeDate parameter from query param
         final Instant instant;
         String paramKey = "beforeDate";
-        if(params.containsKey(paramKey)) {
+        if (params.containsKey(paramKey)) {
             String beforeParam = params.get(paramKey).get(0);
             try {
                 instant = Instant.parse(beforeParam);

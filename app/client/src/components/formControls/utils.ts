@@ -1,15 +1,132 @@
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { isBoolean, get, set, isString } from "lodash";
-import {
+import type {
   ConditionalOutput,
   FormConfigEvalObject,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FormConfigType, HiddenType } from "./BaseControl";
-import { diff, Diff } from "deep-diff";
+import type { FormConfigType, HiddenType } from "./BaseControl";
+import type { Diff } from "deep-diff";
+import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
-import { Action } from "@sentry/react/dist/types";
+import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import _ from "lodash";
+import { getType, Types } from "utils/TypeHelpers";
+import {
+  FIELD_REQUIRED_ERROR,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+
+export const getTrimmedData = (formData: any) => {
+  const dataType = getType(formData);
+  const isArrayorObject = (type: ReturnType<typeof getType>) =>
+    type === Types.ARRAY || type === Types.OBJECT;
+
+  if (isArrayorObject(dataType)) {
+    Object.keys(formData).map((key) => {
+      const valueType = getType(formData[key]);
+      if (isArrayorObject(valueType)) {
+        getTrimmedData(formData[key]);
+      } else if (valueType === Types.STRING) {
+        _.set(formData, key, formData[key].trim());
+      }
+    });
+  }
+  return formData;
+};
+
+export const normalizeValues = (
+  formData: any,
+  configDetails: Record<string, string>,
+) => {
+  const checked: Record<string, any> = {};
+  const configProperties = Object.keys(configDetails);
+
+  for (const configProperty of configProperties) {
+    const controlType = configDetails[configProperty];
+
+    if (controlType === "KEYVALUE_ARRAY") {
+      const properties = configProperty.split("[*].");
+
+      if (checked[properties[0]]) continue;
+
+      checked[properties[0]] = 1;
+      const values = _.get(formData, properties[0], []);
+      const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
+
+      values.forEach(
+        (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
+          const isEmpty = Object.values(object).every((x) => x === "");
+
+          if (!isEmpty) {
+            newValues.push(object);
+          }
+        },
+      );
+
+      if (newValues.length) {
+        formData = _.set(formData, properties[0], newValues);
+      } else {
+        formData = _.set(formData, properties[0], []);
+      }
+    }
+  }
+
+  return formData;
+};
+
+export const validate = (
+  requiredFields: Record<string, FormConfigType>,
+  values: any,
+) => {
+  const errors = {} as any;
+
+  Object.keys(requiredFields).forEach((fieldConfigProperty) => {
+    const fieldConfig = requiredFields[fieldConfigProperty];
+    if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
+      const configProperty = (fieldConfig.configProperty as string).split(
+        "[*].",
+      );
+      const arrayValues = _.get(values, configProperty[0], []);
+      const keyValueArrayErrors: Record<string, string>[] = [];
+
+      arrayValues.forEach((value: any, index: number) => {
+        const objectKeys = Object.keys(value);
+        const keyValueErrors: Record<string, string> = {};
+
+        if (
+          !value[objectKeys[0]] ||
+          (isString(value[objectKeys[0]]) && !value[objectKeys[0]].trim())
+        ) {
+          keyValueErrors[objectKeys[0]] = createMessage(FIELD_REQUIRED_ERROR);
+          keyValueArrayErrors[index] = keyValueErrors;
+        }
+        if (
+          !value[objectKeys[1]] ||
+          (isString(value[objectKeys[1]]) && !value[objectKeys[1]].trim())
+        ) {
+          keyValueErrors[objectKeys[1]] = createMessage(FIELD_REQUIRED_ERROR);
+          keyValueArrayErrors[index] = keyValueErrors;
+        }
+      });
+
+      if (keyValueArrayErrors.length) {
+        _.set(errors, configProperty[0], keyValueArrayErrors);
+      }
+    } else {
+      const value = _.get(values, fieldConfigProperty);
+
+      if (_.isNil(value) || (isString(value) && _.isEmpty(value.trim()))) {
+        _.set(errors, fieldConfigProperty, "This field is required");
+      }
+    }
+  });
+
+  return !_.isEmpty(errors);
+};
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
@@ -62,7 +179,8 @@ export const isHiddenConditionsEvaluation = (
 export const caculateIsHidden = (
   values: any,
   hiddenConfig?: HiddenType,
-  featureFlag?: boolean,
+  featureFlags?: FeatureFlags,
+  viewMode?: boolean,
 ) => {
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     let valueAtPath;
@@ -75,6 +193,11 @@ export const caculateIsHidden = (
     }
     if ("comparison" in hiddenConfig) {
       comparison = hiddenConfig.comparison;
+    }
+
+    let flagValue: keyof FeatureFlags = FEATURE_FLAG.TEST_FLAG;
+    if ("flagValue" in hiddenConfig) {
+      flagValue = hiddenConfig.flagValue;
     }
 
     switch (comparison) {
@@ -94,7 +217,10 @@ export const caculateIsHidden = (
         // FEATURE_FLAG comparision is used to hide previous configs,
         // and show new configs if feature flag is enabled, if disabled/ not present,
         // previous config would be shown as is
-        return featureFlag === value;
+        return !!featureFlags && featureFlags[flagValue] === value;
+      case "VIEW_MODE":
+        // This can be used to decide which form controls to show in view mode or edit mode depending on the value.
+        return viewMode === value;
       default:
         return true;
     }
@@ -104,14 +230,15 @@ export const caculateIsHidden = (
 export const isHidden = (
   values: any,
   hiddenConfig?: HiddenType,
-  featureFlag?: boolean,
+  featureFlags?: FeatureFlags,
+  viewMode?: boolean,
 ) => {
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     if ("conditionType" in hiddenConfig) {
       //check if nested conditions exist
       return isHiddenConditionsEvaluation(values, hiddenConfig);
     } else {
-      return caculateIsHidden(values, hiddenConfig, featureFlag);
+      return caculateIsHidden(values, hiddenConfig, featureFlags, viewMode);
     }
   }
   return !!hiddenConfig;

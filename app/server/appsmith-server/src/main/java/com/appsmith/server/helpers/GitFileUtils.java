@@ -5,7 +5,7 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
@@ -26,7 +26,11 @@ import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -71,8 +75,9 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST,
+            = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST,
             DECRYPTED_FIELDS, EDIT_MODE_THEME, CUSTOM_JS_LIB_LIST);
+
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
@@ -154,6 +159,7 @@ public class GitFileUtils {
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
         Map<String, String> resourceMapBody = new HashMap<>();
+        Map<String, String> dslBody = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
@@ -166,12 +172,20 @@ public class GitFileUtils {
                             ? newPage.getUnpublishedPage().getName()
                             : newPage.getPublishedPage().getName();
                     removeUnwantedFieldsFromPage(newPage);
+                    JSONObject dsl = newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
+                    // Get MainContainer widget data, remove the children and club with Canvas.json file
+                    JSONObject mainContainer = new JSONObject(dsl);
+                    mainContainer.remove("children");
+                    newPage.getUnpublishedPage().getLayouts().get(0).setDsl(mainContainer);
                     // pageName will be used for naming the json file
+                    dslBody.put(pageName, dsl.toString());
                     resourceMap.put(pageName, newPage);
                 });
 
         applicationReference.setPages(new HashMap<>(resourceMap));
+        applicationReference.setPageDsl(new HashMap<>(dslBody));
         resourceMap.clear();
+        resourceMapBody.clear();
 
         // Insert active actions and also assign the keys which later will be used for saving the resource in actual filepath
         // For actions, we are referring to validNames to maintain unique file names as just name
@@ -190,6 +204,13 @@ public class GitFileUtils {
                             : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
                     removeUnwantedFieldFromAction(newAction);
                     String body = newAction.getUnpublishedAction().getActionConfiguration().getBody() != null ? newAction.getUnpublishedAction().getActionConfiguration().getBody() : "";
+
+                    // This is a special case where we are handling REMOTE type plugins based actions such as Twilio
+                    // The user configured values are stored in a attribute called formData which is a map unlike the body
+                    if (newAction.getPluginType().toString().equals("REMOTE") && newAction.getUnpublishedAction().getActionConfiguration().getFormData() != null) {
+                        body = new Gson().toJson(newAction.getUnpublishedAction().getActionConfiguration().getFormData(), Map.class);
+                        newAction.getUnpublishedAction().getActionConfiguration().setFormData(null);
+                    }
                     // This is a special case where we are handling JS actions as we don't want to commit the body of JS actions
                     if (newAction.getPluginType().equals(PluginType.JS)) {
                         newAction.getUnpublishedAction().getActionConfiguration().setBody(null);
@@ -350,6 +371,7 @@ public class GitFileUtils {
         application.setPublishedPages(null);
         application.setIsPublic(null);
         application.setSlug(null);
+        application.setPublishedApplicationDetail(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {
@@ -393,6 +415,19 @@ public class GitFileUtils {
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
         // Remove null values
         org.apache.commons.collections.CollectionUtils.filter(pages, PredicateUtils.notNullPredicate());
+        // Set the DSL to page object before saving
+        Map<String, String> pageDsl = applicationReference.getPageDsl();
+        pages.forEach(page -> {
+            JSONParser jsonParser = new JSONParser();
+            try {
+                if (pageDsl != null && pageDsl.get(page.getUnpublishedPage().getName()) != null) {
+                    page.getUnpublishedPage().getLayouts().get(0).setDsl(  (JSONObject) jsonParser.parse(pageDsl.get(page.getUnpublishedPage().getName())) );
+                }
+            } catch (ParseException e) {
+                log.error("Error parsing the page dsl for page: {}", page.getUnpublishedPage().getName(), e);
+                throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, page.getUnpublishedPage().getName());
+            }
+        });
         pages.forEach(newPage -> {
             // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO
             // will be same, so we create a deep copy for the published version for page from the unpublishedPageDTO
@@ -412,8 +447,15 @@ public class GitFileUtils {
                 // With the file version v4 we have split the actions and metadata separately into two files
                 // So we need to set the body to the unpublished action
                 String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
-                if (actionBody != null && (actionBody.containsKey(keyName))) {
-                    newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
+                if (actionBody != null && (actionBody.containsKey(keyName)) && !StringUtils.isEmpty(actionBody.get(keyName))) {
+                    // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need to be
+                    // deserialized separately unlike the body which is stored as string in the db.
+                    if (newAction.getPluginType().toString().equals("REMOTE")) {
+                        Map<String, Object> formData = gson.fromJson(actionBody.get(keyName), Map.class);
+                        newAction.getUnpublishedAction().getActionConfiguration().setFormData(formData);
+                    } else {
+                        newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
+                    }
                 }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionDTO will be same, so we create a deep copy for the published version for action from
@@ -435,7 +477,7 @@ public class GitFileUtils {
                 // Set the js object body to the unpublished collection
                 // Since file version v3 we are splitting the js object code and metadata separately
                 String keyName = actionCollection.getUnpublishedCollection().getName() + actionCollection.getUnpublishedCollection().getPageId();
-                if (actionCollectionBody!= null && actionCollectionBody.containsKey(keyName)) {
+                if (actionCollectionBody != null && actionCollectionBody.containsKey(keyName)) {
                     actionCollection.getUnpublishedCollection().setBody(actionCollectionBody.get(keyName));
                 }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
@@ -447,7 +489,7 @@ public class GitFileUtils {
         }
 
         // Extract datasources
-        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), DatasourceStorage.class));
 
         return applicationJson;
     }

@@ -3,7 +3,7 @@ import "jest-styled-components";
 
 import { RemoteBranchList } from "./RemoteBranchList";
 
-describe("RemoteBranchList", function() {
+describe("RemoteBranchList", function () {
   it("renders nothing when param:remoteBranches is an empty array", async () => {
     render(RemoteBranchList([], () => undefined));
 
@@ -24,7 +24,7 @@ describe("RemoteBranchList", function() {
     expect(renderedList?.children.length).toEqual(2);
 
     // contains styled segment header
-    const header = await screen.queryByTestId("t--styled-segment-header");
+    const header = await screen.queryByTestId("t--branch-list-header-local");
     expect(header).not.toBeNull();
     expect(header?.innerHTML.includes("Remote branches")).toBeTruthy();
   });

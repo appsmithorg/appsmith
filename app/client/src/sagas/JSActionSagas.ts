@@ -1,6 +1,8 @@
-import {
+import type {
   ReduxAction,
   EvaluationReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -12,8 +14,8 @@ import {
   select,
   call,
 } from "redux-saga/effects";
-import { FetchActionsPayload } from "actions/pluginActionActions";
-import { JSCollection, JSAction } from "entities/JSCollection";
+import type { FetchActionsPayload } from "actions/pluginActionActions";
+import type { JSCollection, JSAction } from "entities/JSCollection";
 import {
   createJSCollectionSuccess,
   deleteJSCollectionSuccess,
@@ -31,8 +33,8 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
-import { Toaster, Variant } from "design-system-old";
+import type { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
+import JSActionAPI from "api/JSActionAPI";
 import {
   createMessage,
   JS_ACTION_COPY_SUCCESS,
@@ -43,27 +45,32 @@ import {
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import PageApi, { FetchPageResponse, PageLayout } from "api/PageApi";
+import type { FetchPageResponse, PageLayout } from "api/PageApi";
+import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { ApiResponse } from "api/ApiResponses";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { CreateJSCollectionRequest } from "api/JSActionAPI";
+import type { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
-import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { toast } from "design-system";
+import { updateAndSaveLayout } from "actions/pageActions";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidgets } from "./selectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: ApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollections(
-      applicationId,
-    );
+    const response: ApiResponse<JSCollection[]> =
+      yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data || [],
@@ -84,9 +91,8 @@ export function* createJSCollectionSaga(
 ) {
   try {
     const payload = actionPayload.payload.request;
-    const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.createJSCollection(
-      payload,
-    );
+    const response: JSCollectionCreateUpdateResponse =
+      yield JSActionAPI.createJSCollection(payload);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const actionName = payload.name ? payload.name : "";
@@ -141,9 +147,8 @@ function* copyJSCollectionSaga(
       });
       copyJSCollection.actions = newJSSubActions;
     }
-    const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.copyJSCollection(
-      copyJSCollection,
-    );
+    const response: JSCollectionCreateUpdateResponse =
+      yield JSActionAPI.copyJSCollection(copyJSCollection);
 
     const isValidResponse: boolean = yield validateResponse(response);
     const pageName: string = yield select(
@@ -152,14 +157,12 @@ function* copyJSCollectionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(
-          JS_ACTION_COPY_SUCCESS,
-          actionObject.name,
-          pageName,
-        ),
-        variant: Variant.success,
-      });
+      toast.show(
+        createMessage(JS_ACTION_COPY_SUCCESS, actionObject.name, pageName),
+        {
+          kind: "success",
+        },
+      );
       const payload = response.data;
 
       // @ts-expect-error: response.data is of type unknown
@@ -167,9 +170,8 @@ function* copyJSCollectionSaga(
     }
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    Toaster.show({
-      text: createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName), {
+      kind: "error",
     });
     yield put(copyJSCollectionError(action.payload));
   }
@@ -211,22 +213,23 @@ function* moveJSCollectionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(
+      toast.show(
+        createMessage(
           JS_ACTION_MOVE_SUCCESS,
           // @ts-expect-error: response.data is of type unknown
           response.data.name,
           pageName,
         ),
-        variant: Variant.success,
-      });
+        {
+          kind: "success",
+        },
+      );
     }
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
-    Toaster.show({
-      text: createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
+      kind: "error",
     });
     yield put(
       moveJSCollectionError({
@@ -266,16 +269,16 @@ export function* deleteJSCollectionSaga(
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
-      Toaster.show({
-        // @ts-expect-error: response.data is of type unknown
-        text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
-        variant: Variant.success,
+      // @ts-expect-error: response.data is of type unknown
+      toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
+        kind: "success",
       });
       history.push(builderURL({ pageId }));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
-        text: "JS object was deleted",
+        text: "JS Object was deleted",
         source: {
           type: ENTITY_TYPE.JSACTION,
           // @ts-expect-error: response.data is of type unknown
@@ -285,6 +288,15 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
+
+      const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+      yield put(
+        updateAndSaveLayout(widgets, {
+          shouldReplay: false,
+          isRetry: false,
+          updatedWidgetIds: [],
+        }),
+      );
     }
   } catch (error) {
     yield put(deleteJSCollectionError({ id: actionPayload.payload.id }));
@@ -315,10 +327,12 @@ function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: collection.config.name,
       },
     });
-    Toaster.show({
-      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
-      variant: Variant.danger,
-    });
+    toast.show(
+      createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
+      {
+        kind: "error",
+      },
+    );
     log.error(e);
   }
 }
@@ -338,15 +352,14 @@ export function* refactorJSObjectName(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse: ApiResponse = yield JSActionAPI.updateJSCollectionOrActionName(
-      {
+    const refactorResponse: ApiResponse =
+      yield JSActionAPI.updateJSCollectionOrActionName({
         layoutId,
         actionCollectionId: id,
         pageId: pageId,
         oldName: oldName,
         newName: newName,
-      },
-    );
+      });
 
     const isRefactorSuccessful: boolean = yield validateResponse(
       refactorResponse,
@@ -400,9 +413,8 @@ export function* fetchJSCollectionsForViewModeSaga(
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: ApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
-      applicationId,
-    );
+    const response: ApiResponse<JSCollection[]> =
+      yield JSActionAPI.fetchJSCollectionsForViewMode(applicationId);
     const resultJSCollections = response.data;
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

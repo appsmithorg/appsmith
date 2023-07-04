@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -11,6 +12,8 @@ import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutCollectionService;
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -43,6 +45,7 @@ public class ActionCollectionControllerCE {
         this.layoutCollectionService = layoutCollectionService;
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionCollectionDTO>> create(@Valid @RequestBody ActionCollectionDTO resource,
@@ -52,6 +55,7 @@ public class ActionCollectionControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllUnpublishedActionCollections(
             @RequestParam MultiValueMap<String, String> params,
@@ -62,6 +66,7 @@ public class ActionCollectionControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/move")
     public Mono<ResponseDTO<ActionCollectionDTO>> moveActionCollection(@RequestBody @Valid ActionCollectionMoveDTO actionCollectionMoveDTO,
                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -70,6 +75,7 @@ public class ActionCollectionControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollectionName(@RequestBody RefactorActionCollectionNameDTO refactorActionCollectionNameDTO,
                                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -77,6 +83,7 @@ public class ActionCollectionControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionCollectionViewDTO>>> getAllPublishedActionCollections(@RequestParam String applicationId,
                                                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -86,6 +93,7 @@ public class ActionCollectionControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(@PathVariable String id,
                                                                          @Valid @RequestBody ActionCollectionDTO resource,
@@ -95,6 +103,7 @@ public class ActionCollectionControllerCE {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/refactorAction")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(@Valid @RequestBody RefactorActionNameInCollectionDTO resource,
                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -103,6 +112,7 @@ public class ActionCollectionControllerCE {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> deleteActionCollection(@PathVariable String id,
                                                                          @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

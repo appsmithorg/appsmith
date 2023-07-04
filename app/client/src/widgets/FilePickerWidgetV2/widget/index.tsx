@@ -3,38 +3,37 @@ import Dashboard from "@uppy/dashboard";
 import GoogleDrive from "@uppy/google-drive";
 import OneDrive from "@uppy/onedrive";
 import Url from "@uppy/url";
-import { UppyFile } from "@uppy/utils";
+import type { UppyFile } from "@uppy/utils";
 import Webcam from "@uppy/webcam";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
-import Papa from "papaparse";
+
 import React from "react";
 import shallowequal from "shallowequal";
 import { createGlobalStyle } from "styled-components";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import parseFileData from "./FileParser";
 
-const CSV_ARRAY_LABEL = "Array (CSVs only)";
-const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
+const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
-const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
-
-const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
-
-type Result = string | Buffer | ArrayBuffer | null;
+const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -218,6 +217,19 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+      "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      files: "[$__file__$]",
+      isDisabled: "bool",
+      isValid: "bool",
+      isDirty: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -226,7 +238,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
-            label: "Allowed File Types",
+            label: "Allowed file types",
             controlType: "DROP_DOWN",
             isMultiSelect: true,
             placeholderText: "Select File types",
@@ -282,7 +294,7 @@ class FilePickerWidget extends BaseWidget<
           {
             helpText: "Set the format of the data read from the files",
             propertyName: "fileDataType",
-            label: "Data Format",
+            label: "Data format",
             controlType: "DROP_DOWN",
             helperText: (props: FilePickerWidgetProps) => {
               return props.fileDataType === FileDataTypes.Array
@@ -314,7 +326,7 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "dynamicTyping",
             label: "Infer data-types from CSV",
             helpText:
-              "Controls if the arrays should try to infer the best possible data type based on the values in csv files",
+              "Controls if the arrays should try to infer the best possible data type based on the values in CSV file",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,
@@ -327,7 +339,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "maxNumFiles",
-            label: "Max No. of files",
+            label: "Max no. of files",
             helpText:
               "Sets the maximum number of files that can be uploaded at once",
             controlType: "INPUT_TEXT",
@@ -414,7 +426,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -425,14 +437,13 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
 
       {
         sectionName: "Events",
         children: [
           {
             helpText:
-              "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
+              "when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
             propertyName: "onFilesSelected",
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",
@@ -453,7 +464,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "buttonColor",
             helpText: "Changes the color of the button",
-            label: "Button Color",
+            label: "Button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -463,11 +474,11 @@ class FilePickerWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -479,7 +490,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -626,7 +637,7 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
-    this.state.uppy.on("file-removed", (file: any, reason: any) => {
+    this.state.uppy.on("file-removed", (file: UppyFile, reason: any) => {
       /**
        * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
        * cancel-all event occurs when close or reset function of uppy is executed.
@@ -663,42 +674,29 @@ class FilePickerWidget extends BaseWidget<
       }
     });
 
-    this.state.uppy.on("files-added", (files: any[]) => {
+    this.state.uppy.on("files-added", (files: UppyFile[]) => {
       // Deep cloning the selectedFiles
       const selectedFiles = this.props.selectedFiles
         ? klona(this.props.selectedFiles)
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;
-      const fileReaderPromises = files.map((file, index) => {
+      const fileReaderPromises = files.map(async (file, index) => {
         return new Promise((resolve) => {
-          if (file.size < 5000 * 1000) {
-            const reader = new FileReader();
-            if (this.props.fileDataType === FileDataTypes.Base64) {
-              reader.readAsDataURL(file.data);
-            } else if (this.props.fileDataType === FileDataTypes.Binary) {
-              reader.readAsBinaryString(file.data);
+          (async () => {
+            let data: unknown;
+            if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
+              data = await parseFileData(
+                file.data,
+                this.props.fileDataType,
+                file.type || "",
+                file.extension,
+                this.props.dynamicTyping,
+              );
             } else {
-              reader.readAsText(file.data);
+              data = createBlobUrl(file.data, this.props.fileDataType);
             }
-            reader.onloadend = () => {
-              const newFile = {
-                type: file.type,
-                id: file.id,
-                data: this.parseUploadResult(
-                  reader.result,
-                  file.type,
-                  this.props.fileDataType,
-                ),
-                meta: file.meta,
-                name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-                size: file.size,
-                dataFormat: this.props.fileDataType,
-              };
-              resolve(newFile);
-            };
-          } else {
-            const data = createBlobUrl(file.data, this.props.fileDataType);
+
             const newFile = {
               type: file.type,
               id: file.id,
@@ -709,7 +707,7 @@ class FilePickerWidget extends BaseWidget<
               dataFormat: this.props.fileDataType,
             };
             resolve(newFile);
-          }
+          })();
         });
       });
 
@@ -844,57 +842,6 @@ class FilePickerWidget extends BaseWidget<
         )}
       </>
     );
-  }
-
-  parseUploadResult(
-    result: Result,
-    fileType: string,
-    dataFormat: FileDataTypes,
-  ) {
-    if (
-      dataFormat !== FileDataTypes.Array ||
-      !isCSVFileType(fileType) ||
-      !result
-    ) {
-      return result;
-    }
-
-    const data: Record<string, string>[] = [];
-    const errors: Papa.ParseError[] = [];
-
-    function chunk(results: Papa.ParseStepResult<any>) {
-      if (results?.errors?.length) {
-        errors.push(...results.errors);
-      }
-      data.push(...results.data);
-    }
-
-    if (typeof result === "string") {
-      const config = {
-        header: true,
-        dynamicTyping: this.props.dynamicTyping,
-        chunk,
-      };
-      try {
-        const startParsing = performance.now();
-
-        Papa.parse(result, config);
-
-        const endParsing = performance.now();
-
-        log.debug(
-          `### FILE_PICKER_WIDGET_V2 - ${this.props.widgetName} - CSV PARSING  `,
-          `${endParsing - startParsing} ms`,
-        );
-
-        return data;
-      } catch (error) {
-        log.error(errors);
-        return [];
-      }
-    } else {
-      return [];
-    }
   }
 
   static getWidgetType(): WidgetType {

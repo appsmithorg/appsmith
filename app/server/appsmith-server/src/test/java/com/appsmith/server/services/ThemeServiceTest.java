@@ -13,7 +13,6 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
@@ -49,9 +48,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ThemeServiceTest {
 
     @Autowired
-    PolicyUtils policyUtils;
-
-    @Autowired
     ApplicationRepository applicationRepository;
 
     @Autowired
@@ -65,24 +61,17 @@ public class ThemeServiceTest {
 
     @Autowired
     UserService userService;
-
+    Workspace workspace;
     @Autowired
     private ThemeService themeService;
-
     @Autowired
     private PermissionGroupRepository permissionGroupRepository;
-
     @Autowired
     private UserWorkspaceService userWorkspaceService;
-
     @Autowired
     private ThemeRepository themeRepository;
-
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
-
-    Workspace workspace;
-
 
     @BeforeEach
     @WithUserDetails(value = "api_user")

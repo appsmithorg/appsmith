@@ -1,25 +1,23 @@
 import React, { memo, useRef, useCallback, useState } from "react";
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import { startCase } from "lodash";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { TooltipComponent } from "design-system-old";
+import { Icon, Text, Tooltip } from "design-system";
 import { InputGroup, Classes } from "@blueprintjs/core";
-import QuestionIcon from "remixicon-react/QuestionFillIcon";
 
-import { FormGroup, SettingComponentProps } from "./Common";
-import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import type { SettingComponentProps } from "./Common";
+import { FormGroup } from "./Common";
+import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
-import { brandColorsKeys } from "../config/branding/BrandingPage";
+import type { brandColorsKeys } from "../config/branding/BrandingPage";
+import { ContentBox } from "../components";
 
 export const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {
     box-shadow: none;
-    border-radius: 0;
+    border-radius: var(--ads-v2-border-radius);
     &:focus {
       box-shadow: none;
     }
@@ -37,12 +35,11 @@ export const StyledInputGroup = styled(InputGroup)`
   &&& input {
     padding-left: 36px;
     height: 36px;
-    border: 1px solid var(--appsmith-color-black-500);
-    background: ${(props) =>
-      props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    border: 1px solid var(--ads-v2-color-border);
+    background: var(--ads-v2-color-bg);
+    color: var(--ads-v2-color-fg);
     &:focus {
-      border: 1px solid var(--appsmith-color-black-900);
+      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
     }
   }
 `;
@@ -55,16 +52,16 @@ const StyledColorInputIcon = styled.input`
   border: none;
   cursor: pointer;
   position: absolute;
-  top: 6px;
+  top: 8px;
   left: 8px;
   bottom: 0;
-  width: 22px;
-  height: 22px !important;
+  width: 20px;
+  height: 20px !important;
   padding-left: 0 !important;
   border: red;
   z-index: 1;
   display: flex;
-  border: 1px solid var(--ads-text-input-text-box-default-border-color);
+  border: 1px solid var(--ads-v2-color-border);
   border-radius: 100%;
   &::-webkit-color-swatch {
     border-radius: 15px;
@@ -74,6 +71,10 @@ const StyledColorInputIcon = styled.input`
     border-radius: 15px;
     border: none;
   }
+`;
+
+const StyledText = styled(Text)`
+  font-weight: 500;
 `;
 
 type ColorInputProps = {
@@ -96,9 +97,8 @@ const LeftIcon = (
 };
 
 export const ColorInput = (props: ColorInputProps) => {
-  const [selectedIndex, setSelectedIndex] = useState<brandColorsKeys>(
-    "primary",
-  );
+  const [selectedIndex, setSelectedIndex] =
+    useState<brandColorsKeys>("primary");
   const {
     className,
     onChange,
@@ -139,12 +139,12 @@ export const ColorInput = (props: ColorInputProps) => {
       <div className="flex mb-2 space-x-1 border-gray-300 t--color-input-shades">
         {/* selectable color shades */}
         {colorKeys.filter(filter).map((colorKey: brandColorsKeys, index) => (
-          <TooltipComponent
+          <Tooltip
             className="flex-1"
             content={startCase(colorKey)}
             key={colorKey}
           >
-            <div
+            <ContentBox
               className={`flex-grow w-5 h-5 cursor-pointer p-px relative border ${
                 selectedIndex === colorKey
                   ? "border-gray-700 bg-clip-content"
@@ -155,7 +155,7 @@ export const ColorInput = (props: ColorInputProps) => {
               onClick={() => setSelectedIndex(colorKey)}
               style={{ backgroundColor: value[colorKey] }}
             />
-          </TooltipComponent>
+          </Tooltip>
         ))}
       </div>
 
@@ -168,15 +168,19 @@ export const ColorInput = (props: ColorInputProps) => {
 
       {/* label with tooltip */}
       <div className="flex items-center gap-1">
-        <label className="text-sm text-gray-700">
+        <StyledText
+          color="var(--ads-v2-color-fg)"
+          kind="body-m"
+          renderAs="label"
+        >
           {startCase(selectedIndex)}
-        </label>
-        <TooltipComponent
+        </StyledText>
+        <Tooltip
           content={tooltips && tooltips[selectedIndex]}
           key={`tooltip-${selectedIndex}`}
         >
-          <QuestionIcon className="w-4 h-4 text-[color:var(--ads-color-black-470)] cursor-help" />
-        </TooltipComponent>
+          <Icon className="help-icon" name="question-line" size="md" />
+        </Tooltip>
       </div>
 
       <StyledInputGroup

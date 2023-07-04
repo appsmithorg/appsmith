@@ -4,7 +4,7 @@ export default [
     id: 1,
     children: [
       {
-        label: "Run API on Page load",
+        label: "Run API on page load",
         configProperty: "executeOnLoad",
         controlType: "SWITCH",
         subtitle: "Will refresh data each time the page is loaded",
@@ -24,7 +24,7 @@ export default [
           "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded",
       },
       {
-        label: "Smart JSON Substitution",
+        label: "Smart JSON substitution",
         configProperty: "actionConfiguration.pluginSpecifiedTemplates[0].value",
         controlType: "SWITCH",
         subtitle:

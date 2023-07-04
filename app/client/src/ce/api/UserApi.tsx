@@ -1,6 +1,7 @@
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export interface LoginUserRequest {
   email: string;
@@ -55,6 +56,7 @@ export interface UpdateUserRequest {
   email?: string;
   role?: string;
   useCase?: string;
+  intercomConsentGiven?: boolean;
 }
 
 export interface SendTestEmailPayload {
@@ -154,9 +156,7 @@ export class UserApi extends Api {
     return Api.post(UserApi.logoutURL);
   }
 
-  static uploadPhoto(request: {
-    file: File;
-  }): AxiosPromise<{
+  static uploadPhoto(request: { file: File }): AxiosPromise<{
     id: string;
     new: boolean;
     profilePhotoAssetId: string;
@@ -184,7 +184,7 @@ export class UserApi extends Api {
     return Api.put(UserApi.leaveWorkspaceURL + "/" + request.workspaceId);
   }
 
-  static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
+  static fetchFeatureFlags(): AxiosPromise<ApiResponse<FeatureFlags>> {
     return Api.get(UserApi.featureFlagsURL);
   }
 

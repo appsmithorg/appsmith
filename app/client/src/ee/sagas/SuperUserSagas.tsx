@@ -7,11 +7,9 @@ import {
   RestryRestartServerPoll,
   SendTestEmail,
 } from "ce/sagas/SuperUserSagas";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { User } from "constants/userConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { User } from "constants/userConstants";
 import { takeLatest, all } from "redux-saga/effects";
 
 export function* InitSuperUserSaga(action: ReduxAction<User>) {

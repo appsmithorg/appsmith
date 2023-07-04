@@ -1,8 +1,8 @@
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { removeFunctions } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { EvalWorkerSyncRequest } from "../types";
+import type { EvalWorkerSyncRequest } from "../types";
 
-export default function(request: EvalWorkerSyncRequest) {
+export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { property, props, validation, value } = data;
   return removeFunctions(

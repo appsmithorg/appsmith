@@ -27,44 +27,49 @@ const regexMap = {
   providers: new RegExp(/v1\/marketplace\/(providers|templates)/),
 };
 
-const toPrecache = self.__WB_MANIFEST.filter(
-  (file) => !file.url.includes("index.html"),
-);
+/* eslint-disable no-restricted-globals */
+// Note: if you need to filter out some files from precaching,
+// do that in craco.build.config.js → workbox webpack plugin options
+const toPrecache = self.__WB_MANIFEST;
 precacheAndRoute(toPrecache);
 
 self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
 
-registerRoute(({ request }) => {
-  return request.url.indexOf('/windowProxy/') !== -1;
-}, function (event) {
-  return event.request.json().then((reqJSON) => {
-    return new Promise(function (resolve, reject) {
-      var channel = new MessageChannel();
-      channel.port1.onmessage = function (event) {
-        console.log("Received response for :");
-        console.log({ res: event.data });
-        if (event.data.error) {
-          reject(event.data.error);
-        } else {
-          resolve(new Response(JSON.stringify(event.data)));
-        }
-        channel.port1.close();
-        channel.port2.close();
-      };
-      self.clients.matchAll({
-        type: 'window',
-      }).then((clients) => {
-        if (clients && clients.length) {
-          clients[0].postMessage(
-            reqJSON, [channel.port2]
-          );
-        }
+registerRoute(
+  ({ request }) => {
+    return request.url.indexOf("/windowProxy/") !== -1;
+  },
+  function (event) {
+    return event.request.json().then((reqJSON) => {
+      return new Promise(function (resolve, reject) {
+        var channel = new MessageChannel();
+        channel.port1.onmessage = function (event) {
+          console.log("Received response for :");
+          console.log({ res: event.data });
+          if (event.data.error) {
+            reject(event.data.error);
+          } else {
+            resolve(new Response(JSON.stringify(event.data)));
+          }
+          channel.port1.close();
+          channel.port2.close();
+        };
+        self.clients
+          .matchAll({
+            type: "window",
+          })
+          .then((clients) => {
+            if (clients && clients.length) {
+              clients[0].postMessage(reqJSON, [channel.port2]);
+            }
+          });
       });
-    })
-  });
-}, "POST");
+    });
+  },
+  "POST",
+);
 
 // This route's caching seems too aggressive.
 // TODO(abhinav): Figure out if this is really necessary.

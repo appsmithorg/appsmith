@@ -1,15 +1,17 @@
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectAllPages } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
-import SectionHeader, { SectionHeaderProps } from "./SectionHeader";
+import type { SectionHeaderProps } from "./SectionHeader";
+import SectionHeader from "./SectionHeader";
 import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
+  APP_NAVIGATION_SETTING,
   createMessage,
   GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER,
@@ -20,15 +22,23 @@ import {
   THEME_SETTINGS_SECTION_CONTENT_HEADER,
   THEME_SETTINGS_SECTION_HEADER,
   THEME_SETTINGS_SECTION_HEADER_DESC,
+  UPDATE_VIA_IMPORT_SETTING,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
+import NavigationSettings from "./NavigationSettings";
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Divider } from "design-system";
+import { ImportAppSettings } from "./ImportAppSettings";
 
 export enum AppSettingsTabs {
   General,
   Embed,
   Theme,
+  Navigation,
   Page,
+  Import,
 }
 
 export interface SelectedTab {
@@ -48,6 +58,19 @@ const SectionContent = styled.div`
   }
 `;
 
+const SectionTitle = styled.p`
+  padding-top: 0.75rem;
+  padding-bottom: 0.5rem;
+  font-weight: var(--ads-v2-font-weight-bold);
+  color: var(--ads-v2-color-fg-emphasis);
+`;
+
+const PageSectionTitle = styled.p`
+  padding: 10px 1rem 10px 1rem;
+  font-weight: var(--ads-v2-font-weight-bold);
+  color: var(--ads-v2-color-fg-emphasis);
+`;
+
 const ThemeContentWrapper = styled.div`
   height: calc(100% - 48px);
   overflow-y: overlay;
@@ -56,6 +79,7 @@ const ThemeContentWrapper = styled.div`
 function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
+  const dispatch = useDispatch();
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -76,6 +100,17 @@ function AppSettings() {
     }
   }, [selectedTab.page?.pageId, pages]);
 
+  useEffect(() => {
+    dispatch(
+      updateAppSettingsPaneSelectedTabAction({
+        isOpen: true,
+        context: {
+          type: selectedTab.type,
+        },
+      }),
+    );
+  }, [selectedTab]);
+
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {
       id: "t--general-settings-header",
@@ -84,6 +119,9 @@ function AppSettings() {
       name: createMessage(GENERAL_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.General });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "General",
+        });
       },
       subText: createMessage(GENERAL_SETTINGS_SECTION_HEADER_DESC),
     },
@@ -94,18 +132,50 @@ function AppSettings() {
       name: createMessage(IN_APP_EMBED_SETTING.sectionHeader),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Embed });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Embed",
+        });
       },
       subText: createMessage(IN_APP_EMBED_SETTING.sectionHeaderDesc),
     },
     {
       id: "t--theme-settings-header",
-      icon: "edit-line",
+      icon: "pencil-line",
       isSelected: selectedTab.type === AppSettingsTabs.Theme,
       name: createMessage(THEME_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Theme });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Theme",
+        });
       },
       subText: createMessage(THEME_SETTINGS_SECTION_HEADER_DESC),
+    },
+    {
+      id: "t--navigation-settings-header",
+      icon: "hamburger",
+      isSelected: selectedTab.type === AppSettingsTabs.Navigation,
+      name: createMessage(APP_NAVIGATION_SETTING.sectionHeader),
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.Navigation });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Navigation",
+        });
+      },
+      subText: createMessage(APP_NAVIGATION_SETTING.sectionHeaderDesc),
+    },
+    {
+      id: "t--update-via-import",
+      icon: "download-line",
+      isSelected: selectedTab.type === AppSettingsTabs.Import,
+      name: createMessage(UPDATE_VIA_IMPORT_SETTING.settingLabel),
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.Import });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Import",
+        });
+      },
+      subText: createMessage(UPDATE_VIA_IMPORT_SETTING.settingDesc),
     },
   ];
 
@@ -115,12 +185,8 @@ function AppSettings() {
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
         ))}
-        <div
-          className={`border-t-[1px] border-[color:var(--appsmith-color-black-300)]`}
-        />
-        <div className="font-medium px-4 py-[10px]">
-          {PAGE_SETTINGS_SECTION_HEADER()}
-        </div>
+        <Divider />
+        <PageSectionTitle>{PAGE_SETTINGS_SECTION_HEADER()}</PageSectionTitle>
         <DraggablePageList
           onPageSelect={(pageId: string) =>
             setSelectedTab({
@@ -138,9 +204,9 @@ function AppSettings() {
             case AppSettingsTabs.General:
               return (
                 <div className="px-4">
-                  <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+                  <SectionTitle>
                     {GENERAL_SETTINGS_SECTION_CONTENT_HEADER()}
-                  </div>
+                  </SectionTitle>
                   <GeneralSettings />
                 </div>
               );
@@ -148,9 +214,9 @@ function AppSettings() {
               return (
                 <>
                   <div className="px-4">
-                    <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+                    <SectionTitle>
                       {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
-                    </div>
+                    </SectionTitle>
                   </div>
                   <ThemeContentWrapper>
                     <ThemePropertyPane />
@@ -161,17 +227,21 @@ function AppSettings() {
               return (
                 selectedTab.page && (
                   <div className="px-4">
-                    <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)] text-ellipsis whitespace-nowrap overflow-hidden">
+                    <SectionTitle>
                       {selectedTab.page.pageName +
                         " " +
                         PAGE_SETTINGS_SECTION_CONTENT_HEADER()}
-                    </div>
+                    </SectionTitle>
                     <PageSettings page={selectedTab.page} />
                   </div>
                 )
               );
             case AppSettingsTabs.Embed:
               return <EmbedSettings />;
+            case AppSettingsTabs.Navigation:
+              return <NavigationSettings />;
+            case AppSettingsTabs.Import:
+              return <ImportAppSettings />;
           }
         })()}
       </SectionContent>

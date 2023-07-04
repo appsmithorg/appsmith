@@ -244,9 +244,9 @@ public class DynamoPlugin extends BasePlugin {
                             result.setBody(transformedResponse);
                         } catch (InvocationTargetException | IllegalAccessException |
                                  NoSuchMethodException | ClassNotFoundException e) {
-                            final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
-                            log.warn(message, e);
-                            throw new AppsmithPluginException(DynamoPluginError.QUERY_EXECUTION_FAILED, DynamoErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage());
+                            final String errorMessage = (e.getCause() == null ? e : e.getCause()).getMessage();
+                            log.warn("Error executing the DynamoDB Action: {}", errorMessage, e);
+                            throw new AppsmithPluginException(DynamoPluginError.QUERY_EXECUTION_FAILED, DynamoErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, errorMessage);
                         }
 
                         result.setIsExecutionSuccess(true);
@@ -317,10 +317,10 @@ public class DynamoPlugin extends BasePlugin {
 
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication == null) {
-                invalids.add("Missing AWS Access Key ID and Secret Access Key.");
+                invalids.add("Missing AWS access key ID and Secret Access Key.");
             } else {
                 if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing AWS Access Key ID.");
+                    invalids.add("Missing AWS access key ID.");
                 }
 
                 if (StringUtils.isEmpty(authentication.getPassword())) {

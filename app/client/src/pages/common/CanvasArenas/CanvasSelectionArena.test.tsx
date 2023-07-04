@@ -44,6 +44,11 @@ describe("Canvas selection test cases", () => {
 
   beforeEach(() => {
     spyWidgetSelection.mockClear();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it("Should select using canvas draw", () => {
@@ -189,16 +194,15 @@ describe("Canvas selection test cases", () => {
         },
       ),
     );
-    expect(
-      spyWidgetSelection,
-    ).toHaveBeenCalledWith(SelectionRequestType.Multiple, ["tabsWidgetId"]);
+    expect(spyWidgetSelection).toHaveBeenCalledWith(
+      SelectionRequestType.Multiple,
+      ["tabsWidgetId"],
+    );
 
-    expect(
-      spyWidgetSelection,
-    ).toHaveBeenCalledWith(SelectionRequestType.Multiple, [
-      "tabsWidgetId",
-      "switchWidgetId",
-    ]);
+    expect(spyWidgetSelection).toHaveBeenCalledWith(
+      SelectionRequestType.Multiple,
+      ["tabsWidgetId", "switchWidgetId"],
+    );
   });
 
   it("Should allow draw to select using cmd + draw in Container component", () => {
@@ -430,12 +434,10 @@ describe("Canvas selection test cases", () => {
         },
       ),
     );
-    expect(
-      spyWidgetSelection,
-    ).toHaveBeenCalledWith(SelectionRequestType.Multiple, [
-      "checkboxWidget",
-      "buttonWidget",
-    ]);
+    expect(spyWidgetSelection).toHaveBeenCalledWith(
+      SelectionRequestType.Multiple,
+      ["checkboxWidget", "buttonWidget"],
+    );
   });
 
   it("Draw to select from outside of canvas(editor) ", () => {
@@ -502,6 +504,8 @@ describe("Canvas selection test cases", () => {
       `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
 
+    jest.runOnlyPendingTimers();
+
     expect(selectionCanvas.style.zIndex).toBe("");
     act(() => {
       fireEvent.dragStart(widgetEditor);
@@ -536,11 +540,9 @@ describe("Canvas selection test cases", () => {
       ),
     );
 
-    expect(
-      spyWidgetSelection,
-    ).toHaveBeenLastCalledWith(SelectionRequestType.Multiple, [
-      "tabsWidgetId",
-      "switchWidgetId",
-    ]);
+    expect(spyWidgetSelection).toHaveBeenLastCalledWith(
+      SelectionRequestType.Multiple,
+      ["tabsWidgetId", "switchWidgetId"],
+    );
   });
 });

@@ -1,29 +1,34 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.ConditionalOperator;
+import com.appsmith.external.datatypes.ClientDataType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -235,7 +240,7 @@ public class PluginUtils {
         }
     }
 
-    public static void setDataValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
+    public static Map setDataValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
 
         // In case the formData has not been initialized before the fxn call, assign a new HashMap to the variable
         if (formData == null) {
@@ -268,9 +273,11 @@ public class PluginUtils {
                 formData.put(field, valueMap);
             }
         }
+
+        return formData;
     }
 
-    public static void setValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
+    public static Map setValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
 
         // In case the formData has not been initialized before the fxn call, assign a new HashMap to the variable
         if (formData == null) {
@@ -296,6 +303,8 @@ public class PluginUtils {
             // This is a top level field. Set the value
             formData.put(field, value);
         }
+
+        return formData;
     }
 
     public static boolean endpointContainsLocalhost(Endpoint endpoint) {
@@ -451,5 +460,34 @@ public class PluginUtils {
         }
 
         return propertyValue.toString();
+    }
+
+    public static void safelyCloseSingleConnectionFromHikariCP(Connection connection, String logOnError) {
+        if (connection != null) {
+            try {
+                // Return the connection back to the pool
+                connection.close();
+            } catch (SQLException e) {
+                log.debug(logOnError, e);
+            }
+        }
+    }
+
+    public static ExecuteActionDTO getExecuteDTOForTestWithBindingAndValueAndDataType(LinkedHashMap<String, List> bindingValueDataTypeMap) {
+        List<Param> params = new ArrayList<>();
+        bindingValueDataTypeMap.keySet().stream()
+                .forEach(bindingName -> {
+                    String bindingValue = (String) (bindingValueDataTypeMap.get(bindingName)).get(0);
+                    ClientDataType clientDataType = (ClientDataType) (bindingValueDataTypeMap.get(bindingName)).get(1);
+                    Param param = new Param();
+                    param.setKey(bindingName);
+                    param.setValue(bindingValue);
+                    param.setClientDataType(clientDataType);
+                    params.add(param);
+                });
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        return executeActionDTO;
     }
 }

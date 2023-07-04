@@ -1,7 +1,7 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 import { useSelector } from "react-redux";
-import { WidgetType } from "utils/WidgetFactory";
+import type { WidgetType } from "utils/WidgetFactory";
 
 export default function useWidgetConfig(type: WidgetType, attr: string) {
   const config = useSelector(

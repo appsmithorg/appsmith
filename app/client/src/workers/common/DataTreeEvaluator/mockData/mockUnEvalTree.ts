@@ -1,11 +1,10 @@
-import { PluginType, PaginationType } from "entities/Action";
-import {
+import { PaginationType } from "entities/Action";
+import type {
   DataTree,
-  EvaluationSubstitutionType,
-  DataTreeWidget,
-  DataTreeAppsmith,
-  ENTITY_TYPE,
+  WidgetEntity,
+  AppsmithEntity,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export const unEvalTree = {
   MainContainer: {
@@ -25,20 +24,10 @@ export const unEvalTree = {
     version: 52,
     minHeight: 620,
     parentColumnSpace: 1,
-    dynamicBindingPathList: [],
     leftColumn: 0,
     children: ["j9dpft2lpu", "l0yem4eh6l"],
-    defaultProps: {},
-    defaultMetaProps: [],
-    logBlackList: {},
     meta: {},
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    reactivePaths: {},
-    triggerPaths: {},
-    validationPaths: {},
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    privateWidgets: {},
   },
   Button1: {
     widgetName: "Button1",
@@ -52,9 +41,7 @@ export const unEvalTree = {
     hideCard: false,
     animateLoading: true,
     parentColumnSpace: 26.421875,
-    dynamicTriggerPathList: [],
     leftColumn: 20,
-    dynamicBindingPathList: [],
     text: "button1",
     isDisabled: false,
     key: "r6h8y6dc8i",
@@ -69,70 +56,8 @@ export const unEvalTree = {
     isLoading: false,
     buttonVariant: "PRIMARY",
     placement: "CENTER",
-    defaultProps: {},
-    defaultMetaProps: ["recaptchaToken"],
-    logBlackList: {},
     meta: {},
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    reactivePaths: {
-      recaptchaToken: EvaluationSubstitutionType.TEMPLATE,
-      text: EvaluationSubstitutionType.TEMPLATE,
-      tooltip: EvaluationSubstitutionType.TEMPLATE,
-      googleRecaptchaKey: EvaluationSubstitutionType.TEMPLATE,
-      recaptchaType: EvaluationSubstitutionType.TEMPLATE,
-      isVisible: EvaluationSubstitutionType.TEMPLATE,
-      isDisabled: EvaluationSubstitutionType.TEMPLATE,
-      animateLoading: EvaluationSubstitutionType.TEMPLATE,
-      buttonVariant: EvaluationSubstitutionType.TEMPLATE,
-      placement: EvaluationSubstitutionType.TEMPLATE,
-    },
-    triggerPaths: {
-      onClick: true,
-    },
-    validationPaths: {
-      text: {
-        type: "TEXT",
-      },
-      tooltip: {
-        type: "TEXT",
-      },
-      googleRecaptchaKey: {
-        type: "TEXT",
-      },
-      recaptchaType: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["V3", "V2"],
-          default: "V3",
-        },
-      },
-      isVisible: {
-        type: "BOOLEAN",
-      },
-      isDisabled: {
-        type: "BOOLEAN",
-      },
-      animateLoading: {
-        type: "BOOLEAN",
-      },
-      buttonVariant: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["PRIMARY", "SECONDARY", "TERTIARY"],
-          default: "PRIMARY",
-        },
-      },
-      placement: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["START", "BETWEEN", "CENTER"],
-          default: "CENTER",
-        },
-      },
-    },
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    privateWidgets: {},
   },
   Button2: {
     widgetName: "Button2",
@@ -146,13 +71,7 @@ export const unEvalTree = {
     hideCard: false,
     animateLoading: true,
     parentColumnSpace: 26.421875,
-    dynamicTriggerPathList: [],
     leftColumn: 20,
-    dynamicBindingPathList: [
-      {
-        key: "text",
-      },
-    ],
     text: "{{Button1.text}}",
     isDisabled: false,
     key: "r6h8y6dc8i",
@@ -167,70 +86,8 @@ export const unEvalTree = {
     isLoading: false,
     buttonVariant: "PRIMARY",
     placement: "CENTER",
-    defaultProps: {},
-    defaultMetaProps: ["recaptchaToken"],
-    logBlackList: {},
     meta: {},
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    reactivePaths: {
-      recaptchaToken: EvaluationSubstitutionType.TEMPLATE,
-      text: EvaluationSubstitutionType.TEMPLATE,
-      tooltip: EvaluationSubstitutionType.TEMPLATE,
-      googleRecaptchaKey: EvaluationSubstitutionType.TEMPLATE,
-      recaptchaType: EvaluationSubstitutionType.TEMPLATE,
-      isVisible: EvaluationSubstitutionType.TEMPLATE,
-      isDisabled: EvaluationSubstitutionType.TEMPLATE,
-      animateLoading: EvaluationSubstitutionType.TEMPLATE,
-      buttonVariant: EvaluationSubstitutionType.TEMPLATE,
-      placement: EvaluationSubstitutionType.TEMPLATE,
-    },
-    triggerPaths: {
-      onClick: true,
-    },
-    validationPaths: {
-      text: {
-        type: "TEXT",
-      },
-      tooltip: {
-        type: "TEXT",
-      },
-      googleRecaptchaKey: {
-        type: "TEXT",
-      },
-      recaptchaType: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["V3", "V2"],
-          default: "V3",
-        },
-      },
-      isVisible: {
-        type: "BOOLEAN",
-      },
-      isDisabled: {
-        type: "BOOLEAN",
-      },
-      animateLoading: {
-        type: "BOOLEAN",
-      },
-      buttonVariant: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["PRIMARY", "SECONDARY", "TERTIARY"],
-          default: "PRIMARY",
-        },
-      },
-      placement: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["START", "BETWEEN", "CENTER"],
-          default: "CENTER",
-        },
-      },
-    },
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    privateWidgets: {},
   },
   appsmith: {
     user: {
@@ -286,9 +143,6 @@ export const asyncTagUnevalTree: DataTree = {
     run: {},
     clear: {},
     actionId: "6279ff0c0b47255c280c4631",
-    name: "Api1",
-    pluginId: "5ca385dc81b37f0004b4db85",
-    pluginType: PluginType.API,
     config: {
       timeoutInMillisecond: 10000,
       paginationType: PaginationType.NONE,
@@ -303,7 +157,6 @@ export const asyncTagUnevalTree: DataTree = {
         apiContentType: "none",
       },
     },
-    dynamicBindingPathList: [],
     data: {
       args: {},
       url: "https://mock-api.appsmith.com/echo/get",
@@ -359,100 +212,27 @@ export const asyncTagUnevalTree: DataTree = {
     },
     ENTITY_TYPE: ENTITY_TYPE.ACTION,
     isLoading: false,
-    bindingPaths: {
-      "config.path": EvaluationSubstitutionType.TEMPLATE,
-      "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    reactivePaths: {
-      data: EvaluationSubstitutionType.TEMPLATE,
-      isLoading: EvaluationSubstitutionType.TEMPLATE,
-      datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
-      "config.path": EvaluationSubstitutionType.TEMPLATE,
-      "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    dependencyMap: {
-      "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-    },
-    logBlackList: {},
     datasourceUrl: "",
   },
   JSObject1: {
-    name: "JSObject1",
     actionId: "627217a38a368d6f1efcd0d8",
-    pluginType: PluginType.JS,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body:
-      "export default { \n\tmyFun1: () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
-    meta: {
-      myFun1: {
-        arguments: [],
-        isAsync: false,
-        confirmBeforeExecute: false,
-      },
-    },
-    bindingPaths: {
-      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    reactivePaths: {
-      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    dynamicBindingPathList: [
-      {
-        key: "body",
-      },
-      {
-        key: "myFun1",
-      },
-    ],
-    variables: [],
-    dependencyMap: {
-      body: ["myFun1"],
-    },
+    body: "export default { \n\tmyFun1: () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
+
     myFun1: {
       data: {},
     },
   },
   JSObject2: {
-    name: "JSObject2",
     actionId: "627babc60b47255c28138865",
-    pluginType: PluginType.JS,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body:
-      "export default {\n\tcallApi: () => {\n\t\treturn Api1.run()\n\t},\n}",
-    meta: {
-      callApi: {
-        arguments: [],
-        isAsync: false,
-        confirmBeforeExecute: false,
-      },
-    },
-    bindingPaths: {
-      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      callApi: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    reactivePaths: {
-      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      callApi: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    dynamicBindingPathList: [
-      {
-        key: "body",
-      },
-      {
-        key: "callApi",
-      },
-    ],
-    variables: [],
-    dependencyMap: {
-      body: ["callApi"],
-    },
+    body: "export default {\n\tcallApi: () => {\n\t\treturn Api1.run()\n\t},\n}",
+
     callApi: {
       data: {},
     },
   },
-  MainContainer: ({
+  MainContainer: {
     widgetName: "MainContainer",
     backgroundColor: "none",
     rightColumn: 4896,
@@ -469,23 +249,12 @@ export const asyncTagUnevalTree: DataTree = {
     version: 57,
     minHeight: 1292,
     parentColumnSpace: 1,
-    dynamicBindingPathList: [],
     leftColumn: 0,
     children: [],
-    defaultProps: {},
-    defaultMetaProps: [],
-    logBlackList: {},
     meta: {},
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    bindingPaths: {},
-    reactivePaths: {},
-    triggerPaths: {},
-    validationPaths: {},
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    privateWidgets: {},
-  } as unknown) as DataTreeWidget,
-  appsmith: ({
+  } as unknown as WidgetEntity,
+  appsmith: {
     user: {
       email: "anand@appsmith.com",
       workspaceIds: [
@@ -549,7 +318,7 @@ export const asyncTagUnevalTree: DataTree = {
     },
     mode: "EDIT",
     ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-  } as unknown) as DataTreeAppsmith,
+  } as unknown as AppsmithEntity,
 };
 
 export const lintingUnEvalTree = {
@@ -557,9 +326,6 @@ export const lintingUnEvalTree = {
     run: {},
     clear: {},
     actionId: "62c46f53f184187f8821534c",
-    name: "Api2",
-    pluginId: "5ca385dc81b37f0004b4db85",
-    pluginType: "API",
     config: {
       timeoutInMillisecond: 10000,
       paginationType: "NONE",
@@ -596,52 +362,17 @@ export const lintingUnEvalTree = {
         apiContentType: "none",
       },
     },
-    dynamicBindingPathList: [],
     responseMeta: {
       isExecutionSuccess: false,
     },
     ENTITY_TYPE: "ACTION",
     isLoading: false,
-    bindingPaths: {
-      "config.path": "TEMPLATE",
-      "config.body": "SMART_SUBSTITUTE",
-      "config.queryParameters[0].key": "TEMPLATE",
-      "config.queryParameters[0].value": "TEMPLATE",
-      "config.queryParameters[1].key": "TEMPLATE",
-      "config.queryParameters[1].value": "TEMPLATE",
-      "config.headers[0].key": "TEMPLATE",
-      "config.headers[0].value": "TEMPLATE",
-      "config.headers[1].key": "TEMPLATE",
-      "config.headers[1].value": "TEMPLATE",
-    },
-    reactivePaths: {
-      data: "TEMPLATE",
-      isLoading: "TEMPLATE",
-      datasourceUrl: "TEMPLATE",
-      "config.path": "TEMPLATE",
-      "config.body": "SMART_SUBSTITUTE",
-      "config.queryParameters[0].key": "TEMPLATE",
-      "config.queryParameters[0].value": "TEMPLATE",
-      "config.queryParameters[1].key": "TEMPLATE",
-      "config.queryParameters[1].value": "TEMPLATE",
-      "config.headers[0].key": "TEMPLATE",
-      "config.headers[0].value": "TEMPLATE",
-      "config.headers[1].key": "TEMPLATE",
-      "config.headers[1].value": "TEMPLATE",
-    },
-    dependencyMap: {
-      "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-    },
-    logBlackList: {},
     datasourceUrl: "",
   },
   Api1: {
     run: {},
     clear: {},
     actionId: "62c48ef99ad402215f5226a4",
-    name: "Api1",
-    pluginId: "5ca385dc81b37f0004b4db85",
-    pluginType: "API",
     config: {
       timeoutInMillisecond: 10000,
       paginationType: "NONE",
@@ -678,54 +409,19 @@ export const lintingUnEvalTree = {
         apiContentType: "none",
       },
     },
-    dynamicBindingPathList: [],
+
     responseMeta: {
       isExecutionSuccess: false,
     },
     ENTITY_TYPE: "ACTION",
     isLoading: false,
-    bindingPaths: {
-      "config.path": "TEMPLATE",
-      "config.body": "SMART_SUBSTITUTE",
-      "config.queryParameters[0].key": "TEMPLATE",
-      "config.queryParameters[0].value": "TEMPLATE",
-      "config.queryParameters[1].key": "TEMPLATE",
-      "config.queryParameters[1].value": "TEMPLATE",
-      "config.headers[0].key": "TEMPLATE",
-      "config.headers[0].value": "TEMPLATE",
-      "config.headers[1].key": "TEMPLATE",
-      "config.headers[1].value": "TEMPLATE",
-    },
-    reactivePaths: {
-      data: "TEMPLATE",
-      isLoading: "TEMPLATE",
-      datasourceUrl: "TEMPLATE",
-      "config.path": "TEMPLATE",
-      "config.body": "SMART_SUBSTITUTE",
-      "config.queryParameters[0].key": "TEMPLATE",
-      "config.queryParameters[0].value": "TEMPLATE",
-      "config.queryParameters[1].key": "TEMPLATE",
-      "config.queryParameters[1].value": "TEMPLATE",
-      "config.headers[0].key": "TEMPLATE",
-      "config.headers[0].value": "TEMPLATE",
-      "config.headers[1].key": "TEMPLATE",
-      "config.headers[1].value": "TEMPLATE",
-    },
-    dependencyMap: {
-      "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-    },
-    logBlackList: {},
     datasourceUrl: "",
   },
   JSObject1: {
     myVar1: "[]",
     myVar2: "{}",
-    name: "JSObject1",
     actionId: "62bf37a0152a750d0c550d7c",
-    pluginType: "JS",
-    ENTITY_TYPE: "JSACTION",
-    body:
-      'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: async () => {\n\t\t//write code here\n\tawait storeValue("name", "name", false).then(()=>{})\n\t\treturn resetWidget("Button2").then(()=>{})\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t AbsentEntity.run()}\n}',
+    body: 'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: async () => {\n\t\t//write code here\n\tawait storeValue("name", "name", false).then(()=>{})\n\t\treturn resetWidget("Button2").then(()=>{})\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t AbsentEntity.run()}\n}',
     meta: {
       myFun2: {
         arguments: [],
@@ -737,41 +433,6 @@ export const lintingUnEvalTree = {
         isAsync: true,
         confirmBeforeExecute: false,
       },
-    },
-    bindingPaths: {
-      body: "SMART_SUBSTITUTE",
-      myVar1: "SMART_SUBSTITUTE",
-      myVar2: "SMART_SUBSTITUTE",
-      myFun2: "SMART_SUBSTITUTE",
-      myFun1: "SMART_SUBSTITUTE",
-    },
-    reactivePaths: {
-      body: "SMART_SUBSTITUTE",
-      myVar1: "SMART_SUBSTITUTE",
-      myVar2: "SMART_SUBSTITUTE",
-      myFun2: "SMART_SUBSTITUTE",
-      myFun1: "SMART_SUBSTITUTE",
-    },
-    dynamicBindingPathList: [
-      {
-        key: "body",
-      },
-      {
-        key: "myVar1",
-      },
-      {
-        key: "myVar2",
-      },
-      {
-        key: "myFun2",
-      },
-      {
-        key: "myFun1",
-      },
-    ],
-    variables: ["myVar1", "myVar2"],
-    dependencyMap: {
-      body: ["myFun2", "myFun1"],
     },
     myFun2: {
       data: {},
@@ -796,23 +457,11 @@ export const lintingUnEvalTree = {
     canExtend: true,
     version: 59,
     minHeight: 1292,
-    dynamicTriggerPathList: [],
     parentColumnSpace: 1,
-    dynamicBindingPathList: [],
     leftColumn: 0,
     children: ["qkqk9ezxvg", "vujfz3klqc"],
-    defaultProps: {},
-    defaultMetaProps: [],
-    logBlackList: {},
     meta: {},
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    bindingPaths: {},
-    reactivePaths: {},
-    triggerPaths: {},
-    validationPaths: {},
     ENTITY_TYPE: "WIDGET",
-    privateWidgets: {},
   },
   Button3: {
     boxShadow: "none",
@@ -820,11 +469,7 @@ export const lintingUnEvalTree = {
     onClick:
       '{{Api1.run().then(()=>{\n\tconst name = Button2.text;\n\tstoreValue("name",name,false)\nApi2.run()\n})}}',
     buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-    dynamicPropertyPathList: [
-      {
-        key: "onClick",
-      },
-    ],
+
     displayName: "Button",
     iconSVG: "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
     searchTags: ["click", "submit"],
@@ -835,20 +480,9 @@ export const lintingUnEvalTree = {
     hideCard: false,
     animateLoading: true,
     parentColumnSpace: 14.0625,
-    dynamicTriggerPathList: [
-      {
-        key: "onClick",
-      },
-    ],
+
     leftColumn: 18,
-    dynamicBindingPathList: [
-      {
-        key: "buttonColor",
-      },
-      {
-        key: "borderRadius",
-      },
-    ],
+
     text: "",
     isDisabled: false,
     key: "enfgkhlzev",
@@ -865,107 +499,14 @@ export const lintingUnEvalTree = {
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
     buttonVariant: "PRIMARY",
     placement: "CENTER",
-    defaultProps: {},
-    defaultMetaProps: ["recaptchaToken"],
-    logBlackList: {},
     meta: {},
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    bindingPaths: {
-      text: "TEMPLATE",
-      tooltip: "TEMPLATE",
-      googleRecaptchaKey: "TEMPLATE",
-      recaptchaType: "TEMPLATE",
-      isVisible: "TEMPLATE",
-      isDisabled: "TEMPLATE",
-      animateLoading: "TEMPLATE",
-      buttonColor: "TEMPLATE",
-      buttonVariant: "TEMPLATE",
-      borderRadius: "TEMPLATE",
-      boxShadow: "TEMPLATE",
-      placement: "TEMPLATE",
-    },
-    reactivePaths: {
-      recaptchaToken: "TEMPLATE",
-      buttonColor: "TEMPLATE",
-      borderRadius: "TEMPLATE",
-      text: "TEMPLATE",
-      tooltip: "TEMPLATE",
-      googleRecaptchaKey: "TEMPLATE",
-      recaptchaType: "TEMPLATE",
-      isVisible: "TEMPLATE",
-      isDisabled: "TEMPLATE",
-      animateLoading: "TEMPLATE",
-      buttonVariant: "TEMPLATE",
-      boxShadow: "TEMPLATE",
-      placement: "TEMPLATE",
-    },
-    triggerPaths: {
-      onClick: true,
-    },
-    validationPaths: {
-      text: {
-        type: "TEXT",
-      },
-      tooltip: {
-        type: "TEXT",
-      },
-      googleRecaptchaKey: {
-        type: "TEXT",
-      },
-      recaptchaType: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["V3", "V2"],
-          default: "V3",
-        },
-      },
-      isVisible: {
-        type: "BOOLEAN",
-      },
-      isDisabled: {
-        type: "BOOLEAN",
-      },
-      animateLoading: {
-        type: "BOOLEAN",
-      },
-      buttonColor: {
-        type: "TEXT",
-      },
-      buttonVariant: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["PRIMARY", "SECONDARY", "TERTIARY"],
-          default: "PRIMARY",
-        },
-      },
-      borderRadius: {
-        type: "TEXT",
-      },
-      boxShadow: {
-        type: "TEXT",
-      },
-      placement: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["START", "BETWEEN", "CENTER"],
-          default: "CENTER",
-        },
-      },
-    },
     ENTITY_TYPE: "WIDGET",
-    privateWidgets: {},
   },
   Button2: {
     boxShadow: "none",
     widgetName: "Button2",
     onClick: "{{Api2.run(); AbsentEntity.run()}}",
     buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-    dynamicPropertyPathList: [
-      {
-        key: "onClick",
-      },
-    ],
     displayName: "Button",
     iconSVG: "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
     searchTags: ["click", "submit"],
@@ -976,20 +517,7 @@ export const lintingUnEvalTree = {
     hideCard: false,
     animateLoading: true,
     parentColumnSpace: 14.0625,
-    dynamicTriggerPathList: [
-      {
-        key: "onClick",
-      },
-    ],
     leftColumn: 20,
-    dynamicBindingPathList: [
-      {
-        key: "buttonColor",
-      },
-      {
-        key: "borderRadius",
-      },
-    ],
     text: "Submit",
     isDisabled: false,
     key: "y7ypmprlbw",
@@ -1006,96 +534,8 @@ export const lintingUnEvalTree = {
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
     buttonVariant: "PRIMARY",
     placement: "CENTER",
-    defaultProps: {},
-    defaultMetaProps: ["recaptchaToken"],
-    logBlackList: {},
     meta: {},
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    bindingPaths: {
-      text: "TEMPLATE",
-      tooltip: "TEMPLATE",
-      googleRecaptchaKey: "TEMPLATE",
-      recaptchaType: "TEMPLATE",
-      isVisible: "TEMPLATE",
-      isDisabled: "TEMPLATE",
-      animateLoading: "TEMPLATE",
-      buttonColor: "TEMPLATE",
-      buttonVariant: "TEMPLATE",
-      borderRadius: "TEMPLATE",
-      boxShadow: "TEMPLATE",
-      placement: "TEMPLATE",
-    },
-    reactivePaths: {
-      recaptchaToken: "TEMPLATE",
-      buttonColor: "TEMPLATE",
-      borderRadius: "TEMPLATE",
-      text: "TEMPLATE",
-      tooltip: "TEMPLATE",
-      googleRecaptchaKey: "TEMPLATE",
-      recaptchaType: "TEMPLATE",
-      isVisible: "TEMPLATE",
-      isDisabled: "TEMPLATE",
-      animateLoading: "TEMPLATE",
-      buttonVariant: "TEMPLATE",
-      boxShadow: "TEMPLATE",
-      placement: "TEMPLATE",
-    },
-    triggerPaths: {
-      onClick: true,
-    },
-    validationPaths: {
-      text: {
-        type: "TEXT",
-      },
-      tooltip: {
-        type: "TEXT",
-      },
-      googleRecaptchaKey: {
-        type: "TEXT",
-      },
-      recaptchaType: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["V3", "V2"],
-          default: "V3",
-        },
-      },
-      isVisible: {
-        type: "BOOLEAN",
-      },
-      isDisabled: {
-        type: "BOOLEAN",
-      },
-      animateLoading: {
-        type: "BOOLEAN",
-      },
-      buttonColor: {
-        type: "TEXT",
-      },
-      buttonVariant: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["PRIMARY", "SECONDARY", "TERTIARY"],
-          default: "PRIMARY",
-        },
-      },
-      borderRadius: {
-        type: "TEXT",
-      },
-      boxShadow: {
-        type: "TEXT",
-      },
-      placement: {
-        type: "TEXT",
-        params: {
-          allowedValues: ["START", "BETWEEN", "CENTER"],
-          default: "CENTER",
-        },
-      },
-    },
     ENTITY_TYPE: "WIDGET",
-    privateWidgets: {},
   },
   appsmith: {
     user: {
@@ -1189,25 +629,7 @@ export const unEvalTreeWidgetSelectWidget = {
     defaultOptionValue: "",
     animateLoading: true,
     parentColumnSpace: 15.0625,
-    dynamicTriggerPathList: [],
     leftColumn: 24,
-    dynamicBindingPathList: [
-      {
-        key: "accentColor",
-      },
-      {
-        key: "borderRadius",
-      },
-      {
-        key: "isValid",
-      },
-      {
-        key: "selectedOptionValue",
-      },
-      {
-        key: "selectedOptionLabel",
-      },
-    ],
     labelPosition: "Left",
     options:
       '[\n  {\n    "label": "Blue",\n    "value": "BLUE"\n  },\n  {\n    "label": "Green",\n    "value": "GREEN"\n  },\n  {\n    "label": "Red",\n    "value": "RED"\n  }\n]',
@@ -1233,188 +655,10 @@ export const unEvalTreeWidgetSelectWidget = {
       '{{(()=>{const isServerSideFiltered = Select2.serverSideFiltering;    const options = Select2.options ?? [];    let value = Select2.value?.value ?? Select2.value;    const valueIndex = _.findIndex(options, (option) => option.value === value);    if (valueIndex === -1) {      if (!isServerSideFiltered) {        value = "";      }      if (        isServerSideFiltered &&        !_.isPlainObject(Select2.value) &&        !Select2.isDirty      ) {        value = "";      }    }    return value;})()}}',
     selectedOptionLabel:
       '{{(()=>{const isServerSideFiltered = Select2.serverSideFiltering;    const options = Select2.options ?? [];    let label = Select2.label?.label ?? Select2.label;    const labelIndex = _.findIndex(      options,      (option) =>        option.label === label && option.value === Select2.selectedOptionValue,    );    if (labelIndex === -1) {      if (        !_.isNil(Select2.selectedOptionValue) &&        Select2.selectedOptionValue !== ""      ) {        const selectedOption = _.find(          options,          (option) => option.value === Select2.selectedOptionValue,        );        if (selectedOption) {          label = selectedOption.label;        }      } else {        if (          !isServerSideFiltered ||          (isServerSideFiltered && Select2.selectedOptionValue === "")        ) {          label = "";        }      }    }    return label;})()}}',
-    defaultProps: {
-      value: "defaultOptionValue",
-      label: "defaultOptionValue",
-      filterText: "",
-    },
-    defaultMetaProps: ["value", "label", "filterText", "isDirty"],
-    logBlackList: {
-      isValid: true,
-      selectedOptionValue: true,
-      selectedOptionLabel: true,
-    },
     meta: {
       filterText: "",
     },
-    propertyOverrideDependency: {
-      value: {
-        DEFAULT: "defaultOptionValue",
-        META: "meta.value",
-      },
-      label: {
-        DEFAULT: "defaultOptionValue",
-        META: "meta.label",
-      },
-      filterText: {
-        DEFAULT: "",
-        META: "meta.filterText",
-      },
-    },
-    overridingPropertyPaths: {
-      defaultOptionValue: ["value", "meta.value", "label", "meta.label"],
-      "meta.value": ["value"],
-      "meta.label": ["label"],
-      "": ["filterText"],
-      "meta.filterText": ["filterText"],
-    },
-    bindingPaths: {
-      options: "SMART_SUBSTITUTE",
-      defaultOptionValue: "TEMPLATE",
-      labelText: "TEMPLATE",
-      labelWidth: "TEMPLATE",
-      isFilterable: "TEMPLATE",
-      serverSideFiltering: "TEMPLATE",
-      isRequired: "TEMPLATE",
-      placeholderText: "TEMPLATE",
-      isVisible: "TEMPLATE",
-      isDisabled: "TEMPLATE",
-      animateLoading: "TEMPLATE",
-      labelTextColor: "TEMPLATE",
-      labelTextSize: "TEMPLATE",
-      labelStyle: "TEMPLATE",
-      accentColor: "TEMPLATE",
-      borderRadius: "TEMPLATE",
-      boxShadow: "TEMPLATE",
-    },
-    reactivePaths: {
-      isValid: "TEMPLATE",
-      selectedOptionValue: "TEMPLATE",
-      selectedOptionLabel: "TEMPLATE",
-      value: "TEMPLATE",
-      label: "TEMPLATE",
-      filterText: "TEMPLATE",
-      isDirty: "TEMPLATE",
-      "": "TEMPLATE",
-      accentColor: "TEMPLATE",
-      borderRadius: "TEMPLATE",
-      defaultOptionValue: "TEMPLATE",
-      "meta.value": "TEMPLATE",
-      "meta.label": "TEMPLATE",
-      "meta.filterText": "TEMPLATE",
-      options: "SMART_SUBSTITUTE",
-      labelText: "TEMPLATE",
-      labelWidth: "TEMPLATE",
-      isFilterable: "TEMPLATE",
-      serverSideFiltering: "TEMPLATE",
-      isRequired: "TEMPLATE",
-      placeholderText: "TEMPLATE",
-      isVisible: "TEMPLATE",
-      isDisabled: "TEMPLATE",
-      animateLoading: "TEMPLATE",
-      labelTextColor: "TEMPLATE",
-      labelTextSize: "TEMPLATE",
-      labelStyle: "TEMPLATE",
-      boxShadow: "TEMPLATE",
-    },
-    triggerPaths: {
-      onOptionChange: true,
-    },
-    validationPaths: {
-      options: {
-        type: "ARRAY",
-        params: {
-          unique: ["value"],
-          children: {
-            type: "OBJECT",
-            params: {
-              required: true,
-              allowedKeys: [
-                {
-                  name: "label",
-                  type: "TEXT",
-                  params: {
-                    default: "",
-                    requiredKey: true,
-                  },
-                },
-                {
-                  name: "value",
-                  type: "TEXT",
-                  params: {
-                    default: "",
-                    requiredKey: true,
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-      defaultOptionValue: {
-        type: "FUNCTION",
-        params: {
-          expected: {
-            type: 'value1 or { "label": "label1", "value": "value1" }',
-            example: 'value1 | { "label": "label1", "value": "value1" }',
-            autocompleteDataType: "STRING",
-          },
-          fnString:
-            'function defaultOptionValueValidation(value, props, _) {\n  var isValid;\n  var parsed;\n  var message = "";\n  var isServerSideFiltered = props.serverSideFiltering; // TODO: validation of defaultOption is dependent on serverSideFiltering and options, this property should reValidated once the dependencies change\n  //this issue is been tracked here https://github.com/appsmithorg/appsmith/issues/15303\n\n  var options = props.options;\n  /*\n   * Function to check if the object has `label` and `value`\n   */\n\n  var hasLabelValue = function hasLabelValue(obj) {\n    return _.isPlainObject(value) && obj.hasOwnProperty("label") && obj.hasOwnProperty("value") && _.isString(obj.label) && (_.isString(obj.value) || _.isFinite(obj.value));\n  };\n  /*\n   * When value is "{label: \'green\', value: \'green\'}"\n   */\n\n\n  if (typeof value === "string") {\n    try {\n      var parsedValue = JSON.parse(value);\n\n      if (_.isObject(parsedValue)) {\n        value = parsedValue;\n      }\n    } catch (e) {}\n  }\n\n  if (_.isString(value) || _.isFinite(value) || hasLabelValue(value)) {\n    /*\n     * When value is "", "green", 444, {label: "green", value: "green"}\n     */\n    isValid = true;\n    parsed = value;\n  } else {\n    isValid = false;\n    parsed = undefined;\n    message = \'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }\';\n  }\n\n  if (isValid && !_.isNil(parsed) && parsed !== "") {\n    if (!Array.isArray(options) && typeof options === "string") {\n      try {\n        var parsedOptions = JSON.parse(options);\n\n        if (Array.isArray(parsedOptions)) {\n          options = parsedOptions;\n        } else {\n          options = [];\n        }\n      } catch (e) {\n        options = [];\n      }\n    }\n\n    var _parsedValue = parsed.hasOwnProperty("value") ? parsed.value : parsed;\n\n    var valueIndex = _.findIndex(options, function (option) {\n      return option.value === _parsedValue;\n    });\n\n    if (valueIndex === -1) {\n      if (!isServerSideFiltered) {\n        isValid = false;\n        message = "Default value is missing in options. Please update the value.";\n      } else {\n        if (!hasLabelValue(parsed)) {\n          isValid = false;\n          message = "Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.";\n        }\n      }\n    }\n  }\n\n  return {\n    isValid: isValid,\n    parsed: parsed,\n    messages: [message]\n  };\n}',
-        },
-        dependentPaths: ["serverSideFiltering", "options"],
-      },
-      labelText: {
-        type: "TEXT",
-      },
-      labelWidth: {
-        type: "NUMBER",
-        params: {
-          natural: true,
-        },
-      },
-      isFilterable: {
-        type: "BOOLEAN",
-      },
-      serverSideFiltering: {
-        type: "BOOLEAN",
-      },
-      isRequired: {
-        type: "BOOLEAN",
-      },
-      placeholderText: {
-        type: "TEXT",
-      },
-      isVisible: {
-        type: "BOOLEAN",
-      },
-      isDisabled: {
-        type: "BOOLEAN",
-      },
-      animateLoading: {
-        type: "BOOLEAN",
-      },
-      labelTextColor: {
-        type: "TEXT",
-      },
-      labelTextSize: {
-        type: "TEXT",
-      },
-      labelStyle: {
-        type: "TEXT",
-      },
-      accentColor: {
-        type: "TEXT",
-      },
-      borderRadius: {
-        type: "TEXT",
-      },
-      boxShadow: {
-        type: "TEXT",
-      },
-    },
-    ENTITY_TYPE: "WIDGET",
-    privateWidgets: {},
+    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     filterText: "",
     isDirty: false,
   },

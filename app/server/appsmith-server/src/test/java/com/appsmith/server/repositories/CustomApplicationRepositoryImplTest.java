@@ -21,7 +21,6 @@ public class CustomApplicationRepositoryImplTest {
     @Autowired
     ApplicationRepository applicationRepository;
 
-
     @Test
     public void getAllApplicationId_WhenDataExists_ReturnsList() {
         String randomWorkspaceId = UUID.randomUUID().toString();

@@ -1,16 +1,13 @@
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snipingModeBindToSelector } from "selectors/editorSelectors";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
-import { Toaster, Variant } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import {
@@ -19,10 +16,11 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toast } from "design-system";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -41,9 +39,8 @@ export function* bindDataToWidgetSaga(
   const selectedWidget = widgetState[action.payload.widgetId];
 
   if (!selectedWidget || !selectedWidget.type) {
-    Toaster.show({
-      text: SNIPING_SELECT_WIDGET_AGAIN(),
-      variant: Variant.warning,
+    toast.show(SNIPING_SELECT_WIDGET_AGAIN(), {
+      kind: "warning",
     });
     return;
   }
@@ -55,6 +52,7 @@ export function* bindDataToWidgetSaga(
   // Pranav has an Open PR for this file so just returning for now
   if (!currentAction) return;
 
+  //TODO (Balaji): Abstraction leak. propertyPath should come from the widget
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:
     case WidgetTypes.FORM_BUTTON_WIDGET:
@@ -162,9 +160,8 @@ export function* bindDataToWidgetSaga(
     yield put(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
   } else {
     queryId &&
-      Toaster.show({
-        text: SNIPING_NOT_SUPPORTED(),
-        variant: Variant.warning,
+      toast.show(SNIPING_NOT_SUPPORTED(), {
+        kind: "warning",
       });
   }
 }

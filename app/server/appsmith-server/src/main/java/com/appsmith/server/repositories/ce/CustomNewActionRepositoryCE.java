@@ -3,6 +3,8 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.repositories.AppsmithRepository;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,8 +38,9 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
-            Set<String> names, String pageId, AclPermission permission);
+    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(Set<String> names,
+                                                                                String pageId,
+                                                                                AclPermission permission);
 
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
@@ -49,4 +52,23 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 
+    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
+
+    Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
+
+    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
+
+    Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission);
+
+    Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
+
+    Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
+
+    Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds,
+                                                                   Boolean viewMode,
+                                                                   AclPermission aclPermission,
+                                                                   Sort sort);
+
+    Mono<List<InsertManyResult>> bulkInsert(List<NewAction> newActions);
+    Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions);
 }

@@ -1,9 +1,8 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import Router from "react-router-dom";
-import { render, screen, waitFor } from "test/testUtils";
+import { render, screen } from "test/testUtils";
 import Settings from "../settings";
-import userEvent from "@testing-library/user-event";
 import * as reactRedux from "react-redux";
 
 let container: any = null;

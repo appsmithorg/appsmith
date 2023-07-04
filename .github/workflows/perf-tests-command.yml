@@ -41,8 +41,18 @@ jobs:
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
+  build-docker-image:
+    needs: [ client-build, server-build, rts-build ]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+      
   perf-test:
-    needs: [client-build, server-build, rts-build]
+    needs: [ build-docker-image ]
     # Only run if the build step is successful
     if: success()
     name: perf-test

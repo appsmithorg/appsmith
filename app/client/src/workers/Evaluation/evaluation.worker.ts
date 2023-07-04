@@ -1,8 +1,9 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
+import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
-import { TMessage, MessageType } from "utils/MessageUtil";
+import type { TMessage } from "utils/MessageUtil";
+import { MessageType } from "utils/MessageUtil";
 import { WorkerMessenger } from "./fns/utils/Messenger";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
@@ -42,3 +43,9 @@ async function asyncRequestMessageListener(
 
 self.addEventListener("message", syncRequestMessageListener);
 self.addEventListener("message", asyncRequestMessageListener);
+
+self.addEventListener("unhandledrejection", (e) => {
+  // We might want to send this error to the main thread in the future.
+  // console error will log the error to the logs tab against trigger field.
+  console.error(e.reason.message);
+});

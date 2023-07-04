@@ -1,4 +1,4 @@
 files:
-  'app/client/src/components/ads/**':
+  'app/client/src/**':
     - albinAppsmith
     - tanvibhakta

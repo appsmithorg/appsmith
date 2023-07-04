@@ -1,35 +1,39 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { JSToString, stringToJS } from "./utils";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
+
+  > .code-wrapper {
+    font-family: var(--ads-v2-font-family-code);
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  color: var(--ads-v2-color-fg);
+  background-color: var(--ads-v2-color-bg-muted);
   border-radius: 2px;
   padding: 2px;
-  margin: 0px 2px;
+  margin: 0 2px 0 0;
   font-size: 10px;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 type InputTextProp = {
@@ -57,7 +61,8 @@ function InputText(props: InputTextProp) {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -70,9 +75,12 @@ function InputText(props: InputTextProp) {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentRow.columnName
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            Access the current cell using{" "}
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              currentRow.columnName
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}
@@ -83,9 +91,7 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class ComputeTablePropertyControlV2 extends BaseControl<
-  ComputeTablePropertyControlPropsV2
-> {
+class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyControlPropsV2> {
   static getBindingPrefix(tableName: string) {
     return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
   }
@@ -140,9 +146,8 @@ class ComputeTablePropertyControlV2 extends BaseControl<
   }
 
   static getInputComputedValue = (propertyValue: string, tableName: string) => {
-    const bindingPrefix = ComputeTablePropertyControlV2.getBindingPrefix(
-      tableName,
-    );
+    const bindingPrefix =
+      ComputeTablePropertyControlV2.getBindingPrefix(tableName);
 
     if (propertyValue.includes(bindingPrefix)) {
       const value = `${propertyValue.substring(

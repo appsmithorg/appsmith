@@ -3,6 +3,7 @@ package com.appsmith.util;
 import com.appsmith.external.converters.HttpMethodConverter;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,13 @@ public class SerializationUtils {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        /*
+         Setting Views.Public as default view class for the serializer.
+         Views.Public.class will be used if a controller has no JsonView annotation present.
+         It'll be overridden by the JsonView annotation in the controller.
+        */
+        objectMapper.setConfig(objectMapper.getSerializationConfig().withView(Views.Public.class));
 
         return objectMapper;
     }

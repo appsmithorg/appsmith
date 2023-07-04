@@ -83,14 +83,26 @@ public class SmtpPluginTest {
                 "to@test.com",
                 "cc@test.com",
                 "bcc@test.com",
-                "replyTo@test.com");
+                "replyTo@test.com",
+                "text/html");
+    }
+
+    private ActionConfiguration createActionConfiguration(String bodyType) {
+        return createActionConfiguration(
+                "from@test.com",
+                "to@test.com",
+                "cc@test.com",
+                "bcc@test.com",
+                "replyTo@test.com",
+                bodyType);
     }
 
     private ActionConfiguration createActionConfiguration(String fromAddress,
                                                           String toAddress,
                                                           String ccAddress,
                                                           String bccAddress,
-                                                          String replyTo) {
+                                                          String replyTo,
+                                                          String bodyType) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
         PluginUtils.setValueSafelyInFormData(formData, "send.from", fromAddress);
@@ -100,6 +112,7 @@ public class SmtpPluginTest {
         PluginUtils.setValueSafelyInFormData(formData, "send.isReplyTo", true);
         PluginUtils.setValueSafelyInFormData(formData, "send.replyTo", replyTo);
         PluginUtils.setValueSafelyInFormData(formData, "send.subject", "This is a test subject");
+        PluginUtils.setValueSafelyInFormData(formData, "send.bodyType", bodyType);
         actionConfiguration.setBody("This is a body");
 
         actionConfiguration.setFormData(formData);
@@ -398,6 +411,33 @@ public class SmtpPluginTest {
 
             verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
             verify(mockMimeBodyPart).setContent(actionConfiguration.getBody(), "text/html; charset=" + ENCODING);
+        }
+    }
+
+    @Test
+    public void testExecuteWithBodyTypePlainText() throws MessagingException {
+        ActionConfiguration actionConfiguration = createActionConfiguration("text/plain");
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        MimeMessage mockMimeMessage = mock(MimeMessage.class);
+        MimeBodyPart mockMimeBodyPart = mock(MimeBodyPart.class);
+        doNothing().when(mockMimeMessage).setSubject(anyString(), anyString());
+        doNothing().when(mockMimeBodyPart).setContent(anyString(), anyString());
+
+        SmtpPlugin.SmtpPluginExecutor spySmtp = spy(pluginExecutor);
+
+        try (MockedStatic<Transport> transportMock = Mockito.mockStatic(Transport.class)) {
+            Session session = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+
+            when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
+            when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
+
+            transportMock.when(() -> Transport.send(mockMimeMessage)).thenAnswer((Answer<Void>) invocation -> null);
+
+            spySmtp.execute(session, datasourceConfiguration, actionConfiguration);// test method call
+            String ENCODING = "UTF-8";
+
+            verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
+            verify(mockMimeBodyPart).setContent(actionConfiguration.getBody(), "text/plain; charset=" + ENCODING);
         }
     }
 

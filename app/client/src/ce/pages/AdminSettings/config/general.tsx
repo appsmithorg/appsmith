@@ -2,25 +2,26 @@ import React from "react";
 import { isEmail } from "utils/formhelpers";
 import { apiRequestConfig } from "api/Api";
 import UserApi from "@appsmith/api/UserApi";
-import {
+import type {
   AdminConfigType,
+  Setting,
+} from "@appsmith/pages/AdminSettings/config/types";
+import {
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-  Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system-old";
-import QuestionFillIcon from "remixicon-react/QuestionFillIcon";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
-  id: "APPSMITH_INSTANCE_NAME",
+  id: "instanceName",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
-  label: "Instance Name",
+  label: "Instance name",
   placeholder: "appsmith/prod",
 };
 
@@ -29,9 +30,9 @@ export const APPSMITH__ADMIN_EMAILS_SETTING: Setting = {
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.EMAIL,
-  label: "Admin Email",
+  label: "Admin email",
   subText:
-    "Emails of the users who can modify instance settings (Comma Separated)",
+    "* Emails of the users who can modify instance settings (comma separated)",
   placeholder: "Jane@example.com",
   validate: (value: string) => {
     if (
@@ -56,7 +57,7 @@ export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING: Setting = {
   },
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.BUTTON,
-  label: "Generated Docker Compose File",
+  label: "Generated docker compose file",
   text: "Download",
 };
 
@@ -65,7 +66,7 @@ export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
   name: "APPSMITH_DISABLE_TELEMETRY",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
-  label: "Anonymous Usage Data",
+  label: "Anonymous usage data",
   text: "Share anonymous usage data to help improve the product",
 };
 
@@ -74,14 +75,11 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   name: "APPSMITH_HIDE_WATERMARK",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
-  label: "Appsmith Watermark",
-  text: "Show Appsmith Watermark",
+  label: "Appsmith watermark",
+  text: "Show Appsmith watermark",
   needsUpgrade: true,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,
-  upgradeLogEventName: "ADMIN_SETTINGS_UPGRADE_WATERMARK",
-  upgradeIntercomMessage:
-    "Hello, I would like to upgrade and remove the watermark.",
 };
 
 export enum AppsmithFrameAncestorsSetting {
@@ -94,18 +92,16 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.RADIO,
-  label: "Embed Settings",
+  label: "Embed settings",
   controlTypeProps: {
     options: [
       {
-        badge: "NOT RECOMMENDED",
+        badge: "Not recommended",
         tooltip: {
-          icon: <QuestionFillIcon />,
-          text:
-            "Lets all domains, including malicious ones, embed your Appsmith apps. ",
-          linkText: "SEE WHY THIS IS RISKY",
-          link:
-            "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
+          icon: "question-line",
+          text: "Lets all domains, including malicious ones, embed your Appsmith apps. ",
+          linkText: "Find out why it's risky",
+          link: "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
         },
         label: "Allow embedding everywhere",
         value: AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE,

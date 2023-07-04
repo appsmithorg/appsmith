@@ -1,10 +1,11 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import { DropdownOption } from "design-system-old";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import type { SegmentedControlOption } from "design-system";
+import { Select, Option } from "design-system";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -41,8 +42,8 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
 
   render() {
     // Get columns from widget properties
-    const columns: Record<string, ColumnProperties> = this.props
-      .widgetProperties.primaryColumns;
+    const columns: Record<string, ColumnProperties> =
+      this.props.widgetProperties.primaryColumns;
     const options: any[] = [];
 
     for (const i in columns) {
@@ -53,41 +54,30 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
       });
     }
 
-    let defaultSelected: DropdownOption = {
-      label: "No selection.",
-      value: undefined,
-    };
-
-    const selected: DropdownOption = options.find(
+    const selected: SegmentedControlOption = options.find(
       (option) => option.value === this.props.propertyValue,
     );
 
-    if (selected) {
-      defaultSelected = selected;
-    }
-
     return (
-      <StyledDropDownContainer ref={this.containerRef}>
-        <StyledDropDown
-          dropdownMaxHeight="200px"
-          fillOptions
+      <div className="w-full h-full" ref={this.containerRef}>
+        <Select
           onSelect={this.onItemSelect}
-          options={options}
-          selected={defaultSelected}
-          showLabelOnly
-          width="100%"
-        />
-      </StyledDropDownContainer>
+          placeholder="No selection."
+          value={selected ? selected.value : undefined}
+        >
+          {options.map((option) => (
+            <Option key={option.id} value={option.value}>
+              {option.label}
+            </Option>
+          ))}
+        </Select>
+      </div>
     );
   }
 
-  onItemSelect = (
-    value?: string,
-    _option?: DropdownOption,
-    isUpdatedViaKeyboard?: boolean,
-  ): void => {
+  onItemSelect = (value?: string): void => {
     if (value) {
-      this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
+      this.updateProperty(this.props.propertyName, value);
     }
   };
 

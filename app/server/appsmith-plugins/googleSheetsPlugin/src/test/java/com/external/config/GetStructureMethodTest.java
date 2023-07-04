@@ -24,7 +24,7 @@ public class GetStructureMethodTest {
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
         try {
-            JsonNode result = getStructureMethod.transformExecutionResponse(null, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+            JsonNode result = getStructureMethod.transformExecutionResponse(null, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
             assertFalse(result == null);
         } catch (AppsmithPluginException e) {
             assertTrue(ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG.equalsIgnoreCase(e.getMessage()));
@@ -42,7 +42,7 @@ public class GetStructureMethodTest {
         assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, null);
+        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, null, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -64,7 +64,7 @@ public class GetStructureMethodTest {
         assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -89,7 +89,7 @@ public class GetStructureMethodTest {
         assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertTrue(result.isArray() && result.size() == 1);
@@ -116,7 +116,7 @@ public class GetStructureMethodTest {
         assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -142,7 +142,7 @@ public class GetStructureMethodTest {
         assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -168,7 +168,7 @@ public class GetStructureMethodTest {
         assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertEquals(result.toString(), "[{\"Name\":\"Luke\",\"Actor\":\"Make\",\"Music\":\"Duke\",\"Director\":\"Cake\",\"rowIndex\":\"0\"}]");
@@ -192,7 +192,7 @@ public class GetStructureMethodTest {
         assertNotNull(jsonNode);
 
         TriggerMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformTriggerResponse(jsonNode, new MethodConfig(Map.of()));
+        JsonNode result = getStructureMethod.transformTriggerResponse(jsonNode, new MethodConfig(Map.of()), null);
 
         assertNotNull(result);
         assertTrue(result.isArray());

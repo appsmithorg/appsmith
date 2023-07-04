@@ -5,7 +5,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -14,7 +13,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -36,11 +34,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -72,6 +68,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected final static int NO_RECORD_LIMIT = -1;
 
+    protected final static int NO_SKIP = 0;
+
     @Autowired
     @SuppressWarnings("unchecked")
     public BaseAppsmithRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
@@ -80,34 +78,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         this.mongoConverter = mongoConverter;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
-    }
-
-    public Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
-
-        Query query = new Query(where(fieldName(QUser.user.email)).is(username));
-
-        return mongoOperations.findOne(query, User.class)
-                .flatMap(user -> getAllPermissionGroupsForUser(user))
-                .map(userPermissionGroupIds -> {
-                    Optional<Policy> interestingPolicyOptional = policies.stream()
-                            .filter(policy -> policy.getPermission().equals(permission))
-                            .findFirst();
-                    if (!interestingPolicyOptional.isPresent()) {
-                        return FALSE;
-                    }
-
-                    Policy interestingPolicy = interestingPolicyOptional.get();
-                    Set<String> permissionGroupsIds = interestingPolicy.getPermissionGroups();
-                    if (permissionGroupsIds == null || permissionGroupsIds.isEmpty()) {
-                        return FALSE;
-                    }
-
-                    return userPermissionGroupIds.stream()
-                            .filter(userPermissionGroupId -> permissionGroupsIds.contains(userPermissionGroupId))
-                            .findFirst()
-                            .map(permissionGroup -> TRUE)
-                            .orElse(FALSE);
-                });
     }
 
     public static final String fieldName(Path<?> path) {
@@ -462,7 +432,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     public Flux<T> queryAll(List<Criteria> criterias, Optional<List<String>> includeFields, Optional<AclPermission> permission, Optional<Sort> sort, int limit) {
         Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
         return permissionGroupsMono
-                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criterias, includeFields, permission, sort, permissionGroups, limit));
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criterias, includeFields, permission, sort, permissionGroups, limit, NO_SKIP));
+    }
+
+    public Flux<T> queryAll(List<Criteria> criterias, Optional<List<String>> includeFields, Optional<AclPermission> permission, Sort sort, int limit, int skip) {
+        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
+        return permissionGroupsMono
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
     }
 
     @Deprecated
@@ -473,7 +449,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                                                 Set<String> permissionGroups,
                                                 int limit) {
         return queryAllWithPermissionGroups(criterias, Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission), Optional.ofNullable(sort), permissionGroups, limit);
+                Optional.ofNullable(aclPermission), Optional.ofNullable(sort), permissionGroups, limit, NO_SKIP);
     }
 
     public Flux<T> queryAllWithPermissionGroups(List<Criteria> criterias,
@@ -481,12 +457,16 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                                                 Optional<AclPermission> aclPermission,
                                                 Optional<Sort> sortOptional,
                                                 Set<String> permissionGroups,
-                                                int limit) {
+                                                int limit,
+                                                int skip) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
         includeFields.ifPresent(fields -> {
             fields.forEach(field -> query.fields().include(field));
         });
+        if (skip > NO_SKIP) {
+            query.skip(skip);
+        }
         if (limit != NO_RECORD_LIMIT) {
             query.limit(limit);
         }
@@ -531,18 +511,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return Mono.just(obj);
     }
 
-    @Deprecated
-    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
-    }
-
-    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
-        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
-    }
-
     /**
      * 1. Get all the user groups associated with the user
      * 2. Get all the permission groups associated with anonymous user
@@ -551,7 +519,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      * @param user
      * @return
      */
-
     protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
 
         Mono<User> userMono = Mono.just(user);
@@ -605,5 +572,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                             .matching(query)
                             .one();
                 });
+    }
+
+
+    public static Query getQuery(List<Criteria> criteria) {
+        Query query = new Query();
+        criteria.forEach(query::addCriteria);
+        return query;
+    }
+
+        /*
+    Db query methods
+     */
+
+    public Mono<T> queryOne(List<Criteria> criteria) {
+        return mongoOperations.findOne(getQuery(criteria), genericDomain);
+    }
+
+    public Flux<T> queryMany(List<Criteria> criteria) {
+        return mongoOperations.find(getQuery(criteria), genericDomain);
     }
 }

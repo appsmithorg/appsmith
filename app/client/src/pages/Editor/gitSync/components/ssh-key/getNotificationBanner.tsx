@@ -1,18 +1,10 @@
-import {
-  NotificationBannerContainer,
-  StyledTextBlock,
-} from "./StyledComponents";
-import {
-  TextType,
-  NotificationBanner,
-  NotificationVariant,
-} from "design-system-old";
-import { Colors } from "constants/Colors";
+import React from "react";
+import { NotificationBannerContainer } from "./StyledComponents";
 import {
   createMessage,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
 } from "@appsmith/constants/messages";
-import React from "react";
+import { Callout } from "design-system";
 
 /**
  * getNotificationBanner returns a notification banner about copying the key to repo settings.
@@ -20,28 +12,25 @@ import React from "react";
  * @param setShowKeyGeneratedMessage {( value: ((prevState: boolean) => boolean) | boolean ) => void}
  */
 export default function getNotificationBanner(
-  learnMoreClickHandler: () => void,
-  setShowKeyGeneratedMessage: (
-    value: ((prevState: boolean) => boolean) | boolean,
-  ) => void,
+  learnMoreClickHandler: (e: React.MouseEvent) => void,
+  setShowKeyGeneratedMessage: (value: boolean) => void,
 ): JSX.Element {
   return (
     <NotificationBannerContainer>
-      <NotificationBanner
-        canClose
+      <Callout
         className={"enterprise"}
-        learnMoreClickHandler={learnMoreClickHandler}
+        data-testid="t--deploy-key-usage-guide-message"
+        isClosable
+        links={[
+          {
+            children: "Learn More",
+            onClick: learnMoreClickHandler,
+          },
+        ]}
         onClose={() => setShowKeyGeneratedMessage(false)}
-        variant={NotificationVariant.enterprise}
       >
-        <StyledTextBlock
-          color={Colors.GREY_9}
-          data-testid="t--deploy-key-usage-guide-message"
-          type={TextType.P3}
-        >
-          {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-        </StyledTextBlock>
-      </NotificationBanner>
+        {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
+      </Callout>
     </NotificationBannerContainer>
   );
 }

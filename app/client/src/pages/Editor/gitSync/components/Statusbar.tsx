@@ -11,7 +11,7 @@ type StatusbarProps = {
 
 export const StatusbarWrapper = styled.div`
   width: 252px;
-  height: 38px;
+  height: 44px;
 `;
 
 export default function GitSyncStatusbar(props: StatusbarProps) {

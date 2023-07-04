@@ -8,6 +8,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -51,7 +52,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -811,18 +812,22 @@ public class DatabaseChangelog2 {
      */
     @ChangeSet(order = "007", id = "update-git-indexes", author = "")
     public void addIndexesForGit(MongoTemplate mongoTemplate) {
+        doAddIndexesForGit(mongoTemplate);
+    }
+
+    public static void doAddIndexesForGit(MongoTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_compound_index");
         dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_compound_index");
 
-        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted")
         );
 
         ensureIndexes(mongoTemplate, NewAction.class,
@@ -831,7 +836,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted")
         );
 
         ensureIndexes(mongoTemplate, NewPage.class,
@@ -840,7 +845,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted")
         );
     }
 
@@ -980,33 +985,80 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
     public void migrateOrganizationIdToWorkspaceIdInDomainObjects(MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QDatasource.datasource.workspaceId)).toValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))),
-                Datasource.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QActionCollection.actionCollection.workspaceId)).toValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))),
-                ActionCollection.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QApplication.application.workspaceId)).toValueOf(Fields.field(fieldName(QApplication.application.organizationId))),
-                Application.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QNewAction.newAction.workspaceId)).toValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))),
-                NewAction.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QTheme.theme.workspaceId)).toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
-                Theme.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
-                UserData.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).toValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))),
-                Workspace.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update()
-                        .set(fieldName(QUser.user.workspaceIds)).toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
-                        .set(fieldName(QUser.user.currentWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
-                        .set(fieldName(QUser.user.examplesWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
-                User.class);
+        // Datasource
+        if (mongoTemplate.findOne(new Query(), Datasource.class) == null) {
+            System.out.println("No datasource to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update().set(fieldName(QDatasource.datasource.workspaceId)).toValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))),
+                    Datasource.class);
+        }
+
+        // ActionCollection
+        if (mongoTemplate.findOne(new Query(), ActionCollection.class) == null) {
+            System.out.println("No actionCollection to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update().set(fieldName(QActionCollection.actionCollection.workspaceId)).toValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))),
+                    ActionCollection.class);
+        }
+
+        // Application
+        if (mongoTemplate.findOne(new Query(), Application.class) == null) {
+            System.out.println("No application to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update().set(fieldName(QApplication.application.workspaceId)).toValueOf(Fields.field(fieldName(QApplication.application.organizationId))),
+                    Application.class);
+        }
+
+        // New Action
+        if (mongoTemplate.findOne(new Query(), NewAction.class) == null) {
+            System.out.println("No newAction to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update().set(fieldName(QNewAction.newAction.workspaceId)).toValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))),
+                    NewAction.class);
+        }
+
+        // Theme
+        if (mongoTemplate.findOne(new Query(), Theme.class) == null) {
+            System.out.println("No theme to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update().set(fieldName(QTheme.theme.workspaceId)).toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
+                    Theme.class);
+        }
+
+        // UserData
+        if (mongoTemplate.findOne(new Query(), UserData.class) == null) {
+            System.out.println("No userData to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update().set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
+                    UserData.class);
+        }
+
+        // Workspace
+        if (mongoTemplate.findOne(new Query(), Workspace.class) == null) {
+            System.out.println("No workspace to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update().set(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).toValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))),
+                    Workspace.class);
+        }
+
+        // User
+        if (mongoTemplate.findOne(new Query(), User.class) == null) {
+            System.out.println("No user to migrate.");
+        } else {
+            mongoTemplate.updateMulti(new Query(),
+                    AggregationUpdate.update()
+                            .set(fieldName(QUser.user.workspaceIds)).toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
+                            .set(fieldName(QUser.user.currentWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
+                            .set(fieldName(QUser.user.examplesWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
+                    User.class);
+        }
 
         // Now sign out all the existing users since this change impacts the user object.
         final String script =
@@ -1020,11 +1072,11 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
     public void organizationToWorkspaceIndexesRecreate(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_name_deleted_gitApplicationMetadata");
         dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_deleted_compound_index");
 
         //If this migration is re-run
-        dropIndexIfExists(mongoTemplate, Application.class, "workspace_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "workspace_app_deleted_gitApplicationMetadata");
         dropIndexIfExists(mongoTemplate, Datasource.class, "workspace_datasource_deleted_compound_index");
 
         ensureIndexes(mongoTemplate, Application.class,
@@ -1034,7 +1086,7 @@ public class DatabaseChangelog2 {
                         fieldName(QApplication.application.deletedAt),
                         "gitApplicationMetadata.remoteUrl",
                         "gitApplicationMetadata.branchName")
-                        .unique().named("workspace_application_deleted_gitApplicationMetadata_compound_index")
+                        .unique().named("workspace_app_deleted_gitApplicationMetadata")
         );
         ensureIndexes(mongoTemplate, Datasource.class,
                 makeIndex(fieldName(QDatasource.datasource.workspaceId),
@@ -1094,6 +1146,10 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction-datasource", author = "")
     public void migrateOrganizationIdToWorkspaceIdInNewActionDatasource(MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        if (mongoTemplate.findOne(new Query(), NewAction.class) == null) {
+            System.out.println("No newAction to migrate.");
+            return;
+        }
         mongoTemplate.updateMulti(new Query(Criteria.where("unpublishedAction.datasource.organizationId").exists(true)),
                 AggregationUpdate.update().set("unpublishedAction.datasource.workspaceId").toValueOf(Fields.field("unpublishedAction.datasource.organizationId")),
                 NewAction.class);
@@ -1564,7 +1620,7 @@ public class DatabaseChangelog2 {
         return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
     }
 
-    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongoTemplate mongoTemplate, PolicyUtils policyUtils, Set<PermissionGroup> permissionGroups, Workspace workspace, Map<String, String> userIdForEmail, Set<String> validUserIds) {
+    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongoTemplate mongoTemplate, PolicySolution policySolution, Set<PermissionGroup> permissionGroups, Workspace workspace, Map<String, String> userIdForEmail, Set<String> validUserIds) {
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
                 .findFirst().get();
@@ -1685,8 +1741,8 @@ public class DatabaseChangelog2 {
         // Apply the permissions to the permission groups
         for (PermissionGroup permissionGroup : savedPermissionGroups) {
             for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
-                Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
+                policySolution.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
             }
         }
 
@@ -1706,7 +1762,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "024", id = "add-default-permission-groups", author = "")
-    public void addDefaultPermissionGroups(MongoTemplate mongoTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicyUtils policyUtils, UserRepository userRepository) {
+    public void addDefaultPermissionGroups(MongoTemplate mongoTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicySolution policySolution, UserRepository userRepository) {
 
         // Create a map of emails to userIds
         Map<String, String> userIdForEmail = mongoTemplate.stream(new Query(), User.class)
@@ -1746,12 +1802,12 @@ public class DatabaseChangelog2 {
                         // Set default permission groups
                         workspace.setDefaultPermissionGroups(permissionGroups.stream().map(PermissionGroup::getId).collect(Collectors.toSet()));
                         // Generate permissions and policies for the default permission groups
-                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongoTemplate, policyUtils, permissionGroups, workspace, userIdForEmail, validUserIds);
+                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongoTemplate, policySolution, permissionGroups, workspace, userIdForEmail, validUserIds);
                         // Apply the permissions to the workspace
                         for (PermissionGroup permissionGroup : permissionGroups) {
                             // Apply the permissions to the workspace
-                            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, workspace.getId());
-                            workspace = policyUtils.addPoliciesToExistingObject(policyMap, workspace);
+                            Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(permissionGroup, workspace.getId());
+                            workspace = policySolution.addPoliciesToExistingObject(policyMap, workspace);
                         }
                         // Save the workspace
                         mongoTemplate.save(workspace);
@@ -1861,7 +1917,7 @@ public class DatabaseChangelog2 {
                 });
     }
 
-    private void makeApplicationPublic(PolicyUtils policyUtils, PolicyGenerator policyGenerator, NewPageRepository newPageRepository, Application application, Workspace workspace, MongoTemplate mongoTemplate, User anonymousUser) {
+    private void makeApplicationPublic(PolicySolution policySolution, PolicyGenerator policyGenerator, NewPageRepository newPageRepository, Application application, Workspace workspace, MongoTemplate mongoTemplate, User anonymousUser) {
         PermissionGroup publicPermissionGroup = new PermissionGroup();
         publicPermissionGroup.setName(application.getName() + " Public");
         publicPermissionGroup.setTenantId(workspace.getTenantId());
@@ -1895,9 +1951,9 @@ public class DatabaseChangelog2 {
 
         String permissionGroupId = publicPermissionGroup.getId();
 
-        Map<String, Policy> applicationPolicyMap = policyUtils
+        Map<String, Policy> applicationPolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(AclPermission.READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> datasourcePolicyMap = policyUtils
+        Map<String, Policy> datasourcePolicyMap = policySolution
                 .generatePolicyFromPermissionWithPermissionGroup(AclPermission.EXECUTE_DATASOURCES, permissionGroupId);
 
         Set<String> datasourceIds = new HashSet<>();
@@ -1920,14 +1976,14 @@ public class DatabaseChangelog2 {
                 });
 
         // Update and save application
-        application = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
+        application = policySolution.addPoliciesToExistingObject(applicationPolicyMap, application);
         mongoTemplate.save(application);
         applicationPolicies = application.getPolicies();
 
         // Update datasources
         mongoTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.id)).in(datasourceIds)), Datasource.class)
                 .forEach(datasource -> {
-                    datasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    datasource = policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
                     mongoTemplate.save(datasource);
                 });
 
@@ -2003,7 +2059,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "028", id = "make-applications-public", author = "")
-    public void makeApplicationsPublic(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, NewPageRepository newPageRepository) {
+    public void makeApplicationsPublic(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution, @NonLockGuarded PolicyGenerator policyGenerator, NewPageRepository newPageRepository) {
         User anonymousUser = mongoTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER)), User.class);
 
         // Rollback permission groups created on locked workspaces
@@ -2027,7 +2083,7 @@ public class DatabaseChangelog2 {
                             .first();
 
                     Workspace workspace = mongoTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QBaseDomain.baseDomain.id)).is(application.getWorkspaceId())), Workspace.class);
-                    makeApplicationPublic(policyUtils, policyGenerator, newPageRepository, application, workspace, mongoTemplate, anonymousUser);
+                    makeApplicationPublic(policySolution, policyGenerator, newPageRepository, application, workspace, mongoTemplate, anonymousUser);
                     // Remove makePublic flag from application
                     mongoTemplate.updateFirst(new Query().addCriteria(Criteria.where("_id").is(new ObjectId(application.getId()))),
                             new Update().unset("makePublic"),
@@ -2256,24 +2312,22 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "32", id = "create-indices-on-permissions-for-performance", author = "")
     public void addPermissionGroupIndex(MongoTemplate mongoTemplate) {
+        doAddPermissionGroupIndex(mongoTemplate);
+    }
+
+    public static void doAddPermissionGroupIndex(MongoTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_workspace_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted_compound_index");
-
-        Index workspace_deleted_compound_index = makeIndex(
-                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId),
-                fieldName(QPermissionGroup.permissionGroup.deleted)
-        )
-                .named("permission_group_workspace_deleted_compound_index");
+        dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted");
 
         Index assignedToUserIds_deleted_compound_index = makeIndex(
                 fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
                 fieldName(QPermissionGroup.permissionGroup.deleted)
         )
-                .named("permission_group_assignedUserIds_deleted_compound_index");
+                .named("permission_group_assignedUserIds_deleted");
 
         ensureIndexes(mongoTemplate, PermissionGroup.class,
-                workspace_deleted_compound_index,
                 assignedToUserIds_deleted_compound_index
         );
     }
@@ -2343,7 +2397,7 @@ public class DatabaseChangelog2 {
 
         // Assign the user to the default permissions
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(user.getUsername() + " User Management");
+        userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(
                 Set.of(
@@ -2433,7 +2487,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
-    public void migratePublicAppsSinglePg(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public void migratePublicAppsSinglePg(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         Query anonymousUserPermissionConfig = new Query();
         anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
@@ -2605,7 +2659,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "035", id = "add-tenant-admin-permissions-instance-admin", author = "")
-    public void addTenantAdminPermissionsToInstanceAdmin(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addTenantAdminPermissionsToInstanceAdmin(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
@@ -2629,7 +2683,7 @@ public class DatabaseChangelog2 {
                         .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
                         .build()
         );
-        PermissionGroup instanceAdminPG = policyUtils.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
+        PermissionGroup instanceAdminPG = policySolution.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
 
         // Now add admin permissions to the tenant
         Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
@@ -2640,13 +2694,13 @@ public class DatabaseChangelog2 {
         instanceAdminPG.setPermissions(permissions);
         mongoTemplate.save(instanceAdminPG);
 
-        Map<String, Policy> tenantPolicy = policyUtils.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
-        Tenant updatedTenant = policyUtils.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        Map<String, Policy> tenantPolicy = policySolution.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
+        Tenant updatedTenant = policySolution.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
         mongoTemplate.save(updatedTenant);
     }
 
     @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
-    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
 
         Query query = new Query(Criteria.where("policies.permission").is("read:permissionGroups"));
         Update update = new Update().set("policies.$.permission", "read:permissionGroupMembers");
@@ -2806,5 +2860,32 @@ public class DatabaseChangelog2 {
         Update update = new Update();
         update.set("datasourceConfiguration.connection.ssl.authType", "DISABLE");
         mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
+    }
+
+    @ChangeSet(order = "042", id = "add-oracle-plugin", author = "")
+    public void addOraclePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Oracle");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("oracle-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "043", id = "update-oracle-plugin-name", author = "")
+    public void updateOraclePluginName(MongoTemplate mongoTemplate) {
+        Plugin oraclePlugin = mongoTemplate.findOne(query(where("packageName").is("oracle-plugin")), Plugin.class);
+        oraclePlugin.setName("Oracle");
+        oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
+        mongoTemplate.save(oraclePlugin);
     }
 }

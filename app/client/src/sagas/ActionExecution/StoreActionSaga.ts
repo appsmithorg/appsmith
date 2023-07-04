@@ -6,10 +6,10 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { AppStoreState } from "reducers/entityReducers/appReducer";
+import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
 import moment from "moment";
-import {
+import type {
   TClearStoreDescription,
   TRemoveValueDescription,
   TStoreValueDescription,
@@ -57,6 +57,7 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
       severity: Severity.INFO,
       category: LOG_CATEGORY.USER_GENERATED,
       timestamp: moment().format("hh:mm:ss"),
+      isExpanded: false,
     })),
   );
 }

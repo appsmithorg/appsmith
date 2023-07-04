@@ -5,8 +5,7 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import ErrorTooltip from "./ErrorTooltip";
-import { Icon, IconSize, Toaster, Variant } from "design-system-old";
+import { Button, toast, Tooltip } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -40,6 +39,8 @@ type EditableTextProps = {
   useFullWidth?: boolean;
 };
 
+// using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
+// which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
 const EditableTextWrapper = styled.div<{
   isEditing: boolean;
   minimal: boolean;
@@ -54,10 +55,11 @@ const EditableTextWrapper = styled.div<{
     & .${Classes.EDITABLE_TEXT} {
       background: ${(props) =>
         props.isEditing && !props.minimal
-          ? props.theme.colors.editableText.bg
+          ? "var(--ads-v2-color-bg-subtle)"
           : "none"};
       cursor: pointer;
       padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
+      border-radius: var(--ads-v2-border-radius);
       text-transform: none;
       flex: 1 0 100%;
       max-width: 100%;
@@ -82,19 +84,19 @@ const EditableTextWrapper = styled.div<{
     }
   `}
 `;
-
-// using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
-// which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
 const TextContainer = styled.div<{
   isValid: boolean;
   minimal: boolean;
   underline?: boolean;
 }>`
+  color: var(--ads-v2-color-fg-emphasis-plus);
   display: flex;
+  align-items: center;
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {
       &:hover {
         text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
+        text-decoration-color: var(--ads-v2-color-border);
       }
     }
   }
@@ -104,12 +106,14 @@ const TextContainer = styled.div<{
         ? `
         border-bottom-style: solid;
         border-bottom-width: 1px;
+        border-bottom-color: var(--ads-v2-color-border);
         width: fit-content;
       `
         : null}
   }
-  & span.bp3-editable-text-content {
-    height: auto !important;
+
+  && .t--action-name-edit-icon {
+    min-width: min-content;
   }
 `;
 
@@ -182,9 +186,8 @@ export function EditableText(props: EditableTextProps) {
         onTextChanged(_value);
         setIsEditing(false);
       } else {
-        Toaster.show({
-          text: customErrorTooltip || "Invalid name",
-          variant: Variant.danger,
+        toast.show(customErrorTooltip || "Invalid name", {
+          kind: "error",
         });
       }
     },
@@ -221,12 +224,12 @@ export function EditableText(props: EditableTextProps) {
       onDoubleClick={
         editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
       }
-      useFullWidth={useFullWidth && isEditing ? true : false}
+      useFullWidth={!!(useFullWidth && isEditing)}
     >
-      <ErrorTooltip
-        customClass={errorTooltipClass}
-        isOpen={!!error}
-        message={errorMessage as string}
+      <Tooltip
+        className={errorTooltipClass}
+        content={errorMessage as string}
+        visible={!!error}
       >
         <TextContainer
           isValid={!error}
@@ -249,15 +252,16 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            <Icon
+            <Button
               className="t--action-name-edit-icon"
-              fillColor="#939090"
-              name="edit"
-              size={IconSize.XXL}
+              isIconButton
+              kind="tertiary"
+              size="md"
+              startIcon="pencil-line"
             />
           )}
         </TextContainer>
-      </ErrorTooltip>
+      </Tooltip>
     </EditableTextWrapper>
   );
 }

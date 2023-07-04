@@ -1,17 +1,12 @@
-import React from "react";
-
 import scrollIntoView from "scroll-into-view-if-needed";
-
 import {
   modText,
   flashElementsById,
   isMacOrIOS,
   flashElement,
-  hasClass,
   shiftText,
 } from "./helpers";
 import localStorage from "./localStorage";
-import { Toaster } from "design-system-old";
 import {
   createMessage,
   WIDGET_ADDED,
@@ -19,27 +14,10 @@ import {
   WIDGET_REMOVED,
   BULK_WIDGET_REMOVED,
 } from "@appsmith/constants/messages";
-
-/**
- * get the text for toast
- *
- * @param replayType
- * @returns
- */
-export const getReplayToastActionText = (replayType = "undo") => {
-  switch (replayType) {
-    case "undo":
-      return <>UNDO ({modText()} Z) </>;
-    case "redo":
-      return isMacOrIOS() ? (
-        <>
-          REDO ({modText()} {shiftText()} Z){" "}
-        </>
-      ) : (
-        <>REDO ({modText()} Y) </>
-      );
-  }
-};
+import { toast } from "design-system";
+import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
+import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
+import store from "../store";
 
 /**
  * process the toast for undo/redo
@@ -87,15 +65,15 @@ export const showUndoRedoToast = (
   if (shouldDisallowToast(shouldUndo)) return;
 
   const actionDescription = getActionDescription(isCreated, isMultiple);
+  const widgetText = createMessage(actionDescription, widgetName);
+  const action = shouldUndo ? "undo" : "redo";
+  const actionKey = shouldUndo
+    ? `${modText()} Z`
+    : isMacOrIOS()
+    ? `${modText()} ${shiftText()} Z`
+    : `${modText()} Y`;
 
-  const text = createMessage(actionDescription, widgetName);
-  const actionElement = getReplayToastActionText(shouldUndo ? "undo" : "redo");
-
-  Toaster.show({
-    text,
-    actionElement,
-    maxWidth: "500px",
-  });
+  toast.show(`${widgetText}. Press ${actionKey} to ${action}`);
 };
 
 function getActionDescription(isCreated: boolean, isMultiple: boolean) {
@@ -155,12 +133,14 @@ export function highlightReplayElement(configProperties: Array<string> = []) {
 
 export function switchTab(replayId: string): boolean {
   if (!replayId) return false;
-  const element = document.querySelector(
-    `[data-replay-id="${replayId}"]`,
-  ) as HTMLElement;
+  const element = document.querySelector(`[id$="${replayId}"]`) as HTMLElement;
   if (!element) return false;
-  if (hasClass(element, "react-tabs__tab--selected")) return false;
-  element?.click();
+  if (element.getAttribute("data-state") == "active") return false;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
+  store.dispatch(setApiPaneConfigSelectedTabIndex(index));
+
   return true;
 }
 

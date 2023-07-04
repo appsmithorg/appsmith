@@ -1,10 +1,11 @@
 package com.external.plugins.exceptions;
 
-public class RedisErrorMessages {
-    private RedisErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class RedisErrorMessages extends BasePluginErrorMessages {
     public static final String BODY_IS_NULL_OR_EMPTY_ERROR_MSG = "Body is null or empty [%s]";
 
     public static final String QUERY_PARSING_FAILED_ERROR_MSG = "Appsmith server has failed to parse your Redis query. Are you sure it's" +
@@ -22,7 +23,7 @@ public class RedisErrorMessages {
      ************************************************************************************************************************************************
      */
 
-    public static final String DS_MISSING_HOST_ADDRESS_ERROR_MSG = "Could not find host address. Please edit the 'Host Address' field to provide the desired " +
+    public static final String DS_MISSING_HOST_ADDRESS_ERROR_MSG = "Could not find host address. Please edit the 'Host address' field to provide the desired " +
             "endpoint.";
 
     public static final String DS_MISSING_PASSWORD_ERROR_MSG = "Could not find password. Please edit the 'Password' field to provide the password.";

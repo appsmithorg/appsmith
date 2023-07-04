@@ -1,6 +1,6 @@
-import { ControllerRenderProps } from "react-hook-form/dist/types/controller";
+import type { ControllerRenderProps } from "react-hook-form/dist/types/controller";
 
-import { InputType } from "widgets/InputWidget/constants";
+import type { InputType } from "widgets/InputWidget/constants";
 import {
   ArrayField,
   CheckboxField,
@@ -65,6 +65,7 @@ export type JSON = Obj | Obj[];
 export type FieldComponentBaseProps = {
   defaultValue?: string | number;
   isDisabled: boolean;
+  shouldAllowAutofill?: boolean;
   isRequired?: boolean;
   isVisible: boolean;
   label: string;
@@ -201,15 +202,16 @@ export const INPUT_TYPES = [
  * As InputField would handle all the below types (Text/Number), this map
  * would help use identify what inputType it is based on the FieldType.
  */
-export const INPUT_FIELD_TYPE: Record<typeof INPUT_TYPES[number], InputType> = {
-  [FieldType.CURRENCY_INPUT]: "CURRENCY",
-  [FieldType.EMAIL_INPUT]: "EMAIL",
-  [FieldType.NUMBER_INPUT]: "NUMBER",
-  [FieldType.PASSWORD_INPUT]: "PASSWORD",
-  [FieldType.PHONE_NUMBER_INPUT]: "PHONE_NUMBER",
-  [FieldType.TEXT_INPUT]: "TEXT",
-  [FieldType.MULTILINE_TEXT_INPUT]: "TEXT",
-};
+export const INPUT_FIELD_TYPE: Record<(typeof INPUT_TYPES)[number], InputType> =
+  {
+    [FieldType.CURRENCY_INPUT]: "CURRENCY",
+    [FieldType.EMAIL_INPUT]: "EMAIL",
+    [FieldType.NUMBER_INPUT]: "NUMBER",
+    [FieldType.PASSWORD_INPUT]: "PASSWORD",
+    [FieldType.PHONE_NUMBER_INPUT]: "PHONE_NUMBER",
+    [FieldType.TEXT_INPUT]: "TEXT",
+    [FieldType.MULTILINE_TEXT_INPUT]: "TEXT",
+  };
 
 export const FIELD_EXPECTING_OPTIONS = [
   FieldType.MULTISELECT,

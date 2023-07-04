@@ -8,8 +8,8 @@ import {
   Popover,
   MenuItem,
 } from "@blueprintjs/core";
-import { DropdownOption } from "components/constants";
-import { ContainerOrientation } from "constants/WidgetConstants";
+import type { DropdownOption } from "components/constants";
+import type { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 

@@ -1,5 +1,6 @@
 import { Layers } from "constants/Layers";
-import React, { useState, useEffect, RefObject } from "react";
+import type { RefObject } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
@@ -10,13 +11,10 @@ export const ResizerCSS = css`
 `;
 
 const Top = styled.div`
-  position: absolute;
   cursor: ns-resize;
   height: 4px;
   width: 100%;
-  z-index: 1;
-  left: 0;
-  top: 0;
+  margin-bottom: -2px;
 `;
 
 type ResizerProps = {

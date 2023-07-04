@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
-import { StyledInputGroup } from "./StyledControls";
+import { InputGroup } from "./StyledControls";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const MapStatusText = styled.span`
   font-size: 14px;
@@ -94,7 +95,7 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
 
   return (
     <div data-standalone-searchbox="">
-      <StyledInputGroup
+      <InputGroup
         dataType="text"
         defaultValue={title || props.propertyValue?.title}
         onChange={(value: string) => {

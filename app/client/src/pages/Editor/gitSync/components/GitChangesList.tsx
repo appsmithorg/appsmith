@@ -1,13 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
-import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
   CHANGES_FROM_APPSMITH,
   createMessage,
@@ -16,6 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
+import { Callout, Icon, Text } from "design-system";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -31,21 +31,18 @@ const DummyChange = styled.div`
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.spaces[9]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: var(--ads-v2-spaces-3);
   display: flex;
+  gap: 6px;
+`;
 
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
-
-  .${Classes.TEXT} {
-    padding-top: ${(props) => props.theme.spaces[1] - 2}px;
-  }
+const CalloutContainer = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Changes = styled.div`
   margin-top: ${(props) => props.theme.spaces[7]}px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 export enum Kind {
@@ -56,6 +53,8 @@ export enum Kind {
   PAGE = "PAGE",
   QUERY = "QUERY",
   JS_LIB = "JS_LIB",
+  THEME = "THEME",
+  SETTINGS = "SETTINGS",
 }
 
 type GitStatusProps = {
@@ -78,6 +77,16 @@ const STATUS_MAP: GitStatusMap = {
     message: behindCommitMessage(status),
     iconName: "git-commit",
     hasValue: (status?.behindCount || 0) > 0,
+  }),
+  [Kind.SETTINGS]: (status: GitStatusData) => ({
+    message: `Application settings modified`,
+    iconName: "settings-2-line",
+    hasValue: (status?.modified || []).includes("application.json"),
+  }),
+  [Kind.THEME]: (status: GitStatusData) => ({
+    message: `Theme modified`,
+    iconName: "sip-line",
+    hasValue: (status?.modified || []).includes("theme.json"),
   }),
   [Kind.DATA_SOURCE]: (status: GitStatusData) => ({
     message: `${status?.modifiedDatasources || 0} ${
@@ -137,12 +146,16 @@ function aheadCommitMessage(status: GitStatusData) {
 }
 
 export function Change(props: Partial<GitStatusProps>) {
-  const { iconName, message } = props;
+  const { iconName = "git-commit", message } = props;
 
   return (
     <Wrapper>
-      <Icon name={iconName} size={IconSize.XXL} />
-      <Text type={TextType.P3}>{message}</Text>
+      {iconName && (
+        <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+      )}
+      <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
+        {message}
+      </Text>
     </Wrapper>
   );
 }
@@ -171,6 +184,8 @@ export function gitChangeListData(
   status: GitStatusData = defaultStatus,
 ): JSX.Element[] {
   const changeKind = [
+    Kind.SETTINGS,
+    Kind.THEME,
     Kind.PAGE,
     Kind.QUERY,
     Kind.JS_OBJECT,
@@ -187,12 +202,12 @@ export function gitChangeListData(
 }
 
 export default function GitChangesList() {
-  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
+  const status = useSelector(getGitStatus);
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
   const currentApplication = useSelector(getCurrentApplication);
   const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
-  if (isAutoUpdate && !status.isClean) {
+  if (isAutoUpdate && !status?.isClean) {
     changes.push(
       <Change
         hasValue={isAutoUpdate}
@@ -204,7 +219,14 @@ export default function GitChangesList() {
   }
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
-  ) : (
-    <Changes data-testid={"t--git-change-statuses"}>{changes}</Changes>
-  );
+  ) : changes.length ? (
+    <Changes data-testid={"t--git-change-statuses"}>
+      {changes}
+      {status?.migrationMessage ? (
+        <CalloutContainer>
+          <Callout kind="info">{status.migrationMessage}</Callout>
+        </CalloutContainer>
+      ) : null}
+    </Changes>
+  ) : null;
 }

@@ -1,22 +1,32 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
+import com.mongodb.client.result.InsertManyResult;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -135,5 +145,81 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria defaultCollectionIdCriteria = where(defaultResources + "." + FieldName.COLLECTION_ID).is(defaultCollectionId);
         Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);
+    }
+
+    @Override
+    public Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        return queryAll(List.of(defaultAppIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+        Criteria pageIdCriteria = where(
+                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." +
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId)).in(pageIds);
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(
+                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." +
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId)).in(pageIds);
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> actionCollectionList) {
+        if(CollectionUtils.isEmpty(actionCollectionList)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        // convert the list of action collections to a list of DBObjects
+        List<Document> dbObjects = actionCollectionList.stream().map(actionCollection -> {
+            Document document = new Document();
+            mongoOperations.getConverter().write(actionCollection, document);
+            return document;
+        }).collect(Collectors.toList());
+
+        return mongoOperations.getCollection(mongoOperations.getCollectionName(ActionCollection.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
+                .collectList();
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections) {
+        if(CollectionUtils.isEmpty(actionCollections)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        // convert the list of new actions to a list of DBObjects
+        List<WriteModel<Document>> dbObjects = actionCollections.stream().map(actionCollection -> {
+            assert actionCollection.getId() != null;
+            Document document = new Document();
+            mongoOperations.getConverter().write(actionCollection, document);
+            document.remove("_id");
+            return (WriteModel<Document>) new UpdateOneModel<Document>(
+                    new Document("_id", new ObjectId(actionCollection.getId())), new Document("$set", document)
+            );
+        }).collect(Collectors.toList());
+
+        return mongoOperations.getCollection(mongoOperations.getCollectionName(ActionCollection.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
+                .collectList();
     }
 }

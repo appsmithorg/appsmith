@@ -1,7 +1,5 @@
 import {
   Classes as AdsClasses,
-  Icon,
-  IconSize,
   Text,
   Case,
   FontWeight,
@@ -13,6 +11,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { CREDENTIAL_MODE } from "../constants";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { Icon } from "design-system";
 
 const Container = styled.div`
   margin-top: ${(props) => props.theme.spaces[7]}px;
@@ -117,11 +116,7 @@ function LabelWithHelper(props: { label: string; tooltip: string }) {
     <Row>
       <Text type={TextType.P1}>{props.label}</Text>
       <TooltipComponent content={props.tooltip}>
-        <Icon
-          fillColor={Colors.DARK_GRAY}
-          name="help-fill"
-          size={IconSize.XL}
-        />
+        <Icon name="help-fill" size="md" />
       </TooltipComponent>
     </Row>
   );
@@ -174,11 +169,7 @@ export default function CredentialMode(props: {
           </Row>
           <Row style={{ marginTop: 2 }}>
             <LinkText onClick={downloadJson}>
-              <Icon
-                fillColor="#B3B3B3"
-                name="download-line"
-                size={IconSize.SMALL}
-              />
+              <Icon name="download-line" size="sm" />
               <Text
                 case={Case.UPPERCASE}
                 color="#B3B3B3"

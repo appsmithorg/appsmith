@@ -1,10 +1,10 @@
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,
 } from "./helper";
 
-const widgets = ({
+const widgets = {
   "0": {
     widgetId: "0",
     type: undefined,
@@ -155,7 +155,7 @@ const widgets = ({
     parentId: "okws6qxk8e",
     children: [],
   },
-} as unknown) as { [widgetId: string]: FlattenedWidgetProps };
+} as unknown as { [widgetId: string]: FlattenedWidgetProps };
 
 describe("Helper functions", () => {
   it("1.getNumberOfChildListWidget", () => {

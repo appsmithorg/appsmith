@@ -1,10 +1,10 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Template, TemplateFiltersResponse } from "api/TemplatesApi";
+import type { Template, TemplateFiltersResponse } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
@@ -67,6 +67,15 @@ const templateReducer = createReducer(initialState, {
         ...state.filters,
         [action.payload.category]: action.payload.filterList,
       },
+    };
+  },
+  [ReduxActionTypes.RESET_TEMPLATE_FILTERS]: (
+    state: TemplatesReduxState,
+  ): TemplatesReduxState => {
+    return {
+      ...state,
+      filters: {},
+      templateSearchQuery: "",
     };
   },
   [ReduxActionTypes.SET_TEMPLATE_SEARCH_QUERY]: (

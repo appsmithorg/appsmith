@@ -38,10 +38,10 @@ public class DatasourceValidator {
             invalids.add("Missing Client ID");
         }
         if (StringUtils.isEmpty(authenticationDTO.getClientSecret())) {
-            invalids.add("Missing Client Secret");
+            invalids.add("Missing client secret");
         }
         if (StringUtils.isEmpty(authenticationDTO.getAccessTokenUrl())) {
-            invalids.add("Missing Access Token URL");
+            invalids.add("Missing access token URL");
         }
 
         return invalids;

@@ -1,18 +1,16 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type {
   EventType,
   ExecuteTriggerPayload,
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
 import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
+  evaluateActionSelectorFieldSaga,
   evaluateAndExecuteDynamicTrigger,
-  evaluateArgumentSaga,
-  evaluateSnippetSaga,
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
@@ -28,21 +26,17 @@ import {
 } from "sagas/ActionExecution/ModalSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
-  logActionExecutionError,
-  TriggerFailureError,
-  UncaughtPromiseError,
-} from "sagas/ActionExecution/errorUtils";
-import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
+import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 
 export type TriggerMeta = {
   source?: TriggerSource;
   triggerPropertyName?: string;
+  triggerKind?: TriggerKind;
 };
 
 /**
@@ -87,12 +81,7 @@ export function* executeActionTriggers(
       yield call(resetWidgetActionSaga, trigger);
       break;
     case "GET_CURRENT_LOCATION":
-      response = yield call(
-        getCurrentLocationSaga,
-        trigger,
-        eventType,
-        triggerMeta,
-      );
+      response = yield call(getCurrentLocationSaga, trigger);
       break;
     case "WATCH_CURRENT_LOCATION":
       response = yield call(
@@ -103,10 +92,10 @@ export function* executeActionTriggers(
       );
       break;
     case "STOP_WATCHING_CURRENT_LOCATION":
-      response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
+      response = yield call(stopWatchCurrentLocation);
       break;
     case "POST_MESSAGE":
-      yield call(postMessageSaga, trigger, triggerMeta);
+      yield call(postMessageSaga, trigger);
       break;
     default:
       log.error("Trigger type unknown", trigger);
@@ -134,7 +123,11 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
     evaluateAndExecuteDynamicTrigger,
     dynamicString,
     type,
-    { source, triggerPropertyName },
+    {
+      source,
+      triggerPropertyName,
+      triggerKind: TriggerKind.EVENT_EXECUTION,
+    },
     callbackData,
     globalContext,
   );
@@ -155,10 +148,6 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
-    if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
-      logActionExecutionError(e.message, source, triggerPropertyName);
-    }
-    // handle errors here
     if (event.callback) {
       event.callback({ success: false });
     }
@@ -176,7 +165,9 @@ export function* watchActionExecutionSagas() {
       ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
       setAppVersionOnWorkerSaga,
     ),
-    takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
-    takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),
+    takeLatest(
+      ReduxActionTypes.EVALUATE_ACTION_SELECTOR_FIELD,
+      evaluateActionSelectorFieldSaga,
+    ),
   ]);
 }

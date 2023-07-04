@@ -7,7 +7,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
@@ -44,6 +43,7 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(SpringExtension.class)
 @Slf4j
 public class EnvManagerTest {
+    EnvManager envManager;
     @MockBean
     private SessionUserService sessionUserService;
     @MockBean
@@ -52,8 +52,6 @@ public class EnvManagerTest {
     private AnalyticsService analyticsService;
     @MockBean
     private UserRepository userRepository;
-    @MockBean
-    private PolicyUtils policyUtils;
     @MockBean
     private EmailSender emailSender;
     @MockBean
@@ -70,17 +68,12 @@ public class EnvManagerTest {
     private ConfigService configService;
     @MockBean
     private PermissionGroupService permissionGroupService;
-
     @MockBean
     private UserUtils userUtils;
-
     @MockBean
     private TenantService tenantService;
-
     @MockBean
     private ObjectMapper objectMapper;
-
-    EnvManager envManager;
 
     @BeforeEach
     public void setup() {
@@ -88,7 +81,6 @@ public class EnvManagerTest {
                 userService,
                 analyticsService,
                 userRepository,
-                policyUtils,
                 emailSender,
                 commonConfig,
                 emailConfig,
@@ -373,25 +365,25 @@ public class EnvManagerTest {
                 .verify();
     }
 
-	@Test
-	public void setEnv_AndGetAll() {
-		EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
+    @Test
+    public void setEnv_AndGetAll() {
+        EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
 
-		Map<String, String> envs = new HashMap<>();
-		envs.put("APPSMITH_MONGODB_URI", "mongo-url");
-		envs.put("APPSMITH_DISABLE_TELEMETRY", "");
+        Map<String, String> envs = new HashMap<>();
+        envs.put("APPSMITH_MONGODB_URI", "mongo-url");
+        envs.put("APPSMITH_DISABLE_TELEMETRY", "");
 
-		Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
-		Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
+        Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
+        Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
 
 
-		Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
+        Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
 
-		StepVerifier.create(envMono)
-			.assertNext(map -> {
-				assertThat(map).hasSize(1);
-				assertThat(map.containsKey("APPSMITH_DISABLE_TELEMETRY")).isFalse();
-			})
-			.verifyComplete();
-	}
+        StepVerifier.create(envMono)
+                .assertNext(map -> {
+                    assertThat(map).hasSize(1);
+                    assertThat(map.containsKey("APPSMITH_DISABLE_TELEMETRY")).isFalse();
+                })
+                .verifyComplete();
+    }
 }

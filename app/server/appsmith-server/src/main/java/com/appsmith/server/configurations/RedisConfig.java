@@ -5,11 +5,21 @@ import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import io.lettuce.core.resource.ClientResources;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisNode;
+import org.springframework.data.redis.connection.RedisSentinelConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -25,15 +35,20 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Configuration
 @Slf4j
 // Setting the maxInactiveInterval to 30 days
 @EnableRedisWebSession(maxInactiveIntervalInSeconds = 2592000)
 public class RedisConfig {
+
+    @Value("${appsmith.redis.url:}")
+    private String redisURL;
 
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
@@ -47,8 +62,40 @@ public class RedisConfig {
     }
 
     @Bean
+    @Primary
+    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
+        final URI redisUri = URI.create(redisURL);
+        final String scheme = redisUri.getScheme();
+
+        switch (scheme) {
+            case "redis" -> {
+                return new LettuceConnectionFactory(redisUri.getHost(), redisUri.getPort());
+            }
+
+            case "redis-cluster" -> {
+                // For ElastiCache Redis with cluster mode enabled, with the configuration endpoint.
+                final LettuceClientConfiguration config = LettucePoolingClientConfiguration
+                    .builder()
+                    .build();
+                final RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
+                clusterConfig.addClusterNode(new RedisNode(redisUri.getHost(), redisUri.getPort()));
+                return new LettuceConnectionFactory(clusterConfig, config);
+            }
+
+            default -> throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
+        }
+    }
+
+    @Bean
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
         return new JSONSessionRedisSerializer();
+    }
+
+    @Bean
+    public ClientResources clientResources(ObservationRegistry observationRegistry) {
+        return ClientResources.builder()
+                .tracing(new MicrometerTracingAdapter(observationRegistry, "appsmith-redis"))
+                .build();
     }
 
     @Primary
@@ -66,13 +113,12 @@ public class RedisConfig {
 
     // Lifted from below and turned it into a bean. Wish Spring provided it as a bean.
     // RedisWebSessionConfiguration.createReactiveRedisTemplate
-
     @Bean
-    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory,
+                                                                RedisSerializer<Object> serializer) {
         RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer(getClass().getClassLoader());
         RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-                .<String, Object>newSerializationContext(defaultSerializer).key(keySerializer).hashKey(keySerializer)
+                .<String, Object>newSerializationContext(serializer).key(keySerializer).hashKey(keySerializer)
                 .build();
         return new ReactiveRedisTemplate<>(factory, serializationContext);
     }
@@ -167,6 +213,12 @@ public class RedisConfig {
             }
 
             return fallback.deserialize(bytes);
+        }
+    }
+
+    private static class InvalidRedisURIException extends RuntimeException {
+        public InvalidRedisURIException(String message) {
+            super(message);
         }
     }
 

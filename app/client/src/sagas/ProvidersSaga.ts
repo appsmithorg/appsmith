@@ -6,15 +6,17 @@ import {
   select,
   debounce,
 } from "redux-saga/effects";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
+import type {
   ReduxActionWithPromise,
   ReduxAction,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
-import ProvidersApi, {
+import type {
   FetchProviderTemplateResponse,
   FetchProviderTemplatesRequest,
   AddApiToPageRequest,
@@ -24,8 +26,9 @@ import ProvidersApi, {
   FetchProviderDetailsByProviderIdRequest,
   FetchProviderDetailsResponse,
 } from "api/ProvidersApi";
-import { Providers } from "constants/providerConstants";
-import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
+import ProvidersApi from "api/ProvidersApi";
+import type { Providers } from "constants/providerConstants";
+import type { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { fetchActions } from "actions/pluginActionActions";
 import {
   getCurrentApplicationId,
@@ -37,7 +40,10 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
@@ -46,9 +52,8 @@ export function* fetchProviderTemplatesSaga(
   try {
     const request: FetchProviderTemplatesRequest = { providerId };
 
-    const response: FetchProviderTemplateResponse = yield ProvidersApi.fetchProviderTemplates(
-      request,
-    );
+    const response: FetchProviderTemplateResponse =
+      yield ProvidersApi.fetchProviderTemplates(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -77,9 +82,8 @@ export function* addApiToPageSaga(
     workspaceId,
   };
   try {
-    const response: FetchProviderTemplateResponse = yield ProvidersApi.addApiToPage(
-      request,
-    );
+    const response: FetchProviderTemplateResponse =
+      yield ProvidersApi.addApiToPage(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -93,9 +97,8 @@ export function* addApiToPageSaga(
         pageName: page?.pageName,
         source: payload.source,
       });
-      Toaster.show({
-        text: createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name),
-        variant: Variant.success,
+      toast.show(createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name), {
+        kind: "success",
       });
       yield put({
         type: ReduxActionTypes.ADD_API_TO_PAGE_SUCCESS,
@@ -176,9 +179,8 @@ export function* fetchProviderDetailsByProviderIdSaga(
   try {
     const request: FetchProviderDetailsByProviderIdRequest = { providerId };
 
-    const response: FetchProviderDetailsResponse = yield ProvidersApi.fetchProviderDetailsByProviderId(
-      request,
-    );
+    const response: FetchProviderDetailsResponse =
+      yield ProvidersApi.fetchProviderDetailsByProviderId(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -226,28 +228,30 @@ export function* searchApiOrProviderSaga(
 }
 
 export default function* providersSagas() {
-  yield all([
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT,
-      fetchProviderTemplatesSaga,
-    ),
-    takeLatest(ReduxActionTypes.ADD_API_TO_PAGE_INIT, addApiToPageSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDERS_CATEGORIES_INIT,
-      fetchProvidersCategoriesSaga,
-    ),
-    debounce(
-      300,
-      ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT,
-      searchApiOrProviderSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDERS_WITH_CATEGORY_INIT,
-      fetchProvidersWithCategorySaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_INIT,
-      fetchProviderDetailsByProviderIdSaga,
-    ),
-  ]);
+  if (!isAirgappedInstance) {
+    yield all([
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT,
+        fetchProviderTemplatesSaga,
+      ),
+      takeLatest(ReduxActionTypes.ADD_API_TO_PAGE_INIT, addApiToPageSaga),
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDERS_CATEGORIES_INIT,
+        fetchProvidersCategoriesSaga,
+      ),
+      debounce(
+        300,
+        ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT,
+        searchApiOrProviderSaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDERS_WITH_CATEGORY_INIT,
+        fetchProvidersWithCategorySaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_INIT,
+        fetchProviderDetailsByProviderIdSaga,
+      ),
+    ]);
+  }
 }

@@ -1,8 +1,10 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
@@ -10,7 +12,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -19,6 +21,8 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import jakarta.validation.Validator;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
@@ -26,7 +30,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +50,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
     private final UserRepository userRepository;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
 
     private final ConfigRepository configRepository;
     private final PermissionGroupPermission permissionGroupPermission;
@@ -63,7 +66,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         SessionUserService sessionUserService,
                                         TenantService tenantService,
                                         UserRepository userRepository,
-                                        PolicyUtils policyUtils,
+                                        PolicySolution policySolution,
                                         ConfigRepository configRepository,
                                         PermissionGroupPermission permissionGroupPermission) {
 
@@ -71,7 +74,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.configRepository = configRepository;
         this.permissionGroupPermission = permissionGroupPermission;
     }
@@ -85,8 +88,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     // so user can unassign himself from permission group
                     permissions.add(new Permission(pg.getId(), UNASSIGN_PERMISSION_GROUPS));
                     pg.setPermissions(permissions);
-                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
-                    policyUtils.addPoliciesToExistingObject(policyMap, pg);
+                    Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
+                    policySolution.addPoliciesToExistingObject(policyMap, pg);
                     return pg;
                 })
                 .flatMap(pg -> repository.save(pg));
@@ -306,4 +309,57 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .isPresent();
     }
 
+    protected Mono<PermissionGroup> sendEventUsersAssociatedToRole(PermissionGroup permissionGroup,
+                                                                   List<String> usernames) {
+        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
+        if (CollectionUtils.isNotEmpty(usernames)) {
+            Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames);
+            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames);
+            Map<String, Object> analyticsProperties = Map.of(FieldName.NUMBER_OF_ASSIGNED_USERS, usernames.size(),
+                    FieldName.EVENT_DATA, eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            sendAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
+                    AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP, permissionGroup, analyticsProperties);
+        }
+        return sendAssignedUsersToPermissionGroupEvent;
+    }
+
+    protected Mono<PermissionGroup> sendEventUserRemovedFromRole(PermissionGroup permissionGroup,
+                                                                 List<String> usernames) {
+        Mono<PermissionGroup> sendUnAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
+        if (CollectionUtils.isNotEmpty(usernames)) {
+            Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames);
+            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames);
+            Map<String, Object> analyticsProperties = Map.of(FieldName.NUMBER_OF_UNASSIGNED_USERS, usernames.size(),
+                    FieldName.EVENT_DATA, eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            sendUnAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
+                    AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP, permissionGroup, analyticsProperties);
+        }
+        return sendUnAssignedUsersToPermissionGroupEvent;
+    }
+
+    @Override
+    public Mono<PermissionGroup> assignToUserAndSendEvent(PermissionGroup permissionGroup, User user) {
+        return bulkAssignToUserAndSendEvent(permissionGroup, List.of(user));
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkAssignToUserAndSendEvent(PermissionGroup permissionGroup, List<User> users) {
+        List<String> usernames = users.stream().map(User::getUsername).toList();
+        return bulkAssignToUsers(permissionGroup, users)
+                .flatMap(permissionGroup1 -> sendEventUsersAssociatedToRole(permissionGroup, usernames));
+    }
+
+    @Override
+    public Mono<PermissionGroup> unAssignFromUserAndSendEvent(PermissionGroup permissionGroup, User user) {
+        return bulkUnAssignFromUserAndSendEvent(permissionGroup, List.of(user));
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkUnAssignFromUserAndSendEvent(PermissionGroup permissionGroup, List<User> users) {
+        List<String> usernames = users.stream().map(User::getUsername).toList();
+        return bulkUnassignFromUsers(permissionGroup, users)
+                .flatMap(permissionGroup1 -> sendEventUserRemovedFromRole(permissionGroup, usernames));
+    }
 }

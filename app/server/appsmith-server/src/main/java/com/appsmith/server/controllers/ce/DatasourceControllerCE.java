@@ -1,12 +1,12 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -18,28 +18,32 @@ import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.DATASOURCE_URL)
-public class DatasourceControllerCE extends BaseController<DatasourceService, Datasource, String> {
+public class DatasourceControllerCE {
 
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
@@ -53,7 +57,6 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
                                   AuthenticationService authenticationService,
                                   MockDataService datasourceService,
                                   DatasourceTriggerSolution datasourceTriggerSolution) {
-        super(service);
         this.datasourceService = service;
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
@@ -61,29 +64,79 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
         this.datasourceTriggerSolution = datasourceTriggerSolution;
     }
 
-    @PostMapping("/test")
-    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody Datasource datasource,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false)
-                                                                  String environmentName) {
+    @JsonView(Views.Public.class)
+    @GetMapping("")
+    public Mono<ResponseDTO<List<Datasource>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+        log.debug("Going to get all resources from datasource controller {}", params);
+        return datasourceService.getAllWithStorages(params).collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
 
-        log.debug("Going to test the datasource with name: {} and id: {}", datasource.getName(), datasource.getId());
-        return service.testDatasource(datasource, environmentName)
+    @JsonView(Views.Public.class)
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<Datasource>> create(@Valid @RequestBody Datasource resource,
+                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+        log.debug("Going to create resource from datasource controller");
+        return datasourceService.create(resource)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PutMapping("/{id}")
+    public Mono<ResponseDTO<Datasource>> update(@PathVariable String id,
+                                                   @RequestBody Datasource datasource,
+                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        log.debug("Going to update resource from datasource controller with id: {}", id);
+        return datasourceService.updateDatasource(id, datasource, environmentId, Boolean.TRUE)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PutMapping("/datasource-storages")
+    public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(@RequestBody DatasourceStorageDTO datasourceStorageDTO,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+        log.debug("Going to update datasource from datasource controller with id: {} and environmentId: {}",
+                datasourceStorageDTO.getDatasourceId(), datasourceStorageDTO.getEnvironmentId());
+
+        return datasourceService.updateDatasourceStorage(datasourceStorageDTO, activeEnvironmentId , Boolean.TRUE)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @DeleteMapping("/{id}")
+    public Mono<ResponseDTO<Datasource>> delete(@PathVariable String id) {
+        log.debug("Going to delete resource from datasource controller with id: {}", id);
+        return datasourceService.archiveById(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/test")
+    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceStorageDTO datasourceStorageDTO,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+
+        log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
+        return datasourceService.testDatasource(datasourceStorageDTO, activeEnvironmentId)
                 .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/{datasourceId}/structure")
     public Mono<ResponseDTO<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
                                                                @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache,
-                                                               @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
+                                                               @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
-        return datasourceStructureSolution.getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentName)
+        return datasourceStructureSolution.getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentId)
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/{datasourceId}/pages/{pageId}/code")
-    public Mono<Void> getTokenRequestUrl(@PathVariable String datasourceId, @PathVariable String pageId, ServerWebExchange serverWebExchange) {
+    public Mono<Void> getTokenRequestUrl(@PathVariable String datasourceId, @PathVariable String pageId, ServerWebExchange serverWebExchange,
+                                         @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
-        return authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId, pageId, serverWebExchange.getRequest())
+        return authenticationService.getAuthorizationCodeURLForGenericOAuth2(datasourceId, environmentId, pageId, serverWebExchange.getRequest(), Boolean.TRUE)
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));
@@ -91,6 +144,7 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
                 });
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/authorize")
     public Mono<Void> getAccessToken(AuthorizationCodeCallbackDTO callbackDTO, ServerWebExchange serverWebExchange) {
         log.debug("Received callback for an OAuth2 authorization request");
@@ -102,43 +156,28 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
                 });
     }
 
-    @GetMapping("/mocks")
+    @JsonView(Views.Public.class)
+    @GetMapping(Url.MOCKS)
     public Mono<ResponseDTO<List<MockDataSet>>> getMockDataSets() {
         return mockDataService.getMockDataSet()
                 .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getMockdbs(), null));
     }
 
-    @PostMapping("/mocks")
-    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource) {
-        return mockDataService.createMockDataSet(mockDataSource)
+    @JsonView(Views.Public.class)
+    @PostMapping(Url.MOCKS)
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
+                                                           @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        return mockDataService.createMockDataSet(mockDataSource, environmentId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 
-    @PutMapping("/datasource-query/{datasourceId}")
-    public Mono<ResponseDTO<ActionExecutionResult>> runQueryOnDatasource(@PathVariable String datasourceId,
-                                                                         @Valid @RequestBody List<Property> pluginSpecifiedTemplates) {
-        log.debug("Getting datasource metadata");
-        return datasourceStructureSolution.getDatasourceMetadata(datasourceId, pluginSpecifiedTemplates)
-                .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
-    }
-
+    @JsonView(Views.Public.class)
     @PostMapping("/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
                                                        @RequestBody TriggerRequestDTO triggerRequestDTO,
-                                                       @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
+                                                       @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Trigger received for datasource {}", datasourceId);
-        return datasourceTriggerSolution.trigger(datasourceId, triggerRequestDTO, environmentName)
+        return datasourceTriggerSolution.trigger(datasourceId, environmentId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
-
-    @Override
-    @PutMapping("/{id}")
-    public Mono<ResponseDTO<Datasource>> update(@PathVariable String id,
-                                                @RequestBody Datasource resource,
-                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to update datasource from datasource controller with id: {}", id);
-        return datasourceService.update(id, resource, Boolean.TRUE)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
-    }
-
 }

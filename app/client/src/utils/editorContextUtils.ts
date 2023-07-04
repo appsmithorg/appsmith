@@ -1,10 +1,15 @@
-import { Plugin } from "api/PluginApi";
-import { PluginPackageName } from "entities/Action";
+import type { Plugin } from "api/PluginApi";
 import {
-  AuthenticationStatus,
-  AuthType,
-  Datasource,
-} from "entities/Datasource";
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+  DATASOURCE_SAAS_FORM,
+} from "@appsmith/constants/forms";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { diff } from "deep-diff";
+import { PluginPackageName, PluginType } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { AuthenticationStatus, AuthType } from "entities/Datasource";
+import { get, isArray } from "lodash";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -48,16 +53,18 @@ export function getPropertyControlFocusElement(
       if (uiInputElement) {
         return uiInputElement;
       }
-      const codeEditorInputElement = propertyInputElement.getElementsByClassName(
-        "CodeEditorTarget",
-      )[0] as HTMLElement | undefined;
+      const codeEditorInputElement =
+        propertyInputElement.getElementsByClassName("CodeEditorTarget")[0] as
+          | HTMLElement
+          | undefined;
       if (codeEditorInputElement) {
         return codeEditorInputElement;
       }
 
-      const lazyCodeEditorInputElement = propertyInputElement.getElementsByClassName(
-        "LazyCodeEditor",
-      )[0] as HTMLElement | undefined;
+      const lazyCodeEditorInputElement =
+        propertyInputElement.getElementsByClassName("LazyCodeEditor")[0] as
+          | HTMLElement
+          | undefined;
       if (lazyCodeEditorInputElement) {
         return lazyCodeEditorInputElement;
       }
@@ -77,23 +84,90 @@ export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
 ): boolean {
+  const currentEnvironment = getCurrentEnvironment();
   if (!datasource) return false;
-  const authType =
-    datasource &&
-    datasource?.datasourceConfiguration?.authentication?.authenticationType;
+  const authType = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
+  );
 
-  /* 
-    TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
-    Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
-  */
-  const isGoogleSheetPlugin =
-    plugin.packageName === PluginPackageName.GOOGLE_SHEETS;
-  if (isGoogleSheetPlugin && authType === AuthType.OAUTH2) {
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
+  if (isGoogleSheetPlugin) {
     const isAuthorized =
-      datasource?.datasourceConfiguration?.authentication
-        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+      authType === AuthType.OAUTH2 &&
+      get(
+        datasource,
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+      ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
   return true;
+}
+
+/**
+ * Determines whether plugin is google sheet or not
+ * @param pluginPackageName string
+ * @returns boolean
+ */
+export function isGoogleSheetPluginDS(pluginPackageName?: string) {
+  return pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
+}
+
+/**
+ * Returns datasource property value from datasource?.datasourceConfiguration?.properties
+ * @param datasource Datasource
+ * @param propertyKey string
+ * @returns string | null
+ */
+export function getDatasourcePropertyValue(
+  datasource: Datasource,
+  propertyKey: string,
+  currentEnvironment: string,
+): string | null {
+  if (!datasource) {
+    return null;
+  }
+
+  const properties = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties`,
+  );
+  if (!!properties && properties.length > 0) {
+    const propertyObj = properties.find((prop) => prop.key === propertyKey);
+    if (!!propertyObj) {
+      return propertyObj.value;
+    }
+  }
+
+  return null;
+}
+
+export function getFormName(plugin: Plugin): string {
+  const pluginType = plugin?.type;
+  if (!!pluginType) {
+    switch (pluginType) {
+      case PluginType.DB:
+      case PluginType.REMOTE:
+        return DATASOURCE_DB_FORM;
+      case PluginType.SAAS:
+        return DATASOURCE_SAAS_FORM;
+      case PluginType.API:
+        return DATASOURCE_REST_API_FORM;
+    }
+  }
+  return DATASOURCE_DB_FORM;
+}
+
+export function getFormDiffPaths(initialValues: any, currentValues: any) {
+  const difference = diff(initialValues, currentValues);
+  const diffPaths: string[] = [];
+  if (!!difference) {
+    difference.forEach((diff) => {
+      if (!!diff.path && isArray(diff.path)) {
+        diffPaths.push(diff.path.join("."));
+      }
+    });
+  }
+  return diffPaths;
 }

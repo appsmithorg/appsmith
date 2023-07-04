@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getMainCanvas } from "./WidgetUtils";
 import styled from "styled-components";
-import { BaseSelectRef } from "rc-select";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { BaseSelectRef } from "rc-select";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 
 const BackDropContainer = styled.div`
   position: fixed;

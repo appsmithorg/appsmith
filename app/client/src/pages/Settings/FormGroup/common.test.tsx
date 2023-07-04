@@ -1,9 +1,7 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import {
-  Setting,
-  SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import { FormGroup } from "./Common";
 
 let container: any = null;
@@ -68,7 +66,7 @@ describe("FormGroup", () => {
       "admin-settings-form-group-subtext",
     );
     expect(formGroupSubtext).toHaveLength(1);
-    expect(formGroupSubtext[0].textContent).toBe(`* ${setting.subText}`);
+    expect(formGroupSubtext[0].textContent).toBe(`${setting.subText}`);
   });
 
   it("is rendered with children", () => {

@@ -1,5 +1,5 @@
-import { Diff } from "deep-diff";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { Diff } from "deep-diff";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import ReplayEntity from "../index";
 import { set } from "lodash";
 import {
@@ -10,7 +10,7 @@ import {
   UPDATES,
   WIDGETS,
 } from "../replayUtils";
-import { AppTheme } from "entities/AppTheming";
+import type { AppTheme } from "entities/AppTheming";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export type Canvas = {
