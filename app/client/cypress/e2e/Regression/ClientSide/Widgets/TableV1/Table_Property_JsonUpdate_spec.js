@@ -3,13 +3,16 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    _.agHelper.AddDsl("tableNewDslWithPagination");
+    _.agHelper.AddDsl("tableTextPaginationDsl");
   });
 
   it("1. Create an API and Execute the API and bind with Table", function () {
     cy.createAndFillApi(
       this.dataSet.paginationUrl,
       this.dataSet.paginationParam,
+    );
+    _.agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=5",
     );
     cy.RunAPI();
   });
