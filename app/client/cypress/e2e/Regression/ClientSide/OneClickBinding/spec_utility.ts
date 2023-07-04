@@ -1,68 +1,71 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
+import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
-export function ChooseAndAssertForm(source, selectedSource, table, column) {
-  _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+export class OneClickBinding {
+  public ChooseAndAssertForm(
+    source?: string,
+    selectedSource?: any,
+    table?: string,
+    column?: string,
+  ) {
+    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-  _.agHelper.AssertElementAbsence(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    expandLoadMoreOptions();
 
-  _.agHelper.GetNClick(
-    `[data-testid="t--one-click-binding-datasource-selector--datasource"]:contains(${source})`,
-  );
+    agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
 
-  cy.wait("@getDatasourceStructure").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
 
-  _.agHelper.Sleep(500);
-  _.agHelper.AssertElementExist(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-  _.agHelper.AssertElementEnabledDisabled(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-  _.agHelper.AssertElementExist(
-    '[data-testid="t--one-click-binding-table-selector"]',
-  );
+    agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
+    agHelper.Sleep(3000); //for tables to populate for CI runs
 
-  _.agHelper.GetNClick('[data-testid="t--one-click-binding-table-selector"]');
+    agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
-  _.agHelper.GetNClick(
-    `.t--one-click-binding-table-selector--table:contains(${table})`,
-  );
+    agHelper.GetNClick(
+      oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),
+    );
 
-  _.agHelper.AssertElementExist(
-    `[data-testid="t--one-click-binding-table-selector"] .rc-select-selection-item:contains(${table})`,
-  );
+    agHelper.AssertElementExist(
+      oneClickBindingLocator.tableOrSpreadsheetSelectedOption(table),
+    );
 
-  _.agHelper.AssertElementExist(
-    '[data-testid="t--one-click-binding-column-searchableColumn"]',
-  );
+    agHelper.AssertElementExist(oneClickBindingLocator.searchableColumn);
 
-  _.agHelper.GetNClick(
-    '[data-testid="t--one-click-binding-column-searchableColumn"]',
-  );
+    agHelper.GetNClick(oneClickBindingLocator.searchableColumn);
 
-  _.agHelper.GetNClick(
-    `.t--one-click-binding-column-searchableColumn--column:contains(${column})`,
-  );
+    agHelper.GetNClick(
+      oneClickBindingLocator.searchableColumnDropdownOption(column),
+    );
 
-  _.agHelper.AssertElementExist(
-    `[data-testid="t--one-click-binding-column-searchableColumn"] .rc-select-selection-item:contains(${column})`,
-  );
+    agHelper.AssertElementExist(
+      oneClickBindingLocator.searchableColumnSelectedOption(column),
+    );
 
-  _.agHelper.AssertElementExist(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-  _.agHelper.AssertElementEnabledDisabled(
-    '[data-testId="t--one-click-binding-connect-data"]',
-    0,
-    false,
-  );
+    agHelper.AssertElementEnabledDisabled(
+      oneClickBindingLocator.connectData,
+      0,
+      false,
+    );
+  }
+}
+
+export function expandLoadMoreOptions() {
+  cy.get("body").then(($ele) => {
+    if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
+      const length = $ele.find(oneClickBindingLocator.loadMore).length;
+      new Array(length).fill(" ").forEach((d, i) => {
+        agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
+      });
+    }
+  });
 }

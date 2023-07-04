@@ -41,24 +41,6 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
     );
   };
 
-  const renderChildren = () => {
-    if (labelPosition === "side") {
-      return (
-        <div className="wrapper">
-          {children}
-          {hasErrorText && renderErrorText()}
-        </div>
-      );
-    }
-
-    return (
-      <>
-        {children}
-        {hasErrorText && renderErrorText()}
-      </>
-    );
-  };
-
   const labelAndContextualHelp = label && (
     <Label
       {...labelProps}
@@ -85,8 +67,11 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
       data-position={labelPosition}
       ref={ref}
     >
-      <div>{labelAndContextualHelp}</div>
-      {renderChildren()}
+      {labelAndContextualHelp}
+      <div data-field-wrapper="">
+        {children}
+        {hasErrorText && renderErrorText()}
+      </div>
     </div>
   );
 });

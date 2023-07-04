@@ -15,7 +15,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
@@ -75,7 +74,6 @@ import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_HOST;
@@ -100,7 +98,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final UserService userService;
     private final AnalyticsService analyticsService;
     private final UserRepository userRepository;
-    private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
 
     private final CommonConfig commonConfig;
@@ -136,7 +133,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             UserService userService,
                             AnalyticsService analyticsService,
                             UserRepository userRepository,
-                            PolicyUtils policyUtils,
                             EmailSender emailSender,
                             CommonConfig commonConfig,
                             EmailConfig emailConfig,
@@ -153,7 +149,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userService = userService;
         this.analyticsService = analyticsService;
         this.userRepository = userRepository;
-        this.policyUtils = policyUtils;
         this.emailSender = emailSender;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
@@ -391,10 +386,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     // Try and update any at runtime, that can be.
                     final Map<String, String> changesCopy = new HashMap<>(changes);
 
-                    if (changesCopy.containsKey(APPSMITH_INSTANCE_NAME.name())) {
-                        commonConfig.setInstanceName(changesCopy.remove(APPSMITH_INSTANCE_NAME.name()));
-                    }
-
                     if (changesCopy.containsKey(APPSMITH_SIGNUP_DISABLED.name())) {
                         commonConfig.setSignupDisabled(changesCopy.remove(APPSMITH_SIGNUP_DISABLED.name()));
                     }
@@ -628,11 +619,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     // set the default values to response
                     Map<String, String> envKeyValueMap = parseToMap(originalContent);
-
-                    if (!envKeyValueMap.containsKey(APPSMITH_INSTANCE_NAME.name())) {
-                        // no APPSMITH_INSTANCE_NAME set in env file, set the default value
-                        envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
-                    }
 
                     return Mono.justOrEmpty(envKeyValueMap);
                 });

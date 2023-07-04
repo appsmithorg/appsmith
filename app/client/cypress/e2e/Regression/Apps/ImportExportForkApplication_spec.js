@@ -1,54 +1,61 @@
-import homePage from "../../../locators/HomePage";
+import homePageLocatores from "../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
-import * as _ from "../../../support/Objects/ObjectsCore";
+import {
+  homePage,
+  agHelper,
+  dataSources,
+  assertHelper,
+} from "../../../support/Objects/ObjectsCore";
+
 describe("Import, Export and Fork application and validate data binding", function () {
   let workspaceId;
   let newWorkspaceName;
   let appName;
   it("1. Import application from json and validate data on pageload", function () {
     // import application
-    cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon).first().click();
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(homePage.workspaceImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).selectFile(
+    homePage.NavigateToHome();
+    cy.get(homePageLocatores.optionsIcon).first().click();
+    cy.get(homePageLocatores.workspaceImportAppOption).click({ force: true });
+    cy.get(homePageLocatores.workspaceImportAppModal).should("be.visible");
+    cy.xpath(homePageLocatores.uploadLogo).selectFile(
       "cypress/fixtures/forkedApp.json",
       { force: true },
     );
 
-    cy.get(homePage.importAppProgressWrapper).should("be.visible");
+    cy.get(homePageLocatores.importAppProgressWrapper).should("be.visible");
     cy.wait("@importNewApplication").then((interception) => {
       cy.wait(100);
       // should check reconnect modal openning
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         // should reconnect button
-        cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
+        dataSources.ReconnectDataSource("mockdata", "PostgreSQL");
+        homePage.AssertNCloseImport();
         cy.wait(2000);
       } else {
-        cy.get(homePage.toastMessage).should(
+        cy.get(homePageLocatores.toastMessage).should(
           "contain",
           "Application imported successfully",
         );
       }
-      const uuid = () => Cypress._.random(0, 1e4);
-      const name = uuid();
-      appName = `app${name}`;
-      cy.get(homePage.applicationName).click({ force: true });
-      cy.get(homePage.applicationEditMenu).eq(1).click({
-        force: true,
+      agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        appName = `app${uid}`;
+        cy.get(homePageLocatores.applicationName).click({ force: true });
+        cy.get(homePageLocatores.applicationEditMenu).eq(1).click({
+          force: true,
+        });
+        cy.wait(2000);
+        cy.get(homePageLocatores.applicationName + " input").type(appName, {
+          force: true,
+        });
+        agHelper.ClickOutside();
+        cy.wait("@updateApplication")
+          .its("response.body.responseMeta.status")
+          .should("eq", 200);
+        cy.wait(2000);
+        cy.wrap(appName).as("appname");
       });
-      cy.wait(2000);
-      cy.get(homePage.applicationName).clear().type(appName);
-      cy.get("body").click(0, 0);
-      cy.wait("@updateApplication").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.wait(2000);
-      cy.wrap(appName).as("appname");
       cy.wait(3000);
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
@@ -61,13 +68,13 @@ describe("Import, Export and Fork application and validate data binding", functi
 
   it("2. Fork application and validate data binding for the widgets", function () {
     // fork application
-    cy.get(homePage.homeIcon).click();
-    cy.get(homePage.searchInput).type(`${appName}`);
+    homePage.NavigateToHome();
+    cy.get(homePageLocatores.searchInput).type(`${appName}`);
     cy.wait(3000);
     // cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appMoreIcon).first().click({ force: true });
-    cy.get(homePage.forkAppFromMenu).click({ force: true });
-    cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
+    cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
+    cy.get(homePageLocatores.forkAppFromMenu).click({ force: true });
+    cy.get(homePageLocatores.forkAppWorkspaceButton).click({ force: true });
     cy.wait(4000);
     // validating data binding for the forked application
     cy.xpath("//input[@value='Submit']").should("be.visible");
@@ -78,14 +85,14 @@ describe("Import, Export and Fork application and validate data binding", functi
   });
 
   it("3. Export and import application and validate data binding for the widgets", function () {
-    cy.NavigateToHome();
-    cy.get(homePage.searchInput).clear().type(`${appName}`);
+    homePage.NavigateToHome();
+    cy.get(homePageLocatores.searchInput).clear().type(`${appName}`);
     cy.wait(2000);
-    //cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appMoreIcon).first().click({ force: true });
+    //cy.get(homePageLocatores.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
     // export application
-    cy.get(homePage.exportAppFromMenu).click({ force: true });
-    cy.get(homePage.searchInput).clear();
+    cy.get(homePageLocatores.exportAppFromMenu).click({ force: true });
+    cy.get(homePageLocatores.searchInput).clear();
     cy.get(`a[id=t--export-app-link]`).then((anchor) => {
       const url = anchor.prop("href");
       cy.request(url).then(({ body, headers }) => {
@@ -95,31 +102,42 @@ describe("Import, Export and Fork application and validate data binding", functi
           .that.includes("attachment;")
           .and.includes(`filename*=UTF-8''${appName}.json`);
         cy.writeFile("cypress/fixtures/exportedApp.json", body, "utf-8");
-        _.agHelper.GenerateUUID();
+        agHelper.AssertContains("Successfully exported");
+        agHelper.WaitUntilAllToastsDisappear();
+        agHelper.GenerateUUID();
         cy.get("@guid").then((uid) => {
           newWorkspaceName = uid;
-          _.homePage.CreateNewWorkspace(newWorkspaceName);
-          cy.get(homePage.workspaceImportAppOption).click({ force: true });
+          homePage.CreateNewWorkspace(newWorkspaceName);
+          cy.get(homePageLocatores.workspaceImportAppOption).click({
+            force: true,
+          });
 
-          cy.get(homePage.workspaceImportAppModal).should("be.visible");
-          cy.xpath(homePage.uploadLogo).selectFile(
+          cy.get(homePageLocatores.workspaceImportAppModal).should(
+            "be.visible",
+          );
+          cy.xpath(homePageLocatores.uploadLogo).selectFile(
             "cypress/fixtures/exportedApp.json",
             { force: true },
           );
+          if (!Cypress.env("AIRGAPPED")) {
+            assertHelper.AssertNetworkStatus("@getReleaseItems");
+          } else {
+            agHelper.Sleep(2000);
+          }
 
           // import exported application in new workspace
-          // cy.get(homePage.workspaceImportAppButton).click({ force: true });
+          // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });
           cy.wait("@importNewApplication").then((interception) => {
             const { isPartialImport } = interception.response.body.data;
             if (isPartialImport) {
               // should reconnect button
-              cy.get(reconnectDatasourceModal.Modal).should("be.visible");
+              agHelper.AssertElementVisible(dataSources._testDs); //Making sure modal is fully loaded
               cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
                 force: true,
               });
               cy.wait(2000);
             } else {
-              cy.get(homePage.toastMessage).should(
+              cy.get(homePageLocatores.toastMessage).should(
                 "contain",
                 "Application imported successfully",
               );

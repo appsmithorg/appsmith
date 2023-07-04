@@ -302,6 +302,7 @@ class FormButtonWidget extends ButtonWidget {
             label: "Icon Alignment",
             helpText: "Sets the icon alignment of the button",
             controlType: "ICON_TABS",
+            defaultValue: "left",
             options: [
               {
                 startIcon: "align-left",

@@ -1,0 +1,288 @@
+{
+  "responseMeta": { "status": 200, "success": true },
+  "data": [
+    {
+      "id": "620b83e770a9752ffb1ad2db",
+      "userPermissions": [],
+      "title": "Customer Messaging Tool",
+      "description": "Utilize this template to effectively communicate with and manage consumers.  This program assists in selecting a group of clients, choosing the message type, and sending a WhatsApp message or SMS to them via the Twilio integration.\\n",
+      "appUrl": "https://app.appsmith.com/app/customer-messaging-tool/customer-messaging-62d1acad279768242a2a6ab1",
+      "appDataUrl": "https://s3.us-east-2.amazonaws.com/template.appsmith.com/customer-messaging-tool.json",
+      "gifUrl": "",
+      "screenshotUrls": [
+        "https://s3.us-east-2.amazonaws.com/template.appsmith.com/customer-messaging-tool.png"
+      ],
+      "widgets": [
+        "BUTTON_WIDGET",
+        "CONTAINER_WIDGET",
+        "ICON_BUTTON_WIDGET",
+        "LIST_WIDGET",
+        "MODAL_WIDGET",
+        "PHONE_INPUT_WIDGET",
+        "RICH_TEXT_EDITOR_WIDGET",
+        "SELECT_WIDGET",
+        "TEXT_WIDGET"
+      ],
+      "functions": ["Marketing"],
+      "useCases": ["Marketing", "Communications"],
+      "datasources": ["postgres-plugin"],
+      "pages": [
+        {
+          "id": "62d1acad279768242a2a6ab1",
+          "name": "Customer messaging",
+          "slug": "customer-messaging",
+          "isDefault": true,
+          "isHidden": false
+        }
+      ],
+      "minVersion": "v1.7.9-SNAPSHOT",
+      "minVersionPadded": "000010000700009",
+      "downloadCount": 0,
+      "active": true,
+      "mdText": "\\n### __Overview__\\n\\nOne of the most effective ways for companies to engage with customers is having a messaging tool in place. When customers join  the company's platform, or when they have a question about the product, or a  sales inquiry, a tool that enables them to seek answers and connect with the company will go a long way.\\n\\nUtilize this template to effectively communicate with and manage consumers. This program assists in selecting a group of clients, choosing the message type, and sending a WhatsApp message or SMS to them via the Twilio integration.\\n\\n#### __Highlights of the app__\\n- Users can select a set of customers from the table of customers.\\n- Users can select a message from a list of messages that can be sent to a customer. \\n- Users can customize the message that is to be sent to a customer. \\n- Users can send a SMS or a WhatsApp message to the selected customers via the Twilio integration.\\n      ",
+      "excerpt": "Select a group of clients, choose the message type, and send a WhatsApp message or SMS using Twilio.",
+      "category": "Marketing",
+      "featured": true,
+      "tags": ["customer", "messaging", "twilio", "whatsapp"],
+      "allowPageImport": false,
+      "new": false
+    },
+    {
+      "id": "621c6c6589659f362e07f7b3",
+      "userPermissions": [],
+      "title": "Customer Support Dashboard",
+      "description": "This is an application for an e-commerce company that has to update the refund and delivery status of their orders due to ad-hoc issues raised off the platform.",
+      "appUrl": "https://app.appsmith.com/app/customer-support-dashboard/dashboard-62f685ecca1a764256668cde",
+      "appDataUrl": "https://s3.us-east-2.amazonaws.com/template.appsmith.com/customer-support-dashboard.json",
+      "gifUrl": "",
+      "screenshotUrls": [
+        "https://assets.appsmith.com/templates/screenshots/Customer_Support_Dashboard.png"
+      ],
+      "widgets": [
+        "BUTTON_WIDGET",
+        "FORM_WIDGET",
+        "CONTAINER_WIDGET",
+        "INPUT_WIDGET_V2",
+        "ICON_BUTTON_WIDGET",
+        "IMAGE_WIDGET",
+        "LIST_WIDGET",
+        "MODAL_WIDGET"
+      ],
+      "functions": [],
+      "useCases": ["Sales"],
+      "datasources": ["google-sheets-plugin"],
+      "pages": [
+        {
+          "id": "62f685ecca1a764256668cde",
+          "name": "Dashboard",
+          "slug": "dashboard",
+          "isDefault": true,
+          "isHidden": false
+        },
+        {
+          "id": "62f3f5c3a90e135fd46f9c5d",
+          "name": "Search",
+          "slug": "search",
+          "isDefault": false,
+          "isHidden": false
+        }
+      ],
+      "minVersion": "v1.6.11-SNAPSHOT",
+      "minVersionPadded": "000010000600011",
+      "downloadCount": 0,
+      "active": true,
+      "allowPageImport": true,
+      "new": false
+    },
+    {
+      "id": "62221b4900c64549b31b9465",
+      "userPermissions": [],
+      "title": "Marketing Dashboard",
+      "description": "Marketing teams can use this app to reach out to customers who are categorised into mailing lists using email, or discord messages",
+      "appUrl": "https://app.appsmith.com/applications/61efa094be698f35db5519a1/pages/61efa094be698f35db5519a4",
+      "appDataUrl": "https://s3.us-east-2.amazonaws.com/template.appsmith.com/CustomerCommunicationsPortal_enabled.json",
+      "gifUrl": "",
+      "screenshotUrls": [
+        "https://assets.appsmith.com/templates/screenshots/CustomerCommunicationPortal.png"
+      ],
+      "widgets": [
+        "BUTTON_WIDGET",
+        "CONTAINER_WIDGET",
+        "FORM_WIDGET",
+        "ICON_BUTTON_WIDGET",
+        "INPUT_WIDGET_V2",
+        "LIST_WIDGET",
+        "MODAL_WIDGET",
+        "SELECT_WIDGET",
+        "STATBOX_WIDGET",
+        "SWITCH_WIDGET",
+        "TABS_WIDGET"
+      ],
+      "functions": ["Customer Support"],
+      "useCases": ["Sales"],
+      "datasources": ["mongo-plugin"],
+      "pages": [
+        {
+          "id": "61efa094be698f35db5519a4",
+          "name": "Send Messages",
+          "slug": "send-messages",
+          "isDefault": true,
+          "isHidden": false
+        },
+        {
+          "id": "61fb9c012cd3d95ca414b252",
+          "name": "Customer Data",
+          "slug": "customer-data",
+          "isDefault": false,
+          "isHidden": false
+        }
+      ],
+      "minVersion": "v1.6.11-SNAPSHOT",
+      "minVersionPadded": "000010000600011",
+      "downloadCount": 0,
+      "active": true,
+      "allowPageImport": true,
+      "new": false
+    },
+    {
+      "id": "62221f5300c64549b31b9466",
+      "userPermissions": [],
+      "title": "Applicant Tracker-test",
+      "description": "Candidates can apply for jobs, and reviewers to review their applications, schedule interviews using the Google Calendar API, and give feedback to the candidate.",
+      "appUrl": "https://app.appsmith.com/app/applicant-tracker/1-track-applications-61c170fe9229e87746b79e0b",
+      "appDataUrl": "https://s3.us-east-2.amazonaws.com/template.appsmith.com/applicant-tracker.json",
+      "gifUrl": "",
+      "screenshotUrls": [
+        "https://assets.appsmith.com/templates/screenshots//ApplicantTarckerZoom.png"
+      ],
+      "widgets": [],
+      "functions": [],
+      "useCases": ["Human Resources (HR)", "Personal", "Remote work"],
+      "datasources": [],
+      "pages": [
+        {
+          "id": "61c170fe9229e87746b79e09",
+          "name": "2 Application Upload",
+          "slug": "2-application-upload",
+          "isDefault": false
+        },
+        {
+          "id": "61c170fe9229e87746b79e0b",
+          "name": "1 Track Applications",
+          "slug": "1-track-applications",
+          "isDefault": true
+        }
+      ],
+      "minVersion": "v1.6.11-SNAPSHOT",
+      "minVersionPadded": "000010000600011",
+      "downloadCount": 0,
+      "active": true,
+      "allowPageImport": true,
+      "new": false
+    },
+    {
+      "id": "6222224900c64549b31b9467",
+      "userPermissions": [],
+      "title": "Fund Raising CRM",
+      "description": "This Fundraising CRM, allows for secure and direct communication between a company, and their investors, allowing users to maintain track of their communications.",
+      "appUrl": "https://app.appsmith.com/applications/61dbc9d66bd5757f166cc898/pages/6204a671552a5f63958772aa/",
+      "appDataUrl": "https://s3.us-east-2.amazonaws.com/template.appsmith.com/FundRaisingCRM_Enabled.json",
+      "gifUrl": "",
+      "screenshotUrls": [
+        "https://assets.appsmith.com/templates/screenshots/FundRaisingCRM.png"
+      ],
+      "widgets": [
+        "BUTTON_WIDGET",
+        "CONTAINER_WIDGET",
+        "FILE_PICKER_WIDGET_V2",
+        "FORM_WIDGET",
+        "ICON_BUTTON_WIDGET",
+        "INPUT_WIDGET_V2",
+        "LIST_WIDGET",
+        "MAP_WIDGET",
+        "MODAL_WIDGET",
+        "RATE_WIDGET",
+        "RICH_TEXT_EDITOR_WIDGET",
+        "TEXT_WIDGET"
+      ],
+      "functions": [],
+      "useCases": ["Finance", "Information Technology (IT)"],
+      "datasources": ["amazons3-plugin", "google-sheets-plugin"],
+      "pages": [
+        {
+          "id": "6204a671552a5f63958772aa",
+          "name": "Investors",
+          "slug": "investors",
+          "isDefault": true,
+          "isHidden": false
+        }
+      ],
+      "minVersion": "v1.6.11-SNAPSHOT",
+      "minVersionPadded": "000010000600011",
+      "downloadCount": 0,
+      "active": true,
+      "allowPageImport": true,
+      "new": false
+    },
+    {
+      "id": "6318ccfd7e9aa41f2e0db691",
+      "userPermissions": [],
+      "title": "IT Asset Tracker",
+      "description": "Keep a track of an organization’s assets by assigning, and checking for any loss of assets or equipment, and ensure periodic maintenance.",
+      "appUrl": "https://app.appsmith.com/app/it-asset-tracker/dashboard-62554d3be52b06350af3a0b2",
+      "appDataUrl": "https://s3.us-east-2.amazonaws.com/template.appsmith.com/it-asset-tracker.json",
+      "gifUrl": "",
+      "screenshotUrls": [
+        "https://s3.us-east-2.amazonaws.com/template.appsmith.com/IT-Asset-Tracker.png"
+      ],
+      "widgets": [
+        "BUTTON_WIDGET",
+        "CHART_WIDGET",
+        "SELECT_WIDGET",
+        "CONTAINER_WIDGET",
+        "INPUT_WIDGET_V2",
+        "TEXT_WIDGET",
+        "ICON_BUTTON_WIDGET",
+        "IMAGE_WIDGET",
+        "LIST_WIDGET",
+        "MENU_BUTTON_WIDGET",
+        "MODAL_WIDGET",
+        "STATBOX_WIDGET",
+        "JSON_FORM_WIDGET"
+      ],
+      "functions": ["Information Technology (IT)", "Operations"],
+      "useCases": ["Human Resources (HR)", "Remote work"],
+      "datasources": ["postgres-plugin"],
+      "pages": [
+        {
+          "id": "62554d3be52b06350af3a0b2",
+          "name": "Dashboard",
+          "slug": "dashboard",
+          "isDefault": true,
+          "isHidden": false
+        },
+        {
+          "id": "62554d3be52b06350af3a0b0",
+          "name": "Assets",
+          "slug": "assets",
+          "isDefault": false,
+          "isHidden": false
+        },
+        {
+          "id": "62554d3be52b06350af3a0b4",
+          "name": "Employees",
+          "slug": "employees",
+          "isDefault": false,
+          "isHidden": false
+        }
+      ],
+      "minVersion": "v1.7.8",
+      "minVersionPadded": "000010000700008",
+      "downloadCount": 0,
+      "active": true,
+      "allowPageImport": false,
+      "new": false
+    }
+  ],
+  "errorDisplay": ""
+}

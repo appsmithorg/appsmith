@@ -6,6 +6,7 @@ import type {
   WidgetQueryGenerationFormConfig,
   ActionConfigurationPostgreSQL,
 } from "../types";
+import { removeSpecialChars } from "utils/helpers";
 export default abstract class PostgreSQL extends BaseQueryGenerator {
   private static buildSelect(
     widgetConfig: WidgetQueryGenerationConfig,
@@ -35,14 +36,22 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
           3: `'%{{${where}}}%'`,
         },
       },
-      {
-        isValuePresent: orderBy,
-        template: "ORDER BY $4 $5",
-        params: {
-          4: `"{{${orderBy} || '${formConfig.primaryColumn}'}}"`,
-          5: `{{${sortOrder} ? "" : "DESC"}}`,
-        },
-      },
+      formConfig.primaryColumn
+        ? {
+            isValuePresent: orderBy,
+            template: `ORDER BY $4 $5`,
+            params: {
+              4: `"{{${orderBy} || '${formConfig.primaryColumn}'}}"`,
+              5: `{{${sortOrder} ? "" : "DESC"}}`,
+            },
+          }
+        : {
+            isValuePresent: orderBy,
+            template: "$4",
+            params: {
+              4: `{{${orderBy} ? "ORDER BY " + ${orderBy} + "  " + (${sortOrder} ? "" : "DESC") : ""}}`,
+            },
+          },
       {
         isValuePresent: limit,
         template: "LIMIT $6",
@@ -80,7 +89,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     return {
       type: QUERY_TYPE.SELECT,
-      name: "Select_query",
+      name: `Select_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
         body: res,
       },
@@ -106,7 +115,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     return {
       type: QUERY_TYPE.UPDATE,
-      name: "Update_query",
+      name: `Update_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
         body: `UPDATE ${formConfig.tableName} SET ${formConfig.columns
           .map((column) => `"${column}"= '{{${value}.${column}}}'`)
@@ -134,7 +143,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     return {
       type: QUERY_TYPE.CREATE,
-      name: "Insert_query",
+      name: `Insert_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
         body: `INSERT INTO ${formConfig.tableName} (${formConfig.columns.map(
           (a) => `"${a}"`,
@@ -162,7 +171,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     return {
       type: QUERY_TYPE.TOTAL_RECORD,
-      name: "Total_record_query",
+      name: `Total_record_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
         body: `SELECT COUNT(*) from ${formConfig.tableName}${
           formConfig.searchableColumn
@@ -187,10 +196,12 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     if (widgetConfig.select) {
       allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
     }
-    if (widgetConfig.update) {
+
+    if (widgetConfig.update && formConfig.primaryColumn) {
       allBuildConfigs.push(this.buildUpdate(widgetConfig, formConfig));
     }
-    if (widgetConfig.create) {
+
+    if (widgetConfig.create && formConfig.primaryColumn) {
       allBuildConfigs.push(this.buildInsert(widgetConfig, formConfig));
     }
 

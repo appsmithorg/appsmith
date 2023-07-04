@@ -10,7 +10,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PaginationField;
@@ -220,7 +219,7 @@ public class ActionExecutionSolutionCETest {
                                 .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
             gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
@@ -1818,7 +1817,7 @@ public class ActionExecutionSolutionCETest {
         mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(installed_plugin.getId());
-        DatasourceDTO mockDatasource = mockDataService.createMockDataSet(mockDataSource, defaultEnvironmentId).block();
+        Datasource mockDatasource = mockDataService.createMockDataSet(mockDataSource, defaultEnvironmentId).block();
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -1830,7 +1829,7 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
-        Datasource datasource1 = datasourceService.convertToDatasource(mockDatasource, defaultEnvironmentId).block();
+        Datasource datasource1 = mockDatasource;
         action.setDatasource(datasource1);
         ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 

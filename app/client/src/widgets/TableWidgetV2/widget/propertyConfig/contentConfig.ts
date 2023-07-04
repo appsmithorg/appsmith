@@ -10,6 +10,7 @@ import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
+  tableDataValidation,
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateColumnOrderHook,
@@ -35,9 +36,14 @@ export default [
         isTriggerProperty: false,
         isJSConvertible: true,
         validation: {
-          type: ValidationTypes.OBJECT_ARRAY,
+          type: ValidationTypes.FUNCTION,
           params: {
-            default: [],
+            fn: tableDataValidation,
+            expected: {
+              type: "Array",
+              example: `[{ "name": "John" }]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -84,6 +90,7 @@ export default [
         helpText: "Choose the save experience to save the edited cell",
         label: "Update mode",
         controlType: "ICON_TABS",
+        defaultValue: InlineEditingSaveOptions.ROW_LEVEL,
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,

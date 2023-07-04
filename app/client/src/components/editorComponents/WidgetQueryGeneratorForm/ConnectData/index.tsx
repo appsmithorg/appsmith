@@ -13,6 +13,7 @@ export function ConnectData() {
         isDisabled={disabled}
         isLoading={isLoading}
         onClick={onClick}
+        size="md"
       >
         Connect data
       </StyledButton>

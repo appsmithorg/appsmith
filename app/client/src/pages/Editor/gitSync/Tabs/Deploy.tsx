@@ -25,7 +25,6 @@ import {
 } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
-  getDiscardDocUrl,
   getGitCommitAndPushError,
   getGitDiscardError,
   getGitStatus,
@@ -73,7 +72,7 @@ import DiscardFailedWarning from "../components/DiscardChangesError";
 
 const Section = styled.div`
   margin-top: 0;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Row = styled.div`
@@ -113,7 +112,6 @@ function Deploy() {
   const pullFailed = useSelector(getPullFailed);
   const commitInputRef = useRef<HTMLInputElement>(null);
   const upstreamErrorDocumentUrl = useSelector(getUpstreamErrorDocUrl);
-  const discardDocUrl = useSelector(getDiscardDocUrl);
   const [commitMessage, setCommitMessage] = useState(
     gitMetaData?.remoteUrl && lastDeployedAt ? "" : FIRST_COMMIT,
   );
@@ -339,7 +337,7 @@ function Deploy() {
             {isFetchingGitStatus && (
               <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
             )}
-            <Space size={11} />
+            {/* <Space size={11} /> */}
             {pullRequired && !isConflicting && (
               <>
                 <Callout
@@ -410,7 +408,6 @@ function Deploy() {
 
           {showDiscardWarning && (
             <DiscardChangesWarning
-              discardDocUrl={discardDocUrl}
               onCloseDiscardChangesWarning={onCloseDiscardWarning}
             />
           )}

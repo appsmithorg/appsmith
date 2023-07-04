@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -19,7 +19,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                                     WorkspaceRepository workspaceRepository,
                                     UserRepository userRepository,
                                     UserDataRepository userDataRepository,
-                                    PolicyUtils policyUtils,
+                                    PolicySolution policySolution,
                                     EmailSender emailSender,
                                     UserDataService userDataService,
                                     PermissionGroupService permissionGroupService,
@@ -27,7 +27,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                                     WorkspacePermission workspacePermission,
                                     PermissionGroupPermission permissionGroupPermission) {
 
-        super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policyUtils, emailSender,
+        super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policySolution, emailSender,
                 userDataService, permissionGroupService, tenantService, workspacePermission, permissionGroupPermission);
     }
 }

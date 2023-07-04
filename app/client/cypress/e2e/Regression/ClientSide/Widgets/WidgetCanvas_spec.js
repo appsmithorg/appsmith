@@ -3,7 +3,9 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("reduce long canvas height on widget operation", () => {
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.fixture("longCanvasDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Should reduce canvas height when a widget is deleted", () => {

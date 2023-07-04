@@ -1,4 +1,5 @@
 import { Colors } from "constants/Colors";
+import { Button } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
@@ -30,23 +31,11 @@ const Header = styled.div`
   font-size: 16px;
   line-height: 24px;
   color: ${Colors.GREY_900};
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 `;
 
-const ConnecData = styled.button`
-  padding: 6px 15px;
-  max-width: 250px;
-  margin-bottom: 15px;
-  width: 100%;
-  background: #f86a2b;
-  color: #fff;
-  font-size: 12px;
-`;
-
-const Footer = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
+const ConnecData = styled(Button)`
+  margin-bottom: 16px;
 `;
 
 export function ConnectDataOverlay(props: { onConnectData: () => void }) {
@@ -54,15 +43,15 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
     <Wrapper>
       <Container>
         <Header className="t--cypress-table-overlay-header">
-          Connect your or sample datasources to display data
+          Connect your data or use sample data to display table
         </Header>
         <ConnecData
           className="t--cypress-table-overlay-connectdata"
           onClick={props.onConnectData}
+          size="md"
         >
           Connect data
         </ConnecData>
-        <Footer>or write a new binding</Footer>
       </Container>
     </Wrapper>
   );

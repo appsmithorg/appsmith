@@ -3,7 +3,7 @@
   "mongo-host": "host.docker.internal",
   "mongo-port": 28017,
   "mongo-databaseName": "mongo_samples",
-  "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
+  "mongo-uri": "mongodb://host.docker.internal:28017/mongo_samples?retryWrites=true&w=majority",
 
   "postgres-host": "host.docker.internal",
   "postgres-port": 5432,
@@ -48,6 +48,12 @@
   "redis-host": "host.docker.internal",
   "redis-port": "6379",
 
+  "oracle-host": "random-data",
+  "oracle-port": "40",
+  "oracle-name": "random-name",
+  "oracle-username": "random-username",
+  "oracle-password": "random-password",
+
   "OAuth_Username": "testuser@appsmith.com",
   "OAuth_Host": "http://localhost:6001",
   "OAuth_ApiUrl": "http://host.docker.internal:6001",
@@ -61,6 +67,11 @@
   "mockApiUrl": "http://host.docker.internal:5001/v1/mock-api?records=10",
   "echoApiUrl": "http://host.docker.internal:5001/v1/mock-api/echo",
   "randomCatfactUrl": "http://host.docker.internal:5001/v1/catfact/random",
+  "multipartAPI": "http://host.docker.internal:5001/v1/mock-api/echo-multipart",
+  "randomTrumpApi": "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
+  "uuid1Api": "http://host.docker.internal:5001/v1/mock-api/uuid1",
+  "uuid4Api": "http://host.docker.internal:5001/v1/mock-api/uuid4",
+  "nillApi": "http://host.docker.internal:5001/v1/mock-api/nill",
 
   "firestore-database-url": "https://appsmith-22e8b.firebaseio.com",
   "firestore-projectID": "appsmith-22e8b",

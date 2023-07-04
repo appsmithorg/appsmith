@@ -50,6 +50,7 @@ import {
   dynamicTriggerErrorHandler,
   evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
+  logJSVarCreatedEvent,
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
@@ -57,20 +58,13 @@ import {
 import type { JSAction } from "entities/JSCollection";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isEmpty, isUndefined } from "lodash";
-import {
-  setEvaluatedArgument,
-  setEvaluatedSnippet,
-  setGlobalSearchFilterContext,
-} from "actions/globalSearchActions";
+import { get, isEmpty } from "lodash";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  createMessage,
-  SNIPPET_EXECUTION_FAILED,
-  SNIPPET_EXECUTION_SUCCESS,
-} from "@appsmith/constants/messages";
+  EventType,
+  TriggerKind,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
@@ -100,7 +94,6 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
@@ -146,6 +139,7 @@ export function* updateDataTreeHandler(
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
+    jsVarsCreatedEvent,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -221,6 +215,8 @@ export function* updateDataTreeHandler(
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
+
+  yield call(logJSVarCreatedEvent, jsVarsCreatedEvent);
 }
 
 /**
@@ -401,6 +397,7 @@ function* executeAsyncJSFunction(
       type: ENTITY_TYPE.JSACTION,
     },
     triggerPropertyName: `${collectionName}.${action.name}`,
+    triggerKind: TriggerKind.JS_FUNCTION_EXECUTION,
   };
   const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   const response: JSFunctionExecutionResponse = yield call(
@@ -565,104 +562,6 @@ function* evaluationChangeListenerSaga(): any {
         shouldLog(action),
       );
     }
-  }
-}
-
-export function* evaluateSnippetSaga(action: any) {
-  try {
-    let { expression } = action.payload;
-    const { dataType, isTrigger } = action.payload;
-    if (isTrigger) {
-      expression = `(function() { ${expression} })()`;
-    }
-    const workerResponse: {
-      errors: any;
-      result: any;
-      triggers: any;
-    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
-      expression,
-      dataType,
-    });
-    const { errors, result } = workerResponse;
-    /*
-        JSON.stringify(undefined) is undefined.
-        We need to set it manually to "undefined" for codeEditor to display it.
-      */
-    yield put(
-      setEvaluatedSnippet(
-        errors?.length
-          ? JSON.stringify(errors, null, 2)
-          : isUndefined(result)
-          ? "undefined"
-          : JSON.stringify(result),
-      ),
-    );
-    toast.show(
-      createMessage(
-        errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,
-      ),
-      {
-        kind: errors?.length ? "error" : "success",
-      },
-    );
-    yield put(
-      setGlobalSearchFilterContext({
-        executionInProgress: false,
-      }),
-    );
-  } catch (e) {
-    yield put(
-      setGlobalSearchFilterContext({
-        executionInProgress: false,
-      }),
-    );
-    toast.show(createMessage(SNIPPET_EXECUTION_FAILED), {
-      kind: "error",
-    });
-    log.error(e);
-    Sentry.captureException(e);
-  }
-}
-
-export function* evaluateArgumentSaga(action: any) {
-  const { name, type, value } = action.payload;
-  try {
-    const workerResponse: {
-      errors: Array<unknown>;
-      result: unknown;
-    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
-      expression: value,
-    });
-    const lintErrors = (workerResponse.errors || []).filter(
-      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-    if (workerResponse.result) {
-      const validation = validate({ type }, workerResponse.result, {}, "");
-      if (!validation.isValid)
-        validation.messages?.map((message) => {
-          lintErrors.unshift({
-            ...validation,
-            ...{
-              errorType: PropertyEvaluationErrorType.VALIDATION,
-              errorMessage: message,
-            },
-          });
-        });
-    }
-    yield put(
-      setEvaluatedArgument({
-        [name]: {
-          type,
-          value: workerResponse.result,
-          name,
-          errors: lintErrors,
-          isInvalid: lintErrors.length > 0,
-        },
-      }),
-    );
-  } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
   }
 }
 

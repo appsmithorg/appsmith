@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { debounce, noop, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import { SearchInput, Text } from "design-system";
 import TemplateList from "./TemplateList";
@@ -15,6 +15,7 @@ import {
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
+  allTemplatesFiltersSelector,
   getForkableWorkspaces,
   getSearchedTemplateList,
   getTemplateFiltersLength,
@@ -34,6 +35,8 @@ import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import type { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -102,9 +105,7 @@ function TemplateRoutes() {
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
   );
-  const filters = useSelector(
-    (state: AppState) => state.ui.templates.allFilters,
-  );
+  const filters = useSelector(allTemplatesFiltersSelector);
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));
@@ -149,6 +150,7 @@ type TemplatesContentProps = {
   onForkTemplateClick?: (template: Template) => void;
   stickySearchBar?: boolean;
   isForkingEnabled: boolean;
+  filterWithAllowPageImport?: boolean;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {
@@ -160,10 +162,17 @@ export function TemplatesContent(props: TemplatesContentProps) {
   const onChange = (query: string) => {
     dispatch(setTemplateSearchQuery(query));
   };
-  const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
-  const templates = useSelector(getSearchedTemplateList);
+  const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
+  const templates = useSelector(getSearchedTemplateList).filter((template) =>
+    filterWithAllowPageImport ? !!template.allowPageImport : true,
+  );
   const filterCount = useSelector(getTemplateFiltersLength);
 
+  useEffect(() => {
+    dispatch({
+      type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
+    });
+  }, []);
   let resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
@@ -191,13 +200,17 @@ export function TemplatesContent(props: TemplatesContentProps) {
           <SearchInput
             data-testid={"t--application-search-input"}
             isDisabled={isLoading}
-            onChange={debouncedOnChange || noop}
+            onChange={onChange}
             placeholder={createMessage(SEARCH_TEMPLATES)}
             value={templateSearchQuery}
           />
         </div>
       </SearchWrapper>
-      <ResultsCount kind="heading-m" renderAs="h1">
+      <ResultsCount
+        data-testid="t--application-templates-results-header"
+        kind="heading-m"
+        renderAs="h1"
+      >
         {resultsText}
       </ResultsCount>
       <TemplateList

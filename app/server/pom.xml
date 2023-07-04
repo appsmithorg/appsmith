@@ -35,6 +35,8 @@
         <reactor-test.version>3.5.1</reactor-test.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <!-- We're forcing this version temporarily to fix CVE-2022-1471-->
+        <snakeyaml.version>2.0</snakeyaml.version>
     </properties>
 
     <build>

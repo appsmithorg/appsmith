@@ -12,6 +12,8 @@ import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
@@ -21,10 +23,12 @@ export function* fetchCurrentTenantConfigSaga() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const data: any = response.data;
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: response.data,
+        payload: data,
       });
+      AnalyticsUtil.initInstanceId(data.instanceId);
     }
   } catch (error) {
     yield put({
@@ -43,6 +47,13 @@ export function* updateTenantConfigSaga(
   action: ReduxAction<UpdateTenantConfigRequest>,
 ) {
   try {
+    const { appVersion } = getAppsmithConfigs();
+    const settings = action.payload.tenantConfiguration;
+    const hasSingleSessionUserSetting = settings.hasOwnProperty(
+      "singleSessionPerUserEnabled",
+    );
+    const hasShowRolesAndGroupsSetting =
+      settings.hasOwnProperty("showRolesAndGroups");
     const response: ApiResponse = yield call(
       TenantApi.updateTenantConfig,
       action.payload,
@@ -51,6 +62,21 @@ export function* updateTenantConfigSaga(
 
     if (isValidResponse) {
       const payload = response.data as any;
+
+      if (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          version: appVersion.id,
+          ...(hasSingleSessionUserSetting
+            ? { session_limit_enabled: settings["singleSessionPerUserEnabled"] }
+            : {}),
+          ...(hasShowRolesAndGroupsSetting
+            ? {
+                programmatic_access_control_enabled:
+                  settings["showRolesAndGroups"],
+              }
+            : {}),
+        });
+      }
 
       // If the tenant config is not present, we need to set the default config
       yield put({

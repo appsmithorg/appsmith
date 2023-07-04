@@ -1,4 +1,4 @@
-import { spawn } from "redux-saga/effects";
+import { call, spawn } from "redux-saga/effects";
 import {
   logActionExecutionError,
   TriggerFailureError,
@@ -35,6 +35,6 @@ export function* executePostMessage(
       }
     }
   } catch (error) {
-    logActionExecutionError((error as Error).message, true);
+    yield call(logActionExecutionError, (error as Error).message, true);
   }
 }

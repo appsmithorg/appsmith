@@ -5,13 +5,12 @@ import type {
   ExecuteTriggerPayload,
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
 import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   evaluateActionSelectorFieldSaga,
   evaluateAndExecuteDynamicTrigger,
-  evaluateArgumentSaga,
-  evaluateSnippetSaga,
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
@@ -37,6 +36,7 @@ import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 export type TriggerMeta = {
   source?: TriggerSource;
   triggerPropertyName?: string;
+  triggerKind?: TriggerKind;
 };
 
 /**
@@ -123,7 +123,11 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
     evaluateAndExecuteDynamicTrigger,
     dynamicString,
     type,
-    { source, triggerPropertyName },
+    {
+      source,
+      triggerPropertyName,
+      triggerKind: TriggerKind.EVENT_EXECUTION,
+    },
     callbackData,
     globalContext,
   );
@@ -161,8 +165,6 @@ export function* watchActionExecutionSagas() {
       ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
       setAppVersionOnWorkerSaga,
     ),
-    takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
-    takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),
     takeLatest(
       ReduxActionTypes.EVALUATE_ACTION_SELECTOR_FIELD,
       evaluateActionSelectorFieldSaga,

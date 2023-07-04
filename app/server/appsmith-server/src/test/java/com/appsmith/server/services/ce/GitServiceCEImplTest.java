@@ -6,6 +6,7 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.ExecutionTimeLogging;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -92,6 +93,8 @@ public class GitServiceCEImplTest {
     WorkspaceService workspaceService;
     @MockBean
     RedisUtils redisUtils;
+    @MockBean
+    ExecutionTimeLogging executionTimeLogging;
 
     @BeforeEach
     public void setup() {
@@ -100,7 +103,7 @@ public class GitServiceCEImplTest {
                 newPageService, newActionService, actionCollectionService, gitFileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
                 datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
-                actionPermission, workspaceService, redisUtils
+                actionPermission, workspaceService, redisUtils, executionTimeLogging
         );
     }
 

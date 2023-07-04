@@ -133,17 +133,17 @@ public class ImportApplicationTransactionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplication_exceptionDuringActionSave_savedPagesAndApplicationReverted() {
+    public void importApplication_exceptionDuringImportActions_savedPagesAndApplicationReverted() {
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionService.save(any()))
-                .thenThrow(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST));
+        Mockito.when(newActionService.importActions(any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier
@@ -165,12 +165,12 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionRepository.findByApplicationId(any()))
-                .thenThrow(new MongoTransactionException("Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'"));
+        Mockito.when(newActionService.importActions(any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(Mono.error(new MongoTransactionException("Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
         StepVerifier

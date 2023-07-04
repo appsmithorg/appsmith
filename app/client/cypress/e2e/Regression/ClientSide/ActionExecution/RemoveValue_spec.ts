@@ -1,17 +1,15 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const {
-  AggregateHelper: agHelper,
-  DeployMode: deployMode,
-  EntityExplorer: ee,
-  JSEditor: jsEditor,
-  PropertyPane: propPane,
-} = ObjectsRegistry;
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("removeValue Action test", () => {
   before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    ee.NavigateToSwitcher("Explorer");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Feature 11639 : Remove store value", function () {
@@ -36,7 +34,7 @@ describe("removeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "StoreValue");
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -47,8 +45,8 @@ describe("removeValue Action test", () => {
       );
     });
 
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    ee.SelectEntityByName("Button2", "Widgets");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    entityExplorer.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "RemoveValue");
     cy.get("@jsObjName").then((jsObj: any) => {

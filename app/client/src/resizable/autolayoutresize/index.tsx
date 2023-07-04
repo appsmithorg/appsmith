@@ -46,8 +46,8 @@ import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 
 export function ReflowResizable(props: ResizableProps) {
-  // Auto Layouts resizable is dependent on the app state of the widget so on delete it crashes the app
-  // so adding this check to render auto layout resize only when the widget does have an app state.
+  // auto-layouts resizable is dependent on the app state of the widget so on delete it crashes the app
+  // so adding this check to render auto-layout resize only when the widget does have an app state.
   const widget = useSelector((state: AppState) =>
     getWidget(state, props.widgetId),
   );
