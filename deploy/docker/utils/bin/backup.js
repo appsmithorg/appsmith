@@ -13,7 +13,8 @@ const command_args = process.argv.slice(3);
 async function run() {
   const timestamp = getTimeStampInISO();
   let errorCode = 0;
-  let backupRootPath, ArchivePath;
+  let backupRootPath, ArchivePath, encryptionPassword;
+  let encryptArchive = false;
   try {
     const check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
     shell.exec(check_supervisord_status_cmd, function (code) {
@@ -29,6 +30,14 @@ async function run() {
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
+    if (!command_args.includes('--non-interactive')){
+      encryptionPassword = getEncryptionPasswordFromUser();
+      if (encryptionPassword == -1){
+        throw new Error('Backup process aborted because a valid enctyption password could not be obtained from the user');
+      }
+      encryptArchive = true;
+    }
+
     backupRootPath = await generateBackupRootPath();
     const backupContentsPath = getBackupContentsPath(backupRootPath, timestamp);
 
@@ -43,17 +52,11 @@ async function run() {
 
     archivePath = await createFinalArchive(backupRootPath, timestamp);
     // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
-    if (!command_args.includes('--non-interactive')){
-      const encryptionPassword = getEncryptionPasswordFromUser();
-      if (encryptionPassword == -1){
-        logger.backup_info('Backup process aborted because a valid enctyption password could not be obtained from the user');
-      }
-      else {
+    if (encryptArchive){
         const encryptedArchivePath = await encryptBackupArchive(archivePath,encryptionPassword);
         logger.backup_info('Finished creating an encrypted a backup archive at ' + encryptedArchivePath);
-      }
     }
-    else{
+    else {
       logger.backup_info('Finished creating a backup archive at ' + archivePath);
       console.log('********************************************************* IMPORTANT!!! *************************************************************');
       console.log('*** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file **')
@@ -74,9 +77,8 @@ async function run() {
       }
     }
   } finally {
-    // utils.start(['backend', 'rts']);
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
-    if (!command_args.includes('--non-interactive')) {    
+    if (encryptArchive) {    
        await fsPromises.rm(archivePath, { recursive: true, force: true });
     }
     await postBackupCleanup();
