@@ -133,7 +133,7 @@ function LeftPaneBottomSection() {
               cloudHosting,
             )}
           </span>
-          {howMuchTimeBefore === "" && (
+          {howMuchTimeBefore !== "" && (
             <span>Released {howMuchTimeBefore} ago</span>
           )}
         </LeftPaneVersionData>
