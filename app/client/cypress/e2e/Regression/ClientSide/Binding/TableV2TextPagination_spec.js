@@ -11,9 +11,7 @@ import {
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {

@@ -14,9 +14,7 @@ describe.skip("Binary Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
-    cy.fixture("Datatypes/BinaryDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/BinaryDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(24, -37);
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

@@ -3,9 +3,7 @@ let valueToTest: any, jsName: any;
 
 describe("Validate JSObj binding to Table widget", () => {
   before(() => {
-    cy.fixture("listwidgetdsl").then((val: any) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("listwidgetdsl");
   });
 
   it("1. Add users api and bind to JSObject", () => {

@@ -9,9 +9,7 @@ describe("Input Widget Max Char Functionality", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("inputMaxCharDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("inputMaxCharDsl");
   });
 
   it("Text Input maxChar shows error if defaultText longer", () => {

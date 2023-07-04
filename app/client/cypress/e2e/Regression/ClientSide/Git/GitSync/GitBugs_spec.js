@@ -79,9 +79,7 @@ describe("Git sync Bug #10773", function () {
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.fixture("JsObjecWithGitdsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("JsObjecWithGitdsl");
     });
     // connect app to git
     gitSync.CreateNConnectToGit(repoName);
@@ -170,9 +168,7 @@ describe("Git sync Bug #10773", function () {
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.fixture("JsObjecWithGitdsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("JsObjecWithGitdsl");
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS Object and validate its data on Page1
