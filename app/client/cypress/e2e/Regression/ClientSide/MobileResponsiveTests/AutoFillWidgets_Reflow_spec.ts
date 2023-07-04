@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import HomePage from "../../../../locators/HomePage";
 
-describe("Auto Layout Reflow in smaller devices and public apps", () => {
+describe("Auto Layout Reflow in small screen devices(Mobiles/Tabs) and public apps", () => {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     agHelper.Sleep(2000);
