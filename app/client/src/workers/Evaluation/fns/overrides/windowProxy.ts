@@ -42,7 +42,7 @@ function getPropertyFromMainThread(
 function proxyHandlerFactory(_referenceId: string, _referenceType: string) {
   const handler: ProxyHandler<any> = {};
   if (_referenceType === "function") {
-    handler.apply = function(_, thisArg, argumentsList) {
+    handler.apply = function (_, thisArg, argumentsList) {
       argumentsList = argumentsList.map((arg) =>
         JSON.parse(JSON.stringify(arg)),
       );
@@ -55,12 +55,12 @@ function proxyHandlerFactory(_referenceId: string, _referenceType: string) {
       );
     };
   } else {
-    handler.get = function(target, property: string) {
+    handler.get = function (target, property: string) {
       if (["_referenceId", "_referenceType"].includes(property))
         return Reflect.get(target, property);
       return getPropertyFromMainThread("GET", property, _referenceId);
     };
-    handler.set = function(_, property: string, value) {
+    handler.set = function (_, property: string, value) {
       return getPropertyFromMainThread(
         "SET",
         property,
