@@ -253,24 +253,63 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Positive background, green.
+  private get bgPositive() {
+    const color = new Color("oklch", [0.62, 0.17, 145]);
+
+    // If the seed color is also green, adjust positive by hue to make it distinct from accent.
+    if (this.seedIsGreen && this.seedColor.oklch.c > 0.09) {
+      if (this.seedColor.oklch.h < 145) {
+        color.oklch.h = 155;
+      }
+      if (this.seedColor.oklch.h >= 145) {
+        color.oklch.h = 135;
+      }
+    }
+
+    return color;
+  }
+
   private get bgPositiveHover() {
-    return "#3ec16c";
+    const color = this.bgPositive.clone();
+
+    // Lightness of bgPositive is known, no additional checks like in bgAccentHover
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgPositiveActive() {
-    return "#35a15c";
+    const color = this.bgPositive.clone();
+
+    color.oklch.l = color.oklch.l - 0.04;
+
+    return color;
   }
 
   private get bgPositiveSubtle() {
-    return "#f0fff5";
+    const color = this.bgPositive.clone();
+
+    color.oklch.l = 0.3;
+    color.oklch.c = 0.08;
+
+    return color;
   }
 
   private get bgPositiveSubtleHover() {
-    return "#e0ffeb";
+    const color = this.bgPositiveSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgPositiveSubtleActive() {
-    return "#d1ffe1";
+    const color = this.bgPositiveSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.02;
+
+    return color;
   }
 
   // Warning background, yellow
@@ -373,23 +412,6 @@ export class DarkModeTheme implements ColorModeTheme {
 
   private get bgAssistive() {
     return this.fg.clone();
-  }
-
-  // Positive background, green.
-  private get bgPositive() {
-    const color = new Color("oklch", [0.62, 0.17, 145]);
-
-    // If the seed color is also green, adjust positive by hue to make it distinct from accent.
-    if (this.seedIsGreen && this.seedColor.oklch.c > 0.09) {
-      if (this.seedColor.oklch.h < 145) {
-        color.oklch.h = 155;
-      }
-      if (this.seedColor.oklch.h >= 145) {
-        color.oklch.h = 135;
-      }
-    }
-
-    return color;
   }
 
   /*

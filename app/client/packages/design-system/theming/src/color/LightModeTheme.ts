@@ -291,23 +291,45 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgPositiveHover() {
-    return "#3ec16c";
+    const color = this.bgPositive.clone();
+
+    // Lightness of bgPositive is known, no additional checks like in bgAccentHover
+    color.oklch.l = color.oklch.l + 0.05;
+
+    return color;
   }
 
   private get bgPositiveActive() {
-    return "#35a15c";
+    const color = this.bgPositive.clone();
+
+    color.oklch.l = color.oklch.l - 0.02;
+
+    return color;
   }
 
   private get bgPositiveSubtle() {
-    return "#f0fff5";
+    const color = this.bgPositive.clone();
+
+    color.oklch.l = 0.94;
+    color.oklch.c = 0.09;
+
+    return color;
   }
 
   private get bgPositiveSubtleHover() {
-    return "#e0ffeb";
+    const color = this.bgPositiveSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.02;
+
+    return color;
   }
 
   private get bgPositiveSubtleActive() {
-    return "#d1ffe1";
+    const color = this.bgPositiveSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.01;
+
+    return color;
   }
 
   // Warning background, yellow
