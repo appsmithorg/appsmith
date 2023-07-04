@@ -73,7 +73,6 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> archiveById(String id);
 
-    // TODO: Remove the following snippet after client side API changes
     Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId);
 
     Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
