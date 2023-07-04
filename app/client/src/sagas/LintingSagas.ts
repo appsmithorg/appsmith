@@ -20,6 +20,8 @@ import type {
 import type { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Linter } from "plugins/Linting/Linter";
+import log from "loglevel";
+import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -107,12 +109,16 @@ export function* initiateLinting(
   unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree>,
   forceLinting: boolean,
 ) {
+  const lintingStartTime = performance.now();
   const { configTree, unEvalTree: unevalTree } = unEvalAndConfigTree;
 
   yield call(lintTreeSaga, {
     unevalTree,
     configTree,
     forceLinting,
+  });
+  log.debug({
+    lintTime: getFixedTimeDifference(performance.now(), lintingStartTime),
   });
 }
 
