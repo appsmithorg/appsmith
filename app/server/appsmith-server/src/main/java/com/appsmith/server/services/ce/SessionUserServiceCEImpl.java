@@ -112,8 +112,7 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
     public Mono<Long> deleteSessionsByKeys(List<String> keys) {
         return CollectionUtils.isNullOrEmpty(keys)
                 ? Mono.just(0L)
-                : redisOperations.delete(keys.toArray(String[]::new)
-                )
+                : redisOperations.delete(keys.toArray(String[]::new))
                 .doOnError(error -> log.error("Error clearing user sessions", error));
     }
 
