@@ -139,9 +139,9 @@ describe("Git import flow ", function () {
 
   it("3. Verfiy imported app should have all the data binding visible in view and edit mode", () => {
     // verify postgres data binded to table
-    cy.get(".tbody").first().should("contain.text", "Test user 7");
+    cy.get(".tbody").should("contain.text", "Test user 7");
     //verify MySQL data binded to table
-    cy.get(".tbody").last().should("contain.text", "New Config");
+    cy.get(".tbody").should("contain.text", "New Config");
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']").should("be.visible");
     // verify js object binded to input widget
@@ -155,9 +155,9 @@ describe("Git import flow ", function () {
       newBranch = branName;
       cy.log("newBranch is " + newBranch);
     });
-    cy.get(".tbody").first().should("contain.text", "Test user 7");
+    cy.get(".tbody").should("contain.text", "Test user 7");
     // verify MySQL data binded to table
-    cy.get(".tbody").last().should("contain.text", "New Config");
+    cy.get(".tbody").should("contain.text", "New Config");
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
