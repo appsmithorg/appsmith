@@ -45,7 +45,7 @@ export const LeftPaneVersionData = styled.div`
   flex-direction: column;
   justify-content: space-between;
   color: var(--ads-v2-color-fg-muted);
-  font-size: 12px;
+  font-size: 9px;
   margin-top: ${(props) => props.theme.spaces[3]}px;
   // reduce border width from 1px from width
   width: calc(${(props) => props.theme.homePage.sidebar}px - 1px);
