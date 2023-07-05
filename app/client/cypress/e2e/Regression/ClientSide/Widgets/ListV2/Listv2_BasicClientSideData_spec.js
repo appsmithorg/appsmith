@@ -34,9 +34,7 @@ describe("List widget v2 - Basic client side data tests", () => {
   });
 
   it("1. shows correct number of items", () => {
-    cy.fixture("Listv2/simpleList").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/simpleList");
     cy.get(publishLocators.containerWidget).should("have.length", 3);
     cy.get(publishLocators.imageWidget).should("have.length", 3);
     cy.get(publishLocators.textWidget).should("have.length", 6);
@@ -56,9 +54,7 @@ describe("List widget v2 - Basic client side data tests", () => {
   });
 
   it("3. retains input values when pages are switched", () => {
-    cy.fixture("Listv2/simpleListWithInputAndButton").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/simpleListWithInputAndButton");
 
     cy.get(publishLocators.inputWidget).should("have.length", 2);
 

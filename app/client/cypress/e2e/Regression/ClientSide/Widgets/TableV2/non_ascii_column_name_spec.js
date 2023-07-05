@@ -13,9 +13,7 @@ const data = [
 
 describe("Non ASCII character functionality", () => {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. should test that Non ASCII characters in the tableData are shown in the table column header", () => {

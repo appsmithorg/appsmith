@@ -1,7 +1,8 @@
 // Please follow naming convention : https://www.notion.so/appsmith/Using-Feature-Flags-in-Appsmith-d362fe7acc7d4ef0aa12e1f5f9b83b5f?pvs=4#f6d4242e56284e84af25cadef71b7aeb to create feature flags.
 export const FEATURE_FLAG = {
   TEST_FLAG: "TEST_FLAG",
-  DATASOURCE_ENVIRONMENTS: "DATASOURCE_ENVIRONMENTS",
+  release_datasource_environments_enabled:
+    "release_datasource_environments_enabled",
   ask_ai: "ask_ai",
   APP_NAVIGATION_LOGO_UPLOAD: "APP_NAVIGATION_LOGO_UPLOAD",
   ask_ai_sql: "ask_ai_sql",
@@ -18,7 +19,7 @@ export type FeatureFlags = Record<FeatureFlag, boolean>;
 
 export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   TEST_FLAG: true,
-  DATASOURCE_ENVIRONMENTS: false,
+  release_datasource_environments_enabled: false,
   ask_ai: false,
   APP_NAVIGATION_LOGO_UPLOAD: false,
   ask_ai_js: false,

@@ -11,9 +11,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     agHelper.Sleep(2000);
-    cy.fixture("autoLayoutCopyPaste").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("autoLayoutCopyPaste");
   });
 
   it("1. Should paste at the bottom of the canvas that contains the selected widget", () => {

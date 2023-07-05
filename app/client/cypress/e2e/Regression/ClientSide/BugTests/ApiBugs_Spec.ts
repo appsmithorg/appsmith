@@ -50,7 +50,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      "https://www.jsonplaceholder.com",
+      datasourceFormData.mockApiUrl,
       "FirstAPI",
       10000,
       "POST",

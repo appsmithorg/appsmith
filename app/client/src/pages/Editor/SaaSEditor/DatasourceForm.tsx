@@ -1,5 +1,5 @@
 import React from "react";
-import _, { isEqual, omit } from "lodash";
+import { get, isEqual, isNil, map, memoize, omit } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
@@ -76,6 +76,7 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -155,6 +156,7 @@ type RouteProps = {
 type SaasEditorWrappperState = {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
+  currentEditingEnvironment: string;
 };
 class SaasEditorWrapper extends React.Component<
   SaasEditorWrappperProps,
@@ -165,6 +167,7 @@ class SaasEditorWrapper extends React.Component<
     this.state = {
       requiredFields: {},
       configDetails: {},
+      currentEditingEnvironment: getCurrentEnvironment(),
     };
   }
 
@@ -172,7 +175,6 @@ class SaasEditorWrapper extends React.Component<
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
-        ...this.state,
         requiredFields: {},
         configDetails: {},
       });
@@ -187,7 +189,6 @@ class SaasEditorWrapper extends React.Component<
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
     this.setState({
-      ...this.state,
       configDetails,
       requiredFields,
     });
@@ -198,6 +199,7 @@ class SaasEditorWrapper extends React.Component<
       <SaaSEditor
         {...this.props}
         configDetails={this.state.configDetails}
+        currentEnvironment={this.state.currentEditingEnvironment}
         requiredFields={this.state.requiredFields}
         setupConfig={this.setupConfig}
       />
@@ -461,8 +463,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       pageId={pageId}
                     />
                   ) : null}
-                  {!_.isNil(sections)
-                    ? _.map(sections, this.renderMainSection)
+                  {!isNil(sections)
+                    ? map(sections, this.renderMainSection)
                     : null}
                   {""}
                 </>
@@ -478,11 +480,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       pageId={pageId}
                     />
                   ) : null}
-                  {!_.isNil(formConfig) &&
-                  !_.isNil(datasource) &&
+                  {!isNil(formConfig) &&
+                  !isNil(datasource) &&
                   !hideDatasourceSection ? (
                     <DatasourceInformation
                       config={formConfig[0]}
+                      currentEnvironment={this.props.currentEnvironment}
                       datasource={datasource}
                       viewMode={viewMode}
                     />
@@ -493,10 +496,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             {/* Render datasource form call-to-actions */}
             {datasource && (
               <DatasourceAuth
+                currentEnvironment={this.props.currentEnvironment}
                 datasource={datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
                 formData={formData}
-                getSanitizedFormData={_.memoize(this.getSanitizedData)}
+                getSanitizedFormData={memoize(this.getSanitizedData)}
                 isInsideReconnectModal={isInsideReconnectModal}
                 isInvalid={validate(this.props.requiredFields, formData)}
                 isSaving={isSaving}
@@ -545,7 +549,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
-  const pluginId = _.get(datasource, "pluginId", "");
+  const pluginId = get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const formConfig = formConfigs[pluginId];
   const initialValues = getFormInitialValues(DATASOURCE_SAAS_FORM)(

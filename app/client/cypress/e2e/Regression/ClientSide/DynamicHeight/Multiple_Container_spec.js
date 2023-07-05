@@ -3,9 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for multiple container", function () {
   before(() => {
-    cy.fixture("multipleContainerdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("multipleContainerdsl");
   });
   it("1. Validate change in auto height width with multiple containers", function () {
     cy.openPropertyPaneWithIndex("containerwidget", 0);
