@@ -45,6 +45,7 @@ function logJSExecution({
       TriggerEmitter.emit(BatchKey.process_batched_fn_invoke_log, {
         jsFnFullName,
         isSuccess,
+        triggerMeta: executionMetaData.triggerMeta,
       });
       break;
     }

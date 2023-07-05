@@ -8,6 +8,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -142,6 +143,11 @@ export function* logJSActionExecution(
   executionData: {
     jsFnFullName: string;
     isSuccess: boolean;
+    triggerMeta: {
+      source: TriggerSource;
+      triggerPropertyName: string | undefined;
+      triggerKind: TriggerKind | undefined;
+    };
   }[],
 ) {
   const {
@@ -155,14 +161,21 @@ export function* logJSActionExecution(
     source,
     userId,
   }: UserAndAppDetails = yield call(getUserAndAppDetails);
-  for (const { isSuccess, jsFnFullName } of executionData) {
+  for (const { isSuccess, jsFnFullName, triggerMeta } of executionData) {
     const { entityName: JSObjectName, propertyPath: functionName } =
       getEntityNameAndPropertyPath(jsFnFullName);
     const jsAction: ReturnType<typeof getJSActionFromName> = yield select(
       (state: AppState) =>
         getJSActionFromName(state, JSObjectName, functionName),
     );
-
+    const triggeredWidget: ReturnType<typeof getWidget> | undefined =
+      yield select((state: AppState) =>
+        getWidget(state, triggerMeta.source?.id || ""),
+      );
+    const dynamicPropertyPathList = triggeredWidget?.dynamicPropertyPathList;
+    const isJSToggled = !!dynamicPropertyPathList?.find(
+      (property) => property.key === triggerMeta.triggerPropertyName,
+    );
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: "JS",
       name: functionName,
@@ -179,6 +192,12 @@ export function* logJSActionExecution(
         appId,
         source,
       },
+      widgetData: {
+        widgetName: triggeredWidget?.widgetName,
+        widgetType: triggeredWidget?.type,
+        propertyName: triggerMeta.triggerPropertyName,
+      },
+      isJSToggled,
       instanceId,
     });
 
@@ -200,6 +219,12 @@ export function* logJSActionExecution(
           appId,
           source,
         },
+        widgetData: {
+          widgetName: triggeredWidget?.widgetName,
+          widgetType: triggeredWidget?.type,
+          propertyName: triggerMeta.triggerPropertyName,
+        },
+        isJSToggled,
         instanceId,
       },
     );

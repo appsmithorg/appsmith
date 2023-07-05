@@ -36,6 +36,10 @@ export type UpdateDataTreeMessageData = {
 };
 import { logJSActionExecution } from "./analyticsSaga";
 import { uniq } from "lodash";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -112,6 +116,11 @@ export function* handleJSExecutionLog(
     data: {
       jsFnFullName: string;
       isSuccess: boolean;
+      triggerMeta: {
+        source: TriggerSource;
+        triggerPropertyName: string | undefined;
+        triggerKind: TriggerKind | undefined;
+      };
     }[];
   }>,
 ) {
