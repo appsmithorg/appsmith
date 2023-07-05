@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Binding the list widget with text widget", function () {
   before(() => {
-    cy.fixture("listRegression3Dsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("listRegression3Dsl");
   });
 
   it("Validate text widget data based on changes in list widget Data3", function () {

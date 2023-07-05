@@ -84,10 +84,12 @@ export class HomePage {
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
   private _importSuccessModalGotit = ".t--import-success-modal-got-it";
-  private _applicationContextMenu = (applicationName: string) =>
+  private _appCard = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
-    "']/ancestor::div[contains(@class, 't--application-card')]//button[@aria-haspopup='menu']";
+    "']/ancestor::div[contains(@class, 't--application-card')]";
+  private _applicationContextMenu = (applicationName: string) =>
+    this._appCard(applicationName) + "//button[@aria-haspopup='menu']";
   private _forkApp = '[data-testid="t--fork-app"]';
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
@@ -337,12 +339,15 @@ export class HomePage {
   //Maps to launchApp in command.js
   public LaunchAppFromAppHover() {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
-    cy.get(this.locator._loading).should("not.exist");
-    cy.wait("@getPagesForViewApp").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    this.agHelper.AssertElementAbsence(this.locator._loading);
+    this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
+  }
+
+  public EditAppFromAppHover() {
+    cy.get(this._applicationCard).first().trigger("mouseover");
+    this.agHelper.GetNClick(this._appHoverIcon("edit"));
+    this.agHelper.AssertElementAbsence(this.locator._loading);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   //Maps to deleteUserFromWorkspace in command.js

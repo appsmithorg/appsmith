@@ -128,9 +128,7 @@ describe("Dynamic Height Width validation", function () {
       });
   }
   it("1. Validate change with auto height width for text widgets", function () {
-    cy.fixture("alignmentWithDynamicHeightDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("alignmentWithDynamicHeightDsl");
     validateCssProperties("height");
     //validateCssProperties("top");
     validateCssProperties("left");

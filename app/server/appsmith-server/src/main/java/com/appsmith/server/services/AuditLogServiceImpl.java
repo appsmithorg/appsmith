@@ -4,6 +4,8 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -17,6 +19,7 @@ import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.AuditLogApplicationMetadata;
 import com.appsmith.server.domains.AuditLogAuthenticationMetadata;
 import com.appsmith.server.domains.AuditLogDestinationWorkspaceMetadata;
+import com.appsmith.server.domains.AuditLogEnvironmentMetadata;
 import com.appsmith.server.domains.AuditLogGacEntityMetadata;
 import com.appsmith.server.domains.AuditLogGacMetadata;
 import com.appsmith.server.domains.AuditLogGitMetadata;
@@ -26,7 +29,7 @@ import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
 import com.appsmith.server.domains.AuditLogResource;
 import com.appsmith.server.domains.AuditLogUserGroupMetadata;
 import com.appsmith.server.domains.AuditLogUserMetadata;
-import com.appsmith.server.domains.AuditLogWorkpsaceMetadata;
+import com.appsmith.server.domains.AuditLogWorkspaceMetadata;
 import com.appsmith.server.domains.GacEntityMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -42,6 +45,7 @@ import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -96,6 +100,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     private final ConfigRepository configRepository;
     private final PluginRepository pluginRepository;
     private final CommonConfig commonConfig;
+    private final EnvironmentRepository environmentRepository;
 
     private static int RECORD_LIMIT = 200;
     private static int EXPORT_RECORD_LIMIT = 5000;
@@ -398,6 +403,8 @@ public class AuditLogServiceImpl implements AuditLogService {
             auditLogMono = setResourceProperties((Workspace) resource, auditLog, auditLogResource);
         } else if (resource instanceof Datasource) {
             auditLogMono = setResourceProperties((Datasource) resource, auditLog, auditLogResource, properties);
+        } else if (resource instanceof DatasourceStorage) {
+            auditLogMono = setResourceProperties((DatasourceStorage) resource, auditLog, auditLogResource, properties);
         } else if (resource instanceof Application) {
             auditLogMono = setResourceProperties((Application) resource, auditLog, auditLogResource, properties, event);
         } else if (resource instanceof NewPage) {
@@ -431,6 +438,41 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
 
         return auditLogMono;
+    }
+
+    private Mono<AuditLog> setResourceProperties(DatasourceStorage resource, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+        auditLogResource.setId(resource.getDatasourceId());
+        auditLogResource.setName(resource.getName());
+
+        Mono<DatasourceStorage> resourceMono = Mono.just(resource);
+
+        if (resource.getEnvironmentId() != null) {
+            resourceMono = resourceMono
+                    .zipWith(environmentRepository.findById(resource.getEnvironmentId()))
+                    .map(tuple2 -> {
+                        Environment environment = tuple2.getT2();
+                        AuditLogEnvironmentMetadata environmentMetadata = new AuditLogEnvironmentMetadata(environment.getId(), environment.getName());
+                        auditLog.setEnvironment(environmentMetadata);
+                        return resource;
+                    });
+        }
+
+        // Plugin name is required as DatasourceType in Audit Logs
+        // Plugin name is fetched from DB since delete events does not have pluginName set by default
+        if (!Optional.ofNullable(resource.getPluginId()).isEmpty()) {
+            final Mono<Plugin> setResourceWithPluginNameMono = resourceMono
+                    .flatMap(resource1 -> pluginRepository.findById(resource1.getPluginId()))
+                    .flatMap(plugin -> {
+                        auditLogResource.setDatasourceType(plugin.getName());
+                        auditLog.setResource(auditLogResource);
+                        return Mono.just(plugin);
+                    });
+            return setResourceWithPluginNameMono
+                    .then(setWorkspace(auditLog, resource.getWorkspaceId(), properties))
+                    .thenReturn(auditLog);
+        }
+
+        return resourceMono.thenReturn(auditLog);
     }
 
     /**
@@ -749,7 +791,8 @@ public class AuditLogServiceImpl implements AuditLogService {
                 NewAction.class.getSimpleName(),
                 ActionDTO.class.getSimpleName(),
                 PermissionGroup.class.getSimpleName(),
-                UserGroup.class.getSimpleName()
+                UserGroup.class.getSimpleName(),
+                DatasourceStorage.class.getSimpleName()
         );
         String resourceClassName = resource.getClass().getSimpleName();
         if (exceptionResources.contains(resourceClassName)) {
@@ -877,10 +920,10 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param workspace Workspace
      */
     private void setWorkspaceProperties(AuditLog auditLog, Workspace workspace) {
-        AuditLogWorkpsaceMetadata auditLogWorkpsaceMetadata = new AuditLogWorkpsaceMetadata();
-        auditLogWorkpsaceMetadata.setId(workspace.getId());
-        auditLogWorkpsaceMetadata.setName(workspace.getName());
-        auditLog.setWorkspace(auditLogWorkpsaceMetadata);
+        AuditLogWorkspaceMetadata auditLogWorkspaceMetadata = new AuditLogWorkspaceMetadata();
+        auditLogWorkspaceMetadata.setId(workspace.getId());
+        auditLogWorkspaceMetadata.setName(workspace.getName());
+        auditLog.setWorkspace(auditLogWorkspaceMetadata);
     }
 
     /**

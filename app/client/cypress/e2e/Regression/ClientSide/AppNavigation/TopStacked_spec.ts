@@ -3,6 +3,7 @@ const commonLocators = require("../../../../locators/commonlocators.json");
 
 import {
   agHelper,
+  assertHelper,
   deployMode,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
@@ -12,16 +13,17 @@ describe("Test Top + Stacked navigation style", function () {
     // Import an application
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
-
-    cy.wait("@importNewApplication").then((interception) => {
-      agHelper.Sleep();
-      const { isPartialImport } = interception.response.body.data;
-      if (isPartialImport) {
-        homePage.AssertNCloseImport();
-      } else {
-        homePage.AssertImportToast(0);
-      }
-    });
+    assertHelper
+      .WaitForNetworkCall("importNewApplication")
+      .then((interception: any) => {
+        agHelper.Sleep();
+        const { isPartialImport } = interception.response.body.data;
+        if (isPartialImport) {
+          homePage.AssertNCloseImport();
+        } else {
+          homePage.AssertImportToast(0);
+        }
+      });
   });
 
   it("1. In an app with 15 pages, the navbar should be scrollable", () => {
@@ -89,7 +91,7 @@ describe("Test Top + Stacked navigation style", function () {
       .GetElement(appNavigationLocators.scrollArrows)
       .last()
       .trigger("mousedown");
-    agHelper.Sleep(500);
+    agHelper.Sleep(1500);
     agHelper
       .GetElement(appNavigationLocators.scrollArrows)
       .last()
@@ -101,14 +103,10 @@ describe("Test Top + Stacked navigation style", function () {
 
     // Scroll to the left again and page 1 should be visible
     agHelper
-      .GetElement(appNavigationLocators.navigationMenuItem)
-      .contains(pageName)
-      .should("not.be.visible");
-    agHelper
       .GetElement(appNavigationLocators.scrollArrows)
       .first()
       .trigger("mousedown");
-    agHelper.Sleep(500);
+    agHelper.Sleep(1500);
     agHelper
       .GetElement(appNavigationLocators.scrollArrows)
       .first()

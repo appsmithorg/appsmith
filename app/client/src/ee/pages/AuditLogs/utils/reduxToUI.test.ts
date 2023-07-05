@@ -95,7 +95,16 @@ describe("audit-logs/utils/reduxToUI", () => {
       ["event", "timestamp", "id", "user", "metadata"],
       ["event", "timestamp", "id", "user", "metadata"],
       ["event", "timestamp", "id", "workspace", "user", "resource", "metadata"],
-      ["event", "timestamp", "id", "workspace", "user", "resource", "metadata"],
+      [
+        "event",
+        "timestamp",
+        "id",
+        "workspace",
+        "environment",
+        "user",
+        "resource",
+        "metadata",
+      ],
       ["event", "timestamp", "id", "workspace"],
       ["authentication", "event", "id", "metadata", "timestamp", "user"],
     ];

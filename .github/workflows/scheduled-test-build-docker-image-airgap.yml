@@ -79,27 +79,46 @@ jobs:
     steps:
       - run: echo "All ci-test matrices completed"
 
-      - name: Slack Notification on failure
-        if: needs.ci-test.result != 'success'
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_CHANNEL: stabilizing-cypress
-          SLACK_COLOR: '#FF0000' 
-          SLACK_ICON_EMOJI: ':bell:'
-          SLACK_MESSAGE: 'There are build failures. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>'
-          SLACK_TITLE: Scheduled airgap run
-          SLACK_USERNAME: Github Scheduler
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
+      # Force store previous cypress dashboard url from cache
+      - name: Store the previous cypress dashboard url
+        if: success()
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/cypress_url
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
+          restore-keys: |
+            ${{ github.run_id }}-dashboard-url
 
-      - name: Slack Notification on success
-        if: needs.ci-test.result == 'success'
+      - name: Print cypress dashboard url
+        id: dashboard_url
+        run: |
+          cypress_url=$(cat ~/cypress_url)
+          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
+
+      - name: slack message builder
+        id: slack_notification
+        run: |
+          if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
+            echo "slack_message=There are cypress failures. To analyze run go <${{ steps.dashboard_url.outputs.dashboard_url }}|here>" >> $GITHUB_OUTPUT
+            echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+          elif [[ ${{ needs.ci-test.result }} == 'success' ]]; then
+            echo  "slack_message=All Cypress tests passed :tada:. To analyze run go <${{ steps.dashboard_url.outputs.dashboard_url }}|here>" >> $GITHUB_OUTPUT
+            echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
+          else
+            echo "slack_message=There are build failures. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>" >> $GITHUB_OUTPUT
+            echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Slack Notification
+        if: success()
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: stabilizing-cypress
-          SLACK_COLOR: '#00FF00' 
+          SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
           SLACK_ICON_EMOJI: ':bell:'
-          SLACK_MESSAGE: 'All Cypress tests passed :tada:. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>'
-          SLACK_TITLE: Scheduled airgap run
+          SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
+          SLACK_TITLE: 'Result:'
           SLACK_USERNAME: Github Scheduler
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
 

@@ -91,46 +91,47 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public AddDsl(
-    dsl: string,
+    dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
     reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
     let appId: string | null;
-    cy.url().then((url) => {
-      pageid = url.split("/")[5]?.split("-").pop() as string;
-      cy.log(pageid + "page id");
-      //Fetch the layout id
-      cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
-        const respBody = JSON.stringify(response.body);
-        const parsedData = JSON.parse(respBody).data;
-        layoutId = parsedData.layouts[0].id;
-        appId = parsedData.applicationId;
-
-        // Dumping the DSL to the created page
-        cy.request({
-          method: "PUT",
-          url:
-            "api/v1/layouts/" +
-            layoutId +
-            "/pages/" +
-            pageid +
-            "?applicationId=" +
-            appId,
-          body: dsl,
-          headers: {
-            "X-Requested-By": "Appsmith",
-          },
-        }).then((dslDumpResp) => {
-          //cy.log("Pages resposne is : " + dslDumpResp.body);
-          expect(dslDumpResp.status).equal(200);
-          this.Sleep(3000); //for dsl to settle in layouts api & then refresh
-          this.RefreshPage(reloadWithoutCache);
-          if (elementToCheckPresenceaftDslLoad)
-            this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-          this.Sleep(2000); //settling time for dsl
-          this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
-          this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
+    cy.fixture(dslFile).then((val) => {
+      cy.url().then((url) => {
+        pageid = url.split("/")[5]?.split("-").pop() as string;
+        cy.log(pageid + "page id");
+        //Fetch the layout id
+        cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
+          const respBody = JSON.stringify(response.body);
+          const parsedData = JSON.parse(respBody).data;
+          layoutId = parsedData.layouts[0].id;
+          appId = parsedData.applicationId;
+          // Dumping the DSL to the created page
+          cy.request({
+            method: "PUT",
+            url:
+              "api/v1/layouts/" +
+              layoutId +
+              "/pages/" +
+              pageid +
+              "?applicationId=" +
+              appId,
+            body: val,
+            headers: {
+              "X-Requested-By": "Appsmith",
+            },
+          }).then((dslDumpResp) => {
+            //cy.log("Pages resposne is : " + dslDumpResp.body);
+            expect(dslDumpResp.status).equal(200);
+            this.Sleep(3000); //for dsl to settle in layouts api & then refresh
+            this.RefreshPage(reloadWithoutCache);
+            if (elementToCheckPresenceaftDslLoad)
+              this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
+            this.Sleep(2000); //settling time for dsl
+            this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
+            this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
+          });
         });
       });
     });

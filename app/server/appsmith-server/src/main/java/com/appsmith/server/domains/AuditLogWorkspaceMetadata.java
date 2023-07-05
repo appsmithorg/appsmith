@@ -3,7 +3,7 @@ package com.appsmith.server.domains;
 import lombok.Data;
 
 @Data
-public class AuditLogWorkpsaceMetadata {
+public class AuditLogWorkspaceMetadata {
 
     String id;
 

@@ -19,16 +19,12 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
   });
 
   before(() => {
-    cy.fixture("tableV2WidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2WidgetDsl");
   });
 
   it("1. Create MyPage and validate if its successfully created", function () {
     cy.Createpage(pageid);
-    cy.fixture("displayWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("displayWidgetDsl");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     entityExplorer.ExpandCollapseEntity("Pages");

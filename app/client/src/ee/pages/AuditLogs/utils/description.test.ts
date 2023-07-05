@@ -212,6 +212,7 @@ describe("audit-logs/utils/description", function () {
             mainDescription: {
               resourceType: "Users",
               actionType: "created",
+              environmentDescription: " in production environment",
             },
             subDescription: "in Untitled workspace 2",
           },

@@ -3,25 +3,23 @@ package com.appsmith.server.constants;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.ApplicationMode;
-import com.segment.analytics.Analytics;
 
 import java.util.Map;
-
-import static java.util.Map.entry;
-
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
+import static java.util.Map.entry;
 
 public class AuditLogEvents {
 
@@ -103,6 +101,7 @@ public class AuditLogEvents {
     public final static Map<String, String> resourceMap = Map.ofEntries(
             entry(Workspace.class.getSimpleName(), FieldName.WORKSPACE),
             entry(Datasource.class.getSimpleName(), FieldName.DATASOURCE),
+            entry(DatasourceStorage.class.getSimpleName(), FieldName.DATASOURCE),
             entry(Application.class.getSimpleName(), FieldName.APPLICATION),
             entry(NewPage.class.getSimpleName(), FieldName.PAGE),
             entry(NewAction.class.getSimpleName(), FieldName.QUERY),
