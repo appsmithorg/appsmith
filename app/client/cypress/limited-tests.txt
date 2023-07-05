@@ -1,1 +1,1 @@
-cypress/e2e/Regression/ClientSide/Widgets/TableV2/columnTypes/Select1_spec.ts
+cypress/e2e/**/**/*
