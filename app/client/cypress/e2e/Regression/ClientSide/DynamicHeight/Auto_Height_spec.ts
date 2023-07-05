@@ -17,9 +17,8 @@ describe("Dynamic Height Width validation", function () {
   });
 
   it("1. Validate change with auto height width for widgets", function () {
-    cy.fixture("dynamicHeightContainerCheckboxdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightContainerCheckboxdsl");
+
     entityExplorer.SelectEntityByName("Container1", "Widgets");
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     propPane.MoveToTab("Style");

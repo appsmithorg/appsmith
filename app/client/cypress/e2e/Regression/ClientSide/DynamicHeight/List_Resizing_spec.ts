@@ -8,9 +8,8 @@ import {
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for List widgets", function () {
-    cy.fixture("ResizeListDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("ResizeListDsl");
+
     entityExplorer.SelectEntityByName("Tab 1", "Tabs1");
     entityExplorer.SelectEntityByName("List1", "Tab 1");
     agHelper

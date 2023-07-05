@@ -11,9 +11,8 @@ describe("Dynamic Height Width validation with multiple containers and text widg
   it("1. Validate change with auto height width for widgets", function () {
     let textMsg =
       "Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height";
-    cy.fixture("dynamicHeightCanvasResizeDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightCanvasResizeDsl");
+
     // Select the Outer container and capture initial height
     entityExplorer.SelectEntityByName("Container1");
     agHelper

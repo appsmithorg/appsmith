@@ -11,9 +11,8 @@ describe("Dynamic Height Width validation list widget", function () {
   it("1. Validate change with auto height width for list widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     const textMsg = "Dynamic panel validation for text widget wrt height";
-    cy.fixture("DynamicHeightListTextDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("DynamicHeightListTextDsl");
+
     entityExplorer.DragDropWidgetNVerify("multiselecttreewidget", 300, 500);
     entityExplorer.SelectEntityByName("List1", "Widgets");
     //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget with multitreeselect

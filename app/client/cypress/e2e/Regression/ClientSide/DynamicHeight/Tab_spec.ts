@@ -10,9 +10,7 @@ import {
 
 describe("Dynamic Height Width validation for Tab widget", function () {
   before(() => {
-    cy.fixture("dynamicTabWidgetdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicTabWidgetdsl");
   });
 
   function validateHeight() {

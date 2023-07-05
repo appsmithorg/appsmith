@@ -9,9 +9,7 @@ import {
 
 describe("Dynamic Height Width validation for multiple container", function () {
   before(() => {
-    cy.fixture("multipleContainerdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("multipleContainerdsl");
   });
   it("1. Validate change in auto height width with multiple containers", function () {
     entityExplorer.SelectEntityByName("Container1");
