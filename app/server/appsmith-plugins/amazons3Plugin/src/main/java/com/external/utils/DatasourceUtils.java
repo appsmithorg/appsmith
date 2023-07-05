@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Regions.DEFAULT_REGION;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
-import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_INDEX;
-import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
-import static com.external.plugins.AmazonS3Plugin.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
 import static com.external.utils.DatasourceUtils.S3ServiceProvider.AMAZON;
 
 public class DatasourceUtils {
