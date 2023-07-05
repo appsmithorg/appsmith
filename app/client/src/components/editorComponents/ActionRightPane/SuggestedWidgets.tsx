@@ -52,7 +52,7 @@ import {
 } from "utils/storage";
 
 const BINDING_GUIDE_GIF =
-  "https://myawsbucketdip.s3.ap-southeast-1.amazonaws.com/schema.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230630T081156Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AKIAYOEVYR6QX442SDWZ%2F20230630%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Signature=678096bd94148a5711252a9fe90b90826ac88ce146eb07586498f7f109c5a17a";
+  "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/binding.gif";
 
 const BINDING_SECTION_ID = "t--api-right-pane-binding";
 
