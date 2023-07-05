@@ -20,6 +20,7 @@ export default function DiscardChangesWarning({
   return (
     <Container>
       <Callout
+        data-testid="t--discard-callout"
         isClosable
         kind="error"
         links={[
