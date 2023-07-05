@@ -28,7 +28,7 @@ export class PropertyPane {
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
     "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
-  private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
+  _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "[data-testid='t--copy-widget']";
   _deleteWidget = "[data-testid='t--delete-widget']";
   private _styleTabBtn = (tab: string) =>
@@ -46,8 +46,7 @@ export class PropertyPane {
     `.t--property-pane-section-collapse-${section}`;
   private _sectionCollapseWithTag = (section: string, tab: string) =>
     `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
-  private _propertyControl = (property: string) =>
-    `.t--property-control-${property}`;
+  _propertyControl = (property: string) => `.t--property-control-${property}`;
   private _addAction = (property: string) => `.t--add-action-${property}`;
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
@@ -107,7 +106,9 @@ export class PropertyPane {
   }`;
   private _propPaneSelectedItem = (option: string) =>
     `.t--property-control-${option} span.rc-select-selection-item span`;
-
+  _propertyDateFormat = ".t--property-control-dateformat";
+  _propertyPanePropertyControl = (propPane: string, propControl: string) =>
+    `.t--property-pane-section-${propPane} .t--property-control-${propControl}`;
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
   }

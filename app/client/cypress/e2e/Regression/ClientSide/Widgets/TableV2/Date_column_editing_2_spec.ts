@@ -63,15 +63,19 @@ describe("Table widget date column inline editing functionality", () => {
     propPane.TogglePropertyState("Visible", "Off");
     assertHelper.AssertNetworkStatus("updateLayout", 200);
     agHelper.AssertElementExist(
-      `${table._tableV2Head} ${table._releaseDateHeader} ${table._hiddenHeader}`,
+      `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
+        table._hiddenHeader
+      }`,
     );
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(locators._propertypaneBackButton);
+    agHelper.GetNClick(propPane._goBackToProperty);
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Visible", "On");
     assertHelper.AssertNetworkStatus("updateLayout", 200);
     agHelper.AssertElementExist(
-      `${table._tableV2Head} ${table._releaseDateHeader} ${table._draggableHeader}`,
+      `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
+        table._draggableHeader
+      }`,
     );
   });
 
@@ -81,20 +85,20 @@ describe("Table widget date column inline editing functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
     table.EditColumn("release_date", "v2");
     agHelper.AssertElementExist(
-      table._propertyPanePropertyControl("validation", "mindate"),
+      propPane._propertyPanePropertyControl("validation", "mindate"),
     );
     agHelper.AssertElementExist(
-      table._propertyPanePropertyControl("validation", "maxdate"),
+      propPane._propertyPanePropertyControl("validation", "maxdate"),
     );
     agHelper.RemoveCharsNType(
-      `${table._propertyPanePropertyControl("validation", "mindate")} ${
+      `${propPane._propertyPanePropertyControl("validation", "mindate")} ${
         table._lastChildDatePicker
       }`,
       -1,
       "2022-05-05T00:00:10.1010+05:30{enter}",
     );
     agHelper.RemoveCharsNType(
-      `${table._propertyPanePropertyControl("validation", "mindate")} ${
+      `${propPane._propertyPanePropertyControl("validation", "mindate")} ${
         table._lastChildDatePicker
       }`,
       -1,
@@ -105,14 +109,14 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.GetNClick(table._editCellIconDiv, 0, true);
     agHelper.GetNAssertContains(table._popoverContent, "Date out of range");
     agHelper.RemoveCharsNType(
-      `${table._propertyPanePropertyControl("validation", "mindate")} ${
+      `${propPane._propertyPanePropertyControl("validation", "mindate")} ${
         table._lastChildDatePicker
       }`,
       -1,
       "{enter}",
     );
     agHelper.RemoveCharsNType(
-      `${table._propertyPanePropertyControl("validation", "maxdate")} ${
+      `${propPane._propertyPanePropertyControl("validation", "maxdate")} ${
         table._lastChildDatePicker
       }`,
       -1,
@@ -122,9 +126,8 @@ describe("Table widget date column inline editing functionality", () => {
 
   it("4. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(locators._propertypaneBackButton);
-    agHelper.UpdateCodeInput(
-      `${locators._propertyControl}tabledata`,
+    agHelper.GetNClick(propPane._goBackToProperty);
+    agHelper.UpdateCodeInput(propPane._propertyControl("tabledata"),
       '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
     );
     agHelper.Sleep(3000);
@@ -133,21 +136,21 @@ describe("Table widget date column inline editing functionality", () => {
     propPane.SelectPropertiesDropDown("dateformat", "ISO 8601");
     // we should not see an error after selecting the ISO 8061 format
     agHelper.AssertElementAbsence(
-      `${table._propertyDateFormat} ${table._codeMirrorError}`,
+      `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
     );
     propPane.ToggleJSMode("dateformat", true);
     //check the selected format value
     agHelper.GetNAssertContains(
-      `${table._propertyDateFormat}`,
+      `${propPane._propertyDateFormat}`,
       "YYYY-MM-DDTHH:mm:ss.SSSZ",
     );
     agHelper.UpdateCodeInput(
-      `${table._propertyDateFormat}`,
+      `${propPane._propertyDateFormat}`,
       "YYYY-MM-DDTHH:mm:ss.SSSsZ",
     );
     //we should now see an error when an incorrect date format
     agHelper.AssertElementExist(
-      `${table._propertyDateFormat} ${table._codeMirrorError}`,
+      `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
     );
   });
 });

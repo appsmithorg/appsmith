@@ -250,5 +250,5 @@ export class CommonLocators {
   _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
-  _propertypaneBackButton = "[data-testid='t--property-pane-back-btn']";
+  _svg = "svg";
 }

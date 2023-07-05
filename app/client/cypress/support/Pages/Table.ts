@@ -45,8 +45,7 @@ export class Table {
     "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
     columnName +
     "')]/parent::div/parent::div";
-  private _columnHeaderDiv = (columnName: string) =>
-    `[data-header=${columnName}]`;
+  _columnHeaderDiv = (columnName: string) => `[data-header=${columnName}]`;
   private _tableWidgetVersion = (version: "v1" | "v2") =>
     `.t--widget-tablewidget${version == "v1" ? "" : version}`;
   private _nextPage = (version: "v1" | "v2") =>
@@ -157,44 +156,30 @@ export class Table {
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
   _selectMenuItem = ".menu-item-text";
-  _releaseDateCheckbox =
-    "[data-rbd-draggable-id='release_date'] .t--card-checkbox input";
-  _propertyControlEditable =
-    ".t--property-pane-section-general .t--property-control-editable";
+  _columnCheckbox = (columnName: string) =>
+    "[data-rbd-draggable-id='" + columnName + "']" + " .t--card-checkbox input";
   _dateInputPopover = ".bp3-dateinput-popover";
   _tableV2Row = ".t--draggable-tablewidgetv2 .tbody";
-  _cellEditor = ".t--inlined-cell-editor";
   _weekdayRowDayPicker =
     ".bp3-datepicker .DayPicker .DayPicker-Months .DayPicker-WeekdaysRow";
-  _propertyControlShowShortcuts =
-    ".t--property-pane-section-datesettings .t--property-control-showshortcuts";
-  _propertyControlRequired =
-    ".t--property-pane-section-validation .t--property-control-required";
   _popoverContent =
     ".bp3-transition-container .bp3-popover .bp3-popover-content";
-  _allowAddRowCheckbox =
-    ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]";
   _datePicker = ".bp3-datepicker";
   _dayPickerWeek = ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week";
   _timePickerHour = ".bp3-timepicker-input-row .bp3-timepicker-hour";
   _timePickerMinute = ".bp3-timepicker-input-row .bp3-timepicker-minute";
   _timePickerSecond = ".bp3-timepicker-input-row .bp3-timepicker-second";
   _timePickerRow = ".bp3-timepicker-input-row";
-  _propertyPanePropertyControl = (propPane: string, propControl: string) =>
-    `.t--property-pane-section-${propPane} .t--property-control-${propControl}`;
   _tableV2Head = ".t--draggable-tablewidgetv2 .thead";
   _timeprecisionPopover =
     ".t--property-control-timeprecision .bp3-popover-target";
   _tableNthChild =
     ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) div:nth-child(3)";
-  _inputCheckbox = "input[type=checkbox]";
-  _releaseDateHeader = "[data-header='release_date']";
   _hiddenHeader = ".hidden-header";
   _draggableHeader = " .draggable-header";
   _lastChildDatePicker = "div:last-child .react-datepicker-wrapper";
   _tableDataNthChild =
     ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) .td:nth-child(3)";
-  _propertyDateFormat = ".t--property-control-dateformat";
   _codeMirrorError = ".t--codemirror-has-error";
   _canvasWidgetType = "[type='CANVAS_WIDGET']";
   _showArrow = ".rc-select-show-arrow";
