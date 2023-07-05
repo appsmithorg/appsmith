@@ -57,10 +57,10 @@ export class LightModeTheme implements ColorModeTheme {
       bgPositiveSubtleHover: this.bgPositiveSubtleHover.to("sRGB").toString(),
       bgPositiveSubtleActive: this.bgPositiveSubtleActive.to("sRGB").toString(),
       bgNegative: this.bgNegative.to("sRGB").toString(),
-      bgNegativeHover: this.bgNegativeHover.toString(),
-      bgNegativeActive: this.bgNegativeActive.toString(),
-      bgNegativeSubtleHover: this.bgNegativeSubtleHover.toString(),
-      bgNegativeSubtleActive: this.bgNegativeSubtleActive.toString(),
+      bgNegativeHover: this.bgNegativeHover.to("sRGB").toString(),
+      bgNegativeActive: this.bgNegativeActive.to("sRGB").toString(),
+      bgNegativeSubtleHover: this.bgNegativeSubtleHover.to("sRGB").toString(),
+      bgNegativeSubtleActive: this.bgNegativeSubtleActive.to("sRGB").toString(),
       bgWarning: this.bgWarning.to("sRGB").toString(),
       bgWarningHover: this.bgWarningHover.toString(),
       bgWarningActive: this.bgWarningActive.toString(),
@@ -388,23 +388,46 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgNegativeHover() {
-    return "#f24646";
+    const color = this.bgNegative.clone();
+
+    // Lightness of bgNegative is known, no additional checks like in bgAccentHover
+    color.oklch.l = color.oklch.l + 0.05;
+
+    return color;
   }
 
   private get bgNegativeActive() {
-    return "#e23b3b";
+    const color = this.bgNegative.clone();
+
+    // Lightness of bgNegative is known, no additional checks like in bgAccentActive
+    color.oklch.l = color.oklch.l - 0.02;
+
+    return color;
   }
 
   private get bgNegativeSubtle() {
-    return "#fff0f0";
+    const color = this.bgNegative.clone();
+
+    color.oklch.l = 0.94;
+    color.oklch.c = 0.06;
+
+    return color;
   }
 
   private get bgNegativeSubtleHover() {
-    return "#ffe0e0";
+    const color = this.bgNegativeSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.02;
+
+    return color;
   }
 
   private get bgNegativeSubtleActive() {
-    return "#ffd1d1";
+    const color = this.bgNegativeSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.01;
+
+    return color;
   }
 
   private get bgNeutral() {
