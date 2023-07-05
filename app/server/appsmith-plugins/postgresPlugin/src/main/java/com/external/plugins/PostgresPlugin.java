@@ -28,6 +28,7 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.datatypes.PostgresSpecificDataTypes;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
+import com.external.plugins.utils.PostgresDatasourceUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -76,6 +77,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.PluginConstants.PluginName.POSTGRES_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
@@ -124,13 +126,14 @@ public class PostgresPlugin extends BasePlugin {
 
     private static int MAX_SIZE_SUPPORTED;
 
+    public static PostgresDatasourceUtils postgresDatasourceUtils = new PostgresDatasourceUtils();
+
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Extension
     public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
-
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY = "select a.attname                                                      as name,\n"
@@ -281,7 +284,8 @@ public class PostgresPlugin extends BasePlugin {
                 Connection connectionFromPool;
 
                 try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                    connectionFromPool = postgresDatasourceUtils.getConnectionFromHikariConnectionPool(connection,
+                            POSTGRES_PLUGIN_NAME);
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari
@@ -290,7 +294,7 @@ public class PostgresPlugin extends BasePlugin {
                     // the connection pool which can also be translated in our world to
                     // StaleConnectionException
                     // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException(e.getMessage()));
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -631,7 +635,8 @@ public class PostgresPlugin extends BasePlugin {
 
                 Connection connectionFromPool;
                 try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                    connectionFromPool = postgresDatasourceUtils.getConnectionFromHikariConnectionPool(connection,
+                            POSTGRES_PLUGIN_NAME);
                 } catch (SQLException | StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The
                     // underlying hikari
@@ -640,7 +645,8 @@ public class PostgresPlugin extends BasePlugin {
                     // the connection pool which can also be translated in our world to
                     // StaleConnectionException
                     // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                    return Mono.error(e instanceof StaleConnectionException ? e :
+                            new StaleConnectionException(e.getMessage()));
                 }
 
                 HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
@@ -1100,31 +1106,5 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         return datasource;
-    }
-
-    /**
-     * First checks if the connection pool is still valid. If yes, we fetch a
-     * connection from the pool and return
-     * In case a connection is not available in the pool, SQL Exception is thrown
-     *
-     * @param connectionPool
-     * @return SQL Connection
-     */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
-            DatasourceConfiguration datasourceConfiguration) throws SQLException {
-
-        if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            log.debug("Encountered stale connection pool in Postgres plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        Connection connection = connectionPool.getConnection();
-
-        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-        if (configurationConnection == null) {
-            return connection;
-        }
-
-        return connection;
     }
 }

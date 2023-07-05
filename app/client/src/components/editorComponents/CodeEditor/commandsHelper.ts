@@ -14,7 +14,7 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions: any[] = [];
@@ -52,6 +52,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         enableAIAssistance: boolean;
       },
     ): boolean => {
+      // @ts-expect-error: Types are not available
+      editor.closeHint();
       const { entityType } = entityInfo;
       const currentEntityType =
         entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
@@ -78,7 +80,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             featureFlags,
             enableAIAssistance,
           },
-          entityInfo,
         );
         let currentSelection: CommandsCompletion = {
           origin: "",
@@ -99,9 +100,12 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                 line: cursor.line,
               },
               to: editor.getCursor(),
-              selectedHint: 1,
+              selectedHint: list[0]?.isHeader ? 1 : 0,
             };
-            CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+            function handleSelection(selected: CommandsCompletion) {
+              currentSelection = selected;
+            }
+            function handlePick(selected: CommandsCompletion) {
               update(value.slice(0, slashIndex) + selected.text);
               setTimeout(() => {
                 editor.focus();
@@ -129,10 +133,11 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
               } catch (e) {
                 log.debug(e, "Error logging slash command");
               }
-            });
-            CodeMirror.on(hints, "select", (selected: CommandsCompletion) => {
-              currentSelection = selected;
-            });
+              CodeMirror.off(hints, "pick", handlePick);
+              CodeMirror.off(hints, "select", handleSelection);
+            }
+            CodeMirror.on(hints, "pick", handlePick);
+            CodeMirror.on(hints, "select", handleSelection);
             return hints;
           },
           extraKeys: {
@@ -153,8 +158,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         });
         return true;
       }
-      // @ts-expect-error: Types are not available
-      editor.closeHint();
       return false;
     },
   };

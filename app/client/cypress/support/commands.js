@@ -228,7 +228,7 @@ Cypress.Commands.add("LogOutUser", () => {
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
-  goToLoginPage && cy.visit("/user/login");
+  goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")
@@ -954,7 +954,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");
-  cy.intercept("GET", "/api/v1/plugins").as("getPlugins");
+  cy.intercept("GET", "/api/v1/plugins?workspaceId=*").as("getPlugins");
   cy.intercept("POST", "/api/v1/logout").as("postLogout");
 
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
@@ -1126,6 +1126,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     req.headers["origin"] = "Cypress";
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
+  cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
