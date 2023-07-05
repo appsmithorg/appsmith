@@ -23,9 +23,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("1. Tc 60, 1912 - Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes!", () => {
     entityExplorer.SelectEntityByName("Page1");
-    cy.fixture("JSApiOnLoadDsl").then((val: any) => {
-      agHelper.AddDsl(val, locators._widgetInCanvas("imagewidget"));
-    });
+    agHelper.AddDsl("JSApiOnLoadDsl", locators._widgetInCanvas("imagewidget"));
     entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

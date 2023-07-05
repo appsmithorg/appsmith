@@ -9,9 +9,7 @@ import {
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function () {
   before(() => {
-    cy.fixture("buttondsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("buttondsl");
   });
 
   it("1. Button widget with action navigate to page", function () {

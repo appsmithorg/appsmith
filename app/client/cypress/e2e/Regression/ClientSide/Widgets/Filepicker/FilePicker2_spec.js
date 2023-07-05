@@ -8,9 +8,7 @@ describe("FilePicker Widget Functionality", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("newFormDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("newFormDsl");
   });
 
   it("1. Create API to be used in Filepicker", function () {

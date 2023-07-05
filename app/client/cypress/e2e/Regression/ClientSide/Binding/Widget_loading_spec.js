@@ -7,9 +7,7 @@ let datasourceName;
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.fixture("rundsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("rundsl");
   });
 
   it("1. Create a postgres datasource", function () {
