@@ -57,6 +57,8 @@ const BINDING_GUIDE_GIF =
 const BINDING_SECTION_ID = "t--api-right-pane-binding";
 
 const WidgetList = styled.div`
+  height: 100%;
+  overflow: auto;
   ${getTypographyByKey("p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
@@ -97,6 +99,8 @@ const ItemWrapper = styled.div`
 
 const SubSection = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  overflow-y: scroll;
+  height: 100%;
 `;
 
 const HeadingWrapper = styled.div`
@@ -104,6 +108,13 @@ const HeadingWrapper = styled.div`
   flex-direction: column;
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
   padding-bottom: 4px;
+`;
+
+const SuggestedWidgetContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
 `;
 
 type WidgetBindingInfo = {
@@ -425,7 +436,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   }, [isEnabledForQueryBinding]);
 
   return (
-    <section id={BINDING_SECTION_ID}>
+    <SuggestedWidgetContainer id={BINDING_SECTION_ID}>
       {!!isEnabledForQueryBinding ? (
         <Collapsible label={labelNew}>
           {isTableWidgetPresentOnCanvas() && (
@@ -526,7 +537,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
           </WidgetList>
         </Collapsible>
       )}
-    </section>
+    </SuggestedWidgetContainer>
   );
 }
 

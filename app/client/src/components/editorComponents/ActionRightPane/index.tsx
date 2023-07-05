@@ -121,8 +121,18 @@ const Label = styled.span`
 `;
 
 const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &&&&&& .${BPClasses.COLLAPSE} {
+    flex-grow: 1;
+    overflow-y: auto !important;
+  }
+
   .${BPClasses.COLLAPSE_BODY} {
     padding-top: ${(props) => props.theme.spaces[3]}px;
+    height: 100%;
   }
 
   & > .icon-text:first-child {
@@ -168,6 +178,16 @@ const Placeholder = styled.div`
 
 const DataStructureListWrapper = styled.div`
   overflow-y: scroll;
+  height: 100%;
+`;
+
+const SchemaSideBarSection = styled.div<{ height: number }>`
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  height: auto;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  ${(props) => props.height && `max-height: ${props.height}%;`}
 `;
 
 type CollapsibleProps = {
@@ -192,7 +212,7 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon name="down-arrow" size="lg" />
+        <Icon name={isOpen ? "down-arrow" : "arrow-right-s-line"} size="lg" />
         {!!customLabelComponent ? (
           customLabelComponent
         ) : (
@@ -392,7 +412,7 @@ function ActionSidebar({
       </BackToCanvasLink>
 
       {showSchema && (
-        <section id={SCHEMA_SECTION_ID}>
+        <SchemaSideBarSection height={70} id={SCHEMA_SECTION_ID}>
           <Collapsible
             customLabelComponent={
               <DatasourceStructureHeader datasourceId={datasourceId || ""} />
@@ -409,7 +429,7 @@ function ActionSidebar({
               />
             </DataStructureListWrapper>
           </Collapsible>
-        </section>
+        </SchemaSideBarSection>
       )}
       {hasConnections && !isEnabledForQueryBinding && (
         <Connections
@@ -435,11 +455,13 @@ function ActionSidebar({
           </Collapsible>
         )}
       {showSuggestedWidgets && (
-        <SuggestedWidgets
-          actionName={actionName}
-          hasWidgets={hasWidgets}
-          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
-        />
+        <SchemaSideBarSection height={30}>
+          <SuggestedWidgets
+            actionName={actionName}
+            hasWidgets={hasWidgets}
+            suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
+          />
+        </SchemaSideBarSection>
       )}
     </SideBar>
   );

@@ -23,6 +23,7 @@ import {
 } from "@appsmith/entities/FeatureFlag";
 import { setFeatureFlagShownStatus } from "utils/storage";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import styled from "styled-components";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -35,6 +36,16 @@ enum QueryTemplatesEvent {
   EXPLORER_TEMPLATE = "explorer-template",
   QUERY_EDITOR_TEMPLATE = "query-editor-template",
 }
+
+const TemplateMenuItem = styled(MenuItem)`
+  & > span {
+    text-transform: lowercase;
+  }
+
+  & > span:first-letter {
+    text-transform: capitalize;
+  }
+`;
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
@@ -117,7 +128,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     <>
       {props.templates.map((template) => {
         return (
-          <MenuItem
+          <TemplateMenuItem
             key={template.title}
             onSelect={() => {
               createQueryAction(template);
@@ -125,7 +136,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             }}
           >
             {template.title}
-          </MenuItem>
+          </TemplateMenuItem>
         );
       })}
     </>

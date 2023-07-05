@@ -26,7 +26,7 @@ const DatasourceStructureLoadingContainer = () => {
       <SpinnerWrapper>
         <Spinner size={"sm"} />
       </SpinnerWrapper>
-      <Text kind="body-s" renderAs="p">
+      <Text kind="body-m" renderAs="p">
         {createMessage(LOADING_SCHEMA)}
       </Text>
     </LoadingContainer>
