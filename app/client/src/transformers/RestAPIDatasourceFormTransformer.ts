@@ -33,9 +33,19 @@ export const datasourceToFormValues = (
     {
       ssl: {
         authType: SSLType.DEFAULT,
+        authTypeControl: false,
       } as SSL,
     },
   );
+  // set value of authTypeControl in connection if it is not present
+  // authTypeControl is true if authType is SELF_SIGNED_CERTIFICATE else false
+  if (!connection.ssl.authTypeControl) {
+    set(
+      connection,
+      "ssl.authTypeControl",
+      connection.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE,
+    );
+  }
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
     get(
@@ -82,6 +92,16 @@ export const formValuesToDatasource = (
     form.authType,
     form.authentication,
   );
+
+  const connection = form.connection;
+  if (connection) {
+    const authTypeControl = connection.ssl.authTypeControl;
+    set(
+      connection,
+      "ssl.authType",
+      authTypeControl ? SSLType.SELF_SIGNED_CERTIFICATE : SSLType.DEFAULT,
+    );
+  }
   const conf = {
     url: form.url,
     headers: cleanupProperties(form.headers),

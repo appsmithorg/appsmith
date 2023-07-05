@@ -10,9 +10,7 @@ import {
 describe("Test Create Api and Bind to Table widget", function () {
   let apiData;
   before(() => {
-    cy.fixture("tableWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableWidgetDsl");
   });
 
   it("1. Test_Add users api and execute api", function () {

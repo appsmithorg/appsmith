@@ -4,9 +4,7 @@ describe("Binding the list widget with text widget", function () {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
-    cy.fixture("listRegressionDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("listRegressionDsl");
   });
 
   it("1. Validate text widget data based on changes in list widget Data1", function () {
