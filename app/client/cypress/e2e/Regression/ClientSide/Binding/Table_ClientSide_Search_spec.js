@@ -2,9 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("TableClientSearch").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("TableClientSearch");
   });
 
   it("Validate onSearchTextChanged function is called when configured for search text", function () {

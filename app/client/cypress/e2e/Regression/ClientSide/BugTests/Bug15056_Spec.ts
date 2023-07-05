@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/jsFunctionTriggerDsl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import datasourceFormData from "../../../../fixtures/datasources.json";
 
@@ -9,7 +8,7 @@ const ee = ObjectsRegistry.EntityExplorer;
 
 describe("JS data update on button click", function () {
   before(() => {
-    agHelper.AddDsl(dsl);
+    agHelper.AddDsl("jsFunctionTriggerDsl");
   });
 
   it("1. Populates js function data when triggered via button click", function () {

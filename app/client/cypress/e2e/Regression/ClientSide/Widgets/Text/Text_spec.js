@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget Functionality", function () {
   before(() => {
-    cy.fixture("displayWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("displayWidgetDsl");
   });
 
   beforeEach(() => {

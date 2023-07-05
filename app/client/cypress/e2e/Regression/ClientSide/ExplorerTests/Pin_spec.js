@@ -47,9 +47,7 @@ const OpenExplorerMenu = (menu) => {
 
 describe("Entity explorer tests related to pinning and unpinning", function () {
   before(() => {
-    cy.fixture("displayWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. checks entity explorer visibility on unpin", function () {

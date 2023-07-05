@@ -1,11 +1,9 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-const widgets = require("../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+const widgets = require("../../../../../locators/Widgets.json");
 
 describe("Modal Widget Functionality", function () {
   before(() => {
-    cy.fixture("modalOnTableFilterPaneDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("modalOnTableFilterPaneDsl");
   });
 
   it("Close the opened filter pane of the table", () => {
