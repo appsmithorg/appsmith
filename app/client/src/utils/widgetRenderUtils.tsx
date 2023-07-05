@@ -20,9 +20,8 @@ import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEn
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetError } from "widgets/BaseWidget";
 import { get } from "lodash";
+import type { DataTreeError } from "utils/DynamicBindingUtils";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-
-type EvaluationError = Record<string, unknown>;
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
@@ -58,40 +57,25 @@ function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
   /**
    * Evaluation Error Map
    * {
-     widgetPropertyName : EvaluationErrors[]
+     widgetPropertyName : DataTreeError[]
     }
    */
 
   const evaluationErrorMap = get(props, EVAL_ERROR_PATH, {}) as Record<
     string,
-    EvaluationError[]
+    DataTreeError[]
   >;
-  const evaluationErrors: EvaluationError[] =
+  const evaluationErrors: DataTreeError[] =
     Object.values(evaluationErrorMap).flat();
   const widgetErrors: WidgetError[] = [];
   for (const evalError of evaluationErrors) {
     const widgetError: WidgetError = {
-      name: "Unknown Error",
-      message: "Unavailable",
-      stack: "Unavailable",
+      name: evalError.errorMessage.name,
+      message: evalError.errorMessage.message,
+      stack: evalError.raw,
       type: "property",
     };
 
-    const errorObject: Record<string, unknown> | undefined =
-      evalError.errorMessage as Record<string, unknown>;
-    if (errorObject) {
-      if (errorObject.name && (errorObject.name as string).length > 0) {
-        widgetError.name = errorObject.name as string;
-      }
-
-      if (errorObject.message && (errorObject.message as string).length > 0) {
-        widgetError.message = errorObject.message as string;
-      }
-    }
-
-    if (evalError.raw && (evalError.raw as string).length > 0) {
-      widgetError.stack = evalError.raw as string;
-    }
     widgetErrors.push(widgetError);
   }
   return widgetErrors;
