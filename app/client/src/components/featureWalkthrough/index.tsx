@@ -4,6 +4,7 @@ import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { retryPromise } from "utils/AppsmithUtils";
+import { useLocation } from "react-router-dom";
 
 const WalkthroughRenderer = lazy(() => {
   return retryPromise(
@@ -20,6 +21,8 @@ export default function Walkthrough({ children }: any) {
   const [activeWalkthrough, setActiveWalkthrough] =
     useState<FeatureParams | null>();
   const [feature, setFeature] = useState<FeatureParams[]>([]);
+  const location = useLocation();
+
   const pushFeature = (value: FeatureParams) => {
     const alreadyExists = feature.some((f) => f.targetId === value.targetId);
     if (!alreadyExists) {
@@ -55,7 +58,7 @@ export default function Walkthrough({ children }: any) {
 
   useEffect(() => {
     if (feature.length > -1) updateActiveWalkthrough();
-  }, [feature.length]);
+  }, [feature.length, location]);
 
   return (
     <WalkthroughContext.Provider
