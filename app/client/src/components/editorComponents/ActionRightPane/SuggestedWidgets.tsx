@@ -321,6 +321,8 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
+      [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+        FEATURE_FLAG.ab_ds_binding_enabled,
       [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
       isWalkthroughOpened,
     });
