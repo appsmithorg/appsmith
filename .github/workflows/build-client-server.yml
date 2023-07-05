@@ -24,12 +24,12 @@ jobs:
         id: files
         run: |
           git fetch origin release
-          git diff --name-only --diff-filter=A ${{github.ref_name}} origin/release -- 'cypress/e2e' > diff
+          git diff --name-only --diff-filter=A remotes/origin/release...${{ github.ref_name }} -- 'cypress/e2e' > diff
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
           cat diff
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
 
       - name: Check the newly added files are written in ts
         id: check_files
