@@ -3,13 +3,6 @@
     <autocreate>false</autocreate>
     <audit>false</audit>
     <features>
-        <feature uid="release_datasource_environments_enabled" enable="true"
-                 description="Introducing multiple execution environments for datasources">
-            <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
-                <param name="emails"
-                       value="me-eng1@appsmith.com,me-eng2@appsmith.com,me-qa1@appsmith.com,me-qa2@appsmith.com,me-demo@appsmith.com"/>
-            </flipstrategy>
-        </feature>
         <feature uid="APP_NAVIGATION_LOGO_UPLOAD" enable="true"
                  description="Logo upload feature for app viewer navigation">
             <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
