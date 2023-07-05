@@ -4,6 +4,7 @@ import {
   dataSources,
   entityItems,
   deployMode,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
@@ -14,14 +15,11 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
-      cy.url().then(($queryPageUrl) => {
-        deployMode.StubWindowNAssert(
-          dataSources._queryDoc,
-          "querying-postgres#create-crud-queries",
-          $queryPageUrl,
-          "getWorkspace",
-        );
-      });
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-postgres#create-crud-queries",
+        "getWorkspace",
+      );
     });
   });
 
@@ -30,14 +28,11 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
-      cy.url().then(($queryPageUrl) => {
-        deployMode.StubWindowNAssert(
-          dataSources._queryDoc,
-          "querying-mongodb#create-queries",
-          $queryPageUrl,
-          "getWorkspace",
-        );
-      });
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-mongodb#create-queries",
+        "getWorkspace",
+      );
     });
   });
 
@@ -46,14 +41,11 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
-      cy.url().then(($queryPageUrl) => {
-        deployMode.StubWindowNAssert(
-          dataSources._queryDoc,
-          "querying-mysql#create-queries",
-          $queryPageUrl,
-          "getWorkspace",
-        );
-      });
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-mysql#create-queries",
+        "getWorkspace",
+      );
     });
   });
 
