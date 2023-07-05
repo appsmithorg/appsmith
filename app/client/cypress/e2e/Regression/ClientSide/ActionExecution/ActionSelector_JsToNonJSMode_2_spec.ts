@@ -7,9 +7,7 @@ import {
 
 describe("JS to non-JS mode in Action Selector", () => {
   before(() => {
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locators._spanButton("Submit"));
-    });
+    agHelper.AddDsl("promisesBtnDsl", locators._spanButton("Submit"));
   });
 
   it("1. shows fields for navigate to from js to non-js mode", () => {

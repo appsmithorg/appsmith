@@ -21,16 +21,18 @@ export default function sortLintingPathsByType(
     const entity = unevalTree[entityName];
     const entityConfig = configTree[entityName];
 
+    if (isJSAction(entity)) {
+      jsObjectPaths.add(fullPropertyPath);
+      continue;
+    }
+
     // We are only interested in dynamic leaves
     if (!isDynamicLeaf(unevalTree, fullPropertyPath, configTree)) continue;
     if (isATriggerPath(entityConfig, propertyPath)) {
       triggerPaths.add(fullPropertyPath);
       continue;
     }
-    if (isJSAction(entity)) {
-      jsObjectPaths.add(fullPropertyPath);
-      continue;
-    }
+
     bindingPaths.add(fullPropertyPath);
   }
 

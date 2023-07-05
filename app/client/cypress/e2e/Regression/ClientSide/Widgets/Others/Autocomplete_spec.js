@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Autocomplete using slash command and mustache tests", function () {
   before(() => {
-    cy.fixture("slashcommandDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("slashcommandDsl");
   });
 
   it("Slash command and mustache autocomplete validation for button widget", function () {

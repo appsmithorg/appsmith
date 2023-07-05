@@ -78,7 +78,8 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     public Mono<Boolean> isUsersEmpty() {
         final Query q = query(new Criteria());
         q.fields().include(fieldName(QUser.user.email));
-        q.limit(2);
+        // Basically limit to system generated emails plus 1 more.
+        q.limit(getSystemGeneratedUserEmails().size() + 1);
         return mongoOperations.find(q, User.class)
                 .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
                 .count()

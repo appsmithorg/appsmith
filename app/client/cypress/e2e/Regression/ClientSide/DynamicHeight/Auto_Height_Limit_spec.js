@@ -6,9 +6,7 @@ import {
 
 describe("Dynamic Height Width validation with limits", function () {
   it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
-    cy.fixture("dynamicHeightContainerdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightContainerdsl");
     entityExplorer.SelectEntityByName("Container1");
     cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
