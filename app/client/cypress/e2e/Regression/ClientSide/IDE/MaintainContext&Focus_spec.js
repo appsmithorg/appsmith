@@ -7,6 +7,10 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 describe("MaintainContext&Focus", function () {
   before("Import the test application", () => {
     _.homePage.NavigateToHome();
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    cy.reload();
     _.homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
       _.agHelper.Sleep();
