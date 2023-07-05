@@ -1,23 +1,21 @@
 /* eslint-disable no-console */
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgetPositions } from "selectors/entitiesSelector";
-import { getSelectedWidgetDsl } from "selectors/ui";
-import styled from "styled-components";
+import { getPositionOfSelectedWidget } from "selectors/entitiesSelector";
 import { debounce } from "lodash";
+import { Layer, Stage } from "react-konva";
+import Konva from "konva";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+// import type { Stage as StageType } from "konva/lib/Stage";
+// import type { Layer as LayerType } from "konva/lib/Layer";
 
-const OverlayCanvas = styled.canvas`
-  position: absolute;
-  z-index: 2;
-  pointer-events: none;
-`;
-// const PIXEL_RATIO = window.devicePixelRatio || 1;
 const OVERLAY_CANVAS_ID = "overlay-canvas";
 const FONT_SIZE = 14;
 const LINE_HEIGHT = Math.floor(FONT_SIZE * 1.2);
 const VERTICAL_PADDING = 4;
 const HORIZONTAL_PADDING = 6;
+const SCROLLBAR_WIDTH = 6;
 
 const HEIGHT = Math.floor(LINE_HEIGHT + VERTICAL_PADDING);
 
@@ -26,57 +24,76 @@ const TEXT_COLOR = "rgb(255, 255, 255)";
 
 const OverlayCanvasContainer = (props: {
   canvasWidth: number;
-  containerRef: any;
+  containerRef: React.RefObject<HTMLDivElement>;
+  parentRef: React.RefObject<HTMLDivElement>;
 }) => {
-  const selectedWidgets: FlattenedWidgetProps[] = useSelector(
-    getSelectedWidgetDsl(),
-  );
-  const widgetPositions = useSelector(getWidgetPositions);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const selectedWidgetsData:
+    | { id: string; widgetName: string; position: any }[]
+    | undefined = useSelector(getPositionOfSelectedWidget);
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   const widgetNamePositions = useRef<
-    { left: number; top: number; height: number; width: number } | undefined
+    | { left: number; top: number; height: number; text: string; width: number }
+    | undefined
   >(undefined);
 
-  const canvasPositions = useRef<{ top: number; left: number }>({
+  const canvasPositions = useRef<{
+    top: number;
+    left: number;
+    xDiff: number;
+    width: number;
+    yDiff: number;
+  }>({
     top: 0,
     left: 0,
+    xDiff: 0,
+    width: 0,
+    yDiff: 0,
   });
+  const canvasPositionUpdated = useRef<boolean>(false);
+  const containerEventAdded = useRef<boolean>(false);
 
   const scrollTop = useRef<number>(0);
   const isScrolling = useRef(0);
+  const hasScroll = useRef<boolean>(false);
+  const stageRef = useRef<any>(null);
+
+  const { selectWidget } = useWidgetSelection();
 
   useEffect(() => {
-    if (canvasRef?.current) {
-      const canvas: HTMLCanvasElement = canvasRef?.current as HTMLCanvasElement;
-      const context: CanvasRenderingContext2D | null = canvas?.getContext("2d");
-
-      const rect = canvas.getBoundingClientRect();
-      if (rect) {
-        canvasPositions.current = {
-          left: rect.left,
-          top: rect.top,
-        };
-      }
-      if (!context) return;
-      context.imageSmoothingEnabled = false;
-      // canvas.width = canvas.width * PIXEL_RATIO;
-      // canvas.height = canvas.height * PIXEL_RATIO;
-      // console.log("####", { PIXEL_RATIO });
-      // context.scale(PIXEL_RATIO, PIXEL_RATIO);
+    if (!canvasRef?.current) return;
+    if (canvasPositionUpdated.current) return;
+    const canvas: HTMLDivElement = canvasRef?.current as HTMLDivElement;
+    const rect: DOMRect = canvas.getBoundingClientRect();
+    if (rect) {
+      canvasPositions.current = {
+        ...canvasPositions.current,
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+      };
+      canvasPositionUpdated.current = true;
     }
-
-    return () => {
-      resetCanvas();
-    };
-  }, []);
+  }, [canvasRef?.current]);
 
   useEffect(() => {
-    if (!props.containerRef?.current || !canvasRef?.current) return;
+    if (
+      !props.containerRef?.current ||
+      !props.parentRef?.current ||
+      !canvasRef?.current ||
+      containerEventAdded.current
+    )
+      return;
+    const canvas: HTMLDivElement = canvasRef?.current as HTMLDivElement;
     const container: HTMLDivElement = props.containerRef
       ?.current as HTMLDivElement;
-
-    const canvas: HTMLCanvasElement = canvasRef?.current as HTMLCanvasElement;
+    const parent: HTMLDivElement = props.parentRef?.current as HTMLDivElement;
+    const parentRect: DOMRect = parent.getBoundingClientRect();
+    canvasPositions.current = {
+      ...canvasPositions.current,
+      xDiff: Math.abs(parentRect.left - canvasPositions.current.left),
+      yDiff: Math.abs(parentRect.top - canvasPositions.current.top),
+    };
     const handleMouseMove = debounce((e: any) => {
       if (!canvas) return;
       if (isMouseOver(e)) {
@@ -88,32 +105,38 @@ const OverlayCanvasContainer = (props: {
         canvas.style.pointerEvents = "none";
         canvas.style.cursor = "default";
       }
-    }, 50);
+    }, 20);
     const handleScroll = () => {
-      if (!props.containerRef?.current) return;
-      const currentScrollTop: number = props.containerRef?.current?.scrollTop;
+      if (!props.parentRef?.current) return;
+      const currentScrollTop: number = props.parentRef?.current?.scrollTop;
       if (!isScrolling.current) {
-        console.log("#### isScrolling", { isScrolling: isScrolling.current });
         resetCanvas();
       }
       clearTimeout(isScrolling.current);
       isScrolling.current = setTimeout(() => {
-        console.log("#### scroll stopped", { scrollTop: currentScrollTop });
         scrollTop.current = currentScrollTop;
-        drawWidgetNameComponent();
+        updateWNCPosition();
         isScrolling.current = 0;
+        if (
+          (props.parentRef?.current?.scrollHeight || 0) >
+          (props.parentRef?.current?.clientHeight || 0)
+        )
+          hasScroll.current = true;
       }, 100);
     };
-    container.addEventListener("scroll", handleScroll);
     container.addEventListener("mousemove", handleMouseMove);
+    parent.addEventListener("scroll", handleScroll);
+    containerEventAdded.current = true;
     return () => {
       container.removeEventListener("mousemove", handleMouseMove);
-      container.removeEventListener("scroll", handleScroll);
+      parent.removeEventListener("scroll", handleScroll);
+      containerEventAdded.current = false;
     };
-  }, [props.containerRef?.current]);
+  }, [props.containerRef?.current, props.parentRef?.current]);
 
   const isMouseOver = (e: any) => {
-    const x = e.clientX - canvasPositions.current.left;
+    const x =
+      e.clientX - canvasPositions.current.left - canvasPositions.current.xDiff;
     const y = e.clientY - canvasPositions.current.top;
     if (widgetNamePositions.current) {
       const { height, left, top, width } = widgetNamePositions.current;
@@ -126,122 +149,107 @@ const OverlayCanvasContainer = (props: {
   };
 
   useEffect(() => {
-    console.log("!!!! widget positions", { widgetPositions });
-    if (!selectedWidgets.length || !Object.keys(widgetPositions)?.length) {
+    if (!selectedWidgetsData?.length) {
       resetCanvas();
       return;
     }
-    drawWidgetNameComponent();
-  }, [selectedWidgets, widgetPositions]);
+    updateWNCPosition();
+  }, [selectedWidgetsData]);
 
-  const drawRoundRect = (
-    context: CanvasRenderingContext2D,
-    componentWidth: number,
-    left: number,
-    top: number,
-    fillColor: string,
-    strokeColor: string,
-    radius = 4,
-  ) => {
-    context.fillStyle = fillColor;
-    context.strokeStyle = strokeColor;
-    context.roundRect(left, top, componentWidth, HEIGHT, [
-      radius,
-      radius,
-      0,
-      0,
-    ]);
-    context.stroke();
-    context.roundRect(left + 1, top + 1, componentWidth - 2, HEIGHT - 2, [
-      radius,
-      radius,
-      0,
-      0,
-    ]);
-    context.fill();
-  };
+  const updateWNCPosition = () => {
+    if (!selectedWidgetsData?.length || !stageRef?.current) return;
+    const selectedWidget = selectedWidgetsData[0];
+    const { position, widgetName: text } = selectedWidget;
+    if (!position) return;
 
-  const drawText = (
-    context: CanvasRenderingContext2D,
-    text: string,
-    left: number,
-    top: number,
-  ) => {
-    context.font = `400 ${FONT_SIZE}px sans-serif`;
-    context.fillStyle = TEXT_COLOR;
-    context.textBaseline = "hanging";
-    context.textAlign = "start";
-    context.fillText(
+    const textEl = new Konva.Text({
+      fill: TEXT_COLOR,
+      fontFamily: "sans-serif",
+      fontSize: FONT_SIZE,
       text,
-      left + HORIZONTAL_PADDING,
-      top + VERTICAL_PADDING * 1.2,
-    );
-  };
-
-  const drawWidgetNameComponent = () => {
-    if (!canvasRef?.current) return;
-    // TODO: @Preet - Add capability for multi selected widgets
-    const selectedWidget: FlattenedWidgetProps = selectedWidgets[0];
-    if (!selectedWidget) return;
-    const text: string = selectedWidget.widgetName;
-    const widgetPosition = widgetPositions[selectedWidget.widgetId];
-    if (!widgetPosition) return;
-    const canvas: HTMLCanvasElement = canvasRef?.current as HTMLCanvasElement;
-    const context: CanvasRenderingContext2D | null = canvas?.getContext("2d");
-    if (!context) return;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.save();
-    context.beginPath();
-
-    context.font = `400 ${FONT_SIZE}px sans-serif`;
-    const textWidth = context.measureText(text).width;
-    const componentWidth: number = textWidth + HORIZONTAL_PADDING * 2;
-
-    const left: number =
-      widgetPosition.left + widgetPosition.width - componentWidth - 1;
-    const top: number = widgetPosition.top + 11 - scrollTop.current;
-    console.log("####", {
-      left,
-      top,
-      componentWidth,
-      textWidth,
-      HEIGHT,
-      FONT_SIZE,
-      widgetTop: widgetPosition.top,
-      scrollTop: scrollTop.current,
+      x: HORIZONTAL_PADDING,
+      y: VERTICAL_PADDING,
     });
 
-    // Draw component background
-    drawRoundRect(context, componentWidth, left, top, FILL_COLOR, FILL_COLOR);
+    const textWidth: number = textEl.width();
+    const componentWidth: number = textWidth + HORIZONTAL_PADDING * 2;
+    const left: number =
+      position.left +
+      position.width -
+      componentWidth -
+      (hasScroll.current ? SCROLLBAR_WIDTH / 2 : 0);
+    const top: number =
+      position.top + canvasPositions.current.yDiff - HEIGHT - scrollTop.current;
     widgetNamePositions.current = {
-      left,
-      top,
+      left: left,
+      text,
+      top: top,
       width: componentWidth,
       height: HEIGHT,
     };
 
-    // Draw text
-    drawText(context, text, left, top);
+    const stage = stageRef.current;
+    const layer = stage.getLayers()[0];
+    layer.destroyChildren();
 
-    context.save();
+    const groupEl = new Konva.Group({
+      height: HEIGHT,
+      width: componentWidth,
+      x: left,
+      y: top,
+    });
+
+    const rectEl = new Konva.Rect({
+      cornerRadius: [4, 4, 0, 0],
+      fill: FILL_COLOR,
+      height: HEIGHT,
+      width: componentWidth,
+      x: 0,
+      y: 0,
+    });
+
+    groupEl.on("click", (event) => {
+      console.log("#### click", event);
+      selectWidget(SelectionRequestType.One, [selectedWidget.id]);
+    });
+
+    groupEl.add(rectEl);
+    groupEl.add(textEl);
+    layer.add(groupEl);
+    layer.draw();
   };
 
   const resetCanvas = () => {
-    if (!canvasRef?.current) return;
-    const canvas: HTMLCanvasElement = canvasRef?.current as HTMLCanvasElement;
-    const context = canvas?.getContext("2d");
-    context?.clearRect(0, 0, canvas.width, canvas.height);
-    context?.save();
     widgetNamePositions.current = undefined;
+    const stage = stageRef.current;
+    if (!stage) return;
+    const layer = stage.getLayers()[0];
+    if (!layer) return;
+    layer.destroyChildren();
+    layer.draw();
   };
 
   return (
-    <OverlayCanvas
-      height="600"
+    <div
       id={OVERLAY_CANVAS_ID}
       ref={canvasRef}
-      width={props.canvasWidth}
-    />
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        zIndex: 2,
+        pointerEvents: "none",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <Stage height={600} ref={stageRef} width={props.canvasWidth}>
+        <Layer />
+      </Stage>
+    </div>
   );
 };
 

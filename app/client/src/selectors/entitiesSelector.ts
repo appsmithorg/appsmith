@@ -43,6 +43,7 @@ import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { getSelectedWidgets } from "./ui";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1138,6 +1139,29 @@ export const getDatasourcesUsedInApplicationByActions = (
   );
 };
 
-export const getWidgetPositions = (state: AppState) => {
-  return state.entities.widgetPositions;
-};
+export const getWidgetPositions = (state: AppState) =>
+  state.entities.widgetPositions;
+
+export const getPositionOfSelectedWidget = createSelector(
+  getWidgetPositions,
+  getSelectedWidgets,
+  (state: AppState) => state.entities.canvasWidgets,
+  (
+    positions,
+    selectedWidgets,
+    widgets,
+  ): { id: string; widgetName: string; position: any }[] | undefined => {
+    if (!selectedWidgets || !selectedWidgets || !widgets) return;
+    const arr = [];
+    for (const id of selectedWidgets) {
+      const widget = widgets[id];
+      if (!widget) continue;
+      arr.push({
+        id: widget.widgetId,
+        position: positions[widget.widgetId],
+        widgetName: widget.widgetName,
+      });
+    }
+    return arr;
+  },
+);

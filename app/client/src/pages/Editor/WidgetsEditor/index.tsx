@@ -77,6 +77,7 @@ function WidgetsEditor() {
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -203,6 +204,7 @@ function WidgetsEditor() {
               }
               isPreviewMode={isPreviewMode}
               isPublished={isPublished}
+              ref={containerRef}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
               {shouldShowSnapShotBanner && (
@@ -211,6 +213,7 @@ function WidgetsEditor() {
                 </div>
               )}
               <CanvasContainer
+                containerRef={containerRef}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }

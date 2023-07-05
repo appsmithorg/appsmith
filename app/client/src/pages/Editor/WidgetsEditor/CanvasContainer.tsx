@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -42,6 +42,7 @@ type CanvasContainerProps = {
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
+  containerRef: any;
 };
 
 const Container = styled.section<{
@@ -103,7 +104,7 @@ function CanvasContainer(props: CanvasContainerProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const { isPreviewMode, shouldShowSnapShotBanner } = props;
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -210,7 +211,7 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
         navigationHeight={navigationHeight}
-        ref={containerRef}
+        ref={ref}
         style={
           {
             "--main-canvas-height": shouldHaveTopMargin
@@ -240,7 +241,8 @@ function CanvasContainer(props: CanvasContainerProps) {
       />
       <OverlayCanvasContainer
         canvasWidth={canvasWidth}
-        containerRef={containerRef}
+        containerRef={props.containerRef}
+        parentRef={ref}
       />
     </>
   );

@@ -48,7 +48,6 @@ export type AutoLayoutProps = {
   widgetId: string;
   widgetName: string;
   widgetType: WidgetType;
-  parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
   renderMode: RenderMode;
   mainCanvasWidth?: number;
