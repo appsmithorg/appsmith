@@ -18,11 +18,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Get the diff from base branch
+        continue-on-error: true
         id: files
         run: |
           git fetch origin release
-          git diff --name-only --diff-filter=A origin/release... -- 'cypress/e2e' > diff
+          git diff --name-only --diff-filter=A release... -- 'cypress/e2e' > diff
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Check the newly added files are written in ts
         id: check_files
