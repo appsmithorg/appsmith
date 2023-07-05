@@ -48,6 +48,124 @@ export const FlexBoxContainer = styled.div`
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
+const AutoLayoutLayerResizingHandles = ({ children, layer }: any) => {
+  const allWidgets = useSelector(getWidgets);
+  const widgetPositions = useSelector(
+    (state: AppState) => state.entities.widgetPositions,
+  );
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  const fillWidgetsOrderConfig = useMemo(() => {
+    const fillWidgetsOrder: any = [];
+    if (Object.keys(widgetPositions).length > 0 && !isAutoCanvasResizing) {
+      (layer as FlexLayer).children.forEach((each, index) => {
+        const { id } = each;
+        const eachWidget = allWidgets[id];
+        let leftWidget, rightWidget;
+        if (
+          eachWidget &&
+          eachWidget.responsiveBehavior === ResponsiveBehavior.Fill
+        ) {
+          if (index > 0) {
+            leftWidget = layer.children[index - 1];
+          } else if (index < layer.children.length) {
+            rightWidget = layer.children[index + 1];
+          }
+          fillWidgetsOrder.push({
+            leftWidget,
+            widget: eachWidget,
+            position: widgetPositions[id],
+            rightWidget,
+          });
+        }
+      });
+    }
+    return fillWidgetsOrder;
+  }, [allWidgets, widgetPositions, layer, isAutoCanvasResizing]);
+
+  return (
+    <>
+      {fillWidgetsOrderConfig.map((each: any, index: any) => {
+        return (
+          <div
+            key={index}
+            style={{
+              position: "absolute",
+              top: `${each.position.top}px`,
+              left: `${each.position.left + each.position.width}px`,
+              backgroundColor: "red",
+              width: "3px",
+              height: `${each.position.height}px`,
+              zIndex: 4,
+              cursor: "col-resize",
+            }}
+          />
+        );
+      })}
+      {children}
+    </>
+  );
+};
+
+function processLayers(
+  map: { [key: string]: any },
+  flexLayers: FlexLayer[],
+  widgetId: string,
+) {
+  const layers = [];
+  for (const [index, layer] of flexLayers.entries()) {
+    layers.push(processIndividualLayer(layer, map, index, widgetId));
+  }
+  return layers;
+}
+
+function processIndividualLayer(
+  layer: FlexLayer,
+  map: { [key: string]: any },
+  index: number,
+  widgetId: string,
+) {
+  const {
+    centerChildren,
+    endChildren,
+    hasFillWidget,
+    startChildren,
+  }: FlexLayerLayoutData = getLayoutDataForFlexLayer(map, layer);
+
+  return (
+    <AutoLayoutLayerResizingHandles layer={layer}>
+      <AutoLayoutLayer
+        centerChildren={centerChildren}
+        endChildren={endChildren}
+        hasFillWidget={hasFillWidget}
+        index={index}
+        key={index}
+        startChildren={startChildren}
+        widgetId={widgetId}
+      />
+    </AutoLayoutLayerResizingHandles>
+  );
+}
+
+const renderChildren = (props: FlexBoxProps) => {
+  if (!props.children) return null;
+  if (!props.useAutoLayout) return props.children;
+
+  /**
+   * Wrap children of a Vertical Stack in a flex layer.
+   */
+  const map: { [key: string]: any } = {};
+  if (isArray(props.children)) {
+    for (const child of props.children) {
+      map[(child as JSX.Element).props?.widgetId] = child;
+    }
+  }
+  const layers: any[] = processLayers(map, props.flexLayers, props.widgetId);
+
+  return layers;
+};
+
 function FlexBoxComponent(props: FlexBoxProps) {
   const currentWidth = useRef(0);
   const flexCanvasRef = React.useRef<HTMLDivElement>(null);
@@ -81,125 +199,12 @@ function FlexBoxComponent(props: FlexBoxProps) {
     };
   }, []);
 
-  const renderChildren = () => {
-    if (!props.children) return null;
-    if (!props.useAutoLayout) return props.children;
-
-    /**
-     * Wrap children of a Vertical Stack in a flex layer.
-     */
-    const map: { [key: string]: any } = {};
-    if (isArray(props.children)) {
-      for (const child of props.children) {
-        map[(child as JSX.Element).props?.widgetId] = child;
-      }
-    }
-    const layers: any[] = processLayers(map);
-
-    return layers;
-  };
-
-  function processLayers(map: { [key: string]: any }) {
-    const layers = [];
-    for (const [index, layer] of props.flexLayers.entries()) {
-      layers.push(processIndividualLayer(layer, map, index));
-    }
-    return layers;
-  }
-
-  const AutoLayoutLayerResizingHandles = ({ children, layer }: any) => {
-    const allWidgets = useSelector(getWidgets);
-    const widgetPositions = useSelector(
-      (state: AppState) => state.entities.widgetPositions,
-    );
-    const isAutoCanvasResizing = useSelector(
-      (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-    );
-    const fillWidgetsOrderConfig = useMemo(() => {
-      const fillWidgetsOrder: any = [];
-      if (Object.keys(widgetPositions).length > 0 && !isAutoCanvasResizing) {
-        (layer as FlexLayer).children.forEach((each, index) => {
-          const { id } = each;
-          const eachWidget = allWidgets[id];
-          let leftWidget, rightWidget;
-          if (
-            eachWidget &&
-            eachWidget.responsiveBehavior === ResponsiveBehavior.Fill
-          ) {
-            if (index > 0) {
-              leftWidget = layer.children[index - 1];
-            } else if (index < layer.children.length) {
-              rightWidget = layer.children[index + 1];
-            }
-            fillWidgetsOrder.push({
-              leftWidget,
-              widget: eachWidget,
-              position: widgetPositions[id],
-              rightWidget,
-            });
-          }
-        });
-      }
-      return fillWidgetsOrder;
-    }, [allWidgets, widgetPositions, layer, isAutoCanvasResizing]);
-
-    return (
-      <>
-        {fillWidgetsOrderConfig.map((each: any, index: any) => {
-          return (
-            <div
-              key={index}
-              style={{
-                position: "absolute",
-                top: `${each.position.top}px`,
-                left: `${each.position.left + each.position.width}px`,
-                backgroundColor: "red",
-                width: "3px",
-                height: `${each.position.height}px`,
-                zIndex: 4,
-                cursor: "col-resize",
-              }}
-            />
-          );
-        })}
-        {children}
-      </>
-    );
-  };
-
-  function processIndividualLayer(
-    layer: FlexLayer,
-    map: { [key: string]: any },
-    index: number,
-  ) {
-    const {
-      centerChildren,
-      endChildren,
-      hasFillWidget,
-      startChildren,
-    }: FlexLayerLayoutData = getLayoutDataForFlexLayer(map, layer);
-
-    return (
-      <AutoLayoutLayerResizingHandles layer={layer}>
-        <AutoLayoutLayer
-          centerChildren={centerChildren}
-          endChildren={endChildren}
-          hasFillWidget={hasFillWidget}
-          index={index}
-          key={index}
-          startChildren={startChildren}
-          widgetId={props.widgetId}
-        />
-      </AutoLayoutLayerResizingHandles>
-    );
-  }
-
   return (
     <FlexBoxContainer
       className={`flex-container-${props.widgetId}`}
       ref={flexCanvasRef}
     >
-      {renderChildren()}
+      {renderChildren(props)}
     </FlexBoxContainer>
   );
 }
