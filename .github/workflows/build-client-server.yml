@@ -28,9 +28,8 @@ jobs:
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
           cat diff
 
-      # - name: Setup tmate session
-      #   if: failure()
-      #   uses: mxschmitt/action-tmate@v3
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Check the newly added files are written in ts
         id: check_files
