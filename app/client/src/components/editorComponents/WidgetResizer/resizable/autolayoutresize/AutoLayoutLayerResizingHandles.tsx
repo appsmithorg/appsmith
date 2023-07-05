@@ -20,10 +20,18 @@ import { calculateLayerMinWidth } from "utils/autoLayout/AutoLayoutUtils";
 
 const LayerResizeHandle = styled.div`
   position: absolute;
-  background-color: ${Colors.WATUSI};
-  width: 3px;
+  width: 4px;
   z-index: 4;
-  cursor: col-resize;
+  & > div {
+    &:hover {
+      opacity: 100%;
+    }
+    background-color: ${Colors.WATUSI};
+    opacity: 60%;
+    cursor: col-resize;
+    width: 3px;
+    height: 100%;
+  }
 `;
 interface FillWidgetResizerConfig {
   leftWidget?: string;
@@ -58,12 +66,16 @@ const FillWidgetResizer = ({
   const widgetPositions = useSelector(
     (state: AppState) => state.entities.widgetPositions,
   );
-  const [currentPosition, setCurrentPosition] = useState(
-    widgetPositions[widget.widgetId],
-  );
+  const [currentPosition, setCurrentPosition] = useState({
+    left: 0,
+    top: 0,
+    height: 0,
+    width: 0,
+  });
   useEffect(() => {
-    if (movement === 0) {
-      setCurrentPosition(widgetPositions[widget.widgetId]);
+    const currentWidgetPositions = widgetPositions[widget.widgetId];
+    if (movement === 0 && currentWidgetPositions) {
+      setCurrentPosition(currentWidgetPositions);
     }
   }, [widgetPositions, movement]);
   const currentGrowFactor = currentPosition.width / parentWidth;
@@ -130,7 +142,7 @@ const FillWidgetResizer = ({
   //   width: newlyComputedWidth,
   //   height: newDimensions.height,
   // });
-  return (
+  return layerMinWidth > parentWidth ? null : (
     <LayerResizeHandle
       {...bind()}
       style={{
@@ -138,7 +150,9 @@ const FillWidgetResizer = ({
         left: `${currentPosition.left + currentPosition.width + movement}px`,
         height: `${currentPosition.height}px`,
       }}
-    />
+    >
+      <div />
+    </LayerResizeHandle>
   );
 };
 
@@ -154,7 +168,7 @@ export const AutoLayoutLayerResizingHandles = ({
   );
   const appMode = useSelector(getAppMode);
   const isPreviewMode = useSelector(previewModeSelector);
-  const showResizers = appMode === APP_MODE.EDIT && !isPreviewMode;
+
   const parentId = allWidgets[widgetId].parentId || MAIN_CONTAINER_WIDGET_ID;
   const parentWidth = useSelector((state) =>
     getAutoLayoutCanvasMetaWidth(state, parentId),
@@ -165,6 +179,12 @@ export const AutoLayoutLayerResizingHandles = ({
   const mainCanvasWidth = useSelector((state) =>
     getAutoLayoutCanvasMetaWidth(state, MAIN_CONTAINER_WIDGET_ID),
   );
+  const allWidgetsLength = Object.keys(allWidgets).length;
+  const allWidgetsPositionsLength = Object.keys(widgetPositions).length;
+  const allPositionsAreAvailable =
+    allWidgetsPositionsLength > 0 && allWidgetsLength > 0;
+  const showResizers =
+    appMode === APP_MODE.EDIT && !isPreviewMode && allPositionsAreAvailable;
   const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
   const layerMinWidth = calculateLayerMinWidth(
     layer,
@@ -175,11 +195,7 @@ export const AutoLayoutLayerResizingHandles = ({
   );
   const fillWidgetsOrderConfig = useMemo(() => {
     const fillWidgetsOrder: FillWidgetResizerConfig[] = [];
-    if (
-      Object.keys(widgetPositions).length > 0 &&
-      !isAutoCanvasResizing &&
-      showResizers
-    ) {
+    if (!isAutoCanvasResizing && showResizers) {
       (layer as FlexLayer).children.forEach((each, index) => {
         const { id } = each;
         const eachWidget = allWidgets[id];
@@ -202,7 +218,7 @@ export const AutoLayoutLayerResizingHandles = ({
       });
     }
     return fillWidgetsOrder;
-  }, [allWidgets, layer, isAutoCanvasResizing, showResizers, widgetPositions]);
+  }, [allWidgets, layer, isAutoCanvasResizing, showResizers]);
 
   return showResizers ? (
     <>
