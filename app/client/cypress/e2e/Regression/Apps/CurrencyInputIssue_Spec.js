@@ -18,13 +18,12 @@ describe("Currency Input Issue", function () {
         cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
           force: true,
         });
-
         cy.wait(2000);
       } else {
         homePage.AssertImportToast();
       }
     });
-    cy.get(widgetInput).type("123456789");
+    cy.get(widgetInput).type("1234567890");
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("not.exist");
     });
