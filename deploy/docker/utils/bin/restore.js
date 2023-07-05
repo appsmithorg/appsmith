@@ -37,7 +37,11 @@ async function getBackupFileName() {
 
 }
 async function unencryptArchive(encryptedFilePath, backupFilePath){
+  try{
     await utils.execCommand(['openssl', 'enc', '-d', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', encryptedFilePath, '-out', backupFilePath])
+  } catch (error) {
+    throw new Error('Invalid password. Please try again with the correct password.');
+  }
 }
 async function extractArchive(backupFilePath, restoreRootPath) {
   console.log('Extracting the Appsmith backup archive at ' + backupFilePath);
