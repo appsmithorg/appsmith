@@ -1,21 +1,22 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import { RenderModes } from "constants/WidgetConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 
-const StyledContainer = styled.div`
+const StyledContainer = styled.div<ContainerProps>`
   height: 100%;
   position: relative;
 
-  .auto-layout & > [data-button] {
-    display: flex;
-    width: auto;
-    height: auto;
-    max-width: 352px;
-    min-width: 112px;
-    min-height: 32px;
-  }
+  ${({ maxWidth, minHeight, minWidth }) =>
+    css`
+      & [data-button] {
+        display: flex;
+        width: auto;
+        ${minWidth ? `min-width: ${minWidth}px;` : ""}
+        ${minHeight ? `min-height: ${minHeight}px;` : ""}
+        ${maxWidth ? `max-width: ${maxWidth}px;` : ""}
+      }
+    `}
 
   .grecaptcha-badge {
     visibility: hidden;
@@ -31,13 +32,13 @@ type ContainerProps = {
   children?: React.ReactNode;
   renderMode?: RenderMode;
   showInAllModes?: boolean;
+  minWidth?: number;
+  maxWidth?: number;
+  minHeight?: number;
 };
 
 export function Container(props: ContainerProps) {
-  if (props.renderMode === RenderModes.CANVAS || props.showInAllModes) {
-    return <StyledContainer>{props.children}</StyledContainer>;
-  }
+  const { children, ...rest } = props;
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{props.children}</>;
+  return <StyledContainer {...rest}>{children}</StyledContainer>;
 }
