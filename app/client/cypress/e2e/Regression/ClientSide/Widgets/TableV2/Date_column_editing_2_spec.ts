@@ -127,7 +127,8 @@ describe("Table widget date column inline editing functionality", () => {
   it("4. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
     entityExplorer.SelectEntityByName("Table1");
     agHelper.GetNClick(propPane._goBackToProperty);
-    agHelper.UpdateCodeInput(propPane._propertyControl("tabledata"),
+    agHelper.UpdateCodeInput(
+      propPane._propertyControl("tabledata"),
       '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
     );
     agHelper.Sleep(3000);

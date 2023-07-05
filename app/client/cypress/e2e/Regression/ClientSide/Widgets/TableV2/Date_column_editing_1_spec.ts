@@ -28,7 +28,9 @@ describe("Table widget date column inline editing functionality", () => {
     propPane.TogglePropertyState("Editable", "On");
     assertHelper.AssertNetworkStatus("updateLayout", 200);
     agHelper.AssertElementExist(
-      `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${locators._svg}`,
+      `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
+        locators._svg
+      }`,
     );
   });
 
