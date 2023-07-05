@@ -34,7 +34,9 @@ export class WorkerLinter implements ILinter {
     this.server = new GracefulWorkerService(
       new Worker(new URL("./worker.ts", import.meta.url), {
         type: "module",
-        name: "linter",
+        // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
+        // relies on it to find workers in the list of all requests.
+        name: "lintWorker",
       }),
     );
     this.start = this.start.bind(this);
