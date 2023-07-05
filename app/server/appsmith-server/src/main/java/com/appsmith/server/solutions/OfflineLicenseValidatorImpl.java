@@ -4,8 +4,8 @@ import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.OfflineLicenseDataset;
 import com.appsmith.server.services.ConfigService;
 import com.google.gson.Gson;
@@ -38,12 +38,12 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
     }
 
     @Override
-    public Mono<TenantConfiguration.License> licenseCheck(Tenant tenant) {
+    public Mono<License> licenseCheck(Tenant tenant) {
 
         log.debug("Initiating offline license check");
-        TenantConfiguration.License license = isLicenseKeyValid(tenant)
+        License license = isLicenseKeyValid(tenant)
                 ? tenant.getTenantConfiguration().getLicense()
-                : new TenantConfiguration.License();
+                : new License();
 
         if (!StringUtils.hasLength(license.getKey())) {
             log.debug("License key not found for tenant {}", tenant.getId());
@@ -54,7 +54,7 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
         return Mono.just(license);
     }
 
-    public TenantConfiguration.License getVerifiedLicense(TenantConfiguration.License license,
+    public License getVerifiedLicense(License license,
                                                           String publicVerificationKey) {
 
         String licenseKey = license.getKey();
@@ -68,7 +68,7 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
             // Verify signing prefix
             if (!StringUtils.pathEquals(FieldName.KEY, signingPrefix)) {
                 log.error("Unsupported signing prefix for offline license key check");
-                return new TenantConfiguration.License();
+                return new License();
             }
             // Convert hex-encoded public key to a byte array
             byte[] publicKeyBytes = Hex.decode(publicVerificationKey);
@@ -109,13 +109,13 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
                 }
             }
             log.debug("License key is invalid!");
-            TenantConfiguration.License license1 = new TenantConfiguration.License();
+            License license1 = new License();
             license1.setActive(false);
             license1.setKey(licenseKey);
             return license1;
         } catch (Exception e) {
             log.debug("Exception while processing the offline license: {}", e.getMessage());
-            return new TenantConfiguration.License();
+            return new License();
         }
     }
 

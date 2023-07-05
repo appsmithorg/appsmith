@@ -1,8 +1,8 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.LicenseValidationResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -37,7 +37,7 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
      * @param tenant
      * @return License
      */
-    public Mono<TenantConfiguration.License> licenseCheck(Tenant tenant) {
+    public Mono<License> licenseCheck(Tenant tenant) {
         log.debug("Initiating online license check");
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (StringUtils.isEmpty(baseUrl)) {
@@ -47,9 +47,9 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
             System.exit(1);
         }
 
-        TenantConfiguration.License license = Boolean.TRUE.equals(isLicenseKeyValid(tenant))
+        License license = Boolean.TRUE.equals(isLicenseKeyValid(tenant))
                 ? tenant.getTenantConfiguration().getLicense()
-                : new TenantConfiguration.License();
+                : new License();
 
         if (StringUtils.isEmpty(license.getKey())) {
             log.debug("License key not found for tenant {}", tenant.getId());
@@ -84,6 +84,7 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
                     license.setType(licenseValidationResponse.getLicenseType());
                     license.setStatus(licenseValidationResponse.getLicenseStatus());
                     license.setOrigin(licenseValidationResponse.getOrigin());
+                    license.setPlan(licenseValidationResponse.getLicensePlan());
                     return license;
                 });
     }

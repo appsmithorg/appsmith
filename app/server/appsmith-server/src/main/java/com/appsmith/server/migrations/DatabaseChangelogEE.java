@@ -10,6 +10,7 @@ import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -394,7 +395,7 @@ public class DatabaseChangelogEE {
                 || !StringUtils.hasText(tenantConfiguration.getLicense().getKey()))) {
 
             log.info("Moving license key to DB");
-            TenantConfiguration.License license = new TenantConfiguration.License();
+            License license = new License();
             license.setActive(true);
             license.setStatus(LicenseStatus.ACTIVE);
             license.setKey(licenseKey);
@@ -421,7 +422,7 @@ public class DatabaseChangelogEE {
                 && tenantConfiguration.getLicense() != null
                 && !StringUtils.hasText(tenantConfiguration.getLicense().getKey())) {
 
-            tenantConfiguration.setLicense(new TenantConfiguration.License());
+            tenantConfiguration.setLicense(new License());
             mongoTemplate.save(tenant);
         }
     }

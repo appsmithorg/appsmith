@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseStatus;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -139,7 +140,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tuple<Tenant, Boolean>
      */
     private Mono<Tuple2<Tenant, Boolean>> saveTenantLicenseKey(String licenseKey) {
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setKey(licenseKey);
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
         return repository.findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
@@ -155,7 +156,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(tuple -> {
                     Tenant tenant = tuple.getT1();
                     boolean isActivateInstance = tuple.getT2();
-                    TenantConfiguration.License license1 = tenant.getTenantConfiguration().getLicense();
+                    License license1 = tenant.getTenantConfiguration().getLicense();
                     AnalyticsEvents analyticsEvent = isActivateInstance ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
                     Map<String, Object> analyticsProperties = Map.of(
                             FieldName.LICENSE_KEY, StringUtils.isNullOrEmpty(license1.getKey()) ? "" : DataTypeStringUtils.maskString(license1.getKey(), 8, 32, 'x'),
@@ -194,7 +195,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     private Mono<Tenant> checkTenantLicense(Tenant tenant) {
-        Mono<TenantConfiguration.License> licenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> licenseMono = licenseValidator.licenseCheck(tenant);
         return licenseMono
             .map(license -> {
                 // To prevent empty License object being saved in DB for license checks with empty license key

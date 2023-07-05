@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.Url;
@@ -86,7 +87,9 @@ public class TenantConfiguration extends TenantConfigurationCE {
         this.singleSessionPerUserEnabled = tenantConfiguration.getSingleSessionPerUserEnabled();
 
         boolean isLicenseExist = null != tenantConfiguration.getLicense() && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());
-        this.license = isLicenseExist ? tenantConfiguration.getLicense() : null;
+        License freeLicense = new License();
+        freeLicense.setPlan(LicensePlan.FREE);
+        this.license = isLicenseExist ? tenantConfiguration.getLicense() : freeLicense;
 
         if (null != this.license && !StringUtils.isEmpty(this.license.key)) {
             this.license.key = DataTypeStringUtils.maskString(this.license.key, 8, 32, 'x');
@@ -100,18 +103,6 @@ public class TenantConfiguration extends TenantConfigurationCE {
         private String font;
         private String disabled;
         private String hover;
-    }
-
-    License license;
-    @Data
-    public static class License {
-        Boolean active;
-        String id;
-        String key;
-        LicenseType type;
-        Instant expiry;
-        LicenseStatus status;
-        LicenseOrigin origin;
     }
 
 }

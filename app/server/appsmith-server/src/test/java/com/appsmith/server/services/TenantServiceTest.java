@@ -3,9 +3,11 @@ package com.appsmith.server.services;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -117,13 +119,14 @@ public class TenantServiceTest {
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_validLicenseKey_Success() {
         String licenseKey = "sample-license-key";
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(true);
         license.setType(LicenseType.PAID);
         license.setKey(licenseKey);
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.SELF_SERVE);
 
         // Mock CS response to get valid license
         Mockito.when(licenseValidator.licenseCheck(any()))
@@ -132,12 +135,13 @@ public class TenantServiceTest {
         StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                    License savedLicense = tenantConfiguration.getLicense();
                     assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
@@ -147,12 +151,13 @@ public class TenantServiceTest {
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                    License savedLicense = tenantConfiguration.getLicense();
                     assertThat(savedLicense.getKey()).isEqualTo(licenseKey);
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();
@@ -162,13 +167,14 @@ public class TenantServiceTest {
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_licenseInGracePeriod_Success() {
         String licenseKey = UUID.randomUUID().toString();
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(true);
         license.setType(LicenseType.PAID);
         license.setKey(licenseKey);
         license.setStatus(LicenseStatus.valueOf("IN_GRACE_PERIOD"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.SELF_SERVE);
 
         // Mock CS response to get valid license
         Mockito.when(licenseValidator.licenseCheck(any()))
@@ -177,12 +183,13 @@ public class TenantServiceTest {
         StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
             .assertNext(tenant -> {
                 TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                License savedLicense = tenantConfiguration.getLicense();
                 assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
                 assertThat(savedLicense.getActive()).isTrue();
                 assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                 assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                 assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
                 assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
                 assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
             })
@@ -192,12 +199,13 @@ public class TenantServiceTest {
         StepVerifier.create(tenantService.getDefaultTenant())
             .assertNext(tenant -> {
                 TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                License savedLicense = tenantConfiguration.getLicense();
                 assertThat(savedLicense.getKey()).isEqualTo(licenseKey);
                 assertThat(savedLicense.getActive()).isTrue();
                 assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                 assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                 assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
                 assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
                 assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
             })
@@ -208,7 +216,7 @@ public class TenantServiceTest {
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_Invalid_LicenseKey() {
         String licenseKey = UUID.randomUUID().toString();
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(false);
         license.setKey(licenseKey);
 
@@ -227,7 +235,7 @@ public class TenantServiceTest {
     @WithUserDetails("usertest@usertest.com")
     public void updateTenantLicenseKey_missingManageTenantPermission_throwsException() {
         String licenseKey = "SOME-INVALID-LICENSE-KEY";
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(false);
         license.setKey(licenseKey);
 
@@ -245,7 +253,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_getTenantConfiguration_returnsNullLicense_ifNoLicensePresent() {
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
 
         // Mock CS response to get valid license
         Mockito.when(licenseValidator.licenseCheck(any()))
@@ -253,11 +261,21 @@ public class TenantServiceTest {
         // Performing same process as a scheduled license check
         tenantService.checkAndUpdateDefaultTenantLicense().block();
 
-        // Verify getTenantConfiguration() should have null license after updating with empty License object
+        // Verify getTenantConfiguration() should have a license with plan only after updating with empty License object
         StepVerifier.create(tenantService.getTenantConfiguration())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration()).isNotNull();
-                    assertThat(tenant.getTenantConfiguration().getLicense()).isNull();
+                    assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
+                    License freeLicense = tenant.getTenantConfiguration().getLicense();
+                    assertThat(freeLicense.getPlan()).isEqualTo(LicensePlan.FREE);
+
+                    assertThat(freeLicense.getActive()).isNull();
+                    assertThat(freeLicense.getId()).isNull();
+                    assertThat(freeLicense.getKey()).isNull();
+                    assertThat(freeLicense.getType()).isNull();
+                    assertThat(freeLicense.getExpiry()).isNull();
+                    assertThat(freeLicense.getStatus()).isNull();
+                    assertThat(freeLicense.getOrigin()).isNull();
                 })
                 .verifyComplete();
     }
