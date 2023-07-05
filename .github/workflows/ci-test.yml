@@ -148,7 +148,7 @@ jobs:
           cd cicontainerlocal
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host \
-            -e KEYGEN_API_URL=http://host.docker.internal:5001/keygen \
+            -e KEYGEN_API_URL=http://host.docker.internal:5001 \
             -e KEYGEN_BYPASS_SIGNATURE_VERIFICATION=true \
             --add-host=host.docker.internal:host-gateway appsmith/cloud-services:signature-validation \
             cd cicontainerlocal
