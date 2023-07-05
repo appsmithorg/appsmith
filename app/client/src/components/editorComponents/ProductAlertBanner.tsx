@@ -11,6 +11,7 @@ import {
   I_UNDERSTAND,
   LEARN_MORE,
 } from "@appsmith/constants/messages";
+import { getIsFirstTimeUserOnboardingEnabled } from "../../selectors/onboardingSelectors";
 
 const AlertContainer = styled.div`
   position: absolute;
@@ -39,11 +40,15 @@ const AnimationContainer = styled.div`
 `;
 
 const ProductAlertBanner = () => {
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
   const { config, message }: ProductAlertState | undefined = useSelector(
     (state) => state.ui.users.productAlert,
   );
   const [dismissed, setDismissed] = useState(false);
 
+  if (isFirstTimeUserOnboardingEnabled) return null;
   if (!message) return null;
 
   // If dismissed, it will not be shown
