@@ -219,7 +219,6 @@ describe("Edit Permission flow ", function () {
     cy.get(datasourceEditor.port)
       .clear()
       .type(datasourceFormData["mysql-port"]);
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.password).type(
       datasourceFormData["mysql-password"],
     );
