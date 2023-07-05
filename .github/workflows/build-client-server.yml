@@ -46,8 +46,10 @@ jobs:
           echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
 
       - name: Print the files
+        if: steps.check_files.outputs.non_ts_files_count != 0
         run: |
           echo "${{ steps.check_files.outputs.non_ts_files }}"
+          exit 1
 
   server-build:
     name: server-build
