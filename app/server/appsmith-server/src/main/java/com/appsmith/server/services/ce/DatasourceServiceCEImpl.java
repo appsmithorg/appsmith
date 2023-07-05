@@ -59,6 +59,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.models.DatasourceStorage.createDatasourceStorageFromDatasourceStorageDTO;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
@@ -224,7 +225,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         this.getTrueEnvironmentId(savedDatasource.getWorkspaceId(), datasourceStorageDTO.getEnvironmentId())
                                 .map(trueEnvironmentId -> {
                                     datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
-                                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+                                    DatasourceStorage datasourceStorage = createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
                                     datasourceStorage.prepareTransientFields(savedDatasource);
                                     storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
                                     return datasourceStorage;
@@ -314,7 +315,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     String trueEnvironmentId = tuple2.getT2();
 
                     datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
-                    DatasourceStorage datasourceStorage =  new DatasourceStorage(datasourceStorageDTO);
+                    DatasourceStorage datasourceStorage =  createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
                     datasourceStorage.prepareTransientFields(dbDatasource);
 
                     return datasourceStorageService.updateDatasourceStorage(datasourceStorage, activeEnvironmentId, Boolean.TRUE)
@@ -400,7 +401,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        DatasourceStorage datasourceStorage = createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
         Mono<DatasourceStorage> datasourceStorageMono;
 
         // Ideally there should also be a check for missing environmentId,

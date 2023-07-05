@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.models.DatasourceStorage.createDatasourceStorageFromDatasourceStorageDTO;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 @Slf4j
@@ -298,7 +299,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             return null;
         }
         DatasourceStorageDTO datasourceStorageDTO = this.getDatasourceStorageDTOFromDatasource(datasource, environmentId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        DatasourceStorage datasourceStorage = createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
         datasourceStorage.prepareTransientFields(datasource);
 
         return datasourceStorage;

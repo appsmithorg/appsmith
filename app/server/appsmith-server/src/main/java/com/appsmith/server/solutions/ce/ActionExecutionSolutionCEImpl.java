@@ -86,6 +86,7 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.external.models.DatasourceStorage.createDatasourceStorageFromDatasource;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -512,8 +513,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     } else if (datasource == null) {
                         datasourceStorageMono = Mono.empty();
                     } else {
-                        // For embedded datasources, we are simply relying on datasource configuration property
-                        datasourceStorageMono = Mono.just(datasourceStorageTransferSolution.initializeDatasourceStorage(datasource, environmentId));
+                        // For embedded datasource, we are simply relying on datasource configuration property
+                        datasourceStorageMono = Mono.just(createDatasourceStorageFromDatasource(datasource, environmentId));
                     }
 
                     return datasourceStorageMono

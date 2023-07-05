@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Map;
 
+import static com.appsmith.external.models.DatasourceStorage.createDatasourceStorageFromDatasource;
 import static com.appsmith.server.constants.FieldName.PASSWORD;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -91,7 +92,7 @@ public class Migration109TransferToDatasourceStorage {
                         return;
                     }
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+                    DatasourceStorage datasourceStorage = createDatasourceStorageFromDatasource(datasource, environmentId);
 
                     log.debug("Creating datasource storage for datasource id: {} with environment id: {}",
                             datasource.getId(), environmentId);

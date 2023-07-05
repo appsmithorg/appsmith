@@ -7,7 +7,6 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
@@ -428,27 +427,26 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(pluginId);
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-                    ds1.setDatasourceConfiguration(datasourceConfiguration);
                     datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(pluginId);
-                    ds2.setDatasourceConfiguration(new DatasourceConfiguration());
+                    DatasourceConfiguration datasourceConfiguration2 = new DatasourceConfiguration();
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
-                    ds2.getDatasourceConfiguration().setAuthentication(auth);
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+                    datasourceConfiguration2.setAuthentication(auth);
+
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration2));
                     ds2.setDatasourceStorages(storages2);
 
                     return Mono.when(
@@ -492,27 +490,25 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-                    ds1.setDatasourceConfiguration(datasourceConfiguration);
                     datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
-                    ds2.setDatasourceConfiguration(new DatasourceConfiguration());
+                    DatasourceConfiguration datasourceConfiguration2 = new DatasourceConfiguration();
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
-                    ds2.getDatasourceConfiguration().setAuthentication(auth);
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+                    datasourceConfiguration2.setAuthentication(auth);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration2));
                     ds2.setDatasourceStorages(storages2);
 
                     return Mono.zip(
@@ -574,18 +570,17 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds1.setName("datasource 1");
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(pluginId);
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(pluginId);
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
                     ds2.setDatasourceStorages(storages2);
 
                     Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -652,18 +647,17 @@ public class ForkExamplesWorkspaceServiceTests {
         ds1.setName("ds 1");
         ds1.setWorkspaceId(workspace.getId());
         ds1.setPluginId(installedPlugin.getId());
-        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
         HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+        storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
         ds1.setDatasourceStorages(storages1);
 
         final Datasource ds2 = new Datasource();
         ds2.setName("ds 2");
         ds2.setWorkspaceId(workspace.getId());
         ds2.setPluginId(installedPlugin.getId());
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
         ds2.setDatasourceStorages(storages2);
 
         final Application app = applicationPageService.createApplication(app1).block();
@@ -839,7 +833,6 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc = new DatasourceConfiguration();
-                    ds1.setDatasourceConfiguration(dc);
 
                     dc.setConnection(new Connection(
                             Connection.Mode.READ_WRITE,
@@ -880,9 +873,8 @@ public class ForkExamplesWorkspaceServiceTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
@@ -890,7 +882,6 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
-                    ds2.setDatasourceConfiguration(dc2);
                     dc2.setAuthentication(new OAuth2(
                             OAuth2.Type.CLIENT_CREDENTIALS,
                             true,
@@ -912,18 +903,17 @@ public class ForkExamplesWorkspaceServiceTests {
                             null,
                             false
                     ));
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc2));
                     ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
                     ds3.setWorkspaceId(workspace.getId());
                     ds3.setPluginId(installedPlugin.getId());
-                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
-                    storages3.put(environmentId, new DatasourceStorageDTO(datasourceStorage3));
+                    storages3.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
                     ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)
@@ -1082,7 +1072,6 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc = new DatasourceConfiguration();
-                    ds1.setDatasourceConfiguration(dc);
 
                     dc.setConnection(new Connection(
                             Connection.Mode.READ_WRITE,
@@ -1123,9 +1112,8 @@ public class ForkExamplesWorkspaceServiceTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
@@ -1133,7 +1121,6 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
-                    ds2.setDatasourceConfiguration(dc2);
                     dc2.setAuthentication(new OAuth2(
                             OAuth2.Type.CLIENT_CREDENTIALS,
                             true,
@@ -1155,18 +1142,16 @@ public class ForkExamplesWorkspaceServiceTests {
                             null,
                             false
                     ));
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc2));
                     ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
                     ds3.setWorkspaceId(workspace.getId());
                     ds3.setPluginId(installedPlugin.getId());
-                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
-                    storages3.put(environmentId, new DatasourceStorageDTO(datasourceStorage3));
+                    storages3.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
                     ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)

@@ -2,7 +2,6 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.services.WorkspaceService;
@@ -31,7 +30,7 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
 
     @Override
     public DatasourceStorage initializeDatasourceStorage(Datasource datasource, String environmentId) {
-        return new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        return DatasourceStorage.createDatasourceStorageFromDatasource(datasource, environmentId);
     }
 
     @Transactional

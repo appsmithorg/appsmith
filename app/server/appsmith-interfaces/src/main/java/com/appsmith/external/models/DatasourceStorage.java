@@ -100,37 +100,6 @@ public class DatasourceStorage extends BaseDomain {
         }
     }
 
-    // TODO: Get rid of this after migration
-    public DatasourceStorage(Datasource datasource, String environmentId) {
-        this.datasourceId = datasource.getId();
-        this.environmentId = environmentId;
-        this.datasourceConfiguration = datasource.getDatasourceConfiguration();
-        this.isConfigured = datasource.getIsConfigured();
-        this.gitSyncId = datasource.getGitSyncId();
-        this.invalids = new HashSet<>();
-        if (datasource.getMessages() != null) {
-            this.messages.addAll(datasource.getMessages());
-        }
-
-        this.prepareTransientFields(datasource);
-    }
-
-    public DatasourceStorage(DatasourceStorageDTO datasourceStorageDTO) {
-        this.setId(datasourceStorageDTO.getId());
-        this.datasourceId = datasourceStorageDTO.getDatasourceId();
-        this.environmentId = datasourceStorageDTO.getEnvironmentId();
-        this.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
-        this.isConfigured = datasourceStorageDTO.getIsConfigured();
-        this.pluginId = datasourceStorageDTO.getPluginId();
-        this.workspaceId = datasourceStorageDTO.getWorkspaceId();
-        if (datasourceStorageDTO.invalids != null) {
-            this.invalids.addAll(datasourceStorageDTO.getInvalids());
-        }
-        if (datasourceStorageDTO.getMessages() != null) {
-            this.messages.addAll(datasourceStorageDTO.getMessages());
-        }
-    }
-
     public void prepareTransientFields(Datasource datasource) {
         this.datasourceId = datasource.getId();
         this.name = datasource.getName();
@@ -147,6 +116,38 @@ public class DatasourceStorage extends BaseDomain {
             this.invalids.addAll(datasource.getInvalids());
         }
         this.gitSyncId = datasource.getGitSyncId();
+    }
+
+    public static DatasourceStorage createDatasourceStorageFromDatasourceStorageDTO(DatasourceStorageDTO datasourceStorageDTO) {
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setId(datasourceStorageDTO.getId());
+        datasourceStorage.datasourceId = datasourceStorageDTO.getDatasourceId();
+        datasourceStorage.environmentId = datasourceStorageDTO.getEnvironmentId();
+        datasourceStorage.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
+        datasourceStorage.isConfigured = datasourceStorageDTO.getIsConfigured();
+        datasourceStorage.pluginId = datasourceStorageDTO.getPluginId();
+        datasourceStorage.workspaceId = datasourceStorageDTO.getWorkspaceId();
+        if (datasourceStorageDTO.invalids != null) {
+            datasourceStorage.invalids.addAll(datasourceStorageDTO.getInvalids());
+        }
+        if (datasourceStorageDTO.getMessages() != null) {
+            datasourceStorage.messages.addAll(datasourceStorageDTO.getMessages());
+        }
+
+        return datasourceStorage;
+    }
+
+    public static DatasourceStorage createDatasourceStorageFromDatasource(Datasource datasource, String environmentId) {
+        DatasourceStorage datasourceStorage = new DatasourceStorage(
+                datasource.getId(),
+                environmentId,
+                datasource.getDatasourceConfiguration(),
+                datasource.getIsConfigured(),
+                datasource.getInvalids(),
+                datasource.getMessages());
+
+        datasourceStorage.prepareTransientFields(datasource);
+        return datasourceStorage;
     }
 
     @JsonView(Views.Public.class)
