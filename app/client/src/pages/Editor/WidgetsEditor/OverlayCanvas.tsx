@@ -17,7 +17,7 @@ const VERTICAL_PADDING = 4;
 const HORIZONTAL_PADDING = 6;
 const SCROLLBAR_WIDTH = 6;
 
-const HEIGHT = Math.floor(LINE_HEIGHT + VERTICAL_PADDING);
+const HEIGHT = Math.floor(LINE_HEIGHT + VERTICAL_PADDING * 1.5);
 
 const FILL_COLOR = "rgb(239, 117, 65)";
 const TEXT_COLOR = "rgb(255, 255, 255)";
