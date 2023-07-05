@@ -17,6 +17,7 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: () => void;
+
   constructor(props: ButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
@@ -138,6 +139,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
+        maxWidth={this.props.maxWidth}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         onRecaptchaSubmitError={this.onRecaptchaSubmitError}
         onRecaptchaSubmitSuccess={this.onRecaptchaSubmitSuccess}

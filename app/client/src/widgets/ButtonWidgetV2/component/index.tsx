@@ -11,9 +11,12 @@ import { Button, Icon, WithTooltip } from "@design-system/widgets";
 export type ButtonComponentProps = {
   text?: string;
   tooltip?: string;
+  minWidth?: number;
+  maxWidth?: number;
+  minHeight?: number;
+  isVisible?: boolean;
   isLoading: boolean;
   iconName?: IconName;
-  isVisible?: boolean;
   isDisabled?: boolean;
   variant?: ButtonProps["variant"];
   color?: ButtonProps["color"];
@@ -23,7 +26,9 @@ export type ButtonComponentProps = {
 };
 
 function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
-  const { iconName, text, tooltip, ...rest } = props;
+  const { iconName, maxWidth, minHeight, minWidth, text, tooltip, ...rest } =
+    props;
+  const containerProps = { maxWidth, minHeight, minWidth };
 
   const icon = iconName && (
     <Icon>
@@ -34,7 +39,7 @@ function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
   const { onClick, recpatcha } = useRecaptcha(props);
 
   return (
-    <Container showInAllModes>
+    <Container {...containerProps}>
       <WithTooltip tooltip={tooltip}>
         <Button icon={icon} onPress={onClick} {...rest}>
           {text}
