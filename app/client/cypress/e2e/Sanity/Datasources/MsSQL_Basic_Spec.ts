@@ -14,8 +14,7 @@ import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spe
 
 const oneClickBinding = new OneClickBinding();
 
-// TODO: This fails with `Invalid Object <tablename>` error. Looks like there needs to be a delay in query exectuion. Will debug and fix this in a different PR - Sangeeth
-describe.skip("Validate MsSQL connection & basic querying with UI flows", () => {
+describe("Validate MsSQL connection & basic querying with UI flows", () => {
   let dsName: any,
     query: string,
     containerName = "mssqldb";
@@ -137,7 +136,8 @@ describe.skip("Validate MsSQL connection & basic querying with UI flows", () => 
     });
   });
 
-  it("3.One click binding - should check that queries are created and bound to table widget properly", () => {
+  // TODO: This fails with `Invalid Object <tablename>` error. Looks like there needs to be a delay in query exectuion. Will debug and fix this in a different PR - Sangeeth
+  it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
     oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", "title");
