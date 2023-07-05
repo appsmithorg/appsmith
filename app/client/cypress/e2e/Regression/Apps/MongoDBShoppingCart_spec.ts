@@ -8,9 +8,8 @@ import {
   dataSources,
 } from "../../../support/Objects/ObjectsCore";
 
-let repoName;
 describe("Shopping cart App", function () {
-  let datasourceName;
+  let datasourceName: string, repoName: any;
 
   before(() => {
     homePage.NavigateToHome();
@@ -18,12 +17,10 @@ describe("Shopping cart App", function () {
     cy.get("@guid").then((uid) => {
       homePage.CreateNewWorkspace("MongoDBShop" + uid);
       homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
-      cy.fixture("mongoAppdsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("mongoAppdsl");
     });
     dataSources.CreateDataSource("Mongo");
-    cy.get("@saveDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse: any) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -115,7 +112,6 @@ describe("Shopping cart App", function () {
     });
 
     agHelper.AssertAutoSave();
-
     deployMode.DeployApp(appPage.bookname);
   });
 
@@ -127,14 +123,15 @@ describe("Shopping cart App", function () {
     agHelper.AssertElementLength(appPage.inputValues, 9);
     agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
     agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
-    agHelper.UpdateInput(appPage.bookprice, 200, true);
-    agHelper.UpdateInput(appPage.bookquantity, 2, true);
+    agHelper.UpdateInput(appPage.bookprice, "200", true);
+    agHelper.UpdateInput(appPage.bookquantity, "2", true);
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
+    agHelper.GetNClick(appPage.bookname);
     agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
     agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
-    agHelper.UpdateInput(appPage.bookprice, 100, true);
-    agHelper.UpdateInput(appPage.bookquantity, 1, true);
+    agHelper.UpdateInput(appPage.bookprice, "100", true);
+    agHelper.UpdateInput(appPage.bookquantity, "1", true);
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
     // Deleting the book from the cart
@@ -146,7 +143,7 @@ describe("Shopping cart App", function () {
     // validating that the book is deleted
     agHelper.AssertElementLength(appPage.deleteButton + "/parent::div", 1);
     // Updating the book quantity from edit cart
-    agHelper.UpdateInput(appPage.editbookquantity, 3, true);
+    agHelper.UpdateInput(appPage.editbookquantity, "3", true);
     agHelper.GetNClick(appPage.editButton, 0, true);
 
     //Wait for all post execute calls to finish
@@ -160,7 +157,7 @@ describe("Shopping cart App", function () {
       .should("have.text", "3");
   });
 
-  it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function () {
+  it("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
     deployMode.NavigateBacktoEditor();
     gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {

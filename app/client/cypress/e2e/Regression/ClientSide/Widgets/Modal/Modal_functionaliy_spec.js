@@ -10,9 +10,7 @@ describe("Modal Widget Functionality", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("ModalDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("ModalDsl");
   });
 
   it("1. Add new Modal", () => {

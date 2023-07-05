@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Input Widget Functionality", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("newFormDsl");
   });
 
   // Note: commenting it out because Drag/Drop feature is not stable on cypress.
@@ -26,9 +24,7 @@ describe("Input Widget Functionality", function () {
   //     .invoke("attr", "value")
   //     .should("not.contain", this.dataSet.defaultdata);
 
-  //   cy.fixture("tableV2NewDsl").then((val) => {
-  //   _.agHelper.AddDsl(val);
-  // });
+  //   _.agHelper.AddDsl("tableV2NewDsl");
   //   cy.reload();
   // });
 

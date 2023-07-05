@@ -40,9 +40,7 @@ describe("Modal focus", function () {
 
   before(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("ModalDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("ModalDsl");
   });
 
   it("1. Should focus on the input field when autofocus for the input field is enabled", () => {

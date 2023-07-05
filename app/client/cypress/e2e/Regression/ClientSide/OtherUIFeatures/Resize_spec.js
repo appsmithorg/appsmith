@@ -3,9 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Canvas Resize", function () {
   before(() => {
-    cy.fixture("CanvasResizeDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("CanvasResizeDsl");
   });
   it("1. Deleting bottom widget should resize canvas", function () {
     const InitHeight = "2950px";

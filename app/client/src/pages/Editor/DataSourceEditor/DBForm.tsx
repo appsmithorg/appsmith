@@ -135,6 +135,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {!_.isNil(formConfig) && !_.isNil(datasource) ? (
               <DatasourceInformation
                 config={formConfig[0]}
+                currentEnvironment={this.props.currentEnvironment}
                 datasource={datasource}
                 viewMode={viewMode}
               />

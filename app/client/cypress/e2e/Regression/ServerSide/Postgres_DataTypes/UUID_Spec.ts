@@ -19,9 +19,8 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/UUIDDTdsl");
+
     entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
