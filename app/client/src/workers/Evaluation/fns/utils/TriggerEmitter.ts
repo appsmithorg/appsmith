@@ -11,6 +11,10 @@ import { get } from "lodash";
 import { getType } from "utils/TypeHelpers";
 import type { JSVarMutatedEvents } from "workers/Evaluation/types";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -185,6 +189,11 @@ TriggerEmitter.on(
 export const fnInvokeLogHandler = priorityBatchedActionHandler<{
   jsFnFullName: string;
   isSuccess: boolean;
+  triggerMeta: {
+    source: TriggerSource;
+    triggerPropertyName: string | undefined;
+    triggerKind: TriggerKind | undefined;
+  };
 }>((data) => {
   const set = new Set([...data]);
   WorkerMessenger.ping({
