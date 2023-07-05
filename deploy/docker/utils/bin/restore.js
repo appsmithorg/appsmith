@@ -36,7 +36,9 @@ async function getBackupFileName() {
   }
 
 }
-
+async function unencryptArchive(encryptedFilePath, backupFilePath){
+    await utils.execCommand(['openssl', 'enc', '-d', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', encryptedFilePath, '-out', backupFilePath])
+}
 async function extractArchive(backupFilePath, restoreRootPath) {
   console.log('Extracting the Appsmith backup archive at ' + backupFilePath);
   await utils.execCommand(['tar', '-C', restoreRootPath, '-xf', backupFilePath]);
@@ -126,6 +128,7 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
 
 async function run() {
   let errorCode = 0;
+  let cleanupArchive = false;
   try {
     check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
     shell.exec(check_supervisord_status_cmd, function (code) {
@@ -134,13 +137,17 @@ async function run() {
         shell.exec('/usr/bin/supervisord');
       }
     });
-
-    const backupFileName = await getBackupFileName();
+    let backupFileName = await getBackupFileName();
     if (backupFileName == null) {
       process.exit(errorCode);
     } else {
-      
-      const backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
+      if (isArchiveEncrypted(backupFileName)){
+        const encryptedBackupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);;
+        backupFileName = backupFileName.replace('.enc', '');
+        backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
+        cleanupArchive = true;
+        await unencryptArchive(encryptedBackupFilePath, backupFilePath);
+      }
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
       const restoreContentsPath = path.join(restoreRootPath, backupName);
@@ -162,12 +169,21 @@ async function run() {
     errorCode = 1;
 
   } finally {
+    if (cleanupArchive){
+      await fsPromises.rm(backupFilePath, { force: true });
+    }
     utils.start(['backend', 'rts']);
     process.exit(errorCode);
 
   }
 }
 
+function isArchiveEncrypted(backupFilePath){
+  if (backupFilePath.endsWith('.enc')){
+    return true
+  }
+  return false
+}
 
 module.exports = {
   run,
