@@ -38,7 +38,6 @@ import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import { Colors } from "constants/Colors";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -119,19 +118,6 @@ export const useCanvasDragging = (
   }>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
-  const drawRandomBlock = () => {
-    if (!stickyCanvasRef.current) return;
-
-    const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
-    canvasCtx.save();
-    canvasCtx.beginPath();
-    canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
-    canvasCtx.lineWidth = 1;
-    canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
-    canvasCtx.setLineDash([]);
-    canvasCtx.roundRect(4, 4, 300, 100, 4);
-  };
-
   // eslint-disable-next-line prefer-const
 
   const { calculateHighlights, cleanUpTempStyles, getDropPosition } =
@@ -153,7 +139,6 @@ export const useCanvasDragging = (
       cleanUpTempStyles();
     }
   }
-  drawRandomBlock();
 
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();

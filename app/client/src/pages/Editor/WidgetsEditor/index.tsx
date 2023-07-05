@@ -45,6 +45,7 @@ import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 import PropertyPaneContainer from "./PropertyPaneContainer";
+import Debugger from "components/editorComponents/Debugger";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -233,6 +234,7 @@ function WidgetsEditor() {
               width={100}
             />
           )}
+          <Debugger />
         </div>
         <PropertyPaneContainer />
       </div>

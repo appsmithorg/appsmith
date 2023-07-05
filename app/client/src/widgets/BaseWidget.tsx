@@ -500,7 +500,7 @@ abstract class BaseWidget<
       ? this.getAutoLayoutComponentDimensions()
       : this.getComponentDimensions();
 
-    return !this.props.disablePropertyPane && false ? (
+    return !this.props.disablePropertyPane ? (
       <>
         <WidgetNameComponent
           errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
