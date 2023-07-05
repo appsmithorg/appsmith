@@ -34,8 +34,12 @@ import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlagCheck, selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import {
+  selectFeatureFlagCheck,
+  selectFeatureFlags,
+} from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
@@ -44,16 +48,11 @@ import {
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 
-
 const SideBar = styled.div`
   height: 100%;
   width: 100%;
   -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-
-  & > div {
-    margin-top: ${(props) => props.theme.spaces[11]}px;
-  }
 
   & > a {
     margin-top: 0;
@@ -110,8 +109,18 @@ const Label = styled.span`
 `;
 
 const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &&&&&& .${BPClasses.COLLAPSE} {
+    flex-grow: 1;
+    overflow-y: auto !important;
+  }
+
   .${BPClasses.COLLAPSE_BODY} {
     padding-top: ${(props) => props.theme.spaces[3]}px;
+    height: 100%;
   }
 
   & > .icon-text:first-child {
@@ -157,6 +166,16 @@ const Placeholder = styled.div`
 
 const DataStructureListWrapper = styled.div`
   overflow-y: scroll;
+  height: 100%;
+`;
+
+const SchemaSideBarSection = styled.div<{ height: number }>`
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  height: auto;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  ${(props) => props.height && `max-height: ${props.height}%;`}
 `;
 
 type CollapsibleProps = {
@@ -181,11 +200,13 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon name="down-arrow" size="lg" />
+        <Icon name={isOpen ? "down-arrow" : "arrow-right-s-line"} size="lg" />
         {!!customLabelComponent ? (
           customLabelComponent
         ) : (
-          <Text className="label" kind="heading-xs">{label}</Text>
+          <Text className="label" kind="heading-xs">
+            {label}
+          </Text>
         )}
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
@@ -323,22 +344,25 @@ function ActionSidebar({
       {isEnabledForDSSchema &&
         pluginDatasourceForm !==
           DatasourceComponentTypes.RestAPIDatasourceForm && (
-          <Collapsible
-            customLabelComponent={
-              <DatasourceStructureHeader datasourceId={datasourceId || ""} />
-            }
-            label="Schema"
-          >
-            <DataStructureListWrapper>
-              <DataStructureList
-                context={context}
-                datasourceId={datasourceId || ""}
-                datasourceStructure={datasourceStructure}
-                pluginName={pluginName}
-                step={0}
-              />
-            </DataStructureListWrapper>
-          </Collapsible>
+          <SchemaSideBarSection height={70}>
+            <Collapsible
+              customLabelComponent={
+                <DatasourceStructureHeader datasourceId={datasourceId || ""} />
+              }
+              expand={!showSuggestedWidgets}
+              label="Schema"
+            >
+              <DataStructureListWrapper>
+                <DataStructureList
+                  context={context}
+                  datasourceId={datasourceId || ""}
+                  datasourceStructure={datasourceStructure}
+                  pluginName={pluginName}
+                  step={0}
+                />
+              </DataStructureListWrapper>
+            </Collapsible>
+          </SchemaSideBarSection>
         )}
       {hasConnections && !featureFlags?.ab_ds_binding_enabled && (
         <Connections
@@ -364,11 +388,13 @@ function ActionSidebar({
           </Collapsible>
         )}
       {showSuggestedWidgets && (
-        <SuggestedWidgets
-          actionName={actionName}
-          hasWidgets={hasWidgets}
-          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
-        />
+        <SchemaSideBarSection height={30}>
+          <SuggestedWidgets
+            actionName={actionName}
+            hasWidgets={hasWidgets}
+            suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
+          />
+        </SchemaSideBarSection>
       )}
     </SideBar>
   );

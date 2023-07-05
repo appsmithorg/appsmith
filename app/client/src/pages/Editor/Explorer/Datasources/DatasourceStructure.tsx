@@ -11,14 +11,7 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import {
-  Menu,
-  MenuTrigger,
-  Button,
-  Tooltip,
-  MenuContent,
-  Divider,
-} from "design-system";
+import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
 import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
@@ -28,6 +21,8 @@ type DatasourceStructureProps = {
   step: number;
   datasourceId: string;
   context: DatasourceStructureContext;
+  isDefaultOpen?: boolean;
+  forceExpand?: boolean;
 };
 
 const StyledMenuContent = styled(MenuContent)`
@@ -99,11 +94,14 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
       action={() => canCreateDatasourceActions && setActive(!active)}
       active={active}
       className={`datasourceStructure${
-        props.context !== DatasourceStructureContext.EXPLORER && "-query-editor"
+        props.context !== DatasourceStructureContext.EXPLORER &&
+        `-${props.context}`
       }`}
       contextMenu={templateMenu}
-      entityId={"DatasourceStructure"}
+      entityId={`${props.datasourceId}-${dbStructure.name}-${props.context}`}
+      forceExpand={props.forceExpand}
       icon={datasourceTableIcon}
+      isDefaultExpanded={props?.isDefaultOpen}
       name={dbStructure.name}
       step={props.step}
     >
@@ -117,8 +115,6 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
             />
           );
         })}
-
-        {props.context !== DatasourceStructureContext.EXPLORER && <Divider />}
       </>
     </Entity>
   );
