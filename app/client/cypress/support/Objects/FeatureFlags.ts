@@ -1,5 +1,3 @@
-import { agHelper } from "./ObjectsCore";
-
 export const featureFlagIntercept = (
   flags: Record<string, boolean>,
   reload = true,
@@ -14,6 +12,6 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
   if (reload) {
-    agHelper.RefreshPage();
+    cy.reload();
   }
 };
