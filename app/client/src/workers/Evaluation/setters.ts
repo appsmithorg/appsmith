@@ -45,6 +45,8 @@ class Setters {
     const overriddenProperties: string[] = [];
     const evalMetaUpdates: EvalMetaUpdates = [];
 
+    let parsedValue = value;
+
     if (value === undefined) {
       const error = new Error(
         `The value passed to ${entityName}.${setterMethodName}() evaluates to undefined.`,
@@ -64,12 +66,14 @@ class Setters {
       };
       config.params.strict = true;
 
-      const { isValid, messages } = validate(
+      const { isValid, messages, parsed } = validate(
         config,
         value,
         entity as Record<string, unknown>,
         propertyPath,
       );
+      parsedValue = parsed;
+
       if (!isValid) {
         const message = messages && messages[0] ? messages[0].message : "";
         const error = new Error(
@@ -84,7 +88,7 @@ class Setters {
       overrideWidgetProperties({
         entity,
         propertyPath,
-        value,
+        value: parsedValue,
         currentTree: evalTree,
         configTree,
         evalMetaUpdates,
@@ -103,7 +107,7 @@ class Setters {
           evalMetaUpdates.push({
             widgetId: entity.widgetId,
             metaPropertyPath,
-            value,
+            value: parsedValue,
           });
 
           WorkerMessenger.request({
@@ -114,8 +118,8 @@ class Setters {
       });
     }
 
-    set(evalTree, path, value);
-    set(self, path, value);
+    set(evalTree, path, parsedValue);
+    set(self, path, parsedValue);
 
     return new Promise((resolve) => {
       updatedProperties.push([entityName, propertyPath]);
