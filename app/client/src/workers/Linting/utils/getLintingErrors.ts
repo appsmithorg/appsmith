@@ -3,11 +3,11 @@ import type { LintError } from "utils/DynamicBindingUtils";
 import { JSHINT as jshint } from "jshint";
 import type { LintError as JSHintError } from "jshint";
 import { isEmpty, isNumber, keys } from "lodash";
-import type { MemberExpressionData } from "@shared/ast";
-import {
-  extractInvalidTopLevelMemberExpressionsFromCode,
-  isLiteralNode,
+import type {
+  MemberExpressionData,
+  AssignmentExpressionData,
 } from "@shared/ast";
+import { extractExpressionsFromCode, isLiteralNode } from "@shared/ast";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { EvaluationScriptType } from "workers/Evaluation/evaluate";
 import { EvaluationScripts, ScriptTemplate } from "workers/Evaluation/evaluate";
@@ -25,6 +25,7 @@ import { JSLibraries } from "workers/common/JSLibrary";
 import getLintSeverity from "./getLintSeverity";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { last } from "lodash";
+import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -204,13 +205,18 @@ function getInvalidPropertyErrorsFromScript(
   isJSObject = false,
 ): LintError[] {
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
+  let assignmentExpressions: AssignmentExpressionData[] = [];
   try {
+    const value = extractExpressionsFromCode(
+      script,
+      data,
+      self.evaluationVersion,
+    );
     invalidTopLevelMemberExpressions =
-      extractInvalidTopLevelMemberExpressionsFromCode(
-        script,
-        data,
-        self.evaluationVersion,
-      );
+      value.invalidTopLevelMemberExpressionsArray;
+    assignmentExpressions =
+      value.assignmentExpressionsData as AssignmentExpressionData[];
+    // eslint-disable-next-line no-console
   } catch (e) {}
 
   const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
@@ -249,7 +255,53 @@ function getInvalidPropertyErrorsFromScript(
       };
     },
   );
-  return invalidPropertyErrors;
+
+  const assignmentExpressionErrors: LintError[] = [];
+
+  for (const { object, property } of assignmentExpressions) {
+    const objectName = object.name;
+    const propertyName = isLiteralNode(property)
+      ? (property.value as string)
+      : property.name;
+
+    const entity = data[objectName];
+    if (!entity || !isWidget(entity)) continue;
+
+    const isValidProperty = propertyName in entity;
+
+    const lintErrorMessage = !isValidProperty
+      ? `${objectName} doesn't have a property named ${propertyName}`
+      : `Direct mutation of values aren't supported, please use ${objectName} setter methods to update value instead.`;
+
+    const objectStartLine = object.loc.start.line - 1;
+
+    const propertyStartColumn = !isLiteralNode(property)
+      ? property.loc.start.column + 1
+      : property.loc.start.column + 2;
+    assignmentExpressionErrors.push({
+      errorType: PropertyEvaluationErrorType.LINT,
+      raw: script,
+      severity: getLintSeverity(
+        CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+        lintErrorMessage,
+      ),
+      errorMessage: {
+        name: "LintingError",
+        message: lintErrorMessage,
+      },
+      errorSegment: `${object.name}.${propertyName}`,
+      originalBinding,
+      variables: [object.name, propertyName, null, null],
+      code: CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+      line: objectStartLine - scriptPos.line,
+      ch:
+        objectStartLine === scriptPos.line
+          ? propertyStartColumn - scriptPos.ch
+          : propertyStartColumn,
+    });
+  }
+
+  return [...invalidPropertyErrors, ...assignmentExpressionErrors];
 }
 
 function getRefinedW117Error(
