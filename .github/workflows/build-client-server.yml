@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Get the diff from base branch
         continue-on-error: true
