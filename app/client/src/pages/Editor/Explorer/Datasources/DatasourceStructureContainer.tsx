@@ -29,14 +29,14 @@ type Props = {
 };
 
 export enum DatasourceStructureContext {
-  EXPLORER = "EntityExplorer",
-  QUERY_EDITOR = "Query Editor",
+  EXPLORER = "entity-explorer",
+  QUERY_EDITOR = "query-editor",
   // this does not exist yet, but in case it does in the future.
-  API_EDITOR = "Api Editor",
+  API_EDITOR = "api-editor",
 }
 
 const DatasourceStructureSearchContainer = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 8px;
   position: sticky;
   top: 0;
   overflow: hidden;
@@ -53,6 +53,7 @@ const Container = (props: Props) => {
   const [datasourceStructure, setDatasourceStructure] = useState<
     DatasourceStructureType | undefined
   >(props.datasourceStructure);
+  const [hasSearchedOccured, setHasSearchedOccured] = useState(false);
 
   useEffect(() => {
     if (datasourceStructure !== props.datasourceStructure) {
@@ -75,6 +76,12 @@ const Container = (props: Props) => {
 
   const handleOnChange = (value: string) => {
     if (!props.datasourceStructure?.tables?.length) return;
+
+    if (value.length > 0) {
+      !hasSearchedOccured && setHasSearchedOccured(true);
+    } else {
+      hasSearchedOccured && setHasSearchedOccured(false);
+    }
 
     const tables = new Set();
     const columns = new Set();
@@ -132,17 +139,25 @@ const Container = (props: Props) => {
             </DatasourceStructureSearchContainer>
           )}
           {!!datasourceStructure?.tables?.length &&
-            datasourceStructure.tables.map((structure: DatasourceTable) => {
-              return (
-                <DatasourceStructure
-                  context={props.context}
-                  datasourceId={props.datasourceId}
-                  dbStructure={structure}
-                  key={`${props.datasourceId}${structure.name}`}
-                  step={props.step + 1}
-                />
-              );
-            })}
+            datasourceStructure.tables.map(
+              (structure: DatasourceTable, index: number) => {
+                return (
+                  <DatasourceStructure
+                    context={props.context}
+                    datasourceId={props.datasourceId}
+                    dbStructure={structure}
+                    forceExpand={hasSearchedOccured}
+                    isDefaultOpen={
+                      index === 0 &&
+                      props.context !== DatasourceStructureContext.EXPLORER &&
+                      true
+                    }
+                    key={`${props.datasourceId}${structure.name}-${props.context}`}
+                    step={props.step + 1}
+                  />
+                );
+              },
+            )}
 
           {!datasourceStructure?.tables?.length && (
             <Text kind="body-s" renderAs="p">
