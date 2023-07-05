@@ -4,9 +4,7 @@ describe("Validating use cases for Table Widget in AutoLayout mode", () => {
   before(() => {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     _.agHelper.Sleep(2000);
-    cy.fixture("AutoLayoutTableWidget").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("AutoLayoutTableWidgetDsl");
   });
 
   // Fix for #22911, #22907
