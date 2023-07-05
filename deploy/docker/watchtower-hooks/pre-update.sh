@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-appsmithctl backup --error-mail || exit 1
+appsmithctl backup --non-interactive --error-mail || exit 1
