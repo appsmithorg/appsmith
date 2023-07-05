@@ -113,9 +113,8 @@ describe("Dynamic Height Width validation", function () {
   });
 
   it("2. Validate container with auto height and child widgets with fixed height", function () {
-    cy.fixture("dynamicHeigthContainerFixedDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeigthContainerFixedDsl");
+
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
     agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
