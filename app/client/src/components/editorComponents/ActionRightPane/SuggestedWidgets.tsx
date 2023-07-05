@@ -419,9 +419,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
           left: -40,
           highlightPad: 5,
           indicatorLeft: -3,
-          style: {
-            transform: "none",
-          },
         },
         eventParams: {
           [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:

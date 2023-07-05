@@ -141,6 +141,11 @@ const WalkthroughRenderer = ({
         tx: boundingRect.x - offsetHighlightPad,
         ty: boundingRect.y - offsetHighlightPad,
       });
+      showIndicator(`#${targetId}`, offset?.position, {
+        top: offset?.indicatorTop || 0,
+        left: offset?.indicatorLeft || 0,
+        zIndex: Z_INDEX + 1,
+      });
     }
   };
 
@@ -168,11 +173,6 @@ const WalkthroughRenderer = ({
 
   return (
     <WalkthroughWrapper className="t--walkthrough-overlay">
-      {showIndicator(`#${targetId}`, offset?.position, {
-        top: offset?.indicatorTop || 0,
-        left: offset?.indicatorLeft || 0,
-        zIndex: Z_INDEX + 1,
-      })}
       <SvgWrapper
         height={boundingRect.bh}
         width={boundingRect.bw}
