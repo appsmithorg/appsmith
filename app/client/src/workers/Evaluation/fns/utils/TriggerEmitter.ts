@@ -186,7 +186,7 @@ TriggerEmitter.on(
   jsVariableUpdatesHandlerWrapper,
 );
 
-export const fnInvokeLogHandler = priorityBatchedActionHandler<{
+export const fnInvokeLogHandler = deferredBatchedActionHandler<{
   jsFnFullName: string;
   isSuccess: boolean;
   triggerMeta: {
