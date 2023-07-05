@@ -91,12 +91,14 @@ jobs:
             ${{ github.run_id }}-dashboard-url
 
       - name: Print cypress dashboard url
+        continue-on-error: true
         id: dashboard_url
         run: |
           cypress_url=$(cat ~/cypress_url)
           echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
 
       - name: slack message builder
+        continue-on-error: true
         id: slack_notification
         run: |
           if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
@@ -111,6 +113,7 @@ jobs:
           fi
 
       - name: Slack Notification
+        continue-on-error: true
         if: success()
         uses: rtCamp/action-slack-notify@v2
         env:
