@@ -83,7 +83,7 @@ export function* logDynamicTriggerExecution({
   );
 
   const dynamicPropertyPathList = widget?.dynamicPropertyPathList;
-  const pathUsesActionSelector = !dynamicPropertyPathList?.find(
+  const isJSToggled = !!dynamicPropertyPathList?.find(
     (property) => property.key === triggerMeta.triggerPropertyName,
   );
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
@@ -106,7 +106,7 @@ export function* logDynamicTriggerExecution({
       propertyName: triggerMeta.triggerPropertyName,
     },
     instanceId,
-    isActionSelector: pathUsesActionSelector,
+    isJSToggled,
   });
 
   AnalyticsUtil.logEvent(
@@ -133,7 +133,7 @@ export function* logDynamicTriggerExecution({
         propertyName: triggerMeta.triggerPropertyName,
       },
       instanceId,
-      isActionSelector: pathUsesActionSelector,
+      isJSToggled,
     },
   );
 }
