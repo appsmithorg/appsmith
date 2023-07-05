@@ -8,8 +8,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -54,7 +54,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 AssetService assetService,
                                 ApplicationRepository applicationRepository,
                                 PermissionGroupService permissionGroupService,
-                                PolicyUtils policyUtils,
+                                PolicySolution policySolution,
                                 ModelMapper modelMapper,
                                 WorkspacePermission workspacePermission,
                                 PermissionGroupPermission permissionGroupPermission,
@@ -64,7 +64,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, assetRepository, assetService, applicationRepository,
-                permissionGroupService, policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
+                permissionGroupService, policySolution, modelMapper, workspacePermission, permissionGroupPermission);
 
         this.tenantService = tenantService;
         this.userUtils = userUtils;

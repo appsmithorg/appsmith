@@ -16,7 +16,7 @@ import { ErrorPrompt, UserPrompt } from "./GPTPrompt";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { examplePrompts } from "./GetStarted";
 import BetaCard from "components/editorComponents/BetaCard";
-import { Button, Spinner } from "design-system";
+import { Button } from "design-system";
 import { usePrevious } from "@mantine/hooks";
 
 const QueryForm = styled.form`
@@ -38,16 +38,20 @@ const QueryForm = styled.form`
     color: var(--ads-v2-color-fg);
     background: transparent;
     z-index: 2;
-    font-size: 13px;
+    font-size: 14px;
+    padding: 6px 0;
+    line-height: 16px;
+    padding-right: 8px;
   }
   .autocomplete-overlay {
     color: #afafaf;
     position: absolute;
-    font-size: 13px;
+    padding: 6px 0;
+    font-size: 14px;
+    padding-right: 8px;
+    line-height: 16px;
     z-index: 1;
-    top: 4px;
-    left: 8px;
-    padding-right: 20px;
+    top: 0;
   }
 `;
 
@@ -92,10 +96,13 @@ export function AskAI(props: TAskAIProps) {
    * Stores the response and calls the update method
    * @param value
    */
-  const updateResponse = (value: TAssistantPrompt | null) => {
+  const updateResponse = (
+    value: TAssistantPrompt | null,
+    wrapWithBinding = true,
+  ) => {
     setResponse(value);
     const responseContent =
-      task.id === GPTTask.JS_EXPRESSION
+      wrapWithBinding && task.id === GPTTask.JS_EXPRESSION
         ? `{{${value?.content}}}`
         : value?.content;
     props.update?.(responseContent || "");
@@ -186,8 +193,15 @@ export function AskAI(props: TAskAIProps) {
       content: query.slice(0, CHARACTER_LIMIT),
       task: task.id,
     };
-    const [context, additionalQuery] = contextGenerator(message);
-    fireQuery(message.content, context, task.id, additionalQuery);
+    const [context, additionalQuery, wrapWithBinding] =
+      contextGenerator(message);
+    fireQuery(
+      message.content,
+      context,
+      task.id,
+      additionalQuery,
+      wrapWithBinding,
+    );
   }, [isLoading, query, contextGenerator, task]);
 
   useEffect(() => {
@@ -203,6 +217,7 @@ export function AskAI(props: TAskAIProps) {
     context: TChatGPTContext,
     task: GPTTask,
     additionalQuery = "",
+    wrapWithBinding = true,
   ) => {
     setError("");
     setIsLoading(true);
@@ -261,7 +276,7 @@ export function AskAI(props: TAskAIProps) {
         timeTaken: performance.now() - start,
         property: props.dataTreePath,
       });
-      updateResponse(message);
+      updateResponse(message, wrapWithBinding);
     } catch (e) {
       setError((e as any).message);
       AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
@@ -285,13 +300,13 @@ export function AskAI(props: TAskAIProps) {
   };
 
   const placeholder = useMemo(() => {
-    let customPlaceholder = "";
+    let customPlaceholder = "Type your query here...";
     if (task.id === GPTTask.JS_EXPRESSION) {
       if (triggerContext?.autocompleteDataType) {
         const placeholder =
           examplePrompts[task.id][triggerContext?.autocompleteDataType];
         if (placeholder) {
-          customPlaceholder = `Eg. ${placeholder}`;
+          customPlaceholder = `${placeholder}`;
         }
       }
     }
@@ -305,13 +320,13 @@ export function AskAI(props: TAskAIProps) {
     >
       <div
         className={classNames(
-          "flex flex-col flex-shrink-0 pt-2 px-3 pb-1 gap-1",
+          "flex flex-col flex-shrink-0 p-4",
           !task && "hidden",
         )}
       >
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between pb-4">
           <div className="flex items-center gap-1">
-            <p className="text-xs font-medium text-[color:var(--ads-v2\-color-fg-emphasis)]">
+            <p className="text-sm font-medium text-[color:var(--ads-v2\-color-fg-emphasis)]">
               {task.desc}
             </p>
             <BetaCard />
@@ -331,7 +346,7 @@ export function AskAI(props: TAskAIProps) {
         )}
         <QueryForm
           className={classNames(
-            "flex w-full relative items-center justify-between",
+            "flex w-full relative items-start gap-2 justify-between",
             response && "hidden",
           )}
         >
@@ -339,20 +354,20 @@ export function AskAI(props: TAskAIProps) {
             className={classNames({
               "bg-white relative flex items-center w-full overflow-hidden":
                 true,
-              "py-[4px]": true,
+              "py-[3px] px-2 pr-0": true,
               disabled: isLoading,
             })}
           >
-            <div className="relative pl-1 flex h-auto items-center w-full">
+            <div className="relative flex h-auto items-center w-full">
               <textarea
-                className="min-h-[30px] w-full max-h-40 z-2 p-1 overflow-auto !pr-6"
+                className="min-h-[28px] w-full max-h-40 z-2 overflow-auto"
                 disabled={isLoading}
                 name="text"
                 onChange={(e) => {
                   setQuery(e.target.value);
                 }}
                 onKeyDown={handleEnter}
-                placeholder={`Type your query here. ${placeholder}`}
+                placeholder={`${placeholder}`}
                 ref={queryContainerRef}
                 rows={1}
                 style={{ resize: "none" }}
@@ -360,27 +375,25 @@ export function AskAI(props: TAskAIProps) {
               />
             </div>
           </div>
-          {isLoading ? (
-            <Spinner className="absolute right-2" size="sm" />
-          ) : (
-            <Button
-              className="!absolute !z-2 !right-1"
-              color="red"
-              isIconButton
-              kind="tertiary"
-              onClick={sendQuery}
-              startIcon="enter-line"
-            />
-          )}
+          <Button
+            className="!z-2 flex-shrink-0"
+            color="red"
+            isIconButton
+            isLoading={isLoading}
+            kind="secondary"
+            onClick={sendQuery}
+            size="md"
+            startIcon="enter-line"
+          />
         </QueryForm>
         <div
           className={classNames(
             response && "hidden",
-            "flex items-center justify-end gap-[2px] text-[11px]",
+            "flex items-center justify-end text-[11px] mt-[10px]",
           )}
         >
           <span className="text-[color:var(--ads-v2\-color-fg-muted)]">
-            Powered by{" "}
+            Powered by&nbsp;
           </span>
           <a
             className="text-[color:var(--ads-v2\-color-fg-brand)]"
@@ -391,9 +404,7 @@ export function AskAI(props: TAskAIProps) {
             Appsmith AI
           </a>
         </div>
-        <div
-          className={classNames("flex flex-col gap-1", !response && "hidden")}
-        >
+        <div className={classNames("flex flex-col", !response && "hidden")}>
           <UserPrompt
             prompt={{ content: query, task: task.id, role: "user" }}
           />

@@ -1,6 +1,8 @@
 package com.appsmith.server.services.ee;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -24,11 +26,17 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -56,6 +64,9 @@ public class UserServiceTest {
 
     @Autowired
     PermissionGroupService permissionGroupService;
+
+    @Autowired
+    PolicyGenerator policyGenerator;
 
     User api_user = null;
     User admin_user = null;
@@ -179,6 +190,100 @@ public class UserServiceTest {
         StepVerifier.create(defaultUserPermissionGroupMono)
                 .assertNext(defaultUserPermissionGroup -> {
                     assertThat(defaultUserPermissionGroup.getAssignedToUserIds()).contains(createdUser.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateUserInstanceAdminRoleHasDeleteUserPermission() {
+        String testName = "testCreateUserInstanceAdminRoleHasDeleteUserPermission";
+        User user = new User();
+        user.setEmail(testName + "@test.com");
+        user.setPassword(testName);
+        User createdUser = userService.userCreate(user, false)
+                .block();
+        String instanceAdminRoleId = userUtils.getSuperAdminPermissionGroup()
+                .map(PermissionGroup::getId)
+                .block();
+        Optional<Policy> deleteUserPolicy = createdUser.getPolicies()
+                .stream()
+                .filter(policy -> DELETE_USERS.getValue().equals(policy.getPermission()))
+                .findFirst();
+        Optional<Policy> readUserPolicy = createdUser.getPolicies()
+                .stream()
+                .filter(policy -> READ_USERS.getValue().equals(policy.getPermission()))
+                .findFirst();
+        Optional<Policy> manageUserPolicy = createdUser.getPolicies()
+                .stream()
+                .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
+                .findFirst();
+        Optional<Policy> resetPasswordUserPolicy = createdUser.getPolicies()
+                .stream()
+                .filter(policy -> RESET_PASSWORD_USERS.getValue().equals(policy.getPermission()))
+                .findFirst();
+        assertThat(deleteUserPolicy.isPresent()).isTrue();
+        assertThat(deleteUserPolicy.get().getPermissionGroups()).contains(instanceAdminRoleId);
+        assertThat(readUserPolicy.isPresent()).isTrue();
+        assertThat(readUserPolicy.get().getPermissionGroups()).contains(instanceAdminRoleId);
+        assertThat(manageUserPolicy.isPresent()).isTrue();
+        assertThat(manageUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRoleId);
+        assertThat(resetPasswordUserPolicy.isPresent()).isTrue();
+        assertThat(resetPasswordUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRoleId);
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewUserValid() {
+        User newUser = new User();
+        newUser.setEmail("createnewuservalid-new-user-email@email.com");
+        newUser.setPassword("new-user-test-password");
+
+        Mono<User> userCreateMono = userService.create(newUser).cache();
+
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono
+                .flatMap(user -> {
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies.size()).isNotZero();
+                    Policy policy = userPolicies.stream().filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue())).findFirst().get();
+                    String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
+
+                    return permissionGroupRepository.findById(permissionGroupId);
+                });
+        Mono<PermissionGroup> instanceAdminRoleMono = userUtils.getSuperAdminPermissionGroup();
+
+        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono, instanceAdminRoleMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
+                    PermissionGroup instanceAdminRole = tuple.getT3();
+
+                    assertThat(user).isNotNull();
+                    assertThat(user.getId()).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo("createnewuservalid-new-user-email@email.com");
+                    assertThat(user.getName()).isNullOrEmpty();
+                    assertThat(user.getTenantId()).isNotNull();
+
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies).isNotEmpty();
+                    Policy manageUserPolicy = Policy.builder()
+                            .permission(MANAGE_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    Policy readUserPolicy = Policy.builder()
+                            .permission(READ_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId(), instanceAdminRole.getId())).build();
+
+                    Policy resetPasswordPolicy = Policy.builder()
+                            .permission(RESET_PASSWORD_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    Policy deleteUserPolicy = Policy.builder()
+                            .permission(DELETE_USERS.getValue())
+                            .permissionGroups(Set.of(instanceAdminRole.getId())).build();
+
+                    assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy, deleteUserPolicy));
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
     }

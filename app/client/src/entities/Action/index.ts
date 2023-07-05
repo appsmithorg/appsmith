@@ -197,7 +197,6 @@ export type ActionViewMode = {
 export type Action = ApiAction | QueryAction | SaaSAction | RemoteAction;
 
 export enum SlashCommand {
-  NEW_SNIPPET,
   NEW_API,
   NEW_QUERY,
   NEW_INTEGRATION,

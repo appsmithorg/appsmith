@@ -18,6 +18,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -35,14 +36,18 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ADD_USER_TO_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.TENANT_DELETE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.TENANT_DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_DELETE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.TENANT_READ_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
@@ -103,6 +108,11 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(TENANT_MANAGE_USER_GROUPS, TENANT_READ_USER_GROUPS);
         lateralGraph.addEdge(TENANT_ADD_USER_TO_ALL_USER_GROUPS, TENANT_READ_USER_GROUPS);
         lateralGraph.addEdge(TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS, TENANT_ADD_USER_TO_ALL_USER_GROUPS);
+
+        // Tenant user relationships
+        lateralGraph.addEdge(TENANT_MANAGE_ALL_USERS, TENANT_DELETE_ALL_USERS);
+        lateralGraph.addEdge(TENANT_DELETE_ALL_USERS, TENANT_READ_ALL_USERS);
+        lateralGraph.addEdge(TENANT_MANAGE_ALL_USERS, TENANT_READ_ALL_USERS);
     }
 
     private void createAuditLogPolicyGraph() {
@@ -196,6 +206,16 @@ public class PolicyGenerator extends PolicyGeneratorCE {
 
         lateralGraph.addEdge(WORKSPACE_READ_DATASOURCES, WORKSPACE_EXECUTE_DATASOURCES);
 
+    }
+
+    @Override
+    protected void createUserPolicyGraph() {
+        super.createUserPolicyGraph();
+
+        hierarchyGraph.addEdge(TENANT_DELETE_ALL_USERS, DELETE_USERS);
+        hierarchyGraph.addEdge(TENANT_READ_ALL_USERS, READ_USERS);
+
+        lateralGraph.addEdge(DELETE_USERS, READ_USERS);
     }
 
     public Set<AclPermission> getLateralPermissions(AclPermission permission, Set<AclPermission> interestingPermissions) {

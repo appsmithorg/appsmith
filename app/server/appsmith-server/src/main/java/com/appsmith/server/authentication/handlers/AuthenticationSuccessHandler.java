@@ -4,14 +4,18 @@ import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandl
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -41,22 +45,27 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         WorkspaceRepository workspaceRepository,
                                         ApplicationPageService applicationPageService,
                                         WorkspacePermission workspacePermission,
+                                        ConfigService configService,
+                                        FeatureFlagService featureFlagService,
+                                        CommonConfig commonConfig,
+                                        UserIdentifierService userIdentifierService,
                                         TenantService tenantService) {
 
         super(forkExamplesWorkspace, redirectHelper, sessionUserService, analyticsService, userDataService,
-                userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission);
+                userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission,
+                configService, featureFlagService, commonConfig, userIdentifierService);
         this.tenantService = tenantService;
         this.sessionUserService = sessionUserService;
     }
 
     @Override
     public Mono<Void> onAuthenticationSuccess(
-        WebFilterExchange webFilterExchange,
-        Authentication authentication
+            WebFilterExchange webFilterExchange,
+            Authentication authentication
     ) {
         return super.onAuthenticationSuccess(webFilterExchange, authentication)
-            .then(this.logoutUserFromExistingSessionsBasedOnTenantConfig(authentication, webFilterExchange))
-            .then();
+                .then(this.logoutUserFromExistingSessionsBasedOnTenantConfig(authentication, webFilterExchange))
+                .then();
     }
 
     private Mono<User> logoutUserFromExistingSessionsBasedOnTenantConfig(Authentication authentication, WebFilterExchange exchange) {
@@ -64,17 +73,17 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
         // TODO update to fetch user specific tenant after multi-tenancy is introduced
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
         return tenantMono
-            .flatMap(tenant -> {
-                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                if (tenantConfiguration != null && Boolean.TRUE.equals(tenantConfiguration.getSingleSessionPerUserEnabled())) {
-                    // In a separate thread, we delete all other active sessions of this user.
-                    sessionUserService.logoutExistingSessions(currentUser.getEmail(), exchange)
-                        .thenReturn(currentUser)
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe();
-                }
-                return Mono.just(currentUser);
-            });
+                .flatMap(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    if (tenantConfiguration != null && Boolean.TRUE.equals(tenantConfiguration.getSingleSessionPerUserEnabled())) {
+                        // In a separate thread, we delete all other active sessions of this user.
+                        sessionUserService.logoutExistingSessions(currentUser.getEmail(), exchange)
+                                .thenReturn(currentUser)
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .subscribe();
+                    }
+                    return Mono.just(currentUser);
+                });
     }
 
 }

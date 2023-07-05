@@ -40,6 +40,7 @@ interface ButtonData {
   label?: string;
   iconName?: string;
 }
+
 // Extract props influencing to width change
 const getButtonData = (
   groupButtons: Record<string, GroupButtonProps>,

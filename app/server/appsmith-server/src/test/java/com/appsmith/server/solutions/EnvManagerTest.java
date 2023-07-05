@@ -7,7 +7,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
@@ -55,8 +54,6 @@ public class EnvManagerTest {
     @MockBean
     private UserRepository userRepository;
     @MockBean
-    private PolicyUtils policyUtils;
-    @MockBean
     private EmailSender emailSender;
     @MockBean
     private CommonConfig commonConfig;
@@ -88,7 +85,6 @@ public class EnvManagerTest {
                 userService,
                 analyticsService,
                 userRepository,
-                policyUtils,
                 emailSender,
                 commonConfig,
                 emailConfig,

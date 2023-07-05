@@ -72,7 +72,7 @@ jobs:
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         id: cache-appsmith
-        uses: martijnhols/actions-cache@v3.0.2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -85,7 +85,7 @@ jobs:
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
-          echo "::set-output name=run_result::$run_result_env"
+          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
 
       - name: Dump steps context
         env:
@@ -316,6 +316,7 @@ jobs:
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        id: cypress_test
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -396,6 +397,7 @@ jobs:
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
+        id: cypress_test_failedtest
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -473,7 +475,7 @@ jobs:
       - name: Set fail if there are test failures
         if: failure()
         run: |
-          echo "::set-output name=run_result::failedtest"
+          echo "run_result=failedtest" >> $GITHUB_OUTPUT
           echo "failedtest" > ~/run_result
 
       # Create a directory ~/failed_spec_ci and add a dummy file
@@ -508,33 +510,30 @@ jobs:
       # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()
-        uses: martijnhols/actions-cache/save@v3
+        uses: actions/cache/save@v3
         with:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+      
+      - name: get cypress url dashboard url
+        id: dashboard_url
+        if: always()
+        run: |
+          if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
+            echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
+          elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+            echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
+          fi
 
-      # Force store previous failed test list to cache
-      - name: Store the previous failed test result
-        if: failure()
-        uses: martijnhols/actions-cache/save@v3
+      # Force store previous run result to cache
+      - name: Store the previous run result
+        if: success()
+        uses: actions/cache/save@v3
         with:
           path: |
-            ~/failed_spec_ci
-          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-
-      - name: Restore the previous bundle
-        uses: actions/cache@v3
-        with:
-          path: |
-            app/client/cypress/snapshots/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ~/cypress_url
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
@@ -547,5 +546,5 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: |
-          echo "::set-output name=run_result::success"
+          echo "run_result=success" >> $GITHUB_OUTPUT
           echo "success" > ~/run_result

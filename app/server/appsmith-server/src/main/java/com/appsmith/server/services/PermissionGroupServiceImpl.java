@@ -18,8 +18,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -89,7 +89,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       SessionUserService sessionUserService,
                                       TenantService tenantService,
                                       UserRepository userRepository,
-                                      PolicyUtils policyUtils,
+                                      PolicySolution policySolution,
                                       ConfigRepository configRepository,
                                       ModelMapper modelMapper,
                                       PolicyGenerator policyGenerator,
@@ -100,7 +100,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       UserUtils userUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                sessionUserService, tenantService, userRepository, policyUtils, configRepository,
+                sessionUserService, tenantService, userRepository, policySolution, configRepository,
                 permissionGroupPermission);
         this.modelMapper = modelMapper;
         this.policyGenerator = policyGenerator;

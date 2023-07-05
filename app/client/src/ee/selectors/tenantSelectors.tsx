@@ -1,6 +1,6 @@
 export * from "ce/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import { LICENSE_ORIGIN, LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import type { AppState } from "@appsmith/reducers";
 import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
@@ -83,6 +83,10 @@ export const getLicenseOrigin = (state: AppState) =>
 
 export const isLicenseModalOpen = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.showLicenseModal;
+
+export const isEnterprise = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.origin ===
+  LICENSE_ORIGIN.ENTERPRISE;
 
 /**
  * selects the tenant brand colors

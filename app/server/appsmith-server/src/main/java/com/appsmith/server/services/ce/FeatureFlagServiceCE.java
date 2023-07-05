@@ -1,9 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.featureflags.FeatureFlagTrait;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
 public interface FeatureFlagServiceCE {
@@ -32,7 +35,10 @@ public interface FeatureFlagServiceCE {
     /**
      * Fetch all the flags and their values for the current logged in user
      *
-     * @return Mono<Map < String, Boolean>>
+     * @return Mono<Map<String, Boolean>>
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
+
+    Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits);
+
 }

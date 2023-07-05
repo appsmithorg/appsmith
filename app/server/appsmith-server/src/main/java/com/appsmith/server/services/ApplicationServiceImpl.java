@@ -22,7 +22,8 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -67,16 +68,15 @@ import static com.appsmith.server.constants.FieldName.GROUP_ID;
 import static com.appsmith.server.constants.FieldName.ROLE;
 import static com.appsmith.server.constants.FieldName.USERNAME;
 import static com.appsmith.server.constants.FieldName.VIEWER;
-import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static com.appsmith.server.helpers.AppsmithComparators.permissionGroupInfoWithEntityTypeComparator;
-
+import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 
 @Slf4j
 @Service
 public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements ApplicationService {
 
     private final PermissionGroupService permissionGroupService;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final PermissionGroupRepository permissionGroupRepository;
     private final PermissionGroupPermission permissionGroupPermission;
     private final RoleConfigurationSolution roleConfigurationSolution;
@@ -92,14 +92,12 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
-                                  PolicyUtils policyUtils,
+                                  PolicySolution policySolution,
                                   ConfigService configService,
-                                  SessionUserService sessionUserService,
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
-                                  TenantService tenantService,
+                                  NewActionRepository newActionRepository,
                                   AssetService assetService,
-                                  UserRepository userRepository,
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission,
                                   PermissionGroupRepository permissionGroupRepository,
@@ -107,13 +105,14 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   RoleConfigurationSolution roleConfigurationSolution,
                                   PolicyGenerator policyGenerator,
                                   UserService userService,
-                                  UserGroupRepository userGroupRepository) {
+                                  UserGroupRepository userGroupRepository,
+                                  SessionUserService sessionUserService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
-                userRepository, datasourcePermission, applicationPermission);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policySolution,
+                configService, responseUtils, permissionGroupService, newActionRepository, assetService,
+                 datasourcePermission, applicationPermission);
         this.permissionGroupService = permissionGroupService;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
         this.permissionGroupPermission = permissionGroupPermission;
         this.roleConfigurationSolution = roleConfigurationSolution;
@@ -123,14 +122,16 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         this.applicationPermission = applicationPermission;
         this.sessionUserService = sessionUserService;
     }
+
     /**
      * <p>
      * Generate a Default Application Role for given {@code application} and {@code roleType}.
      * <p>
      * If the {@code roleType} doesn't match {@code APPLICATION_DEVELOPER} or {@code APPLICATION_VIEWER}, then
      * an {@link AppsmithException} with error {@code INVALID_PARAMETER} is thrown.
+     *
      * @param application {@link Application}
-     * @param roleType {@link String}
+     * @param roleType    {@link String}
      * @return {@link Mono}<{@link PermissionGroup}>
      */
     @Override
@@ -218,6 +219,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * <li> {@link AclPermission}.{@code ASSIGN_PERMISSION_GROUPS}
      * <li> {@link AclPermission}.{@code UNASSIGN_PERMISSION_GROUPS}
      * <li> {@link AclPermission}.{@code READ_PERMISSION_GROUP_MEMBERS}
+     *
      * @param appDeveloperRole
      * @param application
      * @implNote The return statement may look similar to the return statement of
@@ -232,9 +234,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
          * This way, it will generate a map, which will contain policies related to assign, un-assign and read members
          * permissions which will be added to it's existing policy.
          */
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionWithPermissionGroup(
+        Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
                 permissionGroupPermission.getAssignPermission(), appDeveloperRole.getId());
-        policyUtils.addPoliciesToExistingObject(policyMap, appDeveloperRole);
+        policySolution.addPoliciesToExistingObject(policyMap, appDeveloperRole);
         Flux<PermissionGroup> appViewerRoleFlux = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(application.getId(), Application.class.getSimpleName())
                 .filter(role -> role.getDefaultDomainType().equals(Application.class.getSimpleName())
@@ -263,9 +265,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * <li> {@link AclPermission}.{@code ASSIGN_PERMISSION_GROUPS}
      * <li> {@link AclPermission}.{@code UNASSIGN_PERMISSION_GROUPS}
      * <li> {@link AclPermission}.{@code READ_PERMISSION_GROUP_MEMBERS}
+     *
      * @param appViewerRole
      * @param application
-     *
      * @implNote The return statement may look similar to the return statement of
      * {@linkplain ApplicationServiceImpl#generateAndUpdatePoliciesForDefaultDeveloperRole(PermissionGroup, Application)}
      * but there is a very minute difference, i.e., here {@code appViewerRole} is not coming from the
@@ -278,9 +280,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
          * This way, it will generate a map, which will contain policies related to assign, un-assign and read members
          * permissions which will be added to it's existing policy.
          */
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionWithPermissionGroup(
+        Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
                 permissionGroupPermission.getAssignPermission(), appViewerRole.getId());
-        policyUtils.addPoliciesToExistingObject(policyMap, appViewerRole);
+        policySolution.addPoliciesToExistingObject(policyMap, appViewerRole);
         Flux<PermissionGroup> appDeveloperRoleFlux = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(application.getId(), Application.class.getSimpleName())
                 .filter(role -> role.getDefaultDomainType().equals(Application.class.getSimpleName())
@@ -308,7 +310,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * <li> {@link AclPermission}.{@code UNASSIGN_PERMISSION_GROUPS}
      * <li> {@link AclPermission}.{@code READ_PERMISSION_GROUP_MEMBERS}
      * </ul>
-     * @param devRole {@link PermissionGroup}
+     *
+     * @param devRole  {@link PermissionGroup}
      * @param viewRole {@link PermissionGroup}
      */
     private void giveDevAppRolePermissionsToViewAppRole(PermissionGroup devRole, PermissionGroup viewRole) {
@@ -317,9 +320,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
          * This way, it will generate a map, which will contain policies related to assign, un-assign and read members
          * permissions which will be added to it's existing policy.
          */
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionWithPermissionGroup(
+        Map<String, Policy> policyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
                 permissionGroupPermission.getAssignPermission(), devRole.getId());
-        policyUtils.addPoliciesToExistingObject(policyMap, viewRole);
+        policySolution.addPoliciesToExistingObject(policyMap, viewRole);
     }
 
     /**
@@ -329,6 +332,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * Default workspace role - App Viewer is given permissions to default application role - App Viewer.
      * If the role doesn't begin with either <b>Developer</b> or <b>App Viewer</b>,
      * return an {@link AppsmithException} with Error as {@code UNSUPPORTED_OPERATION}.
+     *
      * @param workspaceId
      * @param role
      * @return
@@ -447,8 +451,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * The role will be deleted if the role's defaultDomainId matches the application's ID, and
      * is either a Developer or App Viewer role.
      * Else it will return an {@link AppsmithException} with Error as {@code UNSUPPORTED_OPERATION}.
+     *
      * @param application Application for which the default role is being deleted.
-     * @param role Role which is being deleted.
+     * @param role        Role which is being deleted.
      */
     @Override
     public Mono<Void> deleteDefaultRole(Application application, PermissionGroup role) {
@@ -468,6 +473,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * If the user has access to assign permission for either default workspace role - App Viewer or  default
      * application role - App Viewer, we return App Viewer role.
      * If none of the default roles are assigned to the user, then we return an empty list.
+     *
      * @param applicationId Application ID for which the role types would be fetched.
      * @return {@link Mono}<{@link List}<{@link PermissionGroupInfoDTO}>>
      */
@@ -568,9 +574,10 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * The method is responsible for updating the application.
      * It also updates the names of default application roles which are associated with the application, if name of the
      * application is changed.
+     *
      * @param applicationId ID of the application to be updated.
-     * @param application Resources to update.
-     * @param branchName updates application in a particular branch.
+     * @param application   Resources to update.
+     * @param branchName    updates application in a particular branch.
      * @return
      */
     @Override
@@ -587,7 +594,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                      * If the application is from any other branch other than the default branch, we don't update
                      * the names of default application role.
                      */
-                    if (! isDefaultBranchApplication(application1)) {
+                    if (!isDefaultBranchApplication(application1)) {
                         return Mono.just(application1);
                     }
                     Flux<PermissionGroup> defaultApplicationRoles = permissionGroupService
@@ -614,7 +621,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     private boolean isDefaultBranchApplication(Application application) {
         return Objects.isNull(application.getGitApplicationMetadata())
                 || application.getGitApplicationMetadata().getDefaultApplicationId().equals(application.getId());
-
     }
 
     /**
@@ -627,6 +633,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      *     <li>applicationId can't be empty</li>
      *     <li>roleType should be either App Viewer or Developer</li>
      * </ol>
+     *
      * @param inviteToApplicationDTO
      * @return {@link Mono}<{@link List}<{@link MemberInfoDTO}>> which contains details about the invited users and
      * user groups who have been invited.
@@ -644,11 +651,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         }
 
         if (StringUtils.isEmpty(appRoleType)
-                || !(appRoleType.equals(APPLICATION_VIEWER) ||  appRoleType.equals(APPLICATION_DEVELOPER))) {
+                || !(appRoleType.equals(APPLICATION_VIEWER) || appRoleType.equals(APPLICATION_DEVELOPER))) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ROLE));
         }
 
-        if (StringUtils.isEmpty(applicationId)){
+        if (StringUtils.isEmpty(applicationId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION));
         }
 
@@ -736,13 +743,14 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * Else, we fetch all the static application roles the user has access to.
      * With these 2 conditions, we can determine whether the role needs to be created, or not and throw an error that
      * the user doesn't have permission to invite a user.
+     *
      * @param applicationId
      * @param roleType
      * @return
      */
     private Mono<PermissionGroup> getOrCreateDefaultAppRole(String applicationId, String roleType) {
         if (StringUtils.isEmpty(roleType)
-                || !(roleType.equals(APPLICATION_VIEWER) ||  roleType.equals(APPLICATION_DEVELOPER))) {
+                || !(roleType.equals(APPLICATION_VIEWER) || roleType.equals(APPLICATION_DEVELOPER))) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ROLE));
         }
         Mono<Application> applicationMono = findById(applicationId, Optional.of(applicationPermission.getReadPermission()))
@@ -786,6 +794,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      *     <li>oldRole should not be empty and have one of the 2 values: App Viewer or Developer</li>
      *     <li>If newRole is not empty, it should either be App Viewer or Developer</li>
      * </ol>
+     *
      * @param applicationId
      * @param updateApplicationRoleDTO
      * @return {@link Mono}<{@link MemberInfoDTO}> updated member info
@@ -831,8 +840,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                     .flatMap(this::deleteDefaultRoleIfNoUserOrUserGroupAssigned);
         } else if (StringUtils.isNotEmpty(groupId)) {
             Mono<PermissionGroup> oldDefaultRoleMono = permissionGroupRepository.findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(groupId, applicationId, Application.class.getSimpleName(), Optional.of(permissionGroupPermission.getAssignPermission()))
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
-                            .single();
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
+                    .single();
             Mono<UserGroup> groupMono = userGroupRepository.findById(groupId)
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP, groupId)))
                     .cache();
@@ -858,8 +867,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
             inviteToApplicationDTO.setRoleType(newRole);
             if (StringUtils.isNotEmpty(username)) {
                 inviteToApplicationDTO.setUsernames(Set.of(username));
-            }
-            else if (StringUtils.isNotEmpty(groupId)) {
+            } else if (StringUtils.isNotEmpty(groupId)) {
                 inviteToApplicationDTO.setGroups(Set.of(groupId));
             }
             invitedToNewRoleMono = this.inviteToApplication(inviteToApplicationDTO);
@@ -873,6 +881,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
 
     /**
      * The method deletes the role, if there are no users or user groups to which the defaultRole has been assigned.
+     *
      * @param defaultRole
      * @return
      */
@@ -891,26 +900,27 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     /**
      * The method returns a hard coded list of all application default roles.
      * Note: We haven't used List.of() and instead used an ArrayList, because we are sorting the order of the roles.
+     *
      * @return
      */
     @Override
     public Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRolesWithoutPermissions() {
-            List<PermissionGroupInfoDTO> roleDescriptionDTOS = new ArrayList<>();
+        List<PermissionGroupInfoDTO> roleDescriptionDTOS = new ArrayList<>();
 
-            PermissionGroupInfoDTO roleDescriptionDTODeveloper = new PermissionGroupInfoDTO();
-            roleDescriptionDTODeveloper.setName(APPLICATION_DEVELOPER);
-            roleDescriptionDTODeveloper.setDescription(APPLICATION_DEVELOPER_DESCRIPTION);
-            roleDescriptionDTODeveloper.setAutoCreated(Boolean.TRUE);
-            roleDescriptionDTOS.add(roleDescriptionDTODeveloper);
+        PermissionGroupInfoDTO roleDescriptionDTODeveloper = new PermissionGroupInfoDTO();
+        roleDescriptionDTODeveloper.setName(APPLICATION_DEVELOPER);
+        roleDescriptionDTODeveloper.setDescription(APPLICATION_DEVELOPER_DESCRIPTION);
+        roleDescriptionDTODeveloper.setAutoCreated(Boolean.TRUE);
+        roleDescriptionDTOS.add(roleDescriptionDTODeveloper);
 
-            PermissionGroupInfoDTO roleDescriptionDTOViewer = new PermissionGroupInfoDTO();
-            roleDescriptionDTOViewer.setName(APPLICATION_VIEWER);
-            roleDescriptionDTOViewer.setDescription(APPLICATION_VIEWER_DESCRIPTION);
-            roleDescriptionDTOViewer.setAutoCreated(Boolean.TRUE);
-            roleDescriptionDTOS.add(roleDescriptionDTOViewer);
+        PermissionGroupInfoDTO roleDescriptionDTOViewer = new PermissionGroupInfoDTO();
+        roleDescriptionDTOViewer.setName(APPLICATION_VIEWER);
+        roleDescriptionDTOViewer.setDescription(APPLICATION_VIEWER_DESCRIPTION);
+        roleDescriptionDTOViewer.setAutoCreated(Boolean.TRUE);
+        roleDescriptionDTOS.add(roleDescriptionDTOViewer);
 
-            roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
+        roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
 
-            return Mono.just(roleDescriptionDTOS);
+        return Mono.just(roleDescriptionDTOS);
     }
 }
