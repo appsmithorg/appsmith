@@ -42,7 +42,7 @@ export class DeployMode {
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
-    cy.get("@windowDeployStub").should("be.calledOnce");
+    cy.get("@windowStub").should("be.calledOnce");
     this.assertHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
@@ -74,18 +74,32 @@ export class DeployMode {
   }
 
   public StubbingDeployPage(addDebugFlag = true) {
+    // cy.window({ timeout: 30000 }).then((window) => {
+    //   cy.stub(window, "open")
+    //     .as("windowDeployStub")
+    //     .callsFake((url) => {
+    //       const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+    //       window.location.href = `${updatedUrl}${
+    //         addDebugFlag
+    //           ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+    //           : ""
+    //       }`;
+    //       // cy.log("updated url is: " + updatedUrl);
+    //     });
+    // });
+    this.StubbingWindow();
     cy.window({ timeout: 30000 }).then((window) => {
-      cy.stub(window, "open")
-        .as("windowDeployStub")
-        .callsFake((url) => {
-          const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
-          window.location.href = `${updatedUrl}${
-            addDebugFlag
-              ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
-              : ""
-          }`;
-          // cy.log("updated url is: " + updatedUrl);
-        });
+      const originalOpen = window.open; // Save a reference to the original window.open function
+      window.open = (url: any) => {
+        const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+        window.location.href = `${updatedUrl}${
+          addDebugFlag
+            ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+            : ""
+        }`;
+        return null; // Explicitly return null after modifying window.location.href
+      };
+      window.open = originalOpen;
     });
   }
 
