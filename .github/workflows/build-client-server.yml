@@ -24,7 +24,7 @@ jobs:
         id: files
         run: |
           git fetch origin release
-          git diff --name-only --diff-filter=A origin/release ${{github.sha}} -- 'cypress/e2e' > diff
+          git diff --name-only --diff-filter=A ${{github.ref_name}} origin/release -- 'cypress/e2e' > diff
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
           cat diff
 
