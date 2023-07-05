@@ -21,6 +21,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure.Template;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -1486,5 +1487,19 @@ public class AmazonS3PluginTest {
                 .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-AS3"))
                 .collect(Collectors.toList()).size() == 0);
 
+    }
+
+    @Test
+    public void verifyTestDatasourcePassOnAccessDeniedError() {
+        AmazonS3Exception accessDeniedException = new AmazonS3Exception("access denied");
+        accessDeniedException.setErrorCode("AccessDenied");
+        AmazonS3 mockConnection = mock(AmazonS3.class);
+        when(mockConnection.listBuckets()).thenThrow(accessDeniedException);
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(mockConnection);
+        StepVerifier.create(datasourceTestResultMono)
+                .assertNext(result -> assertEquals(0, result.getInvalids().size()))
+                .verifyComplete();
     }
 }

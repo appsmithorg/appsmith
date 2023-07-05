@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
@@ -114,6 +115,7 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final String OTHER_S3_SERVICE_PROVIDER = "other";
     private static final String AWS_S3_SERVICE_PROVIDER = "amazon-s3";
     public static String DEFAULT_FILE_NAME = "MyFile.txt";
+    public static final String ACCESS_DENIED_ERROR_CODE = "AccessDenied";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -957,7 +959,22 @@ public class AmazonS3Plugin extends BasePlugin {
                         connection.listBuckets();
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))));
+                    .onErrorResume(error -> {
+                        if (error instanceof AmazonS3Exception
+                                && ACCESS_DENIED_ERROR_CODE.equals(((AmazonS3Exception) error).getErrorCode())) {
+                            /**
+                             * Sometimes a valid account credential may not have permission to run listBuckets action
+                             * . In this case `AccessDenied` error is returned.
+                             * That fact that the credentials caused `AccessDenied` error instead of invalid access key
+                             * id or signature mismatch error means that the credentials are valid, we are able to
+                             * establish a connection as well, but the account does not have permission to run
+                             * listBuckets.
+                             */
+                            return Mono.just(new DatasourceTestResult());
+                        }
+
+                        return Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
+                    });
         }
 
         /**
