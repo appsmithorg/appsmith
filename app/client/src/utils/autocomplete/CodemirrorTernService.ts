@@ -619,6 +619,7 @@ class CodeMirrorTernService {
     value: string;
     end: { line: number; ch: number };
     extraChars: number;
+    isSingleDynamicValue?: boolean;
   } {
     const cursor = doc.doc.getCursor("end");
     const value = this.docValue(doc);
@@ -634,6 +635,7 @@ class CodeMirrorTernService {
           ch: cursor.ch,
         },
         extraChars,
+        isSingleDynamicValue: isDynamicValue(value),
       };
     }
 
@@ -896,12 +898,20 @@ class CodeMirrorTernService {
   getQueryForAutocomplete(cm: CodeMirror.Editor) {
     const doc = this.findDoc(cm.getDoc());
     const lineValue = this.lineValue(doc);
-    const { end, extraChars } = this.getFocusedDocValueAndPos(doc);
+    const { end, extraChars, isSingleDynamicValue } =
+      this.getFocusedDocValueAndPos(doc);
+    let extraCharsInString = extraChars;
+    const endOfString = end.ch + extraChars;
+
+    if (isSingleDynamicValue) {
+      extraCharsInString += 2;
+    }
 
     const stringFromEndCh = lineValue.substring(
-      extraChars,
-      end.ch + extraChars,
+      extraCharsInString,
+      endOfString,
     );
+
     const splitBySpace = stringFromEndCh.split(" ");
     const query = splitBySpace[splitBySpace.length - 1];
 
