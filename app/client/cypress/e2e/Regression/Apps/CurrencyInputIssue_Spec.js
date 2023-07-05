@@ -23,7 +23,7 @@ describe("Currency Input Issue", function () {
         homePage.AssertImportToast();
       }
     });
-    cy.get(widgetInput).type("1234567890");
+    cy.get(widgetInput).type("123456789");
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("not.exist");
     });
