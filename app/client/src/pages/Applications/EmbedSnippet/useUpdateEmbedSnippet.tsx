@@ -17,6 +17,7 @@ import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
@@ -46,6 +47,7 @@ function useUpdateEmbedSnippet() {
   const settings = useSelector(getSettings);
   const user = useSelector(getCurrentUser);
   const defaultPageId = useSelector(getDefaultPageId);
+  const featureFlags = useSelector(selectFeatureFlags);
   const currentSetting: EmbedSetting =
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING.format &&
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING.format(
@@ -109,10 +111,17 @@ function useUpdateEmbedSnippet() {
     const url = viewerURL({
       pageId: defaultPageId,
     });
+    const allowHidingShareSettingsInEmbedView =
+      featureFlags.APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY;
     const fullUrl = new URL(window.location.origin.toString() + url);
     if (embedSetting?.showNavigationBar) {
+      if (allowHidingShareSettingsInEmbedView) {
+        fullUrl.searchParams.append("embed", "true");
+        fullUrl.searchParams.append("navbar", "true");
+      }
       return fullUrl.toString();
     }
+
     fullUrl.searchParams.append("embed", "true");
     return fullUrl.toString();
   }, [defaultPageId, embedSetting?.showNavigationBar]);

@@ -6,15 +6,15 @@
 
 1. Cypress tests are located in the `app/client/cypress` directory.
 
-1. All the test spec _must_ be in the integration directory only i.e `app/client/cypress/integration`
+1. All the test spec _must_ be in the e2e directory only i.e `app/client/cypress/e2e`
 
-1. You can create directories under `app/client/cypress` but make sure you place the spec within the `app/client/cypress/integration` directory.
+1. You can create directories under `app/client/cypress` but make sure you place the spec within the `app/client/cypress/e2e` directory.
 
-1. Directory name under `app/client/cypress/integration` suggests the specific area the test belongs to. Example: All our [Regression tests](<https://en.wikipedia.org/wiki/Smoke_testing_(software)>) are in `app/client/cypress/integration/Regression_TestSuite`
+1. Directory name under `app/client/cypress/e2e` suggests the specific area the test belongs to. Example: All our [Regression tests](<https://en.wikipedia.org/wiki/Smoke_testing_(software)>) are in `app/client/cypress/e2e/Regression`
 
-1. For default settings, check the `app/client/cypress.json` file.
+1. For default settings, check the `app/client/cypress.config.ts` file.
 
-1. You can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
+1. Update file `app/client/cypress.config.ts` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
    ```json
    {
@@ -23,7 +23,7 @@
    }
    ```
 
-1. Once the `app/client/cypress.env.json` file is ready, we can actually run tests from the cypress client.
+1. Once the `app/client/cypress.config.ts` file is ready, we can actually run tests from the cypress client.
 
 1. Change your directory to `app/client`.
 
@@ -32,13 +32,13 @@
 
 1. Command to open cypress client `$(npm bin)/cypress open` Cypress supports Chrome/Firefox/electron browsers. Select a suitable browser and check the status of your tests.
 
-1. For run mode, you can use CLI args. Example: To run the entire `Regression_TestSuite`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Regression_TestSuite/*/*"`
+1. For run mode, you can use CLI args. Example: To run the all the tests under `Regression`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/e2e/Regression/*/*"`
 
 1. If you need help with writing the tests, their syntax or flow, cypress [getting started docs](https://docs.cypress.io/guides/core-concepts/introduction-to-cypress#What-you-ll-learn) is a great starting point.
 
 ## A word about env variables in Cypress tests
 
-If you want to add a new env variable to cypress tests, add it to the `cypress.env.json` file and also in the documentation above.
+If you want to add a new env variable to cypress tests, add it to the `cypress.config.ts` file and also in the documentation above.
 
 All ENV variables from your `.env` file and all `APPSMITH_*` env variables from `process.env` are accessible with the `Cypress.env()` method.
 
@@ -49,7 +49,7 @@ All ENV variables from your `.env` file and all `APPSMITH_*` env variables from 
    - Creation of a new test app everytime. We can pass an app id to the test so that it can reuse it and avoid creating a new app everytime.
    - Skip login if the user is already logged in from previous test run session.
    - Skip multiple visit to the workspace page if a test uses DSL for loading fixtures. If a test uses DSL, a visit to the workspace is mandatory. Thus avoiding multiple visits to the workspace page saves time during test run.
-   - To enable rapid mode for your test, you can add following configuration to your `cypress.env.json` file created above,
+   - To enable rapid mode for your test, you can add following configuration to your `cypress.config.ts` file created above,
 ```
       "RAPID_MODE": {
         "enabled" : true, // Set it to true to enable rapid mode, otherwise set it to false

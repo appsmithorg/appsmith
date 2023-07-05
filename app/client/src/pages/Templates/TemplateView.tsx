@@ -18,13 +18,12 @@ import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";
-import { createMessage, GO_BACK } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "RouteBuilder";
-import { Text, Link } from "design-system";
+import TemplateViewHeader from "./TemplateViewHeader";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -45,21 +44,6 @@ const TemplateViewWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-7);
   padding-bottom: 80px;
   background-color: var(--ads-v2-color-bg);
-`;
-
-const HeaderWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  .left,
-  .right {
-    flex: 1;
-  }
-`;
-
-const Title = styled(Text)`
-  display: inline-block;
-  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 export const IframeWrapper = styled.div`
@@ -107,14 +91,6 @@ const PageWrapper = styled.div`
   margin-top: ${(props) => props.theme.homePage.header}px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 `;
-
-// const BackButtonWrapper = styled.div<{ width?: number }>`
-//   cursor: pointer;
-//   display: flex;
-//   align-items: center;
-//   gap: ${(props) => props.theme.spaces[2]}px;
-//   ${(props) => props.width && `width: ${props.width};`}
-// `;
 
 const LoadingWrapper = styled.div`
   width: calc(100vw);
@@ -168,10 +144,6 @@ function TemplateView() {
     }
   }, [params.templateId]);
 
-  const goBack = () => {
-    history.goBack();
-  };
-
   const onSimilarTemplateClick = (template: TemplateInterface) => {
     AnalyticsUtil.logEvent("SIMILAR_TEMPLATE_CLICK", {
       from: {
@@ -196,27 +168,14 @@ function TemplateView() {
         <Wrapper ref={containerRef}>
           <ReconnectDatasourceModal />
           <TemplateViewWrapper>
-            <HeaderWrapper>
-              <div className="left">
-                <Link onClick={goBack} startIcon="arrow-left-line">
-                  {createMessage(GO_BACK)}
-                </Link>
-              </div>
-              <Title kind="heading-l" renderAs="h1">
-                {currentTemplate.title}
-              </Title>
-              <div className="right" />
-            </HeaderWrapper>
+            <TemplateViewHeader templateId={params.templateId} />
             <IframeWrapper>
               <IframeTopBar>
                 <div className="round red" />
                 <div className="round yellow" />
                 <div className="round green" />
               </IframeTopBar>
-              <iframe
-                src={`${currentTemplate.appUrl}?embed=true`}
-                width={"100%"}
-              />
+              <iframe src={currentTemplate.appUrl} width={"100%"} />
             </IframeWrapper>
             <TemplateDescription template={currentTemplate} />
           </TemplateViewWrapper>

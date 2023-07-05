@@ -7,6 +7,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import {
   FlexLayerAlignment,
+  FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
@@ -235,6 +236,7 @@ export const CONFIG = {
       ],
     },
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Stretch,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
@@ -248,6 +250,9 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
+    autoDimension: {
+      height: true,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,

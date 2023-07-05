@@ -2,6 +2,7 @@ import { getIsAutoLayout } from "selectors/editorSelectors";
 import store from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetSizeConfig } from "widgets/constants";
+import { ResponsiveBehavior } from "./constants";
 
 export interface MinMaxSize {
   minHeight: number | string;
@@ -214,4 +215,37 @@ export function getWidgetMinMaxDimensionsInPixel(
 export function isAutoLayout() {
   const appState = store.getState();
   return !!getIsAutoLayout(appState);
+}
+
+export function hasAutoWidth(type: string): boolean {
+  if (!type) return false;
+  return ["BUTTON_WIDGET"].includes(type);
+}
+
+export function hasAutoHeight(type: string): boolean {
+  if (!type) return false;
+  return ["TEXT_WIDGET"].includes(type);
+}
+
+export function getWidgetCssWidth(
+  hasAutoWidth?: boolean,
+  responsiveBehavior?: ResponsiveBehavior,
+  columns?: number,
+  parentWidth?: number,
+): string | undefined {
+  if (responsiveBehavior !== ResponsiveBehavior.Fill) {
+    if (hasAutoWidth) return "auto";
+    if (columns && parentWidth) return `${parentWidth * 0.01 * columns}px`;
+  }
+  return;
+}
+
+export function getWidgetCssHeight(
+  hasAutoHeight?: boolean,
+  responsiveBehavior?: ResponsiveBehavior,
+  rows?: number,
+): string | undefined {
+  if (hasAutoHeight) return "auto";
+  if (rows) return `${rows}px`;
+  return;
 }

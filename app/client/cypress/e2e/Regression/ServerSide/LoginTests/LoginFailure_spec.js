@@ -1,15 +1,15 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { deployMode } from "../../../../support/Objects/ObjectsCore";
 const loginPage = require("../../../../locators/LoginPage.json");
 
 describe("Login failure", function () {
   it("1. Preserves redirectUrl param on login failure", function () {
     let appUrl;
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.location()
       .then((location) => {
         cy.LogOutUser();
         appUrl = location.href.split("?")[0];
-        cy.visit(appUrl);
+        cy.visit(appUrl, { timeout: 60000 });
         cy.get(loginPage.username).should("be.visible");
       })
       .then(() => cy.GetUrlQueryParams())

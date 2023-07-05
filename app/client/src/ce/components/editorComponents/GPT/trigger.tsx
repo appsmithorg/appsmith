@@ -1,6 +1,8 @@
-export const askAIEnabled = false;
-export const APPSMITH_AI = "Ask AI";
+import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+export const APPSMITH_AI = "Appsmith AI";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
-export function GPTTrigger() {
-  return null;
+/* eslint-disable-next-line */
+export function isAIEnabled(ff: FeatureFlags, mode: TEditorModes) {
+  return false;
 }

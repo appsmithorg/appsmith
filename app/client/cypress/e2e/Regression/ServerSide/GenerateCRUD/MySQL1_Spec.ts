@@ -1,4 +1,15 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  deployMode,
+  entityItems,
+  homePage,
+  dataSources,
+  table,
+  assertHelper,
+} from "../../../../support/Objects/ObjectsCore";
 // import { INTERCEPT } from "../../../../fixtures/variables";
 let dsName: any;
 
@@ -6,71 +17,72 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // beforeEach(function() {
   //   if (INTERCEPT.MYSQL) {
   //     cy.log("MySQL DB is not found. Using intercept");
-  //     //_.dataSources.StartInterceptRoutesForMySQL();
+  //     //dataSources.StartInterceptRoutesForMySQL();
   //   } else cy.log("MySQL DB is found, hence using actual DB");
   // });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    _.dataSources.CreateDataSource("MySql");
+    dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.entityExplorer.AddNewPage();
-      _.entityExplorer.AddNewPage("Generate page with data");
-      _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
-      _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, dsName);
+      entityExplorer.AddNewPage();
+      entityExplorer.AddNewPage("Generate page with data");
+      agHelper.GetNClick(dataSources._selectDatasourceDropdown);
+      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
 
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
-    _.agHelper.GetNClickByContains(
-      _.dataSources._dropdownOption,
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+    agHelper.GetNClickByContains(
+      dataSources._dropdownOption,
       "worldCountryInfo",
     );
 
     GenerateCRUDNValidateDeployPage("ABW", "Aruba", "North America", "Code");
 
-    _.deployMode.NavigateBacktoEditor();
-    _.table.WaitUntilTableLoad();
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
     //Delete the test data
-    _.entityExplorer.ExpandCollapseEntity("Pages");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Page2",
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page2",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
-      _.agHelper.RefreshPage();
+      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      agHelper.WaitUntilAllToastsDisappear();
     });
-    _.deployMode.DeployApp();
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.DeployApp(locators._emptyPageTxt);
+    agHelper.Sleep(3000);
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
+      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
     });
-    _.agHelper.WaitUntilAllToastsDisappear();
+    agHelper.WaitUntilAllToastsDisappear();
   });
 
   it("2. Create new app and Generate CRUD page using a new datasource", () => {
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.agHelper.GetNClick(_.homePage._buildFromDataTableActionCard);
-    _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
-    _.agHelper.GetNClickByContains(
-      _.dataSources._dropdownOption,
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    entityExplorer.AddNewPage("Generate page with data");
+    //agHelper.GetNClick(homePage._buildFromDataTableActionCard);
+    agHelper.GetNClick(dataSources._selectDatasourceDropdown);
+    agHelper.GetNClickByContains(
+      dataSources._dropdownOption,
       "Connect new datasource",
     );
 
-    _.dataSources.CreateDataSource("MySql", false);
+    dataSources.CreateDataSource("MySql", false);
 
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
-    _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "customers");
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "customers");
 
     GenerateCRUDNValidateDeployPage(
       "103",
@@ -79,17 +91,16 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "customerNumber",
     );
 
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-    _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
-    _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "employees");
+    dataSources.NavigateFromActiveDS(dsName, false);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "employees");
 
     GenerateCRUDNValidateDeployPage(
       "1002",
@@ -98,16 +109,15 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "employeeNumber",
     );
 
-    _.deployMode.NavigateBacktoEditor();
-    _.table.WaitUntilTableLoad();
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
     //Delete the test data
-    _.entityExplorer.ExpandCollapseEntity("Pages");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Employees",
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Employees",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
   });
 
   it("4. Create new CRUD Table 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
@@ -136,66 +146,67 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 ('Vintage Cars','Our Vintage Car models realistically portray automobiles produced from the early 1900s through the 1940s. Materials used include Bakelite, diecast, plastic and wood. Most of the replicas are in the 1:18 and 1:24 scale sizes, which provide the optimum in detail and accuracy. Prices range from $30.00 up to $180.00 for some special limited edition replicas. All models include a certificate of authenticity from their manufacturers and come fully assembled and ready for display in the home or office.',NULL,NULL);
 `;
 
-    _.dataSources.NavigateFromActiveDS(dsName, true);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.agHelper.RenameWithInPane("CreateProductLines");
-    _.dataSources.EnterQuery(tableCreateQuery);
-    _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
-    //_.agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
+    dataSources.NavigateFromActiveDS(dsName, true);
+    agHelper.RenameWithInPane("CreateProductLines");
+    dataSources.EnterQuery(tableCreateQuery);
+    agHelper.FocusElement(locators._codeMirrorTextArea);
+    //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
-    _.dataSources.RunQueryNVerifyResponseViews();
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    dataSources.RunQueryNVerifyResponseViews();
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
 
-    _.entityExplorer.ExpandCollapseEntity("Datasources");
-    _.entityExplorer.ExpandCollapseEntity(dsName);
-    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-    _.agHelper.AssertElementVisible(
-      _.entityExplorer._entityNameInExplorer("productlines"),
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementVisible(
+      entityExplorer._entityNameInExplorer("productlines"),
     );
   });
 
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
-    _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
-    _.agHelper.GetNClickByContains(
-      _.dataSources._dropdownOption,
-      "productlines",
-    );
-    _.agHelper.GetNClick(_.dataSources._generatePageBtn);
-    _.agHelper.AssertContains("Successfully generated a page");
-    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    _.agHelper.ValidateNetworkStatus("@getActions", 200);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    _.deployMode.DeployApp();
+    dataSources.NavigateFromActiveDS(dsName, false);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "productlines");
+    agHelper.GetNClick(dataSources._generatePageBtn);
+    agHelper.AssertContains("Successfully generated a page");
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@getActions", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    deployMode.DeployApp();
 
     //Validating loaded table
-    _.agHelper.AssertElementExist(_.dataSources._selectedRow);
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    agHelper.AssertElementExist(dataSources._selectedRow);
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("Classic Cars");
     });
-    _.table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Motorcycles");
     });
-    _.table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Planes");
     });
-    _.table.ReadTableRowColumnData(3, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Ships");
     });
-    _.table.ReadTableRowColumnData(4, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Trains");
     });
-    _.table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Trucks and Buses");
     });
-    _.table.ReadTableRowColumnData(6, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Vintage Cars");
     });
     //Validating loaded JSON form
-    cy.xpath(_.locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -204,40 +215,40 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
         });
     });
 
-    _.dataSources.AssertJSONFormHeader(0, 0, "productLine");
+    dataSources.AssertJSONFormHeader(0, 0, "productLine");
   });
 
   it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-    _.entityExplorer.SelectEntityByName("update_form", "Widgets");
-    _.propPane.ChangeJsonFormFieldType(
+    entityExplorer.SelectEntityByName("update_form", "Widgets");
+    propPane.ChangeJsonFormFieldType(
       "Text Description",
       "Multiline Text Input",
     );
-    _.propPane.NavigateBackToPropertyPane();
-    _.propPane.ChangeJsonFormFieldType(
+    propPane.NavigateBackToPropertyPane();
+    propPane.ChangeJsonFormFieldType(
       "Html Description",
       "Multiline Text Input",
     );
-    _.propPane.NavigateBackToPropertyPane();
-    _.deployMode.DeployApp();
-    _.table.SelectTableRow(0, 0, false); //to make JSON form hidden
-    _.agHelper.AssertElementAbsence(_.locators._jsonFormWidget);
-    _.table.SelectTableRow(3);
-    _.agHelper.AssertElementVisible(_.locators._jsonFormWidget);
+    propPane.NavigateBackToPropertyPane();
+    deployMode.DeployApp();
+    table.SelectTableRow(0, 0, false); //to make JSON form hidden
+    agHelper.AssertElementAbsence(locators._jsonFormWidget);
+    table.SelectTableRow(3);
+    agHelper.AssertElementVisible(locators._jsonFormWidget);
 
-    _.dataSources.AssertJSONFormHeader(3, 0, "productLine");
+    dataSources.AssertJSONFormHeader(3, 0, "productLine");
 
-    _.deployMode.EnterJSONTextAreaValue(
+    deployMode.EnterJSONTextAreaValue(
       "Html Description",
       "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
     );
-    _.agHelper.ClickButton("Update"); //Update does not work, Bug 14063
-    _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Validating fix for Bug 14063
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.table.AssertSelectedRow(3);
+    agHelper.ClickButton("Update"); //Update does not work, Bug 14063
+    agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    table.AssertSelectedRow(3);
 
     //validating update happened fine!
-    _.table.ReadTableRowColumnData(3, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(
         "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
       );
@@ -249,51 +260,55 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // });
 
   it("8. Validate Deletion of the Newly Created Page - Productlines", () => {
-    _.deployMode.NavigateBacktoEditor();
-    _.table.WaitUntilTableLoad();
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
     //Delete the test data
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Productlines",
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Productlines",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
   });
 
   it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE productlines;";
-    _.dataSources.NavigateFromActiveDS(dsName, true);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.agHelper.RenameWithInPane("DropProductlines");
-    _.dataSources.EnterQuery(deleteTblQuery);
-    _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
-    //_.agHelper.VerifyEvaluatedValue(tableCreateQuery);
+    dataSources.NavigateFromActiveDS(dsName, true);
+    agHelper.RenameWithInPane("DropProductlines");
+    dataSources.EnterQuery(deleteTblQuery);
+    agHelper.FocusElement(locators._codeMirrorTextArea);
+    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-    _.dataSources.RunQueryNVerifyResponseViews();
-    _.entityExplorer.ExpandCollapseEntity("Datasources");
-    _.entityExplorer.ExpandCollapseEntity(dsName);
-    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-    _.agHelper.AssertElementAbsence(
-      _.entityExplorer._entityNameInExplorer("Stores"),
+    dataSources.RunQueryNVerifyResponseViews();
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementAbsence(
+      entityExplorer._entityNameInExplorer("Stores"),
     );
   });
 
   it("10. Verify application does not break when user runs the query with wrong table name", function () {
-    _.entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
-    _.dataSources.RunQuery({ toValidateResponse: false });
+    entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(false);
       expect(
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains("Unknown table 'fakeapi.productlines'");
     });
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   after(
     "Verify Deletion of the datasource when Pages/Actions associated are not removed yet",
     () => {
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Customers page & queries still active
+      dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Customers page & queries still active
     },
   );
 
@@ -303,30 +318,30 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     col3Text: string,
     jsonFromHeader: string,
   ) {
-    _.agHelper.GetNClick(_.dataSources._generatePageBtn);
-    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    _.agHelper.AssertContains("Successfully generated a page");
-    //_.agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    _.deployMode.DeployApp();
-    _.table.WaitUntilTableLoad();
+    agHelper.GetNClick(dataSources._generatePageBtn);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    agHelper.AssertContains("Successfully generated a page");
+    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    deployMode.DeployApp();
+    table.WaitUntilTableLoad();
 
     //Validating loaded table
-    _.agHelper.AssertElementExist(_.dataSources._selectedRow);
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    agHelper.AssertElementExist(dataSources._selectedRow);
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    _.table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    _.table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
     //Validating loaded JSON form
-    cy.xpath(_.locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -334,6 +349,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
           expect(classes).not.contain("bp3-disabled");
         });
     });
-    _.dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
+    dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
   }
 });

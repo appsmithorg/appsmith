@@ -14,15 +14,14 @@ export interface Point {
  */
 export const getHighlightPayload = (
   highlights: HighlightInfo[],
-  e: any,
-  val?: Point,
+  delta = { left: 0, top: 0 },
 ): HighlightInfo | undefined => {
   if (!highlights || !highlights.length) return;
 
   // Current mouse coordinates.
   const pos: Point = {
-    x: e ? e.offsetX || e.layerX : val?.x,
-    y: e ? e.offsetY || e.layerY : val?.y,
+    x: delta.left,
+    y: delta.top,
   };
   /**
    * Filter highlights that  span the current mouse position.

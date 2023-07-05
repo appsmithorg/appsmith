@@ -176,6 +176,7 @@
                 "isVisibleSearch": true,
                 "isVisiblePagination": true,
                 "verticalAlignment": "CENTER",
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "columnSizeMap": {
                     "task": 245,
                     "step": 62,

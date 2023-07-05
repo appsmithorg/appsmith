@@ -127,9 +127,9 @@ function* restoreApplicationFromSnapshotSaga() {
   } catch (e: any) {
     let error: Error = e;
     if (error) {
-      error.message = `Layout Conversion Error - while Restoring Snapshot: ${error.message}`;
+      error.message = `Layout conversion error - while restoring snapshot: ${error.message}`;
     } else {
-      error = new Error("Layout Conversion Error - while Restoring Snapshot");
+      error = new Error("Layout conversion error - while restoring snapshot");
     }
 
     log.error(error);
@@ -177,7 +177,7 @@ function* updateSnapshotDetailsSaga() {
     );
     yield put(
       updateSnapshotDetails(
-        snapShotDetails
+        snapShotDetails && snapShotDetails.updatedTime
           ? { lastUpdatedTime: snapShotDetails.updatedTime?.toString() }
           : undefined,
       ),

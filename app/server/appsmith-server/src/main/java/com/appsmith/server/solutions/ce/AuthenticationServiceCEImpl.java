@@ -56,6 +56,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
 import static com.appsmith.external.constants.Authentication.AUDIENCE;
@@ -151,8 +152,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .flatMap((datasource -> {
-                    OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
+                .flatMap((datasourceStorage -> {
+                    OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
@@ -449,18 +450,20 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // If yes, request for token and store in datasource
         // Update datasource as being authorized
         // Return control to client
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getEditPermission())
-                .flatMap(datasource1 -> datasourceStorageService
-                        .findByDatasourceAndEnvironmentId(datasource1, environmentId))
+
+        Mono<Datasource> datasourceMonoCache = datasourceService
+                .findById(datasourceId, datasourcePermission.getEditPermission()).cache();
+
+        Mono<DatasourceStorage> datasourceStorageMonoCache = datasourceMonoCache
+                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .cache();
 
-        return datasourceStorageMono
-                .filter(datasource -> AuthenticationDTO.AuthenticationStatus.IN_PROGRESS
-                        .equals(datasource.getDatasourceConfiguration().getAuthentication().getAuthenticationStatus()))
+        return datasourceStorageMonoCache
+                .filter(datasourceStorage -> AuthenticationDTO.AuthenticationStatus.IN_PROGRESS
+                        .equals(datasourceStorage.getDatasourceConfiguration().getAuthentication().getAuthenticationStatus()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .flatMap(datasource -> {
+                .flatMap(datasourceStorage -> {
                     UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                     try {
                         uriBuilder.uri(new URI(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/token"))
@@ -483,7 +486,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
-                                OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
+                                OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
                                 if (tokenResponse != null && tokenResponse.containsKey("scope")) {
@@ -493,7 +496,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                                 "Please provide access to all the requested scopes to use the integration correctly."));
                                     }
                                 }
-                                datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
+                                datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
 
                                 // When authentication scope is for specific sheets, we need to send token and project id
                                 String accessToken = "";
@@ -509,44 +512,50 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 // for specific sheets, it needs to remain in as in progress until files are selected
                                 // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
                                 // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
-                                if (oAuth2.getScope() != null && !oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
-                                    datasource
+                                Set<String> oauth2Scopes = oAuth2.getScope();
+                                if (oauth2Scopes != null) {
+                                    if (oauth2Scopes.contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                        datasourceStorage
+                                            .getDatasourceConfiguration()
+                                            .getAuthentication()
+                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS_PERMISSIONS_GRANTED);
+                                    } else {
+                                        datasourceStorage
                                             .getDatasourceConfiguration()
                                             .getAuthentication()
                                             .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+                                    }
                                 }
 
                                 Mono<String> accessTokenMono = Mono.just(accessToken);
                                 Mono<String> projectIdMono = Mono.just(projectID);
 
                                 return pluginExecutorHelper
-                                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                                        .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                                         .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                                                .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
-                                        .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
+                                                .getDatasourceMetadata(datasourceStorage.getDatasourceConfiguration()))
+                                        .then(Mono.zip(Mono.just(datasourceStorage), accessTokenMono, projectIdMono));
                             });
                 })
                 .flatMap(tuple -> {
                     DatasourceStorage datasourceStorage = tuple.getT1();
+                    datasourceStorage.setUserPermissions(null);
+                    datasourceStorage.setPolicies(null);
                     String accessToken = tuple.getT2();
                     String projectID = tuple.getT3();
                     OAuth2ResponseDTO response = new OAuth2ResponseDTO();
                     response.setToken(accessToken);
                     response.setProjectID(projectID);
-                    return datasourceService
-                            .convertToDatasourceDTO(new Datasource(datasourceStorage))
-                            .flatMap(datasourceDTO -> {
-                                response.setDatasource(datasourceDTO);
-                                return datasourceStorageService.save(datasourceStorage)
-                                        .thenReturn(response);
-                            });
+                    response.setDatasource(datasourceStorage);
+                    return datasourceStorageService.save(datasourceStorage).thenReturn(response);
+
                 })
                 .onErrorMap(ConnectException.class,
                         error -> new AppsmithException(
                                 AppsmithError.AUTHENTICATION_FAILURE,
                                 "Unable to connect to Appsmith authentication server."
                         ))
-                .onErrorResume(BaseException.class, error -> datasourceStorageMono.flatMap(datasourceStorage -> {
+                .onErrorResume(BaseException.class, error -> datasourceStorageMonoCache.flatMap(datasourceStorage -> {
                     datasourceStorage.getDatasourceConfiguration().getAuthentication()
                             .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
                     return datasourceStorageService.save(datasourceStorage).then(Mono.error(error));
@@ -587,13 +596,18 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
+                                // We need to set refresh token here, because refresh token API call made to google, does not return refresh token in the response
+                                // hence it was resulting in refresh token being set as null, that would break the authentication. 
+                                authenticationResponse.setRefreshToken(integrationDTO.getAuthenticationResponse().getRefreshToken());
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                // We return the same object instead of the update value because the updates value
-                                // will be in the encrypted form
+
+                                // We need to return datasourceStorage object from the database so as to get decrypted token values,
+                                // if we dont then, encrypted token values would be returned and subsequently those encrypted values would be used to call google apis
                                 return datasourceStorageService
                                         .save(datasourceStorage)
-                                        .thenReturn(datasourceStorage);
+                                        .flatMap(ignore -> datasourceService.findByIdWithStorages(datasourceStorage.getDatasourceId())
+                                                .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, datasourceStorage.getEnvironmentId())));
                             });
                 })
                 .switchIfEmpty(Mono.just(datasourceStorage))

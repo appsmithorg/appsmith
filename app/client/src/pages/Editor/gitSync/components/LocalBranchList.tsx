@@ -32,16 +32,13 @@ export function LocalBranchList(
           {createMessage(LOCAL_BRANCHES)}
         </Text>
       )}
-      {localBranches
-        .map((branch: string, index: number) => ({
-          branch,
-          isActive: getIsActiveItem(
-            isCreateNewBranchInputValid,
-            activeHoverIndex,
-            index,
-          ),
-        }))
-        .map(({ branch, isActive }) => (
+      {localBranches.map((branch: string, index: number) => {
+        const isActive = getIsActiveItem(
+          isCreateNewBranchInputValid,
+          activeHoverIndex,
+          index,
+        );
+        return (
           <BranchListItem
             active={currentBranch === branch}
             branch={branch}
@@ -51,7 +48,8 @@ export function LocalBranchList(
             selected={isActive}
             shouldScrollIntoView={isActive}
           />
-        ))}
+        );
+      })}
     </div>
   );
 }

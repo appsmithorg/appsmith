@@ -2,7 +2,7 @@ import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/Actio
 import userSagas from "@appsmith/sagas/userSagas";
 import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
-import layoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
+// import layoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
 import { watchJSActionSagas } from "sagas/JSActionSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
@@ -65,5 +65,5 @@ export const sagasToRunForTests = [
   LintingSaga,
   JSLibrarySaga,
   NavigationSagas,
-  layoutUpdateSagas,
+  // layoutUpdateSagas,
 ];

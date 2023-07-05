@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
@@ -7,7 +6,9 @@ describe("Widget error state", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttondsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check widget error state", function () {
@@ -66,7 +67,10 @@ describe("Widget error state", function () {
 
     //Bug-2760: Error log on a widget property not clearing out when the widget property is deleted
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);
+
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+
+    _.table.AddSampleTableData();
 
     _.table.AddColumn("customColumn1");
     _.propPane.OpenTableColumnSettings("customColumn1");

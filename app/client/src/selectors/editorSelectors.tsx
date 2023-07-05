@@ -32,7 +32,6 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
@@ -60,6 +59,8 @@ import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { nestDSL } from "@shared/dsl";
+import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -267,18 +268,10 @@ export const getAppPositioningType = (state: AppState) => {
   return AppPositioningTypes.FIXED;
 };
 
-export const isAutoLayoutEnabled = (state: AppState): boolean => {
-  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
-};
-
 export const getCurrentAppPositioningType = createSelector(
-  isAutoLayoutEnabled,
   getAppPositioningType,
-  (
-    autoLayoutEnabled: boolean,
-    appPositionType: AppPositioningTypes,
-  ): AppPositioningTypes => {
-    return autoLayoutEnabled ? appPositionType : AppPositioningTypes.FIXED;
+  (appPositionType: AppPositioningTypes): AppPositioningTypes => {
+    return appPositionType || AppPositioningTypes.FIXED;
   },
 );
 
@@ -298,8 +291,6 @@ export const getCurrentApplicationLayout = createSelector(
 );
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
-export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
-
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getMetaWidgets = (state: AppState) => state.entities.metaWidgets;
@@ -524,10 +515,7 @@ export const getCanvasWidgetDsl = createSelector(
           canvasWidget.widgetName,
         );
       });
-
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
-    });
+    return nestDSL(widgets);
   },
 );
 
@@ -980,14 +968,16 @@ export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
   getCurrentPageId,
-  (canvasWidgets, inPreviewMode, pageId) => {
+  getIsAnonymousDataPopupVisible,
+  (canvasWidgets, inPreviewMode, pageId, isAnonymousDataPopupVisible) => {
     const state = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
     );
     if (
       !state[pageId] ||
       Object.keys(canvasWidgets).length > 1 ||
-      inPreviewMode
+      inPreviewMode ||
+      isAnonymousDataPopupVisible
     )
       return false;
 

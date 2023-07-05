@@ -7,6 +7,7 @@ import {
   CONFIRM_CONTEXT_DELETING,
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_DELETE,
+  EDIT,
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -17,7 +18,6 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
-import { EDIT } from "ce/constants/messages";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 export const ActionWrapper = styled.div`

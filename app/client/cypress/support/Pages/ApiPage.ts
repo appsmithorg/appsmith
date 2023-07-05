@@ -5,6 +5,7 @@ type RightPaneTabs = "datasources" | "connections";
 export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _createapi = ".t--createBlankApiCard";
   _resourceUrl = ".t--dataSourceField";
@@ -82,10 +83,12 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      cy.get(this.locator._createNew).click();
-      cy.get(this._blankAPI).eq(0).click({ force: true });
+      this.agHelper.RemoveEvaluatedPopUp();
+      this.agHelper.GetHoverNClick(this.locator._createNew);
+      this.agHelper.GetNClick(this._blankAPI, 0, true);
+      this.agHelper.RemoveTooltip("Add a new query/JS Object");
     }
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     // cy.get("@createNewApi").then((response: any) => {
     //     expect(response.response.body.responseMeta.success).to.eq(true);
@@ -113,17 +116,25 @@ export class ApiPage {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
     this.EnterURL(url);
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
-    cy.get(this._apiRunBtn).should("not.be.disabled");
+    this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }
 
-  EnterURL(url: string) {
+  AssertRunButtonDisability(disabled = false) {
+    this.agHelper.AssertElementEnabledDisabled(this._apiRunBtn, 0, disabled);
+  }
+
+  EnterURL(url: string, evaluatedValue = "") {
     this.agHelper.EnterValue(url, {
       propFieldName: this._resourceUrl,
       directInput: true,
       inputFieldName: "",
     });
     this.agHelper.AssertAutoSave();
+
+    if (evaluatedValue) {
+      this.agHelper.VerifyEvaluatedValue(evaluatedValue);
+    }
   }
 
   EnterHeader(hKey: string, hValue: string, index = 0) {
@@ -202,12 +213,12 @@ export class ApiPage {
   ) {
     this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
     toValidateResponse &&
-      this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+      this.agHelper.AssertNetworkExecutionSuccess("@postExecute");
 
     // Asserting Network result
     validateNetworkAssertOptions?.expectedPath &&
       validateNetworkAssertOptions?.expectedRes &&
-      this.agHelper.ValidateNetworkDataAssert(
+      this.agHelper.AssertNetworkDataNestedProperty(
         "@postExecute",
         validateNetworkAssertOptions.expectedPath,
         validateNetworkAssertOptions.expectedRes,
@@ -384,6 +395,10 @@ export class ApiPage {
     cy.xpath(this._verbToSelect(verb)).should("be.visible").click();
   }
 
+  public AssertAPIVerb(verb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH") {
+    this.agHelper.AssertText(this._apiVerbDropdown, "text", verb);
+  }
+
   ResponseStatusCheck(statusCode: string) {
     this.agHelper.AssertElementVisible(this._responseStatus);
     this.agHelper.GetNAssertContains(this._responseStatus, statusCode);
@@ -397,16 +412,21 @@ export class ApiPage {
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
-    cy.get(this._apiRunBtn).should("not.be.disabled");
+    this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }
 
   CreateGraphqlApi(apiName = "") {
     cy.get(this.locator._createNew).click({ force: true });
     cy.get(this._blankGraphqlAPI).click({ force: true });
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);
     cy.get(this._resourceUrl).should("be.visible");
+  }
+
+  AssertEmptyHeaderKeyValuePairsPresent(index: number) {
+    this.agHelper.AssertElementVisible(this._headerKey(index));
+    this.agHelper.AssertElementVisible(this._headerValue(index));
   }
 }

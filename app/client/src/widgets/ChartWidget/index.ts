@@ -1,6 +1,9 @@
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
@@ -23,6 +26,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     chartData: {
       [generateReactKey()]: {

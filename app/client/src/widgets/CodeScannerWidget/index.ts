@@ -2,7 +2,10 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ButtonPlacementTypes } from "components/constants";
 import { ScannerLayout } from "./constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -28,6 +31,7 @@ export const CONFIG = {
     animateLoading: true,
     placement: ButtonPlacementTypes.CENTER,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

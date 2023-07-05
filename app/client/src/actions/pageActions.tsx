@@ -321,12 +321,10 @@ export type WidgetResize = {
   rightColumn?: number;
   topRow?: number;
   bottomRow?: number;
-  mobileLeftColumn?: number;
-  mobileRightColumn?: number;
-  mobileTopRow?: number;
-  mobileBottomRow?: number;
   snapColumnSpace: number;
   snapRowSpace: number;
+  width?: number;
+  height?: number;
 };
 
 export type ModalWidgetResize = {

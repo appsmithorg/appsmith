@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-@ChangeUnit(order = "009", id = "remove-structure-from-within-datasource")
+@ChangeUnit(order = "009", id = "remove-structure-from-within-datasource-modified")
 public class Migration009RemoveStructureFromWithinDatasource {
 
     private final MongoOperations mongoOperations;
@@ -35,11 +35,11 @@ public class Migration009RemoveStructureFromWithinDatasource {
 
     @Execution
     public void executeMigration() {
-        DatabaseChangelog1.dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
+        DatabaseChangelog1.dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_dsId_envId");
 
         DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceStorageStructure.class,
-                DatabaseChangelog1.makeIndex("datasourceId", "envId")
-                        .unique().named("dsConfigStructure_datasourceId_envId_compound_index")
+                DatabaseChangelog1.makeIndex("datasourceId", "environmentId")
+                        .unique().named("dsConfigStructure_dsId_envId")
         );
 
         Query query = query(where("structure").exists(true));

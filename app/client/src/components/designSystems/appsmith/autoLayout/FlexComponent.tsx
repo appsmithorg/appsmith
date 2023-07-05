@@ -1,16 +1,19 @@
 import type { CSSProperties, ReactNode } from "react";
 import React, { useCallback, useMemo, useEffect, useRef } from "react";
 import styled from "styled-components";
-
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { RenderMode, WidgetType } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
-// import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { getIsResizing } from "selectors/widgetSelectors";
+import {
+  getIsResizing,
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -20,11 +23,15 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import {
+  getWidgetCssHeight,
+  getWidgetCssWidth,
+  getWidgetMinMaxDimensionsInPixel,
+} from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
-// import { RESIZE_BORDER_BUFFER } from "resizable/common";
 import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
 import { getAutoWidgetId } from "utils/WidgetPositionsObserver/utils";
+import { getAutoLayoutCanvasMetaWidth } from "selectors/autoLayoutSelectors";
 
 export type AutoLayoutProps = {
   alignment: FlexVerticalAlignment;
@@ -32,6 +39,7 @@ export type AutoLayoutProps = {
   componentHeight: number;
   componentWidth: number;
   direction: LayoutDirection;
+  childIndex?: number;
   focused?: boolean;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
@@ -40,30 +48,34 @@ export type AutoLayoutProps = {
   widgetId: string;
   widgetName: string;
   widgetType: WidgetType;
-  parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile: boolean;
   renderMode: RenderMode;
   mainCanvasWidth?: number;
+  hasAutoHeight?: boolean;
+  hasAutoWidth?: boolean;
 };
 
-const FlexWidget = styled.div`
+const FlexWidget = styled.div<{ minWidth?: number }>`
   position: relative;
-
   &.fill-widget {
     flex-grow: 9999;
     flex-shrink: 1;
     flex-basis: 0%;
+    min-width: calc(100% - 8px);
+    @media screen and (min-width: 481px) {
+      min-width: ${({ minWidth }) => (minWidth ? `${minWidth}px` : undefined)};
+    }
   }
-
   &.hug-widget {
     flex-grow: 0;
     flex-shrink: 0;
+    min-width: ${({ minWidth }) => (minWidth ? `${minWidth}px` : undefined)};
   }
 `;
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+
   const {
     maxHeight,
     maxWidth,
@@ -97,15 +109,25 @@ export function FlexComponent(props: AutoLayoutProps) {
     return () => {
       widgetPositionsObserver.unObserveWidget(getAutoWidgetId(props.widgetId));
     };
-  }, []);
+  }, [props.childIndex, props.alignment]);
 
+  const isResizing = useSelector(getIsResizing);
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  const isCurrentWidgetResizing = isResizing && isSelected;
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
     isDropTarget,
     props.widgetId,
-    props.focused,
-    props.selected,
+    isFocused,
+    isSelected,
   );
+
+  useEffect(() => {
+    if (ref.current?.style) {
+      ref.current.style.zIndex = zIndex.toString();
+    }
+  }, [zIndex]);
 
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
@@ -138,63 +160,52 @@ export function FlexComponent(props: AutoLayoutProps) {
     ],
   );
   const isPreviewMode = useSelector(previewModeSelector);
-
-  const isResizing = useSelector(getIsResizing);
-  // const widgetDimensionsViewCss = {
-  //   width: props.componentWidth - WIDGET_PADDING * 2,
-  //   height: props.componentHeight - WIDGET_PADDING * 2,
-  //   margin: WIDGET_PADDING + "px",
-  //   transform: `translate3d(${
-  //     props.alignment === "end" ? "-" : ""
-  //   }${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
-  // };
-  // const widgetDimensionsEditCss = {
-  //   width:
-  //     isResizing && !props.isResizeDisabled
-  //       ? "auto"
-  //       : `${
-  //           props.componentWidth - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-  //         }px`,
-  //   height:
-  //     isResizing && !props.isResizeDisabled
-  //       ? "auto"
-  //       : `${
-  //           props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-  //         }px`,
-  //   margin: WIDGET_PADDING / 2 + "px",
-  // };
-
   /**
    * TODO (Preet): Temporarily hard coding fill widget min-width to 100% for mobile viewport.
    * Move this logic to widget config.
    */
+  const parentWidth = useSelector((state) =>
+    getAutoLayoutCanvasMetaWidth(
+      state,
+      props.parentId || MAIN_CONTAINER_WIDGET_ID,
+    ),
+  );
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
       display: "flex",
-      zIndex,
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
       },
-      minWidth:
-        props.responsiveBehavior === ResponsiveBehavior.Fill && props.isMobile
-          ? "calc(100% - 8px)"
-          : minWidth
-          ? `${minWidth}px`
-          : undefined,
       maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
+      height: isCurrentWidgetResizing
+        ? `auto`
+        : getWidgetCssHeight(
+            props.hasAutoHeight,
+            props.responsiveBehavior,
+            props.componentHeight,
+          ),
+      width: isCurrentWidgetResizing
+        ? `auto`
+        : getWidgetCssWidth(
+            props.hasAutoWidth,
+            props.responsiveBehavior,
+            props.componentWidth,
+            parentWidth,
+          ),
     };
   }, [
-    props.isMobile,
     props.componentWidth,
     props.componentHeight,
     props.flexVerticalAlignment,
+    isCurrentWidgetResizing,
     zIndex,
     isResizing,
     isPreviewMode,
     onHoverZIndex,
+    parentWidth,
   ]);
 
   return (
@@ -203,6 +214,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       data-testid="test-widget"
       data-widgetname-cy={props.widgetName}
       id={getAutoWidgetId(props.widgetId)}
+      minWidth={minWidth}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       ref={ref}

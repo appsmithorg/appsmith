@@ -1,6 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { AutoLayoutCanvasWidthStatePayload } from "reducers/uiReducers/autoLayoutCanvasWidthReducer";
 import type {
   CONVERSION_STATES,
   SnapShotDetails,
@@ -97,5 +98,28 @@ export const updatePositionsOnTabChange = (
   return {
     type: ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,
     payload: { selectedTabWidgetId, widgetId },
+  };
+};
+
+export const readWidgetPositions = (
+  widgetsProcessQueue: {
+    [widgetDOMId: string]: boolean;
+  },
+  layersProcessQueue: { [canvasId: string]: number },
+) => {
+  return {
+    type: ReduxActionTypes.READ_WIDGET_POSITIONS,
+    payload: { widgetsProcessQueue, layersProcessQueue },
+  };
+};
+
+export const setCanvasMetaWidthAction = (canvasId: string, width: number) => {
+  const payload: AutoLayoutCanvasWidthStatePayload = {
+    canvasId,
+    width,
+  };
+  return {
+    type: ReduxActionTypes.SET_CANVAS_META_WIDTH,
+    payload,
   };
 };

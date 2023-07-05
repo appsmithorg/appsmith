@@ -1,11 +1,15 @@
-const dsl = require("../../../../fixtures/jsonFormDynamicHeightDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for JsonForm", function () {
-    cy.addDsl(dsl);
-    cy.wait(3000); //for dsl to settle
-    cy.openPropertyPane("jsonformwidget");
+    cy.fixture("jsonFormDynamicHeightDsl").then((val) => {
+      agHelper.AddDsl(val);
+    });
+    entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
     cy.get(".t--widget-jsonformwidget")
       .invoke("css", "height")
       .then((formheight) => {

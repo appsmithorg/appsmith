@@ -30,7 +30,8 @@ export type EventLocation =
   | "KEYBOARD_SHORTCUT"
   | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
   | "JS_OBJECT_MAIN_RUN_BUTTON"
-  | "JS_OBJECT_RESPONSE_RUN_BUTTON";
+  | "JS_OBJECT_RESPONSE_RUN_BUTTON"
+  | "ONE_CLICK_BINDING";
 
 export type EventName =
   | "APP_CRASH"
@@ -57,6 +58,7 @@ export type EventName =
   | "SIDEBAR_NAVIGATION"
   | "PUBLISH_APP"
   | "PREVIEW_APP"
+  | "APP_VIEWED_WITH_NAVBAR"
   | "EDITOR_OPEN"
   | "CREATE_ACTION"
   | "SAVE_SAAS"
@@ -74,8 +76,8 @@ export type EventName =
   | "IMPORT_API_CLICK"
   | "MOVE_API_CLICK"
   | "ADD_API_PAGE"
-  | "DUPLICATE_API"
-  | "DUPLICATE_API_CLICK"
+  | "DUPLICATE_ACTION"
+  | "DUPLICATE_ACTION_CLICK"
   | "RUN_QUERY"
   | "RUN_QUERY_CLICK"
   | "RUN_QUERY_SHORTCUT"
@@ -185,13 +187,15 @@ export type EventName =
   | "SNIPPET_COPIED"
   | "SNIPPET_LOOKUP"
   | "SIGNPOSTING_SKIP"
-  | "SIGNPOSTING_CREATE_DATASOURCE_CLICK"
-  | "SIGNPOSTING_CREATE_QUERY_CLICK"
-  | "SIGNPOSTING_ADD_WIDGET_CLICK"
-  | "SIGNPOSTING_CONNECT_WIDGET_CLICK"
-  | "SIGNPOSTING_PUBLISH_CLICK"
-  | "SIGNPOSTING_BUILD_APP_CLICK"
+  | "SIGNPOSTING_MODAL_CREATE_DATASOURCE_CLICK"
+  | "SIGNPOSTING_MODAL_CREATE_QUERY_CLICK"
+  | "SIGNPOSTING_MODAL_ADD_WIDGET_CLICK"
+  | "SIGNPOSTING_MODAL_CONNECT_WIDGET_CLICK"
+  | "SIGNPOSTING_MODAL_PUBLISH_CLICK"
   | "SIGNPOSTING_WELCOME_TOUR_CLICK"
+  | "SIGNPOSTING_MODAL_CLOSE_CLICK"
+  | "SIGNPOSTING_INFO_CLICK"
+  | "SIGNPOSTING_MODAL_FIRST_TIME_OPEN"
   | "GS_BRANCH_MORE_MENU_OPEN"
   | "GIT_DISCARD_WARNING"
   | "GIT_DISCARD_CANCEL"
@@ -290,6 +294,7 @@ export type EventName =
   | "PEEK_OVERLAY_COLLAPSE_EXPAND_CLICK"
   | "PEEK_OVERLAY_VALUE_COPIED"
   | LIBRARY_EVENTS
+  | "APP_SETTINGS_BUTTON_CLICK"
   | "APP_SETTINGS_SECTION_CLICK"
   | APP_NAVIGATION_EVENT_NAMES
   | ACTION_SELECTOR_EVENT_NAMES
@@ -300,7 +305,6 @@ export type EventName =
   | "CONVERT_AUTO_TO_FIXED"
   | "CONVERT_FIXED_TO_AUTO"
   | "DATASOURCE_AUTHORIZE_CLICK"
-  | "DATASOURCE_AUTHORIZE_RESULT"
   | "NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE"
   | "EDIT_DATASOURCE_CLICK"
   | "DISCARD_DATASOURCE_CHANGES"
@@ -315,7 +319,23 @@ export type EventName =
   | "RUN_SAAS_API_FAILURE"
   | "EXECUTE_ACTION_SUCCESS"
   | "EXECUTE_ACTION_FAILURE"
-  | AI_EVENTS;
+  | "GOOGLE_SHEET_FILE_PICKER_INITIATED"
+  | "GOOGLE_SHEET_FILE_PICKER_FILES_LISTED"
+  | "GOOGLE_SHEET_FILE_PICKER_CANCEL"
+  | "GOOGLE_SHEET_FILE_PICKER_PICKED"
+  | "TELEMETRY_DISABLED"
+  | "GENERAL_SETTINGS_UPDATE"
+  | "HELP_MENU_WELCOME_TOUR_CLICK"
+  | "DISPLAY_TELEMETRY_CALLOUT"
+  | "VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT"
+  | "LEARN_MORE_TELEMETRY_CALLOUT"
+  | AI_EVENTS
+  | ONE_CLICK_BINDING_EVENT_NAMES
+  | "JS_VARIABLE_CREATED"
+  | "JS_VARIABLE_MUTATED"
+  | "EXPLORER_WIDGET_CLICK"
+  | "WIDGET_SEARCH"
+  | "MAKE_APPLICATION_PUBLIC";
 
 export type AI_EVENTS =
   | "AI_QUERY_SENT"
@@ -360,6 +380,18 @@ export type ACTION_SELECTOR_EVENT_NAMES =
   | "ACTION_DELETED"
   | "ACTION_MODIFIED";
 
+export type ONE_CLICK_BINDING_EVENT_NAMES =
+  | "BIND_EXISTING_QUERY_TO_WIDGET"
+  | "GENERATE_QUERY_FOR_WIDGET"
+  | "BIND_OTHER_ACTIONS"
+  | "GENERATE_QUERY_SELECT_DATA_TABLE"
+  | "GENERATE_QUERY_SET_COLUMN"
+  | "GENERATE_QUERY_CONNECT_DATA_CLICK"
+  | "QUERY_GENERATION_BINDING_SUCCESS"
+  | "1_CLICK_BINDING_SUCCESS"
+  | "WIDGET_CONNECT_DATA_CLICK"
+  | "GENERATE_QUERY_SELECT_SHEET_GSHEET";
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -375,6 +407,7 @@ class AnalyticsUtil {
   static cachedUserId: string;
   static user?: User = undefined;
   static blockTrackEvent: boolean | undefined;
+  static instanceId?: string = "";
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -468,6 +501,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
+    const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
@@ -495,6 +529,7 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
+    finalEventData = { ...finalEventData, instanceId };
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
@@ -563,6 +598,10 @@ class AnalyticsUtil {
     }
 
     AnalyticsUtil.blockTrackEvent = false;
+  }
+
+  static initInstanceId(instanceId: string) {
+    AnalyticsUtil.instanceId = instanceId;
   }
 
   static getAnonymousId() {

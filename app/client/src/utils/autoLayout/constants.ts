@@ -71,6 +71,7 @@ export enum FlexVerticalAlignment {
   Top = "start",
   Center = "center",
   Bottom = "end",
+  Stretch = "stretch",
 }
 
 export const ROW_GAP = 12;

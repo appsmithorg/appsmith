@@ -2,6 +2,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -20,6 +21,7 @@ export const CONFIG = {
     widgetName: "Image",
     version: 1,
     animateLoading: true,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

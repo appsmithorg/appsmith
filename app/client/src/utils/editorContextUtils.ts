@@ -3,12 +3,13 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
-} from "ce/constants/forms";
+} from "@appsmith/constants/forms";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
-import { isArray } from "lodash";
+import { get, isArray } from "lodash";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -83,25 +84,34 @@ export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
 ): boolean {
+  const currentEnvironment = getCurrentEnvironment();
   if (!datasource) return false;
-  const authType =
-    datasource &&
-    datasource?.datasourceConfiguration?.authentication?.authenticationType;
+  const authType = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
+  );
 
-  /* 
-    TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
-    Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
-  */
-  const isGoogleSheetPlugin =
-    plugin.packageName === PluginPackageName.GOOGLE_SHEETS;
-  if (isGoogleSheetPlugin && authType === AuthType.OAUTH2) {
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
+  if (isGoogleSheetPlugin) {
     const isAuthorized =
-      datasource?.datasourceConfiguration?.authentication
-        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+      authType === AuthType.OAUTH2 &&
+      get(
+        datasource,
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+      ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
   return true;
+}
+
+/**
+ * Determines whether plugin is google sheet or not
+ * @param pluginPackageName string
+ * @returns boolean
+ */
+export function isGoogleSheetPluginDS(pluginPackageName?: string) {
+  return pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 }
 
 /**
@@ -113,12 +123,16 @@ export function isDatasourceAuthorizedForQueryCreation(
 export function getDatasourcePropertyValue(
   datasource: Datasource,
   propertyKey: string,
+  currentEnvironment: string,
 ): string | null {
   if (!datasource) {
     return null;
   }
 
-  const properties = datasource?.datasourceConfiguration?.properties;
+  const properties = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties`,
+  );
   if (!!properties && properties.length > 0) {
     const propertyObj = properties.find((prop) => prop.key === propertyKey);
     if (!!propertyObj) {

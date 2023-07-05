@@ -1,9 +1,11 @@
-const dsl = require("../../../../fixtures/buttonGroupDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Grouping", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttonGroupDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Button widgets widget on click info message valdiation with font family", function () {
     cy.get(".t--buttongroup-widget button")
@@ -16,7 +18,7 @@ describe("Widget Grouping", function () {
     cy.get(commonlocators.toastmsg)
       .invoke("css", "font-family")
       .then((dropdownFont) => {
-        cy.PublishtheApp();
+        _.deployMode.DeployApp();
         cy.get(".t--buttongroup-widget button")
           .contains("Add")
           .click({ force: true });
@@ -29,7 +31,6 @@ describe("Widget Grouping", function () {
           .then((publishdropdownFont) => {
             expect(dropdownFont).to.equal(publishdropdownFont);
           });
-        cy.goToEditFromPublish();
       });
   });
 });

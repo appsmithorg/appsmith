@@ -1,4 +1,4 @@
-import { Button, getTypographyByKey } from "design-system-old";
+import { Button } from "design-system";
 import styled from "styled-components";
 import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 
@@ -6,15 +6,16 @@ export const Wrapper = styled.div``;
 
 export const SelectWrapper = styled.div`
   display: inline-block;
-  margin: 5px 0 10px;
+  margin: 0 0 2px;
   max-width: ${DROPDOWN_TRIGGER_DIMENSION.WIDTH};
   width: 100%;
 `;
 
 export const Label = styled.p`
   flex: 1;
-  ${getTypographyByKey("p1")};
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Bold = styled.span`
@@ -29,19 +30,14 @@ export const Row = styled.div`
   justify-content: flex-start;
 `;
 
-export const TooltipWrapper = styled.div`
-  margin-top: 2px;
-`;
-
 export const RowHeading = styled.p`
-  ${getTypographyByKey("p1")};
   margin-right: 10px;
 `;
 
 export const StyledButton = styled(Button)`
-  padding: 15px 0px;
-  margin: 10px 0px;
-  width: 100%;
+  &&& {
+    width: 100%;
+  }
 `;
 
 export const CreateIconWrapper = styled.div`
@@ -58,6 +54,18 @@ export const ImageWrapper = styled.div`
 `;
 
 export const DatasourceImage = styled.img`
-  height: 20px;
+  height: 16px;
   width: auto;
+`;
+
+export const ErrorMessage = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ads-v2-color-fg-error);
+  margin-top: 5px;
+`;
+
+export const Placeholder = styled.div`
+  color: var(--ads-v2-color-fg-subtle);
 `;

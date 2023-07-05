@@ -6,6 +6,7 @@ public class FieldNameCE {
     @Deprecated
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String WORKSPACE_ID = "workspaceId";
+    public static final String DATASOURCE_ID = "datasourceId";
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
@@ -172,7 +173,8 @@ public class FieldNameCE {
     public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
     public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
 
-
     public static final String ENVIRONMENT = "environment";
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
+
+    public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
 }

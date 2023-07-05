@@ -274,7 +274,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     //TODO Identify the updated widgets and pass the values
     if (isAutoLayout) {
-      yield call(recalculateAutoLayoutColumnsAndSave, widgets);
+      yield call(recalculateAutoLayoutColumnsAndSave); //, widgets);
     } else {
       yield put(updateAndSaveLayout(widgets));
     }

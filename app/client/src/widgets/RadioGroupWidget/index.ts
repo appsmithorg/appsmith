@@ -3,6 +3,7 @@ import { LabelPosition } from "components/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -34,6 +35,7 @@ export const CONFIG = {
     isDisabled: false,
     isInline: true,
     alignment: Alignment.LEFT,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     widgetName: "RadioGroup",
     version: 1,
   },

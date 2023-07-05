@@ -4,11 +4,12 @@ import { getWidgets } from "sagas/selectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
-import type { Point } from "utils/autoLayout/highlightSelectionUtils";
 import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
+import { GridDefaults } from "constants/WidgetConstants";
+import type { AppState } from "@appsmith/reducers";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
@@ -32,6 +33,9 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
+  const widgetPositions = useSelector(
+    (state: AppState) => state.entities.widgetPositions,
+  );
   const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
   const highlights = useRef<HighlightInfo[]>([]);
   let lastActiveHighlight: HighlightInfo | undefined;
@@ -72,13 +76,32 @@ export const useAutoLayoutHighlights = ({
 
   const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
     cleanUpTempStyles();
+    let left = 0,
+      top = 0;
+
+    const mainCanvasElement = document.querySelector(".flex-container-0");
+    const currCanvasElement = document.querySelector(
+      `.flex-container-${canvasId}`,
+    );
+
+    if (mainCanvasElement && currCanvasElement) {
+      const { left: mainLeft, top: mainTop } =
+        mainCanvasElement.getBoundingClientRect();
+      const { left: currLeft, top: currTop } =
+        currCanvasElement.getBoundingClientRect();
+
+      left = currLeft - mainLeft;
+      top = currTop - mainTop;
+    }
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
       isFillWidget = checkForFillWidget();
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
+        widgetPositions,
+        { left, top },
         canvasId,
-        snapColumnSpace,
+        snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
@@ -99,17 +122,35 @@ export const useAutoLayoutHighlights = ({
    */
   const getDropPosition = (
     snapColumnSpace: number,
-    e?: any,
-    val?: Point,
+    delta = { left: 0, top: 0 },
     mouseUp = false,
   ) => {
     if (mouseUp && lastActiveHighlight) return lastActiveHighlight;
+    let left = 0,
+      top = 0;
+
+    const mainCanvasElement = document.querySelector(".flex-container-0");
+    const currCanvasElement = document.querySelector(
+      `.flex-container-${canvasId}`,
+    );
+
+    if (mainCanvasElement && currCanvasElement) {
+      const { left: mainLeft, top: mainTop } =
+        mainCanvasElement.getBoundingClientRect();
+      const { left: currLeft, top: currTop } =
+        currCanvasElement.getBoundingClientRect();
+
+      left = currLeft - mainLeft;
+      top = currTop - mainTop;
+    }
 
     if (!highlights || !highlights?.current?.length)
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
+        widgetPositions,
+        { left, top },
         canvasId,
-        snapColumnSpace,
+        snapColumnSpace * GridDefaults.DEFAULT_GRID_COLUMNS,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
@@ -117,8 +158,7 @@ export const useAutoLayoutHighlights = ({
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights.current,
-      e || null,
-      val,
+      delta,
     );
     if (!highlight) return;
 

@@ -41,7 +41,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -186,8 +185,6 @@ public class ApplicationServiceCETest {
     @Autowired
     PluginRepository pluginRepository;
     @Autowired
-    PolicyUtils policyUtils;
-    @Autowired
     ImportExportApplicationService importExportApplicationService;
     @Autowired
     ThemeService themeService;
@@ -254,7 +251,7 @@ public class ApplicationServiceCETest {
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
             testPlugin = pluginService.findByPackageName("restapi-plugin").block();
@@ -3410,7 +3407,7 @@ public class ApplicationServiceCETest {
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService.createApplication(testApplication)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
                 .block();
 
 

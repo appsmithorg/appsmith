@@ -24,7 +24,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -86,7 +86,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
@@ -116,7 +116,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              PasswordEncoder passwordEncoder,
                              EmailSender emailSender,
                              ApplicationRepository applicationRepository,
-                             PolicyUtils policyUtils,
+                             PolicySolution policySolution,
                              CommonConfig commonConfig,
                              EmailConfig emailConfig,
                              UserChangedHandler userChangedHandler,
@@ -132,7 +132,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
         this.applicationRepository = applicationRepository;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
@@ -409,31 +409,26 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userWithTenantMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to save user: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
-                .flatMap(savedUser -> addUserPolicies(savedUser, isAdminUser))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to create user role: {} ms", pair.getT1());
-                    return pair.getT2();
+                .flatMap(this::addUserPoliciesAndSaveToRepo)
+                .flatMap(crudUser -> {
+                    if (isAdminUser) {
+                        return userUtils.makeSuperUser(List.of(crudUser))
+                                .then(Mono.just(crudUser));
+                    }
+                    return Mono.just(crudUser);
                 })
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
                 ))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to identify user: {} ms", pair.getT1());
-                    return pair.getT2();
-                });
+                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
-    private Mono<User> addUserPolicies(User savedUser, Boolean isAdminUser) {
+    protected Mono<User> addUserPolicies(User savedUser) {
 
         // Create user management permission group
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(savedUser.getUsername() + " User Management");
+        userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(
                 Set.of(
@@ -445,22 +440,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
 
         return permissionGroupService.save(userManagementPermissionGroup)
-                .flatMap(savedPermissionGroup -> {
+                .map(savedPermissionGroup -> {
 
-                    Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                    Map<String, Policy> crudUserPolicies = policySolution.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
                             savedUser.getId());
 
-                    User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, savedUser);
+                    User updatedWithPolicies = policySolution.addPoliciesToExistingObject(crudUserPolicies, savedUser);
 
-                    return repository.save(updatedWithPolicies);
-                })
-                .flatMap(crudUser -> {
-                    if (isAdminUser) {
-                        return userUtils.makeSuperUser(List.of(crudUser))
-                                .then(Mono.just(crudUser));
-                    }
-                    return Mono.just(crudUser);
+                    return updatedWithPolicies;
                 });
+    }
+
+    private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
+        return addUserPolicies(user)
+                .flatMap(repository::save);
     }
 
     /**
@@ -816,7 +809,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setEmptyInstance(isUsersEmpty);
                     profile.setAnonymous(userFromDb.isAnonymous());
                     profile.setEnabled(userFromDb.isEnabled());
-                    profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());

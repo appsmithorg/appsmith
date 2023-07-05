@@ -1,7 +1,10 @@
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "widgets/constants";
 
@@ -31,6 +34,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     useSourceData: false,
     animateLoading: true,

@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
 import React from "react";
-import { isNil } from "lodash";
+import { isEmpty } from "lodash";
 import { useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
@@ -19,6 +19,7 @@ import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Button } from "design-system";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -153,9 +154,10 @@ function DatasourceCard(props: DatasourceCardProps) {
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
-      {!isNil(currentFormConfig) ? (
+      {!isEmpty(currentFormConfig) ? (
         <RenderDatasourceInformation
           config={currentFormConfig[0]}
+          currentEnvironment={getCurrentEnvironment()}
           datasource={datasource}
         />
       ) : undefined}

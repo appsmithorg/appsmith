@@ -69,12 +69,15 @@ import {
   segmentInitSuccess,
 } from "actions/analyticsActions";
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
-import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import {
+  USER_PROFILE_PICTURE_UPLOAD_FAILED,
+  UPDATE_USER_DETAILS_FAILED,
+} from "@appsmith/constants/messages";
 import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
@@ -512,7 +515,12 @@ export function* fetchFeatureFlags() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchFeatureFlagsSuccess(response.data));
+      yield put(
+        fetchFeatureFlagsSuccess({
+          ...DEFAULT_FEATURE_FLAG_VALUE,
+          ...response.data,
+        }),
+      );
     }
   } catch (error) {
     log.error(error);

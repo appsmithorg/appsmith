@@ -1,7 +1,10 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "./icon.svg";
@@ -37,6 +40,7 @@ export const CONFIG = {
     labelWidth: 5,
     version: 1,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

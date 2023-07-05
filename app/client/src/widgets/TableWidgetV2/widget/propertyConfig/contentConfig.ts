@@ -10,6 +10,7 @@ import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
+  tableDataValidation,
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateColumnOrderHook,
@@ -28,15 +29,21 @@ export default [
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
         label: "Table data",
-        controlType: "INPUT_TEXT",
+        controlType: "ONE_CLICK_BINDING_CONTROL",
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: {
-          type: ValidationTypes.OBJECT_ARRAY,
+          type: ValidationTypes.FUNCTION,
           params: {
-            default: [],
+            fn: tableDataValidation,
+            expected: {
+              type: "Array",
+              example: `[{ "name": "John" }]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -83,6 +90,7 @@ export default [
         helpText: "Choose the save experience to save the edited cell",
         label: "Update mode",
         controlType: "ICON_TABS",
+        defaultValue: InlineEditingSaveOptions.ROW_LEVEL,
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,

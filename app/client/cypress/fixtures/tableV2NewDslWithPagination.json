@@ -132,7 +132,7 @@
           "productName",
           "orderAmount"
         ],
-        "dynamicPropertyPathList": [],
+        "dynamicPropertyPathList": [{"key": "tableData"}],
         "displayName": "Table",
         "bottomRow": 132,
         "columnWidthMap": {

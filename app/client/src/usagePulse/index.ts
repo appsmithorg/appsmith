@@ -14,7 +14,7 @@ import {
 } from "@appsmith/constants/UsagePulse";
 import PageApi from "api/PageApi";
 import { APP_MODE } from "entities/App";
-import type { FetchApplicationResponse } from "ce/api/ApplicationApi";
+import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
 import type { AxiosResponse } from "axios";
 import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
 

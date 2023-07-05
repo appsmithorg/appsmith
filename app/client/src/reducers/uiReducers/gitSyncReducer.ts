@@ -34,6 +34,9 @@ const initialState: GitSyncReducerState = {
     id: "",
     name: "",
   },
+
+  isSwitchingBranch: false,
+  switchingToBranch: null,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -514,6 +517,26 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     discardError: null,
   }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_INIT]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    switchingToBranch: action.payload,
+    isSwitchingBranch: true,
+  }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    switchingToBranch: null,
+    isSwitchingBranch: false,
+  }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_ERROR]: (state: GitSyncReducerState) => ({
+    ...state,
+    switchingToBranch: null,
+    isSwitchingBranch: false,
+  }),
 });
 
 export type GitStatusData = {
@@ -529,6 +552,7 @@ export type GitStatusData = {
   modifiedDatasources: number;
   modifiedJSLibs: number;
   discardDocUrl?: string;
+  migrationMessage?: string;
 };
 
 type GitErrorPayloadType = {
@@ -636,6 +660,9 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isDiscarding?: boolean;
   discard?: GitDiscardResponse;
   discardError?: GitErrorType;
+
+  isSwitchingBranch: boolean;
+  switchingToBranch: string | null;
 };
 
 export default gitSyncReducer;

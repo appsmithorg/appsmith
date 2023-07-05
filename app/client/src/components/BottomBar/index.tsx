@@ -5,9 +5,6 @@ import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
-import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
-import { useSelector } from "react-redux";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { Button } from "design-system";
 import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
 
@@ -30,7 +27,6 @@ const Wrapper = styled.div`
 `;
 
 export default function BottomBar(props: { className?: string }) {
-  const isMultiPane = useSelector(isMultiPaneActive);
   return (
     <Container className={props.className ?? ""}>
       <Wrapper>
@@ -49,7 +45,6 @@ export default function BottomBar(props: { className?: string }) {
         </ManualUpgrades>
         <DebuggerTrigger />
         <HelpButton />
-        {isMultiPane && <PaneCountSwitcher />}
       </Wrapper>
     </Container>
   );

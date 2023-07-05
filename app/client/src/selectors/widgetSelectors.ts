@@ -25,6 +25,9 @@ import { previewModeSelector } from "./editorSelectors";
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
+export const getIsDragging = (state: AppState) =>
+  state.ui.widgetDragResize.isDragging;
+
 export const getIsResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing;
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -33,13 +33,16 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
+import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
+import OverlayCanvasContainer from "./OverlayCanvas";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
+  containerRef: any;
 };
 
 const Container = styled.section<{
@@ -101,6 +104,7 @@ function CanvasContainer(props: CanvasContainerProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const { isPreviewMode, shouldShowSnapShotBanner } = props;
+  const ref = useRef<HTMLDivElement>(null);
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -117,6 +121,7 @@ function CanvasContainer(props: CanvasContainerProps) {
     pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -188,12 +193,15 @@ function CanvasContainer(props: CanvasContainerProps) {
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
           "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
-          "mt-4": !shouldShowSnapShotBanner && showCanvasTopSection,
+          "mt-4":
+            !shouldShowSnapShotBanner &&
+            (showCanvasTopSection || showAnonymousDataPopup),
           "mt-8":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
-            !isPreviewingNavigation,
+            !isPreviewingNavigation &&
+            !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
@@ -203,11 +211,17 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
         navigationHeight={navigationHeight}
-        style={{
-          height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
-          fontFamily: fontFamily,
-          pointerEvents: isAutoCanvasResizing ? "none" : "auto",
-        }}
+        ref={ref}
+        style={
+          {
+            "--main-canvas-height": shouldHaveTopMargin
+              ? heightWithTopMargin
+              : "100vh",
+            height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
+            fontFamily: fontFamily,
+            pointerEvents: isAutoCanvasResizing ? "none" : "auto",
+          } as React.CSSProperties
+        }
       >
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}
@@ -224,6 +238,11 @@ function CanvasContainer(props: CanvasContainerProps) {
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         shouldHaveTopMargin={shouldHaveTopMargin}
+      />
+      <OverlayCanvasContainer
+        canvasWidth={canvasWidth}
+        containerRef={props.containerRef}
+        parentRef={ref}
       />
     </>
   );

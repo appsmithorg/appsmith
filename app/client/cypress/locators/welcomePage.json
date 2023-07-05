@@ -9,6 +9,7 @@
   "roleInput": ".t--welcome-form-role-input input",
   "useCaseDropdown": ".t--welcome-form-role-usecase",
   "useCaseDropdownOption": ".rc-select-item-option-content",
+  "continueButton": ".t--welcome-form-continue-button",
   "submitButton": ".t--welcome-form-submit-button",
   "dataCollection": ".t--welcome-form-datacollection",
   "newsLetter": ".t--welcome-form-newsletter",

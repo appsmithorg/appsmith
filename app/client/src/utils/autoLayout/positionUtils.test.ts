@@ -3,7 +3,7 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import type { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
+import type { FlexLayer, PositionsAlignmentInfo, Row } from "./autoLayoutTypes";
 import { RenderModes } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -394,7 +394,7 @@ describe("test PositionUtils methods", () => {
 
   describe("test getAlignmentSizeinfo method", () => {
     it("should distribute the space evenly across alignments if they don't need more than their equal share", () => {
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         { alignment: FlexLayerAlignment.Start, columns: 0, children: [] },
         { alignment: FlexLayerAlignment.Center, columns: 0, children: [] },
         { alignment: FlexLayerAlignment.End, columns: 0, children: [] },
@@ -404,7 +404,7 @@ describe("test PositionUtils methods", () => {
       expect(startSize).toEqual(centerSize);
     });
     it("should distribute the space evenly across alignments if 1) they don't need more than their equal share, and 2) there are fewer than three alignments in the layer", () => {
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         { alignment: FlexLayerAlignment.Center, columns: 0, children: [] },
         { alignment: FlexLayerAlignment.End, columns: 0, children: [] },
       ];
@@ -414,7 +414,7 @@ describe("test PositionUtils methods", () => {
       expect(endSize).toEqual(centerSize);
     });
     it("should assign appropriate columns to an alignment that needs more space, and distribute the remaining space evenly amongst the other alignments", () => {
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         { alignment: FlexLayerAlignment.Start, columns: 40, children: [] },
         { alignment: FlexLayerAlignment.Center, columns: 0, children: [] },
         { alignment: FlexLayerAlignment.End, columns: 0, children: [] },
@@ -427,24 +427,24 @@ describe("test PositionUtils methods", () => {
   });
   describe("test getWrappedAlignmentInfo method", () => {
     it("should place all alignments in a single row if combined column requirement <= 64", () => {
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         { alignment: FlexLayerAlignment.Start, columns: 16, children: [] },
         { alignment: FlexLayerAlignment.Center, columns: 20, children: [] },
         { alignment: FlexLayerAlignment.End, columns: 26, children: [] },
       ];
-      const rows: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
+      const rows: PositionsAlignmentInfo[][] = getWrappedAlignmentInfo(arr);
       expect(rows.length).toEqual(3);
       expect(rows[0].length).toEqual(3);
       expect(rows.filter((row) => !row.length).length).toEqual(2);
       expect(rows[0]).toEqual(arr);
     });
     it("should wrap an alignment requiring > 64 columns in a separate row", () => {
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         { alignment: FlexLayerAlignment.Start, columns: 80, children: [] },
         { alignment: FlexLayerAlignment.Center, columns: 20, children: [] },
         { alignment: FlexLayerAlignment.End, columns: 26, children: [] },
       ];
-      const rows: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
+      const rows: PositionsAlignmentInfo[][] = getWrappedAlignmentInfo(arr);
       expect(rows.length).toEqual(3);
       expect(rows[0].length).toEqual(1);
       expect(rows[1].length).toEqual(2);
@@ -453,12 +453,12 @@ describe("test PositionUtils methods", () => {
       expect(rows[1]).toEqual([arr[1], arr[2]]);
     });
     it("should wrap alignments into multiple rows if combined columns requirement > 64", () => {
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         { alignment: FlexLayerAlignment.Start, columns: 30, children: [] },
         { alignment: FlexLayerAlignment.Center, columns: 40, children: [] },
         { alignment: FlexLayerAlignment.End, columns: 10, children: [] },
       ];
-      const rows: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
+      const rows: PositionsAlignmentInfo[][] = getWrappedAlignmentInfo(arr);
       expect(rows.length).toEqual(3);
       expect(rows[0].length).toEqual(1);
       expect(rows[1].length).toEqual(2);
@@ -488,7 +488,7 @@ describe("test PositionUtils methods", () => {
 
   describe("test getWrappedRows method", () => {
     it("should segregate an alignment's children into multiple rows if combined column requirement > 64", () => {
-      const arr: AlignmentInfo = {
+      const arr: PositionsAlignmentInfo = {
         alignment: FlexLayerAlignment.Start,
         columns: 80,
         children: [
@@ -608,7 +608,7 @@ describe("test PositionUtils methods", () => {
           isLoading: false,
         },
       };
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         {
           alignment: FlexLayerAlignment.Start,
           columns: 40,
@@ -686,7 +686,7 @@ describe("test PositionUtils methods", () => {
           isLoading: false,
         },
       };
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         {
           alignment: FlexLayerAlignment.Start,
           columns: 0,
@@ -781,7 +781,7 @@ describe("test PositionUtils methods", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       };
-      const arr: AlignmentInfo[] = [
+      const arr: PositionsAlignmentInfo[] = [
         {
           alignment: FlexLayerAlignment.Start,
           columns: 0,

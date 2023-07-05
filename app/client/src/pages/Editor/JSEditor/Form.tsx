@@ -24,7 +24,6 @@ import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers"
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -59,8 +58,6 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
-import { SlashCommand } from "entities/Action";
 import {
   setCodeEditorCursorAction,
   setFocusableInputField,
@@ -72,7 +69,6 @@ import styled from "styled-components";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
-import SearchSnippets from "../../common/SearchSnippets";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -147,7 +143,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   useEffect(() => {
     if (hash) {
       // Hash here could mean to navigate (set cursor/focus) to a particular function
-      // If the hash has a function name in this JS object, we will set that
+      // If the hash has a function name in this JS Object, we will set that
       const actionName = hash.substring(1);
       const position = getJSPropertyLineFromName(
         currentJSCollection.body,
@@ -326,22 +322,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 isDeletePermitted={isDeletePermitted}
                 name={currentJSCollection.name}
                 pageId={pageId}
-              />
-              <SearchSnippets
-                entityId={currentJSCollection?.id}
-                entityType={ENTITY_TYPE.JSACTION}
-                onClick={() => {
-                  dispatch(
-                    executeCommandAction({
-                      actionType: SlashCommand.NEW_SNIPPET,
-                      args: {
-                        entityId: currentJSCollection?.id,
-                        entityType: ENTITY_TYPE.JSACTION,
-                      },
-                    }),
-                  );
-                  return;
-                }}
               />
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}

@@ -1,0 +1,69 @@
+/* AUTO LAYOUT LAYER */
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  overflow: visible;
+  width: 100%;
+  column-gap: 4px;
+  row-gap: 8px;
+
+  @media (width > 480px) {
+    row-gap: 12px;
+  }
+}
+
+.alignment {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-self: stretch;
+  flex-grow: 1;
+  flex-shrink: 1;
+
+  column-gap: 4px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  flex-basis: auto;
+
+  @media (width > 480px) {
+    flex-wrap: nowrap;
+    row-gap: 12px;
+    flex-basis: 0%;
+  }
+}
+
+.start-alignment {
+  justify-content: flex-start;
+}
+
+.center-alignment {
+  justify-content: center;
+}
+
+.end-alignment {
+  justify-content: flex-end;
+}
+
+/* FLEX COMPONENT */
+.flex-widget {
+  position: relative;
+  display: flex;
+}
+
+.fill-widget {
+  flex-grow: 9999;
+  flex-shrink: 1;
+  flex-basis: 0%;
+
+  @media screen and (max-width: 480px) {
+    min-width: calc(100% - 8px);
+  }
+}
+
+.hug-widget {
+  flex-grow: 0;
+  flex-shrink: 0;
+}

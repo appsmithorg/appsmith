@@ -63,13 +63,25 @@ export interface AlignmentChildren {
   rows: number;
 }
 
+export interface HighlightsAlignmentChildren {
+  widget: FlattenedWidgetProps;
+  height: number;
+  width: number;
+}
+
 export interface AlignmentInfo {
+  alignment: FlexLayerAlignment;
+  width: number;
+  children: HighlightsAlignmentChildren[];
+}
+
+export interface PositionsAlignmentInfo {
   alignment: FlexLayerAlignment;
   columns: number;
   children: AlignmentChildren[];
 }
 
-export interface Row extends AlignmentInfo {
+export interface Row extends PositionsAlignmentInfo {
   height: number;
 }
 

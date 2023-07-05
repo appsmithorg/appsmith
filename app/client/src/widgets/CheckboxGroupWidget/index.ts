@@ -3,6 +3,7 @@ import { LabelPosition } from "components/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   features: {
@@ -33,6 +34,7 @@ export const CONFIG = {
     labelText: "Label",
     labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
     labelWidth: 5,
     widgetName: "CheckboxGroup",
     version: 2,

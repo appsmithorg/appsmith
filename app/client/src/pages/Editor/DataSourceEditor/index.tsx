@@ -59,7 +59,10 @@ import {
 import { toast } from "design-system";
 import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
@@ -76,8 +79,8 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
+import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -190,7 +193,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       requiredFields: {},
       configDetails: {},
       filterParams: {
-        id: "",
+        id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
         showFilterPane: false,
@@ -247,12 +250,24 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
-        ...this.state,
         requiredFields: {},
         configDetails: {},
       });
     }
   }
+
+  getEnvironmentId = () => {
+    if (
+      this.props.isInsideReconnectModal &&
+      this.state.filterParams.id.length === 0 &&
+      !!this.props.datasource
+    ) {
+      return Object.keys(
+        (this.props.datasource as Datasource).datasourceStorages,
+      )[0];
+    }
+    return this.state.filterParams.id;
+  };
 
   componentDidMount() {
     const urlObject = new URL(window.location.href);
@@ -341,7 +356,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
     this.setState({
-      ...this.state,
       configDetails,
       requiredFields,
     });
@@ -438,7 +452,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     showFilterPane: boolean,
   ) => {
     this.setState({
-      ...this.state,
       filterParams: {
         id,
         name,
@@ -514,6 +527,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditorForm
           applicationId={this.props.applicationId}
+          currentEnvironment={this.getEnvironmentId()}
           datasourceId={datasourceId}
           formConfig={formConfig}
           formData={formData}
@@ -650,6 +664,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
                   <DatasourceAuth
+                    currentEnvironment={this.getEnvironmentId()}
                     datasource={datasource as Datasource}
                     datasourceButtonConfiguration={
                       datasourceButtonConfiguration
@@ -743,11 +758,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
 
-  const isPluginAuthorized =
-    pluginPackageName === PluginPackageName.GOOGLE_SHEETS
-      ? plugin &&
-        isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
-      : true;
+  const isPluginAuthorized = isGoogleSheetPluginDS(pluginPackageName)
+    ? plugin &&
+      isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
+    : true;
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,

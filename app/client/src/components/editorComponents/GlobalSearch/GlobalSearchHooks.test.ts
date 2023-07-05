@@ -9,7 +9,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New JS object",
+        title: "New JS Object",
       }),
     );
 
@@ -56,22 +56,34 @@ describe("getFilteredAndSortedFileOperations", () => {
 
   it("shows app datasources before other datasources", () => {
     const appDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: true,
+        },
       },
       id: "",
-      isValid: true,
       pluginId: "",
       workspaceId: "",
       name: "App datasource",
     };
 
     const otherDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: false,
+        },
       },
       id: "",
-      isValid: false,
       pluginId: "",
       workspaceId: "",
       name: "Other datasource",
@@ -92,7 +104,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New JS object",
+        title: "New JS Object",
       }),
     );
 
@@ -118,22 +130,34 @@ describe("getFilteredAndSortedFileOperations", () => {
 
   it("sorts datasources based on recency", () => {
     const appDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: true,
+        },
       },
       id: "123",
-      isValid: true,
       pluginId: "",
       workspaceId: "",
       name: "App datasource",
     };
 
     const otherDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: false,
+        },
       },
       id: "abc",
-      isValid: false,
       pluginId: "",
       workspaceId: "",
       name: "Other datasource",
@@ -154,7 +178,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New JS object",
+        title: "New JS Object",
       }),
     );
 
@@ -180,22 +204,34 @@ describe("getFilteredAndSortedFileOperations", () => {
 
   it("filters with a query", () => {
     const appDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: true,
+        },
       },
       id: "",
-      isValid: true,
       pluginId: "",
       workspaceId: "",
       name: "App datasource",
     };
 
     const otherDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: false,
+        },
       },
       id: "",
-      isValid: false,
       pluginId: "",
       workspaceId: "",
       name: "Other datasource",
@@ -223,22 +259,34 @@ describe("getFilteredAndSortedFileOperations", () => {
 
   it("Non matching query shows on datasource creation", () => {
     const appDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: true,
+        },
       },
       id: "",
-      isValid: true,
       pluginId: "",
       workspaceId: "",
       name: "App datasource",
     };
 
     const otherDatasource: Datasource = {
-      datasourceConfiguration: {
-        url: "",
+      datasourceStorages: {
+        unused_env: {
+          datasourceId: "",
+          environmentId: "",
+          datasourceConfiguration: {
+            url: "",
+          },
+          isValid: false,
+        },
       },
       id: "",
-      isValid: false,
       pluginId: "",
       workspaceId: "",
       name: "Other datasource",

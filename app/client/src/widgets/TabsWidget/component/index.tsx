@@ -114,6 +114,9 @@ const ScrollCanvas = styled.div<{ $shouldScrollContents: boolean }>`
   overflow: hidden;
   ${(props) => (props.$shouldScrollContents ? scrollCSS : ``)}
   width: 100%;
+
+  // TODO(aswathkk): This should only done in auto-layout mode
+  height: 100%;
 `;
 
 function TabsComponent(props: TabsComponentProps) {

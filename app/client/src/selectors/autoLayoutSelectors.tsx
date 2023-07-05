@@ -130,3 +130,8 @@ export const hasFillWidgetSelector = (layer: FlexLayer) =>
       );
     });
   });
+
+export const getAutoLayoutCanvasMetaWidth = (
+  state: AppState,
+  canvasId: string,
+) => state.ui.autoLayoutCanvasMetaWidth[canvasId] || 0;

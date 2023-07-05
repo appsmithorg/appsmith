@@ -19,4 +19,8 @@ public interface TenantServiceCE extends CrudService<Tenant, String> {
      *  start saving other pertinent environment variables in the tenant collection
      */
     Mono<Tenant> getTenantConfiguration();
+
+    Mono<Tenant> getDefaultTenant();
+
+    Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration);
 }

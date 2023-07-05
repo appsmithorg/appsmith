@@ -12,9 +12,7 @@ import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
   }}
 />
 
-export const Template = (args, { globals: { fontFamily } }) => (
-  <Button {...args} fontFamily={fontFamily} />
-);
+export const Template = (args) => <Button {...args} />;
 
 # Button
 
@@ -32,30 +30,50 @@ There are 3 variants of the button component.
 
 <Canvas>
   <Story
-    name="Primary"
+    name="Filled"
     args={{
-      children: "Primary",
+      children: "Filled",
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Secondary"
+    name="Outlined"
     args={{
-      variant: "secondary",
-      children: "Secondary",
+      variant: "outlined",
+      children: "Outlined",
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
-    name="Tertiary"
+    name="Ghost"
     args={{
-      variant: "tertiary",
-      children: "Tertiary",
+      variant: "ghost",
+      children: "Ghost",
     }}
   >
     {Template.bind({})}
+  </Story>
+</Canvas>
+
+# Semantic Variants
+
+There are 4 variants of the button component.
+
+<Canvas>
+  <Story name="Semantic">
+    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+      {["filled", "outlined", "ghost"].map((variant) =>
+        ["accent", "neutral", "positive", "negative", "warning"].map(
+          (color) => (
+            <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
+              <Button variant={variant} color={color} children={color} />
+            </div>
+          ),
+        ),
+      )}
+    </div>
   </Story>
 </Canvas>
 
@@ -76,6 +94,7 @@ There are 3 variants of the button component.
     args={{
       isLoading: true,
       children: "Loading",
+      onPress: () => alert("on pressed"),
     }}
   >
     {Template.bind({})}

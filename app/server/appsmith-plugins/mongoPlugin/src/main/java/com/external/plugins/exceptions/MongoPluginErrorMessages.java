@@ -33,6 +33,8 @@ public class MongoPluginErrorMessages {
 
     public static final String QUERY_INVALID_ERROR_MSG = "Your query is invalid";
 
+    public static final String MONGO_CLIENT_NULL_ERROR_MSG = "Mongo client object is null.";
+
     /*
      ************************************************************************************************************************************************
                                         Error messages related to validation of datasource.

@@ -1,4 +1,7 @@
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -25,6 +28,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -14,7 +14,6 @@ on:
       - "!app/client/cypress/manual_TestSuite/**"
 
 jobs:
-
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
@@ -37,7 +36,7 @@ jobs:
       pr: 0
 
   build-docker-image:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -47,7 +46,7 @@ jobs:
       pr: 0
 
   perf-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: perf-test
@@ -56,8 +55,18 @@ jobs:
     with:
       pr: 0
 
+  perf-test-v2:
+    needs: [build-docker-image]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test
+    uses: ./.github/workflows/perf-test-v2.yml
+    secrets: inherit
+    with:
+      pr: 0
+
   ci-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test

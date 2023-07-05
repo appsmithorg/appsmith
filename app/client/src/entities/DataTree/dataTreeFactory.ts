@@ -22,6 +22,7 @@ import type {
   WidgetConfig,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -141,6 +142,9 @@ export class DataTreeFactory {
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
+      if (widgets[MAIN_CONTAINER_WIDGET_ID].positioning === "vertical") {
+        dataTree[widget.widgetName].positioning = "vertical";
+      }
       configTree[widget.widgetName] = configEntity;
     });
     const endWidgets = performance.now();

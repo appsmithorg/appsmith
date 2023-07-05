@@ -62,13 +62,13 @@
           "placeholderText": "Awesome email subject"
         },
         {
-          "label": "Body Type",
+          "label": "Body type",
           "configProperty": "actionConfiguration.formData.send.bodyType",
           "controlType": "DROP_DOWN",
           "initialValue": "text/plain",
           "options": [
             {
-              "label": "Plain Text",
+              "label": "Plain text",
               "value": "text/plain"
             },
             {

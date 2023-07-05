@@ -93,6 +93,7 @@
                   "key": "onSearchTextChanged"
                 }],
                 "onSearchTextChanged": "{{Api1.run()}}",
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "selectedRow": "{{Table1.tableData[Table1.selectedRowIndex]}}"
               }
             ],

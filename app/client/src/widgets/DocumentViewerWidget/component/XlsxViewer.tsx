@@ -139,11 +139,11 @@ export default function XlsxViewer(props: { blob?: Blob }) {
     const sheetsData: RawSheetData[] = [];
     const sheetNames: string[] = [];
 
-    workbook.SheetNames.forEach((name, index) => {
-      sheetNames.push(name);
+    workbook.SheetNames.forEach((sheetName) => {
+      sheetNames.push(sheetName);
 
       const result: RawSheetData = XLSX.utils.sheet_to_json(
-        workbook.Sheets[workbook.SheetNames[index]],
+        workbook.Sheets[sheetName],
         { header: 1 },
       );
       sheetsData.push(result);

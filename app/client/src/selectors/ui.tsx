@@ -1,5 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
+import { getCanvasWidgets } from "./entitiesSelector";
+import type { FlattenedWidgetProps } from "widgets/constants";
 
 export const getLastSelectedWidget = (state: AppState) =>
   state.ui.widgetDragResize.lastSelectedWidget;
@@ -49,3 +51,12 @@ export const getDatasourceCollapsibleState = createSelector(
     return datasourceCollapsibleState[key];
   },
 );
+
+export const getSelectedWidgetDsl = () =>
+  createSelector(
+    getSelectedWidgets,
+    getCanvasWidgets,
+    (selectedWidgets, widgets): FlattenedWidgetProps[] => {
+      return selectedWidgets.map((id: string) => widgets[id]);
+    },
+  );

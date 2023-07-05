@@ -343,7 +343,7 @@ describe("Widget loading state utils", () => {
       });
     });
 
-    it("includes JS object's self dependencies", () => {
+    it("includes JS Object's self dependencies", () => {
       const groupedDependantsMap = groupAndFilterDependantsMap(
         {
           "JS_file.func1": ["Select1.options"], // dependant
@@ -359,7 +359,7 @@ describe("Widget loading state utils", () => {
       });
     });
 
-    it("includes JS object's nested self dependencies", () => {
+    it("includes JS Object's nested self dependencies", () => {
       const groupedDependantsMap = groupAndFilterDependantsMap(
         {
           "JS_file.func1": ["Select1.options"], // dependant

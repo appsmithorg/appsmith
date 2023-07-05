@@ -1,9 +1,9 @@
+import { nestDSL, flattenDSL } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
@@ -33,7 +33,7 @@ const deletedResponsiveProperties = [
 
 /**
  * Main Method to convert Auto DSL to Fixed DSL
- * @param dsl DSL to be Converted to Fixed Layout
+ * @param dsl DSL to be Converted to fixed layout
  * @param destinationLayout Destination Layout Size
  * @returns Converted Fixed DSL
  */
@@ -41,29 +41,23 @@ export default function convertDSLtoFixed(
   dsl: DSLWidget,
   destinationLayout: SupportedLayouts,
 ) {
-  const allWidgets =
-    CanvasWidgetsNormalizer.normalize(dsl).entities.canvasWidgets;
+  const allWidgets = flattenDSL(dsl);
 
   const convertedWidgets = convertNormalizedDSLToFixed(
     allWidgets,
     destinationLayout,
   );
 
-  const convertedDSL = CanvasWidgetsNormalizer.denormalize(
-    MAIN_CONTAINER_WIDGET_ID,
-    {
-      canvasWidgets: convertedWidgets,
-    },
-  );
+  const convertedDSL = nestDSL(convertedWidgets);
 
   return convertedDSL;
 }
 
 /**
- * Convert Normalized Auto DSL to Fixed Layout DSL
+ * Convert Normalized Auto DSL to fixed layout DSL
  * @param widgets Normalized Auto DSL to be converted
  * @param destinationLayout Destination Layout Size
- * @returns Converted Normalized Fixed Layout DSL
+ * @returns Converted Normalized fixed layout DSL
  */
 export function convertNormalizedDSLToFixed(
   widgets: CanvasWidgetsReduxState,
@@ -96,7 +90,7 @@ export function convertNormalizedDSLToFixed(
 }
 
 /**
- * Converts Widget with widgetId and it's children to Fixed layout recursively
+ * Converts Widget with widgetId and it's children to fixed layout recursively
  * @param widgets Normalized Auto DSL
  * @param widgetId
  * @param isMobile

@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -195,8 +196,10 @@ public class UserServiceTest {
                 .flatMap(user -> {
                     Set<Policy> userPolicies = user.getPolicies();
                     assertThat(userPolicies.size()).isNotZero();
-                    Policy policy = userPolicies.stream().findFirst().get();
-                    String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
+                    Optional<Policy> optionalResetPasswordPolicy = userPolicies.stream().filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue())).findFirst();
+                    assertThat(optionalResetPasswordPolicy.isPresent()).isTrue();
+                    assertThat(optionalResetPasswordPolicy.get().getPermissionGroups()).isNotEmpty();
+                    String permissionGroupId = optionalResetPasswordPolicy.get().getPermissionGroups().stream().findFirst().get();
 
                     return permissionGroupRepository.findById(permissionGroupId);
                 });
@@ -213,20 +216,16 @@ public class UserServiceTest {
                     assertThat(user.getTenantId()).isNotNull();
 
                     Set<Policy> userPolicies = user.getPolicies();
-                    assertThat(userPolicies).isNotEmpty();
-                    Policy manageUserPolicy = Policy.builder()
-                            .permission(MANAGE_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
-
-                    Policy readUserPolicy = Policy.builder()
-                            .permission(READ_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
-
-                    Policy resetPasswordPolicy = Policy.builder()
-                            .permission(RESET_PASSWORD_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
-
-                    assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy));
+                    Optional<Policy> optionalManageUserPolicy = userPolicies.stream()
+                            .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    Optional<Policy> optionalViewUserPolicy = userPolicies.stream()
+                            .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    assertThat(optionalManageUserPolicy.isPresent()).isTrue();
+                    assertThat(optionalManageUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
+                    assertThat(optionalViewUserPolicy.isPresent()).isTrue();
+                    assertThat(optionalViewUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
@@ -250,8 +249,10 @@ public class UserServiceTest {
                 .flatMap(user -> {
                     Set<Policy> userPolicies = user.getPolicies();
                     assertThat(userPolicies.size()).isNotZero();
-                    Policy policy = userPolicies.stream().findFirst().get();
-                    String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
+                    Optional<Policy> optionalResetPasswordPolicy = userPolicies.stream().filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue())).findFirst();
+                    assertThat(optionalResetPasswordPolicy.isPresent()).isTrue();
+                    assertThat(optionalResetPasswordPolicy.get().getPermissionGroups()).isNotEmpty();
+                    String permissionGroupId = optionalResetPasswordPolicy.get().getPermissionGroups().stream().findFirst().get();
 
                     return permissionGroupRepository.findById(permissionGroupId);
                 });
@@ -267,20 +268,16 @@ public class UserServiceTest {
                     assertThat(user.getName()).isNullOrEmpty();
 
                     Set<Policy> userPolicies = user.getPolicies();
-                    assertThat(userPolicies).isNotEmpty();
-                    Policy manageUserPolicy = Policy.builder()
-                            .permission(MANAGE_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
-
-                    Policy readUserPolicy = Policy.builder()
-                            .permission(READ_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
-
-                    Policy resetPasswordPolicy = Policy.builder()
-                            .permission(RESET_PASSWORD_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
-
-                    assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy));
+                    Optional<Policy> optionalManageUserPolicy = userPolicies.stream()
+                            .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    Optional<Policy> optionalViewUserPolicy = userPolicies.stream()
+                            .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    assertThat(optionalManageUserPolicy.isPresent()).isTrue();
+                    assertThat(optionalManageUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
+                    assertThat(optionalViewUserPolicy.isPresent()).isTrue();
+                    assertThat(optionalViewUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
@@ -677,5 +674,36 @@ public class UserServiceTest {
             assertThat(userProfileDTO.getUsername()).isEqualTo("anonymousUser");
             assertThat(userProfileDTO.isAnonymous()).isTrue();
         }).verifyComplete();
+    }
+
+
+    /**
+     * This test case asserts that on every user creation, User Management role is auto-created and associated with that user.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateNewUser_assertUserManagementRole() {
+        String testName = "testCreateNewUser_assertUserManagementRole";
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+
+        User createdUser = userService.create(user).block();
+        assertThat(createdUser.getPolicies()).isNotEmpty();
+        assertThat(createdUser.getPolicies().stream().anyMatch(policy -> policy.getPermission().equals(MANAGE_USERS.getValue()))).isTrue();
+        Policy manageUserPolicy = createdUser.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                .findFirst()
+                .get();
+
+        PermissionGroup userManagementRole = permissionGroupRepository.findAll()
+                .filter(role -> role.getName().equals(createdUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE))
+                .blockFirst();
+
+        assertThat(manageUserPolicy.getPermissionGroups()).hasSize(1);
+
+        String userManagementRoleId = manageUserPolicy.getPermissionGroups().stream().findFirst().get();
+
+        assertThat(userManagementRole.getId()).isEqualTo(userManagementRoleId);
     }
 }

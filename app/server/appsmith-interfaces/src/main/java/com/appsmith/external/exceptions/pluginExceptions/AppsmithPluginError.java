@@ -29,6 +29,16 @@ public enum AppsmithPluginError implements BasePluginError{
             "{1}",
             "{2}"
     ),
+    PLUGIN_VALIDATE_DATASOURCE_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_VALIDATE_DATASOURCE_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            AppsmithPluginErrorCode.PLUGIN_VALIDATE_DATASOURCE_ERROR.getDescription(),
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
     PLUGIN_QUERY_TIMEOUT_ERROR(
             504,
             AppsmithPluginErrorCode.PLUGIN_QUERY_TIMEOUT_ERROR.getCode(),

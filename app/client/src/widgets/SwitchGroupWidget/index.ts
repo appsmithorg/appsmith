@@ -3,6 +3,7 @@ import { LabelPosition } from "components/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   features: {
@@ -38,6 +39,7 @@ export const CONFIG = {
     labelWidth: 5,
     version: 1,
     labelTextSize: "0.875rem",
+    flexVerticalAlignment: FlexVerticalAlignment.Top,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
