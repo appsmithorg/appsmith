@@ -1,6 +1,7 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.server.constants.ce.LicensePlan;
+import com.appsmith.server.constants.LicensePlan;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -39,10 +40,6 @@ public class TenantConfigurationCE {
         this.license = license;
     }
 
-    License license;
-    @Data
-    public static class License {
-        LicensePlan plan;
-    }
+    public License license;
 
 }
