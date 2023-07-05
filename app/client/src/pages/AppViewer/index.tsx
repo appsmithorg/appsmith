@@ -43,7 +43,12 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import BottomBar from "components/BottomBar";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  datasourceEnvEnabled,
+  selectFeatureFlagCheck,
+} from "@appsmith/selectors/featureFlagsSelectors";
+import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -176,46 +181,54 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
+  const isWDSV2Enabled = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_wds_enabled),
+  );
+  const backgroundForBody = isWDSV2Enabled
+    ? "var(--color-bg)"
+    : selectedTheme.properties.colors.backgroundColor;
+
   return (
-    <ThemeProvider theme={lightTheme}>
-      <EditorContextProvider renderMode="PAGE">
-        <WidgetGlobaStyles
-          fontFamily={selectedTheme.properties.fontFamily.appFont}
-          primaryColor={selectedTheme.properties.colors.primaryColor}
-        />
-        <HtmlTitle
-          description={pageDescription}
-          name={currentApplicationDetails?.name}
-        />
-        <AppViewerBodyContainer
-          backgroundColor={selectedTheme.properties.colors.backgroundColor}
-        >
-          <AppViewerBody
-            className={CANVAS_SELECTOR}
-            hasPages={pages.length > 1}
-            headerHeight={headerHeight}
-            ref={focusRef}
-            showBottomBar={showBottomBar}
-            showGuidedTourMessage={showGuidedTourMessage}
-          >
-            {isInitialized && <AppViewerPageContainer />}
-          </AppViewerBody>
-          {showBottomBar && <BottomBar viewMode />}
-          {!hideWatermark && (
-            <a
-              className={`fixed hidden right-8 ${
-                showBottomBar ? "bottom-12" : "bottom-4"
-              } z-3 hover:no-underline md:flex`}
-              href="https://appsmith.com"
-              rel="noreferrer"
-              target="_blank"
+    <WDSThemeProvider
+      borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+      seedColor={selectedTheme.properties.colors.primaryColor || "#000"}
+    >
+      <ThemeProvider theme={lightTheme}>
+        <EditorContextProvider renderMode="PAGE">
+          <WidgetGlobaStyles
+            fontFamily={selectedTheme.properties.fontFamily.appFont}
+            primaryColor={selectedTheme.properties.colors.primaryColor}
+          />
+          <HtmlTitle
+            description={pageDescription}
+            name={currentApplicationDetails?.name}
+          />
+          <AppViewerBodyContainer backgroundColor={backgroundForBody}>
+            <AppViewerBody
+              className={CANVAS_SELECTOR}
+              hasPages={pages.length > 1}
+              headerHeight={headerHeight}
+              ref={focusRef}
+              showBottomBar={showBottomBar}
+              showGuidedTourMessage={showGuidedTourMessage}
             >
-              <BrandingBadge />
-            </a>
-          )}
-        </AppViewerBodyContainer>
-      </EditorContextProvider>
-    </ThemeProvider>
+              {isInitialized && <AppViewerPageContainer />}
+            </AppViewerBody>
+            {showBottomBar && <BottomBar viewMode />}
+            {!hideWatermark && (
+              <a
+                className="fixed hidden right-8 bottom-4 z-3 hover:no-underline md:flex"
+                href="https://appsmith.com"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <BrandingBadge />
+              </a>
+            )}
+          </AppViewerBodyContainer>
+        </EditorContextProvider>
+      </ThemeProvider>
+    </WDSThemeProvider>
   );
 }
 
