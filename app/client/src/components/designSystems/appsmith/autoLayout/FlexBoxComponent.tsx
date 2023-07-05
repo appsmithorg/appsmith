@@ -1,10 +1,14 @@
 import { debounce, isArray } from "lodash";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
 
-import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
+import {
+  MOBILE_ROW_GAP,
+  ResponsiveBehavior,
+  ROW_GAP,
+} from "utils/autoLayout/constants";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import type {
@@ -12,8 +16,10 @@ import type {
   FlexLayerLayoutData,
 } from "utils/autoLayout/autoLayoutTypes";
 import { getLayoutDataForFlexLayer } from "utils/autoLayout/flexLayerUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCanvasMetaWidthAction } from "actions/autoLayoutActions";
+import { getWidgets } from "sagas/selectors";
+import type { AppState } from "@appsmith/reducers";
 
 export interface FlexBoxProps {
   stretchHeight: boolean;
@@ -101,6 +107,66 @@ function FlexBoxComponent(props: FlexBoxProps) {
     return layers;
   }
 
+  const AutoLayoutLayerResizingHandles = ({ children, layer }: any) => {
+    const allWidgets = useSelector(getWidgets);
+    const widgetPositions = useSelector(
+      (state: AppState) => state.entities.widgetPositions,
+    );
+    const isAutoCanvasResizing = useSelector(
+      (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+    );
+    const fillWidgetsOrderConfig = useMemo(() => {
+      const fillWidgetsOrder: any = [];
+      if (Object.keys(widgetPositions).length > 0 && !isAutoCanvasResizing) {
+        (layer as FlexLayer).children.forEach((each, index) => {
+          const { id } = each;
+          const eachWidget = allWidgets[id];
+          let leftWidget, rightWidget;
+          if (
+            eachWidget &&
+            eachWidget.responsiveBehavior === ResponsiveBehavior.Fill
+          ) {
+            if (index > 0) {
+              leftWidget = layer.children[index - 1];
+            } else if (index < layer.children.length) {
+              rightWidget = layer.children[index + 1];
+            }
+            fillWidgetsOrder.push({
+              leftWidget,
+              widget: eachWidget,
+              position: widgetPositions[id],
+              rightWidget,
+            });
+          }
+        });
+      }
+      return fillWidgetsOrder;
+    }, [allWidgets, widgetPositions, layer, isAutoCanvasResizing]);
+
+    return (
+      <>
+        {fillWidgetsOrderConfig.map((each: any, index: any) => {
+          return (
+            <div
+              key={index}
+              style={{
+                position: "absolute",
+                top: `${each.position.top}px`,
+                left: `${each.position.left + each.position.width}px`,
+                backgroundColor: "red",
+                width: "3px",
+                height: `${each.position.height}px`,
+                zIndex: 4,
+                cursor: "col-resize",
+              }}
+            />
+          );
+        })}
+        {children}
+      </>
+    );
+  };
+
   function processIndividualLayer(
     layer: FlexLayer,
     map: { [key: string]: any },
@@ -114,15 +180,17 @@ function FlexBoxComponent(props: FlexBoxProps) {
     }: FlexLayerLayoutData = getLayoutDataForFlexLayer(map, layer);
 
     return (
-      <AutoLayoutLayer
-        centerChildren={centerChildren}
-        endChildren={endChildren}
-        hasFillWidget={hasFillWidget}
-        index={index}
-        key={index}
-        startChildren={startChildren}
-        widgetId={props.widgetId}
-      />
+      <AutoLayoutLayerResizingHandles layer={layer}>
+        <AutoLayoutLayer
+          centerChildren={centerChildren}
+          endChildren={endChildren}
+          hasFillWidget={hasFillWidget}
+          index={index}
+          key={index}
+          startChildren={startChildren}
+          widgetId={props.widgetId}
+        />
+      </AutoLayoutLayerResizingHandles>
     );
   }
 

@@ -544,13 +544,21 @@ function AutoLayoutResizable({
       disableResizing = isResizingDisabled(
         disableResizeHandles,
         handle.handleDirection,
+        responsiveBehavior,
       );
     }
 
     return (
       <ResizableHandle
         {...handle}
-        allowResize={allowResize && !handle?.affectsWidth && !disableResizing}
+        allowResize={
+          allowResize &&
+          !(
+            responsiveBehavior === ResponsiveBehavior.Fill &&
+            handle?.affectsWidth
+          ) &&
+          !disableResizing
+        }
         checkForCollision={checkForCollision}
         direction={handle.handleDirection}
         disableDot={disableResizing}
