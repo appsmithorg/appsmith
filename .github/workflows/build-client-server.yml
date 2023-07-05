@@ -22,7 +22,7 @@ jobs:
         id: files
         run: |
           git fetch origin release
-          git diff --name-only --diff-filter=A release... -- 'cypress/e2e' > diff
+          git diff --name-only --diff-filter=A origin/release ${{github.sha}} -- 'cypress/e2e' > diff
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
 
       - name: Setup tmate session
