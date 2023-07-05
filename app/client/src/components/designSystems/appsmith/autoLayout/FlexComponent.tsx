@@ -59,7 +59,7 @@ export type AutoLayoutProps = {
 const FlexWidget = styled.div<{ minWidth?: number }>`
   position: relative;
   &.fill-widget {
-    flex-grow: 9999;
+    flex-grow: 1;
     flex-shrink: 1;
     flex-basis: 0%;
     min-width: calc(100% - 8px);

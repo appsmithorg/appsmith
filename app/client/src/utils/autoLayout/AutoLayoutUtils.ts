@@ -30,7 +30,11 @@ import {
   updateWidgetPositions,
 } from "utils/autoLayout/positionUtils";
 import type { AlignmentColumnInfo } from "./autoLayoutTypes";
-import { getWidgetWidth } from "./flexWidgetUtils";
+import {
+  getWidgetMinMaxDimensionsInPixel,
+  getWidgetWidth,
+} from "./flexWidgetUtils";
+import type { MinMaxSize } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
 import WidgetFactory from "utils/WidgetFactory";
@@ -393,6 +397,34 @@ export function getLayerIndexOfWidget(
       -1
     );
   });
+}
+
+export function calculateLayerMinWidth(
+  layer: FlexLayer,
+  allWidgets: CanvasWidgetsReduxState,
+  isMobile: boolean,
+  parentWidth: number,
+  mainCanvasWidth: number,
+) {
+  const GapBetweenWidgets = 4;
+  return layer.children.reduce((width: number, eachWidget) => {
+    const widget = allWidgets[eachWidget.id];
+    if (widget) {
+      const widgetWidth =
+        (isMobile ? widget.mobileWidth || widget.width : widget.width) || 0;
+      let widgetWithInPixels = widgetWidth * 0.01 * parentWidth;
+      const { minWidth }: { [key in keyof MinMaxSize]: number | undefined } =
+        getWidgetMinMaxDimensionsInPixel(
+          { type: widget.type },
+          mainCanvasWidth || 1,
+        );
+      if (widgetWithInPixels < (minWidth || 0)) {
+        widgetWithInPixels = minWidth || 0;
+      }
+      width += widgetWithInPixels;
+    }
+    return width;
+  }, (layer.children.length - 1) * GapBetweenWidgets);
 }
 
 export function getViewportClassName(viewportWidth: number) {

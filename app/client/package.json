@@ -77,6 +77,7 @@
     "@uppy/react": "^1.11.2",
     "@uppy/url": "^1.5.16",
     "@uppy/webcam": "^1.8.4",
+    "@use-gesture/react": "^10.2.27",
     "@welldone-software/why-did-you-render": "^4.2.5",
     "algoliasearch": "^4.2.0",
     "assert-never": "^1.2.1",

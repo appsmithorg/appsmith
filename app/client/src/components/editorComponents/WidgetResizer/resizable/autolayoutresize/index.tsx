@@ -17,7 +17,6 @@ import {
 import type { DimensionUpdateProps } from "components/editorComponents/WidgetResizer/resizable/common";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getDimensionMap } from "selectors/editorSelectors";
-import { getLayerIndexOfWidget } from "utils/autoLayout/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
@@ -35,7 +34,7 @@ import {
   getWidgetMinMaxDimensionsInPixel,
 } from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
-import type { AlignWidgetTypes } from "widgets/constants";
+import { useLayerInfoHook } from "./hooks/useLayerInfoHook";
 
 export type AutoLayoutResizableProps = {
   mainCanvasWidth: number;
@@ -164,54 +163,12 @@ function AutoLayoutResizable({
     rightColumn: rightColumnMap,
     topRow: topRowMap,
   } = dimensionMap;
-  const { computedAlignment, layer, layerWidthInPixels } = useMemo(() => {
-    const widget = allWidgets[widgetId];
-    const layer = (() => {
-      if (!widget || !widget?.parentId) return {};
-      const parent = allWidgets[widget?.parentId];
-      if (!parent) return {};
-      const flexLayers = parent.flexLayers;
-      const layerIndex = getLayerIndexOfWidget(flexLayers, widgetId);
-      if (layerIndex === -1) return {};
-      return flexLayers[layerIndex];
-    })();
-    const computedAlignment = (() => {
-      const centerColumn = GridDefaults.DEFAULT_GRID_COLUMNS / 2;
-      const leftColumn = widget[leftColumnMap];
-      return leftColumn > centerColumn ? "end" : "start";
-    })();
-    const GapBetweenWidgets = 4;
-    const layerWidthInPixels = layer.children.reduce(
-      (
-        width: number,
-        eachWidget: {
-          id: string;
-          align: AlignWidgetTypes;
-        },
-      ) => {
-        const widget = allWidgets[eachWidget.id];
-        if (widget) {
-          const widgetWidth =
-            (isMobile ? widget.mobileWidth || widget.width : widget.width) || 0;
-          let widgetWithInPixels = widgetWidth * 0.01 * parentWidth;
-          const {
-            minWidth,
-          }: { [key in keyof MinMaxSize]: number | undefined } =
-            getWidgetMinMaxDimensionsInPixel(
-              { type: widget.type },
-              mainCanvasWidth || 1,
-            );
-          if (widgetWithInPixels < (minWidth || 0)) {
-            widgetWithInPixels = minWidth || 0;
-          }
-          width += widgetWithInPixels;
-        }
-        return width;
-      },
-      (layer.children.length - 1) * GapBetweenWidgets,
-    );
-    return { computedAlignment, layer, layerWidthInPixels };
-  }, [allWidgets, leftColumnMap, isMobile, mainCanvasWidth]);
+  const { computedAlignment, layer, layerWidthInPixels } = useLayerInfoHook(
+    widgetId,
+    parentId || MAIN_CONTAINER_WIDGET_ID,
+    isMobile,
+    mainCanvasWidth,
+  );
   const widget = allWidgets[widgetId];
   const widgetWidthInPixels = componentWidth * 0.01 * parentWidth;
   const fillWidgetsFilter = (each: any) => {
