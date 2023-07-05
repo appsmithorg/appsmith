@@ -412,11 +412,12 @@ function ActionSidebar({
       </BackToCanvasLink>
 
       {showSchema && (
-        <SchemaSideBarSection height={70} id={SCHEMA_SECTION_ID}>
+        <SchemaSideBarSection height={50} id={SCHEMA_SECTION_ID}>
           <Collapsible
             customLabelComponent={
               <DatasourceStructureHeader datasourceId={datasourceId || ""} />
             }
+            expand={!showSuggestedWidgets}
             label="Schema"
           >
             <DataStructureListWrapper>
