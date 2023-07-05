@@ -88,6 +88,23 @@ export class DeployMode {
     });
   }
 
+  public StubWindowNAssert(
+    selector: string,
+    expectedUrl: string,
+    networkCall: string,
+  ) {
+    this.StubbingWindow();
+    this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
+    cy.get("@windowStub").should("be.calledOnce");
+    cy.url().should("contain", expectedUrl);
+    this.assertHelper.AssertDocumentReady();
+    cy.window({ timeout: 60000 }).then((win) => {
+      win.history.back();
+    });
+    this.assertHelper.AssertNetworkStatus("@" + networkCall);
+    this.assertHelper.AssertDocumentReady();
+  }
+
   public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);

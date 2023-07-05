@@ -164,18 +164,17 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
-  cy.get(datasource.advancedSettings).click();
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
-  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  // cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  cy.togglebar(datasource.useSelfSignedCert);
+  cy.get(datasource.useSelfSignedCert).should("be.checked");
   if (isOAuth2) {
     cy.get(datasource.useCertInAuth).should("exist");
   } else {
     cy.get(datasource.useCertInAuth).should("not.exist");
   }
-  cy.get(datasource.certificateDetails).should("exist");
-  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "No");
-  cy.get(datasource.advancedSettings).click();
+  cy.togglebarDisable(datasource.useSelfSignedCert);
 });
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
@@ -228,7 +227,7 @@ Cypress.Commands.add("LogOutUser", () => {
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
-  goToLoginPage && cy.visit("/user/login");
+  goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")

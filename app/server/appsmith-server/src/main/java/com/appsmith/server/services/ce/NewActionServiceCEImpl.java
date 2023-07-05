@@ -35,7 +35,7 @@ import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -118,7 +118,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PolicyGenerator policyGenerator;
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
-    private final PolicyUtils policyUtils;
+    private final PolicySolution policySolution;
     private final ConfigService configService;
     private final ResponseUtils responseUtils;
 
@@ -145,7 +145,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   PolicyGenerator policyGenerator,
                                   NewPageService newPageService,
                                   ApplicationService applicationService,
-                                  PolicyUtils policyUtils,
+                                  PolicySolution policySolution,
                                   ConfigService configService,
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
@@ -164,7 +164,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.policyGenerator = policyGenerator;
         this.newPageService = newPageService;
         this.applicationService = applicationService;
-        this.policyUtils = policyUtils;
+        this.policySolution = policySolution;
         this.permissionGroupService = permissionGroupService;
         this.observationRegistry = observationRegistry;
         this.responseUtils = responseUtils;
@@ -568,6 +568,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Datasource datasource = zippedData.getT2();
                     final NewAction newAction1 = zippedActions.getT2();
 
+                    // This is being done in order to avoid any usage of datasource storages in client side.
+                    // the ideas is that datasourceStorages shouldn't be used for action's datasource configuration.
+                    final ActionDTO  savedActionDTO = zippedActions.getT1();
+                    if (savedActionDTO.getDatasource() != null) {
+                        savedActionDTO.getDatasource().setDatasourceStorages(null);
+                    }
+
                     final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
 
                     final Map<String, Object> eventData = Map.of(
@@ -578,7 +585,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return analyticsService
                             .sendUpdateEvent(newAction1, data)
-                            .thenReturn(zippedActions.getT1());
+                            .thenReturn(savedActionDTO);
 
                 });
     }
@@ -1472,7 +1479,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 );
 
                                 Datasource updatedDatasource =
-                                        policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                        policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
                                 return datasourceService.save(updatedDatasource);
                             });

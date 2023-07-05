@@ -6,9 +6,7 @@ import {
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    cy.fixture("DynamicHeightDefaultHeightdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("DynamicHeightDefaultHeightdsl");
     entityExplorer.SelectEntityByName("Container1");
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")

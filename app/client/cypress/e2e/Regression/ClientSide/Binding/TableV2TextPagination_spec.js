@@ -11,9 +11,7 @@ import {
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {
@@ -22,7 +20,9 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
     apiPage.RunAPI();
     // Table-Text, Validate Server Side Pagination of Paginate with Table v2 Page No
     entityExplorer.SelectEntityByName("Table1");
@@ -104,6 +104,9 @@ describe("Test Create Api and Bind to Table widget", function () {
     /** Create Api2 of Paginate with Response URL*/
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
     apiPage.RunAPI();
     cy.NavigateToPaginationTab();

@@ -91,46 +91,47 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public AddDsl(
-    dsl: string,
+    dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
     reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
     let appId: string | null;
-    cy.url().then((url) => {
-      pageid = url.split("/")[5]?.split("-").pop() as string;
-      cy.log(pageid + "page id");
-      //Fetch the layout id
-      cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
-        const respBody = JSON.stringify(response.body);
-        const parsedData = JSON.parse(respBody).data;
-        layoutId = parsedData.layouts[0].id;
-        appId = parsedData.applicationId;
-
-        // Dumping the DSL to the created page
-        cy.request({
-          method: "PUT",
-          url:
-            "api/v1/layouts/" +
-            layoutId +
-            "/pages/" +
-            pageid +
-            "?applicationId=" +
-            appId,
-          body: dsl,
-          headers: {
-            "X-Requested-By": "Appsmith",
-          },
-        }).then((dslDumpResp) => {
-          //cy.log("Pages resposne is : " + dslDumpResp.body);
-          expect(dslDumpResp.status).equal(200);
-          this.Sleep(3000); //for dsl to settle in layouts api & then refresh
-          this.RefreshPage(reloadWithoutCache);
-          if (elementToCheckPresenceaftDslLoad)
-            this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-          this.Sleep(2000); //settling time for dsl
-          this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
-          this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
+    cy.fixture(dslFile).then((val) => {
+      cy.url().then((url) => {
+        pageid = url.split("/")[5]?.split("-").pop() as string;
+        cy.log(pageid + "page id");
+        //Fetch the layout id
+        cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
+          const respBody = JSON.stringify(response.body);
+          const parsedData = JSON.parse(respBody).data;
+          layoutId = parsedData.layouts[0].id;
+          appId = parsedData.applicationId;
+          // Dumping the DSL to the created page
+          cy.request({
+            method: "PUT",
+            url:
+              "api/v1/layouts/" +
+              layoutId +
+              "/pages/" +
+              pageid +
+              "?applicationId=" +
+              appId,
+            body: val,
+            headers: {
+              "X-Requested-By": "Appsmith",
+            },
+          }).then((dslDumpResp) => {
+            //cy.log("Pages resposne is : " + dslDumpResp.body);
+            expect(dslDumpResp.status).equal(200);
+            this.Sleep(3000); //for dsl to settle in layouts api & then refresh
+            this.RefreshPage(reloadWithoutCache);
+            if (elementToCheckPresenceaftDslLoad)
+              this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
+            this.Sleep(2000); //settling time for dsl
+            this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
+            this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
+          });
         });
       });
     });
@@ -249,6 +250,21 @@ export class AggregateHelper extends ReusableHelper {
     if (index >= 0)
       this.GetElement(selector).eq(index).should(textPresence, text);
     else this.GetElement(selector).should(textPresence, text);
+  }
+
+  public GetElementsNAssertTextPresence(selector: string, text: string) {
+    this.GetElement(selector).then(($elements: any) => {
+      let found = false;
+      cy.log("elements length is" + $elements.length);
+      $elements.each((index: any, element: any) => {
+        const eleText = Cypress.$(element).text().trim();
+        if (eleText === text) {
+          found = true;
+          return false; // Exit the loop if the expected text is found
+        }
+      });
+      expect(found).to.be.true;
+    });
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -657,18 +673,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public SelectNRemoveLineText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.type(this.selectLine);
-    return locator.type(this.removeLine);
+    this.GetElement(selector).type(this.selectLine);
+    return this.GetElement(selector).type(this.removeLine);
   }
 
   public SelectAllRemoveCodeText(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.type(this.selectAll + "{del}");
+    return this.GetElement(selector).type(this.selectAll + "{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -719,13 +729,14 @@ export class AggregateHelper extends ReusableHelper {
     containsText: string,
     index = 0,
     force = true,
+    waitTimeInterval = 500,
   ) {
     return cy
       .get(selector)
       .contains(containsText)
       .eq(index)
       .click({ force: force })
-      .wait(500);
+      .wait(waitTimeInterval);
   }
 
   public CheckUncheck(selector: string, check = true) {
@@ -787,6 +798,16 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+  public AssertCSS(
+    selector: string,
+    cssName: string,
+    cssValue: string,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.css", cssName, cssValue);
+  }
 
   public ToggleSwitch(
     switchName: string,
@@ -827,7 +848,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public Sleep(timeout = 1000) {
-    cy.wait(timeout);
+    return cy.wait(timeout);
   }
 
   public RefreshPage(
@@ -1389,11 +1410,7 @@ export class AggregateHelper extends ReusableHelper {
     cy.window().then((win) => {
       cy.spy(win, "open").as("windowOpen");
       openTabFunc();
-      cy.get("@windowOpen").should(
-        "be.calledWith",
-        Cypress.sinon.match.string,
-        "_blank",
-      );
+      cy.get("@windowOpen").should("be.called");
     });
   }
 

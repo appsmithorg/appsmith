@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -32,13 +32,13 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 AssetService assetService,
                                 ApplicationRepository applicationRepository,
                                 PermissionGroupService permissionGroupService,
-                                PolicyUtils policyUtils,
+                                PolicySolution policySolution,
                                 ModelMapper modelMapper,
                                 WorkspacePermission workspacePermission,
                                 PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, assetRepository, assetService, applicationRepository,
-                permissionGroupService, policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
+                permissionGroupService, policySolution, modelMapper, workspacePermission, permissionGroupPermission);
     }
 }

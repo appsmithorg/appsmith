@@ -8,15 +8,13 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("List widget v2 - Basic server side data tests", () => {
   before(() => {
-    cy.fixture("Listv2/listWithServerSideData").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/listWithServerSideData");
     // Open Datasource editor
     if (!Cypress.env("AIRGAPPED")) {
       cy.wait(2000);
       // Create sample(mock) user database.
-      _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, true);
+      _.dataSources.CreateMockDB("Users").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved();
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
@@ -28,9 +26,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($dsName) => {
-        _.dataSources.NavigateToActiveTab();
-        cy.wait(1000);
-        _.dataSources.CreateQueryFromActiveTab($dsName, false);
+        _.dataSources.CreateQueryFromActiveTab($dsName, true);
         _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.EnterQuery(
           "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
