@@ -91,10 +91,10 @@ async function encryptBackupArchive(archivePath, encryptionPassword){
   return encryptedArchivePath;
 }
 function getEncryptionPasswordFromUser(){
-  var encryptionPwd1;
-  var encryptionPwd2;
-  var valid_count=0
-  do{
+  let encryptionPwd1,encryptionPwd2;
+  let valid_count=0;
+  const retries = 3;
+  do {
     if(valid_count>0){
       console.log("The passwords do not match, please try again.")
     }
@@ -105,15 +105,13 @@ function getEncryptionPasswordFromUser(){
       hideEchoBack: true
     });
     valid_count+=1;
-  }while(encryptionPwd1!=encryptionPwd2 && valid_count<3)
-  if (encryptionPwd1==encryptionPwd2)
-  {
-    return encryptionPwd1;
-  }
-  else {
-    return -1;
-  }
-
+  } while(encryptionPwd1!=encryptionPwd2 && valid_count<retries)
+    if (encryptionPwd1==encryptionPwd2) {
+      return encryptionPwd1;
+    }
+    else {
+      return -1;
+    }
 }
 
 async function exportDatabase(destFolder) {
