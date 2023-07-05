@@ -24,7 +24,6 @@ public enum FeatureFlagEnum {
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
     release_datasource_environments_enabled,
-    MULTIPLE_PANES,
     APP_NAVIGATION_LOGO_UPLOAD,
     APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY,
 
