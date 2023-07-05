@@ -42,6 +42,7 @@ describe("Dynamic Height Width validation", function () {
                   )
                   .then((CurrentValueOfFourthText) => {
                     agHelper.GetNClickByContains("button", "Large", 0, true);
+                    agHelper.Sleep(3000);
                     entityExplorer.SelectEntityByName("Text1");
                     agHelper
                       .GetWidgetCSSFrAttribute(
