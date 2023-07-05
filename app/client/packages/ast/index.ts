@@ -26,7 +26,12 @@ import {
 import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
-import type { TParsedJSProperty, JSPropertyPosition } from "./src/jsObject";
+import type {
+  TParsedJSProperty,
+  JSPropertyPosition,
+  JSVarProperty,
+  JSFunctionProperty,
+} from "./src/jsObject";
 import { parseJSObject, isJSFunctionProperty } from "./src/jsObject";
 
 // action creator
@@ -75,6 +80,8 @@ export type {
   JSPropertyPosition,
   PeekOverlayExpressionIdentifierOptions,
   AssignmentExpressionData,
+  JSVarProperty,
+  JSFunctionProperty,
 };
 
 export {
